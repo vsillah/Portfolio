@@ -23,6 +23,8 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PortfolioVisualMockup from '@/components/visual-assets/PortfolioVisualMockup'
+import ShowcaseCarousel from '@/components/ShowcaseCarousel'
+import { resolveServiceGallery } from '@/lib/showcase-preview'
 
 interface Service {
   id: string
@@ -171,6 +173,7 @@ export default function ServiceDetailPage() {
   }
 
   const delivery = DELIVERY_ICONS[service.delivery_method] || DELIVERY_ICONS.virtual
+  const gallery = resolveServiceGallery(service.id, service.image_url)
   const quoteRequired = service.is_quote_based || service.price === null
   const deliverablesList = Array.isArray(service.deliverables) ? service.deliverables : []
   const topicsList = Array.isArray(service.topics) ? service.topics : []
@@ -366,23 +369,14 @@ export default function ServiceDetailPage() {
             transition={{ duration: 0.5 }}
             className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden"
           >
-            {/* Hero */}
-            <div className="relative h-64 md:h-80 bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
-              {service.image_url ? (
-                <Image
-                  src={service.image_url}
-                  alt={service.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 800px"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Building className="text-cyan-500/40" size={80} />
+            {/* Service visual and title */}
+            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
+              {gallery.length > 0 ? <ShowcaseCarousel frames={gallery} title={service.title} /> : (
+                <div className="flex aspect-[5/3] items-center justify-center bg-[#101c2d] text-center text-sm text-gray-300">
+                  A reviewed service visual is not available yet.
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
+              <div className="px-6 pb-6 pt-5">
                 <span className="px-3 py-1 bg-gray-900/80 rounded-full text-xs font-heading tracking-wider text-cyan-400 uppercase">
                   {TYPE_LABELS[service.service_type] || service.service_type}
                 </span>

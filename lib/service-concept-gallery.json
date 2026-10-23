@@ -1,0 +1,822 @@
+{
+  "a34b8a0a-d65c-42c8-970b-9a77e043e329": {
+    "expectedCurrentUrl": null,
+    "mode": "comparison",
+    "alternateMode": "report",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/a34b8a0a-d65c-42c8-970b-9a77e043e329-hero-v3.webp",
+        "alt": "Illustrative service concept for Website UX Refresh",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/a34b8a0a-d65c-42c8-970b-9a77e043e329-artifact-v3.webp",
+        "alt": "Illustrative before-and-after page study for Website UX Refresh",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "cd2c086a-26ec-4637-b7a3-129021c0bc19": {
+    "expectedCurrentUrl": null,
+    "mode": "cohort",
+    "alternateMode": "facilitation",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/cd2c086a-26ec-4637-b7a3-129021c0bc19-hero-v3.webp",
+        "alt": "Illustrative service concept for Accelerated Cohort Workshop",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/cd2c086a-26ec-4637-b7a3-129021c0bc19-artifact-v3.webp",
+        "alt": "Illustrative cohort build journal for Accelerated Cohort Workshop",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "c13e9f1c-7932-4e11-8459-a11e0ef7a070": {
+    "expectedCurrentUrl": "/ATAS_Innovation_Workshop.png",
+    "mode": "source",
+    "alternateMode": "studio",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/ATAS_Innovation_Workshop.png",
+        "alt": "Current source image for Product Innovation Workshop",
+        "role": "hero",
+        "status": "source capture"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/c13e9f1c-7932-4e11-8459-a11e0ef7a070-artifact-v3.webp",
+        "alt": "Illustrative concept review board for Product Innovation Workshop",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "1313650b-1afb-44f7-8118-21f05b1ae8a0": {
+    "expectedCurrentUrl": "/Chatbot_app_img.png",
+    "mode": "source",
+    "alternateMode": "conversation",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/Chatbot_app_img.png",
+        "alt": "Current source image for AI Customer Support Chatbot",
+        "role": "hero",
+        "status": "source capture"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/1313650b-1afb-44f7-8118-21f05b1ae8a0-artifact-v3.webp",
+        "alt": "Illustrative support conversation sketch for AI Customer Support Chatbot",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "a278e803-9328-490b-bf57-8fbee7d129ee": {
+    "expectedCurrentUrl": null,
+    "mode": "stage",
+    "alternateMode": "agenda",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/a278e803-9328-490b-bf57-8fbee7d129ee-hero-v3.webp",
+        "alt": "Illustrative service concept for Speaking Engagement",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/a278e803-9328-490b-bf57-8fbee7d129ee-artifact-v3.webp",
+        "alt": "Illustrative audience reflection card for Speaking Engagement",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "a479ce70-4856-4d3f-917b-c37bfff1f0a2": {
+    "expectedCurrentUrl": null,
+    "mode": "conversation",
+    "alternateMode": "crm",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/a479ce70-4856-4d3f-917b-c37bfff1f0a2-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Inbound Lead Chatbot",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/a479ce70-4856-4d3f-917b-c37bfff1f0a2-artifact-v3.webp",
+        "alt": "Illustrative lead conversation sketch for AI Inbound Lead Chatbot",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "4ea3afc8-2ecc-4928-a5e6-35e82388ee10": {
+    "expectedCurrentUrl": null,
+    "mode": "report",
+    "alternateMode": "advisory",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/4ea3afc8-2ecc-4928-a5e6-35e82388ee10-hero-v3.webp",
+        "alt": "Illustrative service concept for Management Consulting",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/4ea3afc8-2ecc-4928-a5e6-35e82388ee10-artifact-v3.webp",
+        "alt": "Illustrative decision memo for Management Consulting",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "ee03425c-2d00-41e3-ad5b-18f14bfb53b3": {
+    "expectedCurrentUrl": "/VF_Chatbot_img.png",
+    "mode": "source",
+    "alternateMode": "conversation",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/VF_Chatbot_img.png",
+        "alt": "Current source image for AI Voice Agent — Inbound",
+        "role": "hero",
+        "status": "source capture"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/ee03425c-2d00-41e3-ad5b-18f14bfb53b3-artifact-v3.webp",
+        "alt": "Illustrative voice-flow storyboard for AI Voice Agent — Inbound",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "f463891c-e703-403b-97c2-e122aca42f29": {
+    "expectedCurrentUrl": null,
+    "mode": "pipeline",
+    "alternateMode": "crm",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/f463891c-e703-403b-97c2-e122aca42f29-hero-v3.webp",
+        "alt": "Illustrative service concept for Lead Generation Workflow Agent",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/f463891c-e703-403b-97c2-e122aca42f29-artifact-v3.webp",
+        "alt": "Illustrative lead routing trace for Lead Generation Workflow Agent",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "6cb60c1f-6b7c-4bce-9335-fbc99063f9a9": {
+    "expectedCurrentUrl": null,
+    "mode": "editorial",
+    "alternateMode": "kanban",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/6cb60c1f-6b7c-4bce-9335-fbc99063f9a9-hero-v3.webp",
+        "alt": "Illustrative service concept for Social Media Content Agent",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/6cb60c1f-6b7c-4bce-9335-fbc99063f9a9-artifact-v3.webp",
+        "alt": "Illustrative editorial review queue for Social Media Content Agent",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "8dc13175-02b9-4ee2-90fe-f6dd5dd151b3": {
+    "expectedCurrentUrl": null,
+    "mode": "onboarding",
+    "alternateMode": "setup",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/8dc13175-02b9-4ee2-90fe-f6dd5dd151b3-hero-v3.webp",
+        "alt": "Illustrative service concept for Client Onboarding Automation",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/8dc13175-02b9-4ee2-90fe-f6dd5dd151b3-artifact-v3.webp",
+        "alt": "Illustrative onboarding checklist for Client Onboarding Automation",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7d0c9d47-116a-48a5-b31d-dbe966f30044": {
+    "expectedCurrentUrl": null,
+    "mode": "crm",
+    "alternateMode": "analytics",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7d0c9d47-116a-48a5-b31d-dbe966f30044-hero-v3.webp",
+        "alt": "Illustrative service concept for Inbound Lead Tracking System",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7d0c9d47-116a-48a5-b31d-dbe966f30044-artifact-v3.webp",
+        "alt": "Illustrative lead review workspace for Inbound Lead Tracking System",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "5e8d9f3d-8dbe-4380-b566-e284ac95a3c7": {
+    "expectedCurrentUrl": "/ReversR_app.png",
+    "mode": "source",
+    "alternateMode": "website",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/ReversR_app.png",
+        "alt": "Current source image for Mobile App Generation",
+        "role": "hero",
+        "status": "source capture"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/5e8d9f3d-8dbe-4380-b566-e284ac95a3c7-artifact-v3.webp",
+        "alt": "Illustrative mobile flow storyboard for Mobile App Generation",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "b988910a-4db7-4c7f-b4ec-00ae35e915bf": {
+    "expectedCurrentUrl": null,
+    "mode": "website",
+    "alternateMode": "comparison",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/b988910a-4db7-4c7f-b4ec-00ae35e915bf-hero-v3.webp",
+        "alt": "Illustrative service concept for Website Development",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/b988910a-4db7-4c7f-b4ec-00ae35e915bf-artifact-v3.webp",
+        "alt": "Illustrative page anatomy board for Website Development",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "3977c48a-23ba-4e3c-8513-d17b91e61c5c": {
+    "expectedCurrentUrl": null,
+    "mode": "email",
+    "alternateMode": "templates",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/3977c48a-23ba-4e3c-8513-d17b91e61c5c-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Email Sequence Builder",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/3977c48a-23ba-4e3c-8513-d17b91e61c5c-artifact-v3.webp",
+        "alt": "Illustrative email sequence canvas for AI Email Sequence Builder",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7c4bf4ec-a9d4-454e-933b-e22430be8ed7": {
+    "expectedCurrentUrl": null,
+    "mode": "knowledge",
+    "alternateMode": "mapping",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7c4bf4ec-a9d4-454e-933b-e22430be8ed7-hero-v3.webp",
+        "alt": "Illustrative service concept for RAG Knowledge Base System",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7c4bf4ec-a9d4-454e-933b-e22430be8ed7-artifact-v3.webp",
+        "alt": "Illustrative retrieval trace example for RAG Knowledge Base System",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "0f7324b7-ba9e-440c-a282-f01b2919d2a4": {
+    "expectedCurrentUrl": null,
+    "mode": "agenda",
+    "alternateMode": "facilitation",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/0f7324b7-ba9e-440c-a282-f01b2919d2a4-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Strategy Workshop — Half-Day",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/0f7324b7-ba9e-440c-a282-f01b2919d2a4-artifact-v3.webp",
+        "alt": "Illustrative half-day agenda card for AI Strategy Workshop — Half-Day",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "457da6b5-92db-4b5b-a895-ee8571a47c8c": {
+    "expectedCurrentUrl": null,
+    "mode": "facilitation",
+    "alternateMode": "report",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/457da6b5-92db-4b5b-a895-ee8571a47c8c-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Strategy Workshop — Full-Day",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/457da6b5-92db-4b5b-a895-ee8571a47c8c-artifact-v3.webp",
+        "alt": "Illustrative full-day working board for AI Strategy Workshop — Full-Day",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "d1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78": {
+    "expectedCurrentUrl": null,
+    "mode": "advisory",
+    "alternateMode": "report",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/d1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78-hero-v3.webp",
+        "alt": "Illustrative service concept for Monthly Advisory Retainer",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/d1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78-artifact-v3.webp",
+        "alt": "Illustrative advisory cadence board for Monthly Advisory Retainer",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "b42244d8-8322-4fbd-887f-3c6b3152db50": {
+    "expectedCurrentUrl": null,
+    "mode": "coaching",
+    "alternateMode": "advisory",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/b42244d8-8322-4fbd-887f-3c6b3152db50-hero-v3.webp",
+        "alt": "Illustrative service concept for 1-on-1 AI Coaching",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/b42244d8-8322-4fbd-887f-3c6b3152db50-artifact-v3.webp",
+        "alt": "Illustrative coaching session sheet for 1-on-1 AI Coaching",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "9df08654-6522-4299-92ae-68b3b80060e9": {
+    "expectedCurrentUrl": null,
+    "mode": "circle",
+    "alternateMode": "coaching",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/9df08654-6522-4299-92ae-68b3b80060e9-hero-v3.webp",
+        "alt": "Illustrative service concept for Group AI Coaching",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/9df08654-6522-4299-92ae-68b3b80060e9-artifact-v3.webp",
+        "alt": "Illustrative peer practice board for Group AI Coaching",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7e6fe1c0-af7d-4f01-9025-953c1d91300c": {
+    "expectedCurrentUrl": null,
+    "mode": "curriculum",
+    "alternateMode": "facilitation",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7e6fe1c0-af7d-4f01-9025-953c1d91300c-hero-v3.webp",
+        "alt": "Illustrative service concept for Team AI Training — 3-Session Program",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7e6fe1c0-af7d-4f01-9025-953c1d91300c-artifact-v3.webp",
+        "alt": "Illustrative three-session syllabus for Team AI Training — 3-Session Program",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "78b49ebd-ba8b-4922-8f54-8738a76214a9": {
+    "expectedCurrentUrl": null,
+    "mode": "warranty",
+    "alternateMode": "triage",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/78b49ebd-ba8b-4922-8f54-8738a76214a9-hero-v3.webp",
+        "alt": "Illustrative service concept for Implementation Warranty",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/78b49ebd-ba8b-4922-8f54-8738a76214a9-artifact-v3.webp",
+        "alt": "Illustrative coverage review card for Implementation Warranty",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "f1978dc0-cd5c-4a8d-b28a-b5d0ab452131": {
+    "expectedCurrentUrl": null,
+    "mode": "sla",
+    "alternateMode": "support30",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/f1978dc0-cd5c-4a8d-b28a-b5d0ab452131-hero-v3.webp",
+        "alt": "Illustrative service concept for Enterprise SLA",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/f1978dc0-cd5c-4a8d-b28a-b5d0ab452131-artifact-v3.webp",
+        "alt": "Illustrative sla outline example for Enterprise SLA",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "5c0ee962-4e59-47ce-8374-e77083cd3af8": {
+    "expectedCurrentUrl": null,
+    "mode": "triage",
+    "alternateMode": "sla",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/5c0ee962-4e59-47ce-8374-e77083cd3af8-hero-v3.webp",
+        "alt": "Illustrative service concept for Priority Support Channel",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/5c0ee962-4e59-47ce-8374-e77083cd3af8-artifact-v3.webp",
+        "alt": "Illustrative priority intake sketch for Priority Support Channel",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "42dec7ad-4b54-4fed-8288-15d350c33c9e": {
+    "expectedCurrentUrl": null,
+    "mode": "mapping",
+    "alternateMode": "integration",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/42dec7ad-4b54-4fed-8288-15d350c33c9e-hero-v3.webp",
+        "alt": "Illustrative service concept for Data Migration & Onboarding",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/42dec7ad-4b54-4fed-8288-15d350c33c9e-artifact-v3.webp",
+        "alt": "Illustrative migration mapping sheet for Data Migration & Onboarding",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "1d3cbddd-3d36-41be-bbff-484740f33089": {
+    "expectedCurrentUrl": null,
+    "mode": "integration",
+    "alternateMode": "mapping",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/1d3cbddd-3d36-41be-bbff-484740f33089-hero-v3.webp",
+        "alt": "Illustrative service concept for Custom API / ERP Integrations",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/1d3cbddd-3d36-41be-bbff-484740f33089-artifact-v3.webp",
+        "alt": "Illustrative integration contract sketch for Custom API / ERP Integrations",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "b8887d29-52a7-47a1-bdb1-192068f43ccb": {
+    "expectedCurrentUrl": null,
+    "mode": "analytics",
+    "alternateMode": "sharedanalytics",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/b8887d29-52a7-47a1-bdb1-192068f43ccb-hero-v3.webp",
+        "alt": "Illustrative service concept for Custom Reporting & Analytics Dashboard",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/b8887d29-52a7-47a1-bdb1-192068f43ccb-artifact-v3.webp",
+        "alt": "Illustrative reporting dashboard study for Custom Reporting & Analytics Dashboard",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "e5c198bd-1276-45ee-abe3-9d9f85e1e3d2": {
+    "expectedCurrentUrl": null,
+    "mode": "course",
+    "alternateMode": "curriculum",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/e5c198bd-1276-45ee-abe3-9d9f85e1e3d2-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Training Course — Self-Paced",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/e5c198bd-1276-45ee-abe3-9d9f85e1e3d2-artifact-v3.webp",
+        "alt": "Illustrative course module preview for AI Training Course — Self-Paced",
+        "role": "course-preview poster",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "1d797450-f350-457e-b7c4-d75164a76654": {
+    "expectedCurrentUrl": null,
+    "mode": "studio",
+    "alternateMode": "report",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/1d797450-f350-457e-b7c4-d75164a76654-hero-v3.webp",
+        "alt": "Illustrative service concept for Premium AI Masterclass",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/1d797450-f350-457e-b7c4-d75164a76654-artifact-v3.webp",
+        "alt": "Illustrative masterclass studio board for Premium AI Masterclass",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "0aeccef3-eae9-4a4a-b90d-053560e53e85": {
+    "expectedCurrentUrl": null,
+    "mode": "recorded",
+    "alternateMode": "agenda",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/0aeccef3-eae9-4a4a-b90d-053560e53e85-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Strategy Workshop — Recorded (Self-Paced)",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/0aeccef3-eae9-4a4a-b90d-053560e53e85-artifact-v3.webp",
+        "alt": "Illustrative recorded workshop outline for AI Strategy Workshop — Recorded (Self-Paced)",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "e65898be-4121-4f98-a441-381a56ab5467": {
+    "expectedCurrentUrl": null,
+    "mode": "setup",
+    "alternateMode": "conversation",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/e65898be-4121-4f98-a441-381a56ab5467-hero-v3.webp",
+        "alt": "Illustrative service concept for Pre-Built Chatbot Template — Self-Install",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/e65898be-4121-4f98-a441-381a56ab5467-artifact-v3.webp",
+        "alt": "Illustrative self-install setup map for Pre-Built Chatbot Template — Self-Install",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "4fa75994-7603-4af0-acd0-d1d4523ea3ab": {
+    "expectedCurrentUrl": null,
+    "mode": "milestones",
+    "alternateMode": "studio",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/4fa75994-7603-4af0-acd0-d1d4523ea3ab-hero-v3.webp",
+        "alt": "Illustrative service concept for Group Implementation Program — 6 Weeks",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/4fa75994-7603-4af0-acd0-d1d4523ea3ab-artifact-v3.webp",
+        "alt": "Illustrative six-week milestone board for Group Implementation Program — 6 Weeks",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "3024f215-4cae-422b-b92d-38a800302c58": {
+    "expectedCurrentUrl": null,
+    "mode": "library",
+    "alternateMode": "course",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/3024f215-4cae-422b-b92d-38a800302c58-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Training Library — Recorded Access",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/3024f215-4cae-422b-b92d-38a800302c58-artifact-v3.webp",
+        "alt": "Illustrative learning library index for AI Training Library — Recorded Access",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "6fb4fb87-0ca5-49cc-8117-31295ee861b2": {
+    "expectedCurrentUrl": null,
+    "mode": "forum",
+    "alternateMode": "curriculum",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/6fb4fb87-0ca5-49cc-8117-31295ee861b2-hero-v3.webp",
+        "alt": "Illustrative service concept for Community Forum Access",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/6fb4fb87-0ca5-49cc-8117-31295ee861b2-artifact-v3.webp",
+        "alt": "Illustrative forum thread example for Community Forum Access",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb": {
+    "expectedCurrentUrl": null,
+    "mode": "support30",
+    "alternateMode": "triage",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb-hero-v3.webp",
+        "alt": "Illustrative service concept for 30-Day Email Support",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb-artifact-v3.webp",
+        "alt": "Illustrative 30-day support window for 30-Day Email Support",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "0129f6d2-0c09-4ab8-a01d-6ead6819747e": {
+    "expectedCurrentUrl": null,
+    "mode": "support60",
+    "alternateMode": "advisory",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/0129f6d2-0c09-4ab8-a01d-6ead6819747e-hero-v3.webp",
+        "alt": "Illustrative service concept for 60-Day Email Support",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/0129f6d2-0c09-4ab8-a01d-6ead6819747e-artifact-v3.webp",
+        "alt": "Illustrative 60-day support window for 60-Day Email Support",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "eaa36f0b-a20f-40cb-9d82-749c914251cd": {
+    "expectedCurrentUrl": null,
+    "mode": "spreadsheet",
+    "alternateMode": "crm",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/eaa36f0b-a20f-40cb-9d82-749c914251cd-hero-v3.webp",
+        "alt": "Illustrative service concept for Lead Tracking Templates",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/eaa36f0b-a20f-40cb-9d82-749c914251cd-artifact-v3.webp",
+        "alt": "Illustrative lead tracking sheet for Lead Tracking Templates",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "c9774a8b-3cc7-4237-a668-6f02a6dc37c0": {
+    "expectedCurrentUrl": null,
+    "mode": "kanban",
+    "alternateMode": "editorial",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/c9774a8b-3cc7-4237-a668-6f02a6dc37c0-hero-v3.webp",
+        "alt": "Illustrative service concept for Content Automation Templates",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/c9774a8b-3cc7-4237-a668-6f02a6dc37c0-artifact-v3.webp",
+        "alt": "Illustrative content template set for Content Automation Templates",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7cd3e7d5-31f0-4ee3-bf27-242c92935b1e": {
+    "expectedCurrentUrl": null,
+    "mode": "sharedanalytics",
+    "alternateMode": "analytics",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7cd3e7d5-31f0-4ee3-bf27-242c92935b1e-hero-v3.webp",
+        "alt": "Illustrative service concept for Shared Analytics Dashboard",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/7cd3e7d5-31f0-4ee3-bf27-242c92935b1e-artifact-v3.webp",
+        "alt": "Illustrative shared metric board for Shared Analytics Dashboard",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "312e597d-d250-4c41-aff0-0eca38ddb885": {
+    "expectedCurrentUrl": null,
+    "mode": "templates",
+    "alternateMode": "email",
+    "source": "provider-free HTML/CSS rendered illustrative concept; existing listing image retained where present",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-gallery-v3/312e597d-d250-4c41-aff0-0eca38ddb885-hero-v3.webp",
+        "alt": "Illustrative service concept for AI Email Sequence Templates",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-gallery-v3/312e597d-d250-4c41-aff0-0eca38ddb885-artifact-v3.webp",
+        "alt": "Illustrative email template stack for AI Email Sequence Templates",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  }
+}

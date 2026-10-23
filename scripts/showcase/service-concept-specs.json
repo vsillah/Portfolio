@@ -1,0 +1,412 @@
+{
+  "0": {
+    "family": "interface",
+    "promise": "Give a visitor a clearer route to action",
+    "steps": [
+      "See the page",
+      "Spot the friction",
+      "Test a revision"
+    ],
+    "artifact": "Before-and-after page study"
+  },
+  "1": {
+    "family": "workshop",
+    "promise": "Move a cohort from problem to build",
+    "steps": [
+      "Frame the challenge",
+      "Work in teams",
+      "Review a prototype"
+    ],
+    "artifact": "Cohort build journal"
+  },
+  "2": {
+    "family": "workshop",
+    "promise": "Turn a rough idea into a testable concept",
+    "steps": [
+      "Frame the need",
+      "Sketch the experience",
+      "Decide the first test"
+    ],
+    "artifact": "Concept review board"
+  },
+  "3": {
+    "family": "communication",
+    "promise": "Answer a question, then preserve context",
+    "steps": [
+      "Visitor asks",
+      "Assistant drafts",
+      "Person reviews"
+    ],
+    "artifact": "Support conversation sketch"
+  },
+  "4": {
+    "family": "workshop",
+    "promise": "A talk that leaves the room with a next move",
+    "steps": [
+      "Set the question",
+      "Share the model",
+      "Name the action"
+    ],
+    "artifact": "Audience reflection card"
+  },
+  "5": {
+    "family": "communication",
+    "promise": "Turn an inbound question into a reviewed lead",
+    "steps": [
+      "Ask the need",
+      "Qualify the fit",
+      "Hand off context"
+    ],
+    "artifact": "Lead conversation sketch"
+  },
+  "6": {
+    "family": "strategy",
+    "promise": "Make the operating problem visible",
+    "steps": [
+      "Map the friction",
+      "Choose a priority",
+      "Assign an owner"
+    ],
+    "artifact": "Decision memo"
+  },
+  "7": {
+    "family": "communication",
+    "promise": "Route a caller with a clear handoff",
+    "steps": [
+      "Call begins",
+      "Intent captured",
+      "Team follows up"
+    ],
+    "artifact": "Voice-flow storyboard"
+  },
+  "8": {
+    "family": "integration",
+    "promise": "Give the lead a traceable path to follow-up",
+    "steps": [
+      "Capture a signal",
+      "Review the fit",
+      "Prepare the handoff"
+    ],
+    "artifact": "Lead routing trace"
+  },
+  "9": {
+    "family": "resource",
+    "promise": "Move from topic to reviewed post",
+    "steps": [
+      "Find a source",
+      "Draft a post",
+      "Approve the copy"
+    ],
+    "artifact": "Editorial review queue"
+  },
+  "10": {
+    "family": "integration",
+    "promise": "Give every new client a clear start",
+    "steps": [
+      "Request received",
+      "Welcome prepared",
+      "Owner confirms"
+    ],
+    "artifact": "Onboarding checklist"
+  },
+  "11": {
+    "family": "interface",
+    "promise": "See each inquiry and its next step",
+    "steps": [
+      "Capture the lead",
+      "Tag the need",
+      "Review the follow-up"
+    ],
+    "artifact": "Lead review workspace"
+  },
+  "12": {
+    "family": "interface",
+    "promise": "Explore an app before building it",
+    "steps": [
+      "Map the task",
+      "Prototype a screen",
+      "Test a flow"
+    ],
+    "artifact": "Mobile flow storyboard"
+  },
+  "13": {
+    "family": "interface",
+    "promise": "Build a site around a clear action",
+    "steps": [
+      "Structure the page",
+      "Write the path",
+      "Review on mobile"
+    ],
+    "artifact": "Page anatomy board"
+  },
+  "14": {
+    "family": "resource",
+    "promise": "Write email paths with a human review",
+    "steps": [
+      "Define the audience",
+      "Draft the sequence",
+      "Approve each send"
+    ],
+    "artifact": "Email sequence canvas"
+  },
+  "15": {
+    "family": "integration",
+    "promise": "Ground answers in reviewed material",
+    "steps": [
+      "Select documents",
+      "Retrieve a passage",
+      "Cite the answer"
+    ],
+    "artifact": "Retrieval trace example"
+  },
+  "16": {
+    "family": "workshop",
+    "promise": "Use half a day to choose a practical AI move",
+    "steps": [
+      "Find one burden",
+      "Map a use case",
+      "Pick a pilot"
+    ],
+    "artifact": "Half-day agenda card"
+  },
+  "17": {
+    "family": "workshop",
+    "promise": "Move a team from question to pilot plan",
+    "steps": [
+      "Diagnose the work",
+      "Design the pilot",
+      "Review the risks"
+    ],
+    "artifact": "Full-day working board"
+  },
+  "18": {
+    "family": "strategy",
+    "promise": "Keep decisions moving between meetings",
+    "steps": [
+      "Review signals",
+      "Prioritize action",
+      "Record decisions"
+    ],
+    "artifact": "Advisory cadence board"
+  },
+  "19": {
+    "family": "coaching",
+    "promise": "Work through one real AI use case together",
+    "steps": [
+      "Bring a task",
+      "Try a tool",
+      "Plan the next step"
+    ],
+    "artifact": "Coaching session sheet"
+  },
+  "20": {
+    "family": "coaching",
+    "promise": "Learn in a small group, then compare practice",
+    "steps": [
+      "Share the task",
+      "Practice together",
+      "Reflect and revise"
+    ],
+    "artifact": "Peer practice board"
+  },
+  "21": {
+    "family": "coaching",
+    "promise": "Build team fluency across three sessions",
+    "steps": [
+      "Understand the tools",
+      "Apply to work",
+      "Review adoption"
+    ],
+    "artifact": "Three-session syllabus"
+  },
+  "22": {
+    "family": "assurance",
+    "promise": "Make implementation follow-through explicit",
+    "steps": [
+      "Define the scope",
+      "Record the issue",
+      "Review the remedy"
+    ],
+    "artifact": "Coverage review card"
+  },
+  "23": {
+    "family": "assurance",
+    "promise": "Give support expectations a visible shape",
+    "steps": [
+      "Set the window",
+      "Triage a ticket",
+      "Escalate clearly"
+    ],
+    "artifact": "SLA outline example"
+  },
+  "24": {
+    "family": "assurance",
+    "promise": "Keep urgent support easy to route",
+    "steps": [
+      "Raise a request",
+      "Assign a priority",
+      "Track a response"
+    ],
+    "artifact": "Priority intake sketch"
+  },
+  "25": {
+    "family": "integration",
+    "promise": "Move information with a review checkpoint",
+    "steps": [
+      "Inventory the source",
+      "Map the fields",
+      "Verify the import"
+    ],
+    "artifact": "Migration mapping sheet"
+  },
+  "26": {
+    "family": "integration",
+    "promise": "Connect systems around one verified handoff",
+    "steps": [
+      "Define the event",
+      "Map the payload",
+      "Test the exchange"
+    ],
+    "artifact": "Integration contract sketch"
+  },
+  "27": {
+    "family": "interface",
+    "promise": "Turn raw numbers into a decision view",
+    "steps": [
+      "Choose a metric",
+      "Trace its source",
+      "Review the view"
+    ],
+    "artifact": "Reporting dashboard study"
+  },
+  "28": {
+    "family": "resource",
+    "promise": "Give self-paced learners a route through the material",
+    "steps": [
+      "Start a module",
+      "Try a practice task",
+      "Review the next lesson"
+    ],
+    "artifact": "Course module preview"
+  },
+  "29": {
+    "family": "workshop",
+    "promise": "Turn a lesson into a build session",
+    "steps": [
+      "Learn the method",
+      "Build a draft",
+      "Review the decision"
+    ],
+    "artifact": "Masterclass studio board"
+  },
+  "30": {
+    "family": "resource",
+    "promise": "Replay the strategy exercise at your pace",
+    "steps": [
+      "Watch the prompt",
+      "Fill the worksheet",
+      "Choose a pilot"
+    ],
+    "artifact": "Recorded workshop outline"
+  },
+  "31": {
+    "family": "resource",
+    "promise": "Start with a chatbot pattern you can inspect",
+    "steps": [
+      "Install the template",
+      "Change the answers",
+      "Test the handoff"
+    ],
+    "artifact": "Self-install setup map"
+  },
+  "32": {
+    "family": "coaching",
+    "promise": "Build, review, and adjust across six weeks",
+    "steps": [
+      "Scope the build",
+      "Practice weekly",
+      "Review the result"
+    ],
+    "artifact": "Six-week milestone board"
+  },
+  "33": {
+    "family": "resource",
+    "promise": "Find the lesson that fits the task",
+    "steps": [
+      "Browse a topic",
+      "Open a lesson",
+      "Try the exercise"
+    ],
+    "artifact": "Learning library index"
+  },
+  "34": {
+    "family": "resource",
+    "promise": "Keep questions and answers in one place",
+    "steps": [
+      "Post a question",
+      "Share a resource",
+      "Mark a next step"
+    ],
+    "artifact": "Forum thread example"
+  },
+  "35": {
+    "family": "assurance",
+    "promise": "Keep the first month of follow-up clear",
+    "steps": [
+      "Send a question",
+      "Review the context",
+      "Reply with next step"
+    ],
+    "artifact": "30-day support window"
+  },
+  "36": {
+    "family": "assurance",
+    "promise": "Carry the same support rhythm into month two",
+    "steps": [
+      "Revisit the issue",
+      "Check the change",
+      "Close the loop"
+    ],
+    "artifact": "60-day support window"
+  },
+  "37": {
+    "family": "resource",
+    "promise": "Track a lead without losing the context",
+    "steps": [
+      "Log the source",
+      "Record the need",
+      "Set a follow-up"
+    ],
+    "artifact": "Lead tracking sheet"
+  },
+  "38": {
+    "family": "resource",
+    "promise": "Give the content process a repeatable shape",
+    "steps": [
+      "Collect the idea",
+      "Review the draft",
+      "Schedule after approval"
+    ],
+    "artifact": "Content template set"
+  },
+  "39": {
+    "family": "interface",
+    "promise": "Give a team one shared view of signals",
+    "steps": [
+      "Select a source",
+      "Name the metric",
+      "Discuss the trend"
+    ],
+    "artifact": "Shared metric board"
+  },
+  "40": {
+    "family": "resource",
+    "promise": "Give each email a job and a checkpoint",
+    "steps": [
+      "Choose a trigger",
+      "Draft the message",
+      "Review before send"
+    ],
+    "artifact": "Email template stack"
+  }
+}
