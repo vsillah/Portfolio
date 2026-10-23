@@ -1,7 +1,9 @@
-"""Encode the 41 browser-captured cards and eight second-frame samples.
+"""Encode 41 browser-captured mobile cards and eight second-frame samples.
 
 Captures are made from the local `/services` review route in the in-app browser.
 This creates a captured-state walkthrough, not a continuous screen recording.
+The capture directory is intentionally untracked; recapture it from the exact
+review build before regenerating the committed MP4.
 """
 
 import subprocess
@@ -18,7 +20,13 @@ for number in range(1, 42):
     images.append((CAPTURES / f'{number:02d}-hero.png', 1.35))
     if number in SECOND_FRAME_SAMPLES:
         images.append((CAPTURES / f'{number:02d}-artifact.png', 1.9))
-assert all(path.is_file() for path, _ in images)
+missing = [path for path, _ in images if not path.is_file()]
+if missing:
+    raise SystemExit(
+        f'Missing {len(missing)} browser captures, starting with {missing[0]}. '
+        'Recapture the 41 hero states and eight second-frame samples at 390×844 '
+        'in raster-video-mobile/ from the exact review build, then rerun this script.'
+    )
 
 with tempfile.NamedTemporaryFile('w', suffix='.ffconcat', delete=False) as sequence:
     sequence.write('ffconcat version 1.0\n')

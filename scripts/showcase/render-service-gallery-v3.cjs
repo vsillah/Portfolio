@@ -166,6 +166,21 @@ async function main() {
     process.stdout.write(`${index+1}/41 ${row.title}\n`)
   }
   fs.writeFileSync(path.join(root,'lib/service-concept-gallery.json'),JSON.stringify(manifest,null,2)+'\n')
+  const contactDir = path.join(root,'docs/showcase-audit/qa/services')
+  fs.mkdirSync(contactDir,{recursive:true})
+  for (const kind of ['hero','artifact']) {
+    const tiles = []
+    for (let index=0; index<rows.length; index++) {
+      const row=rows[index]
+      const source = kind === 'hero' && row.image_url
+        ? path.join(root,'public',row.image_url)
+        : path.join(outDir,`${row.id}-${kind}-v3.webp`)
+      const input = await sharp(source).resize(240,144,{fit:'cover'}).png().toBuffer()
+      tiles.push({input,left:(index%6)*240,top:Math.floor(index/6)*144})
+    }
+    await sharp({create:{width:1440,height:1008,channels:3,background:'#101820'}})
+      .composite(tiles).png().toFile(path.join(contactDir,`raster-v3-${kind}-contact-sheet.png`))
+  }
   await browser.close()
 }
 main().catch((error)=>{console.error(error);process.exitCode=1})
