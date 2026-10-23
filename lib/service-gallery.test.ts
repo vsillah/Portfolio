@@ -1,37 +1,46 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+import serviceConceptGallery from './service-concept-gallery.json'
 import { resolveServiceGallery } from './showcase-preview'
 
 type CatalogRow = { id: string; title: string; image_url: string | null; video_url: string | null }
 const catalog = JSON.parse(readFileSync(path.join(process.cwd(), 'docs/showcase-audit/services-catalog-2026-10-23.json'), 'utf8')) as { count: number; rows: CatalogRow[] }
 
 describe('active service gallery coverage', () => {
-  it('limits the active concepts to three source-bound calibration pairs', () => {
+  it('binds every active catalog service to two distinct, local, source-bound frames', () => {
     expect(catalog.count).toBe(41)
     expect(catalog.rows).toHaveLength(41)
     expect(new Set(catalog.rows.map((row) => row.id)).size).toBe(41)
-    const calibrationIds = new Set([
-      'd1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78',
-      'a479ce70-4856-4d3f-917b-c37bfff1f0a2',
-      'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2',
-    ])
+    expect(Object.keys(serviceConceptGallery)).toHaveLength(41)
+    const allPaths: string[] = []
+    const allAlts: string[] = []
     for (const row of catalog.rows) {
       const frames = resolveServiceGallery(row.id, row.image_url)
-      expect(frames).toHaveLength(calibrationIds.has(row.id) ? 2 : row.image_url ? 1 : 0)
-      if (calibrationIds.has(row.id)) {
-        expect(new Set(frames.map((frame) => frame.imageUrl)).size).toBe(2)
-        expect(frames.every((frame) => frame.status === 'illustrative concept')).toBe(true)
-      }
+      expect(frames).toHaveLength(2)
+      expect(frames.map((frame) => frame.role)[0]).toBe('hero')
+      expect(new Set(frames.map((frame) => frame.imageUrl)).size).toBe(2)
       for (const frame of frames) {
-        expect(frame.status).toMatch(/source capture|illustrative concept/)
+        expect(frame.status).toMatch(/source capture|illustrative concept|public source review|illustrative proposal/)
+        expect(frame.alt.length).toBeGreaterThan(35)
         expect(frame.imageUrl).not.toContain('service-gallery-v3')
-        if (frame.imageUrl.startsWith('/')) {
-          expect(readFileSync(path.join(process.cwd(), 'public', frame.imageUrl)).length).toBeGreaterThan(0)
-        }
+        expect(frame.imageUrl.startsWith('/showcases/')).toBe(true)
+        expect(readFileSync(path.join(process.cwd(), 'public', frame.imageUrl)).length).toBeGreaterThan(0)
+        allPaths.push(frame.imageUrl)
+        allAlts.push(frame.alt)
       }
     }
+    expect(new Set(allPaths).size).toBe(82)
+    expect(new Set(allAlts).size).toBe(82)
     expect(resolveServiceGallery(catalog.rows[0].id, '/changed-image.png').map((frame) => frame.imageUrl)).toEqual(['/changed-image.png'])
+  })
+
+  it('distinguishes the Julie public source review from the proposed revision', () => {
+    const julie = catalog.rows.find((row) => row.title === 'Website UX Refresh')!
+    const frames = resolveServiceGallery(julie.id, julie.image_url)
+    expect(frames.map((frame) => frame.status)).toEqual(['public source review', 'illustrative proposal'])
+    expect(frames[0].alt).toMatch(/public/i)
+    expect(frames[1].alt).toMatch(/propos/i)
   })
 
   it('keeps the self-paced course poster separate from playable video', () => {

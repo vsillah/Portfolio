@@ -52,5 +52,689 @@
         "status": "illustrative concept"
       }
     ]
+  },
+  "a34b8a0a-d65c-42c8-970b-9a77e043e329": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/website-ux-refresh-hero-review-r1.webp",
+        "alt": "Website UX Refresh: Julie’s public homepage and donation notice shown in an AmaduTown UX review",
+        "role": "hero",
+        "status": "public source review"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/website-ux-refresh-artifact-review-r1.webp",
+        "alt": "Website UX Refresh: Julie’s public homepage beside an illustrative AmaduTown learner, supporter, and registration proposal",
+        "role": "workflow",
+        "status": "illustrative proposal"
+      }
+    ]
+  },
+  "5e8d9f3d-8dbe-4380-b566-e284ac95a3c7": {
+    "expectedCurrentUrl": "/ReversR_app.png",
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/mobile-app-generation-hero-review-r1.webp",
+        "alt": "Mobile App Generation: illustrative mobile service request with a three-step intake",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/mobile-app-generation-artifact-review-r1.webp",
+        "alt": "Mobile App Generation: illustrative mobile request preview and human handoff journey",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7c4bf4ec-a9d4-454e-933b-e22430be8ed7": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/rag-knowledge-base-hero-review-r1.webp",
+        "alt": "RAG Knowledge Base System: illustrative sourced answer beside approved knowledge documents",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/rag-knowledge-base-artifact-review-r1.webp",
+        "alt": "RAG Knowledge Base System: illustrative answer review with citation, held source, and human approval state",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "42dec7ad-4b54-4fed-8288-15d350c33c9e": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/data-migration-onboarding-hero-review-r1.webp",
+        "alt": "Data Migration & Onboarding: illustrative source-to-target field map with a held exception",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/data-migration-onboarding-artifact-review-r1.webp",
+        "alt": "Data Migration & Onboarding: illustrative migration reconciliation board with source counts and review decision",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "1d3cbddd-3d36-41be-bbff-484740f33089": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-api-erp-integrations-hero-review-r1.webp",
+        "alt": "Custom API / ERP Integrations: illustrative intake event moving through validation toward an ERP",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-api-erp-integrations-artifact-review-r1.webp",
+        "alt": "Custom API / ERP Integrations: illustrative integration event trace with payload checks and replay hold",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "b8887d29-52a7-47a1-bdb1-192068f43ccb": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-reporting-dashboard-hero-review-r1.webp",
+        "alt": "Custom Reporting & Analytics Dashboard: illustrative inquiry metric and trend with source access",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-reporting-dashboard-artifact-review-r1.webp",
+        "alt": "Custom Reporting & Analytics Dashboard: illustrative reporting dashboard with metric definition, trend, and drill-down",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7cd3e7d5-31f0-4ee3-bf27-242c92935b1e": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/shared-analytics-dashboard-hero-review-r1.webp",
+        "alt": "Shared Analytics Dashboard: illustrative team scorecard with named measure owners",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/shared-analytics-dashboard-artifact-review-r1.webp",
+        "alt": "Shared Analytics Dashboard: illustrative shared analytics scorecard and Friday decision cadence",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "cd2c086a-26ec-4637-b7a3-129021c0bc19": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/accelerated-cohort-workshop-hero-review-r1.webp",
+        "alt": "Accelerated Cohort Workshop: illustrative accelerated cohort working session",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/accelerated-cohort-workshop-artifact-review-r1.webp",
+        "alt": "Accelerated Cohort Workshop: illustrative cohort work product and next action",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "c13e9f1c-7932-4e11-8459-a11e0ef7a070": {
+    "expectedCurrentUrl": "/ATAS_Innovation_Workshop.png",
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/product-innovation-workshop-hero-review-r1.webp",
+        "alt": "Product Innovation Workshop: illustrative product innovation working session",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/product-innovation-workshop-artifact-review-r1.webp",
+        "alt": "Product Innovation Workshop: illustrative product opportunity work product",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "a278e803-9328-490b-bf57-8fbee7d129ee": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/speaking-engagement-hero-review-r1.webp",
+        "alt": "Speaking Engagement: approved illustrative facilitator scene for a speaking engagement",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/speaking-engagement-artifact-review-r1.webp",
+        "alt": "Speaking Engagement: illustrative talk arc and audience handoff",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "4ea3afc8-2ecc-4928-a5e6-35e82388ee10": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/management-consulting-hero-review-r1.webp",
+        "alt": "Management Consulting: illustrative management consulting decision scene",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/management-consulting-artifact-review-r1.webp",
+        "alt": "Management Consulting: illustrative consulting decision and ownership work product",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "0f7324b7-ba9e-440c-a282-f01b2919d2a4": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-half-day-hero-review-r1.webp",
+        "alt": "AI Strategy Workshop — Half-Day: illustrative half-day AI strategy working session",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-half-day-artifact-review-r1.webp",
+        "alt": "AI Strategy Workshop — Half-Day: illustrative half-day AI strategy output",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "457da6b5-92db-4b5b-a895-ee8571a47c8c": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-full-day-hero-review-r1.webp",
+        "alt": "AI Strategy Workshop — Full-Day: illustrative full-day AI strategy working session",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-full-day-artifact-review-r1.webp",
+        "alt": "AI Strategy Workshop — Full-Day: illustrative full-day AI strategy output",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "b42244d8-8322-4fbd-887f-3c6b3152db50": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/one-on-one-ai-coaching-hero-review-r1.webp",
+        "alt": "1-on-1 AI Coaching: illustrative individual AI coaching scene",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/one-on-one-ai-coaching-artifact-review-r1.webp",
+        "alt": "1-on-1 AI Coaching: illustrative individual coaching action plan",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "9df08654-6522-4299-92ae-68b3b80060e9": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/group-ai-coaching-hero-review-r1.webp",
+        "alt": "Group AI Coaching: approved illustrative roundtable scene for group AI coaching",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/group-ai-coaching-artifact-review-r1.webp",
+        "alt": "Group AI Coaching: illustrative group coaching work product",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7e6fe1c0-af7d-4f01-9025-953c1d91300c": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/team-ai-training-three-session-hero-review-r1.webp",
+        "alt": "Team AI Training — 3-Session Program: illustrative team AI training session",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/team-ai-training-three-session-artifact-review-r1.webp",
+        "alt": "Team AI Training — 3-Session Program: illustrative three-session team training plan",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "1d797450-f350-457e-b7c4-d75164a76654": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/premium-ai-masterclass-hero-review-r1.webp",
+        "alt": "Premium AI Masterclass: illustrative AI masterclass build session",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/premium-ai-masterclass-artifact-review-r1.webp",
+        "alt": "Premium AI Masterclass: illustrative masterclass work product and review",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "0aeccef3-eae9-4a4a-b90d-053560e53e85": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/recorded-ai-strategy-workshop-hero-review-r1.webp",
+        "alt": "AI Strategy Workshop — Recorded (Self-Paced): illustrative recorded AI strategy workshop poster",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/recorded-ai-strategy-workshop-artifact-review-r1.webp",
+        "alt": "AI Strategy Workshop — Recorded (Self-Paced): illustrative self-paced strategy workbook; no playable recording is bound",
+        "role": "course-preview poster",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "4fa75994-7603-4af0-acd0-d1d4523ea3ab": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/group-implementation-six-weeks-hero-review-r1.webp",
+        "alt": "Group Implementation Program — 6 Weeks: illustrative six-week group implementation scene",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/group-implementation-six-weeks-artifact-review-r1.webp",
+        "alt": "Group Implementation Program — 6 Weeks: illustrative six-week implementation work plan",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "3024f215-4cae-422b-b92d-38a800302c58": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-training-library-hero-review-r1.webp",
+        "alt": "AI Training Library — Recorded Access: illustrative AI training library browse view",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-training-library-artifact-review-r1.webp",
+        "alt": "AI Training Library — Recorded Access: illustrative training library index; no playable video is bound",
+        "role": "course-preview poster",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "78b49ebd-ba8b-4922-8f54-8738a76214a9": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/implementation-warranty-hero-review-r1.webp",
+        "alt": "Implementation Warranty: illustrative warranty issue intake with coverage boundary",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/implementation-warranty-artifact-review-r1.webp",
+        "alt": "Implementation Warranty: illustrative warranty coverage register and verification trail",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "f1978dc0-cd5c-4a8d-b28a-b5d0ab452131": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/enterprise-sla-hero-review-r1.webp",
+        "alt": "Enterprise SLA: illustrative service desk severity and clock rules",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/enterprise-sla-artifact-review-r1.webp",
+        "alt": "Enterprise SLA: illustrative SLA operating sheet with contract-defined targets",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "5c0ee962-4e59-47ce-8374-e77083cd3af8": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/priority-support-channel-hero-review-r1.webp",
+        "alt": "Priority Support Channel: illustrative priority support thread with named owner",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/priority-support-channel-artifact-review-r1.webp",
+        "alt": "Priority Support Channel: illustrative support request and escalation view",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "e65898be-4121-4f98-a441-381a56ab5467": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/chatbot-self-install-hero-review-r1.webp",
+        "alt": "Pre-Built Chatbot Template — Self-Install: illustrative self-install chatbot configuration and fallback",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/chatbot-self-install-artifact-review-r1.webp",
+        "alt": "Pre-Built Chatbot Template — Self-Install: illustrative chatbot setup and test kit",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "6fb4fb87-0ca5-49cc-8117-31295ee861b2": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/community-forum-access-hero-review-r1.webp",
+        "alt": "Community Forum Access: illustrative moderated peer discussion thread",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/community-forum-access-artifact-review-r1.webp",
+        "alt": "Community Forum Access: illustrative forum topic map and moderation guide",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/thirty-day-email-support-hero-review-r1.webp",
+        "alt": "30-Day Email Support: illustrative setup question during a 30-day support window",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/thirty-day-email-support-artifact-review-r1.webp",
+        "alt": "30-Day Email Support: illustrative 30-day email support ledger",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "0129f6d2-0c09-4ab8-a01d-6ead6819747e": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/sixty-day-email-support-hero-review-r1.webp",
+        "alt": "60-Day Email Support: illustrative repeat team question during a 60-day support window",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/sixty-day-email-support-artifact-review-r1.webp",
+        "alt": "60-Day Email Support: illustrative 60-day adoption follow-through",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "1313650b-1afb-44f7-8118-21f05b1ae8a0": {
+    "expectedCurrentUrl": "/Chatbot_app_img.png",
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/customer-support-chatbot-hero-review-r1.webp",
+        "alt": "AI Customer Support Chatbot: illustrative support chatbot conversation with human handoff",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/customer-support-chatbot-artifact-review-r1.webp",
+        "alt": "AI Customer Support Chatbot: illustrative sourced answer and escalation map",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "ee03425c-2d00-41e3-ad5b-18f14bfb53b3": {
+    "expectedCurrentUrl": "/VF_Chatbot_img.png",
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/voice-agent-inbound-hero-review-r1.webp",
+        "alt": "AI Voice Agent — Inbound: illustrative inbound call console with human transfer rule",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/voice-agent-inbound-artifact-review-r1.webp",
+        "alt": "AI Voice Agent — Inbound: illustrative inbound call routing sheet and silence fallback",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "f463891c-e703-403b-97c2-e122aca42f29": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/lead-generation-workflow-hero-review-r1.webp",
+        "alt": "Lead Generation Workflow Agent: illustrative lead intake with transparent fit and review path",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/lead-generation-workflow-artifact-review-r1.webp",
+        "alt": "Lead Generation Workflow Agent: illustrative lead qualification and routing map",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "6cb60c1f-6b7c-4bce-9335-fbc99063f9a9": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/social-media-content-agent-hero-review-r1.webp",
+        "alt": "Social Media Content Agent: illustrative social post draft held for editorial approval",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/social-media-content-agent-artifact-review-r1.webp",
+        "alt": "Social Media Content Agent: illustrative content review card with source and publish gate",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "8dc13175-02b9-4ee2-90fe-f6dd5dd151b3": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/client-onboarding-automation-hero-review-r1.webp",
+        "alt": "Client Onboarding Automation: illustrative client onboarding status with buyer input pending",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/client-onboarding-automation-artifact-review-r1.webp",
+        "alt": "Client Onboarding Automation: illustrative onboarding handoff board with blocked-state rule",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "7d0c9d47-116a-48a5-b31d-dbe966f30044": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/inbound-lead-tracking-hero-review-r1.webp",
+        "alt": "Inbound Lead Tracking System: illustrative inquiry queue with sources and next owners",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/inbound-lead-tracking-artifact-review-r1.webp",
+        "alt": "Inbound Lead Tracking System: illustrative lead queue and source trace",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "b988910a-4db7-4c7f-b4ec-00ae35e915bf": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/website-development-hero-review-r1.webp",
+        "alt": "Website Development: illustrative website page with service and contact paths",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/website-development-artifact-review-r1.webp",
+        "alt": "Website Development: illustrative website build review board with phone and accessibility checks",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "3977c48a-23ba-4e3c-8513-d17b91e61c5c": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-builder-hero-review-r1.webp",
+        "alt": "AI Email Sequence Builder: illustrative email sequence trigger and stop rules",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-builder-artifact-review-r1.webp",
+        "alt": "AI Email Sequence Builder: illustrative three-message sequence map with consent exit",
+        "role": "workflow",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "eaa36f0b-a20f-40cb-9d82-749c914251cd": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/lead-tracking-templates-hero-review-r1.webp",
+        "alt": "Lead Tracking Templates: illustrative lead sheet with source, owner, and status rows",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/lead-tracking-templates-artifact-review-r1.webp",
+        "alt": "Lead Tracking Templates: illustrative lead tracker workbook columns and review guide",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "c9774a8b-3cc7-4237-a668-6f02a6dc37c0": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/content-automation-templates-hero-review-r1.webp",
+        "alt": "Content Automation Templates: illustrative source-backed content brief held before publishing",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/content-automation-templates-artifact-review-r1.webp",
+        "alt": "Content Automation Templates: illustrative content brief, draft, and review template pack",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
+  },
+  "312e597d-d250-4c41-aff0-0eca38ddb885": {
+    "expectedCurrentUrl": null,
+    "calibration": "2026-10-23-captain-approved-review",
+    "frames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-templates-hero-review-r1.webp",
+        "alt": "AI Email Sequence Templates: illustrative personalized email template draft held for review",
+        "role": "hero",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-templates-artifact-review-r1.webp",
+        "alt": "AI Email Sequence Templates: illustrative editable email template pack and consent checks",
+        "role": "product-in-use",
+        "status": "illustrative concept"
+      }
+    ]
   }
 }

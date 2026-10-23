@@ -6,14 +6,14 @@ import serviceConceptGallery from './service-concept-gallery.json'
  * Database image fields stay unchanged. Later record-backed replacements use
  * the existing visual-assets approval workflow.
  */
-export const SHOWCASE_PREVIEW_REVISION = '2026-10-23-services-calibration' as const
+export const SHOWCASE_PREVIEW_REVISION = '2026-10-23-services-approved-gallery' as const
 
 export type ShowcaseRole = 'hero' | 'product-in-use' | 'workflow' | 'proof/outcome' | 'course-preview poster'
 export interface ShowcaseFrame {
   imageUrl: string
   alt: string
   role: ShowcaseRole
-  status: 'source capture' | 'illustrative concept'
+  status: 'source capture' | 'illustrative concept' | 'public source review' | 'illustrative proposal'
 }
 
 type Entity = 'project' | 'prototype' | 'service' | 'product'
