@@ -115,6 +115,7 @@ import type {
   SocialPlatform,
 } from '@/lib/social-content'
 import { DETERMINISTIC_VISUAL_BINDING_QA_ID } from '@/lib/social-content'
+import { DARK_CASTLE_SOCIAL_CONTENT_ID, DARK_CASTLE_VISUAL_QA_ID } from '@/lib/social-approved-visual-contract'
 import {
   DETERMINISTIC_VISUAL_ASPECT_RATIO_OPTIONS,
   DETERMINISTIC_VISUAL_RENDER_MODE,
@@ -883,7 +884,7 @@ function SocialContentDetailPage() {
   const fetchTopicBacklog = useCallback(async () => {
     setLoadingTopicBacklog(true)
     try {
-      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID || readOnlyYouTubeQaFixture) {
+      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID || id === DARK_CASTLE_VISUAL_QA_ID || readOnlyYouTubeQaFixture) {
         setTopicBacklogItems([])
         setTopicBacklogUnavailable(false)
         setTopicBacklogCoverageReport(null)
@@ -933,7 +934,7 @@ function SocialContentDetailPage() {
 
   const fetchPlatformConfigs = useCallback(async () => {
     try {
-      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID || readOnlyYouTubeQaFixture) {
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID || id === DARK_CASTLE_VISUAL_QA_ID || readOnlyYouTubeQaFixture) {
         setPlatformConfigs([])
         return
       }
@@ -1040,14 +1041,16 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture ? null : await getCurrentSession()
-      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture && !socialCampaignReviewQaFixture) {
+      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || id === DARK_CASTLE_VISUAL_QA_ID ? null : await getCurrentSession()
+      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture && !socialCampaignReviewQaFixture && id !== DARK_CASTLE_VISUAL_QA_ID) {
         setLoadError('Admin session is unavailable for this social content detail.')
         if (!options.silent) setItem(null)
         return
       }
 
-      const detailQuery = id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
+      const detailQuery = id === DARK_CASTLE_VISUAL_QA_ID && deterministicVisualQaState
+        ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
+        : id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
         : channelExperimentQaFixture
           ? `?qa_fixture=${CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE}`
@@ -3242,6 +3245,8 @@ function SocialContentDetailPage() {
     ? `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(selectedVisualLineage.source_id)}`
     : null
   const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
+  const hasApprovedReviewContract = Boolean(deterministicVisualRender?.review_contract)
+  const requiresDeterministicVisualContract = id === DARK_CASTLE_SOCIAL_CONTENT_ID || id === DARK_CASTLE_VISUAL_QA_ID || hasDeterministicVisualContract || hasApprovedReviewContract
   const frameworkApplication = asRecord(asRecord(ragContext?.practitioner_content_quality)?.framework_application)
   const selectedContentFramework = asRecord(frameworkApplication?.selected_framework)
   const contentFrameworkType = asString(selectedContentFramework?.framework_type)
@@ -3262,7 +3267,9 @@ function SocialContentDetailPage() {
     || deterministicVisualAspectRatio !== (deterministicVisualInputs?.aspect_ratio || '')
   )
   const visualFormatDirty = selectedVisualFormat !== persistedVisualFormat
-  const deterministicVisualOperatorState = visualFormatDirty || hasUnsavedVisualConfiguration
+  const deterministicVisualOperatorState = hasApprovedReviewContract && deterministicVisualRender?.state !== 'current'
+    ? 'blocked'
+    : visualFormatDirty || hasUnsavedVisualConfiguration
     ? 'dirty'
     : deterministicVisualRender?.state === 'current'
       ? 'rendered_current'
@@ -3278,7 +3285,7 @@ function SocialContentDetailPage() {
     : deterministicVisualOperatorState === 'rebuilt' || deterministicVisualOperatorState === 'rendered_stale'
       ? 'Render updated visual'
       : deterministicVisualOperatorState === 'rendered_current'
-        ? 'Render again'
+        ? hasApprovedReviewContract ? 'Approved composition bound' : 'Render again'
         : deterministicVisualOperatorState === 'initial'
           ? 'Render review visual'
           : 'Render unavailable'
@@ -3298,7 +3305,7 @@ function SocialContentDetailPage() {
     : deterministicVisualOperatorState === 'rebuilt'
       ? 'The saved recipe and rebuilt candidate match. Render the updated visual for review.'
       : deterministicVisualOperatorState === 'rendered_current'
-        ? 'This asset matches the approved copy, saved recipe, and current candidate.'
+        ? hasApprovedReviewContract ? 'The approved gameplay composition matches this copy, evidence fingerprint, source captures, and exact PNG hash.' : 'This asset matches the approved copy, saved recipe, and current candidate.'
         : deterministicVisualOperatorState === 'rendered_stale'
           ? 'The saved recipe is current, but the rendered asset is stale. Render the updated visual before deciding.'
           : deterministicVisualOperatorState === 'initial'
@@ -3313,9 +3320,11 @@ function SocialContentDetailPage() {
       : []
   const visualPreviewImageUrl = versionAssetUrl(
     isSingleImageFormat
-      ? campaignReviewPacket?.kind === 'linkedin_visual'
-        ? campaignReviewPacket.visual.publicPath
-        : item.image_url || agentifiedVisualQaPacket?.primaryCandidateUrl || ''
+      ? requiresDeterministicVisualContract
+        ? hasDeterministicVisualContract ? item.image_url || '' : deterministicVisualRender?.state === 'current' ? item.image_url || '' : ''
+        : campaignReviewPacket?.kind === 'linkedin_visual'
+          ? campaignReviewPacket.visual.publicPath
+          : item.image_url || agentifiedVisualQaPacket?.primaryCandidateUrl || ''
       : '',
     item.updated_at,
   )
@@ -3412,7 +3421,7 @@ function SocialContentDetailPage() {
   )
   const visualAssetReady = !visualFormatDirty && !hasUnsavedVisualConfiguration && (approvedChannelVideoPacket || (isCarouselFormat
     ? Boolean(carouselSlideUrls.length)
-    : hasDeterministicVisualContract
+    : requiresDeterministicVisualContract
       ? deterministicVisualRender?.state === 'current'
       : Boolean(visualPreviewImageUrl)))
   const visualAssetsBaseGateState: GateState = approvedChannelVideoPacket ? 'approved' : visualAssetReady ? 'in_review' : 'pending'
@@ -3422,6 +3431,10 @@ function SocialContentDetailPage() {
   const visualAssetsRejected = visualAssetsGateState === 'rejected'
   const deterministicVisualPrimaryDisabledReason = visualAssetsRejected
     ? 'Visuals were rejected. Resolve the rejection before rebuilding or rendering.'
+    : hasApprovedReviewContract
+      ? deterministicVisualRender?.state === 'current'
+        ? 'This approved composition is review-only. No provider render or external action is available.'
+        : deterministicVisualRender?.recovery_action || 'Reconcile the approved visual binding before this gate can advance.'
     : deterministicVisualRecipeIssue
       ? deterministicVisualRecipeIssue
       : deterministicVisualOperatorState === 'blocked'
@@ -3430,6 +3443,7 @@ function SocialContentDetailPage() {
   const deterministicVisualPrimaryDisabled = renderingDeterministicVisual
     || savingVisualConfiguration
     || visualAssetsRejected
+    || hasApprovedReviewContract
     || Boolean(deterministicVisualRecipeIssue)
     || deterministicVisualOperatorState === 'blocked'
     || (
@@ -3520,7 +3534,7 @@ function SocialContentDetailPage() {
         : 'pending'
   const canonicalVisualPrerequisitesReady = hasSocialContentVisualPrerequisites(item)
   const currentDeterministicVisualApproved = isSingleImageFormat
-    && hasDeterministicVisualContract
+    && (hasDeterministicVisualContract || hasApprovedReviewContract)
     && deterministicVisualRender?.state === 'current'
     && visualAssetsGateState === 'approved'
   const visualWorkflowGateState: GateState = currentDeterministicVisualApproved
@@ -5153,7 +5167,7 @@ function SocialContentDetailPage() {
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
         {/* ================================================================ */}
 	        {(activeApprovalStep === 'copy' || activeApprovalStep === 'visuals') && (
-	        <div className={channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'grid grid-cols-1 gap-6' : 'grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]'}>
+	        <div className={id === DARK_CASTLE_VISUAL_QA_ID || channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'grid grid-cols-1 gap-6' : 'grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]'}>
 	          <div className="min-w-0 space-y-4">
 	            {/* Post text */}
 	            {activeApprovalStep === 'copy' && (
@@ -5508,7 +5522,13 @@ function SocialContentDetailPage() {
                       <div>
 	                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-800 dark:text-amber-200">Visual Production</p>
 	                        <p className="mt-1 text-sm leading-6 text-amber-950/90 dark:text-amber-50/90">
-	                          {visualProductionUnlocked
+                          {hasApprovedReviewContract && deterministicVisualRender?.state === 'current'
+                            ? 'Approved copy and gameplay evidence are bound to this provider-free review composition. Visual approval and external actions remain separate.'
+                            : hasApprovedReviewContract
+                            ? 'The reviewed gameplay composition has an invalid version or evidence binding. Reconcile it before visual approval.'
+                            : requiresDeterministicVisualContract && !hasDeterministicVisualContract
+                            ? 'Approved copy has no current deterministic visual contract. Review the exact visual receipt before any binding decision.'
+                            : visualProductionUnlocked
 	                            ? 'Copy approved. Render the stored deterministic candidate or choose the existing screenshot-carousel path.'
 	                            : 'Choose one visual format for this draft. Rendering stays separate from visual approval and publishing.'}
 	                        </p>
@@ -5523,8 +5543,8 @@ function SocialContentDetailPage() {
 	                    <div data-visual-workflow-step="configure" data-theme-surface="deterministic-recipe" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
 	                      <div className="flex flex-wrap items-start justify-between gap-2">
 	                        <div>
-	                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">A. Configure visual</p>
-	                          <p className="mt-1 text-xs leading-5 text-muted-foreground">Choose one deterministic layout for the approved editorial framework.</p>
+	                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">{hasApprovedReviewContract ? 'A. Inspect visual binding' : 'A. Configure visual'}</p>
+	                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{hasApprovedReviewContract ? 'Inspect the approved composition and its exact version and source bindings.' : 'Choose one deterministic layout for the approved editorial framework.'}</p>
                         </div>
                         {isSingleImageFormat && hasDeterministicVisualContract && (
                           <span title={DETERMINISTIC_VISUAL_RENDER_MODE} className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Active mode · provider-none structured HTML/SVG</span>
@@ -5542,7 +5562,7 @@ function SocialContentDetailPage() {
 	                            <span className="flex items-center gap-2 text-sm font-semibold text-foreground"><ImageIcon className="h-4 w-4 text-amber-800 dark:text-amber-200" />Deterministic visual</span>
                             {isSingleImageFormat && <span className="inline-flex items-center gap-1 rounded-full border border-amber-700/45 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:border-amber-300/50 dark:text-amber-100"><CheckCircle2 className="h-3 w-3" />Selected</span>}
                           </span>
-                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">Uses a saved template, type, aspect, derived content, and exact version-bound candidate.</span>
+                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">{hasApprovedReviewContract ? 'Uses the approved gameplay composition with exact copy, evidence, source, and PNG bindings.' : 'Uses a saved template, type, aspect, derived content, and exact version-bound candidate.'}</span>
                         </button>
                         <button
                           type="button"
@@ -5558,7 +5578,22 @@ function SocialContentDetailPage() {
                           <span className="mt-2 block text-sm leading-6 text-muted-foreground">Builds a review carousel from real Portfolio screens without publishing it.</span>
                         </button>
                       </div>
-                      {isSingleImageFormat ? hasDeterministicVisualContract ? (
+                      {isSingleImageFormat ? hasApprovedReviewContract ? (
+                        <div className="mt-3 rounded-lg border border-amber-500/35 bg-amber-500/5 p-3 text-sm text-foreground">
+                          <p className="font-semibold">{deterministicVisualRender?.state === 'current' ? 'Approved gameplay composition · version-bound review' : 'Gameplay review contract · blocked binding'}</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">This provider-free image is bound to the approved copy and three attributable public gameplay captures. A stale or mismatched contract blocks the visual gate.</p>
+                          <dl className="mt-3 grid gap-2 break-all text-xs sm:grid-cols-2">
+                            <div><dt className="text-muted-foreground">Copy version</dt><dd className="font-mono">{deterministicVisualRender?.copy_version}</dd></div>
+                            <div><dt className="text-muted-foreground">Evidence fingerprint</dt><dd className="font-mono">{deterministicVisualRender?.review_contract?.evidence_fingerprint}</dd></div>
+                            <div><dt className="text-muted-foreground">Approved copy at</dt><dd>{deterministicVisualRender?.review_contract?.copy_approved_at}</dd></div>
+                            <div><dt className="text-muted-foreground">PNG SHA-256</dt><dd className="font-mono">{deterministicVisualRender?.review_contract?.asset_sha256}</dd></div>
+                          </dl>
+                          <details className="mt-3 text-xs"><summary className="cursor-pointer font-semibold">Public gameplay sources and boundaries</summary>
+                            <ul className="mt-2 space-y-2">{deterministicVisualRender?.review_contract?.sources.map((source) => <li key={source.url} className="break-all"><a className="underline" href={source.url} target="_blank" rel="noreferrer">{source.url}</a><br /><span className="font-mono text-muted-foreground">{source.sha256}</span></li>)}</ul>
+                            <p className="mt-2 text-muted-foreground">Provider none · upload, platform draft, scheduling, publishing, and external sends disabled.</p>
+                          </details>
+                        </div>
+                      ) : hasDeterministicVisualContract ? (
                         <div className="mt-3 space-y-3">
                           <div className="rounded-lg border border-border bg-background p-3">
                             <div className="flex flex-wrap items-start justify-between gap-2">
@@ -5658,6 +5693,12 @@ function SocialContentDetailPage() {
                             <p className="mt-2 whitespace-pre-wrap rounded-md bg-muted/50 p-2 text-muted-foreground">{imagePrompt.trim() || 'No provider art direction is saved.'}</p>
                           </details>
                         </div>
+                      ) : requiresDeterministicVisualContract ? (
+                        <div className="mt-3 rounded-lg border border-red-500/35 bg-red-500/5 p-3 text-sm text-foreground">
+                          <p className="font-semibold">Current deterministic visual contract missing</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{deterministicVisualRender?.recovery_action || 'Reload the approved copy and evidence before binding a reviewed visual contract.'}</p>
+                          {(id === DARK_CASTLE_SOCIAL_CONTENT_ID || id === DARK_CASTLE_VISUAL_QA_ID) && <a className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-border px-3 py-2 font-semibold hover:bg-muted" href={`/admin/social-content/${DARK_CASTLE_VISUAL_QA_ID}?step=visuals&qa_state=current`}>Open approved visual review fixture</a>}
+                        </div>
                       ) : (
                         <div className="mt-3 space-y-3">
                           <label className="block text-xs text-muted-foreground">Legacy/provider visual type<select value={frameworkVisualType} onChange={(event) => setFrameworkVisualType(event.target.value as FrameworkVisualType | '')} disabled={!canEditVisualProduction} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"><option value="">Auto-detect</option>{FRAMEWORK_VISUAL_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label} — {type.description}</option>)}</select></label>
@@ -5669,8 +5710,8 @@ function SocialContentDetailPage() {
                     <div data-visual-workflow-step="generate" data-theme-surface="deterministic-validation" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">B. Generate review asset</p>
-                          <p className="mt-1 text-xs leading-5 text-muted-foreground">The primary action always advances the visible recipe by one valid step.</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">{hasApprovedReviewContract ? 'B. Review bound asset' : 'B. Generate review asset'}</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{hasApprovedReviewContract ? 'The reviewed image is already bound in this read-only fixture. No render or provider action is available.' : 'The primary action always advances the visible recipe by one valid step.'}</p>
                         </div>
                         {isSingleImageFormat && <span className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Provider none</span>}
                       </div>
@@ -5702,25 +5743,26 @@ function SocialContentDetailPage() {
                                   : <ImageIcon className="h-3.5 w-3.5" />}
                               {savingVisualConfiguration ? 'Saving and rebuilding…' : renderingDeterministicVisual ? 'Rendering…' : deterministicVisualPrimaryAction}
                             </button>
-                            {deterministicVisualOperatorState === 'rendered_current' && (
+                            {deterministicVisualOperatorState === 'rendered_current' && !hasApprovedReviewContract && (
                               <button type="button" onClick={() => document.getElementById('deterministic-visual-template')?.focus()} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Change recipe</button>
                             )}
                           </div>
                           {deterministicVisualPrimaryDisabledReason && <p className="mt-2 text-xs leading-5 text-red-800 dark:text-red-200">{deterministicVisualPrimaryDisabledReason}</p>}
-                          {deterministicVisualOperatorState === 'rendered_current' && <p className="mt-2 text-xs leading-5 text-muted-foreground">Render again rechecks the same version-bound recipe; an already-current result remains idempotent.</p>}
-                          <details aria-label="Why this image will look this way" className="mt-3 rounded-lg border border-border bg-background p-3 text-xs leading-5 text-foreground">
+                          {deterministicVisualOperatorState === 'rendered_current' && !hasApprovedReviewContract && <p className="mt-2 text-xs leading-5 text-muted-foreground">Render again rechecks the same version-bound recipe; an already-current result remains idempotent.</p>}
+                          {!hasApprovedReviewContract && <details aria-label="Why this image will look this way" className="mt-3 rounded-lg border border-border bg-background p-3 text-xs leading-5 text-foreground">
                             <summary className="cursor-pointer font-semibold">Why this image will look this way</summary>
                             <p className="mt-2 text-muted-foreground">{deterministicVisualInputs?.visual_rationale || 'The visual rationale is missing from the approved content packet.'}</p>
                             <p className="mt-2 text-muted-foreground">Visual template {deterministicVisualInputs?.template_label || 'missing'} · {deterministicVisualInputs?.aspect_ratio || 'aspect missing'} · {deterministicVisualInputs?.nodes.length || 0} content nodes · {deterministicVisualInputs?.connectors.length || 0} connectors. The renderer reads these structured fields, never the optional provider art direction.</p>
-                          </details>
+                          </details>}
                           {visualPreviewImageUrl ? (
                             <div className="mt-3">
                               {(deterministicVisualOperatorState === 'dirty' || deterministicVisualOperatorState === 'rendered_stale') && <p className="mb-2 rounded-lg border border-red-500/35 bg-red-500/5 p-2 text-xs font-semibold text-red-800 dark:text-red-200">Stale asset · visible for comparison, unavailable for approval until the primary action completes.</p>}
                               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                  <p className="text-sm font-semibold text-foreground">Framework illustration</p>
+                                  <p className="text-sm font-semibold text-foreground">{hasApprovedReviewContract ? 'Approved gameplay composition' : 'Framework illustration'}</p>
                                   <p className="mt-0.5 text-xs text-muted-foreground">The customer-facing image stays clean. Turn trace mode on only when you need to inspect its evidence.</p>
                                 </div>
+                                {hasApprovedReviewContract && <a href={visualPreviewImageUrl} className="inline-flex min-h-10 items-center rounded-lg border border-border px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted">Open full-size approved PNG</a>}
                                 {deterministicVisualLineage.length > 0 && (
                                   <button
                                     type="button"
@@ -5733,7 +5775,7 @@ function SocialContentDetailPage() {
                                   </button>
                                 )}
                               </div>
-                              <div data-media-canvas="framework-illustration" className="relative h-[min(400px,70vw)] min-h-56 w-full overflow-hidden rounded-lg bg-slate-950">
+                              <div data-media-canvas="framework-illustration" className={`relative min-h-56 w-full overflow-hidden rounded-lg bg-slate-950 ${hasApprovedReviewContract ? 'h-[min(600px,70vw)]' : 'h-[min(400px,70vw)]'}`}>
                                 <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
                                 {visualTraceMode && deterministicVisualLineage.length > 0 && deterministicVisualAspectRatio === '1.91:1' && traceHotspots.map((hotspot) => {
                                   const lineage = deterministicVisualLineage.find((entry) => entry.id === hotspot.id)
@@ -5810,7 +5852,7 @@ function SocialContentDetailPage() {
                                 </section>
                               )}
                             </div>
-                          ) : <div className="mt-3 flex h-40 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 p-4 text-center text-sm text-muted-foreground">Complete the primary action to create the review asset.</div>}
+                          ) : <div className="mt-3 flex h-40 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 p-4 text-center text-sm text-muted-foreground">{requiresDeterministicVisualContract && deterministicVisualRender?.state === 'blocked' ? 'No visual is shown until the exact reviewed contract is current.' : 'Complete the primary action to create the review asset.'}</div>}
                         </>
                       ) : (
                         <>
@@ -6490,7 +6532,7 @@ function SocialContentDetailPage() {
                 <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
                 <div data-theme-surface="linkedin-preview-chrome" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
               <h3 className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground">
-	                <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" /> LinkedIn Preview
+	                {id === DARK_CASTLE_VISUAL_QA_ID ? <Youtube className="h-4 w-4 text-red-700 dark:text-red-300" /> : <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" />}{id === DARK_CASTLE_VISUAL_QA_ID ? 'Approved YouTube copy preview' : 'LinkedIn Preview'}
                   <span className="ml-auto rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">Follows Portfolio theme</span>
               </h3>
               <div
@@ -7818,8 +7860,9 @@ function SocialContentDetailPage() {
 
 function SocialContentDetailAccessGate() {
   const searchParams = useSearchParams()
+  const { id } = useParams<{ id: string }>()
   const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
-    && [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
+    && (id === DARK_CASTLE_VISUAL_QA_ID || [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? ''))
 
   if (readOnlyQaFixture) return <SocialContentDetailPage />
 

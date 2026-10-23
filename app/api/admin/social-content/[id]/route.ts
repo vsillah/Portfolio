@@ -1,4 +1,6 @@
 import { videoPlayback } from '@/lib/video-media-archive'
+import { DARK_CASTLE_VISUAL_QA_ID } from '@/lib/social-approved-visual-contract'
+import { darkCastleVisualQaFixture, darkCastleVisualQaFixtureEnabled, type DarkCastleVisualQaState } from '@/lib/social-dark-castle-visual-qa-fixture'
 import { hasSocialCopyReleaseEvidence, isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, socialCopyVersion, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -137,6 +139,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (params.id === DARK_CASTLE_VISUAL_QA_ID && darkCastleVisualQaFixtureEnabled()) {
+      const requested = request.nextUrl.searchParams.get('qa_state')
+      const state: DarkCastleVisualQaState = requested === 'missing' || requested === 'stale' || requested === 'mismatch' ? requested : 'current'
+      return NextResponse.json({
+        item: darkCastleVisualQaFixture(state), fixture: true, fixture_state: state,
+        integration_note: 'Read-only production-equivalent Dark Castle visual gate. No database record, provider, platform draft, upload, schedule, publication, or external send is changed.',
+      })
+    }
     if (isDeterministicVisualBindingQaFixtureId(params.id)) {
       const fixtureState = parseDeterministicVisualQaState(request.nextUrl.searchParams.get('qa_state'))
       return NextResponse.json({

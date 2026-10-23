@@ -1,0 +1,15 @@
+file '02-current-binding.png'
+duration 2.5
+file '03-source-boundaries.png'
+duration 2.5
+file '01-current-desktop.png'
+duration 3
+file '07-current-midwidth.png'
+duration 2.5
+file '06-current-mobile.png'
+duration 2.5
+file '04-missing-recovery.png'
+duration 2.5
+file '05-stale-blocked.png'
+duration 3
+file '05-stale-blocked.png'
