@@ -39,4 +39,17 @@ describe('active service gallery coverage', () => {
     expect(course.video_url).toBeNull()
     expect(resolveServiceGallery(course.id, course.image_url).map((frame) => frame.role)).toEqual(['hero', 'course-preview poster'])
   })
+
+  it('binds the revised chatbot and course visuals to product-specific descriptions and local sources', () => {
+    const chatbot = resolveServiceGallery('a479ce70-4856-4d3f-917b-c37bfff1f0a2', null)
+    const course = resolveServiceGallery('e5c198bd-1276-45ee-abe3-9d9f85e1e3d2', null)
+    expect([...chatbot, ...course].every((frame) => frame.imageUrl.endsWith('-product-calibration-r2.webp'))).toBe(true)
+    expect(chatbot[0].alt).toMatch(/receptionist.*headset/i)
+    expect(chatbot[1].alt).toMatch(/qualification.*human handoff.*follow-up/i)
+    expect(course[0].alt).toMatch(/roundtable training/i)
+    expect(course[1].alt).toMatch(/modules.*workbook.*progress.*implementation-plan/i)
+    for (const source of ['chatbot-receptionist-source.png', 'training-roundtable-source.png']) {
+      expect(readFileSync(path.join(process.cwd(), 'public/showcases/service-calibration/sources', source)).length).toBeGreaterThan(0)
+    }
+  })
 })

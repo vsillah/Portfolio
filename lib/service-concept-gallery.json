@@ -22,14 +22,14 @@
     "calibration": "2026-10-23-brand-reset",
     "frames": [
       {
-        "imageUrl": "/showcases/service-calibration/inbound-lead-chatbot-hero.webp",
-        "alt": "AmaduTown inbound lead chatbot offer cover over the approved storefront pipeline image",
+        "imageUrl": "/showcases/service-calibration/inbound-lead-chatbot-hero-product-calibration-r2.webp",
+        "alt": "Friendly humanoid chatbot receptionist at a desktop with headset, introducing configured website lead intake",
         "role": "hero",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-calibration/inbound-lead-chatbot-artifact.webp",
-        "alt": "AmaduTown lead handoff sheet showing need, consent check, owner role, and next action",
+        "imageUrl": "/showcases/service-calibration/inbound-lead-chatbot-artifact-product-calibration-r2.webp",
+        "alt": "Illustrative inbound lead workspace showing website inquiry, qualification, summary, human handoff, and consent-bound follow-up",
         "role": "workflow",
         "status": "illustrative concept"
       }
@@ -40,14 +40,14 @@
     "calibration": "2026-10-23-brand-reset",
     "frames": [
       {
-        "imageUrl": "/showcases/service-calibration/self-paced-ai-course-hero.webp",
-        "alt": "AmaduTown AI Training Course cover about judgment and practical use",
+        "imageUrl": "/showcases/service-calibration/self-paced-ai-course-hero-product-calibration-r2.webp",
+        "alt": "Vambah-led roundtable training scene introducing the AmaduTown self-paced AI course concept",
         "role": "hero",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-calibration/self-paced-ai-course-artifact.webp",
-        "alt": "AmaduTown course workbook concept with a lesson about choosing work worth improving",
+        "imageUrl": "/showcases/service-calibration/self-paced-ai-course-artifact-product-calibration-r2.webp",
+        "alt": "Illustrative self-paced course platform with modules, lesson-video poster, workbook exercise, progress, and implementation-plan output",
         "role": "course-preview poster",
         "status": "illustrative concept"
       }
