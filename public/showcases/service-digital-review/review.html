@@ -9,7 +9,7 @@
   </style>
 </head>
 <body>
-<header><div class="badge">DRAFT CONCEPT REVIEW · 7 EXPLICITLY NAMED OFFERS</div><h1>Digital services, shown in use.</h1><p>Each pair shows an illustrative service view and a proposed buyer deliverable. All records, screens, and counts are synthetic. These assets are not active in the service catalog and do not claim a deployed integration, customer result, or production dashboard.</p></header>
+<header><div class="badge">DRAFT CONCEPT REVIEW · 7 EXPLICITLY NAMED OFFERS</div><h1>Digital services, shown in use.</h1><p>Website UX Refresh pairs a public Julie’s homepage screenshot with an illustrative AmaduTown assessment. The other six pairs use synthetic screens and records. These assets are not active in the service catalog and do not claim a deployed integration, customer result, or production dashboard.</p></header>
 <main id="pairs"></main>
 <script>
 const offers=[
@@ -29,8 +29,8 @@ for(const [title,slug] of offers){
   for(const kind of ['hero','artifact']){
     const url=`./${slug}-${kind}-review-r1.webp`
     const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer'
-    const img=document.createElement('img');img.src=url;img.alt=`${title}: ${kind==='hero'?'illustrative service view':'illustrative buyer deliverable'}`
-    const label=document.createElement('span');label.textContent=kind==='hero'?'Service view':'Buyer deliverable'
+    const img=document.createElement('img');img.src=url;img.alt=slug==='website-ux-refresh'?`${title}: ${kind==='hero'?'public page evidence with review notes':'public page evidence with illustrative UX proposal'}`:`${title}: ${kind==='hero'?'illustrative service view':'illustrative buyer deliverable'}`
+    const label=document.createElement('span');label.textContent=slug==='website-ux-refresh'?(kind==='hero'?'Public page review':'Illustrative UX proposal'):(kind==='hero'?'Service view':'Buyer deliverable')
     link.append(img,label);pair.append(link)
   }
   section.append(pair);root.append(section)

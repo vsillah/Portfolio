@@ -34,6 +34,7 @@ async function verify(){
     }
   }
   const html=fs.readFileSync(path.join(dir,'review.html'),'utf8')
+  if(!html.includes('public Julie’s homepage screenshot')||!html.includes('Illustrative UX proposal')) throw new Error('Review page omitted Julie evidence status')
   for(const [,slug] of pairs) if(!html.includes(slug)) throw new Error(`Preview omitted ${slug}`)
   const sheet=path.join(root,'docs/showcase-audit/qa/services/service-digital-review-contact-sheet.png')
   const meta=await sharp(sheet).metadata()
