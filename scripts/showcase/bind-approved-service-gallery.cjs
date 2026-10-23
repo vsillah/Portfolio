@@ -63,7 +63,8 @@ for(const [title,family,slug,heroDescription,artifactDescription,artifactRole] o
   const row=byTitle.get(title)
   if(!row?.is_active||calibrationIds.includes(row.id)) throw new Error(`Invalid new binding: ${title}`)
   const frame=(kind,description,role,status)=>{
-    const imageUrl=`/showcases/service-${family}-review/${slug}-${kind}-review-r1.webp`
+    const revision=julie&&kind==='artifact'?'r2':'r1'
+    const imageUrl=`/showcases/service-${family}-review/${slug}-${kind}-review-${revision}.webp`
     if(!fs.existsSync(path.join(root,'public',imageUrl))) throw new Error(`Missing reviewed frame: ${imageUrl}`)
     return {imageUrl,alt:`${title}: ${description}`,role,status}
   }

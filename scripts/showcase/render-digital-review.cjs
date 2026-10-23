@@ -89,13 +89,14 @@ const offers = [
 if (offers.length !== 7 || new Set(offers.map(o=>o.title)).size !== 7) throw new Error('Review batch coverage changed')
 for (const offer of offers) if (!catalog.some(r=>r.title===offer.title)) throw new Error(`Missing active catalog source: ${offer.title}`)
 async function run(){
+  const reviewPath=(offer,kind)=>path.join(output,`${offer.slug}-${kind}-review-${offer.slug==='website-ux-refresh'&&kind==='artifact'?'r2':'r1'}.webp`)
   const browser = await chromium.launch({headless:true})
   const page = await browser.newPage({viewport:{width:1200,height:720},deviceScaleFactor:1})
   for (const offer of offers) {
     for (const kind of ['hero','artifact']) {
       await page.setContent(`<!doctype html><html><head><style>${css}</style></head><body>${offer[kind]}</body></html>`)
       await page.evaluate(()=>document.fonts.ready)
-      await sharp(await page.screenshot()).webp({quality:91,effort:6}).toFile(path.join(output,`${offer.slug}-${kind}-review-r1.webp`))
+      await sharp(await page.screenshot()).webp({quality:91,effort:6}).toFile(reviewPath(offer,kind))
     }
   }
   await browser.close()
@@ -103,7 +104,7 @@ async function run(){
     const composites=[];const tileWidth=400,tileHeight=270
     for (const [i,offer] of offers.entries()) for (const [j,kind] of ['hero','artifact'].entries()) {
       const index=i*2+j,x=(index%4)*tileWidth,y=Math.floor(index/4)*tileHeight
-      composites.push({input:await sharp(path.join(output,`${offer.slug}-${kind}-review-r1.webp`)).resize(400,240).png().toBuffer(),left:x,top:y})
+      composites.push({input:await sharp(reviewPath(offer,kind)).resize(400,240).png().toBuffer(),left:x,top:y})
       const label=`<svg width="400" height="30" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="30" fill="#112036"/><text x="10" y="21" font-family="Arial" font-size="12" fill="white">${e(offer.title)} / ${kind}</text></svg>`
       composites.push({input:Buffer.from(label),left:x,top:y+240})
     }
