@@ -14,7 +14,7 @@ const calibrationIds=[
 for(const id of calibrationIds) if(!current[id]?.frames || current[id].frames.length!==2) throw new Error(`Approved calibration missing: ${id}`)
 const entries=[
   // Digital systems: Julie's first frame is the local KinFlo-built example; its second frame is a proposal.
-  ['Website UX Refresh','digital','website-ux-refresh','KinFlo-built Julie’s Family Learning homepage with the learning support headline','illustrative AmaduTown learner, supporter, and registration proposal for Julie’s Family Learning','workflow'],
+  ['Website UX Refresh','digital','website-ux-refresh','KinFlo-built Julie’s Family Learning homepage with the learning support headline','KinFlo-built Julie homepage beside an illustrative learner, supporter, and handoff proposal','workflow'],
   ['Mobile App Generation','digital','mobile-app-generation','illustrative mobile service request with a three-step intake','illustrative mobile request preview and human handoff journey','product-in-use'],
   ['RAG Knowledge Base System','digital','rag-knowledge-base','illustrative sourced answer beside approved knowledge documents','illustrative answer review with citation, held source, and human approval state','workflow'],
   ['Data Migration & Onboarding','digital','data-migration-onboarding','illustrative source-to-target field map with a held exception','illustrative migration reconciliation board with source counts and review decision','workflow'],

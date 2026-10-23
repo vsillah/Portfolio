@@ -43,6 +43,9 @@ describe('active service gallery coverage', () => {
     expect(frames[0].label).toBe("Example: Julie's Family Learning")
     expect(frames[0].alt).toMatch(/KinFlo-built/i)
     expect(frames[1].alt).toMatch(/propos/i)
+    expect(frames[1].alt).toMatch(/KinFlo-built/i)
+    const digitalRenderer = readFileSync(path.join(process.cwd(), 'scripts/showcase/render-digital-review.cjs'), 'utf8')
+    expect(digitalRenderer).toMatch(/LOCAL BUILT EXAMPLE \/ KINFLO/)
   })
 
   it('does not assign duplicate hero files or duplicate rendered hero images', () => {
