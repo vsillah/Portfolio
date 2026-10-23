@@ -81,3 +81,11 @@ export function resolveShowcaseGallery(entity: Entity, id: string | number, curr
   const extras = entity === 'service' ? SERVICE_GALLERY_EXTRAS[String(id)] || [] : entity === 'product' ? PRODUCT_GALLERY_EXTRAS[String(id)] || [] : []
   return [first, ...extras]
 }
+
+/** Use the public service's own image when no version-bound gallery has been reviewed. */
+export function resolveServiceGallery(id: string, imageUrl: string | null | undefined): ShowcaseFrame[] {
+  const reviewed = resolveShowcaseGallery('service', id, imageUrl)
+  if (reviewed.length > 0) return reviewed
+  if (!imageUrl) return []
+  return [{ imageUrl, alt: 'Current service listing image', role: 'hero', status: 'source capture' }]
+}

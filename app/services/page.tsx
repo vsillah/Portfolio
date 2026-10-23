@@ -146,16 +146,6 @@ function ServicesContent() {
     if (typeof window !== 'undefined') {
       addServiceToCart(serviceId)
       loadCartCount()
-      
-      // Show feedback
-      const button = document.activeElement as HTMLElement
-      if (button) {
-        const originalText = button.textContent
-        button.textContent = 'Added!'
-        setTimeout(() => {
-          if (button) button.textContent = originalText
-        }, 1000)
-      }
     }
   }
 
@@ -201,15 +191,15 @@ function ServicesContent() {
             Back to Home
           </button>
           
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-bold mb-2 flex items-center gap-3">
                 <Users className="text-cyan-500" />
                 Services
               </h1>
               <p className="text-gray-400">Training, consulting, coaching, and speaking engagements</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
               <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Help">
                 <HelpCircle size={20} />
@@ -249,6 +239,7 @@ function ServicesContent() {
             </div>
             <div className="flex gap-2 flex-wrap">
               <select
+                aria-label="Service type"
                 value={selectedType}
                 onChange={(e) => {
                   const newType = e.target.value
@@ -262,6 +253,7 @@ function ServicesContent() {
                 ))}
               </select>
               <select
+                aria-label="Delivery method"
                 value={selectedDelivery}
                 onChange={(e) => {
                   const newDelivery = e.target.value
@@ -275,6 +267,8 @@ function ServicesContent() {
                 ))}
               </select>
               <motion.button
+                type="button"
+                aria-pressed={showFeaturedOnly}
                 onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -289,6 +283,7 @@ function ServicesContent() {
               </motion.button>
             </div>
           </div>
+          {!loading && <p className="mt-3 text-sm text-gray-400" aria-live="polite">Showing {filteredServices.length} of {services.length} services</p>}
         </motion.div>
 
         {/* Services Grid */}
