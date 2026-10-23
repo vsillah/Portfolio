@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AmaduTown learning service concept review</title>
+  <style>
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#101d30;color:#f8f6ee;font-family:Arial,sans-serif}header{padding:28px clamp(18px,4vw,58px);border-bottom:1px solid #4d5d6d}h1{font-family:Georgia,serif;font-size:clamp(30px,4vw,52px);font-weight:400;letter-spacing:-.04em;margin:8px 0}p{max-width:850px;line-height:1.5;color:#cfdae1}.badge{color:#d4af37;font-size:12px;letter-spacing:.16em;font-weight:800}.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}.controls button{font:inherit;background:#253a53;color:white;border:1px solid #69788a;padding:10px 14px;cursor:pointer}.controls button[aria-pressed=true]{background:#d4af37;color:#102037;border-color:#d4af37;font-weight:bold}main{width:100%;max-width:1280px;margin:auto;padding:24px 18px;transition:max-width .2s;container-type:inline-size}section{padding:22px 0 30px;border-bottom:1px solid #4d5d6d}h2{font-family:Georgia,serif;font-size:27px;font-weight:400;margin:0 0 16px}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pair a{display:block;background:#20334a;padding:8px;text-decoration:none;color:#f8f6ee}.pair img{display:block;width:100%;height:auto;aspect-ratio:5/3;object-fit:contain}.pair span{display:block;padding:10px 4px 3px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#d4af37}@container(max-width:700px){.pair{grid-template-columns:1fr}}@media(max-width:700px){.pair{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header><div class="badge">DRAFT CONCEPT REVIEW · 13 LEARNING AND FACILITATION OFFERS</div><h1>Workshops and learning, shown through the work.</h1><p>Each pair shows an illustrative offer view and a proposed buyer or learner deliverable. The approved roundtable image is reused only for two facilitator scenes. All other surfaces are synthetic concepts. No course video, client event, result, or production workflow is claimed. These assets are not active in the service catalog.</p><div class="controls" aria-label="Review width"><button type="button" data-width="1280" aria-pressed="true">Desktop</button><button type="button" data-width="768" aria-pressed="false">Tablet</button><button type="button" data-width="390" aria-pressed="false">Phone</button></div></header>
+<main id="pairs"></main>
+<script>
+const offers=[
+ ['Accelerated Cohort Workshop','accelerated-cohort-workshop'],
+ ['Product Innovation Workshop','product-innovation-workshop'],
+ ['Speaking Engagement','speaking-engagement'],
+ ['Management Consulting','management-consulting'],
+ ['AI Strategy Workshop — Half-Day','ai-strategy-half-day'],
+ ['AI Strategy Workshop — Full-Day','ai-strategy-full-day'],
+ ['1-on-1 AI Coaching','one-on-one-ai-coaching'],
+ ['Group AI Coaching','group-ai-coaching'],
+ ['Team AI Training — 3-Session Program','team-ai-training-three-session'],
+ ['Premium AI Masterclass','premium-ai-masterclass'],
+ ['AI Strategy Workshop — Recorded (Self-Paced)','recorded-ai-strategy-workshop'],
+ ['Group Implementation Program — 6 Weeks','group-implementation-six-weeks'],
+ ['AI Training Library — Recorded Access','ai-training-library']
+]
+const root=document.getElementById('pairs')
+for(const [title,slug] of offers){
+  const section=document.createElement('section')
+  const heading=document.createElement('h2');heading.textContent=title;section.append(heading)
+  const pair=document.createElement('div');pair.className='pair'
+  for(const kind of ['hero','artifact']){
+    const url=`./${slug}-${kind}-review-r1.webp`
+    const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer'
+    const img=document.createElement('img');img.src=url;img.alt=`${title}: ${kind==='hero'?'illustrative offer view':'illustrative deliverable'}`
+    const label=document.createElement('span');label.textContent=kind==='hero'?'Offer view':'Buyer or learner deliverable'
+    link.append(img,label);pair.append(link)
+  }
+  section.append(pair);root.append(section)
+}
+const buttons=[...document.querySelectorAll('.controls button')]
+for(const button of buttons)button.addEventListener('click',()=>{
+  const width=Number(button.dataset.width)
+  root.style.maxWidth=`${width}px`
+  root.dataset.reviewWidth=String(width)
+  for(const other of buttons)other.setAttribute('aria-pressed',String(other===button))
+})
+</script>
+</body>
+</html>
