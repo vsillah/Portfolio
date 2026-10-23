@@ -36,7 +36,8 @@ export async function GET(
       .order('enrolled_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    if (status) {
+    // filter === 'all' → no restriction on campaign_enrollments.status
+    if (status && status !== 'all') {
       query = query.eq('status', status);
     }
 
