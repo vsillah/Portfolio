@@ -254,4 +254,24 @@ describe('direct read-only GitHub activity collection', () => {
     expect(parsePublicGitHubRepoUrl('git@github.com:vsillah/private.git')).toBeNull()
     expect(parsePublicGitHubRepoUrl('https://example.com/vsillah/repo')).toBeNull()
   })
+
+  it('canonicalizes github.com URLs without keeping credentials, query secrets, or a .git suffix', () => {
+    expect(parsePublicGitHubRepoUrl('https://github.com/vsillah/Dark-Castle-Chess.git')).toEqual({
+      owner: 'vsillah',
+      repo: 'Dark-Castle-Chess',
+      url: 'https://github.com/vsillah/Dark-Castle-Chess',
+    })
+    const embeddedSecret = 'ghp_supersecrettoken'
+    const parsed = parsePublicGitHubRepoUrl(`https://${embeddedSecret}@github.com/vsillah/Dark-Castle-Chess?access_token=raw-token`)
+    expect(parsed).toEqual({
+      owner: 'vsillah',
+      repo: 'Dark-Castle-Chess',
+      url: 'https://github.com/vsillah/Dark-Castle-Chess',
+    })
+    expect(JSON.stringify(parsed)).not.toContain(embeddedSecret)
+    expect(JSON.stringify(parsed)).not.toContain('raw-token')
+    expect(parsePublicGitHubRepoUrl('http://github.com/vsillah/Dark-Castle-Chess')).toBeNull()
+    expect(parsePublicGitHubRepoUrl('https://github.com.evil.example/vsillah/Dark-Castle-Chess')).toBeNull()
+    expect(parsePublicGitHubRepoUrl('https://github.com/vsillah/repo name')).toBeNull()
+  })
 })

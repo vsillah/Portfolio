@@ -34,6 +34,59 @@ function workReceipt(input: {
   })
 }
 
+function momentumPacket(input: {
+  id?: string
+  status?: string
+  sourceUrl?: string
+  operatorDecision?: string
+  placeReceiptIn?: 'actor' | 'pattern'
+  receipt?: Record<string, unknown>
+} = {}) {
+  const receipt = {
+    approval_status: 'approved',
+    raw_content_included: false,
+    privacy_classification: 'public_safe',
+    momentum_kind: 'public_news',
+    approved_summary: 'Approved public momentum around governed capability analysis.',
+    product_identity: 'jev',
+    product_label: 'Jev',
+    topic_identities: ['governed capability analysis'],
+    approved_at: approvedAt,
+    approved_by: 'reviewer',
+    publisher: 'Fixture news',
+    entity_identities: ['jev'],
+    coverage_identity: 'jev-governed-capability-news',
+    sentiment: 'positive',
+    context_summary: 'Approved attributable reporting shows material attention around governed capability analysis.',
+    relevance_score: 0.9,
+    public_attention_score: 0.82,
+    materiality: 'material',
+    evidence_state: 'corroborated',
+    published_at: approvedAt,
+    observed_at: approvedAt,
+    expires_at: '2026-10-26T12:00:00.000Z',
+    ...input.receipt,
+  }
+  const topicMomentum = input.placeReceiptIn === 'pattern' ? {} : { topic_momentum_receipt: receipt }
+  return {
+    id: input.id ?? 'packet-jev',
+    status: input.status ?? 'approved',
+    source_url: input.sourceUrl ?? 'https://news.example.com/jev',
+    platform: 'other',
+    title: 'Jev momentum',
+    retrieved_at: approvedAt,
+    actor_metadata: {
+      operator_review: {
+        decision: input.operatorDecision ?? 'approved',
+        reviewed_at: approvedAt,
+        reviewed_by: 'reviewer',
+      },
+      ...topicMomentum,
+    },
+    ...(input.placeReceiptIn === 'pattern' ? { pattern_packet: { topic_momentum_receipt: receipt } } : {}),
+  }
+}
+
 function momentum(input: {
   sourceId: string
   productIdentity: string
@@ -103,6 +156,74 @@ describe('trend-to-work relevance joining', () => {
     expect(collection.projections).toHaveLength(1)
     expect(collection.projections[0]).toMatchObject({ source_group: 'public_momentum', source_kind: 'public_news', product_identity: 'jev', raw_content_included: false })
     expect(collection.projections[0].approved_summary).not.toContain('Raw source text')
+  })
+
+  it('blocks approved research records that are not public-safe momentum receipts', () => {
+    const privateBody = 'PRIVATE TRANSCRIPT do not project this body'
+    const invalid = '[public_momentum_receipt_invalid:'
+    const sentence = 'Approved research records require an explicit public-safe momentum receipt, operator approval, stable product/topic identities, summary, reviewer, timestamp, and HTTPS source.'
+    const collection = approvedPublicMomentumProjectionsFromResearchPackets([
+      momentumPacket({ id: 'draft-row', status: 'draft', receipt: { approved_summary: privateBody } }),
+      momentumPacket({ id: 'raw-row', receipt: { raw_content_included: true, approved_summary: privateBody } }),
+      momentumPacket({ id: 'private-row', receipt: { privacy_classification: 'private', approved_summary: privateBody } }),
+      momentumPacket({ id: 'unreviewed-row', operatorDecision: 'needs_changes', receipt: { approved_summary: privateBody } }),
+      momentumPacket({ id: 'unassigned-row', receipt: { product_identity: '', product_label: '', approved_summary: privateBody } }),
+    ])
+
+    expect(collection.approved_records_scanned).toBe(4)
+    expect(collection.projections).toEqual([])
+    expect(collection.blockers).toEqual([
+      `${invalid}raw-row] ${sentence}`,
+      `${invalid}private-row] ${sentence}`,
+      `${invalid}unreviewed-row] ${sentence}`,
+      `${invalid}unassigned-row] ${sentence}`,
+    ])
+    expect(JSON.stringify(collection)).not.toContain('PRIVATE TRANSCRIPT')
+  })
+
+  it('records projection failures for unsafe URLs and non-numeric scores without creating receipts', () => {
+    const collection = approvedPublicMomentumProjectionsFromResearchPackets([
+      momentumPacket({ id: 'http-row', sourceUrl: 'http://news.example.com/jev' }),
+      momentumPacket({ id: 'score-row', sourceUrl: 'https://news.example.com/score', receipt: { relevance_score: 1.4 } }),
+      momentumPacket({ id: 'string-score', sourceUrl: 'https://news.example.com/string-score', receipt: { public_attention_score: '0.9' } }),
+    ])
+
+    expect(collection.approved_records_scanned).toBe(3)
+    expect(collection.projections).toEqual([])
+    expect(collection.blockers).toEqual([
+      '[public_momentum_projection_failed:http-row] Public momentum receipts require an HTTPS canonical URL.',
+      '[public_momentum_projection_failed:score-row] Public momentum relevance and public-attention scores must be between 0 and 1.',
+      '[public_momentum_projection_failed:string-score] Public momentum relevance and public-attention scores must be between 0 and 1.',
+    ])
+  })
+
+  it('projects a pattern-packet receipt and redacts contact details and secrets', () => {
+    const collection = approvedPublicMomentumProjectionsFromResearchPackets([
+      momentumPacket({
+        id: 'pattern-row',
+        placeReceiptIn: 'pattern',
+        receipt: {
+          approved_summary: 'Reach person@example.com or 404-555-0199. Token ghp_abcdefghijklmnopqrstuvwxyz.',
+          context_summary: 'Context lists person@example.com only as a redaction fixture.',
+        },
+      }),
+    ])
+
+    expect(collection.blockers).toEqual([])
+    expect(collection.projections).toHaveLength(1)
+    const projection = collection.projections[0]
+    expect(projection).toMatchObject({
+      source_id: 'research_packet:pattern-row',
+      source_group: 'public_momentum',
+      raw_content_included: false,
+    })
+    expect(projection.approved_summary).toContain('[email redacted]')
+    expect(projection.approved_summary).toContain('[phone redacted]')
+    expect(projection.approved_summary).toContain('[secret redacted]')
+    expect(projection.metadata.context_summary).toContain('[email redacted]')
+    expect(JSON.stringify(projection)).not.toContain('person@example.com')
+    expect(JSON.stringify(projection)).not.toContain('404-555-0199')
+    expect(JSON.stringify(projection)).not.toContain('ghp_')
   })
 
   it('joins Jev momentum to its approved capability analysis and Portfolio evidence', () => {
