@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { DARK_CASTLE_SOCIAL_CONTENT_ID, DARK_CASTLE_VISUAL_QA_ID, inspectApprovedVisualReviewContract, type ApprovedVisualReviewContract } from '@/lib/social-approved-visual-contract'
+import { needsSavedCopyVisualRecovery } from '@/lib/social-visual-contract-recovery'
 
 import type { FrameworkVisualType, SocialContentItem } from '@/lib/social-content'
 import {
@@ -163,7 +164,7 @@ export class DeterministicVisualRenderError extends Error {
   }
 }
 
-type VisualRenderItem = Pick<SocialContentItem, 'id' | 'status' | 'image_url' | 'framework_visual_type' | 'rag_context'>
+type VisualRenderItem = Pick<SocialContentItem, 'id' | 'status' | 'image_url' | 'framework_visual_type' | 'rag_context' | 'content_format'>
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -652,11 +653,11 @@ export function projectDeterministicVisualRender(input: {
   }
   const blocker = candidateBlocker(spec, input.item.framework_visual_type)
   if (blocker) {
-    if (!spec && (input.item.id === DARK_CASTLE_SOCIAL_CONTENT_ID || input.item.id === DARK_CASTLE_VISUAL_QA_ID)) {
+    if (!spec && (input.item.id === DARK_CASTLE_SOCIAL_CONTENT_ID || input.item.id === DARK_CASTLE_VISUAL_QA_ID || needsSavedCopyVisualRecovery(input.item))) {
       return {
         ...base, state: 'blocked', code: 'candidate_missing', can_render: false,
-        summary: 'Gameplay evidence has no current deterministic visual review contract.',
-        recovery_action: 'The current copy has no reviewed visual contract. Keep rendering blocked until the corrected copy and visual decisions are recorded.',
+        summary: 'This saved copy has no current deterministic visual review contract.',
+        recovery_action: 'Review this record’s saved Copy gate and evidence before a separate visual contract is prepared. Rendering and external actions remain blocked.',
       }
     }
     return { ...base, state: 'blocked', can_render: false, ...blocker }

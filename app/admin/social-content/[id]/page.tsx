@@ -117,6 +117,8 @@ import type {
 import { DETERMINISTIC_VISUAL_BINDING_QA_ID } from '@/lib/social-content'
 import { DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE, DARK_CASTLE_SOCIAL_CONTENT_ID, DARK_CASTLE_VISUAL_QA_ID } from '@/lib/social-approved-visual-contract'
 import DarkCastleVisualRecovery from '@/components/admin/DarkCastleVisualRecovery'
+import SocialVisualContractRecovery from '@/components/admin/SocialVisualContractRecovery'
+import { needsSavedCopyVisualRecovery, SOCIAL_VISUAL_BACKLOG_QA_FIXTURE, SOCIAL_VISUAL_BACKLOG_QA_ID } from '@/lib/social-visual-contract-recovery'
 import {
   DETERMINISTIC_VISUAL_ASPECT_RATIO_OPTIONS,
   DETERMINISTIC_VISUAL_RENDER_MODE,
@@ -775,6 +777,9 @@ function SocialContentDetailPage() {
   const readOnlyDarkCastleProductionRecoveryQaFixture = process.env.NODE_ENV !== 'production'
     && id === DARK_CASTLE_SOCIAL_CONTENT_ID
     && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
+  const readOnlySocialVisualBacklogQaFixture = process.env.NODE_ENV !== 'production'
+    && id === SOCIAL_VISUAL_BACKLOG_QA_ID
+    && searchParams.get('qa_fixture') === SOCIAL_VISUAL_BACKLOG_QA_FIXTURE
   const channelNativeQaFixture = searchParams.get('qa_fixture') === 'channel_native_video_v2'
   const readOnlyLocalChannelVideoQaFixture = process.env.NODE_ENV !== 'production' && channelNativeQaFixture
   const channelExperimentQaFixture = searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
@@ -1045,14 +1050,16 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || id === DARK_CASTLE_VISUAL_QA_ID ? null : await getCurrentSession()
-      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture && !socialCampaignReviewQaFixture && !readOnlyDarkCastleProductionRecoveryQaFixture && id !== DARK_CASTLE_VISUAL_QA_ID) {
+      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID ? null : await getCurrentSession()
+      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture && !socialCampaignReviewQaFixture && !readOnlyDarkCastleProductionRecoveryQaFixture && !readOnlySocialVisualBacklogQaFixture && id !== DARK_CASTLE_VISUAL_QA_ID) {
         setLoadError('Admin session is unavailable for this social content detail.')
         if (!options.silent) setItem(null)
         return
       }
 
-      const detailQuery = readOnlyDarkCastleProductionRecoveryQaFixture
+      const detailQuery = readOnlySocialVisualBacklogQaFixture
+        ? `?qa_fixture=${SOCIAL_VISUAL_BACKLOG_QA_FIXTURE}`
+        : readOnlyDarkCastleProductionRecoveryQaFixture
         ? `?qa_fixture=${DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE}`
         : id === DARK_CASTLE_VISUAL_QA_ID && deterministicVisualQaState
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
@@ -1139,7 +1146,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -3253,7 +3260,8 @@ function SocialContentDetailPage() {
   const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
   const hasApprovedReviewContract = Boolean(deterministicVisualRender?.review_contract)
   const isDarkCastleCorrectionCandidate = id === DARK_CASTLE_VISUAL_QA_ID && deterministicVisualRender?.review_contract?.copy_approval_state === 'pending_human_qa'
-  const requiresDeterministicVisualContract = id === DARK_CASTLE_SOCIAL_CONTENT_ID || id === DARK_CASTLE_VISUAL_QA_ID || hasDeterministicVisualContract || hasApprovedReviewContract
+  const needsBacklogVisualRecovery = needsSavedCopyVisualRecovery(item)
+  const requiresDeterministicVisualContract = id === DARK_CASTLE_SOCIAL_CONTENT_ID || id === DARK_CASTLE_VISUAL_QA_ID || hasDeterministicVisualContract || hasApprovedReviewContract || needsBacklogVisualRecovery
   const frameworkApplication = asRecord(asRecord(ragContext?.practitioner_content_quality)?.framework_application)
   const selectedContentFramework = asRecord(frameworkApplication?.selected_framework)
   const contentFrameworkType = asString(selectedContentFramework?.framework_type)
@@ -5536,7 +5544,7 @@ function SocialContentDetailPage() {
                             : hasApprovedReviewContract
                             ? isDarkCastleCorrectionCandidate ? 'The corrected gameplay candidate has an invalid version or evidence binding. Reconcile it before review.' : 'The reviewed gameplay composition has an invalid version or evidence binding. Reconcile it before visual approval.'
                             : requiresDeterministicVisualContract && !hasDeterministicVisualContract
-                            ? id === DARK_CASTLE_VISUAL_QA_ID ? 'Corrected copy has no current visual contract. Copy and visual approval remain pending.' : id === DARK_CASTLE_SOCIAL_CONTENT_ID ? 'Approved copy has no current deterministic visual contract. Review the saved copy and separate correction packet before any binding decision.' : 'Approved copy has no current deterministic visual contract. Review the exact visual receipt before any binding decision.'
+                            ? id === DARK_CASTLE_VISUAL_QA_ID ? 'Corrected copy has no current visual contract. Copy and visual approval remain pending.' : id === DARK_CASTLE_SOCIAL_CONTENT_ID ? 'Approved copy has no current deterministic visual contract. Review the saved copy and separate correction packet before any binding decision.' : needsBacklogVisualRecovery ? 'Approved copy has no current deterministic visual contract. Review this record’s saved copy and evidence before a separate visual decision.' : 'Approved copy has no current deterministic visual contract. Review the exact visual receipt before any binding decision.'
                             : visualProductionUnlocked
 	                            ? 'Copy approved. Render the stored deterministic candidate or choose the existing screenshot-carousel path.'
 	                            : 'Choose one visual format for this draft. Rendering stays separate from visual approval and publishing.'}
@@ -5547,7 +5555,7 @@ function SocialContentDetailPage() {
                       </span>
                     </div>
 		                    <div data-theme-surface="provider-boundary" className="rounded-lg border border-amber-600/25 bg-white/60 px-3 py-2 text-xs leading-5 text-amber-950/80 dark:border-amber-500/20 dark:bg-muted dark:text-amber-50/80">
-		                      {id === DARK_CASTLE_SOCIAL_CONTENT_ID && !hasDeterministicVisualContract
+		                      {(id === DARK_CASTLE_SOCIAL_CONTENT_ID || needsBacklogVisualRecovery) && !hasDeterministicVisualContract
 		                        ? 'No visual render or external action is available while this contract is missing. Gemini, HeyGen, n8n media, platform drafts, scheduling, publishing, and external sends stay off.'
 		                        : 'Local deterministic review only. Gemini, HeyGen, n8n media, platform drafts, scheduling, publishing, and external sends stay off.'}
 		                    </div>
@@ -5710,6 +5718,7 @@ function SocialContentDetailPage() {
                           <p className="font-semibold">Current deterministic visual contract missing</p>
                           <p className="mt-1 text-xs leading-5 text-muted-foreground">{deterministicVisualRender?.recovery_action || 'Reload the approved copy and evidence before binding a reviewed visual contract.'}</p>
                           {id === DARK_CASTLE_SOCIAL_CONTENT_ID && <DarkCastleVisualRecovery recordId={id} qaFixture={readOnlyDarkCastleProductionRecoveryQaFixture ? DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE : undefined} />}
+                          {needsBacklogVisualRecovery && id !== DARK_CASTLE_SOCIAL_CONTENT_ID && <SocialVisualContractRecovery recordId={id} qaFixture={readOnlySocialVisualBacklogQaFixture ? SOCIAL_VISUAL_BACKLOG_QA_FIXTURE : undefined} />}
                           {id === DARK_CASTLE_VISUAL_QA_ID && <a className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-border px-3 py-2 font-semibold hover:bg-muted" href={`/admin/social-content/${DARK_CASTLE_VISUAL_QA_ID}?step=visuals&qa_state=current`}>Return to current local review</a>}
                         </div>
                       ) : (
@@ -7876,7 +7885,8 @@ function SocialContentDetailAccessGate() {
   const { id } = useParams<{ id: string }>()
   const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
     && (id === DARK_CASTLE_VISUAL_QA_ID || [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
-      || id === DARK_CASTLE_SOCIAL_CONTENT_ID && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE)
+      || id === DARK_CASTLE_SOCIAL_CONTENT_ID && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
+      || id === SOCIAL_VISUAL_BACKLOG_QA_ID && searchParams.get('qa_fixture') === SOCIAL_VISUAL_BACKLOG_QA_FIXTURE)
 
   if (readOnlyQaFixture) return <SocialContentDetailPage />
 
