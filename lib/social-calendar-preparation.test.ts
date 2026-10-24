@@ -63,4 +63,78 @@ describe('projectSocialCalendarPreparation', () => {
       metadata: {},
     }, socialContentId)).toBeNull()
   })
+
+  it('blocks rejected, expired, and cancelled calendar rows', () => {
+    const rows = [
+      { authorization_status: 'rejected', due_status: 'due_now' },
+      { authorization_status: 'expired', due_status: 'due_now' },
+      { authorization_status: 'pending', due_status: 'cancelled' },
+    ]
+
+    for (const row of rows) {
+      expect(projectSocialCalendarPreparation({
+        id: 'calendar-1',
+        social_content_id: socialContentId,
+        scheduled_for: '2026-10-17T17:30:20.321Z',
+        metadata: {
+          publish_preparation: {
+            status: 'ready',
+            prepared_at: '2026-10-17T22:05:40.33184Z',
+            content_version: 'sha256:e6fc9ae4',
+            social_content_id: socialContentId,
+            reused_existing_approved_packet: true,
+          },
+        },
+        ...row,
+      }, socialContentId)).toEqual(expect.objectContaining({
+        state: 'blocked',
+        reused_existing_approved_packet: false,
+      }))
+    }
+  })
+
+  it('stays pending when an authorized preparation is missing its version or prepared time', () => {
+    expect(projectSocialCalendarPreparation({
+      id: 'calendar-1',
+      social_content_id: socialContentId,
+      authorization_status: 'authorized',
+      due_status: 'due_now',
+      scheduled_for: '2026-10-17T17:30:20.321Z',
+      metadata: {
+        publish_preparation: {
+          status: 'ready',
+          prepared_at: '   ',
+          content_version: 'sha256:e6fc9ae4',
+          social_content_id: socialContentId,
+          reused_existing_approved_packet: true,
+        },
+      },
+    }, socialContentId)).toEqual(expect.objectContaining({
+      state: 'pending',
+      prepared_at: null,
+      content_version: 'sha256:e6fc9ae4',
+      reused_existing_approved_packet: false,
+    }))
+
+    expect(projectSocialCalendarPreparation({
+      id: 'calendar-1',
+      social_content_id: socialContentId,
+      authorization_status: 'authorized',
+      due_status: 'due_now',
+      scheduled_for: '2026-10-17T17:30:20.321Z',
+      metadata: {
+        publish_preparation: {
+          status: 'ready',
+          prepared_at: '2026-10-17T22:05:40.33184Z',
+          content_version: '  ',
+          social_content_id: socialContentId,
+        },
+      },
+    }, socialContentId)).toEqual(expect.objectContaining({
+      state: 'pending',
+      prepared_at: '2026-10-17T22:05:40.33184Z',
+      content_version: null,
+      reused_existing_approved_packet: false,
+    }))
+  })
 })
