@@ -3026,8 +3026,10 @@ function SocialContentDetailPage() {
     : null
   const calendarPreparation = item.calendar_preparation ?? null
   const calendarPreparationReady = calendarPreparation?.state === 'ready'
-  const copyFieldLabel = channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'Video Script' : 'Post Text'
-  const copyLengthGuidance = channelVideoPacket
+  const copyFieldLabel = readOnlySocialVisualBacklogQaFixture ? 'Saved YouTube copy (withheld)' : channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'Video Script' : 'Post Text'
+  const copyLengthGuidance = readOnlySocialVisualBacklogQaFixture
+    ? 'Approved copy text is withheld from this local review fixture.'
+    : channelVideoPacket
     ? `${channelVideoPacket.channelLabel} review: confirm the full spoken script against the bound duration and receipt version`
     : campaignReviewPacket?.channel === 'youtube'
       ? 'YouTube packaging review: confirm the source-bound hook, storyboard, conclusion, and spoken CTA; final generation remains blocked until every evidence gate passes'
@@ -3377,7 +3379,8 @@ function SocialContentDetailPage() {
     ...contextSourceLineage,
   ]))
   const contextSourceRecorded = Boolean(
-    contextSourcePacketPath
+    (readOnlySocialVisualBacklogQaFixture && previewFixtureReadOnly && qaFixture?.source_context_present === true && qaFixture?.saved_copy_approved === true && item.status === 'approved')
+    || contextSourcePacketPath
     || agentPilotPacketId
     || agentPilotGoalId
     || agentPilotProvenance.length
@@ -5485,7 +5488,7 @@ function SocialContentDetailPage() {
                     value={ctaText}
                     onChange={(e) => setCtaText(e.target.value)}
                     disabled={!isEditable}
-                    placeholder="e.g. DM me 'AUDIT' for the free framework"
+                    placeholder={readOnlySocialVisualBacklogQaFixture ? 'Saved CTA withheld in this local fixture' : "e.g. DM me 'AUDIT' for the free framework"}
                     className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
                   />
                 </div>
@@ -5508,7 +5511,7 @@ function SocialContentDetailPage() {
                   value={hashtags}
                   onChange={(e) => setHashtags(e.target.value)}
                   disabled={!isEditable}
-                  placeholder="automation, business, AI"
+                  placeholder={readOnlySocialVisualBacklogQaFixture ? 'Saved tags withheld in this local fixture' : 'automation, business, AI'}
                   className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
                 />
               </div>
@@ -6548,6 +6551,12 @@ function SocialContentDetailPage() {
                   />
                 ) : null}
               </div>
+            ) : readOnlySocialVisualBacklogQaFixture ? (
+              <section aria-label="YouTube review preview" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
+                <h3 className="flex items-center gap-2 text-sm font-semibold"><Youtube className="h-4 w-4 text-red-700 dark:text-red-300" />YouTube review preview</h3>
+                <p className="mt-3 text-sm text-muted-foreground">The saved YouTube copy is approved. Its text and source details are withheld from this local review fixture.</p>
+                <p className="mt-2 text-sm text-muted-foreground">No video or thumbnail is bound here. The visual contract is missing, so media and platform actions remain blocked.</p>
+              </section>
             ) : (
               <>
                 {campaignReviewPacket?.channel === 'linkedin' ? <SocialCampaignReviewPacket packet={campaignReviewPacket} /> : null}

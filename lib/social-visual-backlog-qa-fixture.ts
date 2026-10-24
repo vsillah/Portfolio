@@ -13,8 +13,8 @@ export function socialVisualBacklogQaFixture(): SocialContentItem {
     status: 'approved',
     platform: 'youtube',
     content_format: 'single_image',
-    post_text: 'Saved copy is represented by a privacy-safe placeholder in this local review.',
-    voiceover_text: 'Saved copy is represented by a privacy-safe placeholder in this local review.',
+    post_text: '',
+    voiceover_text: '',
     cta_text: null,
     cta_url: null,
     hashtags: [],
@@ -28,7 +28,14 @@ export function socialVisualBacklogQaFixture(): SocialContentItem {
       work_item_id: 'local-qa-work-item',
       external_execution_enabled: false,
       platform_draft_enabled: false,
-      qa_fixture: { kind: SOCIAL_VISUAL_BACKLOG_QA_FIXTURE, read_only: true },
+      qa_fixture: {
+        kind: SOCIAL_VISUAL_BACKLOG_QA_FIXTURE,
+        read_only: true,
+        saved_copy_approved: true,
+        source_context_present: true,
+        reason: 'The saved YouTube copy is approved. Its text and source details are withheld from this local review fixture.',
+        next_action: 'Review the missing visual contract and return to the PR handoff. No action on this fixture is saved.',
+      },
     },
   } as unknown as SocialContentItem
   item.deterministic_visual_render = projectDeterministicVisualRender({
