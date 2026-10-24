@@ -4194,9 +4194,37 @@ function SocialContentDetailPage() {
       )}
 
       <fieldset
-        disabled={previewFixtureReadOnly}
+        disabled={previewFixtureReadOnly && !readOnlySocialVisualBacklogQaFixture}
         aria-describedby={previewFixtureReadOnly ? 'preview-fixture-read-only-notice' : undefined}
-        className="m-0 min-w-0 w-full border-0 p-0 disabled:[&_button]:cursor-not-allowed disabled:[&_button]:opacity-50"
+        aria-readonly={readOnlySocialVisualBacklogQaFixture ? true : undefined}
+        onClickCapture={(event) => {
+          if (!readOnlySocialVisualBacklogQaFixture) return
+          const control = (event.target as HTMLElement).closest('button, input, select, textarea')
+          if (control && !control.closest('[data-read-only-safe-action]')) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+        }}
+        onKeyDownCapture={(event) => {
+          if (!readOnlySocialVisualBacklogQaFixture || event.key === 'Tab') return
+          if ((event.target as HTMLElement).closest('input, select, textarea')) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+        }}
+        onBeforeInputCapture={(event) => {
+          if (readOnlySocialVisualBacklogQaFixture && (event.target as HTMLElement).closest('input, select, textarea')) event.preventDefault()
+        }}
+        onChangeCapture={(event) => {
+          if (readOnlySocialVisualBacklogQaFixture && (event.target as HTMLElement).closest('input, select, textarea')) event.stopPropagation()
+        }}
+        onSubmitCapture={(event) => {
+          if (readOnlySocialVisualBacklogQaFixture) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+        }}
+        className={`m-0 min-w-0 w-full border-0 p-0 disabled:[&_button]:cursor-not-allowed disabled:[&_button]:opacity-50 ${readOnlySocialVisualBacklogQaFixture ? '[&_button:not([data-read-only-safe-action])]:cursor-not-allowed [&_button:not([data-read-only-safe-action])]:opacity-50' : ''}`}
       >
 
       {/* Sticky header — current decision and saved draft controls */}
@@ -4204,6 +4232,7 @@ function SocialContentDetailPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
+              data-read-only-safe-action
               onClick={() => router.push(backUrl)}
               className="shrink-0 rounded-lg border border-border bg-muted p-2 text-foreground transition-colors hover:bg-muted/70"
             >
@@ -5087,6 +5116,7 @@ function SocialContentDetailPage() {
 	              </div>
 	              <div className="flex flex-wrap items-center gap-2">
 	                <button
+	                  data-read-only-safe-action
 	                  type="button"
 	                  onClick={() => previousReviewQueueItem && navigateToReviewQueueItem(previousReviewQueueItem.id)}
 	                  disabled={!previousReviewQueueItem}
@@ -5096,6 +5126,7 @@ function SocialContentDetailPage() {
 	                  Previous
 	                </button>
 	                <button
+	                  data-read-only-safe-action
 	                  type="button"
 	                  onClick={() => nextReviewQueueItem && navigateToReviewQueueItem(nextReviewQueueItem.id)}
 	                  disabled={!nextReviewQueueItem}
@@ -5116,6 +5147,7 @@ function SocialContentDetailPage() {
 		            return (
 		              <div key={tab.step} className="flex min-w-0 items-stretch">
 		                <button
+	                  data-read-only-safe-action
 		                  type="button"
 		                  aria-label={`Approval step ${index + 1}: ${tab.label}`}
 		                  aria-current={isActive ? 'step' : undefined}
@@ -5576,6 +5608,7 @@ function SocialContentDetailPage() {
                         <button
                           type="button"
                           aria-pressed={isSingleImageFormat}
+                          aria-disabled={readOnlySocialVisualBacklogQaFixture || undefined}
                           onClick={() => setSelectedVisualFormat('framework')}
                           disabled={visualAssetsRejected}
                           className={`rounded-lg border p-3 text-left transition-colors ${isSingleImageFormat ? 'border-amber-600/55 bg-amber-100 dark:border-amber-400/70 dark:bg-amber-400/10' : 'border-border bg-white/60 hover:border-amber-600/45 dark:border-amber-500/25 dark:bg-muted'}`}
@@ -5589,6 +5622,7 @@ function SocialContentDetailPage() {
                         <button
                           type="button"
                           aria-pressed={isCarouselFormat}
+                          aria-disabled={readOnlySocialVisualBacklogQaFixture || undefined}
                           onClick={() => setSelectedVisualFormat('carousel')}
                           disabled={visualAssetsRejected}
                           className={`rounded-lg border p-3 text-left transition-colors ${isCarouselFormat ? 'border-blue-600/55 bg-blue-100 dark:border-blue-400/70 dark:bg-blue-400/10' : 'border-border bg-white/60 hover:border-blue-600/45 dark:border-amber-500/25 dark:bg-muted'}`}
