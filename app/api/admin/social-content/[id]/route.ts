@@ -1,6 +1,8 @@
 import { videoPlayback } from '@/lib/video-media-archive'
 import { DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE, DARK_CASTLE_SOCIAL_CONTENT_ID, DARK_CASTLE_VISUAL_QA_ID } from '@/lib/social-approved-visual-contract'
 import { darkCastleProductionRecoveryQaFixture, darkCastleVisualQaFixture, darkCastleVisualQaFixtureEnabled, type DarkCastleVisualQaState } from '@/lib/social-dark-castle-visual-qa-fixture'
+import { socialVisualBacklogQaFixture, socialVisualBacklogQaFixtureEnabled } from '@/lib/social-visual-backlog-qa-fixture'
+import { SOCIAL_VISUAL_BACKLOG_QA_FIXTURE, SOCIAL_VISUAL_BACKLOG_QA_ID } from '@/lib/social-visual-contract-recovery'
 import { hasSocialCopyReleaseEvidence, isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, socialCopyVersion, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -139,6 +141,16 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (params.id === SOCIAL_VISUAL_BACKLOG_QA_ID
+      && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_VISUAL_BACKLOG_QA_FIXTURE
+      && socialVisualBacklogQaFixtureEnabled()) {
+      return NextResponse.json({
+        item: socialVisualBacklogQaFixture(),
+        fixture: true,
+        fixture_state: 'missing',
+        integration_note: 'Read-only local projection using placeholder copy. No database row, visual binding, provider, or external action is changed.',
+      })
+    }
     if (params.id === DARK_CASTLE_SOCIAL_CONTENT_ID
       && request.nextUrl.searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
       && darkCastleVisualQaFixtureEnabled()) {
