@@ -4,6 +4,7 @@ import { projectDeterministicVisualRender } from '@/lib/social-deterministic-vis
 import {
   approvedVisualReviewContract,
   DARK_CASTLE_COPY_APPROVED_AT,
+  DARK_CASTLE_CORRECTION_CREATED_AT,
   DARK_CASTLE_EVIDENCE_FINGERPRINT,
   DARK_CASTLE_SOCIAL_CONTENT_ID,
   DARK_CASTLE_VISUAL_PATH,
@@ -17,10 +18,10 @@ export function darkCastleVisualQaFixtureEnabled() {
 }
 
 export function darkCastleVisualQaFixture(state: DarkCastleVisualQaState = 'current'): SocialContentItem {
-  const postText = 'A tutorial can teach a move and still lose the lesson when the player crosses into real play and the board resets. Explore: Inspect a position and choose a move before adding time pressure. Transfer: Carry the same board state into computer play without resetting the lesson. Meet the response: Use the reply, coaching, and notation to consider the next decision while staying inside the public pilot boundary. The sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop. Every customer-facing claim in this adaptation remains bound to 2 approved source identities, 3 cleared artifacts, and the current privacy, rights, challenger, and script-quality receipts. State continuity is part of the learning experience, not invisible plumbing.'
+  const postText = 'In Explore, the player can inspect a position with e4 already listed in Notation. The screen offers Try vs computer. The next capture shows Play opening with e4 still in Notation and a Start game prompt. After Black plays e5, Move guidance names the reply and Notation records it beside the board. The three public captures show why keeping the prior move visible matters to the learning experience. They do not prove a measured learning outcome. This review candidate stays inside the public pilot boundary and is tied to two approved source identities, three cleared artifacts, and the current privacy and rights receipts.'
   const item = {
     id: DARK_CASTLE_VISUAL_QA_ID,
-    status: 'approved',
+    status: 'draft',
     platform: 'youtube',
     post_text: postText,
     cta_text: null,
@@ -30,12 +31,12 @@ export function darkCastleVisualQaFixture(state: DarkCastleVisualQaState = 'curr
     voiceover_text: postText,
     target_platforms: ['youtube'],
     youtube_title: 'Dark Castle Chess: what the artifact makes visible',
-    youtube_description: 'The sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop.\n\nReal gameplay makes the product lesson inspectable while the pilot and outcome boundaries prevent a compelling visual from becoming an unsupported claim.',
+    youtube_description: 'Explore shows e4 in Notation and offers Try vs computer. Play opens with e4 still listed. After Black plays e5, Move guidance and Notation show the reply beside the board.\n\nThese public pilot captures support a product observation about keeping the prior move visible. They do not show a measured learning outcome. Corrected copy and visual remain pending review.',
     image_url: state === 'missing' ? null : DARK_CASTLE_VISUAL_PATH,
     framework_visual_type: null,
     content_format: 'single_image',
-    updated_at: DARK_CASTLE_COPY_APPROVED_AT,
-    reviewed_by: 'qa-review',
+    updated_at: DARK_CASTLE_CORRECTION_CREATED_AT,
+    reviewed_by: null,
     rag_context: {
       source: 'social_content_calendar_authorization',
       calendar_item_id: '4070755c-7c46-4c3e-ac9b-94d35921556e',
@@ -50,7 +51,8 @@ export function darkCastleVisualQaFixture(state: DarkCastleVisualQaState = 'curr
         reason: 'Read-only production-equivalent visual review. No shared record or provider is changed.',
       },
       deterministic_visual_review_approval: {
-        copy_approved_at: DARK_CASTLE_COPY_APPROVED_AT,
+        source_copy_approved_at: DARK_CASTLE_COPY_APPROVED_AT,
+        copy_approval_state: 'pending_human_qa',
         evidence_fingerprint: DARK_CASTLE_EVIDENCE_FINGERPRINT,
       },
     },

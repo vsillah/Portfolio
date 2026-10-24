@@ -613,11 +613,12 @@ export function projectDeterministicVisualRender(input: {
   const reviewContract = inspectApprovedVisualReviewContract(input.item, input.copyVersion)
   if (reviewContract.state !== 'missing') {
     const common = { ...base, review_contract: reviewContract.contract, provider: 'none' as const }
-    if (input.item.status !== 'approved' || input.releaseLocked || reviewContract.state !== 'current') {
+    const localCorrectionCandidate = input.item.id === DARK_CASTLE_VISUAL_QA_ID && input.item.status === 'draft'
+    if ((!localCorrectionCandidate && input.item.status !== 'approved') || input.releaseLocked || reviewContract.state !== 'current') {
       return {
         ...common,
-        state: 'blocked', code: input.releaseLocked ? 'release_locked' : input.item.status !== 'approved' ? 'copy_not_approved' : 'asset_stale', can_render: false,
-        summary: input.releaseLocked ? 'Release evidence locks this content version.' : input.item.status !== 'approved' ? 'The current copy version is not approved.' : reviewContract.reason,
+        state: 'blocked', code: input.releaseLocked ? 'release_locked' : reviewContract.state !== 'current' ? 'asset_stale' : 'copy_not_approved', can_render: false,
+        summary: input.releaseLocked ? 'Release evidence locks this content version.' : reviewContract.state !== 'current' ? reviewContract.reason : 'The current copy version is not approved.',
         recovery_action: 'Reconcile the current copy approval and evidence, then bind the exact reviewed PNG and source receipts through a reviewed contract. No provider or legacy visual fallback is allowed.',
       }
     }
@@ -625,11 +626,11 @@ export function projectDeterministicVisualRender(input: {
       ...common,
       state: 'current', code: 'already_current', can_render: false,
       summary: reviewContract.reason,
-      recovery_action: 'Review the gameplay composition in the Visuals gate. External actions remain separately blocked.',
+      recovery_action: 'Review the corrected gameplay candidate in the Visuals gate. Copy approval, visual approval, and external actions remain separate.',
     }
   }
 
-  if (input.item.status !== 'approved') {
+  if (input.item.status !== 'approved' && input.item.id !== DARK_CASTLE_VISUAL_QA_ID) {
     return {
       ...base,
       state: 'blocked',
@@ -654,8 +655,8 @@ export function projectDeterministicVisualRender(input: {
     if (!spec && (input.item.id === DARK_CASTLE_SOCIAL_CONTENT_ID || input.item.id === DARK_CASTLE_VISUAL_QA_ID)) {
       return {
         ...base, state: 'blocked', code: 'candidate_missing', can_render: false,
-        summary: 'Approved copy and gameplay evidence have no current deterministic visual contract.',
-        recovery_action: 'Review the approved provider-free composition and its exact copy, evidence, and PNG hashes in the local visual-contract gate. Bind a reviewed contract to this record only after its current version is verified.',
+        summary: 'Gameplay evidence has no current deterministic visual review contract.',
+        recovery_action: 'Review the corrected provider-free candidate and its exact copy, evidence, and PNG hashes in the local visual-contract gate. Bind a reviewed contract only after the current copy has separate approval.',
       }
     }
     return { ...base, state: 'blocked', can_render: false, ...blocker }

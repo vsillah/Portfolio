@@ -3,9 +3,10 @@ import type { SocialContentItem } from '@/lib/social-content'
 export const DARK_CASTLE_VISUAL_QA_ID = 'dark-castle-youtube-visual-contract-qa'
 export const DARK_CASTLE_SOCIAL_CONTENT_ID = '21c492c2-9279-4e08-afc9-49207935a681'
 export const DARK_CASTLE_VISUAL_PATH = '/api/admin/social-content/qa-visual/dark-castle-youtube'
-export const DARK_CASTLE_VISUAL_SHA256 = '32270fcb035a9159679ab23584788e45571eef47f685083ea77eeb38620ebf62'
-export const DARK_CASTLE_WALKTHROUGH_SHA256 = '50f9985a0dc052dbb05d4f2d0808ba2a3e5837080782d1b9dcb9e0b995444e5f'
+export const DARK_CASTLE_VISUAL_SHA256 = '7995aa700990e680cd0345c99233a6eaa82e6027fa4ae3f6efd46b72b4899fbb'
+export const DARK_CASTLE_WALKTHROUGH_SHA256 = 'ad4d48a419bffde7b1702b45de0aafe22df067b5a432837c3cd81f78687756bb'
 export const DARK_CASTLE_COPY_APPROVED_AT = '2026-10-23T23:07:32.922112+00:00'
+export const DARK_CASTLE_CORRECTION_CREATED_AT = '2026-10-23T23:56:40Z'
 export const DARK_CASTLE_EVIDENCE_FINGERPRINT = 'fnv1a:07f944bb'
 
 export function approvedVisualStorageUrl(copyVersion: string, supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''): string | null {
@@ -20,12 +21,14 @@ export function approvedVisualStorageUrl(copyVersion: string, supabaseUrl = proc
 }
 
 export type ApprovedVisualReviewContract = {
-  version: 'approved_visual_review_v1'
+  version: 'corrected_visual_review_v2'
   social_content_id: string
   work_item_id: string
   calendar_item_id: string
   copy_version: string
-  copy_approved_at: string
+  copy_approved_at: null
+  source_copy_approved_at: string
+  copy_approval_state: 'pending_human_qa'
   evidence_fingerprint: string
   asset_path: string
   asset_sha256: string
@@ -47,12 +50,14 @@ function record(value: unknown): Record<string, unknown> {
 
 export function approvedVisualReviewContract(copyVersion: string, assetPath = DARK_CASTLE_VISUAL_PATH): ApprovedVisualReviewContract {
   return {
-    version: 'approved_visual_review_v1',
+    version: 'corrected_visual_review_v2',
     social_content_id: DARK_CASTLE_SOCIAL_CONTENT_ID,
     work_item_id: '2403b70a-c262-429e-8da3-964e082f5a59',
     calendar_item_id: '4070755c-7c46-4c3e-ac9b-94d35921556e',
     copy_version: copyVersion,
-    copy_approved_at: DARK_CASTLE_COPY_APPROVED_AT,
+    copy_approved_at: null,
+    source_copy_approved_at: DARK_CASTLE_COPY_APPROVED_AT,
+    copy_approval_state: 'pending_human_qa',
     evidence_fingerprint: DARK_CASTLE_EVIDENCE_FINGERPRINT,
     asset_path: assetPath,
     asset_sha256: DARK_CASTLE_VISUAL_SHA256,
@@ -80,8 +85,11 @@ export function inspectApprovedVisualReviewContract(item: Pick<SocialContentItem
     contract.calendar_item_id === expected.calendar_item_id,
     contract.copy_version === copyVersion,
     contract.copy_approved_at === expected.copy_approved_at,
+    contract.source_copy_approved_at === expected.source_copy_approved_at,
+    contract.copy_approval_state === expected.copy_approval_state,
     contract.evidence_fingerprint === expected.evidence_fingerprint,
-    approval.copy_approved_at === expected.copy_approved_at,
+    approval.source_copy_approved_at === expected.source_copy_approved_at,
+    approval.copy_approval_state === expected.copy_approval_state,
     approval.evidence_fingerprint === expected.evidence_fingerprint,
     contract.asset_path === expected.asset_path,
     contract.asset_sha256 === expected.asset_sha256,
@@ -90,8 +98,9 @@ export function inspectApprovedVisualReviewContract(item: Pick<SocialContentItem
     contract.provider === 'none',
     JSON.stringify(contract.external_actions) === JSON.stringify(expected.external_actions),
     item.image_url === expected.asset_path,
+    item.id === DARK_CASTLE_VISUAL_QA_ID,
   ]
   return checks.every(Boolean)
-    ? { state: 'current' as const, contract, reason: 'Approved provider-free gameplay composition matches this copy and evidence.' }
-    : { state: 'blocked' as const, contract, reason: 'The visual review contract is stale, incomplete, or differs from the approved copy, evidence, source captures, or asset hash.' }
+    ? { state: 'current' as const, contract, reason: 'Corrected provider-free gameplay candidate matches this copy and evidence; copy and visual approval remain pending.' }
+    : { state: 'blocked' as const, contract, reason: 'The corrected visual is pending approval or its contract differs from the current copy, evidence, source captures, or asset hash.' }
 }

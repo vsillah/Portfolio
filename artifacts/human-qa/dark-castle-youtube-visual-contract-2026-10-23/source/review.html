@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dark Castle Chess - YouTube Visual Review</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7f7f4;
+      --muted: #bec8d6;
+      --navy: #071525;
+      --navy-2: #10243d;
+      --gold: #f2c94c;
+      --gold-2: #d89f20;
+      --teal: #5ed6c8;
+      --line: rgba(242, 201, 76, 0.34);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #030913;
+      color: var(--ink);
+    }
+
+    .frame {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 78% 34%, rgba(41, 113, 126, 0.18), transparent 32%),
+        linear-gradient(135deg, #071525 0%, #0b1d32 54%, #06111f 100%);
+    }
+
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 88%);
+      pointer-events: none;
+    }
+
+    header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 112px;
+      padding: 22px 54px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(6, 17, 31, 0.78);
+    }
+
+    .brand { display: flex; align-items: center; gap: 20px; }
+    .brand img { width: 56px; height: 70px; object-fit: contain; }
+    .brand-name { color: var(--gold); font-weight: 800; font-size: 23px; }
+    .brand-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .gate {
+      border: 1px solid rgba(94, 214, 200, 0.55);
+      color: #b9fff5;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 750;
+      background: rgba(94, 214, 200, 0.08);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.58fr 0.9fr;
+      gap: 24px;
+      height: 968px;
+      padding: 32px 54px 40px;
+    }
+
+    .left { display: grid; grid-template-rows: 200px 560px 92px; gap: 22px; min-width: 0; min-height: 0; }
+    .eyebrow {
+      color: var(--gold);
+      font-size: 15px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    h1 {
+      margin: 9px 0 0;
+      max-width: 1120px;
+      font-size: 62px;
+      line-height: 1.01;
+      letter-spacing: 0;
+      font-weight: 850;
+    }
+    .subhead { margin-top: 12px; color: var(--muted); font-size: 20px; line-height: 1.42; }
+
+    .hero {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: #0a121d;
+      box-shadow: 0 22px 64px rgba(0,0,0,0.35);
+    }
+    .hero img { width: 100%; height: 100%; object-fit: cover; object-position: center 32%; display: block; }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 45%;
+      background: linear-gradient(to top, rgba(3,9,19,0.94), transparent);
+    }
+    .hero-copy { position: absolute; z-index: 2; left: 28px; right: 28px; bottom: 24px; display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+    .step { color: var(--gold); font-size: 18px; font-weight: 900; }
+    .step span { color: white; font-size: 22px; margin-left: 8px; }
+    .proof { color: #dce6f2; font-size: 15px; max-width: 500px; text-align: right; line-height: 1.4; }
+
+    .bottom-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--gold); }
+    .bottom-grid article { padding: 14px 18px 10px; min-height: 88px; border-right: 1px solid rgba(255,255,255,0.15); background: rgba(4,13,24,0.74); }
+    .bottom-grid article:last-child { border-right: 0; }
+    .bottom-grid h2 { margin: 0 0 7px; color: white; font-size: 15px; }
+    .bottom-grid p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.42; }
+
+    .right { display: grid; grid-template-rows: 370px 370px 120px; gap: 18px; min-width: 0; min-height: 0; }
+    .evidence-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: #081320;
+    }
+    .evidence-card img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+    .evidence-card::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(to top, rgba(3,9,19,0.98), transparent); }
+    .evidence-copy { position: absolute; z-index: 2; left: 22px; right: 22px; bottom: 20px; }
+    .evidence-copy strong { display: block; color: var(--gold); font-size: 18px; margin-bottom: 5px; }
+    .evidence-copy p { margin: 0; color: #e6edf6; font-size: 15px; line-height: 1.4; }
+
+    .trace {
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(242,201,76,0.09), rgba(94,214,200,0.07));
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+    .trace-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(94,214,200,0.65);
+      color: var(--teal);
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .trace strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .trace span { color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+    .review-stamp {
+      position: absolute;
+      right: 54px;
+      bottom: 16px;
+      z-index: 3;
+      color: rgba(190,200,214,0.68);
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <section class="frame" aria-label="Dark Castle Chess provider-free review visual">
+    <header>
+      <div class="brand">
+        <img src="assets/amadutown-logo.png" alt="AmaduTown shield">
+        <div>
+          <div class="brand-name">AMADUTOWN ADVISORY SOLUTIONS</div>
+          <div class="brand-sub">Dark Castle Chess · product field note</div>
+        </div>
+      </div>
+      <div class="gate">PROVIDER-NONE · INTERNAL REVIEW</div>
+    </header>
+
+    <main>
+      <div class="left">
+        <div>
+          <div class="eyebrow">The product lesson behind the board</div>
+          <h1>The lesson survives when the position does.</h1>
+          <div class="subhead">Explore the position. Try vs computer. Read the move guidance after Black replies.</div>
+        </div>
+
+        <div class="hero">
+          <img src="assets/explore-computer.jpg" alt="Play screen after Black plays e5, with move guidance and notation visible">
+          <div class="hero-copy">
+            <div class="step">03 · Read move guidance <span>Black played e5.</span></div>
+            <div class="proof">The Play capture shows Black's reply, move guidance, and notation.</div>
+          </div>
+        </div>
+
+        <div class="bottom-grid">
+          <article><h2>Product value</h2><p>The position and e4 remain visible when Play opens.</p></article>
+          <article><h2>Operator lesson</h2><p>Keep the player's prior decision visible beside the next move.</p></article>
+          <article><h2>Release boundary</h2><p>Public pilot evidence only; no measured learning outcome claimed.</p></article>
+        </div>
+      </div>
+
+      <div class="right">
+        <article class="evidence-card">
+          <img src="assets/explore-position.jpg" alt="Explore screen with the Try vs computer button, move guidance, and e4 in notation">
+          <div class="evidence-copy"><strong>01 · Explore</strong><p>The position shows e4 in notation and offers Try vs computer.</p></div>
+        </article>
+        <article class="evidence-card">
+          <img src="assets/explore-start.jpg" alt="Play screen with e4 retained in notation and a Start game prompt">
+          <div class="evidence-copy"><strong>02 · Try vs computer</strong><p>Play opens with e4 still in notation and a Start game prompt.</p></div>
+        </article>
+        <div class="trace">
+          <div class="trace-mark">✓</div>
+          <div><strong>Traceable by design</strong><span>Three public gameplay captures · corrected copy pending review · privacy-safe artifact</span></div>
+        </div>
+      </div>
+    </main>
+
+    <div class="review-stamp">Internal Human QA · 2026-10-23 · external execution disabled</div>
+  </section>
+</body>
+</html>

@@ -1,43 +1,46 @@
 {
-  "receipt_type": "provider_free_visual_review",
-  "receipt_version": 1,
-  "created_at": "2026-10-23T23:12:00Z",
+  "receipt_type": "provider_free_corrected_visual_candidate",
+  "receipt_version": 2,
+  "created_at": "2026-10-23T23:56:40Z",
   "binding": {
     "social_content_id": "21c492c2-9279-4e08-afc9-49207935a681",
     "work_item_id": "2403b70a-c262-429e-8da3-964e082f5a59",
     "calendar_item_id": "4070755c-7c46-4c3e-ac9b-94d35921556e",
-    "copy_approved_at": "2026-10-23T23:07:32.922112+00:00",
+    "source_copy_approved_at": "2026-10-23T23:07:32.922112+00:00",
+    "source_copy_version": "ccd60d3154616a5705d86c575ef9ae1e40fd0550e03c6008c633b2824b6b3a81",
+    "corrected_copy_version": "7f0031e0f71a14f3a6cc1fae15348b4ade122886f3e4f08b663d85b566491c62",
+    "corrected_copy_approval_state": "pending_human_qa",
     "evidence_fingerprint": "fnv1a:07f944bb"
   },
   "artifact": {
     "kind": "youtube_review_visual",
     "dimensions": "1920x1080",
-    "path": "dark-castle-youtube-review.png",
-    "sha256": "32270fcb035a9159679ab23584788e45571eef47f685083ea77eeb38620ebf62"
+    "path": "artifacts/human-qa/dark-castle-youtube-visual-contract-2026-10-23/review.png",
+    "sha256": "7995aa700990e680cd0345c99233a6eaa82e6027fa4ae3f6efd46b72b4899fbb"
   },
   "walkthrough": {
     "kind": "privacy_safe_mp4",
-    "duration_seconds": 10,
-    "dimensions": "1920x1080",
+    "duration_seconds": 24.5,
+    "dimensions": "1440x900",
     "codec": "h264",
     "audio": false,
-    "path": "dark-castle-youtube-review-walkthrough.mp4",
-    "sha256": "50f9985a0dc052dbb05d4f2d0808ba2a3e5837080782d1b9dcb9e0b995444e5f"
+    "path": "artifacts/human-qa/dark-castle-youtube-visual-contract-2026-10-23/visual-gate-walkthrough.mp4",
+    "sha256": "ad4d48a419bffde7b1702b45de0aafe22df067b5a432837c3cd81f78687756bb"
   },
   "sources": [
     {
       "url": "https://dark-castle-chess.vercel.app/welcome/media/explore-computer.jpg",
-      "local_path": "assets/explore-computer.jpg",
+      "local_path": "artifacts/human-qa/dark-castle-youtube-visual-contract-2026-10-23/source/assets/explore-computer.jpg",
       "sha256": "27d79426c04fa984569dc337623d1eb4a514392bf2e067563d9982d43d77dcdf"
     },
     {
       "url": "https://dark-castle-chess.vercel.app/welcome/media/explore-position.jpg",
-      "local_path": "assets/explore-position.jpg",
+      "local_path": "artifacts/human-qa/dark-castle-youtube-visual-contract-2026-10-23/source/assets/explore-position.jpg",
       "sha256": "896dce9162e815c1138dfbecacd24e0a63d05e99901f98b89022ddeee225f9df"
     },
     {
       "url": "https://dark-castle-chess.vercel.app/welcome/media/explore-start.jpg",
-      "local_path": "assets/explore-start.jpg",
+      "local_path": "artifacts/human-qa/dark-castle-youtube-visual-contract-2026-10-23/source/assets/explore-start.jpg",
       "sha256": "c794cc0b96ecde2be8b99fa930b45ac2a2e055d7ec92dc45654ac592082af3ae"
     }
   ],
@@ -50,5 +53,5 @@
     "published": false,
     "sent_externally": false
   },
-  "boundary": "Local Human QA fallback only. The production record has no current deterministic visual contract, so this receipt does not represent a production-bound asset."
+  "boundary": "Corrected local Human QA candidate only. The earlier copy approval applies to the source version, not this correction. The production record has no current deterministic visual contract or corrected copy approval."
 }

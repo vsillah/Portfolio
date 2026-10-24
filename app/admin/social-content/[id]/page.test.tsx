@@ -8,6 +8,7 @@ import {
 } from '@/lib/social-deterministic-visual-qa-fixture'
 import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
 import { socialCopyVersion } from '@/lib/social-copy-revision'
+import { darkCastleVisualQaFixture } from '@/lib/social-dark-castle-visual-qa-fixture'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 import { YOUTUBE_DESCRIPTION_COMPLETION_QA_ID, channelExperimentSocialContentQaFixture, youtubeDescriptionCompletionQaFixture } from '@/lib/social-channel-experiment-qa-fixture'
@@ -4238,6 +4239,28 @@ describe('SocialContentDetailRoute visual production review', () => {
       HTMLElement.prototype.scrollIntoView=originalScroll
       window.history.replaceState({},'', '/')
     }
+  })
+
+  it('shows the corrected Dark Castle candidate with literal gameplay labels and pending approvals', async () => {
+    const item = darkCastleVisualQaFixture('current')
+    mocks.id = item.id
+    mocks.search = 'step=visuals&qa_state=current'
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ fixture: true, fixture_state: 'current', item }) } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText('Corrected gameplay candidate · approval pending')).toBeVisible()
+    expect(screen.getByText('Corrected copy approval')).toBeVisible()
+    expect(screen.getByText('Pending Human QA')).toBeVisible()
+    expect(screen.getAllByRole('img', { name: /Explore, Try vs computer, and move guidance after Black plays e5/i }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: 'Open full-size corrected PNG' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Corrected candidate bound' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Approve Visuals' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Reject Visuals' })).toBeDisabled()
+    expect(screen.getByText('Corrected YouTube copy candidate')).toBeVisible()
+    expect(document.body.textContent).not.toMatch(/Transfer:|Meet the response:|02 · Transfer|03 · RESPOND/)
+    expect(fetchMock.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true)
   })
 
 })

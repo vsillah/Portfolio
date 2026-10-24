@@ -3246,6 +3246,7 @@ function SocialContentDetailPage() {
     : null
   const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
   const hasApprovedReviewContract = Boolean(deterministicVisualRender?.review_contract)
+  const isDarkCastleCorrectionCandidate = id === DARK_CASTLE_VISUAL_QA_ID && deterministicVisualRender?.review_contract?.copy_approval_state === 'pending_human_qa'
   const requiresDeterministicVisualContract = id === DARK_CASTLE_SOCIAL_CONTENT_ID || id === DARK_CASTLE_VISUAL_QA_ID || hasDeterministicVisualContract || hasApprovedReviewContract
   const frameworkApplication = asRecord(asRecord(ragContext?.practitioner_content_quality)?.framework_application)
   const selectedContentFramework = asRecord(frameworkApplication?.selected_framework)
@@ -3285,7 +3286,7 @@ function SocialContentDetailPage() {
     : deterministicVisualOperatorState === 'rebuilt' || deterministicVisualOperatorState === 'rendered_stale'
       ? 'Render updated visual'
       : deterministicVisualOperatorState === 'rendered_current'
-        ? hasApprovedReviewContract ? 'Approved composition bound' : 'Render again'
+        ? isDarkCastleCorrectionCandidate ? 'Corrected candidate bound' : hasApprovedReviewContract ? 'Approved composition bound' : 'Render again'
         : deterministicVisualOperatorState === 'initial'
           ? 'Render review visual'
           : 'Render unavailable'
@@ -3294,7 +3295,7 @@ function SocialContentDetailPage() {
     : deterministicVisualOperatorState === 'rebuilt'
       ? 'Candidate rebuilt'
       : deterministicVisualOperatorState === 'rendered_current'
-        ? 'Current asset'
+        ? isDarkCastleCorrectionCandidate ? 'Current review candidate' : 'Current asset'
         : deterministicVisualOperatorState === 'rendered_stale'
           ? 'Rendered asset stale'
           : deterministicVisualOperatorState === 'initial'
@@ -3305,7 +3306,7 @@ function SocialContentDetailPage() {
     : deterministicVisualOperatorState === 'rebuilt'
       ? 'The saved recipe and rebuilt candidate match. Render the updated visual for review.'
       : deterministicVisualOperatorState === 'rendered_current'
-        ? hasApprovedReviewContract ? 'The approved gameplay composition matches this copy, evidence fingerprint, source captures, and exact PNG hash.' : 'This asset matches the approved copy, saved recipe, and current candidate.'
+        ? isDarkCastleCorrectionCandidate ? 'The corrected image matches this proposed copy, public captures, and exact PNG hash. Copy and visual approval remain pending.' : hasApprovedReviewContract ? 'The approved gameplay composition matches this copy, evidence fingerprint, source captures, and exact PNG hash.' : 'This asset matches the approved copy, saved recipe, and current candidate.'
         : deterministicVisualOperatorState === 'rendered_stale'
           ? 'The saved recipe is current, but the rendered asset is stale. Render the updated visual before deciding.'
           : deterministicVisualOperatorState === 'initial'
@@ -3330,6 +3331,8 @@ function SocialContentDetailPage() {
   )
   const visualPreviewAlt = campaignReviewPacket?.kind === 'linkedin_visual'
     ? campaignReviewPacket.visual.alt
+    : isDarkCastleCorrectionCandidate
+    ? 'Corrected Dark Castle review candidate: Explore, Try vs computer, and move guidance after Black plays e5'
     : item.image_url
     ? 'Deterministic AmaduTown review asset'
     : agentifiedVisualQaPacket?.altText || 'Amina visual QA candidate'
@@ -3433,7 +3436,7 @@ function SocialContentDetailPage() {
     ? 'Visuals were rejected. Resolve the rejection before rebuilding or rendering.'
     : hasApprovedReviewContract
       ? deterministicVisualRender?.state === 'current'
-        ? 'This approved composition is review-only. No provider render or external action is available.'
+        ? isDarkCastleCorrectionCandidate ? 'This corrected candidate is review-only. Copy and visual approval remain pending; no provider render or external action is available.' : 'This approved composition is review-only. No provider render or external action is available.'
         : deterministicVisualRender?.recovery_action || 'Reconcile the approved visual binding before this gate can advance.'
     : deterministicVisualRecipeIssue
       ? deterministicVisualRecipeIssue
@@ -5523,11 +5526,11 @@ function SocialContentDetailPage() {
 	                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-800 dark:text-amber-200">Visual Production</p>
 	                        <p className="mt-1 text-sm leading-6 text-amber-950/90 dark:text-amber-50/90">
                           {hasApprovedReviewContract && deterministicVisualRender?.state === 'current'
-                            ? 'Approved copy and gameplay evidence are bound to this provider-free review composition. Visual approval and external actions remain separate.'
+                            ? isDarkCastleCorrectionCandidate ? 'Corrected gameplay wording and image are bound for read-only review. Copy and visual approval remain pending; external actions stay off.' : 'Approved copy and gameplay evidence are bound to this provider-free review composition. Visual approval and external actions remain separate.'
                             : hasApprovedReviewContract
-                            ? 'The reviewed gameplay composition has an invalid version or evidence binding. Reconcile it before visual approval.'
+                            ? isDarkCastleCorrectionCandidate ? 'The corrected gameplay candidate has an invalid version or evidence binding. Reconcile it before review.' : 'The reviewed gameplay composition has an invalid version or evidence binding. Reconcile it before visual approval.'
                             : requiresDeterministicVisualContract && !hasDeterministicVisualContract
-                            ? 'Approved copy has no current deterministic visual contract. Review the exact visual receipt before any binding decision.'
+                            ? id === DARK_CASTLE_VISUAL_QA_ID ? 'Corrected copy has no current visual contract. Copy and visual approval remain pending.' : 'Approved copy has no current deterministic visual contract. Review the exact visual receipt before any binding decision.'
                             : visualProductionUnlocked
 	                            ? 'Copy approved. Render the stored deterministic candidate or choose the existing screenshot-carousel path.'
 	                            : 'Choose one visual format for this draft. Rendering stays separate from visual approval and publishing.'}
@@ -5544,7 +5547,7 @@ function SocialContentDetailPage() {
 	                      <div className="flex flex-wrap items-start justify-between gap-2">
 	                        <div>
 	                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">{hasApprovedReviewContract ? 'A. Inspect visual binding' : 'A. Configure visual'}</p>
-	                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{hasApprovedReviewContract ? 'Inspect the approved composition and its exact version and source bindings.' : 'Choose one deterministic layout for the approved editorial framework.'}</p>
+	                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{hasApprovedReviewContract ? 'Inspect the review composition and its exact version and source bindings.' : id === DARK_CASTLE_VISUAL_QA_ID ? 'No image is available until the corrected review contract is current.' : 'Choose one deterministic layout for the approved editorial framework.'}</p>
                         </div>
                         {isSingleImageFormat && hasDeterministicVisualContract && (
                           <span title={DETERMINISTIC_VISUAL_RENDER_MODE} className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Active mode · provider-none structured HTML/SVG</span>
@@ -5562,7 +5565,7 @@ function SocialContentDetailPage() {
 	                            <span className="flex items-center gap-2 text-sm font-semibold text-foreground"><ImageIcon className="h-4 w-4 text-amber-800 dark:text-amber-200" />Deterministic visual</span>
                             {isSingleImageFormat && <span className="inline-flex items-center gap-1 rounded-full border border-amber-700/45 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:border-amber-300/50 dark:text-amber-100"><CheckCircle2 className="h-3 w-3" />Selected</span>}
                           </span>
-                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">{hasApprovedReviewContract ? 'Uses the approved gameplay composition with exact copy, evidence, source, and PNG bindings.' : 'Uses a saved template, type, aspect, derived content, and exact version-bound candidate.'}</span>
+                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">{hasApprovedReviewContract ? isDarkCastleCorrectionCandidate ? 'Uses the corrected gameplay candidate with exact copy, evidence, source, and PNG bindings. Approval is pending.' : 'Uses the approved gameplay composition with exact copy, evidence, source, and PNG bindings.' : 'Uses a saved template, type, aspect, derived content, and exact version-bound candidate.'}</span>
                         </button>
                         <button
                           type="button"
@@ -5580,12 +5583,13 @@ function SocialContentDetailPage() {
                       </div>
                       {isSingleImageFormat ? hasApprovedReviewContract ? (
                         <div className="mt-3 rounded-lg border border-amber-500/35 bg-amber-500/5 p-3 text-sm text-foreground">
-                          <p className="font-semibold">{deterministicVisualRender?.state === 'current' ? 'Approved gameplay composition · version-bound review' : 'Gameplay review contract · blocked binding'}</p>
-                          <p className="mt-1 text-xs leading-5 text-muted-foreground">This provider-free image is bound to the approved copy and three attributable public gameplay captures. A stale or mismatched contract blocks the visual gate.</p>
+                          <p className="font-semibold">{deterministicVisualRender?.state === 'current' ? isDarkCastleCorrectionCandidate ? 'Corrected gameplay candidate · approval pending' : 'Approved gameplay composition · version-bound review' : 'Gameplay review contract · blocked binding'}</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{isDarkCastleCorrectionCandidate ? 'This provider-free candidate uses the corrected copy and three public gameplay captures. The earlier copy approval does not approve this revision.' : 'This provider-free image is bound to the approved copy and three attributable public gameplay captures. A stale or mismatched contract blocks the visual gate.'}</p>
                           <dl className="mt-3 grid gap-2 break-all text-xs sm:grid-cols-2">
                             <div><dt className="text-muted-foreground">Copy version</dt><dd className="font-mono">{deterministicVisualRender?.copy_version}</dd></div>
                             <div><dt className="text-muted-foreground">Evidence fingerprint</dt><dd className="font-mono">{deterministicVisualRender?.review_contract?.evidence_fingerprint}</dd></div>
-                            <div><dt className="text-muted-foreground">Approved copy at</dt><dd>{deterministicVisualRender?.review_contract?.copy_approved_at}</dd></div>
+                            <div><dt className="text-muted-foreground">{isDarkCastleCorrectionCandidate ? 'Earlier source copy approved at' : 'Approved copy at'}</dt><dd>{isDarkCastleCorrectionCandidate ? deterministicVisualRender?.review_contract?.source_copy_approved_at : deterministicVisualRender?.review_contract?.copy_approved_at}</dd></div>
+                            {isDarkCastleCorrectionCandidate && <div><dt className="text-muted-foreground">Corrected copy approval</dt><dd>Pending Human QA</dd></div>}
                             <div><dt className="text-muted-foreground">PNG SHA-256</dt><dd className="font-mono">{deterministicVisualRender?.review_contract?.asset_sha256}</dd></div>
                           </dl>
                           <details className="mt-3 text-xs"><summary className="cursor-pointer font-semibold">Public gameplay sources and boundaries</summary>
@@ -5697,7 +5701,7 @@ function SocialContentDetailPage() {
                         <div className="mt-3 rounded-lg border border-red-500/35 bg-red-500/5 p-3 text-sm text-foreground">
                           <p className="font-semibold">Current deterministic visual contract missing</p>
                           <p className="mt-1 text-xs leading-5 text-muted-foreground">{deterministicVisualRender?.recovery_action || 'Reload the approved copy and evidence before binding a reviewed visual contract.'}</p>
-                          {(id === DARK_CASTLE_SOCIAL_CONTENT_ID || id === DARK_CASTLE_VISUAL_QA_ID) && <a className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-border px-3 py-2 font-semibold hover:bg-muted" href={`/admin/social-content/${DARK_CASTLE_VISUAL_QA_ID}?step=visuals&qa_state=current`}>Open approved visual review fixture</a>}
+                          {(id === DARK_CASTLE_SOCIAL_CONTENT_ID || id === DARK_CASTLE_VISUAL_QA_ID) && <a className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-border px-3 py-2 font-semibold hover:bg-muted" href={`/admin/social-content/${DARK_CASTLE_VISUAL_QA_ID}?step=visuals&qa_state=current`}>Open corrected visual review fixture</a>}
                         </div>
                       ) : (
                         <div className="mt-3 space-y-3">
@@ -5711,7 +5715,7 @@ function SocialContentDetailPage() {
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
                           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">{hasApprovedReviewContract ? 'B. Review bound asset' : 'B. Generate review asset'}</p>
-                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{hasApprovedReviewContract ? 'The reviewed image is already bound in this read-only fixture. No render or provider action is available.' : 'The primary action always advances the visible recipe by one valid step.'}</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{hasApprovedReviewContract ? 'The review image is bound in this read-only fixture. No render or provider action is available.' : 'The primary action always advances the visible recipe by one valid step.'}</p>
                         </div>
                         {isSingleImageFormat && <span className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Provider none</span>}
                       </div>
@@ -5759,10 +5763,10 @@ function SocialContentDetailPage() {
                               {(deterministicVisualOperatorState === 'dirty' || deterministicVisualOperatorState === 'rendered_stale') && <p className="mb-2 rounded-lg border border-red-500/35 bg-red-500/5 p-2 text-xs font-semibold text-red-800 dark:text-red-200">Stale asset · visible for comparison, unavailable for approval until the primary action completes.</p>}
                               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                  <p className="text-sm font-semibold text-foreground">{hasApprovedReviewContract ? 'Approved gameplay composition' : 'Framework illustration'}</p>
+                                  <p className="text-sm font-semibold text-foreground">{isDarkCastleCorrectionCandidate ? 'Corrected gameplay candidate' : hasApprovedReviewContract ? 'Approved gameplay composition' : 'Framework illustration'}</p>
                                   <p className="mt-0.5 text-xs text-muted-foreground">The customer-facing image stays clean. Turn trace mode on only when you need to inspect its evidence.</p>
                                 </div>
-                                {hasApprovedReviewContract && <a href={visualPreviewImageUrl} className="inline-flex min-h-10 items-center rounded-lg border border-border px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted">Open full-size approved PNG</a>}
+                                {hasApprovedReviewContract && <a href={visualPreviewImageUrl} className="inline-flex min-h-10 items-center rounded-lg border border-border px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted">{isDarkCastleCorrectionCandidate ? 'Open full-size corrected PNG' : 'Open full-size approved PNG'}</a>}
                                 {deterministicVisualLineage.length > 0 && (
                                   <button
                                     type="button"
@@ -5883,7 +5887,7 @@ function SocialContentDetailPage() {
 
                     <div data-visual-workflow-step="decide" className="mt-3 rounded-lg border border-border bg-background p-3">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">C. Decide</p>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">Approve or reject only the current rendered asset. Dirty, rebuilt, blocked, and stale states remain unavailable.</p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">{isDarkCastleCorrectionCandidate ? 'Copy and visual approval are pending. This read-only candidate has no decision controls.' : 'Approve or reject only the current rendered asset. Dirty, rebuilt, blocked, and stale states remain unavailable.'}</p>
                       {renderSectionGateControls('visual_assets', 'Visual assets', visualAssetsGateState, {
                         approveLabel: 'Approve Visuals',
                         rejectLabel: 'Reject Visuals',
@@ -6532,7 +6536,7 @@ function SocialContentDetailPage() {
                 <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
                 <div data-theme-surface="linkedin-preview-chrome" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
               <h3 className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground">
-	                {id === DARK_CASTLE_VISUAL_QA_ID ? <Youtube className="h-4 w-4 text-red-700 dark:text-red-300" /> : <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" />}{id === DARK_CASTLE_VISUAL_QA_ID ? 'Approved YouTube copy preview' : 'LinkedIn Preview'}
+	                {id === DARK_CASTLE_VISUAL_QA_ID ? <Youtube className="h-4 w-4 text-red-700 dark:text-red-300" /> : <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" />}{id === DARK_CASTLE_VISUAL_QA_ID ? 'Corrected YouTube copy candidate' : 'LinkedIn Preview'}
                   <span className="ml-auto rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">Follows Portfolio theme</span>
               </h3>
               <div
