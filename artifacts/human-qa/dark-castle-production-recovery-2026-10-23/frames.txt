@@ -1,0 +1,9 @@
+file '01-desktop-recovery.jpg'
+duration 4
+file '02-desktop-copy.jpg'
+duration 4
+file '03-phone-recovery.jpg'
+duration 4
+file '04-phone-copy.jpg'
+duration 4
+file '04-phone-copy.jpg'

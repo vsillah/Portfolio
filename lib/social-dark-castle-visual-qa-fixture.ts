@@ -6,6 +6,7 @@ import {
   DARK_CASTLE_COPY_APPROVED_AT,
   DARK_CASTLE_CORRECTION_CREATED_AT,
   DARK_CASTLE_EVIDENCE_FINGERPRINT,
+  DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE,
   DARK_CASTLE_SOCIAL_CONTENT_ID,
   DARK_CASTLE_VISUAL_PATH,
   DARK_CASTLE_VISUAL_QA_ID,
@@ -62,5 +63,34 @@ export function darkCastleVisualQaFixture(state: DarkCastleVisualQaState = 'curr
   if (state === 'mismatch') contract.asset_sha256 = '0'.repeat(64)
   if (state !== 'missing') item.rag_context = { ...item.rag_context, deterministic_visual_review_contract: contract }
   item.deterministic_visual_render = projectDeterministicVisualRender({ item, copyVersion, storageAvailable: true, releaseLocked: false })
+  return item
+}
+
+export function darkCastleProductionRecoveryQaFixture(): SocialContentItem {
+  const fixture = darkCastleVisualQaFixture('missing')
+  const item = {
+    ...fixture,
+    id: DARK_CASTLE_SOCIAL_CONTENT_ID,
+    status: 'approved',
+    post_text: 'Saved production copy is represented by a privacy-safe placeholder in this local review.',
+    voiceover_text: 'Saved production copy is represented by a privacy-safe placeholder in this local review.',
+    rag_context: {
+      ...fixture.rag_context,
+      qa_fixture: {
+        id: DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE,
+        kind: 'production_record_recovery_preview',
+        read_only: true,
+        target_record_id: DARK_CASTLE_SOCIAL_CONTENT_ID,
+        reason: 'Read-only local projection of the production missing-contract state. No shared record or provider is changed.',
+      },
+      deterministic_visual_review_approval: undefined,
+    },
+  } as SocialContentItem
+  item.deterministic_visual_render = projectDeterministicVisualRender({
+    item,
+    copyVersion: socialCopyVersion(item),
+    storageAvailable: true,
+    releaseLocked: false,
+  })
   return item
 }

@@ -2,6 +2,7 @@ import type { SocialContentItem } from '@/lib/social-content'
 
 export const DARK_CASTLE_VISUAL_QA_ID = 'dark-castle-youtube-visual-contract-qa'
 export const DARK_CASTLE_SOCIAL_CONTENT_ID = '21c492c2-9279-4e08-afc9-49207935a681'
+export const DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE = 'dark_castle_production_recovery'
 export const DARK_CASTLE_VISUAL_PATH = '/api/admin/social-content/qa-visual/dark-castle-youtube'
 export const DARK_CASTLE_VISUAL_SHA256 = '7995aa700990e680cd0345c99233a6eaa82e6027fa4ae3f6efd46b72b4899fbb'
 export const DARK_CASTLE_WALKTHROUGH_SHA256 = 'ad4d48a419bffde7b1702b45de0aafe22df067b5a432837c3cd81f78687756bb'

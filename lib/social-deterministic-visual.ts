@@ -656,7 +656,7 @@ export function projectDeterministicVisualRender(input: {
       return {
         ...base, state: 'blocked', code: 'candidate_missing', can_render: false,
         summary: 'Gameplay evidence has no current deterministic visual review contract.',
-        recovery_action: 'Review the corrected provider-free candidate and its exact copy, evidence, and PNG hashes in the local visual-contract gate. Bind a reviewed contract only after the current copy has separate approval.',
+        recovery_action: 'The current copy has no reviewed visual contract. Keep rendering blocked until the corrected copy and visual decisions are recorded.',
       }
     }
     return { ...base, state: 'blocked', can_render: false, ...blocker }
