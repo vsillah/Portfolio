@@ -17,6 +17,19 @@ describe('Dark Castle missing-contract recovery', () => {
     expect(container.innerHTML).not.toContain('localhost')
   })
 
+  it('encodes the record and fixture, and omits an empty fixture query', () => {
+    const { rerender } = render(<DarkCastleVisualRecovery recordId="id with/slash" qaFixture="fixture with space" />)
+    expect(screen.getByRole('link', { name: 'Review this record’s saved copy' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/id%20with%2Fslash?step=copy&qa_fixture=fixture%20with%20space#social-copy-gate',
+    )
+    rerender(<DarkCastleVisualRecovery recordId={DARK_CASTLE_SOCIAL_CONTENT_ID} qaFixture="" />)
+    expect(screen.getByRole('link', { name: 'Review this record’s saved copy' })).toHaveAttribute(
+      'href',
+      `/admin/social-content/${DARK_CASTLE_SOCIAL_CONTENT_ID}?step=copy#social-copy-gate`,
+    )
+  })
+
   it('keeps the local projection read-only when following the recovery link', () => {
     render(<DarkCastleVisualRecovery recordId={DARK_CASTLE_SOCIAL_CONTENT_ID} qaFixture={DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE} />)
     expect(screen.getByRole('link', { name: 'Review this record’s saved copy' })).toHaveAttribute(
