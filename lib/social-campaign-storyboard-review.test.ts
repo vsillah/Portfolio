@@ -1,7 +1,10 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import jevSource from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json'
 import { socialCampaignApprovedAdaptationQaProjection } from '@/lib/social-campaign-approved-adaptation-qa-fixture'
+import type { SocialVideoAdaptationInput } from '@/lib/social-video-adaptation'
+import { buildCampaignHeroThumbnailReview, buildCampaignStoryboardReview, type CampaignStoryboardReviewConfig } from '@/lib/social-campaign-storyboard-review'
 
 function fileHash(publicPath: string) {
   return `sha256:${createHash('sha256').update(readFileSync(`public${publicPath}`)).digest('hex')}`
@@ -143,4 +146,133 @@ describe('review-only Social Content storyboard review', () => {
     expect([...jev.recovery_actions, ...darkCastle.recovery_actions].every((action) => action.href.startsWith('/admin/social-content?workflow=evidence'))).toBe(true)
     expect([...jev.evidence_gates, ...darkCastle.evidence_gates]).toHaveLength(22)
   })
+
+  it('advances freshness only when the exact version matches and every dated receipt is still inside its window', () => {
+    const ready = buildCampaignStoryboardReview(alignedJevInput(), jevReviewConfig())
+    expect(ready.status).toBe('ready_for_human_review')
+    expect(ready.blockers).toEqual([])
+    expect(gate(ready, 'freshness')).toMatchObject({ status: 'passed' })
+    expect(Object.values(ready.external_gates).every((open) => open === false)).toBe(true)
+
+    const atDeadline = alignedJevInput()
+    for (const receipt of Object.values(atDeadline.receipts)) {
+      if (receipt) receipt.valid_until = EVALUATED_AT
+    }
+    expect(gate(buildCampaignStoryboardReview(atDeadline, jevReviewConfig()), 'freshness')?.status).toBe('passed')
+
+    const justExpired = alignedJevInput()
+    justExpired.receipts.source!.valid_until = '2026-10-19T20:29:59.999Z'
+    const expiredReview = buildCampaignStoryboardReview(justExpired, jevReviewConfig())
+    expect(expiredReview.status).toBe('review_direction_blocked')
+    expect(gate(expiredReview, 'freshness')).toMatchObject({
+      status: 'stale',
+      detail: '1 required receipt expired before this review.',
+      receipt_ids: ['source:jev:approved-composite-20261014'],
+    })
+
+    const twoExpired = alignedJevInput()
+    twoExpired.receipts.source!.valid_until = '2026-10-19T20:29:59.999Z'
+    twoExpired.receipts.privacy!.valid_until = '2026-10-18T00:00:00.000Z'
+    expect(gate(buildCampaignStoryboardReview(twoExpired, jevReviewConfig()), 'freshness')?.detail).toBe('2 required receipts expired before this review.')
+
+    const versionWins = structuredClone(jevSource) as SocialVideoAdaptationInput
+    versionWins.receipts.source!.valid_until = '2026-10-19T20:29:59.999Z'
+    expect(gate(buildCampaignStoryboardReview(versionWins, jevReviewConfig()), 'freshness')?.detail).toBe('The approved adaptation input no longer matches the current Social Content version. The storyboard remains visible as a review direction, but it cannot advance.')
+  })
+
+  it('fails closed when a required receipt is not approved or a product proof binding is missing', () => {
+    for (const status of ['approved', 'passed', 'complete'] as const) {
+      const input = alignedJevInput()
+      input.receipts.source!.status = status
+      expect(gate(buildCampaignStoryboardReview(input, jevReviewConfig()), 'source')?.status).toBe('passed')
+    }
+
+    const pending = alignedJevInput()
+    pending.receipts.source!.status = 'pending'
+    expect(gate(buildCampaignStoryboardReview(pending, jevReviewConfig()), 'source')).toMatchObject({
+      status: 'blocked',
+      detail: 'A passed source receipt is required.',
+      receipt_ids: ['source:jev:approved-composite-20261014'],
+    })
+
+    const unbound = alignedJevInput()
+    unbound.evidence_assets[0].privacy_receipt_id = ''
+    expect(gate(buildCampaignStoryboardReview(unbound, jevReviewConfig()), 'product_proof')).toMatchObject({
+      status: 'blocked',
+      detail: 'Every visible product artifact needs a source, privacy, and rights binding.',
+    })
+  })
+
+  it('drops internal production lines from customer-facing scene copy and blocks an unknown hero', () => {
+    const mixed = alignedJevInput()
+    mixed.draft.scenes[0].on_screen_text = ['provider receipt', 'Score the decision']
+    const mixedReview = buildCampaignStoryboardReview(mixed, jevReviewConfig())
+    expect(mixedReview.scenes.find((scene) => scene.scene_id === mixed.draft.scenes[0].scene_id)?.customer_facing_copy).toEqual(['Score the decision'])
+
+    const leaked = alignedJevInput()
+    leaked.draft.scenes[0].on_screen_text = ['sample data prompt']
+    expect(buildCampaignStoryboardReview(leaked, jevReviewConfig()).scenes.find((scene) => scene.scene_id === leaked.draft.scenes[0].scene_id)?.customer_facing_copy).toEqual(['Score · rule · human decision'])
+
+    const unknown = buildCampaignStoryboardReview(alignedJevInput(), jevReviewConfig('unknown-product'))
+    expect(unknown.hero_evidence).toBeNull()
+    expect(unknown.selection_decision).toBeNull()
+    expect(unknown.assets).toEqual([])
+    expect(gate(unknown, 'hero')).toMatchObject({
+      status: 'blocked',
+      detail: 'This YouTube campaign has no current campaign-specific hero evidence receipt. A product screenshot or text-first template cannot substitute for the hero.',
+    })
+    expect(gate(unknown, 'thumbnail')?.status).toBe('blocked')
+    expect(() => buildCampaignHeroThumbnailReview({
+      campaign_identity: 'unknown-product',
+      product_label: 'Unknown product',
+      calendar_item_id: 'bb1d68b7-cef7-44a0-b907-5e6431167a0f',
+      current_content_version: CURRENT_VERSION,
+      evaluated_at: EVALUATED_AT,
+      recovery_href: '/admin/social-content?workflow=evidence&campaign=unknown-product',
+    })).toThrow('No campaign-specific hero receipt exists for unknown-product.')
+  })
 })
+
+const CURRENT_VERSION = 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2'
+const EVALUATED_AT = '2026-10-19T20:30:00.000Z'
+
+function passedGate(detail: string): CampaignStoryboardReviewConfig['outlier_gate'] {
+  return {
+    status: 'passed',
+    detail,
+    receipt_ids: ['receipt:storyboard-test'],
+    observed_at: '2026-10-17T12:00:00.000Z',
+    fresh_until: '2026-10-24T12:00:00.000Z',
+  }
+}
+
+function jevReviewConfig(campaignIdentity = 'jev'): CampaignStoryboardReviewConfig {
+  return {
+    campaign_identity: campaignIdentity,
+    product_label: 'Jev',
+    calendar_item_id: 'bb1d68b7-cef7-44a0-b907-5e6431167a0f',
+    social_content_id: '939b01e3-d1af-42c8-805e-0379f09efd60',
+    current_content_version: CURRENT_VERSION,
+    evaluated_at: EVALUATED_AT,
+    title: 'AI Scored It. Who Makes the Call?',
+    teaser: 'WHEN SHOULD AI STOP?',
+    outlier_gate: passedGate('outlier'),
+    description_gate: passedGate('description'),
+    thumbnail_gate: passedGate('thumbnail'),
+    script_gate: passedGate('script'),
+    conclusion: 'A model score becomes useful when the surrounding system makes authority, exceptions, and evidence visible.',
+    spoken_cta: 'Subscribe to AmaduTown for practical ways to decide where AI should stop and people should step in.',
+    recovery_href: '/admin/social-content?workflow=evidence&campaign=jev',
+    value_summary: 'Source-bound storyboard.',
+  }
+}
+
+function alignedJevInput() {
+  const input = structuredClone(jevSource) as SocialVideoAdaptationInput
+  input.input_version = CURRENT_VERSION
+  return input
+}
+
+function gate(packet: ReturnType<typeof buildCampaignStoryboardReview>, key: string) {
+  return packet.evidence_gates.find((entry) => entry.key === key)
+}

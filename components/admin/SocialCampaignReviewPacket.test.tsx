@@ -53,6 +53,30 @@ describe('SocialCampaignReviewPacket', () => {
     expect(screen.getByRole('region', { name: 'Thumbnail decision route' })).toHaveTextContent('Taste calibration only · performance weight 0 · unscored')
   })
 
+  it.each([
+    SOCIAL_CAMPAIGN_REVIEW_IDS.jevLinkedIn,
+    SOCIAL_CAMPAIGN_REVIEW_IDS.auditLinkedIn,
+  ])('does not demand a JIT refresh for a current LinkedIn packet %s', (id) => {
+    const packet = getSocialCampaignReviewPacket(id)!
+    render(<SocialCampaignReviewPacket packet={packet} />)
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.queryByText(/JIT refresh required/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Review-only projection/)).toBeVisible()
+  })
+
+  it('hides the stale JIT banner when the Dark Castle packet has no bound receipt', () => {
+    const packet = structuredClone(getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn)!)
+    if (packet.kind !== 'linkedin_visual') throw new Error('expected a LinkedIn visual packet')
+    delete packet.jit
+
+    render(<SocialCampaignReviewPacket packet={packet} />)
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /approved gameplay captures/i })).toBeVisible()
+    expect(screen.getByText(/Review-only projection/)).toBeVisible()
+  })
+
   it('renders the approved Jev package as reuse rather than a new generated pair', () => {
     const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.jevYouTube)!
     render(<SocialCampaignReviewPacket packet={packet} />)

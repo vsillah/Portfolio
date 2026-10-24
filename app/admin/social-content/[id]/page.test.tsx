@@ -12,6 +12,7 @@ import { darkCastleVisualQaFixture } from '@/lib/social-dark-castle-visual-qa-fi
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 import { YOUTUBE_DESCRIPTION_COMPLETION_QA_ID, channelExperimentSocialContentQaFixture, youtubeDescriptionCompletionQaFixture } from '@/lib/social-channel-experiment-qa-fixture'
+import { SOCIAL_CAMPAIGN_REVIEW_IDS } from '@/lib/social-campaign-review-assets'
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -1019,6 +1020,34 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getAllByText('Refresh the expired JIT evidence and bind it to this copy version before approval')
       .some((message) => !message.closest('details'))).toBe(true)
     expect(screen.getByRole('button', { name: /^Reject$/i })).toBeEnabled()
+  })
+
+  it.each([
+    [SOCIAL_CAMPAIGN_REVIEW_IDS.jevLinkedIn, 'Jev LinkedIn'],
+    [SOCIAL_CAMPAIGN_REVIEW_IDS.auditLinkedIn, 'AI Audit LinkedIn'],
+    [SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube, 'Dark Castle YouTube'],
+  ] as const)('keeps copy approval open for %s when the stale LinkedIn JIT gate does not apply', async (id) => {
+    const currentItem = {
+      ...baseItem,
+      id,
+      status: 'draft',
+      reviewed_by: null,
+    }
+    mocks.id = id
+    mocks.search = 'step=copy'
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/config')) return { ok: true, json: async () => ({ configs: [] }) } as Response
+      if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [currentItem] }) } as Response
+      return { ok: true, json: async () => ({ item: currentItem }) } as Response
+    }))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByRole('button', { name: /^Approve Copy$/ })).toBeEnabled()
+    expect(screen.queryByText('JIT refresh required before a current content decision')).not.toBeInTheDocument()
+    expect(screen.queryByText('Refresh the expired JIT evidence and bind it to this copy version before approval')).not.toBeInTheDocument()
   })
 
   it('gives only post and voiceover script editors a content-aware responsive canvas', async () => {
