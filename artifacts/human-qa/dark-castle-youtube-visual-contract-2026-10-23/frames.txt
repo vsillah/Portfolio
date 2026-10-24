@@ -1,0 +1,17 @@
+file '02-current-binding.jpg'
+duration 2.5
+file '03-source-boundaries.jpg'
+duration 2.5
+file '01-current-desktop.jpg'
+duration 3
+file '07-current-midwidth.jpg'
+duration 2.5
+file '06-current-mobile.jpg'
+duration 2.5
+file '08-corrected-copy.jpg'
+duration 3
+file '04-missing-recovery.jpg'
+duration 2.5
+file '05-stale-blocked.jpg'
+duration 3
+file '05-stale-blocked.jpg'

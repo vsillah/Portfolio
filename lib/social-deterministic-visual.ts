@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { DARK_CASTLE_SOCIAL_CONTENT_ID, DARK_CASTLE_VISUAL_QA_ID, inspectApprovedVisualReviewContract, type ApprovedVisualReviewContract } from '@/lib/social-approved-visual-contract'
 
 import type { FrameworkVisualType, SocialContentItem } from '@/lib/social-content'
 import {
@@ -147,6 +148,7 @@ export type DeterministicVisualRenderProjection = {
   provider_calls_enabled: false
   inputs: DeterministicVisualEffectiveInputs
   receipt: DeterministicVisualAssetReceipt | null
+  review_contract?: ApprovedVisualReviewContract | null
 }
 
 export class DeterministicVisualRenderError extends Error {
@@ -608,7 +610,27 @@ export function projectDeterministicVisualRender(input: {
     receipt,
   }
 
-  if (input.item.status !== 'approved') {
+  const reviewContract = inspectApprovedVisualReviewContract(input.item, input.copyVersion)
+  if (reviewContract.state !== 'missing') {
+    const common = { ...base, review_contract: reviewContract.contract, provider: 'none' as const }
+    const localCorrectionCandidate = input.item.id === DARK_CASTLE_VISUAL_QA_ID && input.item.status === 'draft'
+    if ((!localCorrectionCandidate && input.item.status !== 'approved') || input.releaseLocked || reviewContract.state !== 'current') {
+      return {
+        ...common,
+        state: 'blocked', code: input.releaseLocked ? 'release_locked' : reviewContract.state !== 'current' ? 'asset_stale' : 'copy_not_approved', can_render: false,
+        summary: input.releaseLocked ? 'Release evidence locks this content version.' : reviewContract.state !== 'current' ? reviewContract.reason : 'The current copy version is not approved.',
+        recovery_action: 'Reconcile the current copy approval and evidence, then bind the exact reviewed PNG and source receipts through a reviewed contract. No provider or legacy visual fallback is allowed.',
+      }
+    }
+    return {
+      ...common,
+      state: 'current', code: 'already_current', can_render: false,
+      summary: reviewContract.reason,
+      recovery_action: 'Review the corrected gameplay candidate in the Visuals gate. Copy approval, visual approval, and external actions remain separate.',
+    }
+  }
+
+  if (input.item.status !== 'approved' && input.item.id !== DARK_CASTLE_VISUAL_QA_ID) {
     return {
       ...base,
       state: 'blocked',
@@ -630,6 +652,13 @@ export function projectDeterministicVisualRender(input: {
   }
   const blocker = candidateBlocker(spec, input.item.framework_visual_type)
   if (blocker) {
+    if (!spec && (input.item.id === DARK_CASTLE_SOCIAL_CONTENT_ID || input.item.id === DARK_CASTLE_VISUAL_QA_ID)) {
+      return {
+        ...base, state: 'blocked', code: 'candidate_missing', can_render: false,
+        summary: 'Gameplay evidence has no current deterministic visual review contract.',
+        recovery_action: 'Review the corrected provider-free candidate and its exact copy, evidence, and PNG hashes in the local visual-contract gate. Bind a reviewed contract only after the current copy has separate approval.',
+      }
+    }
     return { ...base, state: 'blocked', can_render: false, ...blocker }
   }
   const blockedLineage = inputs.field_lineage.filter((entry) => entry.proof_status === 'blocked')
