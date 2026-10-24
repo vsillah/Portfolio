@@ -7,21 +7,21 @@ Read-only production inventory on 2026-10-24 found two approved, single-image So
 ## Exact local route and walkthrough
 
 - Branch: `codex/social-backlog-visual-recovery`
-- Reviewed code commit: `a21875b9ab4dfa62301b38ea1a91dde02a0265d2`
-- Local route: `http://localhost:5202/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&qa_fixture=social_visual_backlog_recovery&rev=a21875b9`
+- Reviewed code commit: `e86b9691174aa1e2f0d506530dfbd093d0f443b5`
+- Local route: `http://localhost:5202/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&qa_fixture=social_visual_backlog_recovery&rev=e86b9691`
 - Fixture: local development only and read-only. Saved Copy approval and source presence are represented by fixture metadata; text and source identities are withheld. It does not load or modify the production row. Hosted deployments ignore it.
 - Viewports: 1440 × 900 and 390 × 844.
-- States: [desktop blocker](01-desktop-recovery.jpg), [desktop Copy gate](02-desktop-copy.jpg), [desktop YouTube preview](05-desktop-youtube.jpg), [phone blocker](03-phone-recovery.jpg), [phone Copy gate](04-phone-copy.jpg), [phone YouTube preview](06-phone-youtube.jpg).
-- [MP4 walkthrough](recovery-walkthrough.mp4): 24.08 seconds, H.264, 1440 × 900, 578 frames. SHA-256: `1beb4d53050a56b34ae5d5c4aea65a77e15e8dfd7ee91f90242fe9b222be5c54`.
+- States: [desktop overview](00-desktop-overview.jpg), [desktop blocker](01-desktop-recovery.jpg), [desktop Copy gate](02-desktop-copy.jpg), [desktop YouTube preview](05-desktop-youtube.jpg), [phone overview](00-phone-overview.jpg), [phone blocker](03-phone-recovery.jpg), [phone Copy gate](04-phone-copy.jpg), [phone YouTube preview](06-phone-youtube.jpg).
+- [MP4 walkthrough](recovery-walkthrough.mp4): 32.08 seconds, H.264, 1440 × 900, 770 frames. SHA-256: `bef8b3e79ac3550763cb50090cb47f1a49a35433a6d86e75477e9b05d036d9dd`.
 
 The MP4 sequences screenshots captured from the in-app browser as the recovery link was followed at both widths. It is a state walkthrough, not a continuous screen recording. Recreate it with `./render-walkthrough.sh`.
 
-Observed: the missing-contract warning names the blocker, the same-record action opens `?step=copy#social-copy-gate`, and the Copy gate and stepper both show Approved with approval disabled. The right column shows a neutral YouTube review preview with no invented video, thumbnail, or public copy. Render and visual approval are disabled on the Visuals gate. No production mutation, provider call, media render/upload, platform draft, schedule, publication, or external send was exercised.
+Observed: the read-only route no longer disables or dims its whole approval surface. Back navigation, step navigation, and review disclosures work, while the visual format control, render, visual approval, Copy approval, and editing remain blocked. The missing-contract warning names the blocker, the same-record action opens `?step=copy#social-copy-gate`, and the Copy gate and stepper both show Approved. The right column shows a neutral YouTube review preview with no invented video, thumbnail, or public copy. No production mutation, provider call, media render/upload, platform draft, schedule, publication, or external send was exercised.
 
 ## Validation
 
-- `./node_modules/.bin/vitest run lib/social-visual-contract-recovery.test.ts lib/social-visual-backlog-qa-fixture.test.ts lib/social-deterministic-visual.test.ts components/admin/SocialVisualContractRecovery.test.tsx components/admin/DarkCastleVisualRecovery.test.tsx 'app/admin/social-content/[id]/page.test.tsx' 'app/admin/social-content/[id]/social-visual-backlog-qa.test.tsx' 'app/api/admin/social-content/[id]/dark-castle-visual-qa.test.ts'` — 137 passed. The new route test asserts saved Copy approval, YouTube preview, absence of LinkedIn preview, disabled visual render, and GET-only fixture access.
-- `MOCK_N8N=true N8N_DISABLE_OUTBOUND=true NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=qa-fixture-only SUPABASE_SERVICE_ROLE_KEY=qa-fixture-only npm run build` — passed after `npm ci --ignore-scripts --no-audit --no-fund` in this worktree.
+- `./node_modules/.bin/vitest run lib/social-visual-contract-recovery.test.ts lib/social-visual-backlog-qa-fixture.test.ts lib/social-deterministic-visual.test.ts components/admin/SocialVisualContractRecovery.test.tsx components/admin/DarkCastleVisualRecovery.test.tsx 'app/admin/social-content/[id]/page.test.tsx' 'app/admin/social-content/[id]/social-visual-backlog-qa.test.tsx' 'app/api/admin/social-content/[id]/dark-castle-visual-qa.test.ts'` — 137 passed. The route test asserts that the top-level fieldset is enabled, safe step navigation works, the format control cannot alter the read-only fixture, and all requests remain GET-only.
+- `MOCK_N8N=true N8N_DISABLE_OUTBOUND=true NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=qa-fixture-only SUPABASE_SERVICE_ROLE_KEY=qa-fixture-only npm run build` — passed from a clean `.next` after stopping the local dev server sharing that output directory.
 - `ffprobe` confirmed the MP4 codec, size, frame count, and duration.
 - `git diff --check` — passed.
 - Repository-wide `tsc --noEmit` remains red on pre-existing test typing errors in campaign, JEV, Social Content page test, and other unrelated test files. No errors were reported in files added or changed by this lane.
