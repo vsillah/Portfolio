@@ -4110,7 +4110,7 @@ function SocialContentDetailPage() {
           </Link>
         </section>
 
-        <header data-social-detail-header data-theme-surface="sticky-header" className="sticky top-0 z-40 mt-4 border-b border-border bg-card/95 px-4 py-3 text-card-foreground shadow-sm backdrop-blur sm:px-6 lg:px-8">
+        <header data-social-detail-header data-theme-surface="sticky-header" className="sticky top-0 z-40 mt-4 border-b border-border bg-background px-4 py-3 text-card-foreground shadow-md sm:px-6 lg:px-8">
           <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
               <Link href={backUrl} aria-label="Back to Social Content" className="shrink-0 rounded-lg border border-border bg-muted p-2 text-foreground transition-colors hover:bg-muted/70">
@@ -4228,7 +4228,7 @@ function SocialContentDetailPage() {
       >
 
       {/* Sticky header — current decision and saved draft controls */}
-      <div data-social-detail-header data-theme-surface="sticky-header" className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-border bg-card/95 px-4 py-2 text-card-foreground shadow-sm backdrop-blur sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
+      <div data-social-detail-header data-theme-surface="sticky-header" className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-border bg-background px-4 py-2 text-card-foreground shadow-md sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button

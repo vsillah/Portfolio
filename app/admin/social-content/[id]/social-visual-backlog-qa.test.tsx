@@ -4,11 +4,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
 import { socialVisualBacklogQaFixture } from '@/lib/social-visual-backlog-qa-fixture'
 import { SOCIAL_VISUAL_BACKLOG_QA_ID } from '@/lib/social-visual-contract-recovery'
+import { channelExperimentSocialContentQaFixture } from '@/lib/social-channel-experiment-qa-fixture'
 
-const route = vi.hoisted(() => ({ search: 'step=copy&qa_fixture=social_visual_backlog_recovery', replace: vi.fn() }))
+const route = vi.hoisted(() => ({ id: 'f966123f-05eb-48ec-a7c2-970afce642ef', search: 'step=copy&qa_fixture=social_visual_backlog_recovery', replace: vi.fn() }))
 
 vi.mock('next/navigation', () => ({
-  useParams: () => ({ id: SOCIAL_VISUAL_BACKLOG_QA_ID }),
+  useParams: () => ({ id: route.id }),
   useRouter: () => ({ push: vi.fn(), replace: route.replace }),
   useSearchParams: () => new URLSearchParams(route.search),
 }))
@@ -16,7 +17,12 @@ vi.mock('@/components/ProtectedRoute', () => ({ default: ({ children }: { childr
 vi.mock('@/components/admin/Breadcrumbs', () => ({ default: () => null }))
 vi.mock('@/lib/auth', () => ({ getCurrentSession: vi.fn(async () => ({ access_token: 'local-qa' })) }))
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  route.id = SOCIAL_VISUAL_BACKLOG_QA_ID
+  route.search = 'step=copy&qa_fixture=social_visual_backlog_recovery'
+  route.replace.mockReset()
+})
 
 describe('read-only backlog visual recovery route', () => {
   it('shows persisted Copy approval and a truthful YouTube preview while keeping visual actions blocked', async () => {
@@ -27,6 +33,9 @@ describe('read-only backlog visual recovery route', () => {
     const copyGate = await screen.findByLabelText('Copy review decision gate')
     const reviewSurface = screen.getByTestId('social-content-detail').querySelector('fieldset')
     expect(reviewSurface).not.toBeDisabled()
+    const stickyHeader = screen.getByTestId('social-content-detail').querySelector('[data-social-detail-header]')
+    expect(stickyHeader).toHaveClass('bg-background', 'shadow-md')
+    expect(stickyHeader).not.toHaveClass('bg-card/95', 'backdrop-blur')
     expect(within(copyGate).getByRole('heading', { name: 'Copy approved' })).toBeVisible()
     expect(within(copyGate).getByRole('button', { name: 'Approve Copy' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Approval step 2: Copy' })).toHaveTextContent('Approved')
@@ -52,6 +61,18 @@ describe('read-only backlog visual recovery route', () => {
     expect(route.replace).toHaveBeenCalledWith(expect.stringContaining('step=copy'), { scroll: false })
     expect(fetchMock.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true)
     visuals.unmount()
-    route.search = 'step=copy&qa_fixture=social_visual_backlog_recovery'
+  })
+
+  it('uses the same opaque sticky header for the channel review variant', async () => {
+    route.id = '1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f'
+    route.search = 'step=copy&qa_fixture=channel_experiment_social_detail_v1'
+    const item = channelExperimentSocialContentQaFixture(route.id)
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ item }) } as Response)))
+
+    render(<SocialContentDetailRoute />)
+    expect(await screen.findByRole('region', { name: `YouTube experiment review: ${item.youtube_title}` })).toBeVisible()
+    const stickyHeader = screen.getByTestId('social-content-detail').querySelector('[data-social-detail-header]')
+    expect(stickyHeader).toHaveClass('bg-background', 'shadow-md')
+    expect(stickyHeader).not.toHaveClass('bg-card/95', 'backdrop-blur')
   })
 })
