@@ -354,7 +354,7 @@ The practical check is simple: show the position, show the response, and invite 
       alt: 'Dark Castle Chess LinkedIn visual with approved gameplay captures showing an explored board, computer response, notation, and move guidance.',
       headline: 'A right move can be an accident.',
       proofLine: 'Explore the position; inspect the response; explain the next choice.',
-      sha256: 'sha256:71f838f13abc747f1cd56fd7b381ee341396f4801c48a69714e85cc47224084b',
+      sha256: 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091',
     },
     sources: [
       { label: 'Explore position capture', href: '/review-assets/social-content/storyboard-review/explore-position.jpg', receipt: 'sha256:896dce9162e815c1138dfbecacd24e0a63d05e99901f98b89022ddeee225f9df', supports: 'The owned board, open line, move guidance, and notation.', limitation: 'Shows a product state; no learner outcome is measured.' },

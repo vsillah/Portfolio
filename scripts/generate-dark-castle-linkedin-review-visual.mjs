@@ -49,8 +49,7 @@ const overlay = svg(`
   <text x="779" y="395" fill="#E9B95A" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="23" font-weight="700" letter-spacing="2">02 / RESPOND</text>
   <rect x="757" y="410" width="386" height="682" rx="18" fill="none" stroke="#E9B95A" stroke-width="3"/>
   <rect x="75" y="1320" width="1050" height="2" fill="#365066"/>
-  <text x="75" y="1380" fill="#F8F5EE" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="30" font-weight="700">Product design test</text>
-  <text x="75" y="1426" fill="#B9C9D0" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="27">After the response, can the player explain the next choice?</text>
+  <text x="75" y="1408" fill="#F8F5EE" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="32" font-weight="700">Can the player explain the next choice?</text>
   <text x="75" y="1470" fill="#E9B95A" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="18" font-weight="700" letter-spacing="1.4">AMADUTOWN ADVISORY SOLUTIONS</text>
 `)
 

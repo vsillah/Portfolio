@@ -1035,7 +1035,7 @@ describe('SocialContentDetailRoute visual production review', () => {
         jit_expires_at: '2099-10-27T10:22:00.000Z',
         jit_refresh_receipt_id: 'review-prep:dark-castle-linkedin:b4442c963c109c06',
         human_qa_status: 'pending_current_binding',
-        visual_sha256: 'sha256:71f838f13abc747f1cd56fd7b381ee341396f4801c48a69714e85cc47224084b',
+        visual_sha256: 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091',
         image_url: '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png',
       },
     }

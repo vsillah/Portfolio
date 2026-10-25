@@ -11,7 +11,7 @@ describe('social campaign review asset projection', () => {
     expect(generator).not.toContain('youtubeOverlaySvg')
     const expected = new Map([
       ['jev-linkedin-decision-system.png', '5927f3b90b7895145464fb3c95d3c0d962214c2257379766bc892e43aa7bb141'],
-      ['dark-castle-linkedin-remember-why.png', '71f838f13abc747f1cd56fd7b381ee341396f4801c48a69714e85cc47224084b'],
+      ['dark-castle-linkedin-remember-why.png', '88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091'],
       ['ai-audit-linkedin-hidden-bill.png', '73263abe49dc749383050e91cf10cab3266451eba866bf0b661d8bb88aa9efd5'],
     ])
     for (const [name, digest] of expected) {
@@ -42,6 +42,8 @@ describe('social campaign review asset projection', () => {
     expect(generator).toContain('<rect x="75" y="390" width="650" height="725"')
     expect(generator).toContain('<rect x="75" y="1135" width="650" height="155"')
     expect(generator).not.toContain('<rect x="75" y="1012" width="650" height="261"')
+    expect(generator).not.toContain('Product design test')
+    expect(generator).toContain('Can the player explain the next choice?')
   })
 
   it('renders YouTube thumbnails only from version-bound upstream decision receipts', () => {
