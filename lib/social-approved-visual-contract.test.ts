@@ -15,8 +15,14 @@ describe('Dark Castle corrected visual review contract', () => {
   it('gives a corrected candidate with no contract a bounded recovery action and no legacy asset', () => {
     const item = darkCastleVisualQaFixture('missing')
     expect(item.image_url).toBeNull()
-    expect(item.deterministic_visual_render).toMatchObject({ state: 'blocked', code: 'candidate_missing', can_render: false, provider_calls_enabled: false })
-    expect(item.deterministic_visual_render?.recovery_action).toContain('Bind a reviewed contract')
+    expect(item.deterministic_visual_render).toMatchObject({
+      state: 'blocked',
+      code: 'candidate_missing',
+      can_render: false,
+      provider_calls_enabled: false,
+      summary: 'This saved copy has no current deterministic visual review contract.',
+      recovery_action: 'Review this record’s saved Copy gate and evidence before a separate visual contract is prepared. Rendering and external actions remain blocked.',
+    })
   })
 
   it('keeps the exact production record blocked until a contract is reviewed and bound', () => {
@@ -25,8 +31,14 @@ describe('Dark Castle corrected visual review contract', () => {
     item.status = 'approved'
     item.image_url = 'https://legacy.example/image.png'
     const projection = projectDeterministicVisualRender({ item, copyVersion: socialCopyVersion(item), storageAvailable: true })
-    expect(projection).toMatchObject({ state: 'blocked', code: 'candidate_missing', can_render: false })
-    expect(projection.recovery_action).toContain('Bind a reviewed contract')
+    expect(projection).toMatchObject({
+      state: 'blocked',
+      code: 'candidate_missing',
+      can_render: false,
+      provider_calls_enabled: false,
+      summary: 'This saved copy has no current deterministic visual review contract.',
+      recovery_action: 'Review this record’s saved Copy gate and evidence before a separate visual contract is prepared. Rendering and external actions remain blocked.',
+    })
   })
 
   it('keeps production blocked while the corrected copy still needs approval', () => {
