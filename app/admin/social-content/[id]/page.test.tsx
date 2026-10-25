@@ -1021,6 +1021,41 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /^Reject$/i })).toBeEnabled()
   })
 
+  it('allows canonical copy review when the matching campaign JIT receipt is current', async () => {
+    const currentJitItem = {
+      ...baseItem,
+      id: '9817a689-0565-48ed-8c97-c2db40c1ec45',
+      status: 'draft',
+      reviewed_by: null,
+      image_url: '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png',
+      rag_context: {
+        ...(baseItem.rag_context ?? {}),
+        content_version: 'sha256:b4442c963c109c06c2983253917aca64b7e3a9bbbeccb0ffcdbe40c4f449515a',
+        jit_observed_at: '2026-10-25T10:22:00.000Z',
+        jit_expires_at: '2099-10-27T10:22:00.000Z',
+        jit_refresh_receipt_id: 'review-prep:dark-castle-linkedin:b4442c963c109c06',
+        human_qa_status: 'pending_current_binding',
+        visual_sha256: 'sha256:8744666b8e38d71862088b08baebc63c39eafc4b50cacfa56944c29d30a09683',
+        image_url: '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png',
+      },
+    }
+    mocks.id = currentJitItem.id
+    mocks.search = 'step=copy'
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/config')) return { ok: true, json: async () => ({ configs: [] }) } as Response
+      if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [currentJitItem] }) } as Response
+      return { ok: true, json: async () => ({ item: currentJitItem }) } as Response
+    }))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Current JIT receipt bound')
+    expect(screen.getByRole('button', { name: /Approve Copy/ })).toBeEnabled()
+    expect(screen.queryByText('Refresh the expired JIT evidence and bind it to this copy version before approval')).not.toBeInTheDocument()
+  })
+
   it('gives only post and voiceover script editors a content-aware responsive canvas', async () => {
     const view = renderAtStep('copy')
 

@@ -44,6 +44,17 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
             <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">Persisted draft version: {packet.jit.contentVersion}</p>
           </div>
         ) : null}
+        {packet.jit?.status === 'ready_current_jit' ? (
+          <div role="status" className="mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm leading-6 text-foreground">
+            <p className="font-semibold">Current JIT receipt bound</p>
+            <p>The approved copy, source lineage, and provider-free visual are bound to this current review version. Human approval remains required before any later release gate.</p>
+            <dl className="mt-2 grid gap-1 text-xs text-muted-foreground">
+              <div><dt className="inline font-semibold text-foreground">Content version: </dt><dd className="inline break-all font-mono">{packet.jit.contentVersion}</dd></div>
+              {packet.jit.receiptId ? <div><dt className="inline font-semibold text-foreground">Receipt: </dt><dd className="inline break-all font-mono">{packet.jit.receiptId}</dd></div> : null}
+              <div><dt className="inline font-semibold text-foreground">Fresh through: </dt><dd className="inline">{new Date(packet.jit.expiresAt).toLocaleString()}</dd></div>
+            </dl>
+          </div>
+        ) : null}
         <details className="mt-3 rounded-lg border border-border bg-background p-3">
           <summary className="cursor-pointer text-sm font-semibold text-foreground">Trace every visible claim</summary>
           <div className="mt-3"><ReceiptList sources={packet.sources} /></div>
