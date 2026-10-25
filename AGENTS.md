@@ -154,6 +154,14 @@ Before any video, Short, Reel, TikTok, or narrated social artifact reaches Human
 - When a disclosure must be spoken, rewrite it as a natural sentence that advances the audience's understanding. It must not sound like a pasted note, parenthetical qualification, or internal system message.
 - Validate the final audio transcript after composition, not only the source script. Human QA should receive customer-facing narration with internal production language already removed.
 
+## Customer-Facing Copy Boundary Rule
+
+Before any customer-facing artifact reaches Human QA, audit every visible and audible surface as final audience copy: page copy, text embedded in images or video, captions, narration, titles, descriptions, thumbnails, audience-visible metadata, and the Human-QA walkthrough itself.
+
+- Fail closed when an audience-facing surface contains internal prompts, agent instructions, test or fixture labels, implementation terminology, evaluation criteria, production notes, placeholder copy, source-handling disclosures, synthetic or sample-data caveats, receipt identifiers, hashes, or parenthetical operator guidance unless the audience genuinely needs that information.
+- Keep provenance, hashes, receipts, QA notes, source qualifications, and operational context in the protected evidence or receipt layer rather than the customer-facing artifact.
+- If the audit cannot clearly classify a phrase as audience-facing, return the artifact for revision before Human QA. Human QA must evaluate finished communication, not discover internal-message leakage.
+
 ## YouTube Outlier Description Library Rule
 
 Before a new YouTube or YouTube Shorts package reaches Human QA, compare its description structure against a durable library of attributable, high-performing descriptions from the same or closely related topics.

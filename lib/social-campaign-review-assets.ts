@@ -47,7 +47,8 @@ export type LinkedInReviewPacket = {
     observedAt: string
     expiresAt: string
     targetAt: string
-    status: 'blocked_stale_jit'
+    receiptId?: string
+    status: 'blocked_stale_jit' | 'ready_current_jit'
   }
   externalGates: 'closed'
 }
@@ -353,7 +354,7 @@ The practical check is simple: show the position, show the response, and invite 
       alt: 'Dark Castle Chess LinkedIn visual with approved gameplay captures showing an explored board, computer response, notation, and move guidance.',
       headline: 'A right move can be an accident.',
       proofLine: 'Explore the position; inspect the response; explain the next choice.',
-      sha256: 'sha256:8744666b8e38d71862088b08baebc63c39eafc4b50cacfa56944c29d30a09683',
+      sha256: 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091',
     },
     sources: [
       { label: 'Explore position capture', href: '/review-assets/social-content/storyboard-review/explore-position.jpg', receipt: 'sha256:896dce9162e815c1138dfbecacd24e0a63d05e99901f98b89022ddeee225f9df', supports: 'The owned board, open line, move guidance, and notation.', limitation: 'Shows a product state; no learner outcome is measured.' },
@@ -470,8 +471,54 @@ The practical check is simple: show the position, show the response, and invite 
   },
 }
 
-export function getSocialCampaignReviewPacket(id: string | null | undefined): SocialCampaignReviewPacket | null {
-  return id ? SOCIAL_CAMPAIGN_REVIEW_PACKETS[id] ?? null : null
+type CampaignReviewRuntimeContext = Record<string, unknown> | null | undefined
+
+export function resolveSocialCampaignReviewPacket(
+  packet: SocialCampaignReviewPacket,
+  context: CampaignReviewRuntimeContext,
+  now = new Date(),
+): SocialCampaignReviewPacket {
+  if (packet.kind !== 'linkedin_visual' || !packet.jit || !context) return packet
+
+  const contentVersion = typeof context.content_version === 'string' ? context.content_version : ''
+  const observedAt = typeof context.jit_observed_at === 'string' ? context.jit_observed_at : ''
+  const expiresAt = typeof context.jit_expires_at === 'string' ? context.jit_expires_at : ''
+  const receiptId = typeof context.jit_refresh_receipt_id === 'string' ? context.jit_refresh_receipt_id : ''
+  const humanQaStatus = typeof context.human_qa_status === 'string' ? context.human_qa_status : ''
+  const visualSha256 = typeof context.visual_sha256 === 'string' ? context.visual_sha256 : ''
+  const imageUrl = typeof context.image_url === 'string' ? context.image_url : ''
+  const expiry = Date.parse(expiresAt)
+  const currentBinding = contentVersion.length > 0
+    && observedAt.length > 0
+    && receiptId.length > 0
+    && Number.isFinite(expiry)
+    && expiry > now.getTime()
+    && visualSha256 === packet.visual.sha256
+    && imageUrl === packet.visual.publicPath
+    && ['pending_current_binding', 'approved'].includes(humanQaStatus)
+
+  if (!currentBinding) return packet
+
+  return {
+    ...packet,
+    jit: {
+      ...packet.jit,
+      contentVersion,
+      observedAt,
+      expiresAt,
+      receiptId,
+      status: 'ready_current_jit',
+    },
+  }
+}
+
+export function getSocialCampaignReviewPacket(
+  id: string | null | undefined,
+  context?: CampaignReviewRuntimeContext,
+  now?: Date,
+): SocialCampaignReviewPacket | null {
+  const packet = id ? SOCIAL_CAMPAIGN_REVIEW_PACKETS[id] ?? null : null
+  return packet ? resolveSocialCampaignReviewPacket(packet, context, now) : null
 }
 import type { SocialContentItem } from '@/lib/social-content'
 

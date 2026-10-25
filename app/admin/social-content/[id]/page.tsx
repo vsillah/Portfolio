@@ -3008,7 +3008,7 @@ function SocialContentDetailPage() {
   const socialVideoProduction = item.social_video_production
   const isYouTubeTarget = item.platform === 'youtube' || targetPlatforms.includes('youtube')
   const channelVideoPacket = getChannelVideoPacket(item)
-  const campaignReviewPacket = getSocialCampaignReviewPacket(item.id)
+  const campaignReviewPacket = getSocialCampaignReviewPacket(item.id, ragContext)
   const youtubePackagingTarget: YouTubePackagingTarget | null = channelVideoPacket
     ? channelVideoPacket.channelLabel === 'YouTube Shorts' ? 'youtube_shorts' : 'youtube'
     : null

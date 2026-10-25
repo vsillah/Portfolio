@@ -15,6 +15,29 @@ describe('SocialCampaignReviewPacket', () => {
     expect(screen.getByText(/Provider, upload, platform-draft, scheduling, publishing/)).toBeVisible()
   })
 
+  it('shows a current version-bound LinkedIn receipt without the stale blocker', () => {
+    const packet = getSocialCampaignReviewPacket(
+      SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn,
+      {
+        content_version: 'sha256:b4442c963c109c06c2983253917aca64b7e3a9bbbeccb0ffcdbe40c4f449515a',
+        jit_observed_at: '2026-10-25T10:22:00.000Z',
+        jit_expires_at: '2026-10-27T10:22:00.000Z',
+        jit_refresh_receipt_id: 'review-prep:dark-castle-linkedin:b4442c963c109c06',
+        human_qa_status: 'pending_current_binding',
+        visual_sha256: 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091',
+        image_url: '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png',
+      },
+      new Date('2026-10-25T12:00:00.000Z'),
+    )!
+
+    render(<SocialCampaignReviewPacket packet={packet} />)
+
+    expect(screen.getByRole('status')).toHaveTextContent('Current JIT receipt bound')
+    expect(screen.getByRole('status')).toHaveTextContent('sha256:b4442c963c109c06c2983253917aca64b7e3a9bbbeccb0ffcdbe40c4f449515a')
+    expect(screen.getByRole('status')).toHaveTextContent('review-prep:dark-castle-linkedin:b4442c963c109c06')
+    expect(screen.queryByText('JIT refresh required before a current content decision')).not.toBeInTheDocument()
+  })
+
   it('keeps a missing-description YouTube package visibly Unscored and blocked', () => {
     const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube)!
     render(<SocialCampaignReviewPacket packet={packet} />)
