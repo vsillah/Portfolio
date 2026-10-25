@@ -209,6 +209,46 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Internal review only. No provider, upload, scheduling, publishing, or external send.')).toBeVisible()
   })
 
+  it('keeps the canonical packet preparation action visible at the asset packet gate', async () => {
+    const assetGateItem = {
+      ...baseItem,
+      rag_context: {
+        ...baseItem.rag_context,
+        current_gate: 'asset_packet',
+        latest_internal_decision_receipt_id: 'receipt-copy-approved',
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).endsWith('/prepare-stage-review') && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            canonical_href: '/admin/social-content/social-1?step=visuals&review=mobile&proposal=work-asset#social-asset-packet-gate',
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: assetGateItem }),
+      } as Response
+    }))
+
+    renderAtStep('visuals&review=mobile')
+
+    const prepare = await screen.findByTestId('prepare-stage-review')
+    expect(prepare).toHaveTextContent('Prepare Decision Queue packet')
+    expect(screen.getByRole('link', { name: /Decision Queue/ })).toHaveAttribute(
+      'href',
+      '/admin/agents/coordination?source_type=social_content_internal_review&source_id=social-1',
+    )
+
+    fireEvent.click(prepare)
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith(
+      '/admin/social-content/social-1?step=visuals&review=mobile&proposal=work-asset#social-asset-packet-gate',
+    ))
+  })
+
   it('renders a YouTube Shorts review packet with channel-native copy guidance and no LinkedIn preview', async () => {
     mocks.search = 'step=copy&qa_fixture=channel_native_video_v2'
     const youtubeItem = {

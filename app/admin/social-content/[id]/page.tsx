@@ -785,6 +785,7 @@ function SocialContentDetailPage() {
   const channelExperimentQaFixture = searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
   const youtubeDescriptionCompletionQaFixture = searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
   const socialCampaignReviewQaFixture = searchParams.get('qa_fixture') === SOCIAL_CAMPAIGN_REVIEW_FIXTURE
+  const stageReviewQaState = searchParams.get('stage_review_state') === 'asset_packet' ? 'asset_packet' : null
   const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
   const packagingQaState = searchParams.get('packaging_state') === 'missing_thumbnail' ? 'missing_thumbnail' : 'bound'
@@ -805,6 +806,7 @@ function SocialContentDetailPage() {
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
   const [preparingAssetPacket, setPreparingAssetPacket] = useState(false)
+  const [preparingStageReview, setPreparingStageReview] = useState(false)
   const [preparingAvatarVideo, setPreparingAvatarVideo] = useState(false)
   const [creatingLinkedInDraft, setCreatingLinkedInDraft] = useState(false)
   const [reviewingRedactionId, setReviewingRedactionId] = useState<string | null>(null)
@@ -1072,7 +1074,7 @@ function SocialContentDetailPage() {
         : channelNativeQaFixture
           ? `?qa_fixture=channel_native_video_v2&video_package_state=${videoPackageQaState}&packaging_state=${packagingQaState}`
         : socialCampaignReviewQaFixture
-          ? `?qa_fixture=${SOCIAL_CAMPAIGN_REVIEW_FIXTURE}`
+          ? `?qa_fixture=${SOCIAL_CAMPAIGN_REVIEW_FIXTURE}${stageReviewQaState ? `&stage_review_state=${stageReviewQaState}` : ''}`
           : ''
       const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
@@ -1146,7 +1148,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, stageReviewQaState, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -2741,6 +2743,35 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handlePrepareStageReview = async () => {
+    setPreparingStageReview(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/prepare-stage-review`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.ok || !data.canonical_href) {
+        showMsg('error', data.error || 'Failed to prepare the Decision Queue packet')
+        return
+      }
+
+      showMsg('success', 'Decision Queue packet prepared for the current internal gate')
+      router.push(data.canonical_href)
+    } catch {
+      showMsg('error', 'Failed to prepare the Decision Queue packet')
+    } finally {
+      setPreparingStageReview(false)
+    }
+  }
+
   const handlePrepareAvatarVideo = async () => {
     if (!confirm('Start the internal HeyGen avatar render for this YouTube draft? This can consume HeyGen credits. It will not upload to YouTube, schedule, create a provider draft, or publish.')) return
     setPreparingAvatarVideo(true)
@@ -3021,6 +3052,14 @@ function SocialContentDetailPage() {
   const socialVideoReviewSourceReceiptIds = asStringArray(ragContext?.social_video_review_source_receipt_ids)
   const socialVideoReviewRightsReceiptIds = asStringArray(ragContext?.social_video_review_rights_receipt_ids)
   const persistedCurrentGate = asString(ragContext?.current_gate)
+  const hasCurrentStageDecisionPacket = Boolean(
+    mobileDecisionReadiness.packet
+    && mobileDecisionReadiness.packet.current_gate === persistedCurrentGate
+    && mobileDecisionReadiness.packet.content_updated_at === item.updated_at
+    && mobileDecisionReadiness.ready,
+  )
+  const canPrepareCurrentStageReview = ['asset_packet', 'privacy'].includes(persistedCurrentGate)
+    && !hasCurrentStageDecisionPacket
   const persistedCurrentGateStep = isSocialContentCanonicalGate(persistedCurrentGate)
     ? socialContentGateStep(persistedCurrentGate)
     : null
@@ -3615,7 +3654,9 @@ function SocialContentDetailPage() {
     explanation: releaseSummary.phase === 'Confirmed' ? 'The provider confirmed this post.' : 'Review the current provider receipts.',
     nextAction: releaseSummary.phase === 'Confirmed' ? 'View the confirmed post.' : 'Refresh evidence and reconcile the remaining result.',
   } : basePublicationSummary
-  const canonicalKanbanHref = `/admin/agents/swarm-board?source_type=social_content_approval&source_id=${encodeURIComponent(item.id)}&social_content_id=${encodeURIComponent(item.id)}`
+  const canonicalDecisionQueueHref = hasCurrentStageDecisionPacket && mobileDecisionReadiness.packet?.work_item_id
+    ? `/admin/agents/coordination?proposal=${encodeURIComponent(mobileDecisionReadiness.packet.work_item_id)}`
+    : `/admin/agents/coordination?source_type=social_content_internal_review&source_id=${encodeURIComponent(item.id)}`
   const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
     {
       label: contextRecorded ? 'Context recorded' : 'Context',
@@ -5178,7 +5219,7 @@ function SocialContentDetailPage() {
 		          })}
 		          </div>
 		        </div>
-            <details data-theme-surface="approval-details" className="rounded-xl border border-border bg-card p-4 text-card-foreground" aria-label="Current approval step details">
+            <details open={canPrepareCurrentStageReview || undefined} data-theme-surface="approval-details" className="rounded-xl border border-border bg-card p-4 text-card-foreground" aria-label="Current approval step details">
               <summary className="cursor-pointer text-sm font-semibold text-foreground">Approval details · {activeApprovalStepDetail.title}</summary>
               <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,0.9fr))]">
                 <div>
@@ -5201,10 +5242,10 @@ function SocialContentDetailPage() {
                 <div className="rounded-lg border border-border bg-muted/40 p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Canonical work</p>
                   <Link
-                    href={canonicalKanbanHref}
+                    href={canonicalDecisionQueueHref}
                     className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-radiant-gold hover:underline"
                   >
-                    Filtered Kanban
+                    Decision Queue
                     <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                 </div>
@@ -5213,6 +5254,25 @@ function SocialContentDetailPage() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Next action</p>
                 <p className="mt-1 text-sm leading-6 text-foreground">{activeApprovalStepDetail.nextAction}</p>
               </div>
+              {canPrepareCurrentStageReview && (
+                <div className="mt-3 flex flex-col gap-3 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Prepare the current internal decision</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      Creates an idempotent, version-bound Decision Queue packet. Provider calls, uploads, scheduling, publishing, and external sends remain disabled.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    data-testid="prepare-stage-review"
+                    onClick={handlePrepareStageReview}
+                    disabled={preparingStageReview}
+                    className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-radiant-gold/50 bg-radiant-gold px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-radiant-gold/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {preparingStageReview ? 'Preparing...' : 'Prepare Decision Queue packet'}
+                  </button>
+                </div>
+              )}
             </details>
 
 	        {/* ================================================================ */}

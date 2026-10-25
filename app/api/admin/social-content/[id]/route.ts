@@ -216,10 +216,25 @@ export async function GET(
       && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_CAMPAIGN_REVIEW_FIXTURE
       && getSocialCampaignReviewPacket(id)
     ) {
+      const item = socialCampaignReviewQaFixture(id)
+      if (request.nextUrl.searchParams.get('stage_review_state') === 'asset_packet') {
+        item.status = 'approved'
+        item.rag_context = {
+          ...(asRecord(item.rag_context) ?? {}),
+          current_gate: 'asset_packet',
+          latest_internal_decision_receipt_id: 'qa-copy-decision-receipt',
+          qa_fixture: {
+            ...(asRecord(asRecord(item.rag_context)?.qa_fixture) ?? {}),
+            reason: 'Read-only current-gate projection. Packet preparation is displayed but no shared record or external system is changed.',
+          },
+        }
+      }
       return NextResponse.json({
-        item: socialCampaignReviewQaFixture(id),
+        item,
         fixture: true,
-        fixture_state: 'repository_bound_review',
+        fixture_state: request.nextUrl.searchParams.get('stage_review_state') === 'asset_packet'
+          ? 'asset_packet_review_missing'
+          : 'repository_bound_review',
         integration_note: 'Development-only repository projection. It does not read or write production data, call providers, render or upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
       })
     }

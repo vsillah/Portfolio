@@ -112,6 +112,27 @@ describe('GET /api/admin/social-content/[id] channel experiment review fixture',
   })
 })
 
+describe('GET /api/admin/social-content/[id] stage review QA projection', () => {
+  it('projects the missing asset-packet decision without reading or writing shared data', async () => {
+    const id = '9817a689-0565-48ed-8c97-c2db40c1ec45'
+    const response = await GET(new NextRequest(
+      `http://localhost/api/admin/social-content/${id}?qa_fixture=social_campaign_review_assets_v1&stage_review_state=asset_packet`,
+    ) as never, { params: { id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ fixture: true, fixture_state: 'asset_packet_review_missing' })
+    expect(body.item).toMatchObject({ id, status: 'approved' })
+    expect(body.item.rag_context).toMatchObject({
+      current_gate: 'asset_packet',
+      latest_internal_decision_receipt_id: 'qa-copy-decision-receipt',
+      qa_fixture: { read_only: true },
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+})
+
 describe('GET /api/admin/social-content/[id] channel-native video fallback', () => {
   beforeEach(() => {
     vi.clearAllMocks()
