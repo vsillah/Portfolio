@@ -14,8 +14,8 @@ const svg = (body) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width
 // Dark Castle source map. The customer-facing image contains their pixels only;
 // receipts and release boundaries live in the separate review packet.
 const position = await sharp(resolve(sourceDir, 'explore-position.jpg'))
-  .extract({ left: 132, top: 0, width: 1090, height: 960 })
-  .resize(1050, 925, { fit: 'cover', position: 'top' })
+  .extract({ left: 120, top: 115, width: 690, height: 770 })
+  .resize(650, 725, { fit: 'contain', background: '#191816' })
   .png().toBuffer()
 const response = await sharp(resolve(sourceDir, 'explore-computer.jpg'))
   .extract({ left: 920, top: 48, width: 304, height: 575 })
@@ -27,8 +27,8 @@ const logo = await sharp(resolve(root, 'public/amadutown-logo-upscaled.png'))
 
 const base = await sharp({ create: { width: 1200, height: 1500, channels: 4, background: '#081522' } })
   .composite([
-    { input: position, left: 75, top: 348 },
-    { input: response, left: 766, top: 615 },
+    { input: position, left: 75, top: 390 },
+    { input: response, left: 775, top: 420 },
     { input: logo, left: 1050, top: 48 },
   ])
   .png().toBuffer()
@@ -40,17 +40,14 @@ const overlay = svg(`
   <text x="75" y="176" fill="#F8F5EE" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="63" font-weight="700">A right move can be</text>
   <text x="75" y="251" fill="#F8F5EE" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="63" font-weight="700">an accident.</text>
   <text x="75" y="307" fill="#AFC1CB" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="28">Keep the position and response in view.</text>
-  <rect x="75" y="348" width="1050" height="925" rx="17" fill="none" stroke="#D5C0A3" stroke-width="3"/>
-  <rect x="75" y="348" width="1050" height="925" rx="17" fill="#081522" opacity=".01"/>
-  <rect x="75" y="1012" width="650" height="261" fill="#081522" opacity=".93"/>
-  <rect x="75" y="1012" width="650" height="261" fill="none" stroke="#D5C0A3" stroke-width="2"/>
-  <text x="106" y="1067" fill="#E9B95A" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="23" font-weight="700" letter-spacing="2">01 / EXPLORE</text>
-  <text x="106" y="1129" fill="#F8F5EE" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="39" font-weight="700">See the board</text>
-  <text x="106" y="1173" fill="#C7D2D7" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="25">A move has a position behind it.</text>
-  <text x="106" y="1214" fill="#C7D2D7" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="25">Here, the line and notation stay visible.</text>
-  <rect x="748" y="557" width="394" height="45" rx="8" fill="#102439"/>
-  <text x="770" y="587" fill="#E9B95A" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="23" font-weight="700" letter-spacing="2">02 / RESPOND</text>
-  <rect x="748" y="593" width="394" height="697" rx="18" fill="none" stroke="#E9B95A" stroke-width="3"/>
+  <rect x="75" y="390" width="650" height="725" rx="17" fill="none" stroke="#D5C0A3" stroke-width="3"/>
+  <rect x="75" y="1135" width="650" height="155" rx="14" fill="#102439"/>
+  <text x="106" y="1179" fill="#E9B95A" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="22" font-weight="700" letter-spacing="2">01 / EXPLORE</text>
+  <text x="106" y="1230" fill="#F8F5EE" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="35" font-weight="700">See the whole board</text>
+  <text x="106" y="1268" fill="#C7D2D7" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="23">The full position stays visible.</text>
+  <rect x="757" y="365" width="386" height="45" rx="8" fill="#102439"/>
+  <text x="779" y="395" fill="#E9B95A" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="23" font-weight="700" letter-spacing="2">02 / RESPOND</text>
+  <rect x="757" y="410" width="386" height="682" rx="18" fill="none" stroke="#E9B95A" stroke-width="3"/>
   <rect x="75" y="1320" width="1050" height="2" fill="#365066"/>
   <text x="75" y="1380" fill="#F8F5EE" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="30" font-weight="700">Product design test</text>
   <text x="75" y="1426" fill="#B9C9D0" font-family="Avenir Next, Helvetica Neue, sans-serif" font-size="27">After the response, can the player explain the next choice?</text>

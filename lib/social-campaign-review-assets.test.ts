@@ -11,7 +11,7 @@ describe('social campaign review asset projection', () => {
     expect(generator).not.toContain('youtubeOverlaySvg')
     const expected = new Map([
       ['jev-linkedin-decision-system.png', '5927f3b90b7895145464fb3c95d3c0d962214c2257379766bc892e43aa7bb141'],
-      ['dark-castle-linkedin-remember-why.png', '8744666b8e38d71862088b08baebc63c39eafc4b50cacfa56944c29d30a09683'],
+      ['dark-castle-linkedin-remember-why.png', '71f838f13abc747f1cd56fd7b381ee341396f4801c48a69714e85cc47224084b'],
       ['ai-audit-linkedin-hidden-bill.png', '73263abe49dc749383050e91cf10cab3266451eba866bf0b661d8bb88aa9efd5'],
     ])
     for (const [name, digest] of expected) {
@@ -34,6 +34,14 @@ describe('social campaign review asset projection', () => {
     expect(fixture.post_text).toContain('Those are visible product states, not a measured result.')
     expect(fixture.cta_text).toBe('What does your product give people after they get an answer right?')
     expect(packet.externalGates).toBe('closed')
+  })
+
+  it('keeps the Dark Castle board clear of the explanatory caption', () => {
+    const generator = readFileSync('scripts/generate-dark-castle-linkedin-review-visual.mjs', 'utf8')
+    expect(generator).toContain("{ input: position, left: 75, top: 390 }")
+    expect(generator).toContain('<rect x="75" y="390" width="650" height="725"')
+    expect(generator).toContain('<rect x="75" y="1135" width="650" height="155"')
+    expect(generator).not.toContain('<rect x="75" y="1012" width="650" height="261"')
   })
 
   it('renders YouTube thumbnails only from version-bound upstream decision receipts', () => {
