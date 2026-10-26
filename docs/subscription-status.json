@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-19T13:02:52Z",
+  "generatedAt": "2026-10-26T13:09:57Z",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
-  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-10-19.md",
+  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-10-25.md",
   "monitorRunArtifactPattern": "/docs/subscription-monitor-runs/YYYY-MM-DD.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
@@ -406,9 +406,9 @@
   },
   "summary": {
     "status": "yellow",
-    "headline": "Weekly refresh: core services remain active; HeyGen and Read AI show current use, Vapi remains review-only, and no vendor is approval-ready for cancellation.",
+    "headline": "Weekly refresh: n8n connector access recovered, core services remain active, Vapi remains review-only, and no vendor is approval-ready for cancellation.",
     "nextReviewFocus": [
-      "Inspect the recurring n8n staging Apify-monitor and Drive-to-Pinecone ingest failures without changing workflows.",
+      "Inspect the recurring n8n staging Apify-monitor and Drive-to-Pinecone ingest failures without changing workflows; recovered connector access does not resolve their reliability evidence.",
       "Review HeyGen quota, campaign need, and API-v3 migration exposure; current activity rules out cancellation.",
       "Confirm Vapi billing and whether Portfolio voice UX remains in near-term scope before any deprecation packet.",
       "Use owner-authorized dashboard evidence to review Calendly, Read AI, Gamma, Pinecone, and Apify value.",

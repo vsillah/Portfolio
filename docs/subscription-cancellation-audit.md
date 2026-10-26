@@ -10,6 +10,20 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-10-26 Weekly Subscription Report
+
+Status: YELLOW
+
+Raw findings: The latest daily monitor evidence through 2026-10-25 shows current Supabase activity and a recent Vercel production deployment; n8n's prior HTTP 530 access issue was followed by this run's healthy read-only connector response, which listed 85 workflows. The retained Calendly, Google Drive-to-Pinecone, Apify-monitor, and optional Vapi workflow paths confirm replacement risk. No current billing dashboard was accessed, no lookup credits were spent, and no private meeting content was read.
+
+Derived movement since 2026-10-19: n8n connector availability recovered from the carried-forward access degradation to a healthy read-only response. This is operational evidence, not a billing or cancellation signal. Vercel remains active, while n8n/Apify/Pinecone reliability and provider-billing visibility remain unresolved. No vendor reached the approval-ready cancellation threshold.
+
+Current buckets: active keep — Supabase, n8n Cloud, Vercel, Stripe, OpenAI, Gemini/Google AI, Slack, Gmail/Google metadata, Apify, Hunter.io, Printful, Google Cloud, and BuiltWith during the outreach ramp. Watch — Vapi, Resend, Calendly, Gamma, ElevenLabs, HeyGen, OpenRouter, Pinecone, Read AI, Apify actor pruning, Anthropic billing/API scope, and design/media billing. Unresolved owner review — Vapi billing/voice scope; Calendly, Gamma, Read AI, HeyGen, Pinecone, OpenRouter, Printful, Stripe, Vercel, Google, and design/media account evidence. Resolved/canceled — Fireflies.ai. Candidate cancellations — none.
+
+Recommendations and exact next actions: keep core services; inspect the n8n Apify-monitor and Drive-to-Pinecone failure evidence without changing workflows; confirm Vapi billing and whether voice UX remains in near-term scope before any deprecation packet; use owner-authorized dashboards for Calendly, Read AI, Gamma, Pinecone, Apify, HeyGen, and model-provider value checks. Keep BuiltWith as a protected outreach-ramp watch item. Reopen Fireflies only on a paid receipt, dashboard proof, or explicit restart.
+
+Action-tracker feedback: this automation has 12 open actions, with none in progress, blocked, or done and no progress note. No cancellation, provider setting, secret, data, code-deprecation, billing, or production change was performed. Any cancellation remains gated by `Cancel <tool/vendor> for Portfolio`.
+
 ## 2026-10-19 Weekly Subscription Report
 
 Status: YELLOW
