@@ -2750,7 +2750,7 @@ function SocialContentDetailPage() {
       const session = await getCurrentSession()
       if (!session) return
 
-      const res = await fetch(`/api/admin/social-content/${id}/prepare-stage-review`, {
+      const res = await fetch(`/api/admin/social-content/${id}/${persistedCurrentGate === 'copy_review' ? 'prepare-copy-review' : 'prepare-stage-review'}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -3059,7 +3059,8 @@ function SocialContentDetailPage() {
     && mobileDecisionReadiness.packet.content_updated_at === item.updated_at
     && mobileDecisionReadiness.ready,
   )
-  const canPrepareCurrentStageReview = ['asset_packet', 'privacy'].includes(persistedCurrentGate)
+  const canPrepareCurrentStageReview = (['asset_packet', 'privacy'].includes(persistedCurrentGate)
+    || (persistedCurrentGate === 'copy_review' && !rawMobileDecisionPacket))
     && !hasCurrentStageDecisionPacket
   const persistedCurrentGateStep = isSocialContentCanonicalGate(persistedCurrentGate)
     ? socialContentGateStep(persistedCurrentGate)
