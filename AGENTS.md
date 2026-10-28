@@ -172,6 +172,18 @@ Before a new YouTube or YouTube Shorts package reaches Human QA, compare its des
 - Bind the resulting description-pattern receipt to the generated YouTube review packet so Vambah can open the exact sources and inspect why the description was structured that way.
 - Keep missing, stale, weak, unauthorized, or undersized cohorts `Unscored`. Do not fabricate confidence or silently substitute generic platform advice.
 
+## Three-Option YouTube Thumbnail Rule
+
+Before any YouTube or YouTube Shorts thumbnail package reaches Human QA, present exactly three evidence-qualified candidates for selection. The candidates must explore genuinely different visual strategies while remaining bound to the same approved title, topic, product proof, claim boundaries, and current evidence packet.
+
+- Label the candidates consistently as A, B, and C and show all three together in the existing Social Content review surface. Do not create another thumbnail inbox or ask Vambah to reconstruct the comparison across separate routes.
+- Use three distinct composition families. Changing only color, crop, background, facial expression, text placement, or minor pose does not make a distinct option. Record each option's layout family, dominant focal point, hero-product relationship, text treatment, atmosphere, and intended one-second read.
+- Bind every option to its own attributable evidence trace: live topic-specific outlier cohort, source URLs, normalized scores, threshold, sample size, observation and expiry dates, title-thumbnail copy relationship, feed-size legibility result, product-proof binding, originality boundary, rights boundary, and deterministic input/output identity.
+- Require every option to pass the established thumbnail checklist before Human QA: one dominant human or product focal point, one idea understood in roughly one second, only a few large teaser words, thumbnail copy distinct from the video title, legibility at real feed size, visual similarity calibration against approved taste references, and current topic-specific outlier validation.
+- Reject candidates before Human QA when text covers a face or critical product proof, contrast is weak, anatomy or product geometry is malformed, typography looks default or dated without evidence, the hero and asset read as disconnected panels, or the composition repeats a recently used thumbnail without an approved reason.
+- Provide an evidence-backed recommendation, but keep A, B, and C selectable. Record the Human QA selection in a version-bound immutable receipt before advancing the chosen thumbnail. Unselected candidates remain review evidence and must not be uploaded, scheduled, or published.
+- Fail closed when fewer than three candidates qualify, when candidate diversity is cosmetic, when any option lacks its own evidence trace, or when evidence is stale or below threshold. Do not fill the set with a weaker option merely to reach three.
+
 ## Human QA Video Evidence Rule
 
 Whenever a Portfolio change reaches Vambah's human QA gate for changed product behavior, the captain handoff must include a short video walkthrough or equivalent screen-recorded test artifact showing the exact operator path being reviewed.
