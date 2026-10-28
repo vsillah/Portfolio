@@ -485,13 +485,16 @@ export function resolveSocialCampaignReviewPacket(
   now = new Date(),
 ): SocialCampaignReviewPacket {
   if (packet.kind === 'youtube_packaging') {
-    const raw = context?.script_template_receipt
+    const frameworkInput = context?.long_form_script_framework_receipt && typeof context.long_form_script_framework_receipt === 'object' && !Array.isArray(context.long_form_script_framework_receipt)
+      ? context.long_form_script_framework_receipt as Record<string, unknown> : null
+    const raw = context?.script_template_receipt ?? frameworkInput?.script_template_receipt
     const receipt = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw as SocialScriptTemplateReceipt : null
-    const candidateId = typeof context?.script_template_candidate_id === 'string' ? context.script_template_candidate_id : ''
+    const candidateId = typeof context?.script_template_candidate_id === 'string' ? context.script_template_candidate_id : typeof frameworkInput?.candidate_id === 'string' ? frameworkInput.candidate_id : ''
     const contentVersion = typeof context?.script_template_content_version === 'string' ? context.script_template_content_version : packet.contentVersion
+    const sourceReceiptId = typeof frameworkInput?.receipt_id === 'string' ? frameworkInput.receipt_id : undefined
     return { ...packet, scriptTemplate: {
       receipt,
-      ...inspectSocialScriptTemplateReceipt({ receipt, contentId: packet.socialContentId, candidateId, contentVersion, now }),
+      ...inspectSocialScriptTemplateReceipt({ receipt, contentId: packet.socialContentId, candidateId, contentVersion, sourceReceiptId, now }),
     } }
   }
   if (!packet.jit || !context) return packet

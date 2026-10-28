@@ -95,7 +95,7 @@ function base(product: 'kicklab' | 'reversr' | 'kinflo', label: string): Campaig
         source_receipt_ids: [`receipt:${product}:long-form-framework:20261018`],
         source_boundary: 'Public sources guide structure only; product claims use first-party evidence.',
         originality_boundary: 'Original words, examples, voice, and visuals are required.',
-        evaluation: { status: 'passed', approval_ready: true, receipt_id: `evaluation:${product}:script-template:20261018` },
+        evaluation: { status: 'passed', approval_ready: true, receipt_id: `evaluation:${product}:script-template:20261018`, score: 90, blockers: [] },
         observed_at: '2026-10-18T12:00:00.000Z',
         fresh_until: '2026-10-25T12:00:00.000Z',
       },

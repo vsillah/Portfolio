@@ -35,5 +35,14 @@ describe('canonical script template receipts', () => {
     expect(projection.ready).toBe(true)
     expect(projection.packet?.script_template_receipt).toEqual(receipt)
     expect(projection.packet?.script_template_receipt.applied_beat_ids).toEqual(projection.packet?.beats.map((beat) => beat.id))
+    const runtime = structuredClone(receipt)
+    runtime.content_id = SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube
+    runtime.candidate_id = 'candidate:dark-castle:review'
+    runtime.content_version = '2026-10-18T00:00:00.000Z'
+    const review = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube, {
+      long_form_script_framework_receipt: { candidate_id: runtime.candidate_id, script_template_receipt: runtime },
+      script_template_content_version: runtime.content_version,
+    }, now)
+    expect(review?.kind === 'youtube_packaging' && review.scriptTemplate?.ready).toBe(true)
   })
 })
