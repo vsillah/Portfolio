@@ -1,5 +1,6 @@
 import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
 import type { CreatorDistanceReceipt, TopicOutlierEvidence } from '@/lib/long-form-script-intelligence'
+import type { SocialScriptTemplateReceipt } from '@/lib/social-script-template-receipt'
 
 export const SOCIAL_CAMPAIGN_PACKAGE_KIND = 'social_campaign_review_package'
 export const SOCIAL_CAMPAIGN_PACKAGE_VERSION = 'social-campaign-review-package/v1' as const
@@ -66,6 +67,7 @@ export type CampaignLongFormScriptInputReceipt = {
   source_href: string
   framework_library_version: string
   framework_rule_ids: string[]
+  script_template_receipt?: SocialScriptTemplateReceipt | null
   topic: string
   promise: string
   expected_duration_seconds: number

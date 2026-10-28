@@ -4,6 +4,14 @@ import SocialCampaignReviewPacket from './SocialCampaignReviewPacket'
 import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS } from '@/lib/social-campaign-review-assets'
 
 describe('SocialCampaignReviewPacket', () => {
+  it('shows the current Dark Castle missing-template disclosure and recovery inside the YouTube review', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube)!
+    render(<SocialCampaignReviewPacket packet={packet} />)
+    expect(screen.getByText('Applied script framework')).toBeInTheDocument()
+    expect(screen.getByText('No script template recorded')).toBeInTheDocument()
+    expect(screen.getByText(/description cohort below supports description structure only/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Record and evaluate a current script template' })).toHaveAttribute('href', expect.stringContaining('social_content_id=c12378f2-36de-4bf7-8c5d-0ce754e727eb'))
+  })
   it('shows a concrete LinkedIn visual with source boundaries and closed external gates', () => {
     const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn)!
     render(<SocialCampaignReviewPacket packet={packet} />)

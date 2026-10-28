@@ -69,6 +69,9 @@ function snapshot(): CampaignPreparationSnapshot {
   const longFormInput = structuredClone(socialCampaignPackageQaCandidates()[0].long_form_script_input!)
   longFormInput.campaign_identity = 'campaign-kicklab'
   longFormInput.candidate_id = 'campaign-preparation:campaign-kicklab'
+  longFormInput.script_template_receipt!.candidate_id = longFormInput.candidate_id
+  longFormInput.script_template_receipt!.content_id = 'youtube-1'
+  longFormInput.script_template_receipt!.content_version = VERSION
   const packet = (channel: 'linkedin' | 'youtube', contentId: string) => ({
     channel,
     approval_status: 'in_review',
@@ -191,10 +194,14 @@ describe('campaign preparation candidate producer', () => {
       receipt_id: 'receipt:kicklab:long-form-framework:20261018',
       campaign_identity: 'campaign-kicklab',
       candidate_id: 'campaign-preparation:campaign-kicklab',
+      script_template_receipt: { template_id: 'amadutown-long-form-product-proof-v1', candidate_id: 'campaign-preparation:campaign-kicklab', content_id: 'youtube-1', content_version: VERSION },
     })
     const revised = structuredClone(value)
     revised.socialContent[1].rag_context.long_form_script_framework_receipt.fresh_until = '2026-10-26T12:00:00.000Z'
     expect(projectCampaignPreparationCandidate(revised).inputVersion).not.toBe(first.inputVersion)
+    const revisedTemplate = structuredClone(value)
+    revisedTemplate.socialContent[1].rag_context.long_form_script_framework_receipt.script_template_receipt.receipt_id = 'new-template-evaluation'
+    expect(projectCampaignPreparationCandidate(revisedTemplate).inputVersion).not.toBe(first.inputVersion)
   })
 
   it('creates the durable run receipt before updating a changed same-id projection', async () => {

@@ -6,6 +6,7 @@ import darkCastleSelection from '@/artifacts/research/dark-castle-chess-youtube-
 import aiAuditCohort from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/cohort.json'
 import aiAuditDecision from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json'
 import aiAuditSelection from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/ai-audit-thumbnail-selection-receipt.json'
+import { inspectSocialScriptTemplateReceipt, type SocialScriptTemplateReceipt } from '@/lib/social-script-template-receipt'
 
 export const SOCIAL_CAMPAIGN_REVIEW_IDS = {
   jevLinkedIn: '80618d32-7046-4abc-b2b7-8adb5526bb2e',
@@ -83,6 +84,11 @@ export type YouTubeReviewPacket = {
     required: number
     requirement: string
     attribution: ReviewSource[]
+  }
+  scriptTemplate?: {
+    ready: boolean
+    blockers: string[]
+    receipt: SocialScriptTemplateReceipt | null
   }
   storyboard: StoryboardBeat[]
   productProof: ReviewSource[]
@@ -478,7 +484,20 @@ export function resolveSocialCampaignReviewPacket(
   context: CampaignReviewRuntimeContext,
   now = new Date(),
 ): SocialCampaignReviewPacket {
-  if (packet.kind !== 'linkedin_visual' || !packet.jit || !context) return packet
+  if (packet.kind === 'youtube_packaging') {
+    const frameworkInput = context?.long_form_script_framework_receipt && typeof context.long_form_script_framework_receipt === 'object' && !Array.isArray(context.long_form_script_framework_receipt)
+      ? context.long_form_script_framework_receipt as Record<string, unknown> : null
+    const raw = context?.script_template_receipt ?? frameworkInput?.script_template_receipt
+    const receipt = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw as SocialScriptTemplateReceipt : null
+    const candidateId = typeof context?.script_template_candidate_id === 'string' ? context.script_template_candidate_id : typeof frameworkInput?.candidate_id === 'string' ? frameworkInput.candidate_id : ''
+    const contentVersion = typeof context?.script_template_content_version === 'string' ? context.script_template_content_version : packet.contentVersion
+    const sourceReceiptId = typeof frameworkInput?.receipt_id === 'string' ? frameworkInput.receipt_id : undefined
+    return { ...packet, scriptTemplate: {
+      receipt,
+      ...inspectSocialScriptTemplateReceipt({ receipt, contentId: packet.socialContentId, candidateId, contentVersion, sourceReceiptId, now }),
+    } }
+  }
+  if (!packet.jit || !context) return packet
 
   const contentVersion = typeof context.content_version === 'string' ? context.content_version : ''
   const observedAt = typeof context.jit_observed_at === 'string' ? context.jit_observed_at : ''

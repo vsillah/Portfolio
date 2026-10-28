@@ -1,4 +1,5 @@
 import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
+import { inspectSocialScriptTemplateReceipt, type SocialScriptTemplateReceipt } from '@/lib/social-script-template-receipt'
 import {
   LONG_FORM_FRAMEWORK_LIBRARY,
   LONG_FORM_FRAMEWORK_LIBRARY_VERSION,
@@ -45,6 +46,7 @@ export type CampaignLongFormDraftPacket = {
   content_version: string
   input_version: string
   framework_receipt_id: string
+  script_template_receipt: SocialScriptTemplateReceipt
   product_proof_receipt_id: string
   originality_receipt_id: string
   privacy_receipt_id: string
@@ -148,6 +150,8 @@ function frameworkBlockers(candidate: CampaignPreparationCandidate, receipt: Cam
   const recovery = receipt?.source_href || `/admin/content/video-generation?campaign=${encodeURIComponent(candidate.campaign_identity)}&review=script-intelligence`
   if (!receipt) return [blocker('long_form_framework_missing', 'A version-bound long-form Script Intelligence input receipt is required.', 'Complete Script Intelligence inputs', recovery)]
   const blockers: CampaignPreparationBlocker[] = []
+  const template = inspectSocialScriptTemplateReceipt({ receipt: receipt.script_template_receipt, contentId: candidate.social_content_id, candidateId: candidate.candidate_id, contentVersion: candidate.content_version, sourceReceiptId: receipt.receipt_id, now })
+  blockers.push(...template.blockers.map((message) => blocker('script_template_not_ready', message, 'Record current script template', recovery)))
   if (receipt.version !== SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION) blockers.push(blocker('long_form_framework_version', 'The long-form framework input version is unsupported.', 'Refresh framework receipt', recovery))
   if (receipt.status !== 'passed') blockers.push(blocker('long_form_framework_blocked', 'The long-form framework receipt has not passed.', 'Resolve framework receipt', recovery))
   if (
@@ -221,6 +225,13 @@ export function projectCampaignLongFormDraft(candidate: CampaignPreparationCandi
     packet: null,
   }
   const beats = scriptBeats(candidate, receipt)
+  if (beats.map((beat) => beat.id).join('|') !== receipt.script_template_receipt!.applied_beat_ids.join('|')) return {
+    candidate_id: candidate.candidate_id,
+    campaign_identity: candidate.campaign_identity,
+    product_label: candidate.product_label,
+    state: 'blocked', ready: false, packet: null,
+    blockers: [blocker('script_template_beat_mismatch', 'Applied script beats do not match the recorded template receipt.', 'Re-evaluate script template', receipt.source_href)],
+  }
   const customerFacingCopyReceipt = inspectCustomerFacingScript(beats)
   if (customerFacingCopyReceipt.status !== 'passed') return {
     candidate_id: candidate.candidate_id,
@@ -289,6 +300,7 @@ export function projectCampaignLongFormDraft(candidate: CampaignPreparationCandi
       content_version: candidate.content_version,
       input_version: candidate.input_version,
       framework_receipt_id: receipt.receipt_id,
+      script_template_receipt: receipt.script_template_receipt!,
       product_proof_receipt_id: candidate.receipts.product_proof.receipt_id,
       originality_receipt_id: candidate.receipts.originality.receipt_id,
       privacy_receipt_id: candidate.receipts.privacy.receipt_id,

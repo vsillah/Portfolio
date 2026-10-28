@@ -4,7 +4,8 @@ import {
   SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST,
   type CampaignPreparationCandidate,
 } from '@/lib/social-campaign-package-preparation'
-import { LONG_FORM_FRAMEWORK_LIBRARY, LONG_FORM_FRAMEWORK_LIBRARY_VERSION } from '@/lib/long-form-script-intelligence'
+import { LONG_FORM_FRAMEWORK_LIBRARY, LONG_FORM_FRAMEWORK_LIBRARY_VERSION, kickLabLongFormQaBeats } from '@/lib/long-form-script-intelligence'
+import { SOCIAL_SCRIPT_TEMPLATE, SOCIAL_SCRIPT_TEMPLATE_RECEIPT_VERSION } from '@/lib/social-script-template-receipt'
 
 export const SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE = 'campaign-package-preparation-v1'
 export const SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE = 'campaign-package-preparation-review-v1'
@@ -79,6 +80,25 @@ function base(product: 'kicklab' | 'reversr' | 'kinflo', label: string): Campaig
       source_href: `/admin/content/video-generation?campaign=${product}&review=script-intelligence`,
       framework_library_version: LONG_FORM_FRAMEWORK_LIBRARY_VERSION,
       framework_rule_ids: LONG_FORM_FRAMEWORK_LIBRARY.rules.map((rule) => rule.id),
+      script_template_receipt: {
+        version: SOCIAL_SCRIPT_TEMPLATE_RECEIPT_VERSION,
+        receipt_id: `receipt:${product}:script-template:20261018`,
+        status: 'passed',
+        template_id: SOCIAL_SCRIPT_TEMPLATE.id,
+        template_name: SOCIAL_SCRIPT_TEMPLATE.name,
+        library_version: SOCIAL_SCRIPT_TEMPLATE.libraryVersion,
+        content_id: `qa-${product}-campaign`,
+        candidate_id: `candidate:${product}:campaign:v1`,
+        content_version: '2026-10-18T12:00:00.000Z',
+        applied_beat_ids: product === 'kicklab' ? kickLabLongFormQaBeats().map((beat) => beat.id) : [...SOCIAL_SCRIPT_TEMPLATE.beatIds],
+        applied_rule_ids: [...SOCIAL_SCRIPT_TEMPLATE.ruleIds],
+        source_receipt_ids: [`receipt:${product}:long-form-framework:20261018`],
+        source_boundary: 'Public sources guide structure only; product claims use first-party evidence.',
+        originality_boundary: 'Original words, examples, voice, and visuals are required.',
+        evaluation: { status: 'passed', approval_ready: true, receipt_id: `evaluation:${product}:script-template:20261018`, score: 90, blockers: [] },
+        observed_at: '2026-10-18T12:00:00.000Z',
+        fresh_until: '2026-10-25T12:00:00.000Z',
+      },
       topic,
       promise: `a clear ${label} product proof review built from current topic evidence`,
       expected_duration_seconds: 600,
@@ -152,6 +172,8 @@ export function socialCampaignLongFormBatchQaCandidates() {
     candidate.long_form_script_input!.receipt_id = `receipt:${identity}:long-form-framework:20261018`
     candidate.long_form_script_input!.campaign_identity = identity
     candidate.long_form_script_input!.candidate_id = candidate.candidate_id
+    candidate.long_form_script_input!.script_template_receipt!.content_id = candidate.social_content_id
+    candidate.long_form_script_input!.script_template_receipt!.candidate_id = candidate.candidate_id
     candidate.long_form_script_input!.topic = `${candidate.product_label} product proof workflow`
     candidate.long_form_script_input!.promise = `a clear ${candidate.product_label} product proof review built from current topic evidence`
     candidate.long_form_script_input!.topic_outlier_evidence = candidate.long_form_script_input!.topic_outlier_evidence.map((entry, evidenceIndex) => ({
