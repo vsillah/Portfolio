@@ -58,6 +58,7 @@ import { validateYouTubePackagingEvidence, type YouTubePackagingTarget } from '@
 import type { SocialVideoReviewPackage } from '@/lib/social-video-review-package'
 import type { HeyGenLongFormProductionRecipe } from '@/lib/heygen-long-form-production-recipe'
 import { getCurrentSession } from '@/lib/auth'
+import { fetchWithSessionRecovery } from '@/lib/authenticated-fetch'
 import {
   STATUS_CONFIG,
   PLATFORMS,
@@ -1052,12 +1053,7 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID ? null : await getCurrentSession()
-      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture && !socialCampaignReviewQaFixture && !readOnlyDarkCastleProductionRecoveryQaFixture && !readOnlySocialVisualBacklogQaFixture && id !== DARK_CASTLE_VISUAL_QA_ID) {
-        setLoadError('Admin session is unavailable for this social content detail.')
-        if (!options.silent) setItem(null)
-        return
-      }
+      const usesReadOnlyFixture = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
 
       const detailQuery = readOnlySocialVisualBacklogQaFixture
         ? `?qa_fixture=${SOCIAL_VISUAL_BACKLOG_QA_FIXTURE}`
@@ -1076,10 +1072,15 @@ function SocialContentDetailPage() {
         : socialCampaignReviewQaFixture
           ? `?qa_fixture=${SOCIAL_CAMPAIGN_REVIEW_FIXTURE}${stageReviewQaState ? `&stage_review_state=${stageReviewQaState}` : ''}`
           : ''
-      const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
-        cache: 'no-store',
-        headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined,
-      })
+      const detailUrl = `/api/admin/social-content/${id}${detailQuery}`
+      const res = usesReadOnlyFixture
+        ? await fetch(detailUrl, { cache: 'no-store' })
+        : await fetchWithSessionRecovery(detailUrl, { cache: 'no-store' })
+      if (!res) {
+        setLoadError('Admin session is unavailable for this social content detail.')
+        if (!options.silent) setItem(null)
+        return
+      }
       const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {

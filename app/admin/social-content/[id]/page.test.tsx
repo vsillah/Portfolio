@@ -36,6 +36,7 @@ vi.mock('@/components/admin/Breadcrumbs', () => ({
 
 vi.mock('@/lib/auth', () => ({
   getCurrentSession: vi.fn(async () => ({ access_token: 'admin-token' })),
+  refreshCurrentSession: vi.fn(async () => null),
 }))
 
 describe('SocialContentDetailRoute visual production review', () => {

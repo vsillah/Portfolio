@@ -21,6 +21,13 @@ export async function getCurrentSession(): Promise<Session | null> {
   return session
 }
 
+// Refresh the current session for a bounded retry after an authenticated request
+// is rejected with a stale access token.
+export async function refreshCurrentSession(): Promise<Session | null> {
+  const { data: { session }, error } = await supabase.auth.refreshSession()
+  return error ? null : session
+}
+
 // Get user profile with role
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   try {
