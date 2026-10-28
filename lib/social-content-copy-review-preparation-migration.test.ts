@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const sql = readFileSync(path.join(process.cwd(), 'supabase/migrations/20261028213330_prepare_social_content_copy_review_packet.sql'), 'utf8')
+const sql = readFileSync(path.join(process.cwd(), 'supabase/migrations/20261028215442_prepare_social_content_copy_review_packet_trigger_bound.sql'), 'utf8')
 
 describe('initial Social Content copy-review transaction', () => {
   it('creates one version-bound canonical packet and reuses its pending binding on retry', () => {
