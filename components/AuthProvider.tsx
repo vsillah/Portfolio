@@ -164,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUser(session.user)
+        setSession(session)
         // Note: We set loading true here, but ProtectedRoute will only show
         // the loading screen if we don't have valid user/profile data yet
         setLoading(true)

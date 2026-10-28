@@ -72,4 +72,48 @@ describe('AuthProvider', () => {
     expect(screen.getByTestId('session')).toHaveTextContent('no-session')
     expect(screen.getByTestId('profile')).toHaveTextContent('no-profile')
   })
+
+  it('persists the replacement session received from an auth state change', async () => {
+    let authStateCallback: ((event: string, session: unknown) => Promise<void>) | undefined
+    authMocks.getCurrentSession.mockResolvedValue(null)
+    authMocks.getCurrentUser.mockResolvedValue(null)
+    authMocks.onAuthStateChange.mockImplementation((callback) => {
+      authStateCallback = callback
+      return {
+        data: {
+          subscription: {
+            unsubscribe: authMocks.unsubscribe,
+          },
+        },
+      }
+    })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ profile: null }),
+    }))
+
+    render(
+      <AuthProvider>
+        <AuthProbe />
+      </AuthProvider>,
+    )
+
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(authStateCallback).toBeTypeOf('function')
+
+    await act(async () => {
+      await authStateCallback?.('TOKEN_REFRESHED', {
+        access_token: 'replacement-token',
+        user: { id: 'user-1' },
+      })
+      await vi.advanceTimersByTimeAsync(100)
+    })
+
+    expect(screen.getByTestId('user')).toHaveTextContent('user')
+    expect(screen.getByTestId('session')).toHaveTextContent('session')
+  })
 })
