@@ -15,6 +15,7 @@ DECLARE
   v_calendar public.social_content_calendar_items%ROWTYPE;
   v_calendar_count INTEGER;
   v_receipts JSONB;
+  v_source_receipts JSONB;
   v_receipt JSONB;
   v_projection JSONB;
   v_packet JSONB;
@@ -25,6 +26,8 @@ DECLARE
   v_approval_id UUID := gen_random_uuid();
   v_work_item_id UUID := gen_random_uuid();
   v_idempotency_key TEXT;
+  v_evidence_version TIMESTAMPTZ;
+  v_prepared_version TIMESTAMPTZ;
 BEGIN
   IF p_triggered_by_user_id IS NULL THEN
     RAISE EXCEPTION 'Authenticated operator identity is required';
@@ -118,19 +121,37 @@ BEGIN
     RAISE EXCEPTION 'Persisted copy-review candidate projection is required';
   END IF;
 
-  -- The copied receipts and projection retain all source IDs, observed values,
-  -- configured thresholds and privacy fields. Only packet binding is new.
-  v_idempotency_key := 'social-copy-review:' || p_social_content_id::TEXT || ':' || v_item.updated_at::TEXT;
+  v_evidence_version := v_item.updated_at;
+  v_source_receipts := v_receipts;
+  v_idempotency_key := 'social-copy-review:' || p_social_content_id::TEXT || ':' || v_evidence_version::TEXT;
+
+  -- The queue has a BEFORE UPDATE trigger that assigns NEW.updated_at = NOW().
+  -- Read the actual trigger-produced version before constructing any packet.
+  -- NOW() is transaction-stable, so the final metadata update must return the
+  -- same version; otherwise the entire transaction rolls back.
+  UPDATE public.social_content_queue SET updated_at = now()
+  WHERE id = p_social_content_id
+  RETURNING updated_at INTO v_prepared_version;
+  IF v_prepared_version <= v_evidence_version THEN
+    RAISE EXCEPTION 'Social Content version did not advance during packet preparation';
+  END IF;
+
+  -- Preserve the exact approved receipt bundle separately. The packet's copy
+  -- carries the same IDs and evidence fields with only its version rebound to
+  -- the trigger-produced review version expected by canonical decisions.
+  FOREACH v_key IN ARRAY ARRAY['source', 'voice', 'framework', 'privacy', 'visual', 'challenger'] LOOP
+    v_receipts := jsonb_set(v_receipts, ARRAY[v_key, 'content_updated_at'], to_jsonb(v_prepared_version));
+  END LOOP;
   v_packet := jsonb_build_object(
     'version', 'social-content-decision-review/v1',
     'approval_id', v_approval_id, 'run_id', v_run_id,
     'work_item_id', v_work_item_id, 'content_id', p_social_content_id,
-    'content_updated_at', v_item.updated_at, 'current_gate', 'copy_review',
+    'content_updated_at', v_prepared_version, 'current_gate', 'copy_review',
     'next_gate', 'visual_review', 'receipts', v_receipts,
+    'source_receipts', v_source_receipts,
+    'source_content_updated_at', v_evidence_version,
     'candidate_projection', v_projection
   );
-  -- Preparation changes review metadata only. The evidence was approved for
-  -- the content version, which remains the packet version.
 
   INSERT INTO public.agent_runs (
     id, agent_key, runtime, kind, title, status, subject_type, subject_id,
@@ -175,23 +196,23 @@ BEGIN
     COALESCE(metadata -> 'social_content_lifecycle', '{}'::JSONB)
       || jsonb_build_object('social_content_status', 'pending', 'copy_review',
         COALESCE(metadata #> '{social_content_lifecycle,copy_review}', '{}'::JSONB)
-        || jsonb_build_object('status', 'pending', 'content_version', v_item.updated_at,
+        || jsonb_build_object('status', 'pending', 'content_version', v_prepared_version,
                               'work_item_id', v_work_item_id)), true)
   WHERE id = v_calendar.id;
 
   UPDATE public.social_content_queue
   SET rag_context = COALESCE(rag_context, '{}'::JSONB)
         || jsonb_build_object('mobile_decision_review', v_packet),
-      updated_at = v_item.updated_at
+      updated_at = v_prepared_version
   WHERE id = p_social_content_id
   RETURNING * INTO v_item;
-  IF v_item.updated_at IS DISTINCT FROM p_expected_content_updated_at THEN
-    RAISE EXCEPTION 'Social Content version changed during packet preparation';
+  IF v_item.updated_at IS DISTINCT FROM v_prepared_version THEN
+    RAISE EXCEPTION 'Social Content version changed after packet binding';
   END IF;
 
   RETURN jsonb_build_object(
     'work_item_id', v_work_item_id, 'approval_id', v_approval_id,
-    'run_id', v_run_id, 'content_updated_at', v_item.updated_at,
+    'run_id', v_run_id, 'content_updated_at', v_prepared_version,
     'current_gate', 'copy_review', 'next_gate', 'visual_review',
     'idempotent_replay', false, 'external_execution', false
   );
