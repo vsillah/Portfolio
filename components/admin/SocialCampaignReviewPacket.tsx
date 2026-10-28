@@ -84,6 +84,28 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
         </span>
       </div>
 
+      <section aria-label="Applied script framework" className="mt-4 rounded-lg border border-border bg-background p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground">Applied script framework</h3>
+          <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${packet.scriptTemplate?.ready ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-200' : 'border-amber-500/40 text-amber-800 dark:text-amber-100'}`}>{packet.scriptTemplate?.ready ? 'Receipt ready' : 'Blocked'}</span>
+        </div>
+        {packet.scriptTemplate?.ready && packet.scriptTemplate.receipt ? (
+          <>
+            <p className="mt-2 text-sm text-foreground">{packet.scriptTemplate.receipt.template_name} <span className="font-mono text-xs text-muted-foreground">· {packet.scriptTemplate.receipt.library_version}</span></p>
+            <details className="mt-2 text-xs text-muted-foreground"><summary className="cursor-pointer font-semibold text-foreground">View template receipt and applied beats</summary>
+              <dl className="mt-2 space-y-1 break-all"><div>Template ID: {packet.scriptTemplate.receipt.template_id}</div><div>Receipt: {packet.scriptTemplate.receipt.receipt_id}</div><div>Candidate: {packet.scriptTemplate.receipt.candidate_id}</div><div>Content version: {packet.scriptTemplate.receipt.content_version}</div><div>Applied beats: {packet.scriptTemplate.receipt.applied_beat_ids.join(', ')}</div><div>Applied rules: {packet.scriptTemplate.receipt.applied_rule_ids.join(', ')}</div><div>Sources: {packet.scriptTemplate.receipt.source_receipt_ids.join(', ')}</div><div>Source boundary: {packet.scriptTemplate.receipt.source_boundary}</div><div>Originality boundary: {packet.scriptTemplate.receipt.originality_boundary}</div><div>Evaluation: {packet.scriptTemplate.receipt.evaluation.receipt_id}</div><div>Fresh through: {packet.scriptTemplate.receipt.fresh_until}</div></dl>
+            </details>
+          </>
+        ) : (
+          <div role="status" className="mt-2 text-sm text-amber-900 dark:text-amber-100">
+            <p className="font-semibold">{packet.scriptTemplate?.receipt ? 'Script template receipt blocked' : 'No script template recorded'}</p>
+            <p className="mt-1 text-xs leading-5">The description cohort below supports description structure only. It does not establish a named script template.</p>
+            {packet.scriptTemplate?.blockers.filter((reason) => reason !== 'No script template recorded').map((reason) => <p key={reason} className="mt-1 text-xs">{reason}</p>)}
+            <Link href={`/admin/content/video-generation?social_content_id=${encodeURIComponent(packet.socialContentId)}&review=script-intelligence`} className="mt-2 inline-block rounded-md border border-amber-500/50 px-3 py-2 text-xs font-semibold underline underline-offset-2">Record and evaluate a current script template</Link>
+          </div>
+        )}
+      </section>
+
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-border bg-background p-3">
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Video title</p>
