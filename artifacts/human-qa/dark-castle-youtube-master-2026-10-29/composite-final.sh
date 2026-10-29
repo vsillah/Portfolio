@@ -15,17 +15,11 @@ fi
 ffmpeg -hide_banner -loglevel warning -y \
   -i "$BASE" -i "$PRESENTER" -i "$MUSIC" \
   -filter_complex "
-    [1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,split=5[p0][p1][p2][p3][p4];
-    [p0]crop=960:1080:0:0,format=yuva420p,fade=t=out:st=23.65:d=0.35:alpha=1[hook];
-    [p1]trim=start=24:end=41,setpts=PTS-STARTPTS,format=yuva420p,fade=t=in:st=0:d=0.35:alpha=1,fade=t=out:st=16.65:d=0.35:alpha=1,setpts=PTS+24/TB[boundary];
-    [p2]trim=start=68:end=96,setpts=PTS-STARTPTS,crop=960:1080:0:0,format=yuva420p,fade=t=in:st=0:d=0.35:alpha=1,fade=t=out:st=27.65:d=0.35:alpha=1,setpts=PTS+68/TB[handoff];
-    [p3]trim=start=127:end=155,setpts=PTS-STARTPTS,crop=960:1080:0:0,format=yuva420p,fade=t=in:st=0:d=0.35:alpha=1,fade=t=out:st=27.65:d=0.35:alpha=1,setpts=PTS+127/TB[payoff];
-    [p4]trim=start=155:end=184.94,setpts=PTS-STARTPTS,crop=960:1080:0:0,format=yuva420p,fade=t=in:st=0:d=0.35:alpha=1,setpts=PTS+155/TB[conclusion];
-    [0:v][hook]overlay=0:0:eof_action=pass[v1];
-    [v1][boundary]overlay=0:0:eof_action=pass[v2];
-    [v2][handoff]overlay=0:0:eof_action=pass[v3];
-    [v3][payoff]overlay=0:0:eof_action=pass[v4];
-    [v4][conclusion]overlay=0:0:eof_action=pass[vout];
+    [1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,split=2[p0][p1];
+    [p0]trim=start=0:end=41,setpts=PTS-STARTPTS,format=yuva420p,fade=t=out:st=40.65:d=0.35:alpha=1[presenter_open];
+    [p1]trim=start=155:end=176,setpts=PTS-STARTPTS,format=yuva420p,fade=t=in:st=0:d=0.35:alpha=1,fade=t=out:st=20.65:d=0.35:alpha=1,setpts=PTS+155/TB[presenter_close];
+    [0:v][presenter_open]overlay=0:0:eof_action=pass[v1];
+    [v1][presenter_close]overlay=0:0:eof_action=pass[vout];
     [1:a]aresample=48000,loudnorm=I=-16:LRA=7:TP=-1.5[voice];
     [2:a]atrim=0:184.94,aresample=48000,loudnorm=I=-27:LRA=7:TP=-2,afade=t=in:st=0:d=2,afade=t=out:st=181.94:d=3[music];
     [voice][music]amix=inputs=2:duration=first:dropout_transition=2:normalize=0[mix];

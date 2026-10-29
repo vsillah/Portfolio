@@ -48,7 +48,7 @@
   },
   "finalMediaReceipt": {
     "path": "dark-castle-youtube-master.mp4",
-    "sha256": "f289ae80f7eb898fbb4051be270bb1a190129f42dde9fc0fdff70790387fd80a",
+    "sha256": "f5178489dff1126c0f74ff36f58453a3d267fa0c1796cfb0347bd7d7f2d5c2d5",
     "durationSeconds": 184.94,
     "resolution": "1920x1080",
     "frameRate": 30,
@@ -56,8 +56,8 @@
     "integratedLoudnessLufs": -16.12,
     "truePeakDbtp": -1.46,
     "scriptSha256": "0df899a5b1ea18a3cc8a7c8e6f41a593123924e0208f917dda4e49d1de35687d",
-    "storyboardSha256": "a166af7e5ba647c03c409874ede8c5fb599be38509397ac4170c79b420feaf58",
-    "validation": ["spoken conclusion and CTA retained", "native presenter motion retained", "authorized music audible beneath speech", "real gameplay progression", "no repeated product stills", "no simultaneous product assets", "no internal prompts or gate copy"]
+    "storyboardSha256": "c174df4c371a2b24d06dd0debea578e316e4b8e715c4eb3b1458b2c65e3da7af",
+    "validation": ["spoken conclusion and CTA retained", "native presenter motion retained", "authorized music audible beneath speech", "real gameplay progression", "full-frame presenter and product alternation", "no split-screen crops", "no repeated product stills", "no simultaneous product assets", "no internal prompts or gate copy"]
   },
   "externalGates": {
     "upload": false,

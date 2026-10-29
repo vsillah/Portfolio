@@ -2,11 +2,9 @@
 import React from 'react';
 import {
   AbsoluteFill,
-  Easing,
   Img,
   Sequence,
   Video,
-  interpolate,
   staticFile,
   useCurrentFrame,
 } from 'remotion';
@@ -28,22 +26,11 @@ const Frame: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-const ProductPanel: React.FC<{ src: string; side?: 'right' | 'full'; label: string; objectPosition?: string }> = ({ src, side = 'right', label, objectPosition = 'center' }) => {
-  const frame = useCurrentFrame();
-  const enter = interpolate(frame, [0, 18], [70, 0], { extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic) });
-  const scale = interpolate(frame, [0, 140], [1.02, 1.075], { extrapolateRight: 'clamp' });
-  const full = side === 'full';
+const ProductPanel: React.FC<{ src: string; label: string; objectPosition?: string }> = ({ src, label, objectPosition = 'center' }) => {
   return (
-    <AbsoluteFill style={{ background: full ? '#e9e5da' : palette.navy }}>
-      {!full && (
-        <div style={{ position: 'absolute', left: 70, top: 70, width: 720 }}>
-          <Img src={staticFile('amadutown-logo-upscaled.png')} style={{ width: 58, height: 74, objectFit: 'contain' }} />
-          <div style={{ marginTop: 52, fontSize: 58, lineHeight: 1.04, fontWeight: 850, maxWidth: 650 }}>The decision survives the handoff.</div>
-          <div style={{ marginTop: 28, fontSize: 25, lineHeight: 1.45, color: 'rgba(255,255,255,.72)', maxWidth: 610 }}>Owned browser gameplay. One continuous product path. No simulated outcome claim.</div>
-        </div>
-      )}
-      <div style={{ position: 'absolute', top: full ? 0 : 44, bottom: full ? 0 : 70, left: full ? 0 : 850, right: full ? 0 : 44, overflow: 'hidden', borderRadius: full ? 0 : 18, boxShadow: full ? 'none' : '-25px 24px 60px rgba(0,0,0,.5)', transform: `translateX(${enter}px)` }}>
-        <Img src={staticFile(src)} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition, transform: `scale(${scale})` }} />
+    <AbsoluteFill style={{ background: '#e9e5da' }}>
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+        <Img src={staticFile(src)} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition }} />
         <div style={{ position: 'absolute', left: 24, top: 22, padding: '10px 16px', background: 'rgba(5,8,13,.82)', borderLeft: `5px solid ${palette.gold}`, fontSize: 22, fontWeight: 800 }}>{label}</div>
       </div>
     </AbsoluteFill>
@@ -62,10 +49,10 @@ const ThreeStep: React.FC = () => {
   const steps = ['EXPLORE', 'CARRY', 'RESPOND'];
   const selected = Math.min(2, Math.floor(frame / seconds(9.3)));
   return (
-    <AbsoluteFill style={{ background: palette.navy, padding: '90px 72px 90px 940px' }}>
+    <AbsoluteFill style={{ background: palette.navy, padding: '92px 250px' }}>
       <div style={{ color: palette.cyan, fontSize: 23, fontWeight: 800 }}>THE PRODUCT DISCIPLINE</div>
-      <div style={{ fontSize: 60, lineHeight: 1.05, fontWeight: 860, marginTop: 22 }}>Preserve context.<br />Make judgment visible.</div>
-      <div style={{ display: 'grid', gap: 18, marginTop: 54 }}>
+      <div style={{ fontSize: 66, lineHeight: 1.05, fontWeight: 860, marginTop: 22 }}>Preserve context. Make judgment visible.</div>
+      <div style={{ display: 'grid', gap: 18, marginTop: 64, maxWidth: 1420 }}>
         {steps.map((step, index) => {
           const active = index === selected;
           return <div key={step} style={{ padding: '23px 28px', border: `2px solid ${active ? palette.gold : 'rgba(255,255,255,.18)'}`, background: active ? 'rgba(246,197,65,.12)' : 'rgba(255,255,255,.035)', color: active ? palette.gold : 'rgba(255,255,255,.52)', fontSize: 35, fontWeight: 850, transform: `translateX(${active ? 0 : 18}px)`, transition: 'none' }}>{index + 1}. {step}</div>;
@@ -88,7 +75,7 @@ const CTA: React.FC = () => (
 export const DarkCastleBase: React.FC = () => (
   <Frame>
     <Sequence from={0} durationInFrames={seconds(24)}>
-      <ProductPanel src="01-explore-start.png" label="HOOK · THE BOARD IS NOT THE DECISION" />
+      <AbsoluteFill style={{ background: 'linear-gradient(120deg,#0b1421,#1b2a3d)' }} />
     </Sequence>
     <Sequence from={seconds(24)} durationInFrames={seconds(17)}>
       <AbsoluteFill style={{ background: 'linear-gradient(120deg,#0b1421,#1b2a3d)' }} />
@@ -97,15 +84,18 @@ export const DarkCastleBase: React.FC = () => (
       <GameplayMotion />
     </Sequence>
     <Sequence from={seconds(68)} durationInFrames={seconds(28)}>
-      <ProductPanel src="03-handoff.png" label="HANDOFF · e4 REMAINS VISIBLE" />
+      <ProductPanel src="03-handoff.png" label="HANDOFF · e4 REMAINS VISIBLE" objectPosition="center top" />
     </Sequence>
     <Sequence from={seconds(96)} durationInFrames={seconds(31)}>
-      <ProductPanel src="04-computer-response.png" side="full" label="RESPONSE · POSITION + NOTATION + NEXT DECISION" objectPosition="center top" />
+      <ProductPanel src="04-computer-response.png" label="RESPONSE · POSITION + NOTATION + NEXT DECISION" objectPosition="center top" />
     </Sequence>
     <Sequence from={seconds(127)} durationInFrames={seconds(28)}>
       <ThreeStep />
     </Sequence>
-    <Sequence from={seconds(155)} durationInFrames={seconds(29.94)}>
+    <Sequence from={seconds(155)} durationInFrames={seconds(21)}>
+      <AbsoluteFill style={{ background: 'linear-gradient(120deg,#0b1421,#1b2a3d)' }} />
+    </Sequence>
+    <Sequence from={seconds(176)} durationInFrames={seconds(8.94)}>
       <CTA />
     </Sequence>
   </Frame>

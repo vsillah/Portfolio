@@ -42,8 +42,11 @@ for (const [name, width, height, record] of [
 
   await page.screenshot({ path: resolve(output, `${name}-review.png`), fullPage: true })
   if (record) {
-    await video.evaluate((element) => { element.muted = true; element.currentTime = 6; return element.play() })
+    await video.evaluate((element) => { element.muted = true; element.currentTime = 78; return element.play() })
     await page.waitForTimeout(2500)
+    await video.evaluate((element) => element.pause())
+    await video.evaluate((element) => { element.currentTime = 163; return element.play() })
+    await page.waitForTimeout(2200)
     await video.evaluate((element) => element.pause())
     await page.getByText('Choose one thumbnail direction').scrollIntoViewIfNeeded()
     await page.waitForTimeout(2200)

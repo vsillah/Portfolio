@@ -98,7 +98,7 @@ export default function DarkCastleYouTubeMasterReviewPage() {
               <li><span className="font-semibold text-foreground">Provider usage:</span> 148 subscription credits, $0 incremental charge, zero retries.</li>
               <li><span className="font-semibold text-foreground">Gameplay:</span> live browser capture of Explore, e4 handoff, computer response, notation, guidance, and candidate moves.</li>
               <li><span className="font-semibold text-foreground">Music:</span> authorized The Stream 2.0 stem, mild under-speech mix.</li>
-              <li><span className="font-semibold text-foreground">Final master:</span> <span className="font-mono">sha256:f289ae80…fd80a</span></li>
+              <li><span className="font-semibold text-foreground">Final master:</span> <span className="font-mono">sha256:f5178489…d5c2d5</span></li>
               <li><span className="font-semibold text-foreground">Closed:</span> YouTube upload, platform draft, scheduling, publishing, cross-posting, and LinkedIn alteration.</li>
             </ul>
           </details>
