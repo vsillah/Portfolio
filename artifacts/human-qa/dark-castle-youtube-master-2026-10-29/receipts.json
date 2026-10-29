@@ -1,0 +1,70 @@
+{
+  "version": "dark-castle-youtube-master-review-v1",
+  "scope": "review-only",
+  "canonicalRecord": "c12378f2-36de-4bf7-8c5d-0ce754e727eb",
+  "contentVersion": "sha256:4b4126fe2388687c899530cdb9ee973e744d9e0ebfd2b6378ac6b3702000342a",
+  "descriptionReceipt": "youtube-description:dark-castle:sha256:224f7d07a4d55a9d",
+  "evidenceReceipt": {
+    "identity": "youtube-description-evidence-reconciliation:fnv1a:07f944bb",
+    "requiredSources": 3,
+    "observedSources": 3,
+    "minimumScore": 65,
+    "observedScores": [78, 69, 66]
+  },
+  "providerReceipt": {
+    "provider": "HeyGen",
+    "jobCount": 1,
+    "retryCount": 0,
+    "avatarGroup": "Vambah green sweater",
+    "look": "Vambah at the chessboard",
+    "motionEngine": "Avatar V",
+    "voiceEngine": "ElevenLabs",
+    "voiceModel": "Eleven Multilingual v2",
+    "credits": 148,
+    "incrementalDollarCharge": 0,
+    "jobId": "ec42e39b129546a29ddbb7e853d939a7",
+    "sourceDurationSeconds": 184.94,
+    "sourceSha256": "0e5cb67c39e8557ab0a64e685bf5c8243f115543529d847bb04a0d77d0a4dc67",
+    "status": "complete"
+  },
+  "gameplayReceipt": {
+    "source": "https://dark-castle-chess.vercel.app/",
+    "capture": "source/dark-castle-live-gameplay.webm",
+    "sha256": "355e4e7d01f4dbdd442b339e8e048e41b1c2ded4dce55156d1ca97a5249e1dac",
+    "claimBoundary": "Owned live browser gameplay proves Explore, e4 handoff, computer response, notation, guidance, and candidate moves. It does not prove measured learning improvement, retention, native availability, or release completeness."
+  },
+  "musicReceipt": {
+    "title": "The Stream 2.0",
+    "sha256": "7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d",
+    "authorization": "Composition and master rights controlled by Vambah Sillah for AmaduTown YouTube background use",
+    "mixRule": "Audible under speech with mild level reduction only"
+  },
+  "thumbnailReceipt": {
+    "count": 3,
+    "feedChecks": ["320x180", "160x90"],
+    "titleCopy": "I Rebuilt the Chess Lesson Around the Decision",
+    "teasers": ["A MOVE ISN'T PROOF.", "THE BOARD REMEMBERED.", "RIGHT MOVE. WRONG REASON?"],
+    "gates": ["distinct title and teaser", "no text over face", "real gameplay only", "no malformed pieces", "one-second comprehension"]
+  },
+  "finalMediaReceipt": {
+    "path": "dark-castle-youtube-master.mp4",
+    "sha256": "f289ae80f7eb898fbb4051be270bb1a190129f42dde9fc0fdff70790387fd80a",
+    "durationSeconds": 184.94,
+    "resolution": "1920x1080",
+    "frameRate": 30,
+    "audioSampleRate": 48000,
+    "integratedLoudnessLufs": -16.12,
+    "truePeakDbtp": -1.46,
+    "scriptSha256": "0df899a5b1ea18a3cc8a7c8e6f41a593123924e0208f917dda4e49d1de35687d",
+    "storyboardSha256": "a166af7e5ba647c03c409874ede8c5fb599be38509397ac4170c79b420feaf58",
+    "validation": ["spoken conclusion and CTA retained", "native presenter motion retained", "authorized music audible beneath speech", "real gameplay progression", "no repeated product stills", "no simultaneous product assets", "no internal prompts or gate copy"]
+  },
+  "externalGates": {
+    "upload": false,
+    "platformDraft": false,
+    "schedule": false,
+    "publish": false,
+    "crossPost": false,
+    "linkedinMutation": false
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "version": "dark-castle-youtube-storyboard-v1",
+  "content_id": "c12378f2-36de-4bf7-8c5d-0ce754e727eb",
+  "content_version": "sha256:4b4126fe2388687c899530cdb9ee973e744d9e0ebfd2b6378ac6b3702000342a",
+  "title": "I Rebuilt the Chess Lesson Around the Decision",
+  "target_runtime_seconds": 184.94,
+  "format": "1920x1080 landscape",
+  "presenter_rule": "Native HeyGen source at 1.0x. Presenter occupies the left side during split scenes; gameplay owns the frame during detailed proof.",
+  "asset_rule": "One continuous live gameplay progression. Do not loop screenshots, repeat a still as a new scene, or show two product assets at once.",
+  "music_rule": "Authorized The Stream 2.0 stem remains audible below speech with mild ducking only.",
+  "scenes": [
+    {
+      "id": "hook",
+      "start": 0,
+      "end": 24,
+      "layout": "presenter-left-gameplay-right",
+      "visual": "Presenter at chessboard on left. Live board detail on right. Smooth camera push from e4 toward notation.",
+      "motion": "12-frame eased entrance; 3 percent gameplay push; no hard cut.",
+      "purpose": "Open loop"
+    },
+    {
+      "id": "boundary",
+      "start": 24,
+      "end": 41,
+      "layout": "presenter-full",
+      "visual": "Presenter fills frame in the chess environment. Small Public browser pilot label only.",
+      "motion": "Slow 2 percent push; no competing asset.",
+      "purpose": "Claim boundary"
+    },
+    {
+      "id": "explore",
+      "start": 41,
+      "end": 68,
+      "layout": "gameplay-full",
+      "visual": "Live Explore capture: enter mode, play e4, hold on board, guidance, and notation.",
+      "motion": "Native product motion with a subtle viewport crop that tracks the active state.",
+      "purpose": "First product proof"
+    },
+    {
+      "id": "handoff",
+      "start": 68,
+      "end": 96,
+      "layout": "presenter-left-gameplay-right",
+      "visual": "Presenter returns left. On right, activate Try this position against the computer and hold the handoff state with e4 still visible.",
+      "motion": "Gameplay panel glides in from right with soft depth; presenter remains full-height and readable.",
+      "purpose": "Re-hook and continuity proof"
+    },
+    {
+      "id": "response",
+      "start": 96,
+      "end": 127,
+      "layout": "gameplay-full",
+      "visual": "Start game, wait for the computer response, then track board, notation, guidance, and candidate moves.",
+      "motion": "Native product response; guided crop moves once from board to notation.",
+      "purpose": "Close the open loop"
+    },
+    {
+      "id": "payoff",
+      "start": 127,
+      "end": 155,
+      "layout": "presenter-left-three-step-right",
+      "visual": "Presenter left. Right side reveals Explore, Carry, Respond as three sequential states, never simultaneous cards.",
+      "motion": "Each state replaces the previous one with a 10-frame masked slide.",
+      "purpose": "Practical takeaway and second re-hook"
+    },
+    {
+      "id": "conclusion",
+      "start": 155,
+      "end": 184.94,
+      "layout": "presenter-full",
+      "visual": "Return to presenter. End on AmaduTown shield and one-line subscribe CTA after the spoken CTA lands.",
+      "motion": "Natural presenter hold; logo and CTA fade in only during the final sentence.",
+      "purpose": "Spoken conclusion and CTA"
+    }
+  ]
+}
+
