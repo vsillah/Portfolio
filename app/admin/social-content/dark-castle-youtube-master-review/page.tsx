@@ -1,5 +1,8 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState } from 'react'
 
 const assetRoot = '/review-assets/social-content/dark-castle-youtube-master-2026-10-29'
 
@@ -28,6 +31,9 @@ const thumbnails = [
 ]
 
 export default function DarkCastleYouTubeMasterReviewPage() {
+  const [selectedThumbnailId, setSelectedThumbnailId] = useState<'A' | 'B' | 'C'>('A')
+  const selectedThumbnail = thumbnails.find((thumbnail) => thumbnail.id === selectedThumbnailId) ?? thumbnails[0]
+
   return (
     <main className="mx-auto w-full max-w-[1480px] space-y-6 px-4 py-6 sm:px-6 lg:px-8" data-testid="dark-castle-youtube-master-review">
       <header className="flex flex-col gap-4 border-b border-border pb-5 lg:flex-row lg:items-start lg:justify-between">
@@ -86,17 +92,41 @@ export default function DarkCastleYouTubeMasterReviewPage() {
           <div><p className="text-xs font-semibold uppercase text-amber-300">Decision required</p><h2 id="thumbnail-heading" className="mt-1 text-xl font-semibold">Choose one thumbnail direction</h2></div>
           <p className="text-sm text-muted-foreground">All three passed 320×180 and 160×90 legibility checks.</p>
         </div>
-        <div className="grid gap-5 lg:grid-cols-3">
+        <fieldset className="grid gap-5 lg:grid-cols-3" aria-describedby="thumbnail-selection-status">
+          <legend className="sr-only">Thumbnail direction</legend>
           {thumbnails.map((thumbnail) => (
-            <article key={thumbnail.id} className="overflow-hidden rounded-lg border border-border bg-card">
+            <label
+              key={thumbnail.id}
+              className={`group relative cursor-pointer overflow-hidden rounded-lg border bg-card transition focus-within:outline-none focus-within:ring-2 focus-within:ring-amber-300 focus-within:ring-offset-2 focus-within:ring-offset-background ${selectedThumbnailId === thumbnail.id ? 'border-amber-300 ring-1 ring-amber-300/60' : 'border-border hover:border-amber-300/60'}`}
+              data-testid={`thumbnail-option-${thumbnail.id}`}
+            >
+              <input
+                type="radio"
+                name="thumbnail-direction"
+                value={thumbnail.id}
+                checked={selectedThumbnailId === thumbnail.id}
+                onChange={() => setSelectedThumbnailId(thumbnail.id as 'A' | 'B' | 'C')}
+                className="sr-only"
+                aria-label={`Select thumbnail ${thumbnail.id}: ${thumbnail.name}`}
+              />
               <Image src={thumbnail.src} alt={`Thumbnail ${thumbnail.id}: ${thumbnail.teaser}`} width={1280} height={720} className="aspect-video w-full object-cover" />
               <div className="space-y-2 p-4">
-                <div className="flex items-center justify-between gap-3"><h3 className="font-semibold">{thumbnail.id}. {thumbnail.name}</h3><span className="rounded border border-border px-2 py-1 text-xs">Distinct style</span></div>
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold">{thumbnail.id}. {thumbnail.name}</h3>
+                  <span className={`shrink-0 rounded border px-2 py-1 text-xs font-semibold ${selectedThumbnailId === thumbnail.id ? 'border-amber-300 bg-amber-300/15 text-amber-100' : 'border-border text-muted-foreground'}`}>{selectedThumbnailId === thumbnail.id ? 'Selected' : 'Select'}</span>
+                </div>
                 <p className="text-sm font-semibold text-amber-200">{thumbnail.teaser}</p>
                 <p className="text-sm leading-5 text-muted-foreground">{thumbnail.rationale}</p>
               </div>
-            </article>
+            </label>
           ))}
+        </fieldset>
+        <div id="thumbnail-selection-status" aria-live="polite" className="flex flex-col gap-2 border-l-4 border-amber-300 bg-amber-300/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-semibold text-foreground">Direction {selectedThumbnail.id} selected</p>
+            <p className="mt-1 text-sm text-muted-foreground">{selectedThumbnail.name} · {selectedThumbnail.teaser}</p>
+          </div>
+          <p className="text-xs leading-5 text-muted-foreground sm:max-w-xs sm:text-right">Review selection only. Upload, scheduling, publishing, and external execution remain closed.</p>
         </div>
       </section>
 
