@@ -16,17 +16,17 @@ const thumbnails = [
   },
   {
     id: 'B',
-    name: 'Product-led continuity',
+    name: 'Pattern-alert continuity',
     teaser: 'THE BOARD REMEMBERED.',
-    src: `${assetRoot}/02-board-remembered.png`,
-    rationale: 'Makes the owned gameplay the hero and shows the evidence-backed Explore-to-play continuity in one-second visual language.',
+    src: `${assetRoot}/02-board-remembered-v2.png`,
+    rationale: 'Uses a fresh expressive hero shot and the real handoff state to show that the product preserves decision context.',
   },
   {
     id: 'C',
     name: 'Builder and reasoning tension',
     teaser: 'RIGHT MOVE. WRONG REASON?',
-    src: `${assetRoot}/03-accidental-success.png`,
-    rationale: 'Pairs the presenter with the live response state to frame the difference between reaching a square and preserving the decision context.',
+    src: `${assetRoot}/03-accidental-success-v2.png`,
+    rationale: 'Uses a distinct skeptical-reaction hero shot with the live response state, without masks or blur effects, to question accidental success.',
   },
 ]
 
@@ -90,7 +90,7 @@ export default function DarkCastleYouTubeMasterReviewPage() {
       <section aria-labelledby="thumbnail-heading" className="space-y-4 border-t border-border pt-6">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div><p className="text-xs font-semibold uppercase text-amber-300">Decision required</p><h2 id="thumbnail-heading" className="mt-1 text-xl font-semibold">Choose one thumbnail direction</h2></div>
-          <p className="text-sm text-muted-foreground">All three passed 320×180 and 160×90 legibility checks.</p>
+          <p className="text-sm text-muted-foreground">All three require distinct hero shots and passed 320×180 and 160×90 legibility checks.</p>
         </div>
         <fieldset className="grid gap-5 lg:grid-cols-3" aria-describedby="thumbnail-selection-status">
           <legend className="sr-only">Thumbnail direction</legend>

@@ -1,0 +1,41 @@
+{
+  "receipt_id": "thumbnail-hero-generation:dark-castle:20261029:v2",
+  "status": "review_only",
+  "tool": "OpenAI built-in image generation",
+  "identity_reference": {
+    "path": "source/heygen/vambah-at-the-chessboard.webp",
+    "sha256": "585d363b84f98103072d095aaa7235e1ee4d09549c9a2993ae5b7ad149a6ac25",
+    "role": "identity and campaign reference only"
+  },
+  "shared_constraints": [
+    "Preserve Vambah's identity while generating a new campaign-specific pose and environment.",
+    "Use a dominant human hero and integrate authentic Dark Castle gameplay evidence into one composition.",
+    "Keep teaser copy off the face and legible at 320x180 and 160x90.",
+    "Reject circular blur, radial masks, vignette spotlights, halos, split screens, side-by-side collages, malformed anatomy, and distorted chess pieces."
+  ],
+  "outputs": [
+    {
+      "candidate_id": "board-remembered",
+      "hero_path": "source/heygen/vambah-pattern-alert.png",
+      "hero_sha256": "62fa986155101113fb2b925cfd1264cbaf7eafcb5021549ea5c150d88a4141e2",
+      "prompt_summary": "Animated pattern-alert expression, hero on the right, cobalt and amber strategy studio, natural chessboard interaction, open left-center evidence area.",
+      "anatomy_review": "passed",
+      "artifact_review": "passed"
+    },
+    {
+      "candidate_id": "accidental-success",
+      "hero_path": "source/heygen/vambah-skeptical-reaction.png",
+      "hero_sha256": "0631c09c85844d6116688989838a87a66475eb8c3df01b5686b4f96a5bea964f",
+      "prompt_summary": "Energetic skeptical reaction, hero on the left, teal and amber analysis room, diagonal chessboard energy, open right-side evidence area.",
+      "anatomy_review": "passed",
+      "artifact_review": "passed"
+    }
+  ],
+  "external_execution": {
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "send": false
+  }
+}
