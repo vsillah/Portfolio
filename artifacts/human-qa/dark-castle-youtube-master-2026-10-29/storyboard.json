@@ -5,7 +5,7 @@
   "title": "I Rebuilt the Chess Lesson Around the Decision",
   "target_runtime_seconds": 184.94,
   "format": "1920x1080 landscape",
-  "presenter_rule": "Native HeyGen source at 1.0x. Presenter and product proof alternate at full frame; no split-screen crop is permitted.",
+  "presenter_rule": "Native HeyGen source at 1.0x. Presenter and product proof alternate at full frame; presenter-only scenes use eased wide-to-medium reframing for editorial energy, and no split-screen crop is permitted.",
   "asset_rule": "One continuous live gameplay progression. Do not loop screenshots, repeat a still as a new scene, or show two product assets at once.",
   "music_rule": "Authorized The Stream 2.0 stem remains audible below speech with mild ducking only.",
   "scenes": [
@@ -15,7 +15,7 @@
       "end": 24,
       "layout": "presenter-full",
       "visual": "Presenter fills the chess environment with no competing product panel.",
-      "motion": "12-frame eased entrance; 3 percent gameplay push; no hard cut.",
+      "motion": "Wide opening reframes to medium at 13.8 seconds with a 12-frame dissolve, then settles into a gentle close framing at 26.8 seconds; no hard cut or speed change.",
       "purpose": "Open loop"
     },
     {
@@ -24,7 +24,7 @@
       "end": 41,
       "layout": "presenter-full",
       "visual": "Presenter fills frame in the chess environment. Small Public browser pilot label only.",
-      "motion": "Slow 2 percent push; no competing asset.",
+      "motion": "Gentle close framing holds the claim boundary before dissolving to full-frame product proof; no competing asset.",
       "purpose": "Claim boundary"
     },
     {
@@ -69,7 +69,7 @@
       "end": 176,
       "layout": "presenter-full",
       "visual": "Return to the presenter at full frame for the spoken conclusion and CTA.",
-      "motion": "Natural presenter hold with a soft fade into the final CTA card.",
+      "motion": "Presenter returns in a gentle close framing, then eases to medium at 164.8 seconds before the final CTA card; native motion and voice timing remain unchanged.",
       "purpose": "Spoken conclusion"
     },
     {

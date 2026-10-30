@@ -1,1 +1,1 @@
-f5178489dff1126c0f74ff36f58453a3d267fa0c1796cfb0347bd7d7f2d5c2d5  artifacts/human-qa/dark-castle-youtube-master-2026-10-29/dark-castle-youtube-master.mp4
+266cba5bd3a97817d90803a03380a3f44d41800146bcf8590941dfc1b32df719  /Users/vambahsillah/Projects/Portfolio.worktrees/dark-castle-current-review/artifacts/human-qa/dark-castle-youtube-master-2026-10-29/dark-castle-youtube-master.mp4
