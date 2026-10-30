@@ -48,7 +48,7 @@
   },
   "finalMediaReceipt": {
     "path": "dark-castle-youtube-master.mp4",
-    "sha256": "234098c59decb2be69fbc7d93cfb645bb052581e4af8eeedcaf37c3118ae6870",
+    "sha256": "2371cd46ad5bb583891d0f42a70e3d5cef1a57368757266b16e92fc31c311f36",
     "durationSeconds": 184.94,
     "resolution": "1920x1080",
     "frameRate": 30,
@@ -59,7 +59,7 @@
     "storyboardSha256": "3f8fb15df9eac350cdd89e4aef56197d6f038e5af287057beaae29829464f0cc",
     "pacingEvidenceSha256": "7ea47dc15712b879b213eaa1c5ea7557bc95b34d25ef65faa65ad1384e8d9167",
     "pacingEvidence": "pacing-evidence.json",
-    "validation": ["spoken conclusion and CTA retained", "native presenter motion and 1.0x voice timing retained", "35 timed visual beats", "median shot length 5 seconds", "maximum non-CTA hold 7.5 seconds", "seven visual forms in first 30 seconds", "three non-repeating gameplay excerpts", "eight short presenter returns", "animated decision diagrams and candidate moves", "zero provider retries for editorial rebuild", "authorized music audible beneath speech", "real gameplay progression", "full-frame presenter and product alternation", "no split-screen crops", "no repeated product stills", "no simultaneous product assets", "no internal prompts or gate copy"]
+    "validation": ["spoken conclusion and CTA retained", "native presenter motion and 1.0x voice timing retained", "35 timed visual beats", "median shot length 5 seconds", "maximum non-CTA hold 7.5 seconds", "seven visual forms in first 30 seconds", "three non-repeating gameplay excerpts", "eight short presenter returns", "animated decision diagrams and candidate moves", "high-contrast branded lower thirds on every product-detail caption", "zero provider retries for editorial rebuild", "authorized music audible beneath speech", "real gameplay progression", "full-frame presenter and product alternation", "no split-screen crops", "no repeated product stills", "no simultaneous product assets", "no internal prompts or gate copy"]
   },
   "externalGates": {
     "upload": false,

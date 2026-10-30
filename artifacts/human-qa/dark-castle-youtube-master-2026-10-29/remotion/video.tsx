@@ -176,9 +176,15 @@ const ProductShot = ({duration, src, title, crop = '50% 45%', zoom = 1.04, accen
       <Img src={staticFile(src)} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: crop, transform: `scale(${z})`}} />
       <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(90deg, #04101ae8 0%, #04101a55 44%, transparent 72%), linear-gradient(0deg, #04101acc, transparent 45%)'}} />
       <Brand label="PRODUCT EVIDENCE" />
-      <div style={{position: 'absolute', left: 90, bottom: 110, width: 750}}>
-        <div style={{fontSize: 19, color: accent, fontWeight: 900, letterSpacing: 4}}>LOOK CLOSER</div>
-        <div style={{fontSize: 68, fontWeight: 950, lineHeight: 1.02, marginTop: 18}}>{title}</div>
+      <div style={{
+        position: 'absolute', left: 72, bottom: 86, width: 820,
+        padding: '28px 34px 30px', color: '#ffffff',
+        background: 'linear-gradient(105deg, #061522f7 0%, #0a2134f2 78%, #0a2134dc 100%)',
+        borderLeft: `8px solid ${accent}`, borderTop: '1px solid #ffffff24',
+        boxShadow: '0 20px 55px #000c, inset 0 1px 0 #ffffff14',
+      }}>
+        <div style={{fontSize: 20, color: accent, fontWeight: 950, letterSpacing: 4}}>LOOK CLOSER</div>
+        <div style={{fontSize: 60, color: '#ffffff', fontWeight: 950, lineHeight: 1.04, marginTop: 13, textShadow: '0 3px 18px #000'}}>{title}</div>
       </div>
     </AbsoluteFill>
   );

@@ -121,7 +121,8 @@ export default function DarkCastleYouTubeMasterReviewPage() {
               <li><span className="font-semibold text-foreground">Music:</span> authorized The Stream 2.0 stem, mild under-speech mix.</li>
               <li><span className="font-semibold text-foreground">Presenter edit:</span> native 1.0x performance in eight short full-frame returns; no provider retry.</li>
               <li><span className="font-semibold text-foreground">Pacing:</span> 35 timed beats, 5-second median shot, 7.5-second maximum non-CTA hold.</li>
-              <li><span className="font-semibold text-foreground">Final master:</span> <span className="font-mono">sha256:234098c5…ae6870</span></li>
+              <li><span className="font-semibold text-foreground">Caption contrast:</span> branded opaque lower thirds with white headline text and accent rails across every product-detail shot.</li>
+              <li><span className="font-semibold text-foreground">Final master:</span> <span className="font-mono">sha256:2371cd46…11f36</span></li>
               <li><span className="font-semibold text-foreground">Closed:</span> YouTube upload, platform draft, scheduling, publishing, cross-posting, and LinkedIn alteration.</li>
             </ul>
           </details>
