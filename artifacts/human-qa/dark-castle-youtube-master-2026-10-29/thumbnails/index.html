@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Dark Castle thumbnail candidates</title>
+  <style>
+    @font-face {
+      font-family: Inter;
+      src: url('../source/inter-latin-variable.ttf') format('truetype');
+      font-weight: 100 900;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #090b0f; }
+    body { display: grid; gap: 48px; padding: 48px; font-family: Inter, sans-serif; }
+    .thumb { position: relative; width: 1280px; height: 720px; overflow: hidden; isolation: isolate; }
+    .thumb::after { content: ''; position: absolute; inset: 0; z-index: 20; pointer-events: none; box-shadow: inset 0 0 0 2px rgba(255,255,255,.08); }
+    .logo { position: absolute; z-index: 12; width: 43px; height: 54px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,.6)); }
+    .eyebrow { position: absolute; z-index: 11; color: rgba(255,255,255,.86); font-size: 20px; font-weight: 760; letter-spacing: 0; text-transform: uppercase; }
+    .headline { position: absolute; z-index: 10; margin: 0; color: #fff; font-size: 76px; line-height: .92; font-weight: 900; letter-spacing: 0; text-transform: uppercase; text-wrap: balance; text-shadow: 0 6px 24px rgba(0,0,0,.6); }
+    .gold { color: #ffca3a; }
+
+    #a { background: #100f0d url('../source/heygen/vambah-at-the-chessboard.webp') center / cover no-repeat; }
+    #a::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,7,9,.08) 0 34%, rgba(5,7,9,.24) 54%, rgba(5,7,9,.64) 100%); }
+    #a .logo { top: 42px; right: 52px; }
+    #a .eyebrow { top: 50px; right: 112px; }
+    #a .headline { top: 111px; right: 48px; width: 550px; text-align: right; font-size: 80px; }
+    #a .proof {
+      position: absolute; z-index: 7; right: -20px; bottom: -14px; width: 610px; height: 330px;
+      object-fit: cover; object-position: 58% 24%; border: 5px solid rgba(255,202,58,.95); border-radius: 18px;
+      box-shadow: -30px 30px 70px rgba(0,0,0,.68), 0 0 0 10px rgba(18,15,10,.42);
+      transform: rotate(-2.5deg);
+    }
+    #a .proof-label { position:absolute; z-index: 8; right: 410px; bottom: 260px; padding: 10px 16px; color:#12100b; background:#ffca3a; font-weight: 900; font-size:20px; transform: rotate(-2.5deg); }
+
+    #b { background: #101111 url('../source/gameplay-stills/04-computer-response.png') 53% 44% / 116% auto no-repeat; }
+    #b::before { content: ''; position: absolute; inset: 0; z-index: 2; background: linear-gradient(90deg, rgba(5,7,9,.93) 0 34%, rgba(5,7,9,.48) 58%, rgba(5,7,9,.04) 84%), linear-gradient(0deg, rgba(5,7,9,.56), transparent 45%); }
+    #b .logo { top: 42px; left: 52px; }
+    #b .eyebrow { top: 49px; left: 110px; }
+    #b .headline { left: 48px; top: 164px; width: 610px; font-size: 92px; }
+    #b .move-line { position:absolute; z-index:10; left:52px; bottom:72px; display:flex; align-items:center; gap:18px; color:#fff; font-size:27px; font-weight:850; }
+    #b .move { padding: 12px 18px; border: 2px solid rgba(255,255,255,.55); background:rgba(5,7,9,.62); }
+    #b .arrow { width: 94px; height: 4px; background:#ffca3a; position:relative; }
+    #b .arrow::after { content:''; position:absolute; right:-2px; top:-8px; border-left:15px solid #ffca3a; border-top:10px solid transparent; border-bottom:10px solid transparent; }
+
+    #c { background: #111 url('../source/gameplay-stills/04-computer-response.png') center / cover no-repeat; }
+    #c::before { content: ''; position:absolute; inset:0; z-index:2; background: radial-gradient(circle at 72% 46%, transparent 0 29%, rgba(7,9,12,.12) 45%, rgba(7,9,12,.84) 100%); }
+    #c .hero { position:absolute; z-index:5; left:-110px; bottom:-80px; width:720px; height:720px; object-fit:cover; object-position:28% 46%; -webkit-mask-image: radial-gradient(ellipse 69% 70% at 48% 52%, #000 0 66%, transparent 76%); filter: saturate(1.08) contrast(1.05) drop-shadow(18px 20px 34px rgba(0,0,0,.56)); }
+    #c .logo { top: 42px; right: 52px; }
+    #c .headline { right: 48px; top: 130px; width: 650px; text-align:right; font-size: 82px; }
+    #c .signal { position:absolute; z-index:8; right:50px; bottom:70px; width:420px; height:12px; background:#ffca3a; box-shadow:0 8px 24px rgba(0,0,0,.44); }
+  </style>
+</head>
+<body>
+  <section class="thumb" id="a" data-name="01-builder-doubt">
+    <div class="eyebrow">Dark Castle Chess</div><img class="logo" src="../source/amadutown-logo-upscaled.png" alt="" />
+    <h1 class="headline">A move<br />isn't <span class="gold">proof.</span></h1>
+    <img class="proof" src="../source/gameplay-stills/03-handoff.png" alt="Live handoff state" />
+    <div class="proof-label">LIVE PRODUCT PROOF</div>
+  </section>
+  <section class="thumb" id="b" data-name="02-board-remembered">
+    <img class="logo" src="../source/amadutown-logo-upscaled.png" alt="" /><div class="eyebrow">Dark Castle Chess</div>
+    <h1 class="headline">The board<br /><span class="gold">remembered.</span></h1>
+    <div class="move-line"><span class="move">EXPLORE: e4</span><span class="arrow"></span><span class="move">PLAY: CONTEXT INTACT</span></div>
+  </section>
+  <section class="thumb" id="c" data-name="03-accidental-success">
+    <img class="hero" src="../source/heygen/vambah-at-the-chessboard.webp" alt="" />
+    <img class="logo" src="../source/amadutown-logo-upscaled.png" alt="" />
+    <h1 class="headline">Right move.<br /><span class="gold">Wrong reason?</span></h1>
+    <div class="signal"></div>
+  </section>
+</body>
+</html>

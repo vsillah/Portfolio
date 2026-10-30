@@ -1,0 +1,39 @@
+{
+  "version": "dark-castle-thumbnail-directions-v1",
+  "title_copy": "I Rebuilt the Chess Lesson Around the Decision",
+  "shared_gates": {
+    "feed_sizes": ["320x180", "160x90"],
+    "dominant_focal_point": true,
+    "max_teaser_words": 5,
+    "title_and_thumbnail_copy_distinct": true,
+    "text_must_not_cover_face": true,
+    "live_topic_specific_outlier_validation_required": true,
+    "malformed_chess_piece_rejection": true
+  },
+  "options": [
+    {
+      "id": "builder-doubt",
+      "teaser": "A MOVE ISN'T PROOF",
+      "style": "human-led integrated product plane",
+      "evidence": "Explore state with e4 visible",
+      "focal_point": "Fresh expressive Vambah hero interacting with the e4 board state",
+      "rejection": "Reject if the face is smaller than the board, text crosses the face, or e4 is not recognizable at feed size."
+    },
+    {
+      "id": "board-remembered",
+      "teaser": "THE BOARD REMEMBERED",
+      "style": "full-bleed gameplay handoff",
+      "evidence": "Handoff state retains e4 notation",
+      "focal_point": "The live board and handoff state",
+      "rejection": "Reject if the handoff or e4 notation cannot be recognized at feed size or the frame becomes a tutorial collage."
+    },
+    {
+      "id": "accidental-success",
+      "teaser": "RIGHT MOVE. WRONG REASON.",
+      "style": "board and coaching tension",
+      "evidence": "Computer response shows e4, the reply, guidance, and candidate moves",
+      "focal_point": "The live board integrated with the visible reasoning panel",
+      "rejection": "Reject if the text implies the shown move is wrong, the coaching panel disappears, or any chess piece is distorted."
+    }
+  ]
+}
