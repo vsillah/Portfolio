@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   publishSocialContentItem: vi.fn(),
   createAgentWorkItem: vi.fn(),
+  updateAgentWorkItemMetadata: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -16,6 +17,7 @@ vi.mock('@/lib/social-content-publisher', () => ({
 
 vi.mock('@/lib/agent-work-items', () => ({
   createAgentWorkItem: mocks.createAgentWorkItem,
+  updateAgentWorkItemMetadata: mocks.updateAgentWorkItemMetadata,
 }))
 
 import { GET, POST } from './route'
@@ -121,7 +123,9 @@ describe('/api/cron/social-content-scheduled-publish', () => {
     delete process.env.SOCIAL_CONTENT_SCHEDULED_PUBLISH_STALE_HOURS
     mocks.createAgentWorkItem.mockImplementation(async (input) => ({
       id: `work-${String(input.idempotencyKey)}`,
+      metadata: input.metadata,
     }))
+    mocks.updateAgentWorkItemMetadata.mockImplementation(async (input) => ({ id: input.id, metadata: input.metadata }))
   })
 
   it('rejects unauthenticated requests', async () => {
@@ -213,7 +217,7 @@ describe('/api/cron/social-content-scheduled-publish', () => {
     expect(publishUpdate).toHaveBeenCalledWith({
       error_message: expect.stringContaining('final platform submission approval is incomplete'),
     })
-    expect(publishStatusIn).toHaveBeenCalledWith('status', ['pending', 'failed'])
+    expect(publishStatusIn).toHaveBeenCalledWith('status', ['pending'])
     expect(publishPlatformIn).toHaveBeenCalledWith('platform', ['x'])
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       idempotencyKey: 'social-content-scheduled-publish-recovery:publish_blocked:blocked-social',
@@ -326,6 +330,84 @@ describe('/api/cron/social-content-scheduled-publish', () => {
         expect.objectContaining({ id: 'later-success', status: 'published' }),
       ],
     })
+  })
+
+  it('retains the exact LinkedIn failure in the publish row and recovery receipt', async () => {
+    const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const specificError = 'LinkedIn approved media URL is unsafe or unapproved.'
+    const { publishUpdate } = installSupabase({
+      items: [{ id: 'dark-castle', status: 'scheduled', scheduled_for: scheduledFor,
+        rag_context: approvedGate(['linkedin']) }],
+      publishesByContentId: {
+        'dark-castle': [{ platform: 'linkedin', status: 'pending' }],
+      },
+    })
+    mocks.publishSocialContentItem.mockResolvedValue({
+      status: 409,
+      body: { error: 'Release outcome requires reconciliation. No automatic retry is permitted.',
+        results: [{ platform: 'linkedin', result: { success: false, error: specificError } }] },
+    })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-scheduled-publish', 'POST') as never)
+    const body = await response.json()
+
+    expect(publishUpdate).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'social-content-scheduled-publish-recovery:publish_blocked:dark-castle',
+      metadata: expect.objectContaining({
+        blocker: specificError,
+        provider_failures: { linkedin: specificError },
+      }),
+    }))
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+    expect(body.evaluated[0]).toMatchObject({
+      id: 'dark-castle', status: 'blocked', reason: specificError, blocker_persisted: false,
+    })
+  })
+
+  it('refreshes an existing recovery receipt when the provider result adds detail', async () => {
+    const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const specificError = 'LinkedIn multi-image upload failed on slide 2'
+    installSupabase({
+      items: [{ id: 'dark-castle', status: 'scheduled', scheduled_for: scheduledFor,
+        rag_context: approvedGate(['linkedin']) }],
+      publishesByContentId: { 'dark-castle': [{ platform: 'linkedin', status: 'pending' }] },
+    })
+    mocks.publishSocialContentItem.mockResolvedValue({ status: 409, body: {
+      results: [{ platform: 'linkedin', result: { success: false, error: specificError } }],
+    } })
+    mocks.createAgentWorkItem.mockResolvedValueOnce({ id: 'existing-recovery',
+      metadata: { blocker: 'Scheduled publish did not complete.' } })
+
+    await POST(request('http://localhost/api/cron/social-content-scheduled-publish', 'POST') as never)
+
+    expect(mocks.updateAgentWorkItemMetadata).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'existing-recovery', note: specificError,
+      metadata: expect.objectContaining({ blocker: specificError,
+        provider_failures: { linkedin: specificError } }),
+    }))
+  })
+
+  it('keeps an earlier failed-row error when a later sweep returns only a generic blocker', async () => {
+    const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const specificError = 'LinkedIn image upload failed; approved media must not be dropped'
+    const { publishUpdate } = installSupabase({
+      items: [{ id: 'dark-castle', status: 'scheduled', scheduled_for: scheduledFor,
+        rag_context: approvedGate(['linkedin']) }],
+      publishesByContentId: { 'dark-castle': [{ platform: 'linkedin', status: 'failed', error_message: specificError }] },
+    })
+    mocks.publishSocialContentItem.mockResolvedValue({ status: 409, body: {
+      error: 'Release is already submitting or requires reconciliation. No retry was dispatched.',
+    } })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-scheduled-publish', 'POST') as never)
+
+    expect(publishUpdate).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({ blocker: specificError,
+        provider_failures: { linkedin: specificError } }),
+    }))
+    await expect(response.json()).resolves.toMatchObject({ evaluated: [{ reason: specificError }] })
   })
 
   it('does not let a full stale partition starve an in-window row during dry-run', async () => {

@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAgentWorkItem } from '@/lib/agent-work-items'
+import { createAgentWorkItem, updateAgentWorkItemMetadata } from '@/lib/agent-work-items'
 import { supabaseAdmin } from '@/lib/supabase'
 import { publishSocialContentItem } from '@/lib/social-content-publisher'
 import type { SocialPlatform } from '@/lib/social-content'
@@ -19,6 +19,7 @@ type PublishRow = {
   platform: SocialPlatform
   status: string
   platform_post_url?: string | null
+  error_message?: string | null
 }
 
 const DEFAULT_STALE_THRESHOLD_HOURS = 24
@@ -28,6 +29,28 @@ const STALE_SCHEDULE_BLOCKER = 'Scheduled publish paused because the scheduled t
 const SUBMISSION_GATE_BLOCKER = 'Scheduled publish paused because final platform submission approval is incomplete. Review the Submit gate in Social Content.'
 const PUBLISH_ATTEMPT_BLOCKER = 'Scheduled publish did not complete. Review the publish blocker in Social Content before retrying.'
 const PUBLISH_ROWS_BLOCKER = 'Scheduled publish paused because publish readiness could not be verified. Review the Social Content item before retrying.'
+
+function providerFailures(body: Record<string, unknown>, platforms: SocialPlatform[], existingRows: PublishRow[]) {
+  const failures: Partial<Record<SocialPlatform, string>> = {}
+  for (const entry of Array.isArray(body.results) ? body.results : []) {
+    if (!entry || typeof entry !== 'object') continue
+    const row = entry as { platform?: unknown; result?: { error?: unknown } }
+    const platform = asPlatform(row.platform)
+    if (platform && platforms.includes(platform) && typeof row.result?.error === 'string' && row.result.error.trim()) {
+      failures[platform] = row.result.error
+    }
+  }
+  for (const entry of [...(Array.isArray(body.publishes) ? body.publishes : []), ...existingRows]) {
+    if (!entry || typeof entry !== 'object') continue
+    const row = entry as PublishRow
+    const platform = asPlatform(row.platform)
+    if (platform && platforms.includes(platform) && row.status === 'failed' &&
+      typeof row.error_message === 'string' && row.error_message.trim() && !failures[platform]) {
+      failures[platform] = row.error_message
+    }
+  }
+  return failures
+}
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
@@ -109,7 +132,8 @@ async function persistPublishBlocker(input: {
     .from('social_content_publishes')
     .update({ error_message: input.blocker })
     .eq('content_id', input.contentId)
-    .in('status', ['pending', 'failed'])
+    // A failed row may already hold the adapter's precise error.
+    .in('status', ['pending'])
 
   if (input.platforms.length) {
     query = query.in('platform', input.platforms)
@@ -125,13 +149,35 @@ async function createScheduledPublishRecovery(input: {
   platforms: SocialPlatform[]
   blocker: string
   kind: 'stale_schedule' | 'publish_blocked'
+  providerFailures?: Partial<Record<SocialPlatform, string>>
 }) {
   const stale = input.kind === 'stale_schedule'
   const recoveryAction = stale
     ? 'reschedule_reconfirm_or_cancel'
     : 'resolve_blocker_and_reconfirm'
 
-  return createAgentWorkItem({
+  const metadata = {
+    goal_id: 'social-content-publish-recovery',
+    requires_approval: true,
+    social_content_id: input.contentId,
+    social_content_path: `/admin/social-content/${input.contentId}`,
+    social_content_href: `/admin/social-content/${input.contentId}?step=status#scheduled-publish-recovery`,
+    scheduled_for: input.scheduledFor,
+    target_platforms: input.platforms,
+    blocker: input.blocker,
+    ...(input.providerFailures ? { provider_failures: input.providerFailures } : {}),
+    recovery_kind: input.kind,
+    recovery_action: recoveryAction,
+    external_execution_enabled: false,
+    side_effects: {
+      provider_generation: false,
+      upload: false,
+      external_schedule: false,
+      publish: false,
+      external_post: false,
+    },
+  }
+  const recovery = await createAgentWorkItem({
     title: stale
       ? `Recover stale scheduled Social Content item ${input.contentId}`
       : `Resolve scheduled Social Content blocker ${input.contentId}`,
@@ -152,28 +198,16 @@ async function createScheduledPublishRecovery(input: {
       label: `Social Content ${input.contentId}`,
     },
     overlapGroup: 'social-content-publishing',
-    metadata: {
-      goal_id: 'social-content-publish-recovery',
-      requires_approval: true,
-      social_content_id: input.contentId,
-      social_content_path: `/admin/social-content/${input.contentId}`,
-      social_content_href: `/admin/social-content/${input.contentId}?step=status#scheduled-publish-recovery`,
-      scheduled_for: input.scheduledFor,
-      target_platforms: input.platforms,
-      blocker: input.blocker,
-      recovery_kind: input.kind,
-      recovery_action: recoveryAction,
-      external_execution_enabled: false,
-      side_effects: {
-        provider_generation: false,
-        upload: false,
-        external_schedule: false,
-        publish: false,
-        external_post: false,
-      },
-    },
+    metadata,
     idempotencyKey: `social-content-scheduled-publish-recovery:${input.kind}:${input.contentId}`,
   })
+  // An idempotent recovery item may predate the provider result. Keep its
+  // receipt current without creating a duplicate task.
+  if (input.providerFailures && recovery.metadata?.blocker !== input.blocker) {
+    return updateAgentWorkItemMetadata({ id: recovery.id,
+      metadata: { ...(recovery.metadata ?? {}), ...metadata }, note: input.blocker })
+  }
+  return recovery
 }
 
 async function recordBlockedItem(input: {
@@ -183,20 +217,21 @@ async function recordBlockedItem(input: {
   blocker: string
   kind: 'stale_schedule' | 'publish_blocked'
   dryRun: boolean
+  providerFailures?: Partial<Record<SocialPlatform, string>>
 }) {
   if (input.dryRun) {
     return { blocker_persisted: false, recovery_work_item_id: null, dry_run: true }
   }
 
   const [persistError, recovery] = await Promise.all([
-    persistPublishBlocker(input).catch((error) => (
+    (input.providerFailures ? Promise.resolve(null) : persistPublishBlocker(input)).catch((error) => (
       error instanceof Error ? error.message : 'Failed to persist publish blocker'
     )),
     createScheduledPublishRecovery(input).catch(() => null),
   ])
 
   return {
-    blocker_persisted: persistError === null,
+    blocker_persisted: !input.providerFailures && persistError === null,
     blocker_persist_error: persistError,
     recovery_work_item_id: recovery?.id ?? null,
   }
@@ -276,7 +311,7 @@ async function runScheduledPublishSweep(request: NextRequest) {
     for (const item of items) {
       const { data: publishRows, error: publishError } = await admin
         .from('social_content_publishes')
-        .select('platform, status, platform_post_url')
+        .select('platform, status, platform_post_url, error_message')
         .eq('content_id', item.id)
 
       if (publishError) {
@@ -385,6 +420,8 @@ async function runScheduledPublishSweep(request: NextRequest) {
         targetPlatforms: pendingPlatforms,
       })
       const published = result.status === 200 && result.body.published === true
+      const failures = published ? {} : providerFailures(result.body, pendingPlatforms, publishes)
+      const failureReason = Object.values(failures)[0] ?? PUBLISH_ATTEMPT_BLOCKER
       if (published) publishedCount += 1
       else blockedCount += 1
       const recovery = published
@@ -393,16 +430,17 @@ async function runScheduledPublishSweep(request: NextRequest) {
             contentId: item.id,
             scheduledFor: item.scheduled_for,
             platforms: pendingPlatforms,
-            blocker: PUBLISH_ATTEMPT_BLOCKER,
+            blocker: failureReason,
             kind: 'publish_blocked',
             dryRun: false,
+            providerFailures: Object.keys(failures).length ? failures : undefined,
           })
       evaluated.push({
         id: item.id,
         status: published ? 'published' : 'blocked',
         response_status: result.status,
         platforms: pendingPlatforms,
-        ...(published ? { result: result.body } : { reason: PUBLISH_ATTEMPT_BLOCKER, ...recovery }),
+        ...(published ? { result: result.body } : { reason: failureReason, ...recovery }),
       })
     }
 

@@ -69,6 +69,82 @@ describe('publishToLinkedIn', () => {
     vi.restoreAllMocks()
   })
 
+  it('downloads the exact approved Dark Castle image from the canonical HTTPS origin', async () => {
+    const selectedAsset = '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png'
+    const canonicalAsset = `https://amadutown.com${selectedAsset}`
+    const { store } = installSupabase({ imageUrl: selectedAsset })
+    store.item().rag_context.content_version = 'sha256:b4442c963c109c06c2983253917aca64b7e3a9bbbeccb0ffcdbe40c4f449515a'
+    store.item().rag_context.visual_sha256 = 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091'
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url === 'https://api.linkedin.com/v2/assets?action=registerUpload') {
+        return jsonResponse({ value: {
+          asset: 'urn:li:digitalmediaAsset:approved',
+          uploadMechanism: { 'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest': {
+            uploadUrl: 'https://upload.linkedin.example/approved',
+          } },
+        } })
+      }
+      if (url === canonicalAsset) {
+        expect(init).toEqual({ redirect: 'manual' })
+        return new Response(new Uint8Array([1, 2, 3]), { status: 200, headers: { 'content-type': 'image/png' } })
+      }
+      if (url === 'https://upload.linkedin.example/approved') return new Response(null, { status: 201 })
+      if (url === 'https://api.linkedin.com/v2/ugcPosts') return jsonResponse({ id: 'urn:li:share:approved' })
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    expect(await approvedPublish({ contentId: 'social-1', postText: 'Post text', imageUrl: selectedAsset }))
+      .toMatchObject({ success: true })
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([
+      'https://api.linkedin.com/v2/assets?action=registerUpload',
+      canonicalAsset,
+      'https://upload.linkedin.example/approved',
+      'https://api.linkedin.com/v2/ugcPosts',
+    ])
+    expect(store.item().image_url).toBe(selectedAsset)
+    expect(store.item().rag_context).toMatchObject({
+      content_version: 'sha256:b4442c963c109c06c2983253917aca64b7e3a9bbbeccb0ffcdbe40c4f449515a',
+      visual_sha256: 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091',
+    })
+  })
+
+  it.each([
+    'http://amadutown.com/review-assets/image.png',
+    'https://amadutown.com.evil.example/image.png',
+    'https://example.com/image.png',
+    'data:image/png;base64,AAAA',
+    'file:///tmp/image.png',
+    '//example.com/image.png',
+    '/review-assets/../admin/image.png',
+    '/review-assets/%2e%2e/admin/image.png',
+    'https://amadutown.com/review-assets/image.png?redirect=https://example.com/image.png',
+    'not a URL',
+  ])('rejects unsafe approved media URL %s before network activity', async (imageUrl) => {
+    const { store } = installSupabase({ imageUrl })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await approvedPublish({ contentId: 'social-1', postText: 'Post text', imageUrl })
+    expect(result).toEqual({ success: false, error: 'LinkedIn approved media URL is unsafe or unapproved.' })
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(store.publish()).toMatchObject({
+      status: 'failed',
+      error_message: 'LinkedIn approved media URL is unsafe or unapproved.',
+    })
+  })
+
+  it('rejects an unsafe carousel slide before initializing any upload', async () => {
+    installSupabase()
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const result = await approvedPublish({ contentId: 'social-1', postText: 'Post text',
+      carouselSlideUrls: ['https://amadutown.com/slide-1.png', 'https://example.com/slide-2.png'] })
+    expect(result).toMatchObject({ success: false, error: 'LinkedIn approved media URL is unsafe or unapproved.' })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it('publishes approved carousel slides as a LinkedIn REST multi-image post', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
