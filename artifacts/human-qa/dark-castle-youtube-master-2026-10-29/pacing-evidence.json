@@ -1,0 +1,36 @@
+{
+  "version": "dark-castle-pacing-evidence-v1",
+  "accessed_at": "2026-10-29",
+  "sourced_guidance": [
+    {
+      "source": "YouTube Help - Tips to optimize your video",
+      "url": "https://support.google.com/youtube/answer/16559650?hl=en",
+      "application": "The first seconds fulfill the title and thumbnail promise, and the edit uses storytelling, structure, and visual changes to maintain interest."
+    },
+    {
+      "source": "YouTube Help - Measure key moments for audience retention",
+      "url": "https://support.google.com/youtube/answer/9314415?hl=en-GB",
+      "application": "The opening 30 seconds carry multiple visual forms, while later proof and payoff moments are brought forward and clearly marked."
+    },
+    {
+      "source": "YouTube Blog - Master these 4 metrics",
+      "url": "https://blog.youtube/creator-and-artist-stories/master-these-4-metrics/",
+      "application": "The revision addresses a slow introduction and passive holds through tighter pacing and clearer storytelling beats."
+    }
+  ],
+  "editorial_inference": {
+    "note": "YouTube does not prescribe a universal cut interval. These targets operationalize its retention guidance for this review master.",
+    "shot_count": 35,
+    "median_shot_seconds": 5,
+    "maximum_non_cta_shot_seconds": 7.5,
+    "target_range_seconds": "3-7",
+    "first_30_second_visual_forms": 7,
+    "gameplay_excerpts": 3,
+    "presenter_returns": 8
+  },
+  "taste_reference": {
+    "source": "Vambah curated YouTube creation playlist",
+    "role": "Taste calibration only",
+    "performance_weight": 0
+  }
+}

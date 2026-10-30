@@ -55,9 +55,30 @@ export default function DarkCastleYouTubeMasterReviewPage() {
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="border-l-4 border-emerald-400 bg-muted/30 p-3"><div className="text-xs text-muted-foreground">Runtime</div><div className="mt-1 font-semibold">3:05 final</div></div>
-          <div className="border-l-4 border-amber-400 bg-muted/30 p-3"><div className="text-xs text-muted-foreground">Product proof</div><div className="mt-1 font-semibold">Owned live gameplay</div></div>
-          <div className="border-l-4 border-sky-400 bg-muted/30 p-3"><div className="text-xs text-muted-foreground">Conclusion</div><div className="mt-1 font-semibold">Spoken CTA included</div></div>
+          <div className="border-l-4 border-amber-400 bg-muted/30 p-3"><div className="text-xs text-muted-foreground">Editorial cadence</div><div className="mt-1 font-semibold">35 timed visual beats</div></div>
+          <div className="border-l-4 border-sky-400 bg-muted/30 p-3"><div className="text-xs text-muted-foreground">Typical shot</div><div className="mt-1 font-semibold">5 seconds · 7.5 max before CTA</div></div>
         </div>
+      </section>
+
+      <section aria-labelledby="pacing-heading" className="space-y-4 border-t border-border pt-6">
+        <div><p className="text-xs font-semibold uppercase text-cyan-300">Retention-led edit</p><h2 id="pacing-heading" className="mt-1 text-xl font-semibold">The chessboard is evidence, not the whole visual language</h2></div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-lg border border-border bg-card p-4"><p className="text-xs text-muted-foreground">First 30 seconds</p><p className="mt-2 text-2xl font-semibold">7 visual forms</p><p className="mt-2 text-xs leading-5 text-muted-foreground">Presenter, kinetic type, decision fork, evidence boundary, and product preview fulfill the opening promise.</p></div>
+          <div className="rounded-lg border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Gameplay</p><p className="mt-2 text-2xl font-semibold">3 excerpts</p><p className="mt-2 text-xs leading-5 text-muted-foreground">Separate, non-repeating moments show Explore, handoff, and response.</p></div>
+          <div className="rounded-lg border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Presenter</p><p className="mt-2 text-2xl font-semibold">8 short returns</p><p className="mt-2 text-xs leading-5 text-muted-foreground">The native performance re-hooks the story instead of holding the screen for whole sections.</p></div>
+          <div className="rounded-lg border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Pattern interrupts</p><p className="mt-2 text-2xl font-semibold">12 treatments</p><p className="mt-2 text-xs leading-5 text-muted-foreground">Animated diagrams, product crops, candidate moves, model steps, and kinetic payoff cards.</p></div>
+        </div>
+        <details className="rounded-lg border border-border bg-card p-4">
+          <summary className="cursor-pointer font-semibold">Inspect pacing evidence and editorial inference</summary>
+          <div className="mt-4 space-y-3 text-sm leading-6 text-muted-foreground">
+            <p>Official YouTube guidance anchors the first 30-second promise, audience-retention review, and pacing experimentation. YouTube does not prescribe a universal cut interval; the 3–7 second target is this production&apos;s documented editorial inference.</p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li><a className="text-primary underline" href="https://support.google.com/youtube/answer/16559650?hl=en" target="_blank" rel="noreferrer">YouTube Help · Optimize your video</a></li>
+              <li><a className="text-primary underline" href="https://support.google.com/youtube/answer/9314415?hl=en-GB" target="_blank" rel="noreferrer">YouTube Help · Audience retention</a></li>
+              <li><a className="text-primary underline" href="https://blog.youtube/creator-and-artist-stories/master-these-4-metrics/" target="_blank" rel="noreferrer">YouTube Blog · Master these four metrics</a></li>
+            </ul>
+          </div>
+        </details>
       </section>
 
       <section aria-labelledby="thumbnail-heading" className="space-y-4 border-t border-border pt-6">
@@ -98,8 +119,9 @@ export default function DarkCastleYouTubeMasterReviewPage() {
               <li><span className="font-semibold text-foreground">Provider usage:</span> 148 subscription credits, $0 incremental charge, zero retries.</li>
               <li><span className="font-semibold text-foreground">Gameplay:</span> live browser capture of Explore, e4 handoff, computer response, notation, guidance, and candidate moves.</li>
               <li><span className="font-semibold text-foreground">Music:</span> authorized The Stream 2.0 stem, mild under-speech mix.</li>
-              <li><span className="font-semibold text-foreground">Presenter edit:</span> native 1.0x performance with eased wide-to-medium reframing; no provider retry.</li>
-              <li><span className="font-semibold text-foreground">Final master:</span> <span className="font-mono">sha256:266cba5b…df719</span></li>
+              <li><span className="font-semibold text-foreground">Presenter edit:</span> native 1.0x performance in eight short full-frame returns; no provider retry.</li>
+              <li><span className="font-semibold text-foreground">Pacing:</span> 35 timed beats, 5-second median shot, 7.5-second maximum non-CTA hold.</li>
+              <li><span className="font-semibold text-foreground">Final master:</span> <span className="font-mono">sha256:234098c5…ae6870</span></li>
               <li><span className="font-semibold text-foreground">Closed:</span> YouTube upload, platform draft, scheduling, publishing, cross-posting, and LinkedIn alteration.</li>
             </ul>
           </details>

@@ -9,6 +9,7 @@ mkdir -p "$PUBLIC_DIR"
 cp "$PACKAGE_DIR/source/amadutown-logo-upscaled.png" "$PUBLIC_DIR/amadutown-logo-upscaled.png"
 cp "$PACKAGE_DIR/source/dark-castle-live-gameplay.webm" "$PUBLIC_DIR/dark-castle-live-gameplay.webm"
 cp "$PACKAGE_DIR/source/gameplay-stills/01-explore-start.png" "$PUBLIC_DIR/01-explore-start.png"
+cp "$PACKAGE_DIR/source/gameplay-stills/02-explore-e4.png" "$PUBLIC_DIR/02-explore-e4.png"
 cp "$PACKAGE_DIR/source/gameplay-stills/03-handoff.png" "$PUBLIC_DIR/03-handoff.png"
 cp "$PACKAGE_DIR/source/gameplay-stills/04-computer-response.png" "$PUBLIC_DIR/04-computer-response.png"
 

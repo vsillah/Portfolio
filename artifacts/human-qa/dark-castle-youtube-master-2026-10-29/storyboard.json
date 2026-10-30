@@ -1,21 +1,22 @@
 {
-  "version": "dark-castle-youtube-storyboard-v1",
+  "version": "dark-castle-youtube-storyboard-v2-pacing",
   "content_id": "c12378f2-36de-4bf7-8c5d-0ce754e727eb",
   "content_version": "sha256:4b4126fe2388687c899530cdb9ee973e744d9e0ebfd2b6378ac6b3702000342a",
   "title": "I Rebuilt the Chess Lesson Around the Decision",
   "target_runtime_seconds": 184.94,
   "format": "1920x1080 landscape",
-  "presenter_rule": "Native HeyGen source at 1.0x. Presenter and product proof alternate at full frame; presenter-only scenes use eased wide-to-medium reframing for editorial energy, and no split-screen crop is permitted.",
-  "asset_rule": "One continuous live gameplay progression. Do not loop screenshots, repeat a still as a new scene, or show two product assets at once.",
+  "presenter_rule": "Native HeyGen source at 1.0x. Presenter returns in eight short full-frame windows as a re-hook; product proof, kinetic type, diagrams, and illustrations take over between returns. No split-screen crop is permitted.",
+  "asset_rule": "Use three non-repeating excerpts from one continuous live gameplay capture, five product-detail reframes, and distinct explanatory treatments. Do not loop screenshots, repeat a still as a new scene, or show two product assets at once.",
+  "pacing_rule": "Editorial target derived from official YouTube retention guidance: fulfill the title and thumbnail promise in the first 30 seconds, change visual form every 3-7 seconds unless evidence must remain readable, and reserve the only extended hold for the final CTA. YouTube does not mandate a fixed cut interval.",
   "music_rule": "Authorized The Stream 2.0 stem remains audible below speech with mild ducking only.",
-  "scenes": [
+  "summary_scenes": [
     {
       "id": "hook",
       "start": 0,
       "end": 24,
       "layout": "presenter-full",
       "visual": "Presenter fills the chess environment with no competing product panel.",
-      "motion": "Wide opening reframes to medium at 13.8 seconds with a 12-frame dissolve, then settles into a gentle close framing at 26.8 seconds; no hard cut or speed change.",
+      "motion": "Four short presenter windows are interrupted by kinetic title, decision-fork animation, evidence boundary, and three-state proof preview.",
       "purpose": "Open loop"
     },
     {
@@ -24,7 +25,7 @@
       "end": 41,
       "layout": "presenter-full",
       "visual": "Presenter fills frame in the chess environment. Small Public browser pilot label only.",
-      "motion": "Gentle close framing holds the claim boundary before dissolving to full-frame product proof; no competing asset.",
+      "motion": "The evidence boundary and proof preview replace a passive presenter hold before product proof begins.",
       "purpose": "Claim boundary"
     },
     {
@@ -33,7 +34,7 @@
       "end": 68,
       "layout": "gameplay-full",
       "visual": "Live Explore capture: enter mode, play e4, hold on board, guidance, and notation.",
-      "motion": "Native product motion with a subtle viewport crop that tracks the active state.",
+      "motion": "Six-second native product excerpt alternates with the e4 state, notation detail, animated decision flow, and full state.",
       "purpose": "First product proof"
     },
     {
@@ -42,7 +43,7 @@
       "end": 96,
       "layout": "gameplay-full",
       "visual": "The handoff state fills the frame with e4 and the complete product viewport visible.",
-      "motion": "Full-frame product proof enters with a soft push; no presenter crop or overlapping asset.",
+      "motion": "Handoff full state, detail crop, transition map, native gameplay excerpt, and presenter re-hook each receive a separate beat.",
       "purpose": "Re-hook and continuity proof"
     },
     {
@@ -51,7 +52,7 @@
       "end": 127,
       "layout": "gameplay-full",
       "visual": "Start game, wait for the computer response, then track board, notation, guidance, and candidate moves.",
-      "motion": "Native product response; guided crop moves once from board to notation.",
+      "motion": "Native response excerpt, notation detail, candidate-move animation, loop diagram, presenter re-hook, and complete response state alternate.",
       "purpose": "Close the open loop"
     },
     {
@@ -60,7 +61,7 @@
       "end": 155,
       "layout": "three-step-full",
       "visual": "Explore, Carry, Respond fill the frame as three sequential states, never simultaneous cards.",
-      "motion": "Each state replaces the previous one with a 10-frame masked slide.",
+      "motion": "Claim boundary, three individual model steps, complete flow, and kinetic takeaway replace one another every four to five seconds.",
       "purpose": "Practical takeaway and second re-hook"
     },
     {
@@ -69,7 +70,7 @@
       "end": 176,
       "layout": "presenter-full",
       "visual": "Return to the presenter at full frame for the spoken conclusion and CTA.",
-      "motion": "Presenter returns in a gentle close framing, then eases to medium at 164.8 seconds before the final CTA card; native motion and voice timing remain unchanged.",
+      "motion": "Two short presenter returns are separated by the build-decision card, then the CTA begins under the final spoken line.",
       "purpose": "Spoken conclusion"
     },
     {
@@ -81,6 +82,43 @@
       "motion": "Soft fade from presenter to the final branded hold.",
       "purpose": "CTA hold"
     }
+  ],
+  "shot_plan": [
+    {"start": 0, "end": 4.5, "visual": "Presenter opening"},
+    {"start": 4.5, "end": 8.5, "visual": "Kinetic open-loop title"},
+    {"start": 8.5, "end": 13.5, "visual": "Presenter re-hook"},
+    {"start": 13.5, "end": 17.5, "visual": "Animated accident, hint, recognition fork"},
+    {"start": 17.5, "end": 23.5, "visual": "Presenter establishes stakes"},
+    {"start": 23.5, "end": 27.5, "visual": "Visible versus still-to-test boundary"},
+    {"start": 27.5, "end": 33.5, "visual": "Presenter sets product proof"},
+    {"start": 33.5, "end": 41, "visual": "Explore, handoff, response proof preview"},
+    {"start": 41, "end": 47, "visual": "Gameplay excerpt one"},
+    {"start": 47, "end": 52, "visual": "e4 product state"},
+    {"start": 52, "end": 57, "visual": "Notation detail"},
+    {"start": 57, "end": 62, "visual": "Position to move to decision diagram"},
+    {"start": 62, "end": 68, "visual": "Complete Explore state"},
+    {"start": 68, "end": 73, "visual": "Handoff product state"},
+    {"start": 73, "end": 78, "visual": "Handoff history detail"},
+    {"start": 78, "end": 84, "visual": "Explore to handoff to play diagram"},
+    {"start": 84, "end": 90, "visual": "Gameplay excerpt two"},
+    {"start": 90, "end": 96, "visual": "Presenter re-hook"},
+    {"start": 96, "end": 102, "visual": "Gameplay excerpt three"},
+    {"start": 102, "end": 107, "visual": "Response notation detail"},
+    {"start": 107, "end": 112, "visual": "Animated candidate moves"},
+    {"start": 112, "end": 118, "visual": "Context to response to choice diagram"},
+    {"start": 118, "end": 123, "visual": "Presenter re-hook"},
+    {"start": 123, "end": 127, "visual": "Complete response state"},
+    {"start": 127, "end": 132, "visual": "Claim boundary"},
+    {"start": 132, "end": 137, "visual": "Explore model step"},
+    {"start": 137, "end": 142, "visual": "Carry model step"},
+    {"start": 142, "end": 147, "visual": "Respond model step"},
+    {"start": 147, "end": 151, "visual": "Complete three-step flow"},
+    {"start": 151, "end": 155, "visual": "Kinetic payoff"},
+    {"start": 155, "end": 159.5, "visual": "Presenter conclusion"},
+    {"start": 159.5, "end": 164, "visual": "Build-decision card"},
+    {"start": 164, "end": 170.5, "visual": "Presenter spoken CTA"},
+    {"start": 170.5, "end": 176, "visual": "CTA enters under spoken line"},
+    {"start": 176, "end": 184.94, "visual": "Final branded CTA hold"}
   ]
 }
 

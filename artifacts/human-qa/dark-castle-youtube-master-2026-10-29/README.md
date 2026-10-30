@@ -15,6 +15,8 @@ Review-only package for canonical Social Content record `c12378f2-36de-4bf7-8c5d
 - `storyboard.json` - scene timing, layout, motion, and claim-purpose mapping
 - `source/dark-castle-live-gameplay.webm` - owned live browser capture
 - `remotion/` and `render-base.sh` - provider-free animated visual base
+- `pacing-evidence.json` - official YouTube guidance separated from the 3-7 second editorial inference
+- `pacing-stills/montage.jpg` - 32-frame visual-diversity audit of the final master
 - `composite-final.sh` - native HeyGen presenter and audio composite
 - `receipts.json` - source, evidence, provider, music, thumbnail, and gate receipts
 
