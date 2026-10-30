@@ -52,4 +52,3 @@ const recorded = await video.path();
 const output = path.join(root, 'source', 'dark-castle-live-gameplay.webm');
 await fs.rename(recorded, output);
 console.log(output);
-

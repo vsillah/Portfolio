@@ -55,8 +55,8 @@
     "audioSampleRate": 48000,
     "integratedLoudnessLufs": -16.12,
     "truePeakDbtp": -1.46,
-    "scriptSha256": "0df899a5b1ea18a3cc8a7c8e6f41a593123924e0208f917dda4e49d1de35687d",
-    "storyboardSha256": "3f8fb15df9eac350cdd89e4aef56197d6f038e5af287057beaae29829464f0cc",
+    "scriptSha256": "982e17676e9125f201506cb59e38f3b813828bfe13681292bf5c23ba48ef83e0",
+    "storyboardSha256": "9294ec46df24122577de4b4253f30709f50abb546ad3412be5e74bee75f82043",
     "pacingEvidenceSha256": "7ea47dc15712b879b213eaa1c5ea7557bc95b34d25ef65faa65ad1384e8d9167",
     "pacingEvidence": "pacing-evidence.json",
     "validation": ["spoken conclusion and CTA retained", "native presenter motion and 1.0x voice timing retained", "35 timed visual beats", "median shot length 5 seconds", "maximum non-CTA hold 7.5 seconds", "seven visual forms in first 30 seconds", "three non-repeating gameplay excerpts", "eight short presenter returns", "animated decision diagrams and candidate moves", "high-contrast branded lower thirds on every product-detail caption", "zero provider retries for editorial rebuild", "authorized music audible beneath speech", "real gameplay progression", "full-frame presenter and product alternation", "no split-screen crops", "no repeated product stills", "no simultaneous product assets", "no internal prompts or gate copy"]

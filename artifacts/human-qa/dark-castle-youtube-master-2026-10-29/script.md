@@ -74,4 +74,3 @@ Subscribe to AmaduTown for more behind-the-build lessons from products designed 
 - No parenthetical sample-data disclaimer is spoken.
 - No measured learning, retention, native-store, or release-completeness claim is made.
 - Every product claim is supported by the owned live gameplay path.
-
