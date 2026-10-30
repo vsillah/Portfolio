@@ -1,5 +1,6 @@
 {
-  "version": "dark-castle-thumbnail-directions-v1",
+  "version": "dark-castle-thumbnail-directions-v2",
+  "generation_receipt": "thumbnail-hero-generation:dark-castle:20261029:v2",
   "title_copy": "I Rebuilt the Chess Lesson Around the Decision",
   "shared_gates": {
     "feed_sizes": ["320x180", "160x90"],
@@ -7,9 +8,29 @@
     "max_teaser_words": 5,
     "title_and_thumbnail_copy_distinct": true,
     "text_must_not_cover_face": true,
+    "generated_hero_required_per_candidate": true,
+    "hero_and_product_must_read_as_one_composition": true,
+    "circular_blur_masks_prohibited": true,
+    "product_only_candidates_prohibited": true,
     "live_topic_specific_outlier_validation_required": true,
     "malformed_chess_piece_rejection": true
   },
+  "superseded_candidates": [
+    {
+      "id": "board-remembered-v1",
+      "sha256": "41c67062692c64f3a700c66dd1d0c2e45f3cd711519b38a4bbb0cc6eb74406b3",
+      "status": "rejected",
+      "reason_code": "missing_required_hero",
+      "reason": "The candidate was product-only and did not include the required campaign-specific hero shot."
+    },
+    {
+      "id": "accidental-success-v1",
+      "sha256": "142668117bc9e3c96a28d90a5a2dbd05209f92b4937c3ba425d30a67b0532a24",
+      "status": "rejected",
+      "reason_code": "blur_mask_artifact",
+      "reason": "The circular radial mask read as an image artifact instead of an integrated composition."
+    }
+  ],
   "options": [
     {
       "id": "builder-doubt",
@@ -17,23 +38,30 @@
       "style": "human-led integrated product plane",
       "evidence": "Explore state with e4 visible",
       "focal_point": "Fresh expressive Vambah hero interacting with the e4 board state",
+      "hero_asset": "source/heygen/vambah-at-the-chessboard.webp",
       "rejection": "Reject if the face is smaller than the board, text crosses the face, or e4 is not recognizable at feed size."
     },
     {
       "id": "board-remembered",
       "teaser": "THE BOARD REMEMBERED",
-      "style": "full-bleed gameplay handoff",
+      "style": "pattern-alert hero with integrated handoff proof",
       "evidence": "Handoff state retains e4 notation",
-      "focal_point": "The live board and handoff state",
-      "rejection": "Reject if the handoff or e4 notation cannot be recognized at feed size or the frame becomes a tutorial collage."
+      "focal_point": "Fresh expressive Vambah hero interacting with the handoff state",
+      "hero_asset": "source/heygen/vambah-pattern-alert.png",
+      "hero_asset_sha256": "62fa986155101113fb2b925cfd1264cbaf7eafcb5021549ea5c150d88a4141e2",
+      "candidate_sha256": "5237972b9f82e7d2fa9ad6a732a087b04c410af239bb9e85c6fd50727ea1c257",
+      "rejection": "Reject if the hero is absent, the face is obscured, the handoff cannot be recognized at feed size, or the frame becomes a split-screen tutorial collage."
     },
     {
       "id": "accidental-success",
       "teaser": "RIGHT MOVE. WRONG REASON.",
-      "style": "board and coaching tension",
+      "style": "skeptical-reaction hero with integrated coaching proof",
       "evidence": "Computer response shows e4, the reply, guidance, and candidate moves",
-      "focal_point": "The live board integrated with the visible reasoning panel",
-      "rejection": "Reject if the text implies the shown move is wrong, the coaching panel disappears, or any chess piece is distorted."
+      "focal_point": "Fresh expressive Vambah hero reacting to the visible reasoning panel",
+      "hero_asset": "source/heygen/vambah-skeptical-reaction.png",
+      "hero_asset_sha256": "0631c09c85844d6116688989838a87a66475eb8c3df01b5686b4f96a5bea964f",
+      "candidate_sha256": "5aab7cf806aae27ddafe7042f74f12bdf7caa18f6155154d8e0e6f14c25af6f0",
+      "rejection": "Reject if the hero is absent, the face is obscured, any circular blur or mask appears, the coaching panel disappears, or any chess piece is distorted."
     }
   ]
 }
