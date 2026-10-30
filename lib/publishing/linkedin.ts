@@ -57,6 +57,34 @@ type LinkedInImageUpload = {
   image: string
 }
 
+const APPROVED_MEDIA_ORIGIN = 'https://amadutown.com'
+const UNSAFE_MEDIA_URL = 'LinkedIn approved media URL is unsafe or unapproved.'
+
+class UnsafeLinkedInMediaUrlError extends Error {}
+
+function approvedMediaUrl(value: string): string {
+  // Only canonical Portfolio assets may be downloaded by the publisher. Resolve
+  // root-relative paths after rejecting URL parser normalization and redirects.
+  if (!value || /[\s\\%]/.test(value) || value.includes('?') || value.includes('#')) {
+    throw new UnsafeLinkedInMediaUrlError(UNSAFE_MEDIA_URL)
+  }
+  const relative = value.startsWith('/') && !value.startsWith('//')
+  if (value.split('/').some((segment) => segment === '.' || segment === '..')) {
+    throw new UnsafeLinkedInMediaUrlError(UNSAFE_MEDIA_URL)
+  }
+  try {
+    const url = relative ? new URL(value, APPROVED_MEDIA_ORIGIN) : new URL(value)
+    if (url.origin !== APPROVED_MEDIA_ORIGIN || url.username || url.password ||
+      !/\.(?:png|jpe?g|webp|gif)$/i.test(url.pathname) ||
+      (!relative && !value.startsWith(`${APPROVED_MEDIA_ORIGIN}/`))) {
+      throw new UnsafeLinkedInMediaUrlError(UNSAFE_MEDIA_URL)
+    }
+    return url.href
+  } catch {
+    throw new UnsafeLinkedInMediaUrlError(UNSAFE_MEDIA_URL)
+  }
+}
+
 function linkedInRestVersion() {
   return process.env.LINKEDIN_API_VERSION || '202607'
 }
@@ -224,7 +252,7 @@ async function registerImageUpload(
 
 async function uploadImageBinary(uploadUrl: string, imageUrl: string, accessToken: string): Promise<boolean> {
   // Download the image first
-  const imageRes = await fetch(imageUrl)
+  const imageRes = await fetch(imageUrl, { redirect: 'manual' })
   if (!imageRes.ok) {
     console.error('[LinkedIn] Failed to download image:', imageUrl)
     return false
@@ -432,6 +460,14 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
   let { credentials } = config
   const { settings } = config
   try {
+    const slideUrls = Array.isArray(carouselSlideUrls) ? carouselSlideUrls : []
+    const selectedImageUrl = slideUrls.length > 1
+      ? null
+      : imageUrl || slideUrls[0] || null
+    // Validate every selected asset before token refresh or any provider request.
+    const approvedSlideUrls = slideUrls.length > 1 ? slideUrls.map(approvedMediaUrl) : []
+    const approvedImageUrl = selectedImageUrl ? approvedMediaUrl(selectedImageUrl) : null
+
     if (isTokenExpired(credentials)) {
       const refreshed = await refreshLinkedInToken(credentials)
       if (!refreshed.success) {
@@ -453,13 +489,9 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
     }
     const fullText = parts.join('\n')
 
-    const slideUrls = Array.isArray(carouselSlideUrls)
-      ? carouselSlideUrls.filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
-      : []
-
-    if (slideUrls.length > 1) {
+    if (approvedSlideUrls.length > 1) {
       const imageUrns: string[] = []
-      for (const [index, slideUrl] of slideUrls.entries()) {
+      for (const [index, slideUrl] of approvedSlideUrls.entries()) {
         const imageUrn = await uploadRestImage(
           accessToken,
           authorUrn,
@@ -506,10 +538,10 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
 
     // 5. Handle image upload if present
     let imageAsset: string | undefined
-    if (imageUrl) {
+    if (approvedImageUrl) {
       const registration = await registerImageUpload(accessToken, authorUrn)
       if (registration) {
-        const uploaded = await uploadImageBinary(registration.uploadUrl, imageUrl, accessToken)
+        const uploaded = await uploadImageBinary(registration.uploadUrl, approvedImageUrl, accessToken)
         if (uploaded) {
           imageAsset = registration.asset
         } else {
@@ -556,14 +588,15 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
       platformPostId,
       platformPostUrl,
     }
-  } catch {
-    const error = postAttempted
+  } catch (cause) {
+    const unsafeMedia = cause instanceof UnsafeLinkedInMediaUrlError
+    const error = unsafeMedia ? UNSAFE_MEDIA_URL : postAttempted
       ? 'LinkedIn outcome is uncertain. Reconcile the existing release; do not retry.'
       : 'LinkedIn preparation failed. Review the release before retrying.'
     try {
       // Keep publishing after a possible remote effect, including success with a failed local save.
       await save(postAttempted ? 'publishing' : 'failed', { error_message: error })
     } catch { /* The initial publishing claim survives; never make it retryable after uncertainty. */ }
-    return { success: false, reconciliationRequired: true, error }
+    return { success: false, ...(!unsafeMedia ? { reconciliationRequired: true } : {}), error }
   }
 }
