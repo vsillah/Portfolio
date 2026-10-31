@@ -12,6 +12,9 @@ The page shows selected product views from browser and iOS builds. It does not p
 | Coach — `coach-review.jpg`, crop `740:490:90:970` | `docs/qa/native-coach-controls/final-ios-review.png`; `docs/qa/browser-coach-overlays/README.md` | Move review identifies a move to study and shows Study/Again. Excludes engine diagnostics and simulator chrome. No claim that Coach diagnoses every game. |
 | Variation — `variation.jpg`, crop `425:495:20:175` | `docs/qa/variation-piece-cues/pairing-first-727.png`; `docs/qa/variation-piece-cues/README.md` | Same-board piece silhouettes and highlighted knight, qualified in local browser/iOS development contexts. Excludes native-analysis unavailable and roadmap text. |
 | Candidates — `candidates.jpg`, crop `745:840:90:780` | `docs/qa/native-candidate-analysis/ios-black-candidates.png`; `docs/qa/native-candidate-analysis/README.md` | iOS Explore analysis with three candidate moves, White-perspective scores and continuation lines. Native-only engine availability; browser Candidates may be unavailable. No win-probability or outcome claim. |
+| Coach motion — `coach-loop.mp4`, source sequence 54–63 seconds, crop `1130:2140:38:250`, 24 fps, 360×682, silent; `coach-loop-poster.jpg`, first encoded frame | `docs/qa/native-coach-controls/final-walkthrough.mp4` | Genuine native Coach/board interaction. The clip omits simulator chrome and audio, loops in the Coach gallery slide, and falls back to the exact first frame if playback fails. It does not invent a move, coaching outcome, or broader platform availability. |
+
+The six source flows appear one at a time in an accessible gallery. Previous/next, direct selection, Arrow Left/Right, Home, and End reach every scene. The other sections reuse exact crops as follows: hero → Drill; comparison → My Mistakes library heading; assessment introduction → Variation; result → Coach review; worksheet → Walk-through explanation; optional follow-up → My Mistakes filter. Each reuse illustrates the nearby claim and is a capture, not a new product state or a composite. The one-page worksheet preview is a page illustration, separate from product evidence. No generic replacement diagrams or generated chess states are used.
 
 Crops were produced with FFmpeg's `crop=width:height:x:y` filter. The two My Mistakes library slices are shown together in the page without the synthetic example count between them. Each public asset has an exact SHA-256 fingerprint:
 
@@ -26,6 +29,8 @@ Crops were produced with FFmpeg's `crop=width:height:x:y` filter. The two My Mis
 | `coach-review.jpg` | `e8454aca7d268a32d34176855ee0957ff3792feb3902a8e408e2665e656b8e9d` |
 | `variation.jpg` | `6cdf828b104e2b828b8a80e0bf6537645bd7169897b7961e2594f3761ee5add2` |
 | `candidates.jpg` | `16d556036af61bde915b3e81cbd75bfe7940f2d7f17cd3f70a6ac239bd22b242` |
+| `coach-loop.mp4` | `3238a404aa7362e8c27fe0da6af126075820ca7613669c3cd544968ad258412f` |
+| `coach-loop-poster.jpg` | `21949a96e8439d6e473807fa53c509e8f7012c23f3299fa0e494c6b3f16cadf2` |
 
 ## Competitor comparison provenance
 

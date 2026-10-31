@@ -23,9 +23,21 @@ function CapabilityScene({ scene }: { scene: typeof capabilities[number]['scene'
   if (scene === 'path') return <div className={`${styles.sceneFrame} ${styles.drillCapture}`}><Image src={`${base}drill.jpg`} alt="Dark Castle Drill lesson with a Black-to-move board, Hint and Answer controls, and the Black versus 1.e4 lesson stage" width={780} height={715} sizes="(max-width: 650px) 90vw, 45vw" /></div>
   if (scene === 'walk') return <div className={`${styles.sceneFrame} ${styles.walkCapture}`}><Image src={`${base}walkthrough.jpg`} alt="Dark Castle Walk-through lesson stages and the starting board" width={730} height={675} sizes="(max-width: 650px) 90vw, 45vw" /><Image src={`${base}walk-step.jpg`} alt="Walk-through explanation for the next pawn move with Next part and Play from here controls" width={725} height={128} sizes="(max-width: 650px) 80vw, 40vw" /></div>
   if (scene === 'mistake') return <div className={`${styles.sceneFrame} ${styles.mistakeCapture}`}><Image src={`${base}mistake-save.jpg`} alt="Save for practice action from a reviewed move" width={325} height={80} sizes="(max-width: 650px) 55vw, 25vw" /><span aria-hidden>↓</span><div><Image src={`${base}mistake-library-heading.jpg`} alt="Dark Castle Saved games with the Practice tab selected" width={520} height={140} sizes="(max-width: 650px) 80vw, 39vw" /><Image src={`${base}mistake-library-filter.jpg`} alt="All practice and My Mistakes filters" width={520} height={85} sizes="(max-width: 650px) 80vw, 39vw" /></div></div>
-  if (scene === 'coach') return <div className={`${styles.sceneFrame} ${styles.coachCapture}`}><Image src={`${base}coach-review.jpg`} alt="Dark Castle Coach move review showing a move to study, with Study and Again actions" width={740} height={490} sizes="(max-width: 650px) 90vw, 45vw" /></div>
+  if (scene === 'coach') return <CoachClip />
   if (scene === 'variation') return <div className={`${styles.sceneFrame} ${styles.variationCapture}`}><Image src={`${base}variation.jpg`} alt="Dark Castle variation board with a highlighted knight and piece silhouettes showing earlier squares" width={425} height={495} sizes="(max-width: 650px) 80vw, 35vw" /></div>
   return <div className={`${styles.sceneFrame} ${styles.candidatesCapture}`}><Image src={`${base}candidates.jpg`} alt="Dark Castle Candidates panel with three evaluated continuation lines for Black to move" width={745} height={840} sizes="(max-width: 650px) 80vw, 38vw" /></div>
+}
+
+function CoachClip() {
+  const [failed, setFailed] = useState(false)
+  const base = '/lead-magnets/dark-castle-capabilities/'
+  return <div className={`${styles.sceneFrame} ${styles.coachCapture}`}>
+    {failed ? <Image src={`${base}coach-loop-poster.jpg`} alt="Dark Castle Coach move review and board" width={360} height={682} /> :
+      <video autoPlay muted loop playsInline controls preload="metadata" poster={`${base}coach-loop-poster.jpg`} aria-label="Dark Castle Coach move review and board in motion" onError={() => setFailed(true)}>
+        <source src={`${base}coach-loop.mp4`} type="video/mp4" />
+        Your browser cannot play this clip. The Coach view is described below.
+      </video>}
+  </div>
 }
 
 export default function DecisionTraceability() {
@@ -37,6 +49,7 @@ export default function DecisionTraceability() {
   const [submissionKey, setSubmissionKey] = useState('')
   const [attribution, setAttribution] = useState<Record<string, string>>({})
   const [offline, setOffline] = useState(false)
+  const [activeCapability, setActiveCapability] = useState(0)
 
   useEffect(() => {
     setSubmissionKey(crypto.randomUUID())
@@ -111,19 +124,19 @@ export default function DecisionTraceability() {
         <a className={styles.primary} href="#assessment">Score a decision <span aria-hidden>↗</span></a>
         <p className={styles.heroNote}>Four checks. About three minutes. See your score before sharing your email.</p>
       </div>
-      <div className={styles.heroLoop} role="img" aria-label="Dark Castle learning loop: learn, play, review, and practice">
-        <p>DARK CASTLE LEARNING LOOP</p><div><span>Learn</span><span>Play</span><span>Review</span><span>Practice</span></div><strong>A move can become the next lesson.</strong>
-      </div>
+      <figure className={styles.heroProduct}><Image src="/lead-magnets/dark-castle-capabilities/drill.jpg" alt="Dark Castle Drill lesson with a chess position and study controls" width={780} height={715} priority /><figcaption><span>LEARN → PLAY → REVIEW → PRACTICE</span><strong>A move can become the next lesson.</strong></figcaption></figure>
     </section>
 
     <section className={styles.capabilities} aria-labelledby="capabilities-heading">
       <div className={styles.capabilitiesIntro}><p className={styles.eyebrow}>WHAT DARK CASTLE DOES DIFFERENTLY</p><h2 id="capabilities-heading">Keep the lesson close to the move.</h2><p>Lessons, play, review, and practice connect around choices on the board. These views come from Dark Castle’s browser and iOS builds.</p></div>
-      <div className={styles.capabilityGrid}>{capabilities.map((item) => <article className={styles.capabilityCard} key={item.step}>
-        <div className={styles.capabilityTop}><span>{item.step} / {item.label}</span><h3>{item.title}</h3></div>
-        <CapabilityScene scene={item.scene} />
-        <div className={styles.capabilityDetail}><p><b>{item.trigger}.</b> {item.response}</p><p>{item.value}</p></div>
-      </article>)}</div>
-      <aside className={styles.comparison} aria-labelledby="comparison-heading"><div><p className={styles.eyebrow}>A PLACE IN THE CHESS WORLD</p><h3 id="comparison-heading">A connected practice thread.</h3><p>Chess.com and Lichess offer broad places to play and study. Dark Castle focuses this experience on carrying a lesson into play, bringing a move back through review, and turning that finding into the next practice position.</p></div><ul><li><strong>Chess.com</strong><span>Lessons, Game Review, and MoveTrainer give players several ways to study and retry.</span></li><li><strong>Lichess</strong><span>Analysis, studies, game-based puzzles, and learn-from-mistakes tools support its broad play community.</span></li><li><strong>Dark Castle</strong><span>Drill, Walk-through, review, My Mistakes, and Coach keep the learning loop close to the board.</span></li></ul></aside>
+      <div className={styles.gallery} role="region" aria-label="Dark Castle capability gallery" tabIndex={0} onKeyDown={(event) => { if (event.key === 'ArrowRight') setActiveCapability((activeCapability + 1) % capabilities.length); if (event.key === 'ArrowLeft') setActiveCapability((activeCapability + capabilities.length - 1) % capabilities.length); if (event.key === 'Home') setActiveCapability(0); if (event.key === 'End') setActiveCapability(capabilities.length - 1) }}>
+        <div className={styles.galleryRail} role="group" aria-label="Choose a capability">{capabilities.map((item, index) => <button key={item.step} type="button" onClick={() => setActiveCapability(index)} aria-current={index === activeCapability ? 'true' : undefined}>{item.step} <span>{item.label}</span></button>)}</div>
+        <article className={styles.gallerySlide}>
+          <div className={styles.galleryMedia}><CapabilityScene scene={capabilities[activeCapability].scene} /><p>{capabilities[activeCapability].label} / DARK CASTLE CHESS</p></div>
+          <div className={styles.galleryCopy}><span>{capabilities[activeCapability].step} / {capabilities[activeCapability].label}</span><h3>{capabilities[activeCapability].title}</h3><p><b>{capabilities[activeCapability].trigger}.</b> {capabilities[activeCapability].response}</p><p>{capabilities[activeCapability].value}</p><div className={styles.galleryControls}><button type="button" onClick={() => setActiveCapability((activeCapability + capabilities.length - 1) % capabilities.length)} aria-label="Previous capability">← Previous</button><span aria-live="polite">{activeCapability + 1} of {capabilities.length}</span><button type="button" onClick={() => setActiveCapability((activeCapability + 1) % capabilities.length)} aria-label="Next capability">Next →</button></div></div>
+        </article>
+      </div>
+      <aside className={styles.comparison} aria-labelledby="comparison-heading"><div><p className={styles.eyebrow}>A PLACE IN THE CHESS WORLD</p><h3 id="comparison-heading">A connected practice thread.</h3><p>Chess.com and Lichess offer broad places to play and study. Dark Castle focuses this experience on carrying a lesson into play, bringing a move back through review, and turning that finding into the next practice position.</p><figure className={styles.comparisonVisual}><Image src="/lead-magnets/dark-castle-capabilities/mistake-library-heading.jpg" alt="Dark Castle Saved games with the Practice tab selected" width={520} height={140} /><figcaption>Review becomes a place to practice again.</figcaption></figure></div><ul><li><strong>Chess.com</strong><span>Lessons, Game Review, and MoveTrainer give players several ways to study and retry.</span></li><li><strong>Lichess</strong><span>Analysis, studies, game-based puzzles, and learn-from-mistakes tools support its broad play community.</span></li><li><strong>Dark Castle</strong><span>Drill, Walk-through, review, My Mistakes, and Coach keep the learning loop close to the board.</span></li></ul></aside>
     </section>
 
     <section id="assessment" className={styles.journey} aria-labelledby="assessment-heading">
@@ -132,6 +145,7 @@ export default function DecisionTraceability() {
         <h2 id="assessment-heading">Pick one decision worth revisiting.</h2>
         <p>Choose a recent product, policy, or investment decision. Answer four questions about the record behind it.</p>
         <span className={styles.progress}>{answered} of 4 checks complete</span>
+        <figure className={styles.journeyVisual}><Image src="/lead-magnets/dark-castle-capabilities/variation.jpg" alt="Dark Castle variation board showing a piece's prior position" width={425} height={495} /><figcaption>On the board, the earlier position stays visible. What would help your team retrace a choice?</figcaption></figure>
       </div>
       <div className={styles.questionPair}>{TRACE_DIMENSIONS.slice(0, 2).map(renderQuestion)}</div>
       <div className={styles.questionPair}>{TRACE_DIMENSIONS.slice(2).map((item, index) => renderQuestion(item, index + 2))}</div>
@@ -142,14 +156,16 @@ export default function DecisionTraceability() {
         <div className={styles.result} aria-live="polite" aria-labelledby="result-heading">
           {result ? <><div className={styles.resultScore}><span>{result.total}<small>/ 8</small></span><p>YOUR TRACEABILITY SCORE</p></div><div className={styles.resultCopy}><p className={styles.eyebrow}>START HERE</p><h2 id="result-heading">{result.total === 8 ? 'Put your record to the test.' : `Make ${weakest!.label.toLowerCase()} visible.`}</h2><p>{result.total === 8 ? 'You have the essentials. Ask someone who was not in the room to read the record and tell you what would cause a review.' : weakest!.fix}</p><p className={styles.resultAction}><strong>Next action:</strong> Write one decision in the worksheet with an owner, a review trigger, and the evidence you used.</p></div></> : <><div className={styles.resultScore}><span>—<small>/ 8</small></span><p>YOUR TRACEABILITY SCORE</p></div><div className={styles.resultCopy}><p className={styles.eyebrow}>YOUR RESULT</p><h2 id="result-heading">See what needs attention.</h2><p>Answer four questions to get a score and a practical first step.</p></div></>}
         </div>
+        <figure className={styles.payoffVisual}><Image src="/lead-magnets/dark-castle-capabilities/coach-review.jpg" alt="Dark Castle Coach review showing a move to study" width={740} height={490} /><figcaption>Review the move. Keep the reason.</figcaption></figure>
         <div className={styles.download} aria-labelledby="download-heading">
           <div><p className={styles.eyebrow}>THE FREE ONE-PAGE RECORD</p><h2 id="download-heading">Take the record with you.</h2><p>Keep the reason, owner, review trigger, and evidence together.</p><a className={styles.secondary} href="/decision-traceability-worksheet.pdf" download>Download the free PDF <span aria-hidden>↓</span></a><p className={styles.smallPrint}>No email required.</p></div>
           <div className={styles.paperPreview} aria-hidden><span>DARK CASTLE CHESS / FIELD NOTE 01</span><h3>Decision record</h3><div>01 &nbsp; The choice and why</div><div>02 &nbsp; The accountable owner</div><div>03 &nbsp; The trigger to revisit</div><div>04 &nbsp; Evidence and open questions</div><small>Created by AmaduTown</small></div>
+          <figure className={styles.worksheetVisual}><Image src="/lead-magnets/dark-castle-capabilities/walk-step.jpg" alt="Dark Castle walk-through explaining the next move" width={725} height={128} /><figcaption>One move, one reason worth recording.</figcaption></figure>
         </div>
       </div>
 
       <section className={styles.capture} aria-labelledby="capture-heading">
-        <div><p className={styles.eyebrow}>OPTIONAL FOLLOW-UP</p><h2 id="capture-heading">Want more tools for clearer decisions?</h2><p>Share your email if you would like practical notes from AmaduTown. The worksheet is yours either way.</p></div>
+        <div><p className={styles.eyebrow}>OPTIONAL FOLLOW-UP</p><h2 id="capture-heading">Want more tools for clearer decisions?</h2><p>Share your email if you would like practical notes from AmaduTown. The worksheet is yours either way.</p><figure className={styles.followupVisual}><Image src="/lead-magnets/dark-castle-capabilities/mistake-library-filter.jpg" alt="Dark Castle My Mistakes practice filter" width={520} height={85} /><figcaption>A useful record gives you a way back.</figcaption></figure></div>
         <form onSubmit={submit} noValidate>
           <label className={styles.emailLabel} htmlFor="trace-email">Work email</label>
           <input id="trace-email" type="email" value={email} onChange={(event) => { setEmail(event.target.value); resetForEdit() }} autoComplete="email" required maxLength={254} />
