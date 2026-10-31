@@ -26,6 +26,9 @@ describe('decision traceability contract', () => {
     expect(sql).toMatch(/enable row level security/)
     expect(sql).toMatch(/revoke all .* from public, anon, authenticated/)
     expect(sql).toMatch(/grant select, insert .* to service_role/)
+    for (const field of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
+      expect(sql).toContain(`${field} text check (char_length(${field}) <= 120)`)
+    }
     expect(sql).not.toMatch(/\b(full_report|ip_address|answers|phone)\b/)
   })
 })
