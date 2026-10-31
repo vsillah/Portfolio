@@ -197,7 +197,7 @@ describe('/api/cron/social-content-scheduled-publish', () => {
         },
       ],
       publishesByContentId: {
-        'approved-social': [{ platform: 'x', status: 'failed' }],
+        'approved-social': [{ platform: 'x', status: 'pending' }],
         'blocked-social': [{ platform: 'x', status: 'pending' }],
       },
     })
@@ -403,6 +403,7 @@ describe('/api/cron/social-content-scheduled-publish', () => {
     const response = await POST(request('http://localhost/api/cron/social-content-scheduled-publish', 'POST') as never)
 
     expect(publishUpdate).not.toHaveBeenCalled()
+    expect(mocks.publishSocialContentItem).not.toHaveBeenCalled()
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({ blocker: specificError,
         provider_failures: { linkedin: specificError } }),

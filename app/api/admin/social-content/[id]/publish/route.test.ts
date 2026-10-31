@@ -160,7 +160,7 @@ function installPublishRouteSupabase({
   if (rag?.platform_submission_gate) rag.platform_submission_gate.approved_fingerprint = socialReleaseFingerprint(current)
   const store = releaseStore(current)
   activePublishStore = store
-  store.tables.social_content_publishes = structuredClone(publishes).map((row, i) => ({ id: `pub-${i}`, content_id: item.id, ...row }))
+  store.tables.social_content_publishes = structuredClone(publishes).map((row, i) => ({ id: `pub-${i}`, content_id: item.id, updated_at: releaseVersion, ...row }))
   store.tables.social_content_config = configs ?? platformConfigsFor(publishes)
   const queueUpdate = vi.fn()
   mocks.from.mockImplementation((table: string) => {
@@ -265,6 +265,30 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
 
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('reconciles a pre-post LinkedIn failure without duplicating the row or losing its error', async () => {
+    installPublishRouteSupabase({
+      item: { id: 'social-1', status: 'scheduled', platform: 'linkedin', target_platforms: ['linkedin'],
+        post_text: 'Approved Dark Castle copy', cta_text: null, cta_url: null, hashtags: [],
+        image_url: '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png',
+        video_url: null, carousel_slide_urls: null, rag_context: approvedGate(['linkedin']) },
+      publishes: [{ platform: 'linkedin', status: 'pending' }],
+    })
+    mocks.publishToLinkedIn.mockResolvedValue({ success: false, noPostAttempted: true,
+      error: 'LinkedIn image upload failed; approved media must not be dropped' })
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+    const body = await response.json()
+    expect(response.status).toBe(409)
+    expect(body.reconciliation_required).toBe(false)
+    expect(body.error).toBe('LinkedIn image upload failed; approved media must not be dropped')
+    expect(activePublishStore.tables.social_content_publishes).toHaveLength(1)
+    expect(activePublishStore.publish()).toMatchObject({ status: 'failed', error_message: body.error })
+    expect(activePublishStore.item().rag_context.platform_submission_gate).toMatchObject({
+      status: 'approved', reconciliation_required: false,
+      deterministic_failure: { publish_row_id: 'pub-0', error: body.error },
+    })
   })
 
   it('blocks direct publish calls until the final platform-submission gate is approved', async () => {

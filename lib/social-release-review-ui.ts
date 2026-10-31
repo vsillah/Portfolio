@@ -8,6 +8,11 @@ export function socialReleaseReview(item: unknown, platform?: string) {
   const confirmedPlatforms = record(gate.confirmed_platforms)
   const all = Array.isArray(row.publishes) ? row.publishes.map(record) : []
   const selected = platform ? all.filter(pub => pub.platform === platform) : all
+  const safeRetry = Array.isArray(row.release_retry) && row.release_retry.includes('linkedin')
+    && (!platform || platform === 'linkedin')
+    && gate.status === 'approved' && selected.length === 1
+    && selected[0].platform === 'linkedin' && selected[0].status === 'failed'
+    && !selected[0].platform_post_id && !selected[0].platform_post_url && !selected[0].published_at
   const confirmed = (pub: Record<string, unknown>) => pub.status === 'published' && typeof pub.platform_post_id === 'string' && pub.platform_post_id.length > 0
   const configuredTargets = Array.isArray(row.target_platforms)
     ? row.target_platforms.filter((target): target is string => typeof target === 'string' && target.length > 0)
@@ -20,10 +25,12 @@ export function socialReleaseReview(item: unknown, platform?: string) {
   // Match backend hasAmbiguousSocialPublishRows: only pristine pending rows or
   // published rows with a provider ID are safe, regardless of a status label.
   const ambiguous = (pub: Record<string, unknown>) => pub.status === 'published' ? !confirmed(pub)
-    : pub.status !== 'pending' || Boolean(pub.platform_post_id || pub.platform_post_url || pub.published_at)
+    : (pub.status !== 'pending' && !(safeRetry && pub.platform === 'linkedin' && pub.status === 'failed'))
+      || Boolean(pub.platform_post_id || pub.platform_post_url || pub.published_at)
   const confirmedMapMismatch = Object.entries(confirmedPlatforms).some(([target, providerId]) => !all.some(pub => pub.platform === target && confirmed(pub) && pub.platform_post_id === providerId))
   const hasUncertain = uncertain.includes(String(gate.status)) || uncertain.includes(String(row.status)) || all.some(ambiguous) || confirmedMapMismatch || (gate.status === 'submitted' && !all.some(confirmed))
-  const inFlight = pending.includes(String(gate.status)) || pending.includes(String(row.status)) || all.some(pub => pending.includes(String(pub.status)))
+  const inFlight = pending.includes(String(gate.status)) || (!safeRetry && pending.includes(String(row.status)))
+    || all.some(pub => pending.includes(String(pub.status)))
   const hasConfirmed = selected.some(confirmed)
   const locked = hasUncertain || inFlight || hasConfirmed || gate.status === 'submitted' || (!partial && all.some(confirmed)) || Boolean(partial && platform && !selected.some(pub => pub.status === 'pending'))
   const label = platform && hasConfirmed && !selected.some(ambiguous) ? 'Post confirmed' : hasUncertain ? (all.some(confirmed) ? 'Partially confirmed · reconcile remaining results' : 'Outcome uncertain · reconcile receipts')

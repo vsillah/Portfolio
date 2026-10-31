@@ -127,7 +127,7 @@ describe('publishToLinkedIn', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const result = await approvedPublish({ contentId: 'social-1', postText: 'Post text', imageUrl })
-    expect(result).toEqual({ success: false, error: 'LinkedIn approved media URL is unsafe or unapproved.' })
+    expect(result).toEqual({ success: false, error: 'LinkedIn approved media URL is unsafe or unapproved.', noPostAttempted: true })
     expect(fetchMock).not.toHaveBeenCalled()
     expect(store.publish()).toMatchObject({
       status: 'failed',
