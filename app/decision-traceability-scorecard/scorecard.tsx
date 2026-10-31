@@ -9,6 +9,23 @@ import styles from './scorecard.module.css'
 type SubmitState = 'idle' | 'sending' | 'saved' | 'duplicate' | 'error'
 const captions = ['Needs a record', 'Partly visible', 'Clear enough to revisit']
 const attributionKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as const
+const capabilities = [
+  { step: '01', label: 'LEARN', title: 'A path through the ideas', trigger: 'Choose a lesson', response: 'Drill presents a position, a hint, and an answer to study.', value: 'Practice has a place in a larger sequence.', scene: 'path' },
+  { step: '02', label: 'WALK THROUGH', title: 'See the reason behind a move', trigger: 'Open a walk-through', response: 'The board advances with the lesson, one decision at a time.', value: 'A line becomes something you can explain.', scene: 'walk' },
+  { step: '03', label: 'REVIEW', title: 'Keep a mistake worth studying', trigger: 'Review a game', response: 'Save a move to My Mistakes, then return to it in practice.', value: 'The next session starts with a real choice you made.', scene: 'mistake' },
+  { step: '04', label: 'COACH', title: 'Turn a finding into a next step', trigger: 'Open move review', response: 'Coach points to a move to study and offers a way back into it.', value: 'The explanation has somewhere to go.', scene: 'coach' },
+  { step: '05', label: 'VARIATION', title: 'Follow the pieces through a line', trigger: 'Compare a variation', response: 'Piece silhouettes and paths keep the board connected to its earlier position.', value: 'You can track what changed without losing the piece.', scene: 'variation' },
+  { step: '06', label: 'EXPLORE', title: 'Compare the move in front of you', trigger: 'Study a position', response: 'Candidates, notation, and hints give the choice more context.', value: 'You can revisit the move and the reason together.', scene: 'explore' },
+] as const
+
+function CapabilityScene({ scene }: { scene: typeof capabilities[number]['scene'] }) {
+  if (scene === 'path') return <div className={styles.pathScene} aria-hidden><span>01 · The board</span><span>04 · Piece safety</span><span>07 · Planning</span><strong>10 · Black vs 1.e4</strong><small>DRILL <b>Hint</b> <b>Answer</b></small></div>
+  if (scene === 'walk') return <div className={styles.walkScene} aria-hidden><span>WALK-THROUGH</span><div className={styles.miniBoard}><i>♜</i><i>♞</i><i>♝</i><i>♛</i><i>♚</i><i>♝</i><i>♞</i><i>♜</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i></div><p>Move → reason → next move</p></div>
+  if (scene === 'mistake') return <div className={styles.mistakeScene} aria-hidden><span>GAME REVIEW</span><strong>One move to revisit</strong><div>Save to My Mistakes <b>↗</b></div><div>Practice this position <b>→</b></div></div>
+  if (scene === 'coach') return <div className={styles.coachScene} aria-hidden><span>COACH · MOVE REVIEW</span><strong>3. Nxe5</strong><p>One move to study</p><div><b>Study</b><b>Again</b></div></div>
+  if (scene === 'variation') return <div className={styles.variationScene} aria-hidden><span>VARIATION VIEW</span><div><i>♞</i><em>··········→</em><i>♞</i></div><p>Same piece · new square</p></div>
+  return <div className={styles.exploreScene} aria-hidden><span>EXPLORE</span><div><b>Candidate moves</b><strong>1. e4</strong><strong>1. d4</strong><strong>1. Nf3</strong></div><p>Board · notation · hint</p></div>
+}
 
 export default function DecisionTraceability() {
   const [answers, setAnswers] = useState<Partial<TraceAnswers>>({})
@@ -93,10 +110,18 @@ export default function DecisionTraceability() {
         <a className={styles.primary} href="#assessment">Score a decision <span aria-hidden>↗</span></a>
         <p className={styles.heroNote}>Four checks. About three minutes. See your score before sharing your email.</p>
       </div>
-      <figure className={styles.heroVisual}>
-        <div className={styles.proofImage}><Image src="/review-assets/social-content/storyboard-review/explore-start.jpg" alt="Dark Castle Chess game start screen showing the board, move guidance, and notation" width={1248} height={969} sizes="(max-width: 900px) 90vw, 44vw" priority /></div>
-        <figcaption className={styles.visualCaption}><span className={styles.goldDot} /> 01 / START AS WHITE <strong>The board is ready for your first move.</strong><a href="/review-assets/social-content/storyboard-review/explore-start.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
-      </figure>
+      <div className={styles.heroLoop} role="img" aria-label="Dark Castle learning loop: learn, play, review, and practice">
+        <p>DARK CASTLE LEARNING LOOP</p><div><span>Learn</span><span>Play</span><span>Review</span><span>Practice</span></div><strong>A move can become the next lesson.</strong>
+      </div>
+    </section>
+
+    <section className={styles.capabilities} aria-labelledby="capabilities-heading">
+      <div className={styles.capabilitiesIntro}><p className={styles.eyebrow}>WHAT DARK CASTLE DOES DIFFERENTLY</p><h2 id="capabilities-heading">Keep the lesson close to the move.</h2><p>Lessons, play, review, and practice connect around choices on the board. These illustrations draw on Dark Castle’s browser and iOS builds.</p></div>
+      <div className={styles.capabilityGrid}>{capabilities.map((item) => <article className={styles.capabilityCard} key={item.step}>
+        <div className={styles.capabilityTop}><span>{item.step} / {item.label}</span><h3>{item.title}</h3></div>
+        <CapabilityScene scene={item.scene} />
+        <div className={styles.capabilityDetail}><p><b>{item.trigger}.</b> {item.response}</p><p>{item.value}</p></div>
+      </article>)}</div>
     </section>
 
     <section id="assessment" className={styles.journey} aria-labelledby="assessment-heading">
@@ -106,15 +131,7 @@ export default function DecisionTraceability() {
         <p>Choose a recent product, policy, or investment decision. Answer four questions about the record behind it.</p>
         <span className={styles.progress}>{answered} of 4 checks complete</span>
       </div>
-      <figure className={styles.gameFrame}>
-        <Image src="/review-assets/social-content/storyboard-review/explore-position.jpg" alt="Dark Castle Chess Explore after e4: board position, Black to move, move guidance, and e4 in notation" width={1248} height={969} sizes="(max-width: 900px) 90vw, 38vw" />
-        <figcaption><strong>02 / EXPLORE AFTER E4</strong><span>White has played e4. Black is next, and the move appears in notation.</span><a href="/review-assets/social-content/storyboard-review/explore-position.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
-      </figure>
       <div className={styles.questionPair}>{TRACE_DIMENSIONS.slice(0, 2).map(renderQuestion)}</div>
-      <figure className={styles.gameFrame}>
-        <Image src="/review-assets/social-content/storyboard-review/explore-computer.jpg" alt="Dark Castle Chess after Black plays e5: board, notation showing e4 and e5, move guidance, and candidate moves" width={1248} height={969} sizes="(max-width: 900px) 90vw, 38vw" />
-        <figcaption><strong>03 / AFTER BLACK PLAYS E5</strong><span>Black replies with e5. Both moves appear in notation beside the new position.</span><a href="/review-assets/social-content/storyboard-review/explore-computer.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
-      </figure>
       <div className={styles.questionPair}>{TRACE_DIMENSIONS.slice(2).map((item, index) => renderQuestion(item, index + 2))}</div>
     </section>
 

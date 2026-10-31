@@ -18,34 +18,27 @@ describe('Decision Traceability Scorecard', () => {
   })
   afterEach(() => { vi.unstubAllGlobals() })
 
-  it('shows the owned Dark Castle identity and three distinct accessible gameplay states', () => {
+  it('shows the owned Dark Castle identity and six distinct capability flows', () => {
     render(<DecisionTraceability />)
     expect(screen.getByRole('img', { name: 'Dark Castle Chess castle logo' })).toHaveAttribute('src', '/lead-magnets/dark-castle-chess-logo.png')
     expect(screen.getByText('DARK CASTLE')).toBeVisible()
     expect(screen.getByText('Created by')).toBeVisible()
-    const gameplay = [
-      screen.getByRole('img', { name: /game start screen showing the board, move guidance, and notation/i }),
-      screen.getByRole('img', { name: /Explore after e4: board position, Black to move, move guidance, and e4 in notation/i }),
-      screen.getByRole('img', { name: /after Black plays e5: board, notation showing e4 and e5, move guidance, and candidate moves/i }),
-    ]
-    expect(new Set(gameplay.map((image) => image.getAttribute('src'))).size).toBe(3)
-    for (const image of gameplay) expect(image).toBeVisible()
-    expect(screen.getAllByRole('link', { name: /View full-size gameplay screen/i }).map((link) => link.getAttribute('href'))).toEqual([
-      '/review-assets/social-content/storyboard-review/explore-start.jpg',
-      '/review-assets/social-content/storyboard-review/explore-position.jpg',
-      '/review-assets/social-content/storyboard-review/explore-computer.jpg',
-    ])
+    expect(screen.getByRole('img', { name: 'Dark Castle learning loop: learn, play, review, and practice' })).toBeVisible()
+    const flows = screen.getByRole('region', { name: 'Keep the lesson close to the move.' })
+    expect(flows.querySelectorAll('article')).toHaveLength(6)
+    for (const heading of ['A path through the ideas', 'See the reason behind a move', 'Keep a mistake worth studying', 'Turn a finding into a next step', 'Follow the pieces through a line', 'Compare the move in front of you']) {
+      expect(screen.getByRole('heading', { name: heading })).toBeVisible()
+    }
+    expect(flows.textContent).not.toMatch(/Synthetic QA|local learner|development build|production|preview|fixture/i)
   })
 
-  it('pairs game evidence with both question groups and keeps score, PDF, and consent together', () => {
+  it('keeps both question groups, score, PDF, and consent together', () => {
     render(<DecisionTraceability />)
     const assessment = screen.getByRole('region', { name: 'Pick one decision worth revisiting.' })
     const pieces = Array.from(assessment.children)
-    expect(pieces.map((element) => element.tagName)).toEqual(['DIV', 'FIGURE', 'DIV', 'FIGURE', 'DIV'])
-    expect(pieces[1]).toContainElement(screen.getByRole('img', { name: /Explore after e4: board position/i }))
+    expect(pieces.map((element) => element.tagName)).toEqual(['DIV', 'DIV', 'DIV'])
+    expect(pieces[1].querySelectorAll('fieldset')).toHaveLength(2)
     expect(pieces[2].querySelectorAll('fieldset')).toHaveLength(2)
-    expect(pieces[3]).toContainElement(screen.getByRole('img', { name: /after Black plays e5: board/i }))
-    expect(pieces[4].querySelectorAll('fieldset')).toHaveLength(2)
     const payoff = screen.getByRole('region', { name: 'Your score and worksheet' })
     expect(payoff).toContainElement(screen.getByRole('heading', { name: 'See what needs attention.' }))
     expect(payoff).toContainElement(screen.getByRole('link', { name: /Download the free PDF/i }))
