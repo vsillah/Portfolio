@@ -45,4 +45,74 @@ describe('canonical script template receipts', () => {
     }, now)
     expect(review?.kind === 'youtube_packaging' && review.scriptTemplate?.ready).toBe(true)
   })
+
+  it('rejects a score below 75 and a non-finite score, and accepts the exact threshold', () => {
+    const below = approvalReadyReceipt()
+    below.receipt.evaluation.score = 74.999
+    expect(inspectSocialScriptTemplateReceipt(below)).toEqual({
+      ready: false,
+      blockers: ['Script template evaluation is not approval-ready.'],
+    })
+
+    const exact = approvalReadyReceipt()
+    exact.receipt.evaluation.score = 75
+    expect(inspectSocialScriptTemplateReceipt(exact)).toEqual({ ready: true, blockers: [] })
+
+    const infinite = approvalReadyReceipt()
+    infinite.receipt.evaluation.score = Number.POSITIVE_INFINITY
+    expect(inspectSocialScriptTemplateReceipt(infinite)).toEqual({
+      ready: false,
+      blockers: ['Script template evaluation is not approval-ready.'],
+    })
+  })
+
+  it('rejects whitespace-only source and originality boundaries', () => {
+    for (const field of ['source_boundary', 'originality_boundary'] as const) {
+      const input = approvalReadyReceipt()
+      input.receipt[field] = ' \n\t '
+      expect(inspectSocialScriptTemplateReceipt(input)).toEqual({
+        ready: false,
+        blockers: ['Script template source and originality boundaries are incomplete.'],
+      })
+    }
+  })
+
+  it('treats a freshness instant equal to the evaluation time as stale', () => {
+    const stale = approvalReadyReceipt()
+    stale.receipt.fresh_until = now.toISOString()
+    expect(inspectSocialScriptTemplateReceipt(stale)).toEqual({
+      ready: false,
+      blockers: ['Script template receipt is stale or has no valid freshness window.'],
+    })
+
+    const fresh = approvalReadyReceipt()
+    fresh.receipt.fresh_until = new Date(now.getTime() + 1).toISOString()
+    expect(inspectSocialScriptTemplateReceipt(fresh)).toEqual({ ready: true, blockers: [] })
+  })
+
+  it('blocks a script template that does not cite the supplied framework source receipt', () => {
+    const missing = approvalReadyReceipt()
+    expect(inspectSocialScriptTemplateReceipt({ ...missing, sourceReceiptId: 'receipt:not-cited' })).toEqual({
+      ready: false,
+      blockers: ['Script template does not cite the current framework source receipt.'],
+    })
+
+    const cited = approvalReadyReceipt()
+    expect(inspectSocialScriptTemplateReceipt({
+      ...cited,
+      sourceReceiptId: cited.receipt.source_receipt_ids[0],
+    })).toEqual({ ready: true, blockers: [] })
+  })
 })
+
+function approvalReadyReceipt() {
+  const candidate = socialCampaignPackageQaCandidates()[0]
+  const receipt = structuredClone(candidate.long_form_script_input!.script_template_receipt!)
+  return {
+    receipt,
+    contentId: candidate.social_content_id,
+    candidateId: candidate.candidate_id,
+    contentVersion: candidate.content_version,
+    now,
+  }
+}
