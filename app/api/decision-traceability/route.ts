@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   if (!score || !attribution || typeof body.submissionKey !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.submissionKey)) {
     return NextResponse.json({ error: 'Complete the scorecard and try again.' }, { status: 400 })
   }
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return NextResponse.json({ error: 'Capture is temporarily unavailable. Your score and download are still available.' }, { status: 503 })
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return NextResponse.json({ error: 'We cannot take your follow-up request right now. Your score and worksheet are still available. Please try later.' }, { status: 503 })
 
   let error: { code?: string } | null
   try {
@@ -33,9 +33,9 @@ export async function POST(request: NextRequest) {
     })
     error = result.error
   } catch {
-    return NextResponse.json({ error: 'We could not save your request. Your score and download are still available. Please retry later.' }, { status: 503 })
+    return NextResponse.json({ error: 'We cannot take your follow-up request right now. Your score and worksheet are still available. Please try later.' }, { status: 503 })
   }
-  if (error?.code === '23505') return NextResponse.json({ status: 'duplicate', message: 'This email already has a scorecard request. Your result is still available below.' }, { status: 200 })
-  if (error) return NextResponse.json({ error: 'We could not save your request. Your score and download are still available. Please retry later.' }, { status: 503 })
+  if (error?.code === '23505') return NextResponse.json({ status: 'duplicate', message: 'We already received a request for this email.' }, { status: 200 })
+  if (error) return NextResponse.json({ error: 'We cannot take your follow-up request right now. Your score and worksheet are still available. Please try later.' }, { status: 503 })
   return NextResponse.json({ status: 'saved' }, { status: 201 })
 }

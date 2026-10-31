@@ -3,7 +3,7 @@ import DecisionTraceability from './scorecard'
 
 export const metadata: Metadata = {
   title: 'Dark Castle Chess Decision Traceability Scorecard | AmaduTown',
-  description: 'Dark Castle Chess product states inspire a free four-part check for keeping reasoning, ownership, thresholds, and evidence visible after a decision.',
+  description: 'Check whether a decision has a clear reason, owner, review trigger, and evidence. Get a free score and one-page worksheet from Dark Castle Chess.',
 }
 
 export default function DecisionTraceabilityPage() {

@@ -61,6 +61,6 @@ describe('POST /api/decision-traceability', () => {
     mocks.insert.mockRejectedValueOnce(new Error('database unreachable'))
     const response = await POST(request(valid))
     expect(response.status).toBe(503)
-    expect((await response.json()).error).toMatch(/could not save/)
+    expect((await response.json()).error).toMatch(/cannot take your follow-up request right now/)
   })
 })

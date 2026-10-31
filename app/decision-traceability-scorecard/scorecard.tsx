@@ -62,12 +62,12 @@ export default function DecisionTraceability() {
         body: JSON.stringify({ email, consent, consentVersion: TRACE_CONSENT_VERSION, answers, attribution, submissionKey }),
       })
       const payload = await response.json()
-      if (!response.ok) throw new Error(payload.error || 'Your request could not be saved. Please retry.')
+      if (!response.ok) throw new Error(payload.error || 'We could not take your request. Please try again.')
       setState(payload.status === 'duplicate' ? 'duplicate' : 'saved')
-      setMessage(payload.status === 'duplicate' ? payload.message : 'Saved. You can download the worksheet below and use it with your team.')
+      setMessage(payload.status === 'duplicate' ? payload.message : 'Thanks. Your follow-up request is in.')
     } catch (error) {
       setState('error')
-      setMessage(error instanceof Error ? error.message : 'Your request could not be saved. Please retry.')
+      setMessage(error instanceof Error ? error.message : 'We could not take your request. Please try again.')
     }
   }
 
@@ -88,14 +88,14 @@ export default function DecisionTraceability() {
       <div className={styles.heroCopy}>
         <p className={styles.eyebrow}>DARK CASTLE CHESS / FIELD NOTE 01</p>
         <h1>The board shows the move. <em>Can you show the reason?</em></h1>
-        <p className={styles.lede}>Dark Castle Chess keeps the position, move guidance, and notation in view. This free scorecard carries that idea into a decision your team may need to revisit.</p>
+        <p className={styles.lede}>In Dark Castle Chess, every move leaves a position to study. Use this free scorecard to bring the same care to a decision your team may need to revisit.</p>
         <p className={styles.heroOffer}>Decision Traceability Scorecard <span>+ one-page worksheet</span></p>
         <a className={styles.primary} href="#assessment">Score a decision <span aria-hidden>↗</span></a>
-        <p className={styles.heroNote}>Four checks. About three minutes. Your result appears before any email request.</p>
+        <p className={styles.heroNote}>Four checks. About three minutes. See your score before sharing your email.</p>
       </div>
       <figure className={styles.heroVisual}>
-        <div className={styles.proofImage}><Image src="/review-assets/social-content/storyboard-review/explore-start.jpg" alt="Dark Castle Chess game start screen showing the board, coach prompt, move guidance, and notation" width={1248} height={969} sizes="(max-width: 900px) 90vw, 44vw" priority /></div>
-        <figcaption className={styles.visualCaption}><span className={styles.goldDot} /> 01 / START AS WHITE <strong>The board and its context share one screen.</strong><a href="/review-assets/social-content/storyboard-review/explore-start.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
+        <div className={styles.proofImage}><Image src="/review-assets/social-content/storyboard-review/explore-start.jpg" alt="Dark Castle Chess game start screen showing the board, move guidance, and notation" width={1248} height={969} sizes="(max-width: 900px) 90vw, 44vw" priority /></div>
+        <figcaption className={styles.visualCaption}><span className={styles.goldDot} /> 01 / START AS WHITE <strong>The board is ready for your first move.</strong><a href="/review-assets/social-content/storyboard-review/explore-start.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
       </figure>
     </section>
 
@@ -103,17 +103,17 @@ export default function DecisionTraceability() {
       <div className={styles.journeyIntro}>
         <p className={styles.eyebrow}>FROM THE GAME TO YOUR WORK</p>
         <h2 id="assessment-heading">Pick one decision worth revisiting.</h2>
-        <p>The game screens stay beside four checks as you rate a decision your team could hand to someone tomorrow.</p>
+        <p>Choose a recent product, policy, or investment decision. Answer four questions about the record behind it.</p>
         <span className={styles.progress}>{answered} of 4 checks complete</span>
       </div>
       <figure className={styles.gameFrame}>
         <Image src="/review-assets/social-content/storyboard-review/explore-position.jpg" alt="Dark Castle Chess Explore after e4: board position, Black to move, move guidance, and e4 in notation" width={1248} height={969} sizes="(max-width: 900px) 90vw, 38vw" />
-        <figcaption><strong>02 / EXPLORE AFTER E4</strong><span>Black to move. Guidance and e4 notation remain beside the board.</span><a href="/review-assets/social-content/storyboard-review/explore-position.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
+        <figcaption><strong>02 / EXPLORE AFTER E4</strong><span>White has played e4. Black is next, and the move appears in notation.</span><a href="/review-assets/social-content/storyboard-review/explore-position.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
       </figure>
       <div className={styles.questionPair}>{TRACE_DIMENSIONS.slice(0, 2).map(renderQuestion)}</div>
       <figure className={styles.gameFrame}>
         <Image src="/review-assets/social-content/storyboard-review/explore-computer.jpg" alt="Dark Castle Chess after Black plays e5: board, notation showing e4 and e5, move guidance, and candidate moves" width={1248} height={969} sizes="(max-width: 900px) 90vw, 38vw" />
-        <figcaption><strong>03 / AFTER BLACK PLAYS E5</strong><span>Board, e4/e5 notation, guidance, and candidate moves. Percentages are in-product estimates.</span><a href="/review-assets/social-content/storyboard-review/explore-computer.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
+        <figcaption><strong>03 / AFTER BLACK PLAYS E5</strong><span>Black replies with e5. Both moves appear in notation beside the new position.</span><a href="/review-assets/social-content/storyboard-review/explore-computer.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
       </figure>
       <div className={styles.questionPair}>{TRACE_DIMENSIONS.slice(2).map((item, index) => renderQuestion(item, index + 2))}</div>
     </section>
@@ -121,7 +121,7 @@ export default function DecisionTraceability() {
     <section className={styles.payoff} aria-label="Your score and worksheet">
       <div className={styles.payoffMain}>
         <div className={styles.result} aria-live="polite" aria-labelledby="result-heading">
-          {result ? <><div className={styles.resultScore}><span>{result.total}<small>/ 8</small></span><p>YOUR TRACEABILITY SCORE</p></div><div className={styles.resultCopy}><p className={styles.eyebrow}>YOUR FIRST REPAIR</p><h2 id="result-heading">Make {weakest!.label.toLowerCase()} visible.</h2><p>{result.total === 8 ? 'The record is strong across all four checks. Test it with someone who was not in the room: can they understand the choice and the trigger to revisit it?' : `Your weakest check is ${weakest!.label.toLowerCase()}. ${weakest!.fix}`}</p><p className={styles.resultAction}><strong>Next action:</strong> Write one decision in the worksheet with an owner, a review trigger, and the evidence you used.</p></div></> : <><div className={styles.resultScore}><span>—<small>/ 8</small></span><p>YOUR TRACEABILITY SCORE</p></div><div className={styles.resultCopy}><p className={styles.eyebrow}>RESULT PREVIEW</p><h2 id="result-heading">Your next step appears here.</h2><p>Answer all four checks to see where the record needs work. Your answers stay in this browser unless you request an email follow-up.</p></div></>}
+          {result ? <><div className={styles.resultScore}><span>{result.total}<small>/ 8</small></span><p>YOUR TRACEABILITY SCORE</p></div><div className={styles.resultCopy}><p className={styles.eyebrow}>START HERE</p><h2 id="result-heading">{result.total === 8 ? 'Put your record to the test.' : `Make ${weakest!.label.toLowerCase()} visible.`}</h2><p>{result.total === 8 ? 'You have the essentials. Ask someone who was not in the room to read the record and tell you what would cause a review.' : weakest!.fix}</p><p className={styles.resultAction}><strong>Next action:</strong> Write one decision in the worksheet with an owner, a review trigger, and the evidence you used.</p></div></> : <><div className={styles.resultScore}><span>—<small>/ 8</small></span><p>YOUR TRACEABILITY SCORE</p></div><div className={styles.resultCopy}><p className={styles.eyebrow}>YOUR RESULT</p><h2 id="result-heading">See what needs attention.</h2><p>Answer four questions to get a score and a practical first step.</p></div></>}
         </div>
         <div className={styles.download} aria-labelledby="download-heading">
           <div><p className={styles.eyebrow}>THE FREE ONE-PAGE RECORD</p><h2 id="download-heading">Take the record with you.</h2><p>Keep the reason, owner, review trigger, and evidence together.</p><a className={styles.secondary} href="/decision-traceability-worksheet.pdf" download>Download the free PDF <span aria-hidden>↓</span></a><p className={styles.smallPrint}>No email required.</p></div>
@@ -130,15 +130,15 @@ export default function DecisionTraceability() {
       </div>
 
       <section className={styles.capture} aria-labelledby="capture-heading">
-        <div><p className={styles.eyebrow}>OPTIONAL FOLLOW-UP</p><h2 id="capture-heading">Want a follow-up?</h2><p>Leave an email if you want AmaduTown to write about this scorecard and practical decision tools. Your score and PDF are available without it.</p></div>
+        <div><p className={styles.eyebrow}>OPTIONAL FOLLOW-UP</p><h2 id="capture-heading">Want more tools for clearer decisions?</h2><p>Share your email if you would like practical notes from AmaduTown. The worksheet is yours either way.</p></div>
         <form onSubmit={submit} noValidate>
           <label className={styles.emailLabel} htmlFor="trace-email">Work email</label>
-          <input id="trace-email" type="email" value={email} onChange={(event) => { setEmail(event.target.value); resetForEdit() }} autoComplete="email" required placeholder="you@organization.org" maxLength={254} />
+          <input id="trace-email" type="email" value={email} onChange={(event) => { setEmail(event.target.value); resetForEdit() }} autoComplete="email" required maxLength={254} />
           <label className={styles.consent}><input type="checkbox" checked={consent} onChange={(event) => { setConsent(event.target.checked); resetForEdit() }} /><span>I agree to receive an email follow-up from AmaduTown about this scorecard and practical decision tools. I can unsubscribe or request deletion at any time.</span></label>
           <button className={styles.primary} type="submit" disabled={!result || !consent || state === 'sending' || state === 'saved' || state === 'duplicate'}>{state === 'sending' ? 'Saving…' : state === 'saved' ? 'Request saved' : state === 'duplicate' ? 'Already saved' : 'Request follow-up'} <span aria-hidden>↗</span></button>
           {offline && <p role="status" className={styles.formError}>You are offline. The score and PDF remain available; reconnect to submit.</p>}
           {message && <p role="status" className={state === 'error' ? styles.formError : styles.formSuccess}>{message}</p>}
-          <p className={styles.smallPrint}>We store your email, score, weakest area, consent record, and campaign attribution. We do not store your individual answers. No message is sent when you submit this form. <Link href="/legal/privacy">Privacy policy</Link>.</p>
+          <p className={styles.smallPrint}>If you request a follow-up, we will use your email and score to respond. You can unsubscribe or ask us to delete your information at any time. <Link href="/legal/privacy">Privacy policy</Link>.</p>
         </form>
       </section>
     </section>

@@ -24,7 +24,7 @@ describe('Decision Traceability Scorecard', () => {
     expect(screen.getByText('DARK CASTLE')).toBeVisible()
     expect(screen.getByText('Created by')).toBeVisible()
     const gameplay = [
-      screen.getByRole('img', { name: /game start screen showing the board, coach prompt, move guidance, and notation/i }),
+      screen.getByRole('img', { name: /game start screen showing the board, move guidance, and notation/i }),
       screen.getByRole('img', { name: /Explore after e4: board position, Black to move, move guidance, and e4 in notation/i }),
       screen.getByRole('img', { name: /after Black plays e5: board, notation showing e4 and e5, move guidance, and candidate moves/i }),
     ]
@@ -47,13 +47,26 @@ describe('Decision Traceability Scorecard', () => {
     expect(pieces[3]).toContainElement(screen.getByRole('img', { name: /after Black plays e5: board/i }))
     expect(pieces[4].querySelectorAll('fieldset')).toHaveLength(2)
     const payoff = screen.getByRole('region', { name: 'Your score and worksheet' })
-    expect(payoff).toContainElement(screen.getByRole('heading', { name: 'Your next step appears here.' }))
+    expect(payoff).toContainElement(screen.getByRole('heading', { name: 'See what needs attention.' }))
     expect(payoff).toContainElement(screen.getByRole('link', { name: /Download the free PDF/i }))
     expect(payoff).toContainElement(screen.getByRole('checkbox'))
   })
 
+  it('uses visitor-facing copy and keeps the email field empty through scoring', () => {
+    const { container } = render(<DecisionTraceability />)
+    expect(screen.getByText('Choose a recent product, policy, or investment decision. Answer four questions about the record behind it.')).toBeVisible()
+    expect(screen.getByText('If you request a follow-up, we will use your email and score to respond.', { exact: false })).toBeVisible()
+    const email = screen.getByRole('textbox', { name: 'Work email' })
+    expect(email).toHaveValue('')
+    expect(email).not.toHaveAttribute('placeholder')
+    completeScore()
+    expect(email).toHaveValue('')
+    expect(screen.getByRole('heading', { name: 'Make ownership visible.' })).toBeVisible()
+    expect(container.textContent).not.toMatch(/in-product estimates|campaign attribution|individual answers|this browser|game screens stay beside|capture is temporarily unavailable/i)
+  })
+
   it('shows a usable result and PDF before consent, then fails visibly on persistence error', async () => {
-    const fetch = vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: 'We could not save your request.' }) })
+    const fetch = vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: 'We cannot take your follow-up request right now. Your score and worksheet are still available. Please try later.' }) })
     vi.stubGlobal('fetch', fetch)
     render(<DecisionTraceability />)
     expect(screen.getByRole('link', { name: /Download the free PDF/i })).toHaveAttribute('href', '/decision-traceability-worksheet.pdf')
@@ -64,7 +77,7 @@ describe('Decision Traceability Scorecard', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /Work email/i }), { target: { value: 'review@example.invalid' } })
     fireEvent.click(screen.getByRole('checkbox'))
     fireEvent.click(screen.getByRole('button', { name: /Request follow-up/i }))
-    await waitFor(() => expect(screen.getByText('We could not save your request.')).toBeVisible())
+    await waitFor(() => expect(screen.getByText(/We cannot take your follow-up request right now/)).toBeVisible())
     expect(screen.getByRole('button', { name: /Request follow-up/i })).toBeEnabled()
     expect(fetch).toHaveBeenCalledWith('/api/decision-traceability', expect.objectContaining({ method: 'POST' }))
     const sent = JSON.parse(fetch.mock.calls[0][1].body)
