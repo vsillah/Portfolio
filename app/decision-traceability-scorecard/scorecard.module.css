@@ -57,3 +57,59 @@
 .bridgeChecks span{display:block;margin-top:5px;color:#f5e8d6;font-size:13px}
 @media(max-width:900px){.hero{grid-template-columns:1fr;gap:52px}.heroCopy{justify-self:start}.heroVisual{max-width:740px}.proofStep{grid-template-columns:1fr}.proofStep figcaption{padding:17px 2px 4px}}
 @media(max-width:650px){.header{height:86px}.productBrand{gap:9px;font-size:13px}.productBrand small{font-size:9px;letter-spacing:.22em}.castleLogo{width:48px;height:48px;border-radius:11px}.publisher{gap:5px;font-size:9px}.publisher strong{font-size:9px}.publisherLogo{width:18px}.hero{padding-top:42px;padding-bottom:64px;gap:42px}.hero h1{font-size:clamp(47px,11.4vw,63px)}.heroOffer{font-size:23px}.heroVisual{margin-right:14px;box-shadow:12px 12px 0 #5c3d2d}.visualCaption{font-size:8px}.visualCaption strong{font-size:20px;margin-left:17px}.proof{padding-top:66px;padding-bottom:66px}.proofIntro{text-align:left;margin-bottom:30px}.proof h2{font-size:45px}.proofStep{padding:12px;margin-bottom:24px}.proofStep h3{font-size:39px}.bridgeChecks{grid-template-columns:1fr 1fr;gap:7px}.story h2{font-size:40px}}
+
+/* The proof screens and the four checks share one continuous workspace. */
+.journey{max-width:1320px;margin:auto;padding:64px clamp(24px,5vw,80px) 70px;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:22px 28px;align-items:stretch}
+.journeyIntro{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;column-gap:45px;align-items:end;margin-bottom:8px}
+.journeyIntro .eyebrow,.journeyIntro h2,.journeyIntro>p:not(.eyebrow){grid-column:1}
+.journeyIntro .eyebrow{margin:0}
+.journeyIntro h2{font-family:var(--font-cormorant),serif;font-size:clamp(43px,4vw,61px);font-weight:500;letter-spacing:0;line-height:1.04;margin:10px 0}
+.journeyIntro>p:not(.eyebrow){color:#526071;font-size:14px;line-height:1.55;max-width:690px;margin:0}
+.journeyIntro .progress{grid-column:2;grid-row:1/4;margin:0 0 5px;align-self:end;white-space:nowrap}
+.gameFrame{margin:0;min-width:0;padding:12px;background:#2d241f;color:#f7e7d0;display:flex;flex-direction:column;justify-content:flex-start}
+.gameFrame img{display:block;width:100%;height:auto;object-fit:contain;border:1px solid #604b3e}
+.gameFrame figcaption{display:grid;grid-template-columns:1fr auto;column-gap:12px;row-gap:4px;padding:14px 4px 3px}
+.gameFrame figcaption strong{grid-column:1/-1;color:#dfaf7f;font-family:var(--font-orbitron),sans-serif;font-size:9px;letter-spacing:.08em}
+.gameFrame figcaption span{font-size:12px;line-height:1.45;color:#e4d3c0}
+.gameFrame a{color:#f1c890;border-bottom:1px solid currentColor;font-size:10px;font-weight:700;white-space:nowrap;align-self:end}
+.gameFrame a:focus-visible{outline:2px solid #f1c890;outline-offset:3px}
+.questionPair{display:grid;grid-template-columns:1fr;gap:14px;min-width:0;align-content:start}
+.questionPair .question{padding:14px}
+.questionPair .question legend{gap:10px;margin-bottom:9px}
+.questionPair .question legend strong{font-size:22px}
+.questionPair .number{font-size:30px}
+.questionPair .options{gap:5px}
+.questionPair .option{padding:7px 9px;gap:9px}
+.questionPair .option strong{font-size:11px}
+.questionPair .option small{font-size:10px}
+.payoff{background:#e9e2cf;padding:48px clamp(24px,5vw,80px) 55px}
+.payoffMain{max-width:1230px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:35px;align-items:stretch}
+.payoff .result,.payoff .download,.payoff .capture{max-width:none;margin:0;padding:0}
+.payoff .result{background:transparent;grid-template-columns:118px 1fr;gap:20px;align-items:start}
+.payoff .resultScore{padding-right:15px}
+.payoff .resultScore span{font-size:80px}
+.payoff .resultScore span small{font-size:23px}
+.payoff .resultScore p{font-size:9px;line-height:1.4}
+.payoff .result h2,.payoff .download h2{font-size:clamp(34px,3vw,46px);line-height:1.04;margin:8px 0 10px}
+.payoff .resultCopy>p:not(.eyebrow),.payoff .download p:not(.eyebrow){font-size:13px;line-height:1.55}
+.payoff .resultAction{margin-top:10px}
+.payoff .download{display:grid;grid-template-columns:minmax(0,1fr) 175px;gap:18px;align-items:start;border-left:1px solid #c6b78d;padding-left:32px}
+.payoff .download .secondary{gap:12px;margin-top:8px;font-size:11px}
+.payoff .download .smallPrint{font-size:10px;margin-top:5px}
+.payoff .paperPreview{padding:17px 15px;min-height:0;transform:none;box-shadow:6px 7px 0 #d6c9aa}
+.payoff .paperPreview span,.payoff .paperPreview small{font-size:7px;letter-spacing:.06em}
+.payoff .paperPreview h3{font-size:30px;margin:12px 0 8px;line-height:1}
+.payoff .paperPreview div{font-size:9px;padding:7px 0}
+.payoff .paperPreview small{margin-top:9px}
+.payoff .capture{max-width:1230px;margin:38px auto 0;background:#2d241f;display:grid;grid-template-columns:.75fr 1.25fr;gap:30px;padding:28px 32px;align-items:start}
+.payoff .capture>div{justify-self:start;max-width:370px}
+.payoff .capture h2{font-size:36px;margin:7px 0 9px;line-height:1}
+.payoff .capture p:not(.eyebrow){font-size:12px;line-height:1.5}
+.payoff .capture form{max-width:none}
+.payoff .capture input[type=email]{padding:12px}
+.payoff .capture .consent{margin:11px 0 14px;font-size:11px}
+.payoff .capture .primary{padding:12px 18px;min-width:200px}
+.payoff .capture .smallPrint{font-size:10px;margin-top:10px}
+@media(max-width:1200px){.questionPair{grid-template-columns:1fr}.questionPair .question legend strong{font-size:24px}}
+@media(max-width:900px){.journey{grid-template-columns:1fr;gap:15px;padding-top:52px;padding-bottom:55px}.journeyIntro{grid-column:1;grid-template-columns:1fr;margin-bottom:5px}.journeyIntro .progress{grid-column:1;grid-row:auto;justify-self:start;margin-top:13px}.gameFrame{max-width:700px}.questionPair{grid-template-columns:1fr 1fr}.payoffMain{grid-template-columns:1fr}.payoff .download{border-left:0;border-top:1px solid #c6b78d;padding:22px 0 0}.payoff .capture{grid-template-columns:1fr 1.2fr}}
+@media(max-width:650px){.hero{padding-bottom:48px;gap:30px}.hero h1{font-size:clamp(43px,10.6vw,60px)}.heroOffer{margin-top:20px}.hero .primary{margin-top:20px}.journey{padding-top:43px;padding-bottom:46px}.journeyIntro h2{font-size:43px}.gameFrame{padding:9px}.gameFrame figcaption{grid-template-columns:1fr;gap:5px;padding:11px 2px 2px}.gameFrame a{justify-self:start;margin-top:3px}.questionPair{grid-template-columns:1fr;gap:11px}.questionPair .question{padding:17px}.questionPair .question legend{margin-bottom:11px}.questionPair .question legend strong{font-size:23px}.questionPair .option{padding:9px 10px}.payoff{padding-top:34px;padding-bottom:36px}.payoff .result{grid-template-columns:96px 1fr;gap:13px}.payoff .resultScore{border-bottom:0;border-right:1px solid #c6b78d;padding:0 12px 0 0}.payoff .resultScore span{font-size:58px;white-space:nowrap}.payoff .resultScore span small{font-size:15px}.payoff .resultScore p{font-size:7px}.payoff .result h2,.payoff .download h2{font-size:35px}.payoff .download{grid-template-columns:1fr 120px;gap:12px}.payoff .paperPreview{padding:11px 9px}.payoff .paperPreview h3{font-size:25px}.payoff .paperPreview div{font-size:8px;padding:5px 0}.payoff .capture{grid-template-columns:1fr;margin-top:25px;padding:22px;gap:14px}.payoff .capture h2{font-size:32px}.payoff .capture .primary{width:100%}}

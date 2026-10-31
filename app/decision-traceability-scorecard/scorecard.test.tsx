@@ -37,6 +37,21 @@ describe('Decision Traceability Scorecard', () => {
     ])
   })
 
+  it('pairs game evidence with both question groups and keeps score, PDF, and consent together', () => {
+    render(<DecisionTraceability />)
+    const assessment = screen.getByRole('region', { name: 'Pick one decision worth revisiting.' })
+    const pieces = Array.from(assessment.children)
+    expect(pieces.map((element) => element.tagName)).toEqual(['DIV', 'FIGURE', 'DIV', 'FIGURE', 'DIV'])
+    expect(pieces[1]).toContainElement(screen.getByRole('img', { name: /Explore after e4: board position/i }))
+    expect(pieces[2].querySelectorAll('fieldset')).toHaveLength(2)
+    expect(pieces[3]).toContainElement(screen.getByRole('img', { name: /after Black plays e5: board/i }))
+    expect(pieces[4].querySelectorAll('fieldset')).toHaveLength(2)
+    const payoff = screen.getByRole('region', { name: 'Your score and worksheet' })
+    expect(payoff).toContainElement(screen.getByRole('heading', { name: 'Your next step appears here.' }))
+    expect(payoff).toContainElement(screen.getByRole('link', { name: /Download the free PDF/i }))
+    expect(payoff).toContainElement(screen.getByRole('checkbox'))
+  })
+
   it('shows a usable result and PDF before consent, then fails visibly on persistence error', async () => {
     const fetch = vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: 'We could not save your request.' }) })
     vi.stubGlobal('fetch', fetch)
