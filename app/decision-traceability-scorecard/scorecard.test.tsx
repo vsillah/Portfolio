@@ -18,34 +18,57 @@ describe('Decision Traceability Scorecard', () => {
   })
   afterEach(() => { vi.unstubAllGlobals() })
 
-  it('shows the owned Dark Castle identity and three distinct accessible gameplay states', () => {
+  it('shows the owned Dark Castle identity and six distinct capability flows', () => {
     render(<DecisionTraceability />)
     expect(screen.getByRole('img', { name: 'Dark Castle Chess castle logo' })).toHaveAttribute('src', '/lead-magnets/dark-castle-chess-logo.png')
     expect(screen.getByText('DARK CASTLE')).toBeVisible()
     expect(screen.getByText('Created by')).toBeVisible()
-    const gameplay = [
-      screen.getByRole('img', { name: /game start screen showing the board, move guidance, and notation/i }),
-      screen.getByRole('img', { name: /Explore after e4: board position, Black to move, move guidance, and e4 in notation/i }),
-      screen.getByRole('img', { name: /after Black plays e5: board, notation showing e4 and e5, move guidance, and candidate moves/i }),
-    ]
-    expect(new Set(gameplay.map((image) => image.getAttribute('src'))).size).toBe(3)
-    for (const image of gameplay) expect(image).toBeVisible()
-    expect(screen.getAllByRole('link', { name: /View full-size gameplay screen/i }).map((link) => link.getAttribute('href'))).toEqual([
-      '/review-assets/social-content/storyboard-review/explore-start.jpg',
-      '/review-assets/social-content/storyboard-review/explore-position.jpg',
-      '/review-assets/social-content/storyboard-review/explore-computer.jpg',
-    ])
+    expect(screen.getByRole('img', { name: 'Dark Castle Replay showing a selected knight move, its path, and move history' })).toBeVisible()
+    const flows = screen.getByRole('region', { name: 'Keep the lesson close to the move.' })
+    const gallery = screen.getByRole('region', { name: 'Dark Castle capability gallery' })
+    expect(screen.getByRole('img', { name: 'Dark Castle Replay showing a selected knight move, its path, and move history' })).not.toHaveAttribute('src', gallery.querySelector('article img')?.getAttribute('src'))
+    const proofs = new Set<string>()
+    for (const [index, heading] of ['A path through the ideas', 'See the reason behind a move', 'Keep a mistake worth studying', 'Turn a finding into a next step', 'Follow the pieces through a line', 'Compare the move in front of you'].entries()) {
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`0${index + 1}`) }))
+      expect(screen.getByRole('heading', { name: heading })).toBeVisible()
+      const media = gallery.querySelector('.galleryMedia') || gallery.querySelector('article')
+      for (const image of Array.from(media!.querySelectorAll('img'))) proofs.add(image.getAttribute('src') || '')
+    }
+    expect(proofs.size).toBeGreaterThanOrEqual(6)
+    expect(screen.getByText('6 of 6')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Next capability' }))
+    expect(screen.getByText('1 of 6')).toBeVisible()
+    fireEvent.keyDown(gallery, { key: 'End' })
+    expect(screen.getByText('6 of 6')).toBeVisible()
+    fireEvent.keyDown(gallery, { key: 'ArrowRight' })
+    expect(screen.getByText('1 of 6')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'A connected practice thread.' })).toBeVisible()
+    expect(flows).toHaveTextContent('Chess.com')
+    expect(flows).toHaveTextContent('Lichess')
+    expect(flows.textContent).not.toMatch(/Synthetic QA|local learner|development build|production|preview|fixture/i)
   })
 
-  it('pairs game evidence with both question groups and keeps score, PDF, and consent together', () => {
+  it('covers every major section with product imagery and gives the clip a silent poster and fallback', () => {
+    const { container } = render(<DecisionTraceability />)
+    for (const name of ['Dark Castle Replay showing a selected knight move, its path, and move history', 'Dark Castle Saved games with the Practice tab selected', "Dark Castle variation board showing a piece's prior position", 'Dark Castle Coach review showing a move to study', 'Dark Castle walk-through explaining the next move', 'Dark Castle My Mistakes practice filter']) expect(screen.getByRole('img', { name })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: /04 COACH/ }))
+    const video = screen.getByLabelText('Dark Castle Coach move review and board in motion')
+    expect(video).toHaveAttribute('poster', '/lead-magnets/dark-castle-capabilities/coach-loop-poster.jpg')
+    expect((video as HTMLVideoElement).muted).toBe(true)
+    expect(video).toHaveAttribute('loop')
+    expect(video).toHaveAttribute('playsinline')
+    fireEvent.error(video)
+    expect(screen.getByRole('img', { name: 'Dark Castle Coach move review and board' })).toBeVisible()
+    expect(container.textContent).not.toMatch(/Synthetic QA|fixture|production build|internal note/i)
+  })
+
+  it('keeps both question groups, score, PDF, and consent together', () => {
     render(<DecisionTraceability />)
     const assessment = screen.getByRole('region', { name: 'Pick one decision worth revisiting.' })
     const pieces = Array.from(assessment.children)
-    expect(pieces.map((element) => element.tagName)).toEqual(['DIV', 'FIGURE', 'DIV', 'FIGURE', 'DIV'])
-    expect(pieces[1]).toContainElement(screen.getByRole('img', { name: /Explore after e4: board position/i }))
+    expect(pieces.map((element) => element.tagName)).toEqual(['DIV', 'DIV', 'DIV'])
+    expect(pieces[1].querySelectorAll('fieldset')).toHaveLength(2)
     expect(pieces[2].querySelectorAll('fieldset')).toHaveLength(2)
-    expect(pieces[3]).toContainElement(screen.getByRole('img', { name: /after Black plays e5: board/i }))
-    expect(pieces[4].querySelectorAll('fieldset')).toHaveLength(2)
     const payoff = screen.getByRole('region', { name: 'Your score and worksheet' })
     expect(payoff).toContainElement(screen.getByRole('heading', { name: 'See what needs attention.' }))
     expect(payoff).toContainElement(screen.getByRole('link', { name: /Download the free PDF/i }))
