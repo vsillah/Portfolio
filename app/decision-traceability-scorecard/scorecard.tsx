@@ -124,7 +124,7 @@ export default function DecisionTraceability() {
         <a className={styles.primary} href="#assessment">Score a decision <span aria-hidden>↗</span></a>
         <p className={styles.heroNote}>Four checks. About three minutes. See your score before sharing your email.</p>
       </div>
-      <figure className={styles.heroProduct}><Image src="/lead-magnets/dark-castle-capabilities/drill.jpg" alt="Dark Castle Drill lesson with a chess position and study controls" width={780} height={715} priority /><figcaption><span>LEARN → PLAY → REVIEW → PRACTICE</span><strong>A move can become the next lesson.</strong></figcaption></figure>
+      <figure className={styles.heroProduct}><Image src="/lead-magnets/dark-castle-capabilities/hero-replay.jpg" alt="Dark Castle Replay showing a selected knight move, its path, and move history" width={390} height={500} priority /><figcaption><span>LEARN → PLAY → REVIEW → PRACTICE</span><strong>A move can become the next lesson.</strong></figcaption></figure>
     </section>
 
     <section className={styles.capabilities} aria-labelledby="capabilities-heading">

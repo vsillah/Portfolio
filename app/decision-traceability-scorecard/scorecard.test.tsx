@@ -23,9 +23,10 @@ describe('Decision Traceability Scorecard', () => {
     expect(screen.getByRole('img', { name: 'Dark Castle Chess castle logo' })).toHaveAttribute('src', '/lead-magnets/dark-castle-chess-logo.png')
     expect(screen.getByText('DARK CASTLE')).toBeVisible()
     expect(screen.getByText('Created by')).toBeVisible()
-    expect(screen.getByRole('img', { name: 'Dark Castle Drill lesson with a chess position and study controls' })).toBeVisible()
+    expect(screen.getByRole('img', { name: 'Dark Castle Replay showing a selected knight move, its path, and move history' })).toBeVisible()
     const flows = screen.getByRole('region', { name: 'Keep the lesson close to the move.' })
     const gallery = screen.getByRole('region', { name: 'Dark Castle capability gallery' })
+    expect(screen.getByRole('img', { name: 'Dark Castle Replay showing a selected knight move, its path, and move history' })).not.toHaveAttribute('src', gallery.querySelector('article img')?.getAttribute('src'))
     const proofs = new Set<string>()
     for (const [index, heading] of ['A path through the ideas', 'See the reason behind a move', 'Keep a mistake worth studying', 'Turn a finding into a next step', 'Follow the pieces through a line', 'Compare the move in front of you'].entries()) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`0${index + 1}`) }))
@@ -49,7 +50,7 @@ describe('Decision Traceability Scorecard', () => {
 
   it('covers every major section with product imagery and gives the clip a silent poster and fallback', () => {
     const { container } = render(<DecisionTraceability />)
-    for (const name of ['Dark Castle Drill lesson with a chess position and study controls', 'Dark Castle Saved games with the Practice tab selected', "Dark Castle variation board showing a piece's prior position", 'Dark Castle Coach review showing a move to study', 'Dark Castle walk-through explaining the next move', 'Dark Castle My Mistakes practice filter']) expect(screen.getByRole('img', { name })).toBeVisible()
+    for (const name of ['Dark Castle Replay showing a selected knight move, its path, and move history', 'Dark Castle Saved games with the Practice tab selected', "Dark Castle variation board showing a piece's prior position", 'Dark Castle Coach review showing a move to study', 'Dark Castle walk-through explaining the next move', 'Dark Castle My Mistakes practice filter']) expect(screen.getByRole('img', { name })).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: /04 COACH/ }))
     const video = screen.getByLabelText('Dark Castle Coach move review and board in motion')
     expect(video).toHaveAttribute('poster', '/lead-magnets/dark-castle-capabilities/coach-loop-poster.jpg')
