@@ -5,7 +5,7 @@ import { socialContentDecisionHref } from '@/lib/social-content-decision-routing
 
 export const dynamic = 'force-dynamic'
 
-const PREPARABLE_GATES = new Set(['asset_packet', 'privacy'])
+const PREPARABLE_GATES = new Set(['visual_review', 'asset_packet', 'privacy'])
 
 function asString(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
@@ -53,7 +53,7 @@ export async function POST(
   )
   if (prepareError || !packet) {
     const message = prepareError?.message || 'Failed to prepare the internal review packet'
-    const conflict = /stale|required|current gate|unsupported/i.test(message)
+    const conflict = /stale|required|current gate|unsupported|mismatch|missing|pending|malformed|duplicate|ambiguous|not approved|not bound/i.test(message)
     return NextResponse.json({ error: message }, { status: conflict ? 409 : 500 })
   }
 
