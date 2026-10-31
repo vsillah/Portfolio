@@ -15,16 +15,17 @@ const capabilities = [
   { step: '03', label: 'REVIEW', title: 'Keep a mistake worth studying', trigger: 'Review a game', response: 'Save a move to My Mistakes, then return to it in practice.', value: 'The next session starts with a real choice you made.', scene: 'mistake' },
   { step: '04', label: 'COACH', title: 'Turn a finding into a next step', trigger: 'Open move review', response: 'Coach points to a move to study and offers a way back into it.', value: 'The explanation has somewhere to go.', scene: 'coach' },
   { step: '05', label: 'VARIATION', title: 'Follow the pieces through a line', trigger: 'Compare a variation', response: 'Piece silhouettes and paths keep the board connected to its earlier position.', value: 'You can track what changed without losing the piece.', scene: 'variation' },
-  { step: '06', label: 'EXPLORE', title: 'Compare the move in front of you', trigger: 'Study a position', response: 'Candidates, notation, and hints give the choice more context.', value: 'You can revisit the move and the reason together.', scene: 'explore' },
+  { step: '06', label: 'EXPLORE', title: 'Compare the move in front of you', trigger: 'Study a position', response: 'Candidates shows evaluated moves and continuation lines beside the position.', value: 'You can revisit the move and the reason together.', scene: 'explore' },
 ] as const
 
 function CapabilityScene({ scene }: { scene: typeof capabilities[number]['scene'] }) {
-  if (scene === 'path') return <div className={styles.pathScene} aria-hidden><span>01 · The board</span><span>04 · Piece safety</span><span>07 · Planning</span><strong>10 · Black vs 1.e4</strong><small>DRILL <b>Hint</b> <b>Answer</b></small></div>
-  if (scene === 'walk') return <div className={styles.walkScene} aria-hidden><span>WALK-THROUGH</span><div className={styles.miniBoard}><i>♜</i><i>♞</i><i>♝</i><i>♛</i><i>♚</i><i>♝</i><i>♞</i><i>♜</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i><i>♟</i></div><p>Move → reason → next move</p></div>
-  if (scene === 'mistake') return <div className={styles.mistakeScene} aria-hidden><span>GAME REVIEW</span><strong>One move to revisit</strong><div>Save to My Mistakes <b>↗</b></div><div>Practice this position <b>→</b></div></div>
-  if (scene === 'coach') return <div className={styles.coachScene} aria-hidden><span>COACH · MOVE REVIEW</span><strong>3. Nxe5</strong><p>One move to study</p><div><b>Study</b><b>Again</b></div></div>
-  if (scene === 'variation') return <div className={styles.variationScene} aria-hidden><span>VARIATION VIEW</span><div><i>♞</i><em>··········→</em><i>♞</i></div><p>Same piece · new square</p></div>
-  return <div className={styles.exploreScene} aria-hidden><span>EXPLORE</span><div><b>Candidate moves</b><strong>1. e4</strong><strong>1. d4</strong><strong>1. Nf3</strong></div><p>Board · notation · hint</p></div>
+  const base = '/lead-magnets/dark-castle-capabilities/'
+  if (scene === 'path') return <div className={`${styles.sceneFrame} ${styles.drillCapture}`}><Image src={`${base}drill.jpg`} alt="Dark Castle Drill lesson with a Black-to-move board, Hint and Answer controls, and the Black versus 1.e4 lesson stage" width={780} height={715} sizes="(max-width: 650px) 90vw, 45vw" /></div>
+  if (scene === 'walk') return <div className={`${styles.sceneFrame} ${styles.walkCapture}`}><Image src={`${base}walkthrough.jpg`} alt="Dark Castle Walk-through lesson stages and the starting board" width={730} height={675} sizes="(max-width: 650px) 90vw, 45vw" /><Image src={`${base}walk-step.jpg`} alt="Walk-through explanation for the next pawn move with Next part and Play from here controls" width={725} height={128} sizes="(max-width: 650px) 80vw, 40vw" /></div>
+  if (scene === 'mistake') return <div className={`${styles.sceneFrame} ${styles.mistakeCapture}`}><Image src={`${base}mistake-save.jpg`} alt="Save for practice action from a reviewed move" width={325} height={80} sizes="(max-width: 650px) 55vw, 25vw" /><span aria-hidden>↓</span><div><Image src={`${base}mistake-library-heading.jpg`} alt="Dark Castle Saved games with the Practice tab selected" width={520} height={140} sizes="(max-width: 650px) 80vw, 39vw" /><Image src={`${base}mistake-library-filter.jpg`} alt="All practice and My Mistakes filters" width={520} height={85} sizes="(max-width: 650px) 80vw, 39vw" /></div></div>
+  if (scene === 'coach') return <div className={`${styles.sceneFrame} ${styles.coachCapture}`}><Image src={`${base}coach-review.jpg`} alt="Dark Castle Coach move review showing a move to study, with Study and Again actions" width={740} height={490} sizes="(max-width: 650px) 90vw, 45vw" /></div>
+  if (scene === 'variation') return <div className={`${styles.sceneFrame} ${styles.variationCapture}`}><Image src={`${base}variation.jpg`} alt="Dark Castle variation board with a highlighted knight and piece silhouettes showing earlier squares" width={425} height={495} sizes="(max-width: 650px) 80vw, 35vw" /></div>
+  return <div className={`${styles.sceneFrame} ${styles.candidatesCapture}`}><Image src={`${base}candidates.jpg`} alt="Dark Castle Candidates panel with three evaluated continuation lines for Black to move" width={745} height={840} sizes="(max-width: 650px) 80vw, 38vw" /></div>
 }
 
 export default function DecisionTraceability() {
@@ -116,12 +117,13 @@ export default function DecisionTraceability() {
     </section>
 
     <section className={styles.capabilities} aria-labelledby="capabilities-heading">
-      <div className={styles.capabilitiesIntro}><p className={styles.eyebrow}>WHAT DARK CASTLE DOES DIFFERENTLY</p><h2 id="capabilities-heading">Keep the lesson close to the move.</h2><p>Lessons, play, review, and practice connect around choices on the board. These illustrations draw on Dark Castle’s browser and iOS builds.</p></div>
+      <div className={styles.capabilitiesIntro}><p className={styles.eyebrow}>WHAT DARK CASTLE DOES DIFFERENTLY</p><h2 id="capabilities-heading">Keep the lesson close to the move.</h2><p>Lessons, play, review, and practice connect around choices on the board. These views come from Dark Castle’s browser and iOS builds.</p></div>
       <div className={styles.capabilityGrid}>{capabilities.map((item) => <article className={styles.capabilityCard} key={item.step}>
         <div className={styles.capabilityTop}><span>{item.step} / {item.label}</span><h3>{item.title}</h3></div>
         <CapabilityScene scene={item.scene} />
         <div className={styles.capabilityDetail}><p><b>{item.trigger}.</b> {item.response}</p><p>{item.value}</p></div>
       </article>)}</div>
+      <aside className={styles.comparison} aria-labelledby="comparison-heading"><div><p className={styles.eyebrow}>A PLACE IN THE CHESS WORLD</p><h3 id="comparison-heading">A connected practice thread.</h3><p>Chess.com and Lichess offer broad places to play and study. Dark Castle focuses this experience on carrying a lesson into play, bringing a move back through review, and turning that finding into the next practice position.</p></div><ul><li><strong>Chess.com</strong><span>Lessons, Game Review, and MoveTrainer give players several ways to study and retry.</span></li><li><strong>Lichess</strong><span>Analysis, studies, game-based puzzles, and learn-from-mistakes tools support its broad play community.</span></li><li><strong>Dark Castle</strong><span>Drill, Walk-through, review, My Mistakes, and Coach keep the learning loop close to the board.</span></li></ul></aside>
     </section>
 
     <section id="assessment" className={styles.journey} aria-labelledby="assessment-heading">

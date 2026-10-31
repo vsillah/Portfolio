@@ -26,9 +26,16 @@ describe('Decision Traceability Scorecard', () => {
     expect(screen.getByRole('img', { name: 'Dark Castle learning loop: learn, play, review, and practice' })).toBeVisible()
     const flows = screen.getByRole('region', { name: 'Keep the lesson close to the move.' })
     expect(flows.querySelectorAll('article')).toHaveLength(6)
+    const proofImages = Array.from(flows.querySelectorAll('article img'))
+    expect(proofImages).toHaveLength(9)
+    expect(new Set(proofImages.map((image) => image.getAttribute('src'))).size).toBe(9)
+    expect(proofImages.every((image) => image.getAttribute('src')?.startsWith('/lead-magnets/dark-castle-capabilities/'))).toBe(true)
     for (const heading of ['A path through the ideas', 'See the reason behind a move', 'Keep a mistake worth studying', 'Turn a finding into a next step', 'Follow the pieces through a line', 'Compare the move in front of you']) {
       expect(screen.getByRole('heading', { name: heading })).toBeVisible()
     }
+    expect(screen.getByRole('heading', { name: 'A connected practice thread.' })).toBeVisible()
+    expect(flows).toHaveTextContent('Chess.com')
+    expect(flows).toHaveTextContent('Lichess')
     expect(flows.textContent).not.toMatch(/Synthetic QA|local learner|development build|production|preview|fixture/i)
   })
 
