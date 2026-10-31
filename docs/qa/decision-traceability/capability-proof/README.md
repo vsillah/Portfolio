@@ -1,10 +1,10 @@
 # Dark Castle capability proof review
 
-Current code commit: `5dbd76b4` on `codex/dark-castle-capability-proof`. Captured 2026-10-31 from the production-style local build at:
+Current code commit: `1f3fbddd` on `codex/dark-castle-capability-proof`. Captured 2026-10-31 from the production-style local build at:
 
-`http://localhost:3131/decision-traceability-scorecard?utm_source=linkedin&utm_campaign=dark_castle_decision_traceability&rev=5dbd76b4&presentation=production`
+`http://localhost:3131/decision-traceability-scorecard?utm_source=linkedin&utm_campaign=dark_castle_decision_traceability&rev=1f3fbddd&presentation=production`
 
-The current evidence is in [`revision-5dbd76b4/`](./revision-5dbd76b4/). The older files in this directory belong to commit `fa11ad9456d63d3a99ff53c107403cd82dbbc728` and are retained as superseded evidence. They are not the current Human QA artifact.
+The current evidence is in [`revision-1f3fbddd/`](./revision-1f3fbddd/). The root-level files belong to commit `fa11ad9456d63d3a99ff53c107403cd82dbbc728`; `revision-5dbd76b4/` belongs to the earlier gallery revision. They are retained as superseded evidence and are not the current Human QA artifact.
 
 ## Current evidence
 
