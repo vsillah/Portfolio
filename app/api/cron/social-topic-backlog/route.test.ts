@@ -1,12 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const mocks = vi.hoisted(() => ({
-  runSocialTopicBacklogDiscovery: vi.fn(),
-}))
+const mocks = vi.hoisted(() => {
+  class SocialTopicCoverageError extends Error {
+    coverageReport: { status: string; blockers: string[] }
+
+    constructor(coverageReport: { status: string; blockers: string[] }) {
+      super('relation secret_catalog is missing')
+      this.name = 'SocialTopicCoverageError'
+      this.coverageReport = coverageReport
+    }
+  }
+
+  return {
+    runSocialTopicBacklogDiscovery: vi.fn(),
+    SocialTopicCoverageError,
+  }
+})
 
 vi.mock('@/lib/social-topic-backlog', () => ({
   runSocialTopicBacklogDiscovery: mocks.runSocialTopicBacklogDiscovery,
+  SocialTopicCoverageError: mocks.SocialTopicCoverageError,
 }))
 
 import { GET, POST } from './route'
@@ -64,5 +78,46 @@ describe('/api/cron/social-topic-backlog', () => {
       actorId: null,
       triggerSource: 'manual_cron_social_topic_backlog',
     })
+  })
+
+  it('rejects a bearer token that matches neither cron secret', async () => {
+    const response = await GET(new NextRequest('http://localhost/api/cron/social-topic-backlog', {
+      headers: { authorization: 'Bearer wrong-secret' },
+    }))
+
+    expect(response.status).toBe(401)
+    expect(mocks.runSocialTopicBacklogDiscovery).not.toHaveBeenCalled()
+  })
+
+  it('returns the closed coverage gate without the collector failure text', async () => {
+    mocks.runSocialTopicBacklogDiscovery.mockRejectedValueOnce(new mocks.SocialTopicCoverageError({
+      status: 'blocked',
+      blockers: ['[product_coverage_receipt_missing:agentified] Approve an Agentified summary.'],
+    }))
+
+    const response = await GET(new NextRequest('http://localhost/api/cron/social-topic-backlog', {
+      headers: { authorization: 'Bearer cron-secret' },
+    }))
+
+    expect(response.status).toBe(422)
+    const body = await response.json()
+    expect(body.error).toBe('Topic backlog refresh is blocked until the required approved source receipts are available.')
+    expect(body.blockers).toEqual([
+      '[product_coverage_receipt_missing:agentified] Approve an Agentified summary.',
+    ])
+    expect(body.coverage_report.status).toBe('blocked')
+    expect(JSON.stringify(body)).not.toContain('secret_catalog')
+  })
+
+  it('does not echo a non-error refresh failure', async () => {
+    mocks.runSocialTopicBacklogDiscovery.mockRejectedValueOnce('relation secret_catalog is missing')
+
+    const response = await POST(new NextRequest('http://localhost/api/cron/social-topic-backlog', {
+      method: 'POST',
+      headers: { authorization: 'Bearer n8n-secret' },
+    }))
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({ error: 'Social topic backlog refresh failed' })
   })
 })
