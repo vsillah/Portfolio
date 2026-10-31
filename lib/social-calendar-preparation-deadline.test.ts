@@ -24,6 +24,28 @@ describe('calendar preparation deadline', () => {
     expect(preparationAttempt({ previous: blocked, evidenceVersion: 'version-a', ready: true })).toEqual({ shouldCheck: false, retryCount: 1 })
   })
 
+  it('keeps configured leads inside 4 to 30 days and ignores invalid schedules', () => {
+    expect(preparationDeadline({ scheduled_for, metadata: { preparation_lead_days: 4 } })).toBe('2026-10-16T12:00:00.000Z')
+    expect(preparationDeadline({ scheduled_for, metadata: { preparation_lead_days: 30 } })).toBe('2026-09-20T12:00:00.000Z')
+    expect(preparationDeadline({ scheduled_for, metadata: { preparation_lead_days: 31 } })).toBe('2026-10-14T12:00:00.000Z')
+    expect(preparationDeadline({ scheduled_for, metadata: { preparation_lead_days: 9.5 } })).toBe('2026-10-14T12:00:00.000Z')
+    expect(preparationDeadline({ scheduled_for, metadata: { preparation_lead_days: '9' } })).toBe('2026-10-14T12:00:00.000Z')
+    expect(preparationDeadline({ scheduled_for, metadata: [] })).toBe('2026-10-14T12:00:00.000Z')
+    expect(preparationDeadline({ scheduled_for: 'not-a-date' })).toBeNull()
+    expect(preparationDeadline({ scheduled_for, metadata: { review_due_at: '2026-10-12T00:00:00.000Z' } })).toBe('2026-10-12T00:00:00.000Z')
+    expect(preparationDeadline({ scheduled_for, metadata: { review_due_at: '2026-10-18T00:00:00.000Z' } })).toBe('2026-10-14T12:00:00.000Z')
+  })
+
+  it('starts the first check at zero and does not inherit a retry from a non-blocked state', () => {
+    expect(preparationAttempt({ evidenceVersion: 'version-a', ready: false })).toEqual({ shouldCheck: true, retryCount: 0 })
+    expect(preparationAttempt({
+      previous: { status: 'pending', evidence_version: 'version-a', retry_count: 4 },
+      evidenceVersion: 'version-a',
+      ready: false,
+    })).toEqual({ shouldCheck: true, retryCount: 0 })
+    expect(preparationAttempt({ evidenceVersion: 'version-a', ready: true })).toEqual({ shouldCheck: false, retryCount: 0 })
+  })
+
   it('allows one deterministic recheck for a materially changed evidence version', () => {
     const prior = { status: 'blocked', evidence_version: 'version-a', retry_count: 1 }
     expect(preparationAttempt({ previous: prior, evidenceVersion: 'version-b', ready: false })).toEqual({ shouldCheck: true, retryCount: 2 })
