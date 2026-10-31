@@ -1,0 +1,29 @@
+{
+  "version": "youtube-thumbnail-human-qa-selection/v1",
+  "receipt_id": "human-qa:dark-castle-youtube-master:thumbnail-selection:20261030:v1",
+  "status": "human_qa_approved",
+  "decided_at": "2026-10-30T09:40:53Z",
+  "campaign_identity": "dark-castle-chess",
+  "social_content_id": "c12378f2-36de-4bf7-8c5d-0ce754e727eb",
+  "content_version": "sha256:4b4126fe2388687c899530cdb9ee973e744d9e0ebfd2b6378ac6b3702000342a",
+  "candidate_set_version": "dark-castle-thumbnail-directions-v3",
+  "selected_direction": "C",
+  "selected_candidate_id": "accidental-success",
+  "selected_teaser": "RIGHT MOVE. WRONG REASON?",
+  "selected_asset_path": "/review-assets/social-content/dark-castle-youtube-master-2026-10-29/03-accidental-success-v2.png",
+  "selected_asset_sha256": "5aab7cf806aae27ddafe7042f74f12bdf7caa18f6155154d8e0e6f14c25af6f0",
+  "selection_reason": "Human QA selected the expressive skeptical-reaction direction because the face connects emotionally with the viewer while reinforcing the video's reasoning tension.",
+  "unselected_candidates": [
+    { "direction": "A", "candidate_id": "builder-doubt", "status": "review_evidence_only" },
+    { "direction": "B", "candidate_id": "board-remembered", "status": "review_evidence_only" }
+  ],
+  "boundaries": {
+    "approved_scope": "internal thumbnail selection only",
+    "provider_calls": "closed",
+    "uploads": "closed",
+    "platform_drafts": "closed",
+    "scheduling": "closed",
+    "publishing": "closed",
+    "external_sends": "closed"
+  }
+}

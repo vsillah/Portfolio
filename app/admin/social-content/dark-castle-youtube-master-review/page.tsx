@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 const assetRoot = '/review-assets/social-content/dark-castle-youtube-master-2026-10-29'
+const approvedThumbnailId = 'C' as const
 
 const thumbnails = [
   {
@@ -31,8 +32,9 @@ const thumbnails = [
 ]
 
 export default function DarkCastleYouTubeMasterReviewPage() {
-  const [selectedThumbnailId, setSelectedThumbnailId] = useState<'A' | 'B' | 'C'>('A')
+  const [selectedThumbnailId, setSelectedThumbnailId] = useState<'A' | 'B' | 'C'>(approvedThumbnailId)
   const selectedThumbnail = thumbnails.find((thumbnail) => thumbnail.id === selectedThumbnailId) ?? thumbnails[0]
+  const approvedThumbnail = thumbnails.find((thumbnail) => thumbnail.id === approvedThumbnailId) ?? thumbnails[2]
 
   return (
     <main className="mx-auto w-full max-w-[1480px] space-y-6 px-4 py-6 sm:px-6 lg:px-8" data-testid="dark-castle-youtube-master-review">
@@ -44,7 +46,7 @@ export default function DarkCastleYouTubeMasterReviewPage() {
             <span className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs font-semibold text-muted-foreground">External execution closed</span>
           </div>
           <h1 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">Dark Castle Chess YouTube master</h1>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">Review the customer-facing video and choose among three evidence-backed thumbnail styles. Operator receipts are separated below so internal provenance never appears in the published media.</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">Human QA approved Direction C. The other evidence-backed candidates remain selectable for comparison only, while operator receipts stay separated from the published media.</p>
         </div>
         <Link href="/admin/social-content/c12378f2-36de-4bf7-8c5d-0ce754e727eb?step=copy" className="text-sm font-semibold text-primary hover:underline">Open canonical record</Link>
       </header>
@@ -55,7 +57,7 @@ export default function DarkCastleYouTubeMasterReviewPage() {
           <h2 id="customer-output-heading" className="mt-1 text-xl font-semibold text-foreground">Final review master</h2>
         </div>
         <div className="overflow-hidden rounded-lg border border-border bg-black">
-          <video className="aspect-video w-full" controls preload="metadata" poster={`${assetRoot}/01-builder-doubt.png`}>
+          <video className="aspect-video w-full" controls preload="metadata" poster={`${assetRoot}/03-accidental-success-v2.png`}>
             <source src={`${assetRoot}/dark-castle-youtube-master.mp4`} type="video/mp4" />
           </video>
         </div>
@@ -89,7 +91,7 @@ export default function DarkCastleYouTubeMasterReviewPage() {
 
       <section aria-labelledby="thumbnail-heading" className="space-y-4 border-t border-border pt-6">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div><p className="text-xs font-semibold uppercase text-amber-300">Decision required</p><h2 id="thumbnail-heading" className="mt-1 text-xl font-semibold">Choose one thumbnail direction</h2></div>
+          <div><p className="text-xs font-semibold uppercase text-emerald-300">Human QA approved · Direction C</p><h2 id="thumbnail-heading" className="mt-1 text-xl font-semibold">Review the thumbnail directions</h2></div>
           <p className="text-sm text-muted-foreground">All three require distinct hero shots and passed 320×180 and 160×90 legibility checks.</p>
         </div>
         <fieldset className="grid gap-5 lg:grid-cols-3" aria-describedby="thumbnail-selection-status">
@@ -113,7 +115,7 @@ export default function DarkCastleYouTubeMasterReviewPage() {
               <div className="space-y-2 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-semibold">{thumbnail.id}. {thumbnail.name}</h3>
-                  <span className={`shrink-0 rounded border px-2 py-1 text-xs font-semibold ${selectedThumbnailId === thumbnail.id ? 'border-amber-300 bg-amber-300/15 text-amber-100' : 'border-border text-muted-foreground'}`}>{selectedThumbnailId === thumbnail.id ? 'Selected' : 'Select'}</span>
+                  <span className={`shrink-0 rounded border px-2 py-1 text-xs font-semibold ${thumbnail.id === approvedThumbnailId ? 'border-emerald-300 bg-emerald-300/15 text-emerald-100' : selectedThumbnailId === thumbnail.id ? 'border-amber-300 bg-amber-300/15 text-amber-100' : 'border-border text-muted-foreground'}`}>{thumbnail.id === approvedThumbnailId ? 'Approved' : selectedThumbnailId === thumbnail.id ? 'Previewing' : 'Preview'}</span>
                 </div>
                 <p className="text-sm font-semibold text-amber-200">{thumbnail.teaser}</p>
                 <p className="text-sm leading-5 text-muted-foreground">{thumbnail.rationale}</p>
@@ -123,8 +125,8 @@ export default function DarkCastleYouTubeMasterReviewPage() {
         </fieldset>
         <div id="thumbnail-selection-status" aria-live="polite" className="flex flex-col gap-2 border-l-4 border-amber-300 bg-amber-300/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-semibold text-foreground">Direction {selectedThumbnail.id} selected</p>
-            <p className="mt-1 text-sm text-muted-foreground">{selectedThumbnail.name} · {selectedThumbnail.teaser}</p>
+            <p className="font-semibold text-foreground">{selectedThumbnail.id === approvedThumbnailId ? `Direction ${approvedThumbnailId} approved` : `Previewing direction ${selectedThumbnail.id}`}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{selectedThumbnail.name} · {selectedThumbnail.teaser}{selectedThumbnail.id === approvedThumbnailId ? '' : ` · Approved direction remains ${approvedThumbnail.id}`}</p>
           </div>
           <p className="text-xs leading-5 text-muted-foreground sm:max-w-xs sm:text-right">Review selection only. Upload, scheduling, publishing, and external execution remain closed.</p>
         </div>

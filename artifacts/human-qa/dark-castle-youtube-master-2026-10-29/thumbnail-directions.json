@@ -1,5 +1,5 @@
 {
-  "version": "dark-castle-thumbnail-directions-v2",
+  "version": "dark-castle-thumbnail-directions-v3",
   "generation_receipt": "thumbnail-hero-generation:dark-castle:20261029:v2",
   "title_copy": "I Rebuilt the Chess Lesson Around the Decision",
   "shared_gates": {
@@ -9,6 +9,7 @@
     "title_and_thumbnail_copy_distinct": true,
     "text_must_not_cover_face": true,
     "generated_hero_required_per_candidate": true,
+    "expressive_face_candidate_required": true,
     "hero_and_product_must_read_as_one_composition": true,
     "circular_blur_masks_prohibited": true,
     "product_only_candidates_prohibited": true,
@@ -61,7 +62,30 @@
       "hero_asset": "source/heygen/vambah-skeptical-reaction.png",
       "hero_asset_sha256": "0631c09c85844d6116688989838a87a66475eb8c3df01b5686b4f96a5bea964f",
       "candidate_sha256": "5aab7cf806aae27ddafe7042f74f12bdf7caa18f6155154d8e0e6f14c25af6f0",
+      "expression": {
+        "label": "skeptical reaction",
+        "emotion": "concern and curiosity",
+        "intended_audience_response": "Recognize the tension between making the right move and understanding why it is right.",
+        "evidence_role": "human emotion anchor for the reasoning gap"
+      },
       "rejection": "Reject if the hero is absent, the face is obscured, any circular blur or mask appears, the coaching panel disappears, or any chess piece is distorted."
     }
-  ]
+  ],
+  "selection_decision": {
+    "version": "youtube-thumbnail-human-qa-selection/v1",
+    "receipt_id": "human-qa:dark-castle-youtube-master:thumbnail-selection:20261030:v1",
+    "status": "human_qa_approved",
+    "decided_at": "2026-10-30T09:40:53Z",
+    "content_version": "sha256:4b4126fe2388687c899530cdb9ee973e744d9e0ebfd2b6378ac6b3702000342a",
+    "selected_direction": "C",
+    "selected_candidate_id": "accidental-success",
+    "selected_asset_path": "/review-assets/social-content/dark-castle-youtube-master-2026-10-29/03-accidental-success-v2.png",
+    "selected_asset_sha256": "5aab7cf806aae27ddafe7042f74f12bdf7caa18f6155154d8e0e6f14c25af6f0",
+    "rationale": "Human QA selected the expressive skeptical-reaction direction because the face connects emotionally with the viewer while reinforcing the video's reasoning tension.",
+    "unselected_candidates": [
+      { "direction": "A", "candidate_id": "builder-doubt", "status": "review_evidence_only" },
+      { "direction": "B", "candidate_id": "board-remembered", "status": "review_evidence_only" }
+    ],
+    "external_execution": "closed"
+  }
 }
