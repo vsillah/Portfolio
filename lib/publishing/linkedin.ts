@@ -35,6 +35,8 @@ export interface PublishPayload {
 export interface PublishResult {
   success: boolean
   reconciliationRequired?: boolean
+  /** The adapter proved that no LinkedIn post request was sent. */
+  noPostAttempted?: boolean
   platformPostId?: string
   platformPostUrl?: string
   error?: string
@@ -422,14 +424,14 @@ async function updatePublishStatus(
 // ---------------------------------------------------------------------------
 
 export async function publishToLinkedIn(payload: PublishPayload): Promise<PublishResult> {
-  if (payload.videoUrl) return { success: false, error: LINKEDIN_VIDEO_BLOCKER }
+  if (payload.videoUrl) return { success: false, error: LINKEDIN_VIDEO_BLOCKER, noPostAttempted: true }
   const { contentId, postText, ctaText, ctaUrl, hashtags, imageUrl, carouselSlideUrls } = payload
 
   const admin = supabaseAdmin
   if (!admin || !payload.releaseClaimId) return { success: false, error: 'A current dispatcher release claim is required.' }
   const { data: queue, error: queueError } = await admin.from('social_content_queue').select('*')
     .eq('id', contentId).single()
-  if (queue?.video_url) return { success: false, error: LINKEDIN_VIDEO_BLOCKER }
+  if (queue?.video_url) return { success: false, error: LINKEDIN_VIDEO_BLOCKER, noPostAttempted: true }
   const gate = socialReleaseGate(queue?.rag_context)
   if (queueError || !queue || gate.status !== 'submitting' || gate.release_id !== payload.releaseClaimId ||
     gate.approved_fingerprint !== socialReleaseFingerprint(queue) ||
@@ -444,7 +446,7 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
 
   const config = await getLinkedInConfig()
   if (!config || !config.credentials?.access_token || !(config.settings?.author_urn || config.credentials?.person_urn)) {
-    return { success: false, error: 'LinkedIn is inactive or credentials are incomplete.' }
+    return { success: false, error: 'LinkedIn is inactive or credentials are incomplete.', noPostAttempted: true }
   }
   // One atomic per-platform claim also prevents a direct repeated adapter invocation.
   const { data: publishClaim, error: claimError } = await admin.from('social_content_publishes')
@@ -472,7 +474,7 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
       const refreshed = await refreshLinkedInToken(credentials)
       if (!refreshed.success) {
         await save('failed', { error_message: refreshed.error })
-        return { success: false, error: refreshed.error }
+        return { success: false, error: refreshed.error, noPostAttempted: true }
       }
       credentials = { ...credentials, access_token: refreshed.newToken! }
     }
@@ -592,11 +594,12 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
     const unsafeMedia = cause instanceof UnsafeLinkedInMediaUrlError
     const error = unsafeMedia ? UNSAFE_MEDIA_URL : postAttempted
       ? 'LinkedIn outcome is uncertain. Reconcile the existing release; do not retry.'
-      : 'LinkedIn preparation failed. Review the release before retrying.'
+      : cause instanceof Error ? cause.message : 'LinkedIn preparation failed. Review the release before retrying.'
     try {
       // Keep publishing after a possible remote effect, including success with a failed local save.
       await save(postAttempted ? 'publishing' : 'failed', { error_message: error })
     } catch { /* The initial publishing claim survives; never make it retryable after uncertainty. */ }
-    return { success: false, ...(!unsafeMedia ? { reconciliationRequired: true } : {}), error }
+    return { success: false, ...(!unsafeMedia && postAttempted ? { reconciliationRequired: true } : {}),
+      ...(!postAttempted ? { noPostAttempted: true } : {}), error }
   }
 }

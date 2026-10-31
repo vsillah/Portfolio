@@ -363,6 +363,25 @@ async function runScheduledPublishSweep(request: NextRequest) {
         continue
       }
 
+      // A failed dispatch needs a fresh, governed operator decision. The sweep
+      // must never turn a deterministic failure receipt into an automatic retry.
+      if (publishes.some((publish) => publish.status === 'failed')) {
+        blockedCount += 1
+        const failures = providerFailures({}, pendingPlatforms, publishes)
+        const recovery = await recordBlockedItem({
+          contentId: item.id,
+          scheduledFor: item.scheduled_for,
+          platforms: pendingPlatforms,
+          blocker: Object.values(failures)[0] ?? PUBLISH_ATTEMPT_BLOCKER,
+          kind: 'publish_blocked',
+          dryRun,
+          providerFailures: failures,
+        })
+        evaluated.push({ id: item.id, status: 'blocked', reason: Object.values(failures)[0] ?? PUBLISH_ATTEMPT_BLOCKER,
+          platforms: pendingPlatforms, ...recovery })
+        continue
+      }
+
       if (isStaleSchedule(item.scheduled_for, nowDate, staleThresholdHours)) {
         blockedCount += 1
         const recovery = await recordBlockedItem({

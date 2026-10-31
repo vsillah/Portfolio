@@ -62,6 +62,9 @@ export interface HormoziFramework {
 }
 
 export interface SocialContentItem {
+  /** Server-verified deterministic failures eligible for an explicit retry. */
+  release_retry?: SocialPlatform[]
+  linkedin_failure_recovery?: { work_item_id: string; publish_row_id: string; error: string; release_id: string; approved_fingerprint: string } | null
   video_playback_url?: string | null
   video_media_blocker?: string | null
   id: string

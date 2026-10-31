@@ -1,4 +1,5 @@
-import { hasCurrentSocialReleaseApproval, hasIntactSocialReleaseReceipts } from '@/lib/social-release-evidence'
+import { hasCurrentSocialReleaseApproval, hasIntactSocialReleaseReceipts, socialReleaseFingerprint } from '@/lib/social-release-evidence'
+import { hasAmbiguousPublishRowsForRelease, isRetryableLinkedInFailure } from '@/lib/social-linkedin-failure-recovery'
 import { randomUUID } from 'node:crypto'
 import { confirmedSocialPlatforms, hasAmbiguousSocialPublishRows, isSocialReleaseLocked, nextSocialReleaseVersion, socialReleaseGate } from '@/lib/social-release-safety'
 import { publishToFacebook } from '@/lib/publishing/facebook'
@@ -27,6 +28,7 @@ type PlatformPublishResult = {
     success?: boolean
     status?: string
     error?: string
+    noPostAttempted?: boolean
   }
 }
 
@@ -97,7 +99,7 @@ export async function publishSocialContentItem(input: {
     return { status: 400, body: { error: 'No publish records found - approve the content first' } }
   }
 
-  if (hasAmbiguousSocialPublishRows(publishes)) {
+  if (hasAmbiguousPublishRowsForRelease(item, publishes)) {
     return { status: 409, body: { error: 'Existing provider dispatch requires reconciliation before another release.', reconciliation_required: true } }
   }
 
@@ -105,7 +107,9 @@ export async function publishSocialContentItem(input: {
     && !hasIntactSocialReleaseReceipts(item, publishes)) {
     return { status: 409, body: { error: 'Reviewed content or confirmed receipts changed. Reconciliation required.', reconciliation_required: true } }
   }
-  if (targetPlatforms?.some(platform => !publishes.some((row: PublishRecord) => row.platform === platform && row.status === 'pending'))) {
+  const safeLinkedInRetry = isRetryableLinkedInFailure(item, publishes)
+  if (targetPlatforms?.some(platform => !publishes.some((row: PublishRecord) => row.platform === platform
+    && (row.status === 'pending' || (safeLinkedInRetry && platform === 'linkedin' && row.status === 'failed'))))) {
     return { status: 409, body: { error: 'Select only unsubmitted pending targets. Published targets cannot be repeated.' } }
   }
 
@@ -192,7 +196,8 @@ export async function publishSocialContentItem(input: {
   const claimedContext = {
     ...item.rag_context,
     platform_submission_gate: { ...socialReleaseGate(item.rag_context), status: 'submitting',
-      release_id: releaseId, claimed_at: claimedVersion, release_platforms: publishPlatforms },
+      release_id: releaseId, claimed_at: claimedVersion, release_platforms: publishPlatforms,
+      deterministic_failure: null },
   }
   const { data: claimed, error: claimError } = await asQuery(admin.from('social_content_queue'))
     .update({ rag_context: claimedContext, updated_at: claimedVersion })
@@ -266,6 +271,38 @@ export async function publishSocialContentItem(input: {
     if (readback.error) throw new Error('Publish evidence read failed')
     updatedPublishes = readback.data
   } catch { /* The submitting claim remains the durable safety boundary. */ }
+  const failedLinkedIn = platformResults.length === 1 && platformResults[0]?.platform === 'linkedin'
+    && platformResults[0].result.noPostAttempted === true
+    && typeof platformResults[0].result.error === 'string'
+    && platformResults[0].result.error.length > 0
+    && publishPlatforms.length === 1 && publishPlatforms[0] === 'linkedin'
+    && updatedPublishes?.length === 1 && updatedPublishes[0].platform === 'linkedin'
+    && ['pending', 'failed'].includes(String(updatedPublishes[0].status))
+    && !updatedPublishes[0].platform_post_id && !updatedPublishes[0].platform_post_url
+    && !updatedPublishes[0].published_at && !item.platform_post_id && !item.published_at
+    && !item.video_url
+    && Object.keys(confirmedSocialPlatforms(item.rag_context)).length === 0
+    && socialReleaseGate(item.rag_context).approved_fingerprint === socialReleaseFingerprint(item)
+  let deterministicFailure: { release_id: string; platform: 'linkedin'; publish_row_id: string; approved_fingerprint: string; error: string } | null = null
+  if (failedLinkedIn && updatedPublishes) {
+    const row = updatedPublishes[0]
+    const error = row.status === 'failed' && typeof row.error_message === 'string' && row.error_message.trim()
+      ? row.error_message : platformResults[0].result.error!
+    if (row.status === 'pending' && typeof row.updated_at === 'string') {
+      const marked = await asQuery(admin.from('social_content_publishes'))
+        .update({ status: 'failed', error_message: error })
+        .eq('id', row.id).eq('content_id', id).eq('platform', 'linkedin')
+        .eq('status', 'pending').eq('updated_at', row.updated_at)
+        .is('platform_post_id', null).is('platform_post_url', null).is('published_at', null)
+        .select('*').maybeSingle()
+      if (!marked.error && marked.data) updatedPublishes = [marked.data]
+    }
+    if (updatedPublishes[0].status === 'failed' && updatedPublishes[0].error_message === error
+      && typeof row.id === 'string' && typeof socialReleaseGate(item.rag_context).approved_fingerprint === 'string') {
+      deterministicFailure = { release_id: releaseId, platform: 'linkedin', publish_row_id: row.id,
+        approved_fingerprint: socialReleaseGate(item.rag_context).approved_fingerprint as string, error }
+    }
+  }
   const selectedPublished = allConfirmed && Boolean(updatedPublishes)
     && !hasAmbiguousSocialPublishRows(updatedPublishes!)
     && publishPlatforms.every(platform => updatedPublishes!.filter(row => row.platform === platform
@@ -278,9 +315,10 @@ export async function publishSocialContentItem(input: {
   const allPublished = selectedPublished && Boolean(updatedPublishes?.length) && updatedPublishes!.every(row =>
     row.status === 'published' && typeof row.platform_post_id === 'string' && row.platform_post_id.length > 0)
   const finalContext = { ...claimedContext, platform_submission_gate: {
-    ...claimedContext.platform_submission_gate, status: allPublished ? 'submitted' : selectedPublished ? 'partially_submitted' : 'uncertain',
+    ...claimedContext.platform_submission_gate, status: allPublished ? 'submitted' : selectedPublished ? 'partially_submitted' : deterministicFailure ? 'approved' : 'uncertain',
     confirmed_platforms: confirmedPlatforms,
-    reconciliation_required: !selectedPublished,
+    reconciliation_required: !selectedPublished && !deterministicFailure,
+    ...(deterministicFailure ? { deterministic_failure: deterministicFailure } : {}),
   } }
   try {
     const saved = await asQuery(admin.from('social_content_queue'))
@@ -304,8 +342,8 @@ export async function publishSocialContentItem(input: {
     } catch { calendarLinkage = { error: 'Published release requires calendar reconciliation.' } }
   }
   return { status: selectedPublished ? 200 : 409, body: {
-    published: allPublished, selected_published: selectedPublished, remaining_platforms: remainingPlatforms, reconciliation_required: !selectedPublished, release_id: releaseId,
+    published: allPublished, selected_published: selectedPublished, remaining_platforms: remainingPlatforms, reconciliation_required: !selectedPublished && !deterministicFailure, release_id: releaseId,
     results: platformResults, publishes: updatedPublishes, calendar_linkage: calendarLinkage,
-    ...(!selectedPublished ? { error: 'Release outcome requires reconciliation. No automatic retry is permitted.' } : {}),
+    ...(!selectedPublished ? { error: deterministicFailure ? deterministicFailure.error : 'Release outcome requires reconciliation. No automatic retry is permitted.' } : {}),
   } }
 }

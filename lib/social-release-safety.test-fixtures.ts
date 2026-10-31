@@ -47,6 +47,7 @@ export function releaseStore(item = releaseFixture()) {
       limit: () => query,
       eq: (key: string, value: unknown) => { predicates.push(row => field(row, key) === value); return query },
       in: (key: string, values: unknown[]) => { predicates.push(row => values.includes(field(row, key))); return query },
+      is: (key: string, value: unknown) => { predicates.push(row => (field(row, key) ?? null) === value); return query },
       update: (value: Row) => { patch = value; return query },
       upsert: (value: Row[]) => { insert = value; return query },
       single: async () => execute(true), maybeSingle: async () => execute(true),

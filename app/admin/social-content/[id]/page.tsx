@@ -134,7 +134,7 @@ import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
 import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE, YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
-import { SOCIAL_CAMPAIGN_REVIEW_FIXTURE, getSocialCampaignReviewPacket } from '@/lib/social-campaign-review-assets'
+import { SOCIAL_CAMPAIGN_REVIEW_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_IDS, getSocialCampaignReviewPacket } from '@/lib/social-campaign-review-assets'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -778,6 +778,9 @@ function SocialContentDetailPage() {
   const readOnlyDarkCastleProductionRecoveryQaFixture = process.env.NODE_ENV !== 'production'
     && id === DARK_CASTLE_SOCIAL_CONTENT_ID
     && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
+  const readOnlyLinkedInFailureQaFixture = process.env.NODE_ENV !== 'production'
+    && id === SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn
+    && searchParams.get('qa_fixture') === 'linkedin_failure_recovery_v1'
   const readOnlySocialVisualBacklogQaFixture = process.env.NODE_ENV !== 'production'
     && id === SOCIAL_VISUAL_BACKLOG_QA_ID
     && searchParams.get('qa_fixture') === SOCIAL_VISUAL_BACKLOG_QA_FIXTURE
@@ -1053,12 +1056,14 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const usesReadOnlyFixture = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
+      const usesReadOnlyFixture = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlyLinkedInFailureQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
 
       const detailQuery = readOnlySocialVisualBacklogQaFixture
         ? `?qa_fixture=${SOCIAL_VISUAL_BACKLOG_QA_FIXTURE}`
         : readOnlyDarkCastleProductionRecoveryQaFixture
         ? `?qa_fixture=${DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE}`
+        : readOnlyLinkedInFailureQaFixture
+        ? `?qa_fixture=linkedin_failure_recovery_v1&qa_state=${searchParams.get('qa_state') === 'retryable' ? 'retryable' : 'blocked'}`
         : id === DARK_CASTLE_VISUAL_QA_ID && deterministicVisualQaState
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
         : id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
@@ -2147,6 +2152,10 @@ function SocialContentDetailPage() {
   }
 
   const requestReleaseConfirmation = (mode: 'approve' | 'publish', platforms?: SocialPlatform[], submit = true) => {
+    if (readOnlyLinkedInFailureQaFixture) {
+      setReleaseNotice('Synthetic retry control only. No provider call or publication was made.')
+      return
+    }
     const selected = platforms ?? platformSubmissionTargets
     if (!item || publishing || releaseRequestActive.current || releaseEvidenceUnavailable || selected.some(platform => socialReleaseReview(item, platform).locked)) return
     setReleaseConfirmation({ mode, platforms: selected, submit, reviewed: item })
@@ -2189,7 +2198,7 @@ function SocialContentDetailPage() {
               : review.submit ? 'Submission pending · refresh evidence' : 'Final approval recorded')
       const fresh = await fetchItem({ silent: true })
       if (!fresh) setReleaseEvidenceUnavailable(true)
-      else if (returnedLocked && !socialReleaseReview(fresh).locked) {
+      else if (returnedLocked && !socialReleaseReview(fresh).locked && !fresh.release_retry?.includes('linkedin')) {
         setItem(returnedItem)
         setReleaseEvidenceUnavailable(true)
       } else if (socialReleaseReview(fresh).locked) setReleaseEvidenceUnavailable(false)
@@ -2204,6 +2213,40 @@ function SocialContentDetailPage() {
   }
 
   const handleRetryPublish = (platforms?: SocialPlatform[]) => requestReleaseConfirmation('publish', platforms)
+
+  const handleReconcileLinkedInFailure = async () => {
+    const candidate = item?.linkedin_failure_recovery
+    if (!candidate || publishing || !item) return
+    if (readOnlyLinkedInFailureQaFixture) {
+      setItem(previous => previous ? { ...previous, linkedin_failure_recovery: null,
+        release_retry: ['linkedin'], publishes: previous.publishes?.map(pub => ({ ...pub, status: 'failed',
+          error_message: candidate.error })) ?? [],
+        rag_context: { ...previous.rag_context, platform_submission_gate: {
+          ...asRecord(asRecord(previous.rag_context)?.platform_submission_gate), status: 'approved',
+        } } } : previous)
+      setReleaseNotice('Synthetic recovery confirmed. No database row or provider changed.')
+      return
+    }
+    setPublishing(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) throw new Error('Sign in before reconciling this release.')
+      const response = await fetch(`/api/admin/social-content/${id}/reconcile-linkedin-failure`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expected_updated_at: item.updated_at, work_item_id: candidate.work_item_id }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Recovery was not confirmed.')
+      setReleaseNotice(`LinkedIn failure reconciled: ${result.provider_error}. Review the exact receipt before retrying.`)
+      await fetchItem({ silent: true })
+    } catch (error) {
+      setReleaseNotice(error instanceof Error ? error.message : 'Recovery was not confirmed. Refresh evidence.')
+      await fetchItem({ silent: true })
+    } finally {
+      setPublishing(false)
+    }
+  }
   const handleApprovePlatformSubmission = (platforms?: SocialPlatform[], submitAfterApproval?: boolean) => requestReleaseConfirmation('approve', platforms, submitAfterApproval ?? !platformSubmissionTargets.includes('youtube'))
 
   const handleConnectYouTube = async () => {
@@ -7315,6 +7358,17 @@ function SocialContentDetailPage() {
 	        {/* ================================================================ */}
 	        {activeApprovalStep === 'status' && (
 	        <div id="social-publication-status-gate" className="scroll-mt-64 space-y-6">
+	        {item.linkedin_failure_recovery ? (
+	          <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4" aria-label="LinkedIn failure reconciliation">
+	            <h2 className="text-base font-semibold text-amber-50">LinkedIn failure ready for reconciliation</h2>
+	            <p className="mt-2 text-sm text-amber-50/90">{item.linkedin_failure_recovery.error}</p>
+	            <p className="mt-2 text-xs text-amber-50/75">The canonical recovery receipt and approved content version match. This records the failed attempt and restores a governed retry control. It does not call LinkedIn, upload, schedule, or publish.</p>
+	            <button type="button" onClick={() => void handleReconcileLinkedInFailure()} disabled={publishing}
+	              className="mt-3 inline-flex min-h-9 items-center rounded-lg border border-amber-400/50 px-3 py-2 text-xs font-semibold text-amber-50 disabled:opacity-50">
+	              Reconcile failed LinkedIn attempt
+	            </button>
+	          </section>
+	        ) : null}
 	        {item.schedule_recovery ? (
 	          <section id="scheduled-publish-recovery" className="scroll-mt-64 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5" aria-label="Scheduled publication recovery">
 	            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -7990,6 +8044,7 @@ function SocialContentDetailAccessGate() {
   const { id } = useParams<{ id: string }>()
   const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
     && (id === DARK_CASTLE_VISUAL_QA_ID || [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
+      || id === SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn && searchParams.get('qa_fixture') === 'linkedin_failure_recovery_v1'
       || id === DARK_CASTLE_SOCIAL_CONTENT_ID && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
       || id === SOCIAL_VISUAL_BACKLOG_QA_ID && searchParams.get('qa_fixture') === SOCIAL_VISUAL_BACKLOG_QA_FIXTURE)
 

@@ -53,6 +53,7 @@ import {
 } from '@/lib/social-channel-experiment-qa-fixture'
 import {
   SOCIAL_CAMPAIGN_REVIEW_FIXTURE,
+  SOCIAL_CAMPAIGN_REVIEW_IDS,
   getSocialCampaignReviewPacket,
   socialCampaignReviewQaFixture,
 } from '@/lib/social-campaign-review-assets'
@@ -66,6 +67,7 @@ import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
+import { historicalLinkedInFailureCandidate, isRetryableLinkedInFailure } from '@/lib/social-linkedin-failure-recovery'
 import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-recorded-decision'
 import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
@@ -210,6 +212,28 @@ export async function GET(
       })
     }
     const { id } = params
+
+    if (process.env.NODE_ENV !== 'production'
+      && id === SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn
+      && request.nextUrl.searchParams.get('qa_fixture') === 'linkedin_failure_recovery_v1') {
+      const item = socialCampaignReviewQaFixture(id)
+      const retryable = request.nextUrl.searchParams.get('qa_state') === 'retryable'
+      item.status = 'scheduled'
+      item.scheduled_for = '2026-10-30T20:30:00.000Z'
+      item.publishes = [{ id: 'qa-publish-1', content_id: id, platform: 'linkedin', status: retryable ? 'failed' : 'pending',
+        error_message: retryable ? 'LinkedIn image upload failed; approved media must not be dropped' : 'Scheduled publish did not complete.',
+        platform_post_id: null, platform_post_url: null, published_at: null } as never]
+      item.release_retry = retryable ? ['linkedin'] : []
+      item.linkedin_failure_recovery = retryable ? null : { work_item_id: 'qa-recovery-1', publish_row_id: 'qa-publish-1',
+        error: 'LinkedIn image upload failed; approved media must not be dropped', release_id: 'qa-release-1',
+        approved_fingerprint: 'qa-fingerprint' }
+      item.rag_context = { ...(asRecord(item.rag_context) ?? {}), platform_submission_gate: {
+        status: retryable ? 'approved' : 'uncertain', approved_at: '2026-10-30T19:00:00.000Z',
+        approved_by: 'qa-reviewer', platforms: ['linkedin'],
+      }, qa_fixture: { kind: 'linkedin_failure_recovery', read_only: true,
+        reason: 'Synthetic read-only recovery presentation. No production record or provider is connected.' } }
+      return NextResponse.json({ item, fixture: true, fixture_state: retryable ? 'retryable' : 'blocked' })
+    }
 
     if (
       process.env.NODE_ENV !== 'production'
@@ -370,10 +394,8 @@ export async function GET(
     const calendarPreparation = projectSocialCalendarPreparation(linkedCalendarItem, id)
 
     const recoveryRepository = createSupabaseSocialScheduleRecoveryRepository(supabaseAdmin)
-    const scheduleRecovery = buildScheduleRecoveryProjection(
-      await recoveryRepository.readRecoveryItems(id),
-      id,
-    )
+    const recoveryItems = await recoveryRepository.readRecoveryItems(id)
+    const scheduleRecovery = buildScheduleRecoveryProjection(recoveryItems, id)
 
     const [defaults, avatars, voices] = await Promise.all([
       getHeyGenDefaults(),
@@ -407,6 +429,8 @@ export async function GET(
         video_media_blocker: mediaPlayback?.media_blocker || null,
         meeting_record: meetingRecord,
         publishes: publishes || [],
+        release_retry: isRetryableLinkedInFailure(data, publishes || []) ? ['linkedin'] : [],
+        linkedin_failure_recovery: historicalLinkedInFailureCandidate(data, publishes || [], recoveryItems as unknown as Record<string, unknown>[]),
         social_video_production: socialVideoProduction,
         schedule_recovery: scheduleRecovery,
         recorded_internal_decision_receipt: recordedInternalDecisionReceipt,

@@ -4246,6 +4246,21 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getAllByText('Post confirmed').length).toBeGreaterThan(0)
   })
 
+  it('shows one governed LinkedIn retry only for a server-verified failed receipt', async () => {
+    const current = { ...baseItem, status: 'scheduled', scheduled_for: '2026-10-30T20:30:00.000Z',
+      rag_context: { source: 'manual', platform_submission_gate: { status: 'approved' } },
+      release_retry: ['linkedin'],
+      publishes: [{ id: 'li-failed', platform: 'linkedin', status: 'failed',
+        error_message: 'LinkedIn image upload failed; approved media must not be dropped',
+        platform_post_id: null, platform_post_url: null, published_at: null }] }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({ ok: true,
+      json: async () => String(input) === '/api/admin/social-content/social-1'
+        ? { item: current } : { items: [], configs: [] } })))
+    renderAtStep('status')
+    expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument()
+    expect(screen.getAllByText(/LinkedIn image upload failed/).length).toBeGreaterThan(0)
+  })
+
   it.each([true,false])('requires current readiness for remaining-platform approval (configured=%s)',async configured=>{
     const current={...baseItem,updated_at:'2026-09-08T14:00:00Z',target_platforms:['linkedin','facebook'],rag_context:{source:'manual',platform_submission_gate:{status:'partially_submitted',confirmed_platforms:{linkedin:'confirmed'},platforms:['linkedin']}},publishes:[{id:'li',platform:'linkedin',status:'published',platform_post_id:'confirmed'},{id:'fb',platform:'facebook',status:'pending'}]}
     vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input).endsWith('/config')?{configs:configured?[{platform:'facebook',is_active:true,credentials:{page_access_token:'fixture',page_id:'fixture'},settings:{}}]:[]}:String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[]}})))
