@@ -73,27 +73,40 @@ export default function DecisionTraceability() {
 
   return <main className={styles.page}>
     <header className={styles.header}>
-      <Link href="/" className={styles.brand}><Image src="/amadutown-logo-upscaled.png" alt="AmaduTown" width={48} height={62} className={styles.logo} /><span>AMADUTOWN <small>ADVISORY SOLUTIONS</small></span></Link>
-      <span className={styles.headerTag}>A tool for better decisions</span>
+      <div className={styles.productBrand}><Image src="/lead-magnets/dark-castle-chess-logo.png" alt="Dark Castle Chess castle logo" width={72} height={72} className={styles.castleLogo} /><span>DARK CASTLE <small>CHESS</small></span></div>
+      <Link href="/" className={styles.publisher}><Image src="/amadutown-logo-upscaled.png" alt="" width={25} height={32} className={styles.publisherLogo} /><span>Created by <strong>AmaduTown</strong></span></Link>
     </header>
 
     <section className={styles.hero}>
       <div className={styles.heroCopy}>
-        <p className={styles.eyebrow}>DECISION TRACEABILITY SCORECARD · FREE WORKSHEET</p>
-        <h1>A smart move is easier to repeat when you can see <em>why it worked.</em></h1>
-        <p className={styles.lede}>A decision can look right today and still leave the next person guessing. Check four things that help your team revisit a choice: its reasoning, owner, threshold, and evidence.</p>
+        <p className={styles.eyebrow}>DARK CASTLE CHESS / FIELD NOTE 01</p>
+        <h1>The board shows the move. <em>Can you show the reason?</em></h1>
+        <p className={styles.lede}>Dark Castle Chess keeps the position, move guidance, and notation in view. This free scorecard carries that idea into a decision your team may need to revisit.</p>
+        <p className={styles.heroOffer}>Decision Traceability Scorecard <span>+ one-page worksheet</span></p>
         <a className={styles.primary} href="#assessment">Score a decision <span aria-hidden>↗</span></a>
         <p className={styles.heroNote}>Four checks. About three minutes. Your result appears before any email request.</p>
       </div>
-      <div className={styles.heroVisual}>
-        <div className={styles.proofImage}><Image src="/review-assets/social-content/storyboard-review/explore-computer.jpg" alt="Dark Castle Chess Explore board beside candidate moves and move guidance after the computer responds" fill sizes="(max-width: 850px) 90vw, 44vw" /></div>
-        <div className={styles.visualCaption}><span className={styles.goldDot} /> FROM DARK CASTLE CHESS <strong>Position. Response. Next choice.</strong></div>
-      </div>
+      <figure className={styles.heroVisual}>
+        <div className={styles.proofImage}><Image src="/review-assets/social-content/storyboard-review/explore-start.jpg" alt="Dark Castle Chess game start screen showing the board, coach prompt, move guidance, and notation" width={1248} height={969} sizes="(max-width: 900px) 90vw, 44vw" priority /></div>
+        <figcaption className={styles.visualCaption}><span className={styles.goldDot} /> 01 / START AS WHITE <strong>The board and its context share one screen.</strong><a href="/review-assets/social-content/storyboard-review/explore-start.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
+      </figure>
+    </section>
+
+    <section className={styles.proof} aria-labelledby="proof-heading">
+      <div className={styles.proofIntro}><p className={styles.eyebrow}>THE PRODUCT STATES BEHIND THE TOOL</p><h2 id="proof-heading">Follow the move, then the response.</h2><p>These are real Dark Castle Chess screens. The board changes, and the surrounding context changes with it.</p></div>
+      <figure className={styles.proofStep}>
+        <Image src="/review-assets/social-content/storyboard-review/explore-position.jpg" alt="Dark Castle Chess Explore after e4: board position, Black to move, move guidance, and e4 in notation" width={1248} height={969} sizes="(max-width: 900px) 90vw, 60vw" />
+        <figcaption><span className={styles.stepNumber}>02 / EXPLORE AFTER E4</span><h3>The position stays visible.</h3><p>Explore shows Black to move. Move guidance lists possible replies, and the notation panel records e4.</p><a href="/review-assets/social-content/storyboard-review/explore-position.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
+      </figure>
+      <figure className={styles.proofStep}>
+        <Image src="/review-assets/social-content/storyboard-review/explore-computer.jpg" alt="Dark Castle Chess after Black plays e5: board, notation showing e4 and e5, move guidance, and candidate moves" width={1248} height={969} sizes="(max-width: 900px) 90vw, 60vw" />
+        <figcaption><span className={styles.stepNumber}>03 / AFTER BLACK PLAYS E5</span><h3>The next choice has context.</h3><p>The board shows e5. Notation records both moves, while move guidance and candidate moves sit beside the position. The displayed percentages are in-product estimates.</p><a href="/review-assets/social-content/storyboard-review/explore-computer.jpg" target="_blank" rel="noopener noreferrer">View full-size gameplay screen ↗</a></figcaption>
+      </figure>
     </section>
 
     <section className={styles.story} aria-labelledby="story-heading">
-      <div><p className={styles.eyebrow}>THE IDEA BEHIND THE TOOL</p><h2 id="story-heading">The board remembers e4. What helps the player choose the next move?</h2></div>
-      <div><p>In Dark Castle Chess, Explore keeps the position, move guidance, and notation together. After the computer responds, a player can inspect candidate moves alongside the board. Those are visible product states, not a claim about learning outcomes.</p><p>The same question belongs in product reviews, operations, and client work: can the next person see the context of a choice and know when to revisit it?</p></div>
+      <div><p className={styles.eyebrow}>FROM THE GAME TO YOUR WORK</p><h2 id="story-heading">What should a decision record keep in view?</h2></div>
+      <div><p>The game screens show a position, a move, and the information beside them. Use the scorecard to check a team decision with the same care.</p><ol className={styles.bridgeChecks}><li><strong>Reasoning</strong><span>Why this choice?</span></li><li><strong>Ownership</strong><span>Who can revisit it?</span></li><li><strong>Threshold</strong><span>What would change it?</span></li><li><strong>Evidence</strong><span>What was known then?</span></li></ol><p>The four checks are a worksheet for your decision. They are not features or measured outcomes of the game.</p></div>
     </section>
 
     <section id="assessment" className={styles.assessment} aria-labelledby="assessment-heading">
@@ -112,7 +125,7 @@ export default function DecisionTraceability() {
 
     <section className={styles.download} aria-labelledby="download-heading">
       <div><p className={styles.eyebrow}>TAKE IT INTO THE ROOM</p><h2 id="download-heading">A worksheet you can actually use.</h2><p>One page to record the choice, the reason, who owns it, what would change it, and what evidence was available. Bring it to your next review.</p><a className={styles.secondary} href="/decision-traceability-worksheet.pdf" download>Download the free PDF <span aria-hidden>↓</span></a><p className={styles.smallPrint}>No email required for the worksheet.</p></div>
-      <div className={styles.paperPreview} aria-hidden><span>AMADUTOWN / FIELD NOTE 01</span><h3>Decision record</h3><div>01 &nbsp; The choice and why</div><div>02 &nbsp; The accountable owner</div><div>03 &nbsp; The trigger to revisit</div><div>04 &nbsp; Evidence and open questions</div><small>Keep the reasoning with the result.</small></div>
+      <div className={styles.paperPreview} aria-hidden><span>DARK CASTLE CHESS / FIELD NOTE 01</span><h3>Decision record</h3><div>01 &nbsp; The choice and why</div><div>02 &nbsp; The accountable owner</div><div>03 &nbsp; The trigger to revisit</div><div>04 &nbsp; Evidence and open questions</div><small>Created by AmaduTown · Keep the reasoning with the result.</small></div>
     </section>
 
     <section className={styles.capture} aria-labelledby="capture-heading">

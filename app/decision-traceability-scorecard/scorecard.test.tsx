@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import DecisionTraceability from './scorecard'
 
-vi.mock('next/image', () => ({ default: ({ fill, ...props }: Record<string, unknown>) => <img {...props} alt={String(props.alt || '')} /> }))
+vi.mock('next/image', () => ({ default: ({ fill, priority, ...props }: Record<string, unknown>) => <img {...props} alt={String(props.alt || '')} /> }))
 vi.mock('next/link', () => ({ default: (props: { href: string; children: React.ReactNode }) => <a href={props.href}>{props.children}</a> }))
 
 function completeScore() {
@@ -17,6 +17,25 @@ describe('Decision Traceability Scorecard', () => {
     window.history.replaceState({}, '', '/decision-traceability-scorecard?utm_source=linkedin&utm_campaign=dark-castle')
   })
   afterEach(() => { vi.unstubAllGlobals() })
+
+  it('shows the owned Dark Castle identity and three distinct accessible gameplay states', () => {
+    render(<DecisionTraceability />)
+    expect(screen.getByRole('img', { name: 'Dark Castle Chess castle logo' })).toHaveAttribute('src', '/lead-magnets/dark-castle-chess-logo.png')
+    expect(screen.getByText('DARK CASTLE')).toBeVisible()
+    expect(screen.getByText('Created by')).toBeVisible()
+    const gameplay = [
+      screen.getByRole('img', { name: /game start screen showing the board, coach prompt, move guidance, and notation/i }),
+      screen.getByRole('img', { name: /Explore after e4: board position, Black to move, move guidance, and e4 in notation/i }),
+      screen.getByRole('img', { name: /after Black plays e5: board, notation showing e4 and e5, move guidance, and candidate moves/i }),
+    ]
+    expect(new Set(gameplay.map((image) => image.getAttribute('src'))).size).toBe(3)
+    for (const image of gameplay) expect(image).toBeVisible()
+    expect(screen.getAllByRole('link', { name: /View full-size gameplay screen/i }).map((link) => link.getAttribute('href'))).toEqual([
+      '/review-assets/social-content/storyboard-review/explore-start.jpg',
+      '/review-assets/social-content/storyboard-review/explore-position.jpg',
+      '/review-assets/social-content/storyboard-review/explore-computer.jpg',
+    ])
+  })
 
   it('shows a usable result and PDF before consent, then fails visibly on persistence error', async () => {
     const fetch = vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: 'We could not save your request.' }) })

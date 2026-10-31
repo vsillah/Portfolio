@@ -9,3 +9,51 @@
 .capture{background:#142238;color:#f8f5e9;max-width:none;display:grid;grid-template-columns:1fr 1fr;gap:9%;padding-top:84px;padding-bottom:84px}.capture>div{justify-self:end;max-width:510px}.capture p:not(.eyebrow){color:#c6cfdd}.capture .eyebrow{color:#e2c772}.capture form{max-width:520px}.emailLabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;display:block;margin-bottom:8px}.capture input[type=email]{width:100%;padding:17px;border:1px solid #9da8ba;background:#fff;color:#172438;font-size:15px;border-radius:2px}.consent{display:flex;gap:12px;align-items:flex-start;margin:17px 0 24px;font-size:12px;line-height:1.6;color:#d6dce7;cursor:pointer}.consent input{width:18px;height:18px;flex:none;accent-color:#d4af37}.capture .smallPrint{color:#b2bfcd;font-size:11px;margin-top:18px}.smallPrint a{color:#f0d57e;text-decoration:underline}.formError,.formSuccess{margin-top:15px!important;font-size:12px!important;padding:11px 12px}.formError{background:#562b2b;color:#ffe1df!important}.formSuccess{background:#25493a;color:#e2ffe9!important}.footer{display:flex;gap:24px;align-items:center;padding-top:28px;padding-bottom:28px;background:#0d1727;color:#bec6d3;max-width:none;font-size:11px}.footer span{margin-right:auto}.footer a{color:#d9deea}
 @media(max-width:900px){.hero{grid-template-columns:1fr;gap:58px;padding-top:60px}.heroCopy{max-width:680px}.heroVisual{max-width:700px}.story,.capture{grid-template-columns:1fr;gap:25px}.story>div:first-child,.capture>div{justify-self:start}.result{grid-template-columns:190px 1fr}.resultScore span{font-size:85px}.questions{grid-template-columns:1fr 1fr}.download{gap:5%}}
 @media(max-width:650px){.header{height:81px}.headerTag{display:none}.brand{font-size:11px}.brand small{font-size:7px}.hero{padding-top:45px;padding-bottom:68px;gap:46px}.hero h1{font-size:clamp(51px,12vw,68px)}.lede{font-size:15px}.heroVisual{margin-right:19px;box-shadow:17px 17px 0 #e8dfc5}.story{padding-top:59px;padding-bottom:51px}.story h2{font-size:40px}.assessment{padding-top:68px;padding-bottom:52px}.questions{grid-template-columns:1fr}.question{padding:22px}.question legend strong{font-size:26px}.result{grid-template-columns:1fr;gap:24px;padding-top:42px;padding-bottom:49px}.resultScore{border-right:0;border-bottom:1px solid #c6b78d;padding:0 0 20px;text-align:left}.resultScore span{font-size:76px}.download{grid-template-columns:1fr;gap:50px;padding-top:70px;padding-bottom:87px}.paperPreview{transform:rotate(1deg);min-height:350px}.capture{padding-top:65px;padding-bottom:70px}.capture h2{font-size:47px}.footer{flex-wrap:wrap}.footer span{width:100%}}
+
+/* Dark Castle product identity and the three distinct owned gameplay states. */
+.header{max-width:none;background:#1b1715;border-bottom:1px solid #514237;height:104px}
+.productBrand{display:flex;align-items:center;gap:15px;color:#f5e8d1;font-family:var(--font-orbitron),sans-serif;font-size:20px;font-weight:800;letter-spacing:.08em;line-height:1.05}
+.productBrand small{display:block;color:#d9ad77;font-size:12px;letter-spacing:.34em;margin-top:5px}
+.castleLogo{width:67px;height:67px;object-fit:contain;border:1px solid #a9825e;border-radius:15px}
+.publisher{display:flex;align-items:center;gap:10px;color:#e9d9c2;font-size:12px;white-space:nowrap}
+.publisher strong{display:block;color:#f8ead2;font-family:var(--font-orbitron),sans-serif;font-size:11px;letter-spacing:.08em;margin-top:3px}
+.publisherLogo{width:25px;height:auto}
+.hero{max-width:none;background:#1b1715;color:#f5e8d1;min-height:680px;grid-template-columns:1fr 1.08fr;gap:5%;padding-top:62px;padding-bottom:72px}
+.heroCopy{max-width:700px;justify-self:end}
+.hero .eyebrow{color:#dfa779}
+.hero h1{font-size:clamp(54px,4.8vw,81px);max-width:700px;color:#f5e8d1}
+.hero h1 em{color:#dda978}
+.hero .lede{color:#d8c9ba;max-width:620px}
+.heroOffer{margin:28px 0 0;border-left:3px solid #cc8d61;padding:5px 0 5px 15px;font-family:var(--font-cormorant),serif;font-size:26px;line-height:1.2}
+.heroOffer span{display:block;color:#bca999;font-family:var(--font-inter),sans-serif;font-size:12px;margin-top:7px}
+.hero .primary{margin-top:27px}
+.heroNote{color:#c7b9a8}
+.heroVisual{margin:0;align-self:center;max-width:740px;background:#30251f;padding:13px;box-shadow:17px 18px 0 #5c3d2d,0 24px 55px #0005}
+.proofImage{aspect-ratio:auto;background:#201b17;overflow:hidden}
+.proofImage img{display:block;width:100%;height:auto;object-fit:contain}
+.visualCaption{padding:16px 6px 5px;color:#e6c7a5;letter-spacing:.12em}
+.visualCaption strong{font-size:22px;color:#f8ead6;letter-spacing:0}
+.visualCaption a,.proofStep a{display:inline-block;margin-top:15px;color:#f1c890;border-bottom:1px solid currentColor;font-family:var(--font-inter),sans-serif;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:none}
+.visualCaption a{margin-left:19px}
+.visualCaption a:focus-visible,.proofStep a:focus-visible{outline:2px solid #f1c890;outline-offset:4px}
+.goldDot{background:#d58b5c}
+.proof{background:#241e1a;color:#f4e8d5;max-width:none;padding:78px clamp(24px,5vw,80px) 94px}
+.proofIntro{max-width:930px;margin:0 auto 44px;text-align:center}
+.proof .eyebrow{color:#d7a477}
+.proof h2{font-family:var(--font-cormorant),serif;font-size:clamp(46px,4.2vw,68px);font-weight:500;line-height:1.05;letter-spacing:0;margin:16px 0}
+.proofIntro>p:last-child{color:#d0bfae;font-size:16px;line-height:1.7}
+.proofStep{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.6fr);align-items:center;gap:5%;max-width:1250px;margin:0 auto 36px;padding:22px;border:1px solid #735640;background:#2e2621}
+.proofStep:last-child{margin-bottom:0}
+.proofStep img{display:block;width:100%;height:auto;border:1px solid #715947}
+.proofStep figcaption{padding:16px 10px}
+.stepNumber{color:#dbac7c;font-family:var(--font-orbitron),sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em}
+.proofStep h3{font-family:var(--font-cormorant),serif;font-size:clamp(38px,3.2vw,52px);font-weight:500;line-height:1.05;letter-spacing:0;margin:15px 0}
+.proofStep p{color:#d2c0ae;font-size:15px;line-height:1.75}
+.story{background:#382820;gap:7%}
+.story .eyebrow{color:#dfaa76}
+.bridgeChecks{list-style:none;padding:0;margin:10px 0 22px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bridgeChecks li{border-top:1px solid #9c765b;padding:11px 0 4px}
+.bridgeChecks strong{display:block;color:#f2d1ad;font-family:var(--font-orbitron),sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.bridgeChecks span{display:block;margin-top:5px;color:#f5e8d6;font-size:13px}
+@media(max-width:900px){.hero{grid-template-columns:1fr;gap:52px}.heroCopy{justify-self:start}.heroVisual{max-width:740px}.proofStep{grid-template-columns:1fr}.proofStep figcaption{padding:17px 2px 4px}}
+@media(max-width:650px){.header{height:86px}.productBrand{gap:9px;font-size:13px}.productBrand small{font-size:9px;letter-spacing:.22em}.castleLogo{width:48px;height:48px;border-radius:11px}.publisher{gap:5px;font-size:9px}.publisher strong{font-size:9px}.publisherLogo{width:18px}.hero{padding-top:42px;padding-bottom:64px;gap:42px}.hero h1{font-size:clamp(47px,11.4vw,63px)}.heroOffer{font-size:23px}.heroVisual{margin-right:14px;box-shadow:12px 12px 0 #5c3d2d}.visualCaption{font-size:8px}.visualCaption strong{font-size:20px;margin-left:17px}.proof{padding-top:66px;padding-bottom:66px}.proofIntro{text-align:left;margin-bottom:30px}.proof h2{font-size:45px}.proofStep{padding:12px;margin-bottom:24px}.proofStep h3{font-size:39px}.bridgeChecks{grid-template-columns:1fr 1fr;gap:7px}.story h2{font-size:40px}}
