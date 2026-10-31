@@ -21,4 +21,15 @@ describe('local approved visual delivery', () => {
     process.env.VERCEL_ENV = 'preview'
     expect((await GET()).status).toBe(404)
   })
+
+  it('does not publish the internal review image when Node is production', async () => {
+    const previousNodeEnv = process.env.NODE_ENV
+    delete process.env.VERCEL_ENV
+    process.env.NODE_ENV = 'production'
+    try {
+      expect((await GET()).status).toBe(404)
+    } finally {
+      process.env.NODE_ENV = previousNodeEnv
+    }
+  })
 })
