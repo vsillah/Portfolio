@@ -49,7 +49,10 @@ export default function DarkCastleYouTubeMasterReviewPage() {
           <h1 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">Dark Castle Chess YouTube master</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">Human QA approved Direction C. The other evidence-backed candidates remain selectable for comparison only, while operator receipts stay separated from the published media.</p>
         </div>
-        <Link href="/admin/social-content/c12378f2-36de-4bf7-8c5d-0ce754e727eb?step=copy" className="text-sm font-semibold text-primary hover:underline">Open canonical record</Link>
+        <div className="flex flex-wrap gap-4 text-sm font-semibold">
+          <Link href="/admin/social-content/dark-castle-youtube-receipt-review" className="text-primary hover:underline">Review six receipt packets</Link>
+          <Link href="/admin/social-content/c12378f2-36de-4bf7-8c5d-0ce754e727eb?step=copy" className="text-primary hover:underline">Open canonical record</Link>
+        </div>
       </header>
 
       <section aria-labelledby="customer-output-heading" className="space-y-4">
