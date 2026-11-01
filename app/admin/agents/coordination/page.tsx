@@ -23,6 +23,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
+import LinkedInHandoffReview from '@/components/admin/LinkedInHandoffReview'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentRuntime } from '@/lib/agent-run'
 import type { AgentWorkItem, AgentWorkItemStatus } from '@/lib/agent-work-items'
@@ -520,7 +521,7 @@ function AgentCoordinationContent() {
   }, [items])
 
   const controllerQueueItems = useMemo(() => {
-    return items
+    const sorted = items
       .filter((item) => !isTerminalWorkItem(item) && !isN8nWorkflowProposal(item) && !isSocialTopicInsight(item))
       .sort((a, b) => {
         const statusDelta = STATUS_RANK[a.status] - STATUS_RANK[b.status]
@@ -529,8 +530,9 @@ function AgentCoordinationContent() {
         if (priorityDelta !== 0) return priorityDelta
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       })
-      .slice(0, 3)
-  }, [items])
+    const linked = sorted.find((item) => item.id === n8nDeepLink.proposalId)
+    return linked ? [linked, ...sorted.filter((item) => item.id !== linked.id).slice(0, 2)] : sorted.slice(0, 3)
+  }, [items, n8nDeepLink.proposalId])
 
   const n8nWorkflowProposals = useMemo(() => {
     return items
@@ -868,6 +870,7 @@ function AgentCoordinationContent() {
           items={controllerQueueItems}
           totalOpen={summary.controllerOpen}
           actionId={actionId}
+          onReviewed={loadItems}
           onAction={quickAction}
           onAskShaka={(workItem) => askShaka(
             'What action is required on this Decision Queue item? Summarize the action required, problem or opportunity, recommendation, risk, owner, evidence, and safest next approval-gated step.',
@@ -1114,6 +1117,7 @@ function AgentCoordinationContent() {
                     key={item.id}
                     item={item}
                     actionId={actionId}
+                    onReviewed={loadItems}
                     onAction={quickAction}
                     onAskShaka={(workItem) => askShaka(
                       'What action is required on this work item? Summarize the recommendation, risk, evidence, and next approval-safe step.',
@@ -1210,12 +1214,14 @@ function ControllerDecisionQueuePanel({
   items,
   totalOpen,
   actionId,
+  onReviewed,
   onAction,
   onAskShaka,
 }: {
   items: AgentWorkItem[]
   totalOpen: number
   actionId: string | null
+  onReviewed: () => Promise<void>
   onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
   onAskShaka: (item: AgentWorkItem) => void
 }) {
@@ -1272,6 +1278,7 @@ function ControllerDecisionQueuePanel({
                       <SmallField label="Updated" value={new Date(item.updated_at).toLocaleString()} />
                       <SmallField label="Worktree" value={item.worktree_path} />
                     </div>
+                    {item.source_type === 'social_content_linkedin_draft_handoff' && <LinkedInHandoffReview item={item} onReviewed={onReviewed} />}
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2 xl:w-72 xl:justify-end">
                     {socialContentDecisionHref ? (
@@ -1310,7 +1317,7 @@ function ControllerDecisionQueuePanel({
                       <MessageSquare size={16} />
                       Ask Shaka
                     </button>
-                    <button
+                    {item.source_type !== 'social_content_linkedin_draft_handoff' && <button
                       onClick={() => onAction(item, model.primaryAction)}
                       disabled={Boolean(actionId)}
                       aria-label={`${model.primaryLabel} ${item.title}`}
@@ -1318,7 +1325,7 @@ function ControllerDecisionQueuePanel({
                     >
                       {model.primaryIcon}
                       {model.primaryLabel}
-                    </button>
+                    </button>}
                   </div>
                 </div>
               </article>
@@ -2015,11 +2022,13 @@ function VercelResearchApprovalPanel({
 function WorkItemCard({
   item,
   actionId,
+  onReviewed,
   onAction,
   onAskShaka,
 }: {
   item: AgentWorkItem
   actionId: string | null
+  onReviewed: () => Promise<void>
   onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
   onAskShaka: (item: AgentWorkItem) => void
 }) {
@@ -2074,6 +2083,7 @@ function WorkItemCard({
               {item.validation_summary ? <Callout icon="check" label="Validation" value={item.validation_summary} /> : null}
             </div>
           ) : null}
+          {item.source_type === 'social_content_linkedin_draft_handoff' && <LinkedInHandoffReview item={item} onReviewed={onReviewed} />}
           </div>
         </div>
         <div className="flex flex-wrap gap-2 lg:min-w-64 lg:justify-end">
@@ -2104,7 +2114,7 @@ function WorkItemCard({
             <MessageSquare size={16} />
             Ask Shaka
           </button>
-          <button
+          {item.source_type !== 'social_content_linkedin_draft_handoff' && <button
             onClick={() => onAction(item, 'block')}
             disabled={Boolean(actionId)}
             aria-label={`Block ${item.title}`}
@@ -2112,8 +2122,8 @@ function WorkItemCard({
           >
             <AlertTriangle size={16} />
             Block
-          </button>
-          <button
+          </button>}
+          {item.source_type !== 'social_content_linkedin_draft_handoff' && <button
             onClick={() => onAction(item, 'validation')}
             disabled={Boolean(actionId)}
             aria-label={`Record validation for ${item.title}`}
@@ -2121,8 +2131,8 @@ function WorkItemCard({
           >
             <CheckCircle2 size={16} />
             Validate
-          </button>
-          <button
+          </button>}
+          {item.source_type !== 'social_content_linkedin_draft_handoff' && <button
             onClick={() => onAction(item, 'handoff')}
             disabled={Boolean(actionId)}
             aria-label={`Handoff ${item.title}`}
@@ -2130,7 +2140,7 @@ function WorkItemCard({
           >
             <Network size={16} />
             Handoff
-          </button>
+          </button>}
         </div>
       </div>
     </article>

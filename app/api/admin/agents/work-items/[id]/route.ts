@@ -56,6 +56,13 @@ export async function PATCH(
   }
 
   try {
+    const current = await getAgentWorkItem(params.id)
+    if (!current) return NextResponse.json({ error: 'Work item not found' }, { status: 404 })
+    if (current.source_type === 'social_content_linkedin_draft_handoff'
+      && current.metadata?.draft_packet
+      && (current.metadata.draft_packet as Record<string, unknown>).version === 'linkedin_draft_handoff_v2') {
+      return NextResponse.json({ error: 'This LinkedIn handoff requires its immutable Decision Queue review control.' }, { status: 409 })
+    }
     const work_item = body.status === 'cancelled'
       ? await cancelAgentWorkItem({ id: params.id, reason: body.note ?? null })
       : body.status === 'merged' || body.status === 'deployed'
