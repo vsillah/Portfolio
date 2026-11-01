@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { markAgentWorkItemReadyForKanban } from '@/lib/agent-work-items'
+import { getAgentWorkItem, markAgentWorkItemReadyForKanban } from '@/lib/agent-work-items'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,6 +24,11 @@ export async function POST(
   }
 
   try {
+    const current = await getAgentWorkItem(params.id)
+    if (current?.source_type === 'social_content_linkedin_draft_handoff'
+      && (current.metadata?.draft_packet as Record<string, unknown> | undefined)?.version === 'linkedin_draft_handoff_v2') {
+      return NextResponse.json({ error: 'Use the immutable LinkedIn handoff review control.' }, { status: 409 })
+    }
     const work_item = await markAgentWorkItemReadyForKanban({
       id: params.id,
       definitionOfReady,
