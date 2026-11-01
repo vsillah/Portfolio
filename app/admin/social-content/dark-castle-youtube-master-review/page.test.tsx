@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import thumbnailDirections from '@/artifacts/human-qa/dark-castle-youtube-master-2026-10-29/thumbnail-directions.json'
@@ -27,6 +27,28 @@ describe('Dark Castle YouTube master thumbnail review', () => {
     expect(screen.getByText('Previewing direction B')).toBeVisible()
     expect(screen.getByText(/Approved direction remains C/i)).toBeVisible()
     expect(screen.getByText(/Upload, scheduling, publishing, and external execution remain closed/i)).toBeVisible()
+  })
+
+  it('keeps Direction C approved while another direction is only a preview', () => {
+    render(<DarkCastleYouTubeMasterReviewPage />)
+
+    const optionB = screen.getByRole('radio', { name: 'Select thumbnail B: Pattern-alert continuity' })
+    const optionC = screen.getByRole('radio', { name: 'Select thumbnail C: Builder and reasoning tension' })
+
+    fireEvent.click(optionB)
+
+    expect(within(screen.getByTestId('thumbnail-option-C')).getByText('Approved')).toBeVisible()
+    expect(within(screen.getByTestId('thumbnail-option-B')).getByText('Previewing')).toBeVisible()
+    expect(within(screen.getByTestId('thumbnail-option-A')).getByText('Preview')).toBeVisible()
+
+    fireEvent.click(optionC)
+
+    expect(optionC).toBeChecked()
+    expect(optionB).not.toBeChecked()
+    expect(screen.getByText('Direction C approved')).toBeVisible()
+    expect(screen.queryByText(/Approved direction remains/i)).not.toBeInTheDocument()
+    expect(screen.queryByText('Previewing direction B')).not.toBeInTheDocument()
+    expect(within(screen.getByTestId('thumbnail-option-B')).getByText('Preview')).toBeVisible()
   })
 
   it('describes every direction as hero-led and rejects blur-based composition language', () => {
