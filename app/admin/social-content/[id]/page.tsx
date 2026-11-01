@@ -3834,6 +3834,9 @@ function SocialContentDetailPage() {
   const activeApprovalStep: ApprovalStep = staleCalendarReviewStep
     ? persistedCurrentGateStep
     : requestedApprovalStep ?? persistedCurrentGateStep ?? nextReviewGate?.step ?? 'copy'
+  const currentBoundMobileDecisionReview = mobileDecisionMode
+    && hasCurrentStageDecisionPacket
+    && activeApprovalStep === mobileDecisionStep
   const copyRejectActionLabel = activeApprovalStep === 'copy'
     ? 'Reject'
     : 'Reject'
@@ -4246,7 +4249,9 @@ function SocialContentDetailPage() {
     )
   }
 
-  if (channelExperimentReview) {
+  // A current, receipt-complete Decision Queue packet owns its exact mobile route.
+  // Stale or unbound proposals keep the legacy experiment projection read-only.
+  if (channelExperimentReview && !currentBoundMobileDecisionReview) {
     const experimentReviewReason = previewFixtureReadOnly
       ? previewFixtureReason
       : 'Persisted channel-native YouTube experiment. Review only.'
@@ -6727,7 +6732,7 @@ function SocialContentDetailPage() {
 
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
-            {channelExperimentReview ? (
+            {channelExperimentReview && !currentBoundMobileDecisionReview ? (
               <ChannelExperimentSocialReview item={item} />
             ) : campaignReviewPacket?.channel === 'youtube' || channelVideoPacket ? (
               <div
@@ -6865,19 +6870,19 @@ function SocialContentDetailPage() {
 	              </div>
 	            </div>
 
-	            <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+	            <div className="mt-4 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
 	              {SOCIAL_CONTENT_DECISION_RECEIPT_KEYS.map((key) => {
 	                const receipt = mobileDecisionReadiness.packet?.receipts[key]
 	                const passed = Boolean(receipt && ['approved', 'passed', 'complete'].includes(receipt.status))
 	                return (
-	                  <div key={key} className={`rounded-lg border px-3 py-2 ${passed ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
+	                  <div key={key} className={`min-w-0 rounded-lg border px-3 py-2 ${passed ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
 	                    <div className="flex items-center justify-between gap-2">
 	                      <span className="text-xs font-semibold capitalize text-foreground">{key}</span>
 	                      <span className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${passed ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>
 	                        {passed ? 'ready' : 'blocked'}
 	                      </span>
 	                    </div>
-	                    <p className="mt-1 truncate text-[11px] text-muted-foreground">{receipt?.receipt_id || 'receipt missing'}</p>
+	                    <p className="mt-1 break-all text-[11px] text-muted-foreground">{receipt?.receipt_id || 'receipt missing'}</p>
 	                  </div>
 	                )
 	              })}

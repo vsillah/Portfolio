@@ -539,6 +539,61 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(fetchMock.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true)
   })
 
+  it.each([
+    ['exact bound proposal', 'step=copy&review=mobile&proposal=52489ae5-27c7-4c05-94ac-d7f907bd88a6', true, false, false],
+    ['no proposal', 'step=copy&review=mobile', false, false, false],
+    ['mismatched proposal', 'step=copy&review=mobile&proposal=another-work-item', false, false, false],
+    ['stale content version', 'step=copy&review=mobile&proposal=52489ae5-27c7-4c05-94ac-d7f907bd88a6', false, true, false],
+    ['mismatched receipt version', 'step=copy&review=mobile&proposal=52489ae5-27c7-4c05-94ac-d7f907bd88a6', false, false, true],
+  ] as const)('routes Dark Castle copy review with %s', async (_case, search, protectedPacket, staleVersion, staleReceipt) => {
+    const contentId = 'c12378f2-36de-4bf7-8c5d-0ce754e727eb'
+    const version = '2026-10-27T20:14:59.293829Z'
+    const experiment = channelExperimentSocialContentQaFixture('1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f')
+    const { qa_fixture: _fixture, ...context } = experiment.rag_context as Record<string, unknown>
+    const item = {
+      ...experiment,
+      id: contentId,
+      updated_at: version,
+      rag_context: {
+        ...context,
+        current_gate: 'copy_review',
+        content_version: 'sha256:4b4126fe2388687c899530cdb9ee973e744d9e0ebfd2b6378ac6b3702000342a',
+        mobile_decision_review: {
+          version: 'social-content-decision-review/v1',
+          approval_id: 'c97ba50a-3635-4c15-805b-ceef847ebd30',
+          run_id: 'eba7bbbc-e873-4ab8-8bd3-bbc0c727be0a',
+          work_item_id: '52489ae5-27c7-4c05-94ac-d7f907bd88a6',
+          content_id: contentId,
+          content_updated_at: staleVersion ? '2026-10-26T20:14:59.293829Z' : version,
+          current_gate: 'copy_review',
+          next_gate: 'visual_review',
+          receipts: Object.fromEntries(['source', 'voice', 'framework', 'privacy', 'visual', 'challenger'].map((key) => [key, {
+            receipt_id: `${key}:dark-castle-copy-review`, status: 'approved', content_updated_at: staleReceipt && key === 'source' ? '2026-10-26T20:14:59.293829Z' : version,
+          }])),
+          candidate_projection: { approved_master_sha256: '2371cd46ad5bb583891d0f42a70e3d5cef1a57368757266b16e92fc31c311f36' },
+        },
+      },
+    }
+    mocks.id = contentId
+    mocks.search = search
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({ ok: true, json: async () => ({ item }) } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    if (protectedPacket) {
+      const panel = await screen.findByRole('region', { name: 'Protected mobile Social Content decision' })
+      expect(within(panel).getByText('One decision. One version. One immutable receipt.')).toBeVisible()
+      expect(within(panel).getByRole('link', { name: 'Open Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=52489ae5-27c7-4c05-94ac-d7f907bd88a6')
+      expect(within(panel).getAllByText('ready')).toHaveLength(6)
+      expect(screen.queryByTestId('channel-experiment-social-review')).not.toBeInTheDocument()
+    } else {
+      expect(await screen.findByTestId('channel-experiment-social-review')).toBeVisible()
+      expect(screen.queryByRole('region', { name: 'Protected mobile Social Content decision' })).not.toBeInTheDocument()
+    }
+    expect(fetchMock.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true)
+  })
+
   it('keeps the authorized LinkedIn control record on the ordinary Social Content review surface', async () => {
     mocks.id = '26a4a7c9-2325-4ef7-a2ee-a83a366d4146'
     mocks.search = 'step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit'
