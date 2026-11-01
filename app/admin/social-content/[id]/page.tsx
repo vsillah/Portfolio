@@ -2870,6 +2870,10 @@ function SocialContentDetailPage() {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          expected_content_updated_at: item?.updated_at,
+          privacy_decision_receipt_id: asString(asRecord(item?.rag_context)?.latest_internal_decision_receipt_id),
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -3576,6 +3580,12 @@ function SocialContentDetailPage() {
   const visualPrivacyReady = productionAssets ? redactionGate.ready : channelVideoPacket ? channelVideoPrivacyReady : agentifiedVisualPrivacyReady
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
+  const linkedinDraftLineage = asRecord(linkedinDraftHandoff?.canonical_decision_lineage)
+  const receiptBackedLinkedInReview = !isDraftOnlyPilot
+    && asString(ragContext?.current_gate) === 'platform_submission'
+    && asString(ragContext?.latest_internal_decision_command) === 'approve_privacy'
+    && (item.platform === 'linkedin' || targetPlatforms.includes('linkedin'))
+  const showsLinkedInDraftHandoff = isDraftOnlyPilot || receiptBackedLinkedInReview || asString(linkedinDraftHandoff?.version) === 'linkedin_draft_handoff_v2'
   const linkedinDraftBlockers = [
     !isDurableCopyApprovedStatus(item.status) ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
@@ -3593,7 +3603,8 @@ function SocialContentDetailPage() {
         ? 'in_review'
         : 'pending'
   const linkedinDraftGateState: GateState = getExplicitSectionGateState('linkedin_draft', linkedinDraftBaseGateState)
-  const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
+  const canCreateLinkedInDraft = (isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved')
+    || (receiptBackedLinkedInReview && !linkedinDraftHandoff && item.status === 'approved')
   const platformSubmissionTargets = isDraftOnlyPilot ? ['linkedin' as SocialPlatform] : targetPlatforms
   const finalPlatformSubmissionApproved = isPlatformSubmissionGateApproved(ragContext, platformSubmissionTargets)
   const historicalSubmissionEvidence = item.status === 'scheduled'
@@ -6896,22 +6907,24 @@ function SocialContentDetailPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
               <Send className="w-5 h-5 text-green-400" />
-              {isDraftOnlyPilot ? 'Draft Approval Gate' : 'Where & When'}
+              {isDraftOnlyPilot ? 'Draft Approval Gate' : receiptBackedLinkedInReview ? 'Internal LinkedIn Handoff' : 'Where & When'}
             </h2>
-            {isDraftOnlyPilot && (
+            {showsLinkedInDraftHandoff && (
               <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[linkedinDraftGateState].className}`}>
                 LinkedIn draft: {GATE_STATE_CONFIG[linkedinDraftGateState].label}
               </span>
             )}
           </div>
 
-          {isDraftOnlyPilot && (
+          {showsLinkedInDraftHandoff && (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">LinkedIn Draft Handoff</p>
                   <p className="mt-2 text-sm leading-6 text-amber-50/90">
-                    Create the LinkedIn-ready draft packet after copy, visual assets, asset packet, and privacy gates are ready. Public publishing remains locked behind a later approval.
+                    {receiptBackedLinkedInReview
+                      ? 'Create one internal review handoff from the current approved copy, visual, asset packet, and immutable privacy decision. No LinkedIn account draft or provider action is created.'
+                      : 'Create the LinkedIn-ready draft packet after copy, visual assets, asset packet, and privacy gates are ready. Public publishing remains locked behind a later approval.'}
                   </p>
                   {linkedinDraftHandoff ? (
                     <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm leading-6 text-emerald-50">
@@ -6920,6 +6933,18 @@ function SocialContentDetailPage() {
                         Created {asString(linkedinDraftHandoff.created_at) ? new Date(asString(linkedinDraftHandoff.created_at)).toLocaleString() : 'for LinkedIn handoff'}.
                         {asString(linkedinDraftWorkItem.id) ? ` Work item ${asString(linkedinDraftWorkItem.id)} is ${asString(linkedinDraftWorkItem.status) || 'assigned'}.` : ''}
                       </p>
+                      {asString(linkedinDraftHandoff.version) === 'linkedin_draft_handoff_v2' && (
+                        <div className="mt-2 break-all text-xs text-emerald-50/80">
+                          <p>Bound version: {asString(linkedinDraftHandoff.source_content_updated_at)}</p>
+                          <p>Privacy decision: {asString(linkedinDraftHandoff.privacy_decision_receipt_id)}</p>
+                          <p>Approved visual: {asString(linkedinDraftHandoff.approved_visual_sha256)}</p>
+                          <p>Canonical lineage: copy → visual review → asset packet → privacy</p>
+                          <p>Copy decision: {asString(linkedinDraftLineage?.copy_receipt_id)}</p>
+                          <p>Visual decision: {asString(linkedinDraftLineage?.visual_review_receipt_id)}</p>
+                          <p>Asset packet decision: {asString(linkedinDraftLineage?.asset_packet_receipt_id)}</p>
+                          <p>External account draft: no · Internal review only</p>
+                        </div>
+                      )}
                     </div>
                   ) : linkedinDraftBlockers.length > 0 ? (
                     <div className="mt-3 rounded-lg border border-amber-500/25 bg-background/35 p-3 text-sm leading-6 text-amber-50/90">
@@ -6929,7 +6954,7 @@ function SocialContentDetailPage() {
                       </ul>
                     </div>
                   ) : null}
-                  {renderSectionGateControls('linkedin_draft', 'LinkedIn draft', linkedinDraftGateState, {
+                  {isDraftOnlyPilot && renderSectionGateControls('linkedin_draft', 'LinkedIn draft', linkedinDraftGateState, {
                     approveLabel: 'Approve LinkedIn Draft Handoff',
                     rejectLabel: 'Reject LinkedIn Draft Handoff',
                     approveDisabled: linkedinDraftBlockers.length > 0 && !linkedinDraftHandoff,
@@ -6948,7 +6973,10 @@ function SocialContentDetailPage() {
                   }`}
                 >
                   {creatingLinkedInDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                  {linkedinDraftHandoff ? 'Refresh LinkedIn Draft' : 'Create LinkedIn Draft'}
+                  {asString(linkedinDraftHandoff?.version) === 'linkedin_draft_handoff_v2'
+                    ? 'LinkedIn Handoff Recorded'
+                    : linkedinDraftHandoff ? 'Refresh LinkedIn Draft'
+                      : receiptBackedLinkedInReview ? 'Create Internal LinkedIn Handoff' : 'Create LinkedIn Draft'}
                 </button>
               </div>
             </div>

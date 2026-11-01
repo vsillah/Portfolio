@@ -161,6 +161,36 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
+  it('shows the receipt-backed handoff lineage on the protected draft review route', async () => {
+    const receiptItem = {
+      ...baseItem,
+      image_url: '/review-assets/social-content/dark-castle-linkedin.png',
+      rag_context: {
+        current_gate: 'platform_submission',
+        latest_internal_decision_command: 'approve_privacy',
+        latest_internal_decision_receipt_id: 'e935496a-e026-494a-9ab2-c9ae78d56060',
+        linkedin_draft_handoff: {
+          version: 'linkedin_draft_handoff_v2',
+          created_at: '2026-11-01T01:00:00Z',
+          source_content_updated_at: '2026-11-01T00:55:00Z',
+          privacy_decision_receipt_id: 'e935496a-e026-494a-9ab2-c9ae78d56060',
+          approved_visual_sha256: 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091',
+          work_item: { id: 'work-1', status: 'ready_for_review' },
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item: receiptItem },
+    } as Response)))
+    renderAtStep('draft')
+    expect(await screen.findByText('LinkedIn Draft Handoff')).toBeVisible()
+    expect(screen.getByText(/Privacy decision: e935496a-e026-494a-9ab2-c9ae78d56060/)).toBeVisible()
+    expect(screen.getByText(/Approved visual: sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091/)).toBeVisible()
+    expect(screen.getByText(/Canonical lineage: copy → visual review → asset packet → privacy/)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'LinkedIn Handoff Recorded' })).toBeDisabled()
+  })
+
   it('extends the existing context workflow with the outlier evidence scorecard', async () => {
     renderAtStep('context&outlierQa=ready')
 

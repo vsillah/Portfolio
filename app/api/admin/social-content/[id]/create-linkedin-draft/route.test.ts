@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   queueUpdateEq: vi.fn(),
   queueUpdateSelect: vi.fn(),
   from: vi.fn(),
+  rpc: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -27,6 +28,7 @@ vi.mock('@/lib/agent-work-items', () => ({
 vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: {
     from: mocks.from,
+    rpc: mocks.rpc,
   },
 }))
 
@@ -38,6 +40,13 @@ function request() {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/create-linkedin-draft', {
     method: 'POST',
     headers: { authorization: 'Bearer admin-token' },
+  })
+}
+
+function receiptRequest(expected = '2026-09-08T00:00:00Z', receiptId = 'e935496a-e026-494a-9ab2-c9ae78d56060') {
+  return new NextRequest('http://localhost/api/admin/social-content/social-1/create-linkedin-draft', {
+    method: 'POST', headers: { authorization: 'Bearer admin-token', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expected_content_updated_at: expected, privacy_decision_receipt_id: receiptId }),
   })
 }
 
@@ -104,6 +113,10 @@ describe('POST /api/admin/social-content/[id]/create-linkedin-draft', () => {
       status: 'assigned',
       owner_agent_key: 'content-repurposing',
     })
+    mocks.rpc.mockResolvedValue({ data: {
+      handoff: { version: 'linkedin_draft_handoff_v2', privacy_decision_receipt_id: 'e935496a-e026-494a-9ab2-c9ae78d56060', external_account_draft_created: false },
+      idempotent_replay: false,
+    }, error: null })
     mocks.queueSingle.mockResolvedValue({ data: baseItem, error: null })
     mocks.queueUpdateSingle.mockImplementation(async () => ({
       data: {
@@ -212,5 +225,31 @@ describe('POST /api/admin/social-content/[id]/create-linkedin-draft', () => {
         }),
       }),
     })
+  })
+
+  it('routes a current receipt-backed record through the atomic internal command', async () => {
+    mocks.queueSingle.mockResolvedValue({ data: {
+      ...baseItem, updated_at: '2026-09-08T00:00:00Z',
+      rag_context: { current_gate: 'platform_submission', latest_internal_decision_receipt_id: 'e935496a-e026-494a-9ab2-c9ae78d56060' },
+    }, error: null })
+    const response = await POST(receiptRequest(), { params: { id: 'social-1' } })
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({ success: true, external_execution: false,
+      linkedin_draft_handoff: { version: 'linkedin_draft_handoff_v2', external_account_draft_created: false } })
+    expect(mocks.rpc).toHaveBeenCalledWith('create_receipt_backed_linkedin_handoff', {
+      p_social_content_id: 'social-1', p_expected_content_updated_at: '2026-09-08T00:00:00Z',
+      p_privacy_receipt_id: 'e935496a-e026-494a-9ab2-c9ae78d56060', p_actor_user_id: 'admin-1',
+    })
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
+  })
+
+  it('returns a conflict on a rejected immutable receipt and makes no other write', async () => {
+    mocks.queueSingle.mockResolvedValue({ data: { ...baseItem, rag_context: { current_gate: 'platform_submission' } }, error: null })
+    mocks.rpc.mockResolvedValue({ data: null, error: { message: 'Approved visual hash or safe asset path mismatch' } })
+    const response = await POST(receiptRequest(), { params: { id: 'social-1' } })
+    expect(response.status).toBe(409)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
   })
 })
