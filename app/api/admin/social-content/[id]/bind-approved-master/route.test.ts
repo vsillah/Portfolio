@@ -12,7 +12,8 @@ const updated = '2026-11-01T14:00:00Z'
 const identity = { contentVersion: 'content-v1', masterSha256: 'master-hash', masterPath: '/master.mp4',
   thumbnailSha256: 'thumbnail-hash', thumbnailPath: '/thumb.png', thumbnailDirection: 'C', selectionReceiptId: 'selection-1',
   descriptionReceiptId: 'description-1', evidenceReceiptId: 'evidence-1' }
-const receipt = (key: string) => ({ receipt_id: `${key}-1`, status: 'approved', content_updated_at: updated })
+const receipt = (key: string) => ({ receipt_id: `${key}-1`, status: 'approved', content_updated_at: updated,
+  ...(key === 'visual' ? { asset_sha256: 'sha256:thumbnail-hash', asset_path: '/thumb.png' } : {}) })
 const row = () => ({ id: DARK_CASTLE_COPY_CONTENT_ID, updated_at: updated, platform: 'youtube', status: 'draft',
   youtube_title: 'Approved title', youtube_description: 'Approved description', video_url: null, image_url: null,
   rag_context: { content_version: 'content-v1', youtube_description_receipt: { receipt_id: 'description-1',

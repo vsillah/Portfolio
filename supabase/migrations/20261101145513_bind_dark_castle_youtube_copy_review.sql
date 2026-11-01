@@ -182,12 +182,21 @@ BEGIN
     END IF;
     v_seen_receipt_ids := array_append(v_seen_receipt_ids, v_receipt ->> 'receipt_id');
   END LOOP;
+  IF v_receipts -> 'visual' ->> 'status' IS DISTINCT FROM 'approved'
+     OR v_receipts -> 'visual' ->> 'asset_sha256' IS DISTINCT FROM 'sha256:' || p_thumbnail_sha256
+     OR v_receipts -> 'visual' ->> 'asset_path' IS DISTINCT FROM v_thumbnail_binding ->> 'path' THEN
+    RAISE EXCEPTION 'Approved visual receipt must bind the exact Direction C asset';
+  END IF;
+  IF v_item.rag_context ? 'approved_visual_sha256'
+     AND v_item.rag_context ->> 'approved_visual_sha256' IS DISTINCT FROM 'sha256:' || p_thumbnail_sha256 THEN
+    RAISE EXCEPTION 'Existing approved visual hash is ambiguous';
+  END IF;
 
   v_projection := jsonb_build_object(
     'post_text', v_item.post_text, 'cta_text', v_item.cta_text, 'cta_url', v_item.cta_url,
     'youtube_title', v_item.youtube_title, 'youtube_description', v_item.youtube_description,
     'video_url', v_media_binding ->> 'path', 'media_sha256', p_master_sha256,
-    'image_url', v_thumbnail_binding ->> 'path', 'visual_sha256', p_thumbnail_sha256,
+    'image_url', v_thumbnail_binding ->> 'path', 'visual_sha256', 'sha256:' || p_thumbnail_sha256,
     'thumbnail_direction', p_thumbnail_direction,
     'thumbnail_selection_receipt_id', p_thumbnail_selection_receipt_id,
     'description_receipt_id', p_description_receipt_id,
@@ -210,6 +219,7 @@ BEGIN
       rag_context = v_item.rag_context || jsonb_build_object(
         'dark_castle_master_binding', v_media_binding,
         'dark_castle_thumbnail_binding', v_thumbnail_binding,
+        'approved_visual_sha256', 'sha256:' || p_thumbnail_sha256,
         'copy_review_candidate_projection', v_projection,
         'current_gate', 'copy_review'),
       updated_at = now()

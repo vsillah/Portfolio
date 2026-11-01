@@ -37,7 +37,9 @@ async function inspect(request: NextRequest, id: string) {
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const result = await inspect(request, params.id)
-  return result.response ?? NextResponse.json({ ...result.report, assetStatus: 'Approved artifact files verified by SHA-256.' })
+  return result.response ?? NextResponse.json({ ...result.report, assetStatus: 'Approved artifact files verified by SHA-256.',
+    canonical_href: result.report?.ready && result.report.workItemId
+      ? socialContentDecisionHref({ contentId: DARK_CASTLE_COPY_CONTENT_ID, workItemId: result.report.workItemId, gate: 'copy_review' }) : null })
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {

@@ -63,6 +63,13 @@ export function inspectDarkCastleApprovedBinding(
     const expiry = receipt?.valid_until ?? receipt?.fresh_until ?? receipt?.expires_at
     if (expiry != null && (!Number.isFinite(Date.parse(value(expiry))) || Date.parse(value(expiry)) <= Date.parse(now))) blockers.push(`${key} receipt expired.`)
   }
+  const visualReceipt = record(bundle?.visual)
+  if (value(visualReceipt?.asset_sha256) !== `sha256:${approved.thumbnailSha256}`
+    || value(visualReceipt?.asset_path) !== approved.thumbnailPath
+    || value(visualReceipt?.status) !== 'approved') blockers.push('Approved visual receipt does not bind the exact Direction C asset.')
+  if (rag?.approved_visual_sha256 != null && rag.approved_visual_sha256 !== `sha256:${approved.thumbnailSha256}`) {
+    blockers.push('Existing approved visual hash mismatch.')
+  }
   if (rag?.mobile_decision_review != null) {
     if (item?.video_url !== approved.masterPath || item?.image_url !== approved.thumbnailPath
       || !masterBinding || !thumbnailBinding) blockers.push('Existing packet lacks the exact media binding.')
@@ -71,5 +78,6 @@ export function inspectDarkCastleApprovedBinding(
       || !value(packet?.approval_id) || !value(packet?.run_id)) blockers.push('Existing Decision Queue packet is stale or malformed.')
   }
   return { ready: blockers.length === 0, blockers, contentUpdatedAt: value(item?.updated_at),
-    packetPrepared: rag?.mobile_decision_review != null, externalExecution: false as const }
+    packetPrepared: rag?.mobile_decision_review != null, workItemId: value(packet?.work_item_id),
+    externalExecution: false as const }
 }

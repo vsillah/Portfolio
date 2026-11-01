@@ -8,7 +8,8 @@ const approved: ApprovedArtifactIdentity = { contentVersion: 'content-v1', maste
   descriptionReceiptId: 'description-1', evidenceReceiptId: 'evidence-1' }
 const calendar = () => [{ id: DARK_CASTLE_COPY_CALENDAR_ID, social_content_id: DARK_CASTLE_COPY_CONTENT_ID, due_status: 'due_soon' }]
 const receipts = () => Object.fromEntries(['source', 'voice', 'framework', 'privacy', 'visual', 'challenger'].map(key => [key,
-  { receipt_id: `${key}-1`, status: 'approved', content_updated_at: updated }]))
+  { receipt_id: `${key}-1`, status: 'approved', content_updated_at: updated,
+    ...(key === 'visual' ? { asset_sha256: 'sha256:thumbnail-hash', asset_path: '/thumb.png' } : {}) }]))
 const item = () => ({ id: DARK_CASTLE_COPY_CONTENT_ID, updated_at: updated, platform: 'youtube', status: 'draft',
   video_url: null as string | null, image_url: null as string | null, description_sha256: 'description-hash', rag_context: {
     content_version: 'content-v1', copy_review_evidence_receipts: receipts(),

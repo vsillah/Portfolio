@@ -47,9 +47,12 @@ const schema = `
     overlap_group TEXT, validation_summary TEXT, approval_id UUID, metadata JSONB,
     idempotency_key TEXT UNIQUE, updated_at TIMESTAMPTZ
   );
+  CREATE TABLE public.social_content_decision_receipts (id UUID PRIMARY KEY);
 `
 const receipts = () => Object.fromEntries(['source', 'voice', 'framework', 'privacy', 'visual', 'challenger'].map(key => [key,
-  { receipt_id: `${key}-approved`, status: 'approved', content_updated_at: version }]))
+  { receipt_id: `${key}-approved`, status: 'approved', content_updated_at: version,
+    ...(key === 'visual' ? { asset_sha256: `sha256:${thumbnailHash}`,
+      asset_path: '/review-assets/social-content/dark-castle-youtube-master-2026-10-29/03-accidental-success-v2.png' } : {}) }]))
 const context = () => ({ content_version: contentVersion,
   youtube_description_receipt: { receipt_id: descriptionId, social_content_id: id, content_version: contentVersion,
     description_sha256: descriptionHash, human_qa_status: 'pending', evidence_input_fingerprint: 'fp' },
@@ -79,10 +82,11 @@ async function bind(db: PGlite, input: unknown[] = args) {
 async function state(db: PGlite) {
   const result = await db.query<{ video_url: string | null; image_url: string | null; packet: unknown }>(
     "SELECT video_url, image_url, rag_context->'mobile_decision_review' AS packet FROM public.social_content_queue WHERE id=$1::uuid", [id])
-  const count = await db.query<{ runs: number; approvals: number; work: number }>(`SELECT
+  const count = await db.query<{ runs: number; approvals: number; work: number; decisions: number }>(`SELECT
     (SELECT count(*) FROM public.agent_runs)::int AS runs,
     (SELECT count(*) FROM public.agent_approvals)::int AS approvals,
-    (SELECT count(*) FROM public.agent_work_items)::int AS work`)
+    (SELECT count(*) FROM public.agent_work_items)::int AS work,
+    (SELECT count(*) FROM public.social_content_decision_receipts)::int AS decisions`)
   return { ...result.rows[0], ...count.rows[0] }
 }
 
@@ -94,7 +98,7 @@ describe('atomic Dark Castle approved binding in PostgreSQL', () => {
       expect(first.idempotent_replay).toBe(false)
       const snapshot = await state(db)
       expect(snapshot).toMatchObject({ video_url: expect.stringContaining('dark-castle-youtube-master.mp4'),
-        image_url: expect.stringContaining('03-accidental-success-v2.png'), runs: 1, approvals: 1, work: 1 })
+        image_url: expect.stringContaining('03-accidental-success-v2.png'), runs: 1, approvals: 1, work: 1, decisions: 0 })
       const second = await bind(db)
       expect(second).toMatchObject({ work_item_id: first.work_item_id, idempotent_replay: true })
       expect(await state(db)).toEqual(snapshot)
@@ -110,17 +114,19 @@ describe('atomic Dark Castle approved binding in PostgreSQL', () => {
     ['missing evidence receipt', args],
     ['missing copy source receipt', args],
     ['pending visual source receipt', args],
+    ['wrong visual asset hash', args],
     ['duplicate source identity', args],
   ])('rolls back all writes for %s', async (caseName, input) => {
     const rag = context()
     if (caseName === 'missing evidence receipt') delete (rag as Partial<typeof rag>).description_evidence_reconciliation_receipt
     if (caseName === 'missing copy source receipt') delete (rag.copy_review_evidence_receipts as Partial<typeof rag.copy_review_evidence_receipts>).source
     if (caseName === 'pending visual source receipt') rag.copy_review_evidence_receipts.visual.status = 'pending'
+    if (caseName === 'wrong visual asset hash') rag.copy_review_evidence_receipts.visual.asset_sha256 = 'sha256:wrong'
     if (caseName === 'duplicate source identity') rag.copy_review_evidence_receipts.voice.receipt_id = 'source-approved'
     const db = await setup(rag)
     try {
       await expect(bind(db, input as unknown[])).rejects.toThrow()
-      expect(await state(db)).toMatchObject({ video_url: null, image_url: null, packet: null, runs: 0, approvals: 0, work: 0 })
+      expect(await state(db)).toMatchObject({ video_url: null, image_url: null, packet: null, runs: 0, approvals: 0, work: 0, decisions: 0 })
     } finally { await db.close() }
   })
 
@@ -131,7 +137,7 @@ describe('atomic Dark Castle approved binding in PostgreSQL', () => {
         VALUES (gen_random_uuid(), 'social-copy-review:' || $1::text || ':' || $2::timestamptz::text || ':run')`, [id, version])
       await expect(bind(db)).rejects.toThrow()
       expect(await state(db)).toMatchObject({ video_url: null, image_url: null, packet: null,
-        runs: 1, approvals: 0, work: 0 })
+        runs: 1, approvals: 0, work: 0, decisions: 0 })
     } finally { await db.close() }
   })
 })
