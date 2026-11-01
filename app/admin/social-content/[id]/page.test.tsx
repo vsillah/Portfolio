@@ -84,6 +84,42 @@ describe('SocialContentDetailRoute visual production review', () => {
     publishes: [],
   }
 
+  const receiptBackedDraftItem = () => {
+    const reviewedVersion = '2026-11-01T00:50:00.000Z'
+    const currentVersion = '2026-11-01T01:00:00.000Z'
+    const privacyReceiptId = 'e935496a-e026-494a-9ab2-c9ae78d56060'
+    const visualHash = 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091'
+    const imageUrl = '/review-assets/social-content/dark-castle-linkedin.png'
+    const candidate = { post_text: baseItem.post_text, cta_text: baseItem.cta_text, cta_url: baseItem.cta_url, image_url: imageUrl, visual_sha256: visualHash }
+    const receipt = (key: string) => ({
+      receipt_id: key === 'visual' ? `visual:${visualHash}` : `${key}:receipt`,
+      status: 'approved', content_updated_at: reviewedVersion,
+    })
+    return {
+      ...baseItem,
+      image_url: imageUrl,
+      updated_at: currentVersion,
+      recorded_internal_decision_receipt: {
+        receipt_id: privacyReceiptId, decision: 'approve', reviewed_content_updated_at: reviewedVersion,
+        next_gate: 'platform_submission', verified: true,
+      },
+      rag_context: {
+        source: 'receipt_backed_social_content',
+        current_gate: 'platform_submission', latest_internal_decision: 'approve',
+        latest_internal_decision_command: 'approve_privacy',
+        latest_internal_decision_receipt_id: privacyReceiptId,
+        approved_visual_sha256: visualHash,
+        copy_review_candidate_projection: candidate,
+        mobile_decision_review: {
+          version: 'social-content-decision-review/v1', approval_id: 'approval-1', run_id: 'run-1', work_item_id: 'work-1',
+          content_id: baseItem.id, content_updated_at: reviewedVersion, current_gate: 'privacy', next_gate: 'platform_submission',
+          receipts: Object.fromEntries(['source', 'voice', 'framework', 'privacy', 'visual', 'challenger'].map((key) => [key, receipt(key)])),
+          candidate_projection: candidate,
+        },
+      },
+    }
+  }
+
   const completeTextOnlyXRagContext = {
     source_packet_path: 'docs/content-strategy/agentified-x-source-packet.md',
     platform: 'x',
@@ -160,6 +196,91 @@ describe('SocialContentDetailRoute visual production review', () => {
     mocks.search = `step=${step}`
     return render(<SocialContentDetailRoute />)
   }
+
+  it('uses verified receipt lineage instead of legacy production-asset blockers on the draft route', async () => {
+    const item = receiptBackedDraftItem()
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true, json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item },
+    } as Response)))
+    renderAtStep('draft')
+    expect(await screen.findByRole('heading', { name: 'Internal LinkedIn Handoff' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Create Internal LinkedIn Handoff' })).toBeEnabled()
+    expect(screen.queryByText('Approve the visual assets section first.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Prepare the asset packet first.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Still needed')).not.toBeInTheDocument()
+  })
+
+  it('accepts the same candidate projection with a different JSON object key order', async () => {
+    const item = receiptBackedDraftItem()
+    const candidate = item.rag_context.mobile_decision_review.candidate_projection
+    const candidateWithEvidence = {
+      ...candidate,
+      evidence: { source_receipt_id: 'source:approved', privacy_receipt_id: 'privacy:approved' },
+    }
+    item.rag_context.mobile_decision_review.candidate_projection = candidateWithEvidence
+    item.rag_context.copy_review_candidate_projection = Object.fromEntries(
+      [
+        ['evidence', { privacy_receipt_id: 'privacy:approved', source_receipt_id: 'source:approved' }],
+        ...Object.entries(candidate).reverse(),
+      ],
+    ) as typeof candidate
+    expect(JSON.stringify(item.rag_context.mobile_decision_review.candidate_projection)).not.toBe(JSON.stringify(item.rag_context.copy_review_candidate_projection))
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true, json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item },
+    } as Response)))
+    renderAtStep('draft')
+    expect(await screen.findByRole('heading', { name: 'Internal LinkedIn Handoff' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Create Internal LinkedIn Handoff' })).toBeEnabled()
+    expect(screen.queryByText('Still needed')).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ['missing privacy evidence', (item: ReturnType<typeof receiptBackedDraftItem>) => { delete item.rag_context.mobile_decision_review.receipts.privacy }, 'The exact immutable privacy decision receipt is missing, stale, or mismatched.'],
+    ['privacy receipt', (item: ReturnType<typeof receiptBackedDraftItem>) => { item.rag_context.latest_internal_decision_receipt_id = 'wrong-receipt' }, 'The exact immutable privacy decision receipt is missing, stale, or mismatched.'],
+    ['visual hash', (item: ReturnType<typeof receiptBackedDraftItem>) => { item.rag_context.approved_visual_sha256 = `sha256:${'0'.repeat(64)}` }, 'The approved visual receipt does not match the current asset and SHA-256.'],
+  ])('blocks a receipt-backed handoff with mismatched %s', async (_name, mutate, expectedBlocker) => {
+    const item = receiptBackedDraftItem()
+    mutate(item)
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true, json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item },
+    } as Response)))
+    renderAtStep('draft')
+    expect(await screen.findByRole('heading', { name: 'Internal LinkedIn Handoff' })).toBeVisible()
+    const blockers = screen.getByText('Still needed').parentElement as HTMLElement
+    expect(within(blockers).getByText(`- ${expectedBlocker}`)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Create Internal LinkedIn Handoff' })).toBeDisabled()
+    expect(screen.queryByText('Approve the visual assets section first.')).not.toBeInTheDocument()
+  })
+
+  it('shows the receipt-backed handoff lineage on the protected draft review route', async () => {
+    const receiptItem = {
+      ...baseItem,
+      image_url: '/review-assets/social-content/dark-castle-linkedin.png',
+      rag_context: {
+        current_gate: 'platform_submission',
+        latest_internal_decision_command: 'approve_privacy',
+        latest_internal_decision_receipt_id: 'e935496a-e026-494a-9ab2-c9ae78d56060',
+        linkedin_draft_handoff: {
+          version: 'linkedin_draft_handoff_v2',
+          created_at: '2026-11-01T01:00:00Z',
+          source_content_updated_at: '2026-11-01T00:55:00Z',
+          privacy_decision_receipt_id: 'e935496a-e026-494a-9ab2-c9ae78d56060',
+          approved_visual_sha256: 'sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091',
+          work_item: { id: 'work-1', status: 'ready_for_review' },
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item: receiptItem },
+    } as Response)))
+    renderAtStep('draft')
+    expect(await screen.findByText('LinkedIn Draft Handoff')).toBeVisible()
+    expect(screen.getByText(/Privacy decision: e935496a-e026-494a-9ab2-c9ae78d56060/)).toBeVisible()
+    expect(screen.getByText(/Approved visual: sha256:88f26176acb339f10373dc39637e91ca8235f5cc3075f39ff737b97672a86091/)).toBeVisible()
+    expect(screen.getByText(/Canonical lineage: copy → visual review → asset packet → privacy/)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'LinkedIn Handoff Recorded' })).toBeDisabled()
+  })
 
   it('extends the existing context workflow with the outlier evidence scorecard', async () => {
     renderAtStep('context&outlierQa=ready')

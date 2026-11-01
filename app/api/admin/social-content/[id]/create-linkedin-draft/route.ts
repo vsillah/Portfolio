@@ -91,10 +91,32 @@ export async function POST(
     const isDraftOnlyAgentOps = ragContext.source === 'agent_ops_social_outreach_goal' &&
       ragContext.publish_gate === 'draft_only'
     if (!isDraftOnlyAgentOps) {
-      return NextResponse.json(
-        { error: 'LinkedIn draft handoff is only available for draft-only Agent Ops content.' },
-        { status: 400 }
-      )
+      const body = asRecord(await request.json().catch(() => ({})))
+      const expectedVersion = typeof body.expected_content_updated_at === 'string' ? body.expected_content_updated_at : ''
+      const privacyReceiptId = typeof body.privacy_decision_receipt_id === 'string' ? body.privacy_decision_receipt_id : ''
+      if (!expectedVersion || !/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(privacyReceiptId)) {
+        return NextResponse.json({ error: 'Exact content version and privacy decision receipt are required.' }, { status: 400 })
+      }
+      const { data, error } = await admin.rpc('create_receipt_backed_linkedin_handoff', {
+        p_social_content_id: id,
+        p_expected_content_updated_at: expectedVersion,
+        p_privacy_receipt_id: privacyReceiptId,
+        p_actor_user_id: authResult.user.id,
+      })
+      if (error || !data) {
+        const message = error?.message || 'Failed to create receipt-backed LinkedIn handoff'
+        const conflict = /stale|missing|required|mismatch|duplicate|ambiguous|evidence|ordering|bound|existing|gate|approval|lifecycle/i.test(message)
+        return NextResponse.json({ error: message }, { status: conflict ? 409 : 500 })
+      }
+      const { data: updated, error: readError } = await admin.from('social_content_queue').select('*').eq('id', id).single()
+      if (readError || !updated) return NextResponse.json({ error: 'Handoff created but current content could not be read.' }, { status: 500 })
+      return NextResponse.json({
+        success: true,
+        item: updated,
+        linkedin_draft_handoff: asRecord(data).handoff,
+        idempotent_replay: asRecord(data).idempotent_replay === true,
+        external_execution: false,
+      })
     }
 
     const productionAssets = getProductionAssets(ragContext)
