@@ -3102,7 +3102,7 @@ function SocialContentDetailPage() {
     && mobileDecisionReadiness.packet.content_updated_at === item.updated_at
     && mobileDecisionReadiness.ready,
   )
-  const canPrepareCurrentStageReview = (['asset_packet', 'privacy'].includes(persistedCurrentGate)
+  const canPrepareCurrentStageReview = (['visual_review', 'asset_packet', 'privacy'].includes(persistedCurrentGate)
     || (persistedCurrentGate === 'copy_review' && !rawMobileDecisionPacket))
     && !hasCurrentStageDecisionPacket
   const persistedCurrentGateStep = isSocialContentCanonicalGate(persistedCurrentGate)
