@@ -35,13 +35,25 @@ const schema = `
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(), title TEXT, objective TEXT, status TEXT,
     priority TEXT, owner_agent_key TEXT, source_type TEXT, source_id TEXT, source_label TEXT,
     metadata JSONB, idempotency_key TEXT UNIQUE, validation_summary TEXT, blocker_summary TEXT,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), owner_runtime TEXT, source_run_id UUID,
+    active_run_id UUID, overlap_group TEXT, approval_id UUID
+  );
+  CREATE TABLE public.agent_runs (
+    id UUID PRIMARY KEY, agent_key TEXT, runtime TEXT, kind TEXT, title TEXT, status TEXT,
+    subject_type TEXT, subject_id TEXT, subject_label TEXT, current_step TEXT,
+    trigger_source TEXT, triggered_by_user_id UUID, metadata JSONB,
+    idempotency_key TEXT UNIQUE, updated_at TIMESTAMPTZ
+  );
+  CREATE TABLE public.agent_approvals (
+    id UUID PRIMARY KEY, run_id UUID, approval_type TEXT, status TEXT,
+    requested_by_agent_key TEXT, metadata JSONB
   );
 `
 const migration = readFileSync('supabase/migrations/20261101101235_create_receipt_backed_linkedin_handoff.sql', 'utf8')
 const repairMigration = readFileSync('supabase/migrations/20261101103938_repair_receipt_backed_linkedin_handoff_queue_shape.sql', 'utf8')
 const reviewMigration = readFileSync('supabase/migrations/20261101113227_linkedin_handoff_internal_review.sql', 'utf8')
 const reviewBindingRepair = readFileSync('supabase/migrations/20261101121934_repair_linkedin_handoff_review_timestamp_binding.sql', 'utf8')
+const finalReviewMigration = readFileSync('supabase/migrations/20261101132203_prepare_linkedin_platform_submission_review.sql', 'utf8')
 const stages = [
   ['22222222-2222-4222-8222-222222222222', 'copy_review', 'visual_review', 'approve_copy', '2026-11-01T00:10:00Z'],
   ['44444444-4444-4444-8444-444444444444', 'visual_review', 'asset_packet', 'approve_visual_review', '2026-11-01T00:20:00Z'],
@@ -57,6 +69,7 @@ async function fixture(stagingOldFunction = false) {
   await db.exec(repairMigration)
   await db.exec(reviewMigration)
   await db.exec(reviewBindingRepair)
+  await db.exec(finalReviewMigration)
   await db.query('INSERT INTO auth.users (id) VALUES ($1::uuid)', [actorId])
   await db.query(`INSERT INTO public.social_content_queue
     (id, status, platform, updated_at, rag_context, post_text, cta_text, image_url, hashtags)
@@ -85,6 +98,16 @@ async function reviewHandoff(db: PGlite, workItemId: string, createdAt: string) 
     ) AS result`,
     [contentId, workItemId, privacyId, createdAt, actorId,
       `linkedin-handoff-review:${workItemId}:${privacyId}:approve`]
+  )
+  return result.rows[0].result
+}
+
+async function prepareFinalReview(db: PGlite, expected: string, receiptId: string) {
+  const result = await db.query<{ result: { work_item_id: string; approval_id: string; run_id: string; idempotent_replay: boolean; external_execution: boolean } }>(
+    `SELECT public.prepare_linkedin_platform_submission_review(
+      $1::uuid, $2::timestamptz, $3::uuid, $4::uuid, $5
+    ) AS result`,
+    [contentId, expected, receiptId, actorId, `social-platform-submission-review:${contentId}:${receiptId}:${expected}`],
   )
   return result.rows[0].result
 }
@@ -183,5 +206,48 @@ describe('receipt-backed LinkedIn handoff in PostgreSQL', () => {
       const count = await db.query<{ count: string }>('SELECT count(*)::text AS count FROM public.social_linkedin_handoff_decisions')
       expect(count.rows[0].count).toBe('0')
     } finally { await db.close() }
+  })
+
+  it('prepares and replays exactly one final platform-submission Decision Queue packet', async () => {
+    const db = await fixture()
+    try {
+      const prepared = await handoff(db)
+      const handoffWorkId = prepared.handoff.work_item.id as string
+      await db.query("UPDATE public.social_content_queue SET updated_at = '2026-11-01T11:10:52.302227Z' WHERE id = $1::uuid", [contentId])
+      await db.query("UPDATE public.agent_work_items SET updated_at = '2026-11-01T11:10:52.302227Z' WHERE id = $1::uuid", [handoffWorkId])
+      const decision = await reviewHandoff(db, handoffWorkId, prepared.handoff.created_at as string)
+      const state = await db.query<{ updated_at: string }>('SELECT updated_at::text FROM public.social_content_queue WHERE id = $1::uuid', [contentId])
+      const first = await prepareFinalReview(db, state.rows[0].updated_at, decision.id)
+      expect(first).toMatchObject({ idempotent_replay: false, external_execution: false })
+      const live = await db.query<{ updated_at: string }>('SELECT updated_at::text FROM public.social_content_queue WHERE id = $1::uuid', [contentId])
+      const replay = await prepareFinalReview(db, live.rows[0].updated_at, decision.id)
+      expect(replay).toMatchObject({ work_item_id: first.work_item_id, approval_id: first.approval_id, run_id: first.run_id, idempotent_replay: true })
+      const rows = await db.query<{ reviews: string; publishes: string }>(`
+        SELECT count(*) FILTER (WHERE source_type = 'social_content_internal_review')::text AS reviews,
+          (SELECT count(*)::text FROM public.social_content_publishes) AS publishes
+        FROM public.agent_work_items`)
+      expect(rows.rows[0]).toEqual({ reviews: '1', publishes: '0' })
+    } finally { await db.close() }
+  })
+
+  it('fails final preparation closed for a mismatched handoff receipt or provider evidence', async () => {
+    const db = await fixture()
+    try {
+      const prepared = await handoff(db)
+      const handoffWorkId = prepared.handoff.work_item.id as string
+      await db.query("UPDATE public.social_content_queue SET updated_at = '2026-11-01T11:10:52.302227Z' WHERE id = $1::uuid", [contentId])
+      await db.query("UPDATE public.agent_work_items SET updated_at = '2026-11-01T11:10:52.302227Z' WHERE id = $1::uuid", [handoffWorkId])
+      const decision = await reviewHandoff(db, handoffWorkId, prepared.handoff.created_at as string)
+      const state = await db.query<{ updated_at: string }>('SELECT updated_at::text FROM public.social_content_queue WHERE id = $1::uuid', [contentId])
+      await expect(prepareFinalReview(db, state.rows[0].updated_at, privacyId)).rejects.toThrow()
+      await db.query("INSERT INTO public.social_content_publishes VALUES ($1::uuid, 'pending')", [contentId])
+      await expect(prepareFinalReview(db, state.rows[0].updated_at, decision.id)).rejects.toThrow('provider or publication evidence')
+    } finally { await db.close() }
+  })
+
+  it('contains no provider, upload, or publish-row mutation path', () => {
+    expect(finalReviewMigration).not.toMatch(/net\.http|http_post|storage\.objects|INSERT INTO public\.social_content_publishes|UPDATE public\.social_content_publishes/i)
+    expect(finalReviewMigration).toContain("'external_execution', false")
+    expect(finalReviewMigration).toContain('SECURITY INVOKER')
   })
 })
