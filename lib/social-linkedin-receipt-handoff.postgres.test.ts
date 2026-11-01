@@ -17,6 +17,8 @@ const rag = {
   latest_internal_decision_receipt_id: privacyId, approved_visual_sha256: assetHash, copy_review_candidate_projection: candidate,
 }
 const schema = `
+  CREATE SCHEMA auth;
+  CREATE TABLE auth.users (id UUID PRIMARY KEY);
   CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
   CREATE TABLE public.social_content_queue (
     id UUID PRIMARY KEY, status TEXT, platform TEXT, updated_at TIMESTAMPTZ, rag_context JSONB,
@@ -32,11 +34,14 @@ const schema = `
   CREATE TABLE public.agent_work_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(), title TEXT, objective TEXT, status TEXT,
     priority TEXT, owner_agent_key TEXT, source_type TEXT, source_id TEXT, source_label TEXT,
-    metadata JSONB, idempotency_key TEXT UNIQUE
+    metadata JSONB, idempotency_key TEXT UNIQUE, validation_summary TEXT, blocker_summary TEXT,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   );
 `
 const migration = readFileSync('supabase/migrations/20261101101235_create_receipt_backed_linkedin_handoff.sql', 'utf8')
 const repairMigration = readFileSync('supabase/migrations/20261101103938_repair_receipt_backed_linkedin_handoff_queue_shape.sql', 'utf8')
+const reviewMigration = readFileSync('supabase/migrations/20261101113227_linkedin_handoff_internal_review.sql', 'utf8')
+const reviewBindingRepair = readFileSync('supabase/migrations/20261101121934_repair_linkedin_handoff_review_timestamp_binding.sql', 'utf8')
 const stages = [
   ['22222222-2222-4222-8222-222222222222', 'copy_review', 'visual_review', 'approve_copy', '2026-11-01T00:10:00Z'],
   ['44444444-4444-4444-8444-444444444444', 'visual_review', 'asset_packet', 'approve_visual_review', '2026-11-01T00:20:00Z'],
@@ -50,6 +55,9 @@ async function fixture(stagingOldFunction = false) {
     ? migration.replace('OR v_item.platform_post_id IS NOT NULL', 'OR v_item.platform_post_id IS NOT NULL OR v_item.platform_post_url IS NOT NULL')
     : migration)
   await db.exec(repairMigration)
+  await db.exec(reviewMigration)
+  await db.exec(reviewBindingRepair)
+  await db.query('INSERT INTO auth.users (id) VALUES ($1::uuid)', [actorId])
   await db.query(`INSERT INTO public.social_content_queue
     (id, status, platform, updated_at, rag_context, post_text, cta_text, image_url, hashtags)
     VALUES ($1::uuid, 'approved', 'linkedin', $2::timestamptz, $3::jsonb, $4, $5, $6, ARRAY['chess'])`,
@@ -66,6 +74,18 @@ async function handoff(db: PGlite, expected = version, receipt = privacyId) {
   const result = await db.query<{ result: { handoff: Record<string, any>; idempotent_replay: boolean } }>(
     'SELECT public.create_receipt_backed_linkedin_handoff($1::uuid, $2::timestamptz, $3::uuid, $4::uuid) AS result',
     [contentId, expected, receipt, actorId])
+  return result.rows[0].result
+}
+
+async function reviewHandoff(db: PGlite, workItemId: string, createdAt: string) {
+  const result = await db.query<{ result: { id: string; decision: string; next_internal_gate: string; external_execution: boolean } }>(
+    `SELECT public.record_social_linkedin_handoff_decision(
+      $1::uuid, $2::uuid, $3::uuid, $4::timestamptz, 'approve', $5::uuid, NULL,
+      $6
+    ) AS result`,
+    [contentId, workItemId, privacyId, createdAt, actorId,
+      `linkedin-handoff-review:${workItemId}:${privacyId}:approve`]
+  )
   return result.rows[0].result
 }
 
@@ -128,6 +148,40 @@ describe('receipt-backed LinkedIn handoff in PostgreSQL', () => {
       await handoff(db)
       await db.query("INSERT INTO public.social_content_publishes VALUES ($1, 'draft')", [contentId])
       await expect(handoff(db)).rejects.toThrow('provider or publication evidence')
+    } finally { await db.close() }
+  })
+
+  it('records the exact internal decision when persisted row versions match but the packet clock differs', async () => {
+    const db = await fixture()
+    try {
+      const prepared = await handoff(db)
+      const workItemId = prepared.handoff.work_item.id as string
+      const createdAt = prepared.handoff.created_at as string
+      const persistedAt = '2026-11-01T11:10:52.302227Z'
+      expect(new Date(createdAt).toISOString()).not.toBe(new Date(persistedAt).toISOString())
+      await db.query('UPDATE public.social_content_queue SET updated_at = $1::timestamptz WHERE id = $2::uuid', [persistedAt, contentId])
+      await db.query('UPDATE public.agent_work_items SET updated_at = $1::timestamptz WHERE id = $2::uuid', [persistedAt, workItemId])
+
+      const decision = await reviewHandoff(db, workItemId, createdAt)
+      expect(decision).toMatchObject({ decision: 'approve', next_internal_gate: 'final_platform_submission_readiness', external_execution: false })
+      const rows = await db.query<{ status: string; receipt: string; publishes: string }>(`
+        SELECT w.status, w.metadata->>'handoff_review_receipt_id' AS receipt,
+          (SELECT count(*)::text FROM public.social_content_publishes) AS publishes
+        FROM public.agent_work_items w WHERE w.id = $1::uuid`, [workItemId])
+      expect(rows.rows[0]).toMatchObject({ status: 'blocked', receipt: decision.id, publishes: '0' })
+    } finally { await db.close() }
+  })
+
+  it('still rejects a queue version that no longer matches its bound handoff work item', async () => {
+    const db = await fixture()
+    try {
+      const prepared = await handoff(db)
+      const workItemId = prepared.handoff.work_item.id as string
+      await db.query("UPDATE public.social_content_queue SET updated_at = '2026-11-01T12:00:00Z' WHERE id = $1::uuid", [contentId])
+      await db.query("UPDATE public.agent_work_items SET updated_at = '2026-11-01T11:00:00Z' WHERE id = $1::uuid", [workItemId])
+      await expect(reviewHandoff(db, workItemId, prepared.handoff.created_at as string)).rejects.toThrow('stale')
+      const count = await db.query<{ count: string }>('SELECT count(*)::text AS count FROM public.social_linkedin_handoff_decisions')
+      expect(count.rows[0].count).toBe('0')
     } finally { await db.close() }
   })
 })
