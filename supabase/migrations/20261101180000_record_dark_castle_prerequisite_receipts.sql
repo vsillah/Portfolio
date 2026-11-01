@@ -13,6 +13,7 @@ CREATE TABLE public.dark_castle_prerequisite_receipts (
   receipt JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE public.dark_castle_prerequisite_receipts ENABLE ROW LEVEL SECURITY;
 
 CREATE FUNCTION public.reject_dark_castle_receipt_change() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path = public, pg_temp AS $$

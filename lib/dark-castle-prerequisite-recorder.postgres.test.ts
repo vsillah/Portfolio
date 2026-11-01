@@ -24,7 +24,7 @@ const context = { content_version: version,
 
 async function setup() {
   const db = new PGlite()
-  await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+  await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;
     CREATE TABLE public.social_content_queue (id uuid PRIMARY KEY, updated_at timestamptz NOT NULL, platform text, status text, rag_context jsonb, youtube_description text);
     CREATE FUNCTION public.set_social_updated_at() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.updated_at := now(); RETURN NEW; END $$;
     CREATE TRIGGER set_social_updated_at BEFORE UPDATE ON public.social_content_queue FOR EACH ROW EXECUTE FUNCTION public.set_social_updated_at();`)
@@ -106,15 +106,27 @@ describe('Dark Castle prerequisite receipt recorder in PostgreSQL', () => {
     } finally { await db.close() }
   })
 
-  it('revokes callable and table access from public and authenticated', async () => {
+  it('enables RLS and reserves function and table access for the service role', async () => {
     const db = await setup()
     try {
-      const grants = await db.query<{ execute: boolean; select: boolean; service_execute: boolean; service_select: boolean }>(`SELECT
-        has_function_privilege('authenticated','public.record_dark_castle_prerequisite_receipts(uuid,timestamptz,uuid,jsonb)','EXECUTE') execute,
-        has_table_privilege('authenticated','public.dark_castle_prerequisite_receipts','SELECT') "select",
+      const grants = await db.query<{ rls_enabled: boolean; anon_select: boolean; anon_insert: boolean; authenticated_select: boolean; authenticated_insert: boolean; public_table_grants: boolean; authenticated_execute: boolean; anon_execute: boolean; public_execute: boolean; service_execute: boolean; service_select: boolean; service_insert: boolean; service_bypassrls: boolean }>(`SELECT
+        (SELECT relrowsecurity FROM pg_class WHERE oid = 'public.dark_castle_prerequisite_receipts'::regclass) rls_enabled,
+        has_table_privilege('anon','public.dark_castle_prerequisite_receipts','SELECT') anon_select,
+        has_table_privilege('anon','public.dark_castle_prerequisite_receipts','INSERT') anon_insert,
+        has_table_privilege('authenticated','public.dark_castle_prerequisite_receipts','SELECT') authenticated_select,
+        has_table_privilege('authenticated','public.dark_castle_prerequisite_receipts','INSERT') authenticated_insert,
+        EXISTS (SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a WHERE c.oid = 'public.dark_castle_prerequisite_receipts'::regclass AND a.grantee = 0) public_table_grants,
+        has_function_privilege('authenticated','public.record_dark_castle_prerequisite_receipts(uuid,timestamptz,uuid,jsonb)','EXECUTE') authenticated_execute,
+        has_function_privilege('anon','public.record_dark_castle_prerequisite_receipts(uuid,timestamptz,uuid,jsonb)','EXECUTE') anon_execute,
+        EXISTS (SELECT 1 FROM pg_proc p, LATERAL aclexplode(p.proacl) a WHERE p.oid = 'public.record_dark_castle_prerequisite_receipts(uuid,timestamptz,uuid,jsonb)'::regprocedure AND a.grantee = 0) public_execute,
         has_function_privilege('service_role','public.record_dark_castle_prerequisite_receipts(uuid,timestamptz,uuid,jsonb)','EXECUTE') service_execute,
-        has_table_privilege('service_role','public.dark_castle_prerequisite_receipts','SELECT') service_select`)
-      expect(grants.rows[0]).toEqual({ execute: false, select: false, service_execute: true, service_select: true })
+        has_table_privilege('service_role','public.dark_castle_prerequisite_receipts','SELECT') service_select,
+        has_table_privilege('service_role','public.dark_castle_prerequisite_receipts','INSERT') service_insert,
+        (SELECT rolbypassrls FROM pg_roles WHERE rolname = 'service_role') service_bypassrls`)
+      expect(grants.rows[0]).toEqual({ rls_enabled: true, anon_select: false, anon_insert: false,
+        authenticated_select: false, authenticated_insert: false, public_table_grants: false,
+        authenticated_execute: false, anon_execute: false, public_execute: false,
+        service_execute: true, service_select: true, service_insert: true, service_bypassrls: true })
     } finally { await db.close() }
   })
 })
