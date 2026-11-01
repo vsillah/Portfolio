@@ -1,8 +1,10 @@
 # Dark Castle approved media binding review
 
-Source revision of the captured interface: `8aec53a2` in `codex/dark-castle-operator-binding`.
+Source revision of the captured interface: `09a72eb2bd9e0e98f084ef32334b7640b0279dd6` in `codex/dark-castle-operator-binding`.
 
-Exact local route: `http://127.0.0.1:5327/admin/social-content/dark-castle-youtube-master-review?qa_fixture=dark_castle_binding_readiness_v1&rev=8aec53a2`
+Exact local route: `http://127.0.0.1:5327/admin/social-content/dark-castle-youtube-master-review?qa_fixture=dark_castle_binding_readiness_v1&rev=09a72eb2bd9e0e98f084ef32334b7640b0279dd6`
+
+The later evidence-only commit packages these captures; the interface code and fixture shown here are from the source revision above.
 
 The local fixture is read-only. It verifies the shipped master and approved Direction C thumbnail bytes against their review receipts, then shows the production-observed prerequisite blocker without connecting the fixture to production. The approved Direction C remains distinct when B is selected for comparison; the canonical binding action is disabled while the six persisted copy-review evidence receipts are absent. The gate sequence is copy review, visual review, asset packet, privacy, and platform submission. No decision or external execution is shown or performed.
 
