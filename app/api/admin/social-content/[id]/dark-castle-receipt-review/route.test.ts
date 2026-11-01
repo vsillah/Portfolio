@@ -2,10 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: vi.fn(), isAuthError: vi.fn() }))
-vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: vi.fn() } }))
-import { verifyAdmin } from '@/lib/auth-server'
+vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: vi.fn(), rpc: vi.fn() } }))
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { GET } from './route'
+import { GET, POST } from './route'
 
 const contentId = 'c12378f2-36de-4bf7-8c5d-0ce754e727eb'
 
@@ -28,5 +28,14 @@ describe('Dark Castle receipt review route', () => {
     const response = await GET(new NextRequest('http://localhost/api/admin/social-content/other/dark-castle-receipt-review'), { params: { id: 'other' } })
     expect(response.status).toBe(404)
     expect(supabaseAdmin.from).not.toHaveBeenCalled()
+  })
+
+  it('does not allow fixture or unauthenticated POST recording', async () => {
+    vi.mocked(verifyAdmin).mockResolvedValue({ error: 'Unauthorized', status: 401 } as never)
+    vi.mocked(isAuthError).mockReturnValue(true)
+    const response = await POST(new NextRequest(`http://localhost/api/admin/social-content/${contentId}/dark-castle-receipt-review?qa_fixture=dark_castle_receipt_packets_v1`,
+      { method: 'POST', body: JSON.stringify({ approved_packet_ids: [] }) }), { params: { id: contentId } })
+    expect(response.status).toBe(401)
+    expect(supabaseAdmin.rpc).not.toHaveBeenCalled()
   })
 })
