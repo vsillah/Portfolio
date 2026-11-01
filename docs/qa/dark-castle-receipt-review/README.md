@@ -17,7 +17,9 @@ The source materials support review preparation only. Each category still needs 
 
 ## Validation
 
+- Product revision: `702908f41cda800bcddf61c005aa91e9af1d40a2` on `codex/shaka-dark-castle-youtube-receipt-packets`.
+- Exact local QA route: `http://127.0.0.1:5328/admin/social-content/dark-castle-youtube-receipt-review?qa_fixture=dark_castle_receipt_packets_v1&rev=702908f41cda800bcddf61c005aa91e9af1d40a2`.
 - Focused tests: `vitest` packet builder, route, new page, and existing master page.
 - Typecheck: `tsc --noEmit --pretty false` reports pre-existing errors outside these files; no error points to this lane.
 - Browser: local fixture at desktop 1280 × 720, mobile 390 × 844, and tablet 768 × 900. Six packet controls exercised at desktop and mobile; no horizontal overflow observed.
-- The MP4 is a privacy-safe still-frame walkthrough of the exact rendered local review states. It does not represent a live approval or production mutation.
+- `walkthrough.mp4` is an 18-second, 1920 × 1080 H.264 privacy-safe still-frame walkthrough of all six exact rendered desktop and mobile review states. `desktop-01.png` through `desktop-06.png` and `mobile-01.png` through `mobile-06.png` are its source captures; `render-walkthrough.sh` reproduces it. It does not represent a live approval or production mutation.
