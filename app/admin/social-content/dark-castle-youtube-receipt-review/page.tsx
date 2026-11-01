@@ -52,7 +52,7 @@ export default function DarkCastleReceiptReviewPage() {
       <div className="rounded-lg border-l-4 border-amber-400 bg-muted/30 p-4 text-sm" role="status">
         <p className="font-semibold">{report.fixture ? 'Local review fixture' : report.record_verified ? 'Canonical record checked' : 'Canonical record unavailable'}</p>
         <p className="mt-1 break-all text-muted-foreground">Content version: {report.packets[0]?.content_version}</p>
-        <p className="mt-1 text-muted-foreground">All six prerequisite reviewer decisions and persisted receipts remain missing.</p>
+        <p className="mt-1 text-muted-foreground">Each packet lists its current blockers. No review decision is recorded here.</p>
       </div>
       <div className="grid gap-5 lg:grid-cols-[15rem_minmax(0,1fr)]">
         <nav aria-label="Receipt review packets" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:flex-col">

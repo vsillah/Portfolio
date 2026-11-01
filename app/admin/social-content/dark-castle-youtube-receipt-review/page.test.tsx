@@ -33,4 +33,12 @@ describe('Dark Castle receipt review surface', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Sign in to inspect the canonical record.'))
     expect(screen.queryByText('Evidence source')).not.toBeInTheDocument()
   })
+
+  it('keeps an unavailable canonical record blocked without claiming receipt absence', async () => {
+    vi.mocked(fetchWithSessionRecovery).mockResolvedValueOnce({ ok: true, json: async () => ({ packets, fixture: false, record_verified: false, external_execution: false }) } as Response)
+    render(<Page />)
+    expect(await screen.findByText('Canonical record unavailable')).toBeInTheDocument()
+    expect(screen.getByText('Each packet lists its current blockers. No review decision is recorded here.')).toBeInTheDocument()
+    expect(screen.queryByText(/All six prerequisite reviewer decisions/)).not.toBeInTheDocument()
+  })
 })
