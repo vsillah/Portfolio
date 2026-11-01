@@ -15,15 +15,22 @@ const packets = ['source', 'voice', 'framework', 'privacy', 'visual', 'challenge
 }))
 
 describe('Dark Castle receipt review surface', () => {
-  it('shows six distinct packets and switches the selected evidence without a decision action', async () => {
-    vi.mocked(fetchWithSessionRecovery).mockResolvedValueOnce({ ok: true, json: async () => ({ packets, fixture: false, record_verified: true, external_execution: false }) } as Response)
+  it('shows six packet identities, switches evidence, and blocks recording until all are reviewed', async () => {
+    vi.mocked(fetchWithSessionRecovery).mockResolvedValueOnce({ ok: true, json: async () => ({ packets, fixture: false, record_verified: true, can_record: true, recorded: false, external_execution: false }) } as Response)
     render(<Page />)
     expect(await screen.findByText('Evidence source')).toBeInTheDocument()
-    expect(screen.getAllByRole('button')).toHaveLength(6)
+    expect(screen.getAllByRole('button')).toHaveLength(7)
+    expect(screen.getByText(/Planned receipt ID:/)).toHaveTextContent('packet-source:approved')
+    const recordButton = screen.getByRole('button', { name: /Record six approved/i })
+    expect(recordButton).toBeDisabled()
+    for (const kind of ['source', 'voice', 'framework', 'privacy', 'visual', 'challenger']) {
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`${kind} packet`, 'i') }))
+      fireEvent.click(screen.getByRole('checkbox'))
+    }
+    expect(recordButton).toBeEnabled()
     fireEvent.click(screen.getByRole('button', { name: /voice packet/i }))
     expect(screen.getByText('Evidence voice')).toBeInTheDocument()
     expect(screen.queryByText('Evidence source')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /approve|record|prepare/i })).not.toBeInTheDocument()
     expect(screen.getByText(/No receipt ID, decision, approval/i)).toBeInTheDocument()
   })
 
@@ -35,10 +42,10 @@ describe('Dark Castle receipt review surface', () => {
   })
 
   it('keeps an unavailable canonical record blocked without claiming receipt absence', async () => {
-    vi.mocked(fetchWithSessionRecovery).mockResolvedValueOnce({ ok: true, json: async () => ({ packets, fixture: false, record_verified: false, external_execution: false }) } as Response)
+    vi.mocked(fetchWithSessionRecovery).mockResolvedValueOnce({ ok: true, json: async () => ({ packets, fixture: false, record_verified: false, can_record: false, recorded: false, external_execution: false }) } as Response)
     render(<Page />)
     expect(await screen.findByText('Canonical record unavailable')).toBeInTheDocument()
-    expect(screen.getByText('Each packet lists its current blockers. No review decision is recorded here.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Record six approved/i })).toBeDisabled()
     expect(screen.queryByText(/All six prerequisite reviewer decisions/)).not.toBeInTheDocument()
   })
 })
