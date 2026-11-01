@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import DarkCastleApprovedBinding from '@/components/admin/DarkCastleApprovedBinding'
 
 const assetRoot = '/review-assets/social-content/dark-castle-youtube-master-2026-10-29'
 const approvedThumbnailId = 'C' as const
@@ -131,6 +132,8 @@ export default function DarkCastleYouTubeMasterReviewPage() {
           <p className="text-xs leading-5 text-muted-foreground sm:max-w-xs sm:text-right">Review selection only. Upload, scheduling, publishing, and external execution remain closed.</p>
         </div>
       </section>
+
+      <DarkCastleApprovedBinding />
 
       <section aria-labelledby="trace-heading" className="space-y-3 border-t border-border pt-6">
         <div><p className="text-xs font-semibold uppercase text-sky-300">Operator evidence · Not customer-facing</p><h2 id="trace-heading" className="mt-1 text-xl font-semibold">Trace and execution boundaries</h2></div>

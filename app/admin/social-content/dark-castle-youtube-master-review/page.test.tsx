@@ -1,5 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('@/components/admin/DarkCastleApprovedBinding', () => ({ default: () => <div data-testid="dark-castle-binding" /> }))
 
 import thumbnailDirections from '@/artifacts/human-qa/dark-castle-youtube-master-2026-10-29/thumbnail-directions.json'
 import thumbnailSelectionReceipt from '@/artifacts/human-qa/dark-castle-youtube-master-2026-10-29/thumbnail-selection-receipt-v1.json'
