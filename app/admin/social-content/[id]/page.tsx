@@ -304,6 +304,12 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
 
+function canonicalJson(value: unknown): string {
+  return JSON.stringify(value, (_key, entry) => entry && typeof entry === 'object' && !Array.isArray(entry)
+    ? Object.fromEntries(Object.entries(entry).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0))
+    : entry)
+}
+
 function asString(value: unknown): string {
   return typeof value === 'string' ? value : ''
 }
@@ -3608,7 +3614,7 @@ function SocialContentDetailPage() {
       || decisionPacket?.next_gate !== 'platform_submission'
       ? 'The exact immutable privacy decision receipt is missing, stale, or mismatched.' : '',
     !decisionCandidate || !storedCandidate
-      || JSON.stringify(decisionCandidate) !== JSON.stringify(storedCandidate)
+      || canonicalJson(decisionCandidate) !== canonicalJson(storedCandidate)
       || asString(decisionCandidate.post_text) !== asString(item.post_text)
       || asString(decisionCandidate.cta_text) !== asString(item.cta_text)
       || asString(decisionCandidate.cta_url) !== asString(item.cta_url)

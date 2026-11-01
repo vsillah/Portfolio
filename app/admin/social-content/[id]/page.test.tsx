@@ -210,6 +210,30 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('Still needed')).not.toBeInTheDocument()
   })
 
+  it('accepts the same candidate projection with a different JSON object key order', async () => {
+    const item = receiptBackedDraftItem()
+    const candidate = item.rag_context.mobile_decision_review.candidate_projection
+    const candidateWithEvidence = {
+      ...candidate,
+      evidence: { source_receipt_id: 'source:approved', privacy_receipt_id: 'privacy:approved' },
+    }
+    item.rag_context.mobile_decision_review.candidate_projection = candidateWithEvidence
+    item.rag_context.copy_review_candidate_projection = Object.fromEntries(
+      [
+        ['evidence', { privacy_receipt_id: 'privacy:approved', source_receipt_id: 'source:approved' }],
+        ...Object.entries(candidate).reverse(),
+      ],
+    ) as typeof candidate
+    expect(JSON.stringify(item.rag_context.mobile_decision_review.candidate_projection)).not.toBe(JSON.stringify(item.rag_context.copy_review_candidate_projection))
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true, json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item },
+    } as Response)))
+    renderAtStep('draft')
+    expect(await screen.findByRole('heading', { name: 'Internal LinkedIn Handoff' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Create Internal LinkedIn Handoff' })).toBeEnabled()
+    expect(screen.queryByText('Still needed')).not.toBeInTheDocument()
+  })
+
   it.each([
     ['missing privacy evidence', (item: ReturnType<typeof receiptBackedDraftItem>) => { delete item.rag_context.mobile_decision_review.receipts.privacy }, 'The exact immutable privacy decision receipt is missing, stale, or mismatched.'],
     ['privacy receipt', (item: ReturnType<typeof receiptBackedDraftItem>) => { item.rag_context.latest_internal_decision_receipt_id = 'wrong-receipt' }, 'The exact immutable privacy decision receipt is missing, stale, or mismatched.'],
