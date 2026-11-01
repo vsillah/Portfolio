@@ -82,6 +82,7 @@ import {
 } from '@/lib/social-platform-orchestration'
 import {
   deriveSocialContentLifecycleProjection,
+  hasReceiptBackedLinkedInVisualApproval,
   hasSocialContentVisualPrerequisites,
   isDurableCopyApprovedStatus,
   validateSocialContentFinalCopyQuality,
@@ -795,6 +796,9 @@ function SocialContentDetailPage() {
   const channelExperimentQaFixture = searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
   const youtubeDescriptionCompletionQaFixture = searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
   const socialCampaignReviewQaFixture = searchParams.get('qa_fixture') === SOCIAL_CAMPAIGN_REVIEW_FIXTURE
+  const lifecycleReconciliationQaFixture = process.env.NODE_ENV !== 'production'
+    && id === '563d3ee1-e5b9-41bb-89f3-9273ea017272'
+    && searchParams.get('qa_fixture') === 'social_lifecycle_reconciliation_v1'
   const stageReviewQaState = searchParams.get('stage_review_state') === 'asset_packet' ? 'asset_packet' : null
   const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
@@ -1062,9 +1066,11 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const usesReadOnlyFixture = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlyLinkedInFailureQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
+      const usesReadOnlyFixture = lifecycleReconciliationQaFixture || youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlyLinkedInFailureQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
 
-      const detailQuery = readOnlySocialVisualBacklogQaFixture
+      const detailQuery = lifecycleReconciliationQaFixture
+        ? '?qa_fixture=social_lifecycle_reconciliation_v1'
+        : readOnlySocialVisualBacklogQaFixture
         ? `?qa_fixture=${SOCIAL_VISUAL_BACKLOG_QA_FIXTURE}`
         : readOnlyDarkCastleProductionRecoveryQaFixture
         ? `?qa_fixture=${DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE}`
@@ -1160,7 +1166,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, stageReviewQaState, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, lifecycleReconciliationQaFixture, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, stageReviewQaState, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -3538,9 +3544,13 @@ function SocialContentDetailPage() {
     : requiresDeterministicVisualContract
       ? deterministicVisualRender?.state === 'current'
       : Boolean(visualPreviewImageUrl)))
+  const receiptBackedVisualApproval = !visualFormatDirty && !hasUnsavedVisualConfiguration
+    && hasReceiptBackedLinkedInVisualApproval(item)
   const visualAssetsBaseGateState: GateState = approvedChannelVideoPacket ? 'approved' : visualAssetReady ? 'in_review' : 'pending'
   const visualAssetsGateState: GateState = visualFormatDirty || hasUnsavedVisualConfiguration
     ? 'pending'
+    : receiptBackedVisualApproval
+      ? 'approved'
     : getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
   const visualAssetsRejected = visualAssetsGateState === 'rejected'
   const deterministicVisualPrimaryDisabledReason = visualAssetsRejected
@@ -3579,11 +3589,11 @@ function SocialContentDetailPage() {
       : 'pending'
   const privacyGateState: GateState = getExplicitSectionGateState('privacy', privacyBaseGateState)
   const privacyRejected = privacyGateState === 'rejected'
-  const assetPacketReady = Boolean(productionAssets || agentifiedVisualQaPacket || channelVideoPacket)
+  const assetPacketReady = receiptBackedVisualApproval || Boolean(productionAssets || agentifiedVisualQaPacket || channelVideoPacket)
     && (!channelVideoPacket || youtubePackagingEvidence?.ready === true)
   const channelVideoPrivacyReceipt = asRecord(asRecord(channelVideoPacket?.receipts)?.privacy)
   const channelVideoPrivacyReady = asString(channelVideoPrivacyReceipt?.status) === 'passed'
-  const visualPrivacyReady = productionAssets ? redactionGate.ready : channelVideoPacket ? channelVideoPrivacyReady : agentifiedVisualPrivacyReady
+  const visualPrivacyReady = receiptBackedVisualApproval || (productionAssets ? redactionGate.ready : channelVideoPacket ? channelVideoPrivacyReady : agentifiedVisualPrivacyReady)
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftLineage = asRecord(linkedinDraftHandoff?.canonical_decision_lineage)
@@ -3718,7 +3728,8 @@ function SocialContentDetailPage() {
         : 'pending'
   const draftGateRawState: GateState = isDraftOnlyPilot
     ? (historicalSubmissionEvidence ? 'approved' : linkedinDraftGateState)
-    : (historicalSubmissionEvidence ? 'approved' : gateStateFromRawStatus(agentPilotPublishGate))
+    : (historicalSubmissionEvidence || receiptBackedVisualApproval && Boolean(linkedinDraftHandoff)
+      ? 'approved' : gateStateFromRawStatus(agentPilotPublishGate))
   const submitGateRawState: GateState = historicalSubmissionEvidence || finalPlatformSubmissionApproved
     ? 'approved'
     : platformSubmissionGateState
@@ -7204,12 +7215,14 @@ function SocialContentDetailPage() {
               </p>
             </div>
             <span className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ${GATE_STATE_CONFIG[platformSubmissionGateState].className}`}>
-              Platform submit: {GATE_STATE_CONFIG[platformSubmissionGateState].label}
+              Platform execution: {GATE_STATE_CONFIG[platformSubmissionGateState].label}
             </span>
           </div>
 
           <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs leading-5 text-emerald-50/90">
-            Until the final submission gate is approved, this path does not generate media, upload files, schedule externally, publish, or create public posts.
+            {platformSubmissionGate?.status === 'approved'
+              ? 'Final approval is recorded. Provider submission still requires a configured integration and an eligible execution state.'
+              : 'Until the final submission gate is approved, this path does not generate media, upload files, schedule externally, publish, or create public posts.'}
             {platformSubmissionGate?.status === 'approved' ? (
               <span className="mt-1 block text-emerald-100">
                 Final submission approved for {(platformSubmissionGate.platforms ?? platformSubmissionTargets).map((platform) => PLATFORMS.find((candidate) => candidate.value === platform)?.label ?? platform).join(', ')}.
@@ -8124,6 +8137,7 @@ function SocialContentDetailAccessGate() {
   const { id } = useParams<{ id: string }>()
   const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
     && (id === DARK_CASTLE_VISUAL_QA_ID || [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
+      || id === '563d3ee1-e5b9-41bb-89f3-9273ea017272' && searchParams.get('qa_fixture') === 'social_lifecycle_reconciliation_v1'
       || id === SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn && searchParams.get('qa_fixture') === 'linkedin_failure_recovery_v1'
       || id === DARK_CASTLE_SOCIAL_CONTENT_ID && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
       || id === SOCIAL_VISUAL_BACKLOG_QA_ID && searchParams.get('qa_fixture') === SOCIAL_VISUAL_BACKLOG_QA_FIXTURE)

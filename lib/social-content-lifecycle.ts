@@ -4,9 +4,12 @@ export type SocialContentLifecycleStep = 'context' | 'copy' | 'visuals' | 'draft
 export type SocialContentLifecycleState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 
 export type LifecycleItem = Partial<Pick<SocialContentItem,
+  | 'id'
   | 'status'
+  | 'platform'
   | 'post_text'
   | 'cta_text'
+  | 'cta_url'
   | 'voiceover_text'
   | 'youtube_title'
   | 'youtube_description'
@@ -376,11 +379,79 @@ export function hasSocialContentVisualPrerequisites(item: LifecycleItem) {
   const productionAssets = asRecord(ragContext?.production_assets)
   const privacyReady = asString(asRecord(productionAssets?.video_redaction_manifest)?.status) === 'ready'
     || gateApproved(ragContext, 'privacy')
-  return Boolean(
+  return hasReceiptBackedLinkedInVisualApproval(item) || Boolean(
     gateApproved(ragContext, 'visual_assets')
     && gateApproved(ragContext, 'asset_packet')
     && gateApproved(ragContext, 'privacy')
   ) || Boolean(hasSubmissionOrPublishEvidence(item) && hasVisualAsset && (productionAssets || privacyReady))
+}
+
+/** Projects the later immutable review chain when the old visual-assets flag was never written. */
+export function hasReceiptBackedLinkedInVisualApproval(item: LifecycleItem) {
+  const context = asRecord(item.rag_context)
+  const handoff = asRecord(context?.linkedin_draft_handoff)
+  const lineage = asRecord(handoff?.canonical_decision_lineage)
+  const reviews = asRecord(context?.section_gate_reviews)
+  const mobile = asRecord(context?.mobile_decision_review)
+  const mobileReceipts = asRecord(mobile?.receipts)
+  const handoffReceipts = asRecord(handoff?.evidence_receipts)
+  const candidate = asRecord(handoff?.candidate_projection)
+  const storedCandidate = asRecord(context?.copy_review_candidate_projection)
+  const hash = asString(context?.approved_visual_sha256)
+  const submission = asRecord(context?.platform_submission_gate)
+  if (item.platform !== 'linkedin' || asString(handoff?.version) !== 'linkedin_draft_handoff_v2'
+    || asString(context?.current_gate) !== 'platform_submission'
+    || asString(handoff?.social_content_id) !== asString(item.id)
+    || handoff?.external_execution !== false || !lineage || !reviews || !mobileReceipts
+    || !handoffReceipts || !candidate || !storedCandidate
+    || !/^sha256:[a-f0-9]{64}$/.test(hash)
+    || asString(candidate.visual_sha256) !== hash
+    || asString(storedCandidate.visual_sha256) !== hash
+    || asString(candidate.image_url) !== asString(item.image_url)
+    || asString(storedCandidate.image_url) !== asString(item.image_url)
+    || !asString(item.image_url)
+    || ['post_text', 'cta_text', 'cta_url', 'image_url', 'visual_sha256'].some((key) =>
+      asString(candidate[key]) !== asString(storedCandidate[key]))
+    || asString(candidate.post_text) !== asString(item.post_text)
+    || asString(candidate.cta_text) !== asString(item.cta_text)
+    || asString(candidate.cta_url) !== asString(item.cta_url)
+    || (submission?.status === 'approved' && (
+      !asString(submission.decision_receipt_id)
+      || asString(submission.decision_receipt_id) !== asString(context?.latest_internal_decision_receipt_id)
+      || asString(submission.context_reconciliation_receipt) !== asString(asRecord(mobileReceipts.source)?.receipt_id)
+    ))) return false
+
+  const decisions = [
+    ['visual_review', 'visual_review_receipt_id'],
+    ['asset_packet', 'asset_packet_receipt_id'],
+    ['privacy', 'privacy_receipt_id'],
+  ] as const
+  const ids = decisions.map(([key, lineageKey]) => {
+    const review = asRecord(reviews[key])
+    const id = asString(review?.decision_receipt_id)
+    return review?.status === 'approved' && id === asString(lineage[lineageKey]) ? id : ''
+  })
+  const copyId = asString(lineage.copy_receipt_id)
+  if (!copyId || ids.some((id) => !id) || new Set([copyId, ...ids]).size !== 4
+    || asString(handoff.privacy_decision_receipt_id) !== ids[2]) return false
+
+  const packetVersion = asString(mobile?.content_updated_at)
+  const handoffVersion = asString(asRecord(handoffReceipts.source)?.content_updated_at)
+  if (!packetVersion || !handoffVersion) return false
+  for (const key of ['source', 'visual', 'privacy'] as const) {
+    const current = asRecord(mobileReceipts[key])
+    const prior = asRecord(handoffReceipts[key])
+    const expectedStatus = key === 'privacy' ? 'passed' : 'approved'
+    if (!current || !prior || asString(current.status) !== expectedStatus
+      || asString(prior.status) !== expectedStatus
+      || !asString(current.receipt_id)
+      || asString(current.receipt_id) !== asString(prior.receipt_id)
+      || asString(current.content_updated_at) !== packetVersion
+      || asString(prior.content_updated_at) !== handoffVersion) return false
+  }
+  const visual = asRecord(mobileReceipts.visual)
+  return asString(visual?.asset_sha256) === hash
+    || asString(visual?.receipt_id).endsWith(hash)
 }
 
 export function deriveSocialContentLifecycleProjection(input: {

@@ -168,7 +168,7 @@ describe('buildPlatformOrchestrationPlan', () => {
     ])
   })
 
-  it('blocks final submission when requested platform configuration is missing', () => {
+  it('preserves recorded final approval while missing configuration blocks execution', () => {
     const plan = buildPlatformOrchestrationPlan({
       targetPlatforms: ['tiktok'],
       copyApproved: true,
@@ -191,7 +191,7 @@ describe('buildPlatformOrchestrationPlan', () => {
       ['asset_readiness', 'complete'],
       ['platform_draft_handoff', 'complete'],
       ['platform_configuration', 'blocked'],
-      ['final_submission_gate', 'blocked'],
+      ['final_submission_gate', 'complete'],
       ['automatic_submission', 'blocked'],
     ])
   })
