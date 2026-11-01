@@ -124,6 +124,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.14",
     "@playwright/test": "^1.58.2",
     "@remotion/cli": "4.0.534",
     "@testing-library/jest-dom": "^6.9.1",
