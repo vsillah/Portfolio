@@ -40,7 +40,7 @@ BEGIN
   WHERE id = p_social_content_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Social Content item not found'; END IF;
   IF v_item.scheduled_for IS NOT NULL OR v_item.published_at IS NOT NULL
-     OR v_item.platform_post_id IS NOT NULL OR v_item.platform_post_url IS NOT NULL
+     OR v_item.platform_post_id IS NOT NULL
      OR v_item.rag_context -> 'platform_submission_gate' ->> 'status' IN ('approved', 'submitting', 'partially_submitted', 'submitted', 'published', 'uncertain', 'ambiguous')
      OR EXISTS (SELECT 1 FROM public.social_content_publishes WHERE content_id = p_social_content_id) THEN
     RAISE EXCEPTION 'Existing provider or publication evidence blocks draft handoff';

@@ -21,7 +21,7 @@ const schema = `
   CREATE TABLE public.social_content_queue (
     id UUID PRIMARY KEY, status TEXT, platform TEXT, updated_at TIMESTAMPTZ, rag_context JSONB,
     post_text TEXT, cta_text TEXT, cta_url TEXT, image_url TEXT, hashtags TEXT[],
-    scheduled_for TIMESTAMPTZ, published_at TIMESTAMPTZ, platform_post_id TEXT, platform_post_url TEXT
+    scheduled_for TIMESTAMPTZ, published_at TIMESTAMPTZ, platform_post_id TEXT
   );
   CREATE TABLE public.social_content_publishes (content_id UUID, status TEXT);
   CREATE TABLE public.social_content_decision_receipts (
@@ -36,16 +36,20 @@ const schema = `
   );
 `
 const migration = readFileSync('supabase/migrations/20261101101235_create_receipt_backed_linkedin_handoff.sql', 'utf8')
+const repairMigration = readFileSync('supabase/migrations/20261101103938_repair_receipt_backed_linkedin_handoff_queue_shape.sql', 'utf8')
 const stages = [
   ['22222222-2222-4222-8222-222222222222', 'copy_review', 'visual_review', 'approve_copy', '2026-11-01T00:10:00Z'],
   ['44444444-4444-4444-8444-444444444444', 'visual_review', 'asset_packet', 'approve_visual_review', '2026-11-01T00:20:00Z'],
   ['55555555-5555-4555-8555-555555555555', 'asset_packet', 'privacy', 'approve_asset_packet', '2026-11-01T00:30:00Z'],
   [privacyId, 'privacy', 'platform_submission', 'approve_privacy', '2026-11-01T00:40:00Z'],
 ]
-async function fixture() {
+async function fixture(stagingOldFunction = false) {
   const db = new PGlite()
   await db.exec(schema)
-  await db.exec(migration)
+  await db.exec(stagingOldFunction
+    ? migration.replace('OR v_item.platform_post_id IS NOT NULL', 'OR v_item.platform_post_id IS NOT NULL OR v_item.platform_post_url IS NOT NULL')
+    : migration)
+  await db.exec(repairMigration)
   await db.query(`INSERT INTO public.social_content_queue
     (id, status, platform, updated_at, rag_context, post_text, cta_text, image_url, hashtags)
     VALUES ($1::uuid, 'approved', 'linkedin', $2::timestamptz, $3::jsonb, $4, $5, $6, ARRAY['chess'])`,
@@ -66,6 +70,14 @@ async function handoff(db: PGlite, expected = version, receipt = privacyId) {
 }
 
 describe('receipt-backed LinkedIn handoff in PostgreSQL', () => {
+  it('replaces the function already installed on staging before a real-schema call', async () => {
+    const db = await fixture(true)
+    try {
+      const result = await handoff(db)
+      expect(result.handoff.external_account_draft_created).toBe(false)
+      expect(result.idempotent_replay).toBe(false)
+    } finally { await db.close() }
+  })
   it('creates one internal handoff and replays the exact version without another work item', async () => {
     const db = await fixture()
     try {
@@ -90,6 +102,7 @@ describe('receipt-backed LinkedIn handoff in PostgreSQL', () => {
     ['visual mismatch', async (db: PGlite) => db.query("UPDATE public.social_content_queue SET rag_context = jsonb_set(rag_context, '{approved_visual_sha256}', '" + '"sha256:' + '0'.repeat(64) + '"' + "')")],
     ['ambiguous lineage', async (db: PGlite) => db.query(`INSERT INTO public.social_content_decision_receipts SELECT '77777777-7777-4777-8777-777777777777'::uuid, social_content_id, decision, current_gate, next_internal_gate, command_name, receipt_bundle, candidate_projection, content_updated_at, created_at FROM public.social_content_decision_receipts WHERE current_gate = 'visual_review'`)],
     ['publication evidence', async (db: PGlite) => db.query("INSERT INTO public.social_content_publishes VALUES ($1, 'draft')", [contentId])],
+    ['queue provider identity', async (db: PGlite) => db.query("UPDATE public.social_content_queue SET platform_post_id = 'provider-post-1'")],
     ['missing receipt', async (db: PGlite) => db.query("UPDATE public.social_content_decision_receipts SET receipt_bundle = receipt_bundle - 'privacy' WHERE current_gate = 'privacy'")],
     ['receipt visual mismatch', async (db: PGlite) => db.query("UPDATE public.social_content_decision_receipts SET receipt_bundle = jsonb_set(receipt_bundle, '{visual,receipt_id}', '" + '"visual:wrong"' + "') WHERE current_gate = 'privacy'")],
     ['duplicate work item', async (db: PGlite) => db.query("INSERT INTO public.agent_work_items (source_type, source_id, idempotency_key) VALUES ('social_content_linkedin_draft_handoff', $1, 'other')", [contentId])],
