@@ -3582,11 +3582,51 @@ function SocialContentDetailPage() {
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftLineage = asRecord(linkedinDraftHandoff?.canonical_decision_lineage)
   const receiptBackedLinkedInReview = !isDraftOnlyPilot
-    && asString(ragContext?.current_gate) === 'platform_submission'
-    && asString(ragContext?.latest_internal_decision_command) === 'approve_privacy'
+    && (asString(ragContext?.current_gate) === 'platform_submission'
+      || asString(linkedinDraftHandoff?.version) === 'linkedin_draft_handoff_v2')
     && (item.platform === 'linkedin' || targetPlatforms.includes('linkedin'))
   const showsLinkedInDraftHandoff = isDraftOnlyPilot || receiptBackedLinkedInReview || asString(linkedinDraftHandoff?.version) === 'linkedin_draft_handoff_v2'
-  const linkedinDraftBlockers = [
+  const decisionPacket = mobileDecisionReadiness.packet
+  const decisionCandidate = asRecord(decisionPacket?.candidate_projection)
+  const storedCandidate = asRecord(ragContext?.copy_review_candidate_projection)
+  const approvedVisualHash = asString(ragContext?.approved_visual_sha256)
+  const visualReceipt = asRecord(asRecord(rawMobileDecisionPacket?.receipts)?.visual)
+  const submissionGateStatus = asString(asRecord(ragContext?.platform_submission_gate)?.status)
+  const receiptBackedBlockers = receiptBackedLinkedInReview ? [
+    item.status !== 'approved' ? 'Approved copy is required for this exact Social Content version.' : '',
+    item.platform !== 'linkedin' ? 'This record must be a LinkedIn item.' : '',
+    asString(ragContext?.current_gate) !== 'platform_submission'
+      ? 'The canonical lifecycle has not reached the platform handoff gate.' : '',
+    asString(ragContext?.latest_internal_decision_command) !== 'approve_privacy'
+      || asString(ragContext?.latest_internal_decision) !== 'approve'
+      ? 'The canonical privacy approval is missing or out of order.' : '',
+    !recordedMobileDecision
+      || recordedMobileDecision.decision !== 'approve'
+      || recordedMobileDecision.next_gate !== 'platform_submission'
+      || recordedMobileDecision.receipt_id !== asString(ragContext?.latest_internal_decision_receipt_id)
+      || decisionPacket?.current_gate !== 'privacy'
+      || decisionPacket?.next_gate !== 'platform_submission'
+      ? 'The exact immutable privacy decision receipt is missing, stale, or mismatched.' : '',
+    !decisionCandidate || !storedCandidate
+      || JSON.stringify(decisionCandidate) !== JSON.stringify(storedCandidate)
+      || asString(decisionCandidate.post_text) !== asString(item.post_text)
+      || asString(decisionCandidate.cta_text) !== asString(item.cta_text)
+      || asString(decisionCandidate.cta_url) !== asString(item.cta_url)
+      ? 'The approved candidate projection does not match the current copy.' : '',
+    !/^sha256:[a-f0-9]{64}$/.test(approvedVisualHash)
+      || asString(decisionCandidate?.visual_sha256) !== approvedVisualHash
+      || asString(decisionCandidate?.image_url) !== asString(item.image_url)
+      || asString(visualReceipt?.status) !== 'approved'
+      || (visualReceipt?.asset_path != null && asString(visualReceipt.asset_path) !== asString(item.image_url))
+      || !(asString(visualReceipt?.asset_sha256) === approvedVisualHash
+        || asString(visualReceipt?.receipt_id).endsWith(approvedVisualHash))
+      ? 'The approved visual receipt does not match the current asset and SHA-256.' : '',
+    item.scheduled_for || item.published_at || item.platform_post_id || item.publishes?.length
+      || ['approved', 'submitting', 'partially_submitted', 'submitted', 'published', 'uncertain', 'ambiguous'].includes(submissionGateStatus)
+      || (linkedinDraftHandoff && linkedinDraftHandoff.external_account_draft_created !== false)
+      ? 'Existing provider or publication evidence requires reconciliation.' : '',
+  ].filter((blocker): blocker is string => Boolean(blocker)) : []
+  const legacyLinkedInDraftBlockers = [
     !isDurableCopyApprovedStatus(item.status) ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
     visualAssetsGateState !== 'approved' ? 'Approve the visual assets section first.' : '',
@@ -3595,16 +3635,21 @@ function SocialContentDetailPage() {
     assetPacketReady && !visualPrivacyReady ? redactionGate.message || 'Resolve privacy and rights review first.' : '',
     assetPacketReady && visualPrivacyReady && privacyGateState !== 'approved' ? 'Approve the privacy review section first.' : '',
   ].filter(Boolean)
-  const linkedinDraftBaseGateState: GateState = linkedinDraftHandoff
+  const linkedinDraftBlockers = receiptBackedLinkedInReview ? receiptBackedBlockers : legacyLinkedInDraftBlockers
+  const linkedinDraftBaseGateState: GateState = linkedinDraftHandoff && (!receiptBackedLinkedInReview || linkedinDraftBlockers.length === 0)
     ? 'approved'
-    : videoPrivacyBlocked
+    : receiptBackedLinkedInReview && linkedinDraftBlockers.length > 0
+      ? 'blocked'
+      : videoPrivacyBlocked
       ? 'blocked'
       : linkedinDraftBlockers.length === 0
         ? 'in_review'
         : 'pending'
-  const linkedinDraftGateState: GateState = getExplicitSectionGateState('linkedin_draft', linkedinDraftBaseGateState)
+  const linkedinDraftGateState: GateState = isDraftOnlyPilot
+    ? getExplicitSectionGateState('linkedin_draft', linkedinDraftBaseGateState)
+    : linkedinDraftBaseGateState
   const canCreateLinkedInDraft = (isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved')
-    || (receiptBackedLinkedInReview && !linkedinDraftHandoff && item.status === 'approved')
+    || (receiptBackedLinkedInReview && !linkedinDraftHandoff && linkedinDraftBlockers.length === 0)
   const platformSubmissionTargets = isDraftOnlyPilot ? ['linkedin' as SocialPlatform] : targetPlatforms
   const finalPlatformSubmissionApproved = isPlatformSubmissionGateApproved(ragContext, platformSubmissionTargets)
   const historicalSubmissionEvidence = item.status === 'scheduled'
@@ -6926,7 +6971,7 @@ function SocialContentDetailPage() {
                       ? 'Create one internal review handoff from the current approved copy, visual, asset packet, and immutable privacy decision. No LinkedIn account draft or provider action is created.'
                       : 'Create the LinkedIn-ready draft packet after copy, visual assets, asset packet, and privacy gates are ready. Public publishing remains locked behind a later approval.'}
                   </p>
-                  {linkedinDraftHandoff ? (
+                  {linkedinDraftHandoff && (
                     <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm leading-6 text-emerald-50">
                       <p className="font-semibold">Draft packet ready</p>
                       <p className="mt-1 text-emerald-50/80">
@@ -6946,14 +6991,15 @@ function SocialContentDetailPage() {
                         </div>
                       )}
                     </div>
-                  ) : linkedinDraftBlockers.length > 0 ? (
+                  )}
+                  {linkedinDraftBlockers.length > 0 && (receiptBackedLinkedInReview || !linkedinDraftHandoff) && (
                     <div className="mt-3 rounded-lg border border-amber-500/25 bg-background/35 p-3 text-sm leading-6 text-amber-50/90">
                       <p className="font-semibold">Still needed</p>
                       <ul className="mt-1 space-y-1">
                         {linkedinDraftBlockers.map((blocker) => <li key={blocker}>- {blocker}</li>)}
                       </ul>
                     </div>
-                  ) : null}
+                  )}
                   {isDraftOnlyPilot && renderSectionGateControls('linkedin_draft', 'LinkedIn draft', linkedinDraftGateState, {
                     approveLabel: 'Approve LinkedIn Draft Handoff',
                     rejectLabel: 'Reject LinkedIn Draft Handoff',
