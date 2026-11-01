@@ -71,6 +71,7 @@ import { historicalLinkedInFailureCandidate, isRetryableLinkedInFailure } from '
 import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-recorded-decision'
 import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
+import { SOCIAL_LIFECYCLE_RECONCILIATION_QA_FIXTURE, SOCIAL_LIFECYCLE_RECONCILIATION_QA_ID, socialLifecycleReconciliationQaFixture } from '@/lib/social-lifecycle-reconciliation-qa-fixture'
 
 export const dynamic = 'force-dynamic'
 
@@ -143,6 +144,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (process.env.NODE_ENV !== 'production'
+      && params.id === SOCIAL_LIFECYCLE_RECONCILIATION_QA_ID
+      && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_LIFECYCLE_RECONCILIATION_QA_FIXTURE) {
+      return NextResponse.json({ item: socialLifecycleReconciliationQaFixture(), fixture: true,
+        integration_note: 'Synthetic read-only lifecycle review. No production data or provider is connected.' })
+    }
     if (params.id === SOCIAL_VISUAL_BACKLOG_QA_ID
       && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_VISUAL_BACKLOG_QA_FIXTURE
       && socialVisualBacklogQaFixtureEnabled()) {

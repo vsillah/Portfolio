@@ -664,14 +664,14 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
       : configuration.ready
         ? 'complete'
         : 'blocked'
-    const finalGateState: PlatformOrchestrationStageState = configurationState !== 'complete'
-      ? 'blocked'
-      : finalSubmissionGateReady || submissionComplete
-        ? 'complete'
+    const finalGateState: PlatformOrchestrationStageState = finalSubmissionGateReady || submissionComplete
+      ? 'complete'
+      : configurationState !== 'complete'
+        ? 'blocked'
         : 'pending'
     const automaticState: PlatformOrchestrationStageState = submissionComplete
       ? 'complete'
-      : finalGateState !== 'complete'
+      : configurationState !== 'complete' || finalGateState !== 'complete'
         ? 'blocked'
         : automaticSubmissionSupported
           ? 'available'
