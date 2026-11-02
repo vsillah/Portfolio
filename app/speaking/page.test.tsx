@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { agentifiedPublication } from '@/lib/agentified-publication'
 import SpeakingPage from './page'
 
 // eslint-disable-next-line @next/next/no-img-element
@@ -8,6 +9,15 @@ vi.mock('next/link', () => ({ default: (props: { href: string; children: React.R
 
 describe('speaking page', () => {
   afterEach(() => vi.unstubAllGlobals())
+
+  it('shows all three authored works with the canonical Agentified cover', () => {
+    render(<SpeakingPage />)
+
+    expect(screen.getByText('The Equity Code', { selector: 'figcaption' })).toBeInTheDocument()
+    expect(screen.getByText('Accelerated', { selector: 'figcaption' })).toBeInTheDocument()
+    expect(screen.getByText(agentifiedPublication.title, { selector: 'figcaption' })).toBeInTheDocument()
+    expect(screen.getByAltText(`Cover of ${agentifiedPublication.title}`)).toHaveAttribute('src', agentifiedPublication.coverImage)
+  })
 
   it('keeps the brief local, handles incomplete input, and routes a complete fit to the catalog service', () => {
     const fetchSpy = vi.fn()

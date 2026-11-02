@@ -17,7 +17,7 @@ const talkDirections = [
   { number: '02', title: 'Practical AI & product transformation', detail: 'A builder’s view of discovery, product judgment, and the work that happens after a pilot.' },
   { number: '03', title: 'Access, equity & technology', detail: 'Who gets the tools, who shapes them, and what changes when communities build from their own knowledge.' },
   { number: '04', title: 'Systems that reduce burden', detail: 'Designing for the people closest to the work, with capacity and dignity in view.' },
-  { number: '05', title: 'Books, authorship & ideas', detail: 'Conversations around The Equity Code and Accelerated, tailored to the questions in the room.' },
+  { number: '05', title: 'Books, authorship & ideas', detail: 'Conversations around The Equity Code, Accelerated, and Agentified, shaped by the questions in the room.' },
 ]
 
 const questions = [
@@ -194,9 +194,10 @@ export default function SpeakingPage() {
               <Link href="/services">Explore services <ArrowRight size={15} /></Link>
             </div>
           </div>
-          <div className={styles.bookPair}>
-            <figure><Image src="/The_Equity_Code_Cover.webp" alt="Cover of The Equity Code" width={240} height={360} sizes="(max-width: 600px) 42vw, 240px" /><figcaption>The Equity Code</figcaption></figure>
-            <figure><Image src="/accelerated_cover_ebook.webp" alt="Cover of Accelerated" width={240} height={360} sizes="(max-width: 600px) 42vw, 240px" /><figcaption>Accelerated</figcaption></figure>
+          <div className={styles.bookShelf}>
+            <figure><Image src="/The_Equity_Code_Cover.webp" alt="Cover of The Equity Code" width={240} height={383} sizes="(max-width: 600px) 30vw, 180px" /><figcaption>The Equity Code</figcaption></figure>
+            <figure><Image src="/accelerated_cover_ebook.webp" alt="Cover of Accelerated" width={240} height={360} sizes="(max-width: 600px) 30vw, 180px" /><figcaption>Accelerated</figcaption></figure>
+            <figure><Image src="/agentified-cover.jpg" alt="Cover of Agentified" width={240} height={384} sizes="(max-width: 600px) 30vw, 180px" /><figcaption>Agentified</figcaption></figure>
           </div>
         </div>
       </section>

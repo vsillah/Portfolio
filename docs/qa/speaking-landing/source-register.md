@@ -8,6 +8,7 @@
 | `public/amadutown-logo-upscaled.png` | Existing Portfolio brand asset | Header mark | Natural portrait ratio preserved. |
 | `public/The_Equity_Code_Cover.webp` | Existing Portfolio public book cover | Proof/media section | Cover shown as an authored work, without sales or reception claims. |
 | `public/accelerated_cover_ebook.webp` | Existing Portfolio public book cover | Proof/media section | Cover shown as an authored work, without sales or reception claims. |
+| `public/agentified-cover.jpg` | Existing Portfolio public book cover, bound by `lib/agentified-publication.ts` | Proof/media section | Canonical public `Agentified` title and cover; shown as an authored work, without sales or reception claims. |
 
 ## Copy and route evidence
 
