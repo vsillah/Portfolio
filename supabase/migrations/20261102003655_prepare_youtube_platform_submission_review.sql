@@ -141,7 +141,8 @@ BEGIN
     END IF;
   END LOOP;
   IF (SELECT count(*) FROM public.dark_castle_prerequisite_receipts
-      WHERE social_content_id = p_social_content_id) <> 6 THEN
+      WHERE social_content_id = p_social_content_id
+        AND content_version = p_content_version) <> 6 THEN
     RAISE EXCEPTION 'Exactly six unique immutable prerequisites required';
   END IF;
 

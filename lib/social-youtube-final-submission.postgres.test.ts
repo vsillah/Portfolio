@@ -155,6 +155,34 @@ describe('YouTube final platform-submission preparation in PostgreSQL', () => {
     } finally { await db.close() }
   })
 
+  it('ignores six historical receipts for another content version', async () => {
+    const db = await setup()
+    try {
+      await db.query(`INSERT INTO public.dark_castle_prerequisite_receipts
+        (receipt_id,kind,social_content_id,content_version,packet_id,evidence_fingerprint,artifact_hashes,receipt)
+        SELECT receipt_id || '-historical',kind,social_content_id,$1,packet_id || '-historical',
+          evidence_fingerprint,artifact_hashes,receipt
+        FROM public.dark_castle_prerequisite_receipts`, [`sha256:${'f'.repeat(64)}`])
+      await db.exec('SET ROLE service_role')
+      expect(await call(db)).toMatchObject({ idempotent_replay: false, external_execution: false })
+      expect(await counts(db)).toEqual({ runs: 1, approvals: 1, work: 1, publishes: 0 })
+    } finally { await db.close() }
+  })
+
+  it('rejects an extra prerequisite identity for the current content version', async () => {
+    const db = await setup()
+    try {
+      await db.query(`INSERT INTO public.dark_castle_prerequisite_receipts
+        (receipt_id,kind,social_content_id,content_version,packet_id,evidence_fingerprint,artifact_hashes,receipt)
+        SELECT 'source-extra',kind,social_content_id,content_version,'source-extra-packet',
+          evidence_fingerprint,artifact_hashes,receipt
+        FROM public.dark_castle_prerequisite_receipts WHERE kind='source'`)
+      await db.exec('SET ROLE service_role')
+      await expect(call(db)).rejects.toThrow('Exactly six unique immutable prerequisites required')
+      expect(await counts(db)).toMatchObject({ runs: 0, approvals: 0, work: 0 })
+    } finally { await db.close() }
+  })
+
   it.each([
     ['stale version', async (db: PGlite) => db.query("UPDATE public.social_content_queue SET post_text='Changed'")],
     ['wrong channel', async (db: PGlite) => db.query("UPDATE public.social_content_queue SET platform='linkedin'")],
