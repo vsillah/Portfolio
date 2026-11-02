@@ -60,6 +60,42 @@ describe('Social Content mobile decision readiness', () => {
     expect(readiness.packet?.candidate_projection).toEqual({ headline: 'Read-only candidate' })
   })
 
+  it('accepts immutable YouTube final receipts bound to the approved version, not packet preparation', () => {
+    const preparedAt = '2026-11-02T02:28:17.251Z'
+    const beforePreparation = '2026-11-02T02:25:00.000Z'
+    const candidate = item({
+      platform: 'youtube', current_gate: 'platform_submission', next_gate: 'platform_submission',
+      content_updated_at: preparedAt, prepared_from_content_updated_at: beforePreparation,
+    })
+    const packet = candidate.rag_context.mobile_decision_review as Record<string, unknown>
+    packet.source_receipts = structuredClone(packet.receipts)
+    candidate.updated_at = preparedAt
+    expect(getSocialContentDecisionReadiness(candidate as never).ready).toBe(true)
+
+    packet.source_receipts = { ...(packet.source_receipts as object), source: receipt('approved', preparedAt) }
+    expect(getSocialContentDecisionReadiness(candidate as never).ready).toBe(false)
+  })
+
+  it('keeps YouTube final receipt version and live-row freshness separate', () => {
+    const preparedAt = '2026-11-02T02:28:17.251Z'
+    const beforePreparation = '2026-11-02T02:25:00.000Z'
+    const candidate = item({
+      platform: 'youtube', current_gate: 'platform_submission', next_gate: 'platform_submission',
+      content_updated_at: preparedAt, prepared_from_content_updated_at: beforePreparation,
+    })
+    const packet = candidate.rag_context.mobile_decision_review as Record<string, unknown>
+    packet.source_receipts = structuredClone(packet.receipts)
+    candidate.updated_at = '2026-11-02T02:29:00.000Z'
+    expect(getSocialContentDecisionReadiness(candidate as never).stale).toBe(true)
+    expect(getSocialContentDecisionReadiness(candidate as never).ready).toBe(false)
+
+    candidate.updated_at = preparedAt
+    packet.receipts = Object.fromEntries(Object.entries(packet.receipts as object).map(([key, value]) =>
+      [key, { ...value as object, content_updated_at: preparedAt }]))
+    packet.source_receipts = structuredClone(packet.receipts)
+    expect(getSocialContentDecisionReadiness(candidate as never).ready).toBe(false)
+  })
+
   it.each([
     ['channel-native review fixture', { qa_fixture: { kind: 'channel_native_video_review', read_only: true } }],
     ['approved customer-facing video packet', { approved_video_packet: { status: 'human_qa_pending', video_path: 'artifacts/review/jev.mp4' } }],
@@ -158,11 +194,11 @@ describe('Social Content mobile decision readiness', () => {
       artifact_evidence_manifest: artifactManifestSnapshot(manifest),
     })
 
-    expect(getSocialContentDecisionReadiness(candidate as never).ready).toBe(true)
+    expect(getSocialContentDecisionReadiness(candidate as never, '2026-10-20T00:00:00.000Z').ready).toBe(true)
 
     const projection = candidate.rag_context.mobile_decision_review.candidate_projection as unknown as { artifact_evidence_manifest: { manifest_hash: string } }
     projection.artifact_evidence_manifest.manifest_hash = `sha256:${'d'.repeat(64)}`
-    const blocked = getSocialContentDecisionReadiness(candidate as never)
+    const blocked = getSocialContentDecisionReadiness(candidate as never, '2026-10-20T00:00:00.000Z')
     expect(blocked.ready).toBe(false)
     expect(blocked.blockers).toContain('The Decision Queue packet does not snapshot the current artifact manifest identity and hash.')
   })
