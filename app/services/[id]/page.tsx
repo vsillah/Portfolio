@@ -151,10 +151,10 @@ export default function ServiceDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <Navigation />
         <div className="pt-24 pb-12 px-4 flex items-center justify-center">
-          <div className="text-gray-400">Loading service...</div>
+          <div className="text-muted-foreground">Loading service...</div>
         </div>
       </div>
     )
@@ -162,14 +162,14 @@ export default function ServiceDetailPage() {
 
   if (!service) {
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <Navigation />
         <div className="pt-24 pb-12 px-4">
           <div className="max-w-7xl mx-auto text-center">
-            <p className="text-gray-400 mb-4">Service not found</p>
+            <p className="mb-4 text-muted-foreground">Service not found</p>
             <Link
               href="/services"
-              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300"
+              className="inline-flex items-center gap-2 font-semibold text-foreground underline decoration-accent underline-offset-4 focus-visible:outline-2 focus-visible:outline-accent"
             >
               <ArrowLeft size={20} />
               Back to Services
@@ -354,7 +354,7 @@ export default function ServiceDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
@@ -364,7 +364,7 @@ export default function ServiceDetailPage() {
           <div className="mb-8">
             <Link
               href="/services"
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent"
             >
               <ArrowLeft size={20} />
               Back to Services
@@ -375,25 +375,25 @@ export default function ServiceDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden"
+            className="overflow-hidden rounded-2xl border border-border bg-card text-card-foreground"
           >
             {/* Service visual and title */}
-            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
+            <div className="bg-muted/50">
               {gallery.length > 0 ? <ShowcaseCarousel frames={gallery} title={service.title} /> : (
-                <div className="flex aspect-[5/3] items-center justify-center bg-[#101c2d] text-center text-sm text-gray-300">
+                <div className="flex aspect-[5/3] items-center justify-center bg-muted text-center text-sm text-muted-foreground">
                   A reviewed service visual is not available yet.
                 </div>
               )}
               <div className="px-6 pb-6 pt-5">
-                <span className="px-3 py-1 bg-gray-900/80 rounded-full text-xs font-heading tracking-wider text-cyan-400 uppercase">
+                <span className="rounded-full bg-card px-3 py-1 font-heading text-xs uppercase tracking-wider text-card-foreground">
                   {TYPE_LABELS[service.service_type] || service.service_type}
                 </span>
                 {service.is_featured && (
-                  <span className="ml-2 px-3 py-1 bg-cyan-500/90 text-imperial-navy rounded-full text-xs font-bold uppercase">
+                  <span className="ml-2 rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase text-accent-foreground">
                     Featured
                   </span>
                 )}
-                <h1 className="font-premium text-3xl md:text-4xl text-white mt-4">
+                <h1 className="mt-4 font-premium text-3xl text-card-foreground md:text-4xl">
                   {service.title}
                 </h1>
               </div>
@@ -401,7 +401,7 @@ export default function ServiceDetailPage() {
 
             <div className="p-8 md:p-10">
               {/* Meta row */}
-              <div className="flex flex-wrap gap-4 mb-6 text-gray-400">
+              <div className="mb-6 flex flex-wrap gap-4 text-muted-foreground">
                 <span className="flex items-center gap-2">
                   {delivery.icon}
                   {delivery.label}
@@ -423,15 +423,15 @@ export default function ServiceDetailPage() {
               {/* Description */}
               {speakerFit && (
                 <section className="mb-8 border-l-4 border-radiant-gold bg-radiant-gold/10 p-5" aria-label="Your speaker fit brief">
-                  <p className="text-xs font-bold uppercase tracking-widest text-radiant-gold">Your speaker fit brief</p>
-                  <h2 className="mt-2 font-premium text-2xl text-white">{speakerFit.title}</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-300">{speakerFit.fit}</p>
-                  <p className="mt-3 text-xs text-gray-400">These choices are kept in this URL. Mention your event details when you inquire.</p>
-                  <Link href="/speaking#brief" className="mt-3 inline-block text-sm font-semibold text-radiant-gold underline underline-offset-4">Revise your brief</Link>
+                  <p className="text-xs font-bold uppercase tracking-widest text-card-foreground">Your speaker fit brief</p>
+                  <h2 className="mt-2 font-premium text-2xl text-card-foreground">{speakerFit.title}</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-card-foreground">{speakerFit.fit}</p>
+                  <p className="mt-3 text-xs text-muted-foreground">These choices are kept in this URL. Mention your event details when you inquire.</p>
+                  <Link href="/speaking#brief" className="mt-3 inline-block text-sm font-semibold text-card-foreground underline decoration-accent underline-offset-4 focus-visible:outline-2 focus-visible:outline-accent">Revise your brief</Link>
                 </section>
               )}
               {service.description && (
-                <p className="text-gray-300 text-lg leading-relaxed mb-8">
+                <p className="mb-8 text-lg leading-relaxed text-card-foreground">
                   {service.description}
                 </p>
               )}
@@ -439,14 +439,14 @@ export default function ServiceDetailPage() {
               {/* Topics */}
               {topicsList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-gray-400 mb-3">
+                  <h3 className="mb-3 font-heading text-sm uppercase tracking-wider text-muted-foreground">
                     Topics Covered
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {topicsList.map((t) => (
                       <span
                         key={t}
-                        className="px-3 py-1 bg-gray-800 text-cyan-400 rounded-full text-sm"
+                        className="rounded-full bg-muted px-3 py-1 text-sm text-foreground"
                       >
                         {t}
                       </span>
@@ -458,14 +458,14 @@ export default function ServiceDetailPage() {
               {/* Deliverables */}
               {deliverablesList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                  <h3 className="mb-3 flex items-center gap-2 font-heading text-sm uppercase tracking-wider text-muted-foreground">
                     <Package size={16} />
                     Deliverables
                   </h3>
                   <ul className="space-y-2">
                     {deliverablesList.map((d) => (
-                      <li key={d} className="flex items-center gap-2 text-gray-300">
-                        <Check className="text-green-500 flex-shrink-0" size={18} />
+                      <li key={d} className="flex items-center gap-2 text-card-foreground">
+                        <Check className="flex-shrink-0 text-foreground" size={18} />
                         {d}
                       </li>
                     ))}
@@ -475,11 +475,11 @@ export default function ServiceDetailPage() {
 
               {/* Available in packages */}
               {bundles.length > 0 && (
-                <div className="mb-8 p-6 bg-gray-800/50 rounded-xl border border-gray-700">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-gray-400 mb-3">
+                <div className="mb-8 rounded-xl border border-border bg-muted p-6">
+                  <h3 className="mb-3 font-heading text-sm uppercase tracking-wider text-muted-foreground">
                     Available in Packages
                   </h3>
-                  <p className="text-gray-300 text-sm mb-4">
+                  <p className="mb-4 text-sm text-foreground">
                     This service is included in the following pricing tiers:
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -487,7 +487,7 @@ export default function ServiceDetailPage() {
                       <Link
                         key={`${b.slug}-${b.segment}`}
                         href={b.pricingUrl}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-900/30 border border-cyan-500/50 rounded-lg text-cyan-400 hover:bg-cyan-900/50 hover:border-cyan-400 transition-colors text-sm"
+                        className="inline-flex items-center gap-2 rounded-lg border border-accent bg-card px-4 py-2 text-sm font-semibold text-card-foreground transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                       >
                         {b.name}
                         <ExternalLink size={14} />
@@ -498,29 +498,25 @@ export default function ServiceDetailPage() {
               )}
 
               {/* Price and CTA */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pt-6 border-t border-gray-800">
+              <div className="flex flex-col gap-6 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   {quoteRequired ? (
-                    <span className="text-xl font-semibold text-yellow-400">
+                    <span className="text-xl font-semibold text-card-foreground">
                       Price on request
                     </span>
                   ) : service.price !== null ? (
-                    <span className="text-3xl font-bold text-white">
+                    <span className="text-3xl font-bold text-card-foreground">
                       {formatCurrency(service.price)}
                     </span>
                   ) : (
-                    <span className="text-xl font-semibold text-green-400">Free</span>
+                    <span className="text-xl font-semibold text-card-foreground">Free</span>
                   )}
                 </div>
                 <motion.button
                   onClick={handleAction}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`px-8 py-4 font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors ${
-                    quoteRequired
-                      ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700'
-                      : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700'
-                  }`}
+                  className="service-primary-action min-h-12 justify-center px-8 py-4"
                 >
                   {quoteRequired ? (
                     <>

@@ -150,7 +150,7 @@ export default function Navigation() {
                       <div className="px-4 py-4 border-b border-border bg-card/80 backdrop-blur-sm">
                         <p className="text-foreground font-medium text-sm truncate">{user.email}</p>
                         {isAdmin && (
-                          <span className="inline-flex items-center gap-1 mt-1 text-xs text-radiant-gold">
+                          <span className="mt-1 inline-flex items-center gap-1 text-xs text-foreground">
                             <Shield size={12} />
                             Administrator
                           </span>
@@ -162,7 +162,7 @@ export default function Navigation() {
                         <a
                           href="/resources"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
                         >
                           <Download size={16} />
                           Resources
@@ -171,7 +171,7 @@ export default function Navigation() {
                         <a
                           href="/purchases"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
                         >
                           <User size={16} />
                           My library
@@ -181,7 +181,7 @@ export default function Navigation() {
                           <a
                             href="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
                           >
                             <Shield size={16} />
                             Admin Dashboard
@@ -199,7 +199,7 @@ export default function Navigation() {
 
                         <button
                           onClick={handleSignOut}
-                          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-700 hover:text-red-800 hover:bg-red-500/10 dark:text-red-300 dark:hover:text-red-200 rounded-lg transition-all duration-200"
                         >
                           <LogOut size={16} />
                           Sign Out
@@ -212,7 +212,7 @@ export default function Navigation() {
             ) : (
               <a
                 href="/auth/login"
-                className="flex items-center gap-2 h-11 px-4 rounded-full border border-radiant-gold/40 text-radiant-gold hover:bg-radiant-gold hover:text-imperial-navy text-sm font-heading tracking-wider uppercase transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center gap-2 h-11 px-4 rounded-full border border-radiant-gold/40 text-foreground hover:bg-radiant-gold hover:text-imperial-navy text-sm font-heading tracking-wider uppercase transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 <User size={16} />
                 <span className="hidden sm:inline">Login</span>
@@ -295,7 +295,7 @@ export default function Navigation() {
                     analytics.navClick(href)
                     setIsMenuOpen(false)
                   }
-                  const linkClassName = "group relative block px-4 py-3 rounded-xl text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/5 transition-all duration-300"
+                  const linkClassName = "group relative block px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-300"
                   const linkContent = (
                     <>
                       <span className="text-sm font-medium tracking-wide">{item.name}</span>

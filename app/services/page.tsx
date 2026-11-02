@@ -49,10 +49,10 @@ const DELIVERY_METHODS = [
 // Loading fallback component
 function ServicesLoading() {
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center py-12">
-          <div className="text-gray-400">Loading services...</div>
+          <div className="text-muted-foreground">Loading services...</div>
         </div>
       </div>
     </div>
@@ -175,7 +175,7 @@ function ServicesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -186,7 +186,7 @@ function ServicesContent() {
           {/* Back to Home Link */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
+            className="mb-4 flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <ArrowLeft size={20} />
             Back to Home
@@ -195,10 +195,10 @@ function ServicesContent() {
           <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold mb-2 flex items-center gap-3">
-                <Users className="text-cyan-500" />
+                <Users className="text-foreground" />
                 Services
               </h1>
-              <p className="text-gray-400">Training, consulting, coaching, and speaking engagements</p>
+              <p className="text-muted-foreground">Training, consulting, coaching, and speaking engagements</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
@@ -212,12 +212,12 @@ function ServicesContent() {
                 animate={{ scale: 1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg flex items-center gap-2"
+                className="service-primary-action relative px-6 py-3"
               >
                 <ShoppingCart size={20} />
                 View Cart
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                  <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
                     {cartCount}
                   </span>
                 )}
@@ -229,13 +229,13 @@ function ServicesContent() {
           {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 type="text"
                 placeholder="Search services..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                className="w-full rounded-lg border border-border bg-card py-2 pl-10 pr-4 text-card-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               />
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -247,7 +247,7 @@ function ServicesContent() {
                   setSelectedType(newType)
                   updateUrlParams(newType, selectedDelivery)
                 }}
-                className="px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                className="max-w-full rounded-lg border border-border bg-card px-4 py-2 text-card-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 {SERVICE_TYPES.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -261,7 +261,7 @@ function ServicesContent() {
                   setSelectedDelivery(newDelivery)
                   updateUrlParams(selectedType, newDelivery)
                 }}
-                className="px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                className="max-w-full rounded-lg border border-border bg-card px-4 py-2 text-card-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 {DELIVERY_METHODS.map(delivery => (
                   <option key={delivery.value} value={delivery.value}>{delivery.label}</option>
@@ -275,8 +275,8 @@ function ServicesContent() {
                 whileTap={{ scale: 0.95 }}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   showFeaturedOnly
-                    ? 'bg-cyan-600 border-cyan-500 text-white'
-                    : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-700'
+                    ? 'border-accent bg-accent text-accent-foreground'
+                    : 'border-border bg-card text-card-foreground hover:border-accent'
                 }`}
               >
                 <Filter size={18} className="inline mr-2" />
@@ -284,23 +284,23 @@ function ServicesContent() {
               </motion.button>
             </div>
           </div>
-          {!loading && <p className="mt-3 text-sm text-gray-400" aria-live="polite">Showing {filteredServices.length} of {services.length} services</p>}
+          {!loading && <p className="mt-3 text-sm text-muted-foreground" aria-live="polite">Showing {filteredServices.length} of {services.length} services</p>}
         </motion.div>
 
-        <Link href="/speaking" className="mb-8 flex flex-wrap items-center justify-between gap-3 border-l-4 border-radiant-gold bg-[#142523] px-5 py-4 text-white transition-colors hover:bg-[#1e3531]">
-          <span><strong className="block text-lg">Planning a speaking event?</strong><span className="text-sm text-gray-300">Build a short Speaker Fit Brief before exploring the engagement.</span></span>
-          <span className="inline-flex items-center gap-2 font-semibold text-radiant-gold">Explore speaking <ArrowRight size={17} /></span>
+        <Link href="/speaking" className="mb-8 flex flex-wrap items-center justify-between gap-3 border-l-4 border-accent bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+          <span><strong className="block text-lg">Planning a speaking event?</strong><span className="text-sm text-muted-foreground">Build a short Speaker Fit Brief before exploring the engagement.</span></span>
+          <span className="inline-flex items-center gap-2 font-semibold underline decoration-accent underline-offset-4">Explore speaking <ArrowRight size={17} /></span>
         </Link>
 
         {/* Services Grid */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="text-gray-400">Loading services...</div>
+            <div className="text-muted-foreground">Loading services...</div>
           </div>
         ) : filteredServices.length === 0 ? (
           <div className="text-center py-12">
-            <Users className="mx-auto text-gray-600 mb-4" size={48} />
-            <p className="text-gray-400 mb-4">No services found.</p>
+            <Users className="mx-auto mb-4 text-muted-foreground" size={48} />
+            <p className="mb-4 text-muted-foreground">No services found.</p>
             {searchQuery || selectedType !== 'all' || selectedDelivery !== 'all' || showFeaturedOnly ? (
               <button
                 onClick={() => {
@@ -310,7 +310,7 @@ function ServicesContent() {
                   setShowFeaturedOnly(false)
                   updateUrlParams('all', 'all')
                 }}
-                className="text-cyan-400 hover:text-cyan-300"
+                className="font-semibold text-foreground underline decoration-accent underline-offset-4 hover:decoration-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 Clear filters
               </button>

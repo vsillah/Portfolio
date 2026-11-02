@@ -73,7 +73,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
-      className="agent-ops-card group flex h-full flex-col rounded-xl border transition-colors hover:border-radiant-gold/50"
+      className="agent-ops-card group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border transition-colors hover:border-accent"
     >
       {/* Image */}
       <div className="relative border-b border-radiant-gold/10 bg-[#101c2d]">
@@ -86,13 +86,13 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
             <p className="max-w-xs text-xs leading-5">A reviewed service image or deliverable preview has not been added. Open details to learn what is included.</p>
           </div>
         )}
-        {gallery.length === 1 && <p className="px-3 py-2 text-xs text-white/70">More service evidence pending · <Link href={viewDetailsHref || `/services/${service.id}`} className="underline underline-offset-2 hover:text-white">View details</Link></p>}
+        {gallery.length === 1 && <p className="bg-card px-3 py-2 text-xs text-muted-foreground">More service evidence pending · <Link href={viewDetailsHref || `/services/${service.id}`} className="text-card-foreground underline decoration-accent underline-offset-2 focus-visible:outline-2 focus-visible:outline-accent">View details</Link></p>}
         {service.is_featured && (
-          <div className="pointer-events-none absolute z-30 top-2 right-2 px-2 py-1 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded">
+          <div className="pointer-events-none absolute right-2 top-2 z-30 rounded bg-accent px-2 py-1 text-xs font-semibold text-accent-foreground">
             Featured
           </div>
         )}
-        <div className="pointer-events-none absolute z-30 top-2 left-2 max-w-[60%] px-2 py-1 bg-silicon-slate/90 text-foreground text-xs rounded flex items-center gap-1">
+        <div className="pointer-events-none absolute left-2 top-2 z-30 flex max-w-[60%] items-center gap-1 rounded bg-popover px-2 py-1 text-xs text-popover-foreground shadow-sm">
           {TYPE_ICONS[service.service_type]}
           {TYPE_LABELS[service.service_type] || service.service_type}
         </div>
@@ -100,19 +100,19 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">{service.title}</h3>
+        <h3 className="mb-2 line-clamp-2 text-xl font-bold text-card-foreground">{service.title}</h3>
         
         {/* Service Details */}
         <div className="flex flex-wrap gap-2 mb-3">
           {/* Delivery Method */}
-          <span className="px-2 py-1 bg-silicon-slate text-foreground text-xs rounded flex items-center gap-1">
+          <span className="flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs text-foreground">
             {delivery.icon}
             {delivery.label}
           </span>
           
           {/* Duration */}
           {service.duration_description && (
-            <span className="px-2 py-1 bg-silicon-slate text-foreground text-xs rounded flex items-center gap-1">
+            <span className="flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs text-foreground">
               <Clock size={12} />
               {service.duration_description}
             </span>
@@ -120,7 +120,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           
           {/* Participants */}
           {service.max_participants && (
-            <span className="px-2 py-1 bg-silicon-slate text-foreground text-xs rounded flex items-center gap-1">
+            <span className="flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs text-foreground">
               <Users size={12} />
               {service.min_participants}-{service.max_participants}
             </span>
@@ -136,7 +136,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           <div className="mb-3">
             <Link
               href={viewDetailsHref}
-              className="text-radiant-gold hover:text-gold-light text-sm flex items-center gap-1"
+              className="flex items-center gap-1 text-sm font-semibold text-card-foreground underline decoration-accent underline-offset-4 hover:decoration-foreground focus-visible:outline-2 focus-visible:outline-accent"
             >
               View details
               <ArrowRight size={14} />
@@ -151,7 +151,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
               href={service.video_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-radiant-gold hover:text-gold-light text-sm flex items-center gap-1"
+              className="flex items-center gap-1 text-sm font-semibold text-card-foreground underline decoration-accent underline-offset-4 hover:decoration-foreground focus-visible:outline-2 focus-visible:outline-accent"
             >
               <Play size={14} />
               Watch video
@@ -167,30 +167,30 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           </div>
         )}
         {service.presentation_url && (
-          <a href={service.presentation_url} target="_blank" rel="noopener noreferrer" className="mb-3 flex items-center gap-1 text-sm text-radiant-gold hover:text-gold-light">
+          <a href={service.presentation_url} target="_blank" rel="noopener noreferrer" className="mb-3 flex items-center gap-1 text-sm font-semibold text-card-foreground underline decoration-accent underline-offset-4 hover:decoration-foreground focus-visible:outline-2 focus-visible:outline-accent">
             View presentation <ArrowRight size={14} aria-hidden="true" />
           </a>
         )}
 
         {/* Price and Action Button */}
-        <div className="mt-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
             {quoteRequired ? (
-              <span className="text-lg font-semibold text-radiant-gold">Price on request</span>
+              <span className="text-lg font-semibold text-card-foreground">Price on request</span>
             ) : service.price !== null ? (
               <>
-                <DollarSign className="text-radiant-gold" size={20} />
-                <span className="text-2xl font-bold text-white">{formatDollarAmount(service.price)}</span>
+                <DollarSign className="text-card-foreground" size={20} />
+                <span className="text-2xl font-bold text-card-foreground">{formatDollarAmount(service.price)}</span>
               </>
             ) : (
-              <span className="text-lg font-semibold text-radiant-gold">Free</span>
+              <span className="text-lg font-semibold text-card-foreground">Free</span>
             )}
           </div>
           <motion.button
             onClick={handleAction}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="agent-ops-button-primary shrink-0"
+            className="service-primary-action min-h-11 shrink-0 px-3 py-2 text-sm"
           >
             {quoteRequired ? (
               <>
