@@ -21,8 +21,7 @@ describe('speaking page', () => {
     const accelerated = within(screen.getByAltText('Cover of Accelerated').closest('figure')!)
     expect(accelerated.getByText('Accelerated')).toBeInTheDocument()
     expect(accelerated.getByText(/building smarter products with AI/)).toBeInTheDocument()
-    expect(accelerated.queryByRole('link', { name: /Amazon/ })).not.toBeInTheDocument()
-    expect(accelerated.getByRole('link', { name: 'View Accelerated on Apple Books (opens in a new tab)' })).toHaveAttribute('href', 'https://books.apple.com/gb/book/accelerated-building-smarter-products-with-ai/id6759681729')
+    expect(accelerated.getByRole('link', { name: 'View Accelerated on Amazon (opens in a new tab)' })).toHaveAttribute('href', 'https://www.amazon.com/Accelerated-Building-Smarter-Products-AI/dp/B0GQPK27TH')
 
     const agentified = within(screen.getByAltText(`Cover of ${agentifiedPublication.title}`).closest('figure')!)
     expect(agentified.getByText(agentifiedPublication.title)).toBeInTheDocument()

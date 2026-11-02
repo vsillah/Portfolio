@@ -32,7 +32,7 @@ const speakingPublications = [
     title: 'Accelerated',
     cover: '/accelerated_cover_ebook.webp',
     description: 'A practical guide to building smarter products with AI, following a product manager from discovery through delivery.',
-    detailsUrl: 'https://books.apple.com/gb/book/accelerated-building-smarter-products-with-ai/id6759681729',
+    amazonUrl: 'https://www.amazon.com/Accelerated-Building-Smarter-Products-AI/dp/B0GQPK27TH',
   },
   {
     title: agentifiedPublication.title,
@@ -225,8 +225,6 @@ export default function SpeakingPage() {
                   <span className={styles.bookDescription}>{publication.description}</span>
                   {'amazonUrl' in publication && publication.amazonUrl ? (
                     <a href={publication.amazonUrl} target="_blank" rel="noopener noreferrer" aria-label={`View ${publication.title} on Amazon (opens in a new tab)`} className={styles.bookAction}>View on Amazon <ArrowRight size={14} aria-hidden="true" /></a>
-                  ) : 'detailsUrl' in publication && publication.detailsUrl ? (
-                    <a href={publication.detailsUrl} target="_blank" rel="noopener noreferrer" aria-label={`View ${publication.title} on Apple Books (opens in a new tab)`} className={styles.bookAction}>View on Apple Books <ArrowRight size={14} aria-hidden="true" /></a>
                   ) : null}
                 </figcaption>
               </figure>
