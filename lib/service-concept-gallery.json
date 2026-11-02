@@ -221,15 +221,17 @@
     "calibration": "2026-10-23-captain-approved-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/speaking-engagement-hero-review-r1.webp",
-        "alt": "Speaking Engagement: illustrative speaking stage and audience question",
+        "imageUrl": "/showcases/speaking/vambah-speaking-illustrative-hero.jpg",
+        "alt": "Illustrative scene of Vambah presenting to a small audience",
         "role": "hero",
+        "label": "Illustrative scene",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/speaking-engagement-artifact-review-r1.webp",
-        "alt": "Speaking Engagement: illustrative talk arc and audience handoff",
+        "imageUrl": "/showcases/speaking/vambah-speaking-illustrative-qa.jpg",
+        "alt": "Illustrative scene of Vambah answering an audience question after a talk",
         "role": "product-in-use",
+        "label": "Illustrative scene",
         "status": "illustrative concept"
       }
     ]

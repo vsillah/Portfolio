@@ -465,6 +465,41 @@ html.dark .card-brand {
   background: rgba(245, 208, 96, 0.94);
 }
 
+/* Public service actions keep one readable label and icon treatment in both themes. */
+.service-primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--radiant-gold);
+  border-radius: 0.5rem;
+  background: var(--radiant-gold);
+  color: var(--imperial-navy);
+  font-weight: 700;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.service-primary-action:hover:not(:disabled) {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+}
+
+.service-primary-action:active:not(:disabled) {
+  background: #c59d28;
+  border-color: #c59d28;
+}
+
+.service-primary-action:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 3px;
+}
+
+.service-primary-action:disabled {
+  cursor: not-allowed;
+  border-color: var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+}
+
 .agent-ops-button-muted {
   border: 1px solid var(--border);
   background: var(--muted);
