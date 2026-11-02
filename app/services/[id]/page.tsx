@@ -23,6 +23,7 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PortfolioVisualMockup from '@/components/visual-assets/PortfolioVisualMockup'
+import { recommendSpeakerFit, SPEAKING_SERVICE_ID, type SpeakerFitInput } from '@/lib/speaker-fit'
 import ShowcaseCarousel from '@/components/ShowcaseCarousel'
 import { resolveServiceGallery } from '@/lib/showcase-preview'
 
@@ -71,6 +72,13 @@ export default function ServiceDetailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const serviceId = params.id as string
+  const speakerBrief: SpeakerFitInput = {
+    audience: searchParams.get('speakerAudience') || '',
+    outcome: searchParams.get('speakerOutcome') || '',
+    format: searchParams.get('speakerFormat') || '',
+    topic: searchParams.get('speakerTopic') || '',
+  }
+  const speakerFit = serviceId === SPEAKING_SERVICE_ID ? recommendSpeakerFit(speakerBrief) : null
   const visualCapture = searchParams.get('visualCapture') === '1'
   const visualFocusCodes = (searchParams.get('visualFocus') || '')
     .split(',')
@@ -413,6 +421,15 @@ export default function ServiceDetailPage() {
               </div>
 
               {/* Description */}
+              {speakerFit && (
+                <section className="mb-8 border-l-4 border-radiant-gold bg-radiant-gold/10 p-5" aria-label="Your speaker fit brief">
+                  <p className="text-xs font-bold uppercase tracking-widest text-radiant-gold">Your speaker fit brief</p>
+                  <h2 className="mt-2 font-premium text-2xl text-white">{speakerFit.title}</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-300">{speakerFit.fit}</p>
+                  <p className="mt-3 text-xs text-gray-400">These choices are kept in this URL. Mention your event details when you inquire.</p>
+                  <Link href="/speaking#brief" className="mt-3 inline-block text-sm font-semibold text-radiant-gold underline underline-offset-4">Revise your brief</Link>
+                </section>
+              )}
               {service.description && (
                 <p className="text-gray-300 text-lg leading-relaxed mb-8">
                   {service.description}
