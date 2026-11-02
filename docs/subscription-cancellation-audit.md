@@ -10,6 +10,20 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-11-02 Weekly Subscription Report
+
+Status: YELLOW
+
+Raw findings: The durable daily record through 2026-11-01 shows current Supabase activity, current Vercel deployments, and a previously readable n8n runtime with 85 workflows and successful scheduled work. This week's direct read-only Supabase check again found `agent_runs`, `agent_run_events`, and `analytics_events` moving on 2026-11-02. The n8n read-only endpoint returned HTTP 530, and Gmail receipt search was rate-limited; both are evidence-collection failures, not inactivity or billing evidence. Repository references continue to retain Gamma report/deck, Vapi voice/webhook, Apify/Pinecone ingestion, Calendly scheduling, Resend email, and related provider paths. BuiltWith was not queried to avoid consuming lookup credits.
+
+Derived movement since 2026-10-26: Gamma's stated Pro expiry date of 2026-11-01 has passed without current plan-state or report-continuity proof, so it moves from a future renewal watch to an immediate owner continuity decision. n8n changes from recovered connector access to a new read-only HTTP 530 observation; carry forward its active-runtime evidence rather than treating the access failure as a cancellation signal. No paid-plan restart evidence appeared for Fireflies, and BuiltWith remains protected during the outreach/client-volume ramp. No vendor reached the approval-ready cancellation threshold.
+
+Current buckets: active keep — Supabase, Vercel, n8n Cloud (active evidence, reliability review), Stripe, OpenAI, Gemini/Google AI, Slack, Gmail/Google metadata, Apify, Hunter.io, Printful, Google Cloud, and BuiltWith during the outreach ramp. Watch — Gamma, Vapi, Resend, Calendly, ElevenLabs, HeyGen, OpenRouter, Pinecone, Read AI, Apify actor pruning, Anthropic billing/API scope, and design/media billing. Unresolved owner review — Gamma current plan/report continuity; Vapi billing/voice scope; Calendly, Read AI, HeyGen, Pinecone, OpenRouter, Printful, Stripe, Vercel, Google, and design/media account evidence. Resolved/canceled — Fireflies.ai. Candidate cancellations — none; Vapi remains deprecation-review only.
+
+Recommendations and exact next actions: (1) Gamma — log into Gamma, confirm whether Pro transitioned to Free or renewed, and test the report/deck workflow before deciding on any plan change; (2) n8n — restore read-only API availability and map the staging Apify-monitor failures to owner/cost without changing production workflows; (3) Vapi — verify billing and decide whether near-term Portfolio voice UX remains in scope before any deprecation packet; (4) owner-dashboard reviews — confirm billing/usage for Calendly, Read AI, HeyGen, Pinecone, OpenRouter, Printful, Resend, and design/media tools; (5) retain BuiltWith during the ramp and reopen Fireflies only on paid-plan restart evidence.
+
+Action-tracker feedback: this automation has 12 open actions, with none in progress, blocked, done, or carrying a progress note. The tracker did not close or authorize any vendor action. No cancellation, provider setting, secret, data, code-deprecation, billing, or production change was performed. Any cancellation remains gated by `Cancel <tool/vendor> for Portfolio`.
+
 ## 2026-10-26 Weekly Subscription Report
 
 Status: YELLOW
