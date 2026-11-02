@@ -81,9 +81,12 @@ function run() {
   const snapshotPath = process.env.PORTFOLIO_EVAL_SNAPSHOT_PATH
   const now = new Date()
   let manifest: Manifest
+  let manifestSha256: string | null = null
   const errors: string[] = []
   try {
-    const parsed = JSON.parse(readFileSync(join(root, 'data/evals/manifest.json'), 'utf8'))
+    const raw = readFileSync(join(root, 'data/evals/manifest.json'))
+    manifestSha256 = createHash('sha256').update(raw).digest('hex')
+    const parsed = JSON.parse(raw.toString('utf8'))
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Manifest must be a JSON object')
     manifest = parsed as Manifest
   }
@@ -144,7 +147,7 @@ function run() {
   const report = {
     schemaVersion: 1, generatedAt: now.toISOString(), commit: git,
     mode: evidenceOnly ? 'evidence-only' : includeGated ? 'gated' : 'local',
-    snapshotSha256,
+    manifestSha256, snapshotSha256,
     coverage: { discoveredTests: discovered.length, registeredTests: manifest.families.flatMap(f => f.testFiles ?? []).length },
     summary: { passed: results.filter(r => r.status === 'passed').length, gated: results.filter(r => r.status === 'gated').length, failed: results.filter(r => !['passed', 'gated', 'current'].includes(r.status)).length, currentEvidence: results.filter(r => r.status === 'current').length },
     results, errors,
