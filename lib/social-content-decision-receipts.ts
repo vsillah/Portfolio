@@ -194,6 +194,23 @@ export function getSocialContentDecisionReadiness(
 
   const itemVersion = normalizeTimestamp(item.updated_at)
   const packetVersion = normalizeTimestamp(packet.content_updated_at)
+  const youtubeFinal = stringValue(rawPacket?.platform) === 'youtube'
+    && packet.current_gate === 'platform_submission'
+  const sourceVersion = youtubeFinal
+    ? normalizeTimestamp(stringValue(recordValue(recordValue(rawPacket?.source_receipts)?.source)?.content_updated_at))
+    : packetVersion
+  const beforePreparation = youtubeFinal
+    ? normalizeTimestamp(stringValue(rawPacket?.prepared_from_content_updated_at))
+    : null
+  if (youtubeFinal && !beforePreparation) {
+    blockers.push('The final YouTube packet is missing its preparation source version.')
+  }
+  if (youtubeFinal && sourceVersion && beforePreparation && sourceVersion > beforePreparation) {
+    blockers.push('The final YouTube receipt version is newer than the source row.')
+  }
+  if (youtubeFinal && JSON.stringify(rawPacket?.source_receipts) !== JSON.stringify(rawPacket?.receipts)) {
+    blockers.push('The final YouTube packet does not preserve its approved source receipts.')
+  }
   const stale = packet.content_id !== item.id || !itemVersion || !packetVersion || itemVersion !== packetVersion
   if (packet.content_id !== item.id) blockers.push('The packet is bound to a different Social Content item.')
 
@@ -217,7 +234,7 @@ export function getSocialContentDecisionReadiness(
       blockers.push(`${key[0].toUpperCase()}${key.slice(1)} receipt has not passed.`)
     }
     const receiptVersion = normalizeTimestamp(receipt.content_updated_at)
-    if (!packetVersion || !receiptVersion || receiptVersion !== packetVersion) {
+    if (!sourceVersion || !receiptVersion || receiptVersion !== sourceVersion) {
       blockers.push(`${key[0].toUpperCase()}${key.slice(1)} receipt is stale for this packet.`)
     }
   }
