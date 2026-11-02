@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowDown, ArrowRight, Check, RotateCcw } from 'lucide-react'
+import { agentifiedPublication } from '@/lib/agentified-publication'
 import {
   audienceOptions, formatOptions, outcomeOptions, topicOptions,
   recommendSpeakerFit, speakingServiceHref, type SpeakerFitInput,
@@ -17,8 +18,29 @@ const talkDirections = [
   { number: '02', title: 'Practical AI & product transformation', detail: 'A builder’s view of discovery, product judgment, and the work that happens after a pilot.' },
   { number: '03', title: 'Access, equity & technology', detail: 'Who gets the tools, who shapes them, and what changes when communities build from their own knowledge.' },
   { number: '04', title: 'Systems that reduce burden', detail: 'Designing for the people closest to the work, with capacity and dignity in view.' },
-  { number: '05', title: 'Books, authorship & ideas', detail: 'Conversations around The Equity Code and Accelerated, tailored to the questions in the room.' },
+  { number: '05', title: 'Books, authorship & ideas', detail: `Conversations around The Equity Code, Accelerated, and ${agentifiedPublication.title}, shaped by the questions in the room.` },
 ]
+
+const speakingPublications = [
+  {
+    title: 'The Equity Code',
+    cover: '/The_Equity_Code_Cover.webp',
+    description: 'A look at five barriers to digital opportunity: connection, devices, skills, support, and cultural relevance.',
+    amazonUrl: 'https://www.amazon.com/dp/B0G3J98KY8',
+  },
+  {
+    title: 'Accelerated',
+    cover: '/accelerated_cover_ebook.webp',
+    description: 'A practical guide to building smarter products with AI, following a product manager from discovery through delivery.',
+    amazonUrl: 'https://www.amazon.com/Accelerated-Building-Smarter-Products-AI/dp/B0GQPK27TH',
+  },
+  {
+    title: agentifiedPublication.title,
+    cover: agentifiedPublication.coverImage,
+    description: agentifiedPublication.description,
+    amazonUrl: agentifiedPublication.amazonPaperbackUrl,
+  },
+] as const
 
 const questions = [
   { question: 'Can the talk fit our event theme?', answer: 'Start with the Speaker Fit Brief. It gives us a useful direction to discuss; the final talk is shaped with your audience and event goals in mind.' },
@@ -194,9 +216,19 @@ export default function SpeakingPage() {
               <Link href="/services">Explore services <ArrowRight size={15} /></Link>
             </div>
           </div>
-          <div className={styles.bookPair}>
-            <figure><Image src="/The_Equity_Code_Cover.webp" alt="Cover of The Equity Code" width={240} height={360} sizes="(max-width: 600px) 42vw, 240px" /><figcaption>The Equity Code</figcaption></figure>
-            <figure><Image src="/accelerated_cover_ebook.webp" alt="Cover of Accelerated" width={240} height={360} sizes="(max-width: 600px) 42vw, 240px" /><figcaption>Accelerated</figcaption></figure>
+          <div className={styles.bookShelf}>
+            {speakingPublications.map((publication) => (
+              <figure key={publication.title}>
+                <Image src={publication.cover} alt={`Cover of ${publication.title}`} width={240} height={360} sizes="(max-width: 650px) 108px, (max-width: 1000px) 30vw, 180px" />
+                <figcaption>
+                  <strong className={styles.bookTitle}>{publication.title}</strong>
+                  <span className={styles.bookDescription}>{publication.description}</span>
+                  {'amazonUrl' in publication && publication.amazonUrl ? (
+                    <a href={publication.amazonUrl} target="_blank" rel="noopener noreferrer" aria-label={`View ${publication.title} on Amazon (opens in a new tab)`} className={styles.bookAction}>View on Amazon <ArrowRight size={14} aria-hidden="true" /></a>
+                  ) : null}
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </div>
       </section>

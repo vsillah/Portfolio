@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { agentifiedPublication } from '@/lib/agentified-publication'
 import SpeakingPage from './page'
 
 // eslint-disable-next-line @next/next/no-img-element
@@ -8,6 +9,31 @@ vi.mock('next/link', () => ({ default: (props: { href: string; children: React.R
 
 describe('speaking page', () => {
   afterEach(() => vi.unstubAllGlobals())
+
+  it('shows sourced publication details and only verified Amazon actions', () => {
+    render(<SpeakingPage />)
+
+    const equity = within(screen.getByAltText('Cover of The Equity Code').closest('figure')!)
+    expect(equity.getByText('The Equity Code')).toBeInTheDocument()
+    expect(equity.getByText(/five barriers to digital opportunity/)).toBeInTheDocument()
+    expect(equity.getByRole('link', { name: 'View The Equity Code on Amazon (opens in a new tab)' })).toHaveAttribute('href', 'https://www.amazon.com/dp/B0G3J98KY8')
+
+    const accelerated = within(screen.getByAltText('Cover of Accelerated').closest('figure')!)
+    expect(accelerated.getByText('Accelerated')).toBeInTheDocument()
+    expect(accelerated.getByText(/building smarter products with AI/)).toBeInTheDocument()
+    expect(accelerated.getByRole('link', { name: 'View Accelerated on Amazon (opens in a new tab)' })).toHaveAttribute('href', 'https://www.amazon.com/Accelerated-Building-Smarter-Products-AI/dp/B0GQPK27TH')
+
+    const agentified = within(screen.getByAltText(`Cover of ${agentifiedPublication.title}`).closest('figure')!)
+    expect(agentified.getByText(agentifiedPublication.title)).toBeInTheDocument()
+    expect(agentified.getByText(agentifiedPublication.description)).toBeInTheDocument()
+    expect(screen.getByAltText(`Cover of ${agentifiedPublication.title}`)).toHaveAttribute('src', agentifiedPublication.coverImage)
+    expect(agentified.getByRole('link', { name: `View ${agentifiedPublication.title} on Amazon (opens in a new tab)` })).toHaveAttribute('href', agentifiedPublication.amazonPaperbackUrl)
+
+    for (const link of screen.getAllByRole('link', { name: /opens in a new tab/ })) {
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    }
+  })
 
   it('keeps the brief local, handles incomplete input, and routes a complete fit to the catalog service', () => {
     const fetchSpy = vi.fn()
