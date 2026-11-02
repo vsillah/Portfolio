@@ -1274,6 +1274,37 @@
       }
     },
     {
+      "id": "lib-eval-recovery-packets",
+      "owner": "Model Ops",
+      "scope": "Review-only hosted evaluation recovery packet contract",
+      "testFiles": [
+        "lib/eval-recovery-packets.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/eval-recovery-packets.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
       "id": "chatbot-hosted-evidence",
       "owner": "Model Ops",
       "scope": "Hosted chatbot evaluation evidence",
