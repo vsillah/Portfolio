@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, ArrowLeft, Users, Video, MapPin, Building, HelpCircle } from 'lucide-react'
+import { Search, Filter, ShoppingCart, ArrowLeft, ArrowRight, Users, Video, MapPin, Building, HelpCircle } from 'lucide-react'
 import ServiceCard from '@/components/ServiceCard'
 import { useAuth } from '@/components/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -286,6 +286,11 @@ function ServicesContent() {
           </div>
           {!loading && <p className="mt-3 text-sm text-gray-400" aria-live="polite">Showing {filteredServices.length} of {services.length} services</p>}
         </motion.div>
+
+        <Link href="/speaking" className="mb-8 flex flex-wrap items-center justify-between gap-3 border-l-4 border-radiant-gold bg-[#142523] px-5 py-4 text-white transition-colors hover:bg-[#1e3531]">
+          <span><strong className="block text-lg">Planning a speaking event?</strong><span className="text-sm text-gray-300">Build a short Speaker Fit Brief before exploring the engagement.</span></span>
+          <span className="inline-flex items-center gap-2 font-semibold text-radiant-gold">Explore speaking <ArrowRight size={17} /></span>
+        </Link>
 
         {/* Services Grid */}
         {loading ? (
