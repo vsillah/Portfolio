@@ -84,3 +84,5 @@ scripts/prod-schema-components/
 
 # Supabase CLI local link/cache state
 supabase/.temp/
+# Local monthly eval evidence; attach reviewed reports to the captain packet.
+/reports/evals/monthly/

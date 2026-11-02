@@ -1,0 +1,1409 @@
+{
+  "schemaVersion": 1,
+  "discoveryPattern": "(eval|benchmark|golden|quality|qa|llm-judge|chatbot|video-script|source-validator)",
+  "families": [
+    {
+      "id": "app-admin-social-content-id-social-visual-backlog-qa",
+      "owner": "Portfolio product owner",
+      "scope": "app/admin/social-content/[id]/social-visual-backlog-qa.test.tsx",
+      "testFiles": [
+        "app/admin/social-content/[id]/social-visual-backlog-qa.test.tsx"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/admin/social-content/[id]/social-visual-backlog-qa.test.tsx"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-agents-evaluations-route",
+      "owner": "Model Ops",
+      "scope": "app/api/admin/agents/evaluations/route.test.ts",
+      "testFiles": [
+        "app/api/admin/agents/evaluations/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/agents/evaluations/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-agents-runs-runId-evaluate-route",
+      "owner": "Model Ops",
+      "scope": "app/api/admin/agents/runs/[runId]/evaluate/route.test.ts",
+      "testFiles": [
+        "app/api/admin/agents/runs/[runId]/evaluate/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/agents/runs/[runId]/evaluate/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-agents-runtime-evaluation-route",
+      "owner": "Model Ops",
+      "scope": "app/api/admin/agents/runtime-evaluation/route.test.ts",
+      "testFiles": [
+        "app/api/admin/agents/runtime-evaluation/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/agents/runtime-evaluation/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-chat-eval-diagnoses-id-apply-prompt-route",
+      "owner": "Model Ops",
+      "scope": "app/api/admin/chat-eval/diagnoses/[id]/apply-prompt/route.test.ts",
+      "testFiles": [
+        "app/api/admin/chat-eval/diagnoses/[id]/apply-prompt/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/chat-eval/diagnoses/[id]/apply-prompt/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-chat-eval-diagnoses-id-apply-route",
+      "owner": "Model Ops",
+      "scope": "app/api/admin/chat-eval/diagnoses/[id]/apply/route.test.ts",
+      "testFiles": [
+        "app/api/admin/chat-eval/diagnoses/[id]/apply/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/chat-eval/diagnoses/[id]/apply/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-guarantees-instanceId-evaluate-route",
+      "owner": "Portfolio product owner",
+      "scope": "app/api/admin/guarantees/[instanceId]/evaluate/route.test.ts",
+      "testFiles": [
+        "app/api/admin/guarantees/[instanceId]/evaluate/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/guarantees/[instanceId]/evaluate/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-social-content-id-dark-castle-visual-qa",
+      "owner": "Portfolio product owner",
+      "scope": "app/api/admin/social-content/[id]/dark-castle-visual-qa.test.ts",
+      "testFiles": [
+        "app/api/admin/social-content/[id]/dark-castle-visual-qa.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/social-content/[id]/dark-castle-visual-qa.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-social-content-id-practitioner-content-qa-fixture",
+      "owner": "Portfolio product owner",
+      "scope": "app/api/admin/social-content/[id]/practitioner-content-qa-fixture.test.ts",
+      "testFiles": [
+        "app/api/admin/social-content/[id]/practitioner-content-qa-fixture.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/social-content/[id]/practitioner-content-qa-fixture.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-social-content-id-topic-source-coverage-qa-fixture",
+      "owner": "Model Ops",
+      "scope": "app/api/admin/social-content/[id]/topic-source-coverage-qa-fixture.test.ts",
+      "testFiles": [
+        "app/api/admin/social-content/[id]/topic-source-coverage-qa-fixture.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/social-content/[id]/topic-source-coverage-qa-fixture.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-social-content-qa-visual-dark-castle-youtube-route",
+      "owner": "Portfolio product owner",
+      "scope": "app/api/admin/social-content/qa-visual/dark-castle-youtube/route.test.ts",
+      "testFiles": [
+        "app/api/admin/social-content/qa-visual/dark-castle-youtube/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/social-content/qa-visual/dark-castle-youtube/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-agent-evaluations",
+      "owner": "Model Ops",
+      "scope": "lib/agent-evaluations.test.ts",
+      "testFiles": [
+        "lib/agent-evaluations.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/agent-evaluations.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-ai-layer-fit-evaluation",
+      "owner": "Model Ops",
+      "scope": "lib/ai-layer-fit-evaluation.test.ts",
+      "testFiles": [
+        "lib/ai-layer-fit-evaluation.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/ai-layer-fit-evaluation.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-banned-books-evidence-qa",
+      "owner": "Portfolio product owner",
+      "scope": "lib/banned-books-evidence-qa.test.ts",
+      "testFiles": [
+        "lib/banned-books-evidence-qa.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/banned-books-evidence-qa.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-client-ai-ops-real-pilot-qa",
+      "owner": "Portfolio product owner",
+      "scope": "lib/client-ai-ops-real-pilot-qa.test.ts",
+      "testFiles": [
+        "lib/client-ai-ops-real-pilot-qa.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/client-ai-ops-real-pilot-qa.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-engagement-shadow-benchmark",
+      "owner": "Portfolio product owner",
+      "scope": "lib/engagement-shadow/benchmark.test.ts",
+      "testFiles": [
+        "lib/engagement-shadow/benchmark.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/engagement-shadow/benchmark.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-open-brain-rag-retrieval-qa",
+      "owner": "Model Ops",
+      "scope": "lib/open-brain-rag-retrieval-qa.test.ts",
+      "testFiles": [
+        "lib/open-brain-rag-retrieval-qa.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/open-brain-rag-retrieval-qa.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-social-candidate-projection-qa-fixture",
+      "owner": "Portfolio product owner",
+      "scope": "lib/social-candidate-projection-qa-fixture.test.ts",
+      "testFiles": [
+        "lib/social-candidate-projection-qa-fixture.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/social-candidate-projection-qa-fixture.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-social-channel-experiment-qa-fixture",
+      "owner": "Portfolio product owner",
+      "scope": "lib/social-channel-experiment-qa-fixture.test.ts",
+      "testFiles": [
+        "lib/social-channel-experiment-qa-fixture.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/social-channel-experiment-qa-fixture.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-social-deterministic-visual-qa-fixture",
+      "owner": "Portfolio product owner",
+      "scope": "lib/social-deterministic-visual-qa-fixture.test.ts",
+      "testFiles": [
+        "lib/social-deterministic-visual-qa-fixture.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/social-deterministic-visual-qa-fixture.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-social-practitioner-content-qa-fixture",
+      "owner": "Portfolio product owner",
+      "scope": "lib/social-practitioner-content-qa-fixture.test.ts",
+      "testFiles": [
+        "lib/social-practitioner-content-qa-fixture.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/social-practitioner-content-qa-fixture.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-social-visual-backlog-qa-fixture",
+      "owner": "Portfolio product owner",
+      "scope": "lib/social-visual-backlog-qa-fixture.test.ts",
+      "testFiles": [
+        "lib/social-visual-backlog-qa-fixture.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/social-visual-backlog-qa-fixture.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-source-validator-validate-benchmark",
+      "owner": "Model Ops",
+      "scope": "lib/source-validator/validate-benchmark.test.ts",
+      "testFiles": [
+        "lib/source-validator/validate-benchmark.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/source-validator/validate-benchmark.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-warm-outreach-copy-quality",
+      "owner": "Portfolio product owner",
+      "scope": "lib/warm-outreach-copy-quality.test.ts",
+      "testFiles": [
+        "lib/warm-outreach-copy-quality.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/warm-outreach-copy-quality.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "scripts-qa-proposal-invoice-milestones.integration",
+      "owner": "Portfolio product owner",
+      "scope": "scripts/qa/proposal-invoice-milestones.integration.test.ts",
+      "testFiles": [
+        "scripts/qa/proposal-invoice-milestones.integration.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "scripts/qa/proposal-invoice-milestones.integration.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "scripts-qa-proposal-milestones.integration",
+      "owner": "Portfolio product owner",
+      "scope": "scripts/qa/proposal-milestones.integration.test.ts",
+      "testFiles": [
+        "scripts/qa/proposal-milestones.integration.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "scripts/qa/proposal-milestones.integration.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "scripts-qa-youtube-thumbnail-v3-generation",
+      "owner": "Portfolio product owner",
+      "scope": "scripts/qa/youtube-thumbnail-v3-generation.test.ts",
+      "testFiles": [
+        "scripts/qa/youtube-thumbnail-v3-generation.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "scripts/qa/youtube-thumbnail-v3-generation.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "scripts-qa-youtube-thumbnail-v4-quality-contract",
+      "owner": "Portfolio product owner",
+      "scope": "scripts/qa/youtube-thumbnail-v4-quality-contract.test.ts",
+      "testFiles": [
+        "scripts/qa/youtube-thumbnail-v4-quality-contract.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "scripts/qa/youtube-thumbnail-v4-quality-contract.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "scripts-vercel-preview-admin-qa",
+      "owner": "Portfolio product owner",
+      "scope": "scripts/vercel-preview-admin-qa.test.ts",
+      "testFiles": [
+        "scripts/vercel-preview-admin-qa.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "scripts/vercel-preview-admin-qa.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Portfolio product owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "app-api-admin-llm-judge-route",
+      "owner": "Model Ops",
+      "scope": "app/api/admin/llm-judge/route.test.ts",
+      "testFiles": [
+        "app/api/admin/llm-judge/route.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "app/api/admin/llm-judge/route.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-__tests__-chatbot-knowledge",
+      "owner": "Model Ops",
+      "scope": "lib/__tests__/chatbot-knowledge.test.ts",
+      "testFiles": [
+        "lib/__tests__/chatbot-knowledge.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/__tests__/chatbot-knowledge.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-llm-judge-budget",
+      "owner": "Model Ops",
+      "scope": "lib/llm-judge-budget.test.ts",
+      "testFiles": [
+        "lib/llm-judge-budget.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/llm-judge-budget.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-source-validator-filter-mode",
+      "owner": "Model Ops",
+      "scope": "lib/source-validator/filter-mode.test.ts",
+      "testFiles": [
+        "lib/source-validator/filter-mode.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/source-validator/filter-mode.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-source-validator-freshness",
+      "owner": "Model Ops",
+      "scope": "lib/source-validator/freshness.test.ts",
+      "testFiles": [
+        "lib/source-validator/freshness.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/source-validator/freshness.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-source-validator-llm-judge",
+      "owner": "Model Ops",
+      "scope": "lib/source-validator/llm-judge.test.ts",
+      "testFiles": [
+        "lib/source-validator/llm-judge.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/source-validator/llm-judge.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-source-validator-methodology",
+      "owner": "Model Ops",
+      "scope": "lib/source-validator/methodology.test.ts",
+      "testFiles": [
+        "lib/source-validator/methodology.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/source-validator/methodology.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-source-validator-pain-point-evidence",
+      "owner": "Model Ops",
+      "scope": "lib/source-validator/pain-point-evidence.test.ts",
+      "testFiles": [
+        "lib/source-validator/pain-point-evidence.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/source-validator/pain-point-evidence.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-source-validator-tiers",
+      "owner": "Model Ops",
+      "scope": "lib/source-validator/tiers.test.ts",
+      "testFiles": [
+        "lib/source-validator/tiers.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/source-validator/tiers.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-video-script-from-context",
+      "owner": "Video content owner",
+      "scope": "lib/video-script-from-context.test.ts",
+      "testFiles": [
+        "lib/video-script-from-context.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/video-script-from-context.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Video content owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "lib-video-script-intelligence",
+      "owner": "Video content owner",
+      "scope": "lib/video-script-intelligence.test.ts",
+      "testFiles": [
+        "lib/video-script-intelligence.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/video-script-intelligence.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Vitest exit status"
+      },
+      "requiredEnvironment": [],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Video content owner",
+        "route": "Open a scoped Portfolio issue or PR and notify Integration Captain"
+      }
+    },
+    {
+      "id": "chatbot-question-corpus",
+      "owner": "Model Ops",
+      "scope": "Local chatbot question bank integrity; 202 questions across 19 categories at inventory time",
+      "testFiles": [
+        "lib/testing/chatbot-corpus.test.ts"
+      ],
+      "command": [
+        "vitest",
+        "run",
+        "lib/testing/chatbot-corpus.test.ts"
+      ],
+      "threshold": {
+        "kind": "all-tests-pass",
+        "source": "Structural Vitest assertions; no model-quality score claimed"
+      },
+      "requiredEnvironment": [],
+      "mode": "local",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "monthly-run-artifact"
+      },
+      "evidence": {
+        "location": "reports/evals/monthly/*.json",
+        "format": "json"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Review corpus changes with Integration Captain and open a scoped PR"
+      }
+    },
+    {
+      "id": "chatbot-hosted-evidence",
+      "owner": "Model Ops",
+      "scope": "Hosted chatbot evaluation evidence",
+      "testFiles": [],
+      "command": [
+        "tsx",
+        "scripts/portfolio-eval-monthly.ts",
+        "--evidence-only",
+        "chatbot-hosted-evidence"
+      ],
+      "threshold": {
+        "kind": "reviewed-per-record-rating",
+        "source": "database_schema_chat_eval.sql rating good/bad; no aggregate pass threshold declared"
+      },
+      "requiredEnvironment": [
+        "PORTFOLIO_EVAL_SNAPSHOT_PATH"
+      ],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "latest-persisted-evaluation"
+      },
+      "evidence": {
+        "location": "chat_evaluations.evaluated_at via approved, redacted JSON snapshot",
+        "format": "json",
+        "snapshotKey": "chatbot"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Review absent or stale evidence with Integration Captain; approve a separate hosted run if needed"
+      }
+    },
+    {
+      "id": "llm-judge-hosted-evidence",
+      "owner": "Model Ops",
+      "scope": "Hosted llm-judge evaluation evidence",
+      "testFiles": [],
+      "command": [
+        "tsx",
+        "scripts/portfolio-eval-monthly.ts",
+        "--evidence-only",
+        "llm-judge-hosted-evidence"
+      ],
+      "threshold": {
+        "kind": "reviewed-per-record-rating",
+        "source": "database_schema_chat_eval.sql rating good/bad; no aggregate pass threshold declared"
+      },
+      "requiredEnvironment": [
+        "PORTFOLIO_EVAL_SNAPSHOT_PATH"
+      ],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "latest-persisted-evaluation"
+      },
+      "evidence": {
+        "location": "llm_judge_evaluations.evaluated_at via approved, redacted JSON snapshot",
+        "format": "json",
+        "snapshotKey": "llm-judge"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Review absent or stale evidence with Integration Captain; approve a separate hosted run if needed"
+      }
+    },
+    {
+      "id": "agent-hosted-evidence",
+      "owner": "Model Ops",
+      "scope": "Hosted agent evaluation evidence",
+      "testFiles": [],
+      "command": [
+        "tsx",
+        "scripts/portfolio-eval-monthly.ts",
+        "--evidence-only",
+        "agent-hosted-evidence"
+      ],
+      "threshold": {
+        "kind": "per-rubric-score",
+        "source": "public.agent_eval_rubrics.threshold; see supabase/migrations/20260510105350_agent_eval_rubrics.sql"
+      },
+      "requiredEnvironment": [
+        "PORTFOLIO_EVAL_SNAPSHOT_PATH"
+      ],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "latest-persisted-evaluation"
+      },
+      "evidence": {
+        "location": "agent_run_evaluations.created_at via approved, redacted JSON snapshot",
+        "format": "json",
+        "snapshotKey": "agent"
+      },
+      "remediation": {
+        "owner": "Model Ops",
+        "route": "Review absent or stale evidence with Integration Captain; approve a separate hosted run if needed"
+      }
+    },
+    {
+      "id": "video-script-hosted-evidence",
+      "owner": "Video content owner",
+      "scope": "Hosted video-script evaluation evidence",
+      "testFiles": [],
+      "command": [
+        "tsx",
+        "scripts/portfolio-eval-monthly.ts",
+        "--evidence-only",
+        "video-script-hosted-evidence"
+      ],
+      "threshold": {
+        "kind": "zero-blockers",
+        "source": "lib/video-script-intelligence.ts evaluateVideoScript and template-run readiness"
+      },
+      "requiredEnvironment": [
+        "PORTFOLIO_EVAL_SNAPSHOT_PATH"
+      ],
+      "mode": "gated",
+      "freshness": {
+        "maxAgeDays": 31,
+        "basis": "latest-persisted-evaluation"
+      },
+      "evidence": {
+        "location": "video_script_evaluations.evaluated_at via approved, redacted JSON snapshot",
+        "format": "json",
+        "snapshotKey": "video-script"
+      },
+      "remediation": {
+        "owner": "Video content owner",
+        "route": "Review absent or stale evidence with Integration Captain; approve a separate hosted run if needed"
+      }
+    }
+  ]
+}

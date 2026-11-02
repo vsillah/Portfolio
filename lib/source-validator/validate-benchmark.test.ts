@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { validateBenchmark, VALIDATOR_VERSION, type BenchmarkRow } from './index'
+import { validateBenchmark, type BenchmarkRow } from './benchmark-core'
+import { VALIDATOR_VERSION } from './types'
 import type { CachedFetchResult, ValidatorContext } from './types'
 
 const now = new Date('2026-04-17T00:00:00Z')

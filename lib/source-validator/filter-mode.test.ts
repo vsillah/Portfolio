@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { applyValidatedEvidenceFilter, getFaithfulnessMode } from './index'
+import { applyValidatedEvidenceFilter, getFaithfulnessMode } from './filter-mode'
 
 interface FakeQuery {
   eqs: Array<[string, unknown]>
