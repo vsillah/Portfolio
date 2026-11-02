@@ -10,6 +10,14 @@
 | `public/accelerated_cover_ebook.webp` | Existing Portfolio public book cover | Proof/media section | Cover shown as an authored work, without sales or reception claims. |
 | `public/agentified-cover.jpg` | Existing Portfolio public book cover, bound by `lib/agentified-publication.ts` | Proof/media section | Canonical public `Agentified` title and cover; shown as an authored work, without sales or reception claims. |
 
+## Publication entry copy and retailer actions
+
+| Book | Description source | Retail action source | Boundary |
+| --- | --- | --- | --- |
+| The Equity Code | [Apple Books publisher description](https://books.apple.com/gb/book/the-equity-code-cracking-the-secrets/id6755512566) identifies five dimensions of digital inequality; page copy is a short paraphrase. | [Amazon product page](https://www.amazon.com/dp/B0G3J98KY8) identifies the book and Vambah K Sillah. | Direct product URL verified; no sales or review claim. The older `https://a.co/d/bVCvCyT` fallback in `components/Publications.tsx` returned 404 during this review and is not reused. |
+| Accelerated | [Apple Books publisher description](https://books.apple.com/gb/book/accelerated-building-smarter-products-with-ai/id6759681729) describes practical AI product work and Sam's product-management journey; page copy is a short paraphrase. | [Apple Books book page](https://books.apple.com/gb/book/accelerated-building-smarter-products-with-ai/id6759681729). | No direct Amazon product URL was verified from Portfolio or an attributable Amazon page, so no Amazon action is shown. |
+| Agentified | Portfolio canonical public description in `lib/agentified-publication.ts`; [Apple Books publisher description](https://books.apple.com/gb/book/agentified/id6790017665) corroborates the subject. | Portfolio canonical `amazonPaperbackUrl` in `lib/agentified-publication.ts` (`https://www.amazon.com/dp/B0H9Z44FVF`), recorded there as KDP-confirmed. | Title, cover, description, and Amazon URL read from the existing publication record. |
+
 ## Copy and route evidence
 
 - Voice and topic framing: Portfolio `docs/vambah-personality-public-safe.md`, `docs/linkedin-voice.md`, and the local personality corpus's public-safe summaries. Private export material informed tone only; no private passage was quoted.

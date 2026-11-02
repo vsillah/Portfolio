@@ -21,6 +21,27 @@ const talkDirections = [
   { number: '05', title: 'Books, authorship & ideas', detail: `Conversations around The Equity Code, Accelerated, and ${agentifiedPublication.title}, shaped by the questions in the room.` },
 ]
 
+const speakingPublications = [
+  {
+    title: 'The Equity Code',
+    cover: '/The_Equity_Code_Cover.webp',
+    description: 'A look at five barriers to digital opportunity: connection, devices, skills, support, and cultural relevance.',
+    amazonUrl: 'https://www.amazon.com/dp/B0G3J98KY8',
+  },
+  {
+    title: 'Accelerated',
+    cover: '/accelerated_cover_ebook.webp',
+    description: 'A practical guide to building smarter products with AI, following a product manager from discovery through delivery.',
+    detailsUrl: 'https://books.apple.com/gb/book/accelerated-building-smarter-products-with-ai/id6759681729',
+  },
+  {
+    title: agentifiedPublication.title,
+    cover: agentifiedPublication.coverImage,
+    description: agentifiedPublication.description,
+    amazonUrl: agentifiedPublication.amazonPaperbackUrl,
+  },
+] as const
+
 const questions = [
   { question: 'Can the talk fit our event theme?', answer: 'Start with the Speaker Fit Brief. It gives us a useful direction to discuss; the final talk is shaped with your audience and event goals in mind.' },
   { question: 'Is this an in-person engagement?', answer: 'The current Speaking Engagement service is listed as a one-hour, in-person engagement. Share your event format and location when you inquire so the scope is clear.' },
@@ -196,9 +217,20 @@ export default function SpeakingPage() {
             </div>
           </div>
           <div className={styles.bookShelf}>
-            <figure><Image src="/The_Equity_Code_Cover.webp" alt="Cover of The Equity Code" width={240} height={383} sizes="(max-width: 600px) 30vw, 180px" /><figcaption>The Equity Code</figcaption></figure>
-            <figure><Image src="/accelerated_cover_ebook.webp" alt="Cover of Accelerated" width={240} height={360} sizes="(max-width: 600px) 30vw, 180px" /><figcaption>Accelerated</figcaption></figure>
-            <figure><Image src={agentifiedPublication.coverImage} alt={`Cover of ${agentifiedPublication.title}`} width={240} height={384} sizes="(max-width: 600px) 30vw, 180px" /><figcaption>{agentifiedPublication.title}</figcaption></figure>
+            {speakingPublications.map((publication) => (
+              <figure key={publication.title}>
+                <Image src={publication.cover} alt={`Cover of ${publication.title}`} width={240} height={360} sizes="(max-width: 650px) 108px, (max-width: 1000px) 30vw, 180px" />
+                <figcaption>
+                  <strong className={styles.bookTitle}>{publication.title}</strong>
+                  <span className={styles.bookDescription}>{publication.description}</span>
+                  {'amazonUrl' in publication && publication.amazonUrl ? (
+                    <a href={publication.amazonUrl} target="_blank" rel="noopener noreferrer" aria-label={`View ${publication.title} on Amazon (opens in a new tab)`} className={styles.bookAction}>View on Amazon <ArrowRight size={14} aria-hidden="true" /></a>
+                  ) : 'detailsUrl' in publication && publication.detailsUrl ? (
+                    <a href={publication.detailsUrl} target="_blank" rel="noopener noreferrer" aria-label={`View ${publication.title} on Apple Books (opens in a new tab)`} className={styles.bookAction}>View on Apple Books <ArrowRight size={14} aria-hidden="true" /></a>
+                  ) : null}
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </div>
       </section>
