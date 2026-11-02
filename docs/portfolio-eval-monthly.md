@@ -12,7 +12,7 @@ From the Portfolio repository with dependencies installed:
 npm run evals:monthly
 ```
 
-The default runs only the entries marked `local`. It does not load `.env`, call model providers, query Supabase, or mutate data. Gated entries are reported as `gated`. The run writes a JSON report under `reports/evals/monthly/` with the Git commit, UTC timestamp, coverage count, per-family result, owner, and remediation route. When a snapshot is supplied, the report records its SHA-256 digest without copying its contents or local path. That local directory is ignored by Git; attach a reviewed, privacy-safe report to the monthly automation or captain packet if it needs to persist beyond the worktree.
+The default runs only the entries marked `local`. It does not load `.env`, call model providers, query Supabase, or mutate data. Gated entries are reported as `gated`. The run writes a JSON report under `reports/evals/monthly/` with the Git commit, SHA-256 of the exact manifest bytes validated, UTC timestamp, coverage count, per-family result, owner, and remediation route. When a snapshot is supplied, the report records its SHA-256 digest without copying its contents or local path. That local directory is ignored by Git; attach a reviewed, privacy-safe report to the monthly automation or captain packet if it needs to persist beyond the worktree.
 
 The existing **Monthly Portfolio Eval Coverage and Freshness Review** automation can invoke `npm run evals:monthly` from a checked-out revision, inspect the exit code and report path, and route each failure to the listed owner and Integration Captain. A failed exit code means missing registry coverage, missing command or environment, stale or absent supplied evidence, or a local test failure. Do not treat a gated result as a passing hosted eval.
 
@@ -46,6 +46,8 @@ When a new eval is added, the author adds a manifest entry with the owning team,
 ## Review-only hosted recovery packets
 
 Use `scripts/portfolio-eval-recovery-packets.ts` to assemble a local JSON review packet for the four hosted families. It reads the canonical manifest, a commit-bound monthly report, the approved redacted snapshot, and an operator-reviewed bindings file. It writes packets to stdout and exits nonzero if any binding is blocked. It has no provider or database connection and grants no permission to execute a hosted evaluation.
+
+After this change merges, run the monthly runner again from the exact reviewed commit with the approved snapshot. The older 2026-11-02 report has no `manifestSha256` and is deliberately rejected. The recovery CLI hashes the raw manifest file supplied to it and requires that digest to match the report's `manifestSha256`; a missing, malformed, or changed manifest digest blocks every packet.
 
 ```bash
 ./node_modules/.bin/tsx scripts/portfolio-eval-recovery-packets.ts \

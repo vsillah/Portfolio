@@ -11,7 +11,7 @@ export type RecoveryChannel = keyof typeof RECOVERY_FAMILIES
 type ManifestFamily = { id: string; owner: string; mode: string; threshold: { kind: string; source: string }; freshness: { maxAgeDays: number }; evidence: { snapshotKey?: string }; remediation: { owner: string; route: string } }
 export type RecoveryManifest = { families: ManifestFamily[] }
 export type RecoverySnapshot = Record<string, { count: number; latestAt: string | null }>
-export type RecoveryReport = { commit: string; generatedAt: string; snapshotSha256: string; results: Array<{ id: string; status: string }>; errors: string[] }
+export type RecoveryReport = { commit: string; generatedAt: string; manifestSha256: string; snapshotSha256: string; results: Array<{ id: string; status: string }>; errors: string[] }
 export type ApprovedBinding = {
   channel: RecoveryChannel
   familyId: string
@@ -23,12 +23,12 @@ export type ApprovedBinding = {
 }
 export type RecoveryInput = {
   manifest: RecoveryManifest; report: RecoveryReport; snapshot: RecoverySnapshot
-  snapshotSha256: string; baseCommit: string; now: string; bindings: ApprovedBinding[]
+  manifestSha256: string; snapshotSha256: string; baseCommit: string; now: string; bindings: ApprovedBinding[]
   previous?: Array<{ key: string; digest: string }>
 }
 export type RecoveryPacket = {
   key: string; digest: string; state: 'review-ready' | 'blocked' | 'idempotent-replay'; blockers: string[]
-  channel: RecoveryChannel; familyId: string; baseCommit: string; version: ApprovedBinding['version']
+  channel: RecoveryChannel; familyId: string; baseCommit: string; manifestSha256: string; version: ApprovedBinding['version']
   threshold: ManifestFamily['threshold'] & { requiredValue: number | null }
   source: ApprovedBinding['source']; candidate: ApprovedBinding['candidate'] | null
   observed: ApprovedBinding['observed']; historicalFreshness: 'absent' | 'stale' | 'current'
@@ -51,6 +51,7 @@ export function buildRecoveryPackets(input: RecoveryInput): RecoveryPacket[] {
     if (families.length !== 1 || !family || family.mode !== 'gated' || family.evidence.snapshotKey !== binding.channel) blockers.push('Canonical family is missing, duplicated, or mismatched.')
     if (binding.familyId !== expectedId) blockers.push('Channel/family mismatch.')
     if (input.report.commit !== input.baseCommit || !/^[a-f0-9]{40}$/.test(input.baseCommit)) blockers.push('Monthly report revision mismatch.')
+    if (!validSha(input.report.manifestSha256) || !validSha(input.manifestSha256) || input.report.manifestSha256 !== input.manifestSha256) blockers.push('Canonical manifest digest missing or mismatched.')
     if (!validSha(input.snapshotSha256) || input.report.snapshotSha256 !== input.snapshotSha256) blockers.push('Approved snapshot digest mismatch.')
     if (!validTime(input.report.generatedAt) || Date.parse(input.report.generatedAt) > now || now - Date.parse(input.report.generatedAt) > 31 * 86400000) blockers.push('Monthly report is stale or invalid.')
     if (!input.report.results.some(r => r.id === expectedId) || input.report.results.filter(r => r.id === expectedId).length !== 1) blockers.push('Monthly family result is missing or ambiguous.')
@@ -75,8 +76,8 @@ export function buildRecoveryPackets(input: RecoveryInput): RecoveryPacket[] {
     if (binding.channel === 'video-script' && family?.threshold.kind !== 'zero-blockers') blockers.push('Video-script zero-blocker threshold mismatch.')
     if ((binding.channel === 'chatbot' || binding.channel === 'llm-judge') && family?.threshold.kind !== 'reviewed-per-record-rating') blockers.push('Human rating threshold semantics mismatch.')
     if (binding.channel === 'agent' && family?.threshold.kind !== 'per-rubric-score') blockers.push('Agent threshold source mismatch.')
-    const key = sha([binding.channel, expectedId, input.baseCommit, binding.version.value, binding.source.id, binding.source.revision, binding.candidate?.id ?? null])
-    const digest = sha([key, input.snapshotSha256, binding.observed, binding.attempt, threshold, binding.source, binding.candidate ?? null])
+    const key = sha([binding.channel, expectedId, input.baseCommit, input.manifestSha256, binding.version.value, binding.source.id, binding.source.revision, binding.candidate?.id ?? null])
+    const digest = sha([key, input.manifestSha256, input.snapshotSha256, binding.observed, binding.attempt, threshold, binding.source, binding.candidate ?? null])
     if (seen.has(key)) blockers.push('Duplicate packet identity in this review.')
     seen.add(key)
     const matchingPrevious = (input.previous ?? []).filter(p => p.key === key)
@@ -85,6 +86,6 @@ export function buildRecoveryPackets(input: RecoveryInput): RecoveryPacket[] {
     const historicalFreshness = !snapshot?.count || !snapshot.latestAt ? 'absent' : !Number.isFinite(latest) || latest > now || now - latest > (family?.freshness.maxAgeDays ?? 31) * 86400000 ? 'stale' : 'current'
     if (input.report.results.find(r => r.id === expectedId)?.status !== historicalFreshness) blockers.push('Monthly finding and snapshot freshness mismatch.')
     if (historicalFreshness === 'current') blockers.push('Historical evidence is current; refresh packet is not needed.')
-    return { key, digest, state: blockers.length ? 'blocked' : matchingPrevious.length ? 'idempotent-replay' : 'review-ready', blockers, channel: binding.channel, familyId: expectedId, baseCommit: input.baseCommit, version: binding.version, threshold, source: binding.source, candidate: binding.candidate ?? null, observed: binding.observed, historicalFreshness, owner: family?.remediation.owner ?? 'unrouted', remediation: family?.remediation.route ?? 'unrouted', attempt: binding.attempt, sideEffects: { provider: 'disabled', production: 'disabled', execution: 'review-only' } } satisfies RecoveryPacket
+    return { key, digest, state: blockers.length ? 'blocked' : matchingPrevious.length ? 'idempotent-replay' : 'review-ready', blockers, channel: binding.channel, familyId: expectedId, baseCommit: input.baseCommit, manifestSha256: input.manifestSha256, version: binding.version, threshold, source: binding.source, candidate: binding.candidate ?? null, observed: binding.observed, historicalFreshness, owner: family?.remediation.owner ?? 'unrouted', remediation: family?.remediation.route ?? 'unrouted', attempt: binding.attempt, sideEffects: { provider: 'disabled', production: 'disabled', execution: 'review-only' } } satisfies RecoveryPacket
   })
 }

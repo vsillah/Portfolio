@@ -27,8 +27,8 @@ const bindings: ApprovedBinding[] = channels.map(channel => {
 })
 const input: RecoveryInput = {
   manifest: { families: channels.map(channel => ({ id: ids[channel], owner: channel === 'video-script' ? 'Video content owner' : 'Model Ops', mode: 'gated', threshold: { kind: channel === 'agent' ? 'per-rubric-score' : channel === 'video-script' ? 'zero-blockers' : 'reviewed-per-record-rating', source: 'canonical source' }, freshness: { maxAgeDays: 31 }, evidence: { snapshotKey: channel }, remediation: { owner: channel === 'video-script' ? 'Video content owner' : 'Model Ops', route: 'Integration Captain review' } })) },
-  report: { commit: 'c2d76ac59add75434fa98b6f91c32a5d381b01ba', generatedAt: '2026-11-02T10:49:50Z', snapshotSha256: sha, results: channels.map(channel => ({ id: ids[channel], status: channel === 'video-script' ? 'absent' : 'stale' })), errors: channels.map(channel => `${ids[channel]}: ${channel === 'video-script' ? 'absent' : 'stale'} evidence`) },
-  snapshot, snapshotSha256: sha, baseCommit: 'c2d76ac59add75434fa98b6f91c32a5d381b01ba', now: '2026-11-02T15:00:00Z', bindings,
+  report: { commit: 'c2d76ac59add75434fa98b6f91c32a5d381b01ba', generatedAt: '2026-11-02T10:49:50Z', manifestSha256: sha, snapshotSha256: sha, results: channels.map(channel => ({ id: ids[channel], status: channel === 'video-script' ? 'absent' : 'stale' })), errors: channels.map(channel => `${ids[channel]}: ${channel === 'video-script' ? 'absent' : 'stale'} evidence`) },
+  snapshot, manifestSha256: sha, snapshotSha256: sha, baseCommit: 'c2d76ac59add75434fa98b6f91c32a5d381b01ba', now: '2026-11-02T15:00:00Z', bindings,
 }
 const copy = () => structuredClone(input)
 
@@ -41,6 +41,15 @@ describe('hosted eval recovery packets', () => {
     expect(packets.find(p => p.channel === 'chatbot')?.observed.humanRatings).toEqual({ good: 0, bad: 6 })
     expect(packets.find(p => p.channel === 'llm-judge')?.observed.judgeRatings).toEqual({ good: 2, bad: 5, aligned: 5, misaligned: 2 })
     expect(packets.find(p => p.channel === 'video-script')).toMatchObject({ historicalFreshness: 'absent', observed: { count: 0, latestAt: null } })
+    expect(packets.every(p => p.manifestSha256 === sha)).toBe(true)
+  })
+  it('blocks manifest drift and older reports without a manifest digest', () => {
+    const drift = copy(); drift.manifestSha256 = 'b'.repeat(64)
+    expect(buildRecoveryPackets(drift).every(p => p.state === 'blocked' && p.blockers.includes('Canonical manifest digest missing or mismatched.'))).toBe(true)
+    const legacy = copy(); delete (legacy.report as Partial<typeof legacy.report>).manifestSha256
+    expect(buildRecoveryPackets(legacy).every(p => p.state === 'blocked' && p.blockers.includes('Canonical manifest digest missing or mismatched.'))).toBe(true)
+    const malformed = copy(); malformed.report.manifestSha256 = 'not-a-sha256'
+    expect(buildRecoveryPackets(malformed).every(p => p.state === 'blocked')).toBe(true)
   })
   it('replays the same packet idempotently and blocks conflicting or duplicate identities', () => {
     const first = buildRecoveryPackets(copy())

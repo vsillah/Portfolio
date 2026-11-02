@@ -2,6 +2,8 @@
 
 This is a review-only intake packet. It does not authorize or record a new hosted evaluation. The canonical registry and monthly runner are at `c2d76ac59add75434fa98b6f91c32a5d381b01ba` (PR #1172). The approved local `monthly-report.json` was generated at `2026-11-02T10:49:50.857Z`; its snapshot SHA-256 is `5cfa70848ef119c305669b66b329ec79f9537f81dd99a5f64e4871acdfc2610b`. The redacted `freshness-snapshot.json` at `/Users/vambahsillah/Projects/Portfolio/local-private/evals/2026-11-02/` matched that digest during review. These files remain private and are not copied into the repo.
 
+That original report predates the manifest-digest field. It remains historical evidence for this intake index but cannot produce a review-ready recovery packet. After PR #1173 merges, generate a fresh monthly report from the reviewed commit and approved snapshot, then use that report with the matching manifest file.
+
 | Canonical family | Persisted observation | Existing pass rule | Owner / route | Binding still needed |
 | --- | --- | --- | --- | --- |
 | `chatbot-hosted-evidence` | 6 human evaluations; latest 2026-02-27 17:27:15 UTC; 6 bad | Per-record human `good`/`bad`; no aggregate pass threshold | Model Ops; Integration Captain review | Current chatbot prompt revision and approved source/evidence identity |

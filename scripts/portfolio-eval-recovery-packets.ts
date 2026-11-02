@@ -11,14 +11,17 @@ function main() {
   const bindings = readJson<{ bindings: ApprovedBinding[]; previous?: Array<{ key: string; digest: string }> }>(bindingsPath)
   if (!Array.isArray(bindings.bindings) || bindings.bindings.length !== 4) throw new Error('Exactly four reviewed family bindings are required')
   if (new Set(bindings.bindings.map(binding => binding.channel)).size !== 4 || bindings.bindings.some(binding => !(binding.channel in RECOVERY_FAMILIES))) throw new Error('One binding per canonical hosted channel is required')
-  const manifest = readJson<RecoveryManifest>(manifestPath)
+  const manifestRaw = readFileSync(manifestPath)
+  const manifestSha256 = createHash('sha256').update(manifestRaw).digest('hex')
+  const manifest = JSON.parse(manifestRaw.toString('utf8')) as RecoveryManifest
   const report = readJson<RecoveryReport>(reportPath)
   const packets = buildRecoveryPackets({
     manifest, report, snapshot: JSON.parse(snapshotRaw.toString('utf8')) as RecoverySnapshot,
+    manifestSha256,
     snapshotSha256: createHash('sha256').update(snapshotRaw).digest('hex'), baseCommit: report.commit,
     now: new Date().toISOString(), bindings: bindings.bindings, previous: bindings.previous,
   })
-  process.stdout.write(JSON.stringify({ schemaVersion: 1, reportCommit: report.commit, packets }, null, 2) + '\n')
+  process.stdout.write(JSON.stringify({ schemaVersion: 1, reportCommit: report.commit, manifestSha256, packets }, null, 2) + '\n')
   if (packets.some(packet => packet.state === 'blocked')) process.exitCode = 1
 }
 main()
