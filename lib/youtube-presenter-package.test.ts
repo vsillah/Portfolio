@@ -238,4 +238,115 @@ describe('youtube-presenter-package', () => {
     value.timeline = []
     expect(evaluate(value)).toEqual({ applicable: false, ready: true, blockers: [] })
   })
+
+  it('fails closed when native presenter or evidence receipts are unapproved', () => {
+    const value = fixture()
+    value.native_presenter.rights_receipt_id = 'rights:unknown'
+    value.render_contract.evidence_assets[0].source_receipt_id = 'source:unknown'
+    value.render_contract.evidence_assets[0].rights_receipt_id = 'rights:unknown'
+
+    expect(evaluate(value).ready).toBe(false)
+    expect(evaluate(value).blockers).toEqual(expect.arrayContaining([
+      'Native presenter rights receipt is missing or unapproved.',
+      'Evidence asset source receipt is missing or unapproved.',
+      'Evidence asset rights receipt is missing or unapproved.',
+    ]))
+  })
+
+  it('fails when a side-evidence crop is empty or leaves the declared asset', () => {
+    const overflow = fixture()
+    overflow.timeline[1].source_crop = { x: 900, y: 0, width: 300, height: 300 }
+    expect(evaluate(overflow).blockers).toContain('Side-evidence source crops must remain inside the declared evidence asset.')
+
+    const empty = fixture()
+    empty.timeline[1].source_crop = { x: 0, y: 0, width: 0, height: 300 }
+    expect(evaluate(empty).blockers).toContain('Side-evidence source crops must remain inside the declared evidence asset.')
+  })
+
+  it('fails when the presenter-first opening displays evidence', () => {
+    const value = fixture()
+    value.timeline[0].evidence_asset_id = 'field-guide'
+    value.timeline[0].evidence_region_id = 'score'
+
+    const blockers = evaluate(value).blockers
+    expect(blockers).toContain('The presenter-first opening cannot display evidence screenshots or diagrams.')
+    expect(blockers).not.toContain('YouTube output must open at zero with the approved presenter as the primary frame.')
+  })
+
+  it('fails only when presenter cues overlap beyond the timing tolerance', () => {
+    const allowed = fixture()
+    allowed.timeline[1].start_seconds = 3.98
+    expect(evaluate(allowed).blockers).not.toContain('Presenter timeline cues cannot overlap.')
+
+    const overlap = fixture()
+    overlap.timeline[1].start_seconds = 3.97
+    const blockers = evaluate(overlap).blockers
+    expect(blockers).toContain('Presenter timeline cues cannot overlap.')
+    expect(blockers).not.toContain('Presenter timeline cues must form a synchronized sequence without unbound gaps.')
+  })
+
+  it('allows an on-screen CTA only while the package stays review-only', () => {
+    const reviewOnly = fixture()
+    const reviewCta = reviewOnly.timeline.find((cue) => cue.cue_id === 'cta')
+    if (!reviewCta) throw new Error('fixture missing cta')
+    reviewCta.delivery = undefined
+    expect(evaluate(reviewOnly).blockers).toContain('Release-ready YouTube output requires a spoken CTA; on-screen-only CTA is allowed only for a review artifact.')
+    expect(evaluate(reviewOnly).blockers).not.toContain('This pipeline stage must remain review-only until a separate release approval exists.')
+
+    const onScreenRelease = fixture()
+    onScreenRelease.review_only = false
+    expect(evaluate(onScreenRelease).blockers).toEqual(expect.arrayContaining([
+      'This pipeline stage must remain review-only until a separate release approval exists.',
+      'Release-ready YouTube output requires a spoken CTA; on-screen-only CTA is allowed only for a review artifact.',
+    ]))
+
+    const spokenRelease = fixture()
+    spokenRelease.review_only = false
+    const spokenCta = spokenRelease.timeline.find((cue) => cue.cue_id === 'cta')
+    if (!spokenCta) throw new Error('fixture missing cta')
+    spokenCta.delivery = 'spoken'
+    expect(evaluate(spokenRelease).blockers).toEqual([
+      'This pipeline stage must remain review-only until a separate release approval exists.',
+    ])
+  })
+
+  it('fails when side-evidence narration is not in the reviewed script', () => {
+    const value = fixture()
+    value.timeline[1].spoken_text = 'Invented claim about guaranteed savings.'
+    expect(evaluate(value).blockers).toContain('Evidence cue score is not bound to the reviewed script.')
+  })
+
+  it('fails when packaging receipt sets do not match the approved bindings', () => {
+    const value = fixture()
+    const driftedResearch = ['research_packet:other']
+    const driftedSource = [...sourceIds, 'source:extra']
+    const driftedClaims = ['jev-score']
+    value.packaging.research_receipt_ids = driftedResearch
+    value.packaging.source_receipt_ids = driftedSource
+    value.packaging.claim_ids = driftedClaims
+    value.packaging.privacy_receipt_id = 'privacy:unknown'
+    value.packaging.rights_receipt_id = 'rights:unknown'
+    for (const candidate of value.packaging.title_subject_receipt.candidates) {
+      candidate.research_receipt_ids = driftedResearch
+      candidate.source_receipt_ids = driftedSource
+      candidate.claim_ids = driftedClaims
+    }
+    const thumbnail = value.packaging.thumbnail_receipt
+    thumbnail.research_receipt_ids = driftedResearch
+    thumbnail.source_receipt_ids = driftedSource
+    thumbnail.claim_ids = driftedClaims
+    thumbnail.privacy_receipt_id = 'privacy:unknown'
+    thumbnail.rights_receipt_id = 'rights:unknown'
+
+    const blockers = evaluate(value).blockers
+    expect(blockers).toEqual(expect.arrayContaining([
+      'YouTube packaging research receipts are missing, stale, or mismatched.',
+      'YouTube packaging source receipts are missing, stale, or mismatched.',
+      'YouTube packaging claim bindings are missing or mismatched.',
+      'YouTube packaging privacy receipt is missing or unapproved.',
+      'YouTube packaging rights receipt is missing or unapproved.',
+    ]))
+    expect(blockers).not.toContain('Every YouTube title candidate must retain the package research, source, and claim bindings.')
+    expect(blockers).not.toContain('Thumbnail package must retain the same research, source, claim, privacy, and rights bindings.')
+  })
 })
