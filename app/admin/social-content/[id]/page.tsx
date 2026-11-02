@@ -7224,6 +7224,13 @@ function SocialContentDetailPage() {
             </span>
           </div>
 
+          {item.platform === 'youtube' && asString(ragContext?.current_gate) === 'platform_submission' && (
+            <Link href={`/admin/social-content/youtube/final-submission-review?content=${encodeURIComponent(id)}`}
+              className="mt-4 inline-flex rounded-lg border border-amber-400/50 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-400/10">
+              Prepare internal YouTube Decision Queue packet
+            </Link>
+          )}
+
           <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs leading-5 text-emerald-50/90">
             {platformSubmissionGate?.status === 'approved'
               ? 'Final approval is recorded. Provider submission still requires a configured integration and an eligible execution state.'
