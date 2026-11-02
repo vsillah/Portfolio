@@ -8,6 +8,86 @@ import {
   type VideoScriptTemplateRunReceipt,
 } from './video-script-intelligence'
 
+const SHORTS_CONCLUSION = 'Governed automation begins when uncertainty is visible enough to route, review, and refuse.'
+const SHORTS_CHANNEL_CTA = 'Subscribe to the channel for more practical ways to govern AI decisions.'
+const SHORTS_BODY = 'The problem is that a fluent answer can sound certain even when the model is guessing. Jev uses typed probabilities for a bounded decision. In the Portfolio evaluation workflow I built, the receipt makes the real work visible. Inspect the score, apply the policy, and keep a human owner for exceptions. Operators can review the threshold, owner, and evidence behind the handoff. Use the field guide before a score moves work.'
+const CONCLUSION_ORDER_BLOCKER = 'YouTube script must contain a substantive conclusion followed by the bounded channel CTA.'
+const CHANNEL_CTA_TAIL_BLOCKER = 'Bounded channel CTA must appear at the end of the YouTube script.'
+
+function shortsTemplateReceipt(input: {
+  scriptText?: string
+  conclusion?: string
+  channelCta?: string
+} = {}): VideoScriptTemplateRunReceipt {
+  const conclusion = input.conclusion ?? SHORTS_CONCLUSION
+  const channelCta = input.channelCta ?? SHORTS_CHANNEL_CTA
+  const scriptText = input.scriptText ?? `${SHORTS_BODY} ${conclusion} ${channelCta}`
+  return {
+    receipt_version: 'video_script_template_run_receipt_v2',
+    receipt_id: 'template-run:jev:killer-script:youtube-shorts:v2:20261014',
+    status: 'passed',
+    input_version: 'sha256:jev-source-v1',
+    generated_at: '2026-10-14T22:43:22.000Z',
+    target: 'youtube_shorts',
+    template_binding: {
+      contract_version: 'video_script_template_v1',
+      template_id: 'seed-killer-script',
+      template_key: 'killer_script',
+      template_name: 'Killer script',
+    },
+    source_binding: {
+      source_receipt_id: 'source:jev:approved',
+      claim_ids: ['jev-typed-probabilities', 'jev-policy-boundary'],
+      evidence_asset_ids: ['jev-operator-field-guide'],
+      approved_copy_reference: 'inputs/jev.json#/source_channel_packet/linkedin_copy',
+    },
+    narrative_map: {
+      pain_point: 'A fluent answer can sound certain even when the model is guessing.',
+      hook: 'A fluent answer can sound certain even when the model is guessing. Jev uses typed probabilities.',
+      open_loop: 'Inspect the score, apply policy, retain ownership, and preserve the receipt.',
+      frame: 'A score is an input to a governed decision rather than the decision itself.',
+      practitioner_proof: 'In the evaluation harness I built, the workflow keeps the decision receipt visible.',
+      explanatory_progression: ['Inspect the score.', 'Apply the policy.', 'Keep a human owner and receipt.'],
+      practical_value: 'Operators can inspect the score, threshold, owner, and evidence behind the handoff.',
+      cta: 'Use the field guide to review the threshold, owner, and retained receipt before a score moves work.',
+      closing_principle: SHORTS_CONCLUSION,
+      conclusion,
+      channel_cta: channelCta,
+    },
+    script: {
+      text: scriptText,
+      sha256: 'sha256:current-script',
+      word_count: scriptText.trim().split(/\s+/).filter(Boolean).length,
+      expected_duration_seconds: 44,
+    },
+    prior_script: {
+      text: 'A score is not a decision.',
+      sha256: 'sha256:prior-script',
+      disposition: 'superseded_draft_evidence',
+    },
+    provider_execution: {
+      status: 'blocked_pending_explicit_approval',
+      max_provider_jobs: 1,
+      no_retry: true,
+      cost_ceiling_usd: 9,
+      expected_cost_usd: 2.54,
+      approval_wording: 'Approve exactly one bounded review job and stop if any binding differs.',
+    },
+  }
+}
+
+function evaluateShorts(receipt: VideoScriptTemplateRunReceipt) {
+  return evaluateVideoScriptTemplateRun({
+    receipt,
+    template: SEEDED_VIDEO_SCRIPT_TEMPLATES[0],
+    expectedInputVersion: 'sha256:jev-source-v1',
+    expectedScriptSha256: 'sha256:current-script',
+    approvedSourceReceiptIds: ['source:jev:approved'],
+    approvedClaimIds: ['jev-typed-probabilities', 'jev-policy-boundary'],
+    approvedEvidenceAssetIds: ['jev-operator-field-guide'],
+  })
+}
+
 describe('video-script-intelligence', () => {
   it('blocks scripts with no clear pain point or CTA before render', () => {
     const scorecard = evaluateVideoScript({
@@ -132,6 +212,52 @@ describe('video-script-intelligence', () => {
     expect(readiness.ready).toBe(true)
     expect(readiness.blockers).toEqual([])
     expect(readiness.scorecard.notes).toContain('Template: Killer script')
+  })
+
+  it('accepts a conclusion and channel CTA that differ only by case and punctuation', () => {
+    const readiness = evaluateShorts(shortsTemplateReceipt({
+      scriptText: `${SHORTS_BODY} GOVERNED AUTOMATION, begins when uncertainty is visible enough to route, review, and refuse! SUBSCRIBE to the channel for more practical ways to govern AI decisions.`,
+    }))
+
+    expect(readiness.blockers).toEqual([])
+    expect(readiness.ready).toBe(true)
+  })
+
+  it('fails when the bounded channel CTA precedes the substantive conclusion', () => {
+    const readiness = evaluateShorts(shortsTemplateReceipt({
+      scriptText: `${SHORTS_BODY} ${SHORTS_CHANNEL_CTA} ${SHORTS_CONCLUSION}`,
+    }))
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.blockers).toContain(CONCLUSION_ORDER_BLOCKER)
+    expect(readiness.blockers).not.toContain(CHANNEL_CTA_TAIL_BLOCKER)
+    expect(readiness.blockers).not.toContain('Every required template section must map to approved spoken copy.')
+  })
+
+  it('fails when the bounded channel CTA is outside the closing window', () => {
+    const trailing = 'Later notes stay after the invitation so the closing window can move past the channel call. '
+    const readiness = evaluateShorts(shortsTemplateReceipt({
+      scriptText: `${SHORTS_BODY} ${SHORTS_CONCLUSION} ${SHORTS_CHANNEL_CTA} ${trailing.repeat(3).trim()}`,
+    }))
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.blockers).toContain(CHANNEL_CTA_TAIL_BLOCKER)
+    expect(readiness.blockers).not.toContain(CONCLUSION_ORDER_BLOCKER)
+  })
+
+  it('rejects punctuation-only conclusion and channel CTA placeholders', () => {
+    const readiness = evaluateShorts(shortsTemplateReceipt({
+      conclusion: '...',
+      channelCta: '!!!',
+      scriptText: `${SHORTS_BODY} ${SHORTS_CONCLUSION} ${SHORTS_CHANNEL_CTA}`,
+    }))
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.blockers).toEqual(expect.arrayContaining([
+      CONCLUSION_ORDER_BLOCKER,
+      CHANNEL_CTA_TAIL_BLOCKER,
+    ]))
+    expect(readiness.blockers).not.toContain('Every required template section must map to approved spoken copy.')
   })
 
   it('fails closed when a template receipt is stale, unbound, too short, or provider-ready', () => {
