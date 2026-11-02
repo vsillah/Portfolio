@@ -1,0 +1,1635 @@
+[
+  {
+    "id": "a34b8a0a-d65c-42c8-970b-9a77e043e329",
+    "title": "Website UX Refresh",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/website-ux-refresh-kinflo-built-example-r1.jpg",
+        "alt": "Website UX Refresh: KinFlo-built Julie’s Family Learning homepage with the learning support headline",
+        "status": "built example"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/website-ux-refresh-artifact-review-r2.webp",
+        "alt": "Website UX Refresh: KinFlo-built Julie homepage beside an illustrative learner, supporter, and handoff proposal",
+        "status": "illustrative proposal"
+      }
+    ],
+    "decision": "keep",
+    "reason": "Named built example and review artifact match the UX refresh offer."
+  },
+  {
+    "id": "cd2c086a-26ec-4637-b7a3-129021c0bc19",
+    "title": "Accelerated Cohort Workshop",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-premium-review/accelerated-cohort-hero-r1.webp",
+        "alt": "Accelerated Cohort Workshop: editorial workshop splash page for a shared first test",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-premium-review/accelerated-cohort-experience-r1.webp",
+        "alt": "Accelerated Cohort Workshop: illustrative live workshop exercise and decision handoff",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "accelerated-cohort-workshop",
+    "decision": "replace",
+    "reason": "Editorial poster or worksheet did not show active laptop-based workshop participation.",
+    "sceneCategory": "workshop",
+    "frames": [
+      {
+        "slug": "accelerated-cohort-workshop",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
+        "sha256": "9f7dfe44b687e6b4e33f1daa08018b4e9d691bede67621c34d36c94c539ef479",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-bf5250d8-ab9b-40fb-a224-de6b895cea40.png",
+        "alt": "Illustrative scene: A facilitator helping a laptop-based cohort run an AI product exercise",
+        "sceneCategory": "workshop"
+      },
+      {
+        "slug": "accelerated-cohort-workshop",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
+        "sha256": "7d638c8fe292922a7a6485f573085adae71c99589fe883a0e0a7756825828f3a",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-1ba1aac5-e3d0-472a-bd54-1309fc12a122.png",
+        "alt": "Illustrative scene: Cohort participants behind laptops comparing a product experiment canvas",
+        "sceneCategory": "workshop"
+      }
+    ]
+  },
+  {
+    "id": "c13e9f1c-7932-4e11-8459-a11e0ef7a070",
+    "title": "Product Innovation Workshop",
+    "serviceType": "training",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/product-innovation-workshop-hero-review-r1.webp",
+        "alt": "Product Innovation Workshop: illustrative product innovation working session",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/product-innovation-workshop-artifact-review-r1.webp",
+        "alt": "Product Innovation Workshop: illustrative product opportunity work product",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "product-innovation-workshop",
+    "decision": "replace",
+    "reason": "Editorial poster or worksheet did not show active laptop-based workshop participation.",
+    "sceneCategory": "workshop",
+    "frames": [
+      {
+        "slug": "product-innovation-workshop",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
+        "sha256": "455b0411374cba0abbd6420b4aa3c780f243c748863561d0777f36dd07d0b6b5",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-89922b64-f1b7-41d0-8b29-0cdbb3672b08.png",
+        "alt": "Illustrative scene: Product workshop participants behind laptops testing paper prototypes",
+        "sceneCategory": "workshop"
+      },
+      {
+        "slug": "product-innovation-workshop",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
+        "sha256": "cb3204208170af585fb2b27a25ea3852028634b6becb25e4446b6ef7669becf5",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-79af7565-12fe-4944-a656-20b1bcdc7c06.png",
+        "alt": "Illustrative scene: Participants behind laptops reviewing a journey map with a facilitator",
+        "sceneCategory": "workshop"
+      }
+    ]
+  },
+  {
+    "id": "1313650b-1afb-44f7-8118-21f05b1ae8a0",
+    "title": "AI Customer Support Chatbot",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/customer-support-chatbot-hero-review-r1.webp",
+        "alt": "AI Customer Support Chatbot: illustrative support chatbot conversation with human handoff",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/customer-support-chatbot-artifact-review-r1.webp",
+        "alt": "AI Customer Support Chatbot: illustrative sourced answer and escalation map",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "customer-support-chatbot",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "customer-support-chatbot",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/customer-support-chatbot-hero.jpg",
+        "sha256": "4458d225b647db7781a12a8491fcd95f7055ec12a7124340a2ce83418a4a6f47",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a3c388c3-15d0-4611-bd8a-c3f2198a11ec.png",
+        "alt": "Illustrative scene: Two colleagues reviewing a support chatbot handoff on a laptop",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "customer-support-chatbot",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/customer-support-chatbot-secondary.jpg",
+        "sha256": "0fe93924e17b2f0a9c6a4f123b1c0c81ea7f91d56c7730f2d6fb715c0c6f631e",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-efbb834f-6fad-445e-b74e-e9a05d1e8a8c.png",
+        "alt": "Illustrative scene: A support specialist and colleague checking a chatbot escalation map",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "a479ce70-4856-4d3f-917b-c37bfff1f0a2",
+    "title": "AI Inbound Lead Chatbot",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-premium-review/inbound-lead-chatbot-hero-r1.webp",
+        "alt": "AI Inbound Lead Chatbot: receptionist-led marketing page for a configured website inquiry and human handoff",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-premium-review/inbound-lead-chatbot-experience-r1.webp",
+        "alt": "AI Inbound Lead Chatbot: illustrative website conversation and review brief",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "inbound-lead-chatbot",
+    "decision": "replace",
+    "reason": "Robot-led stock concept and generic conversation art did not credibly show the inquiry and human handoff.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "inbound-lead-chatbot",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-chatbot-hero.jpg",
+        "sha256": "866734ed723265d0fdfe136f397831cafd263b69c5cc547cd7e4518eb44dcc86",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-481063e8-3bec-4c5b-83a3-6b5a09cd2df5.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: A small business owner and sales colleague reviewing a website inquiry on a laptop",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "inbound-lead-chatbot",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-chatbot-secondary.jpg",
+        "sha256": "41edb9167bcb45b76b4c6f164a3de39af0b4ac3241645703b5458e7bb1b20931",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-481063e8-3bec-4c5b-83a3-6b5a09cd2df5.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: Two professionals mapping an inbound inquiry to human handoff",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "4ea3afc8-2ecc-4928-a5e6-35e82388ee10",
+    "title": "Management Consulting",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/management-consulting-hero-review-r1.webp",
+        "alt": "Management Consulting: illustrative management consulting decision scene",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/management-consulting-artifact-review-r1.webp",
+        "alt": "Management Consulting: illustrative consulting decision and ownership work product",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "management-consulting",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "management-consulting",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/management-consulting-hero.jpg",
+        "sha256": "cf15e8c0211bcd23280d4b562ba0931da81444c3e9a9298a54606ca063891602",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-d565eddf-af42-4ca0-be77-999387085069.png",
+        "alt": "Illustrative scene: Vambah and one client reviewing a decision memo across a table",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "management-consulting",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/management-consulting-secondary.jpg",
+        "sha256": "f1ca346bed6b27aebeb5ec31dbda68543d3bbf9fa54b946c9e5a0dc1c3476bb2",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4d17a167-4d5e-4754-a724-ac0da44c6487.png",
+        "alt": "Illustrative scene: Vambah and one client reviewing a decision memo and laptop side by side",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "ee03425c-2d00-41e3-ad5b-18f14bfb53b3",
+    "title": "AI Voice Agent — Inbound",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/voice-agent-inbound-hero-review-r1.webp",
+        "alt": "AI Voice Agent — Inbound: illustrative inbound call console with human transfer rule",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/voice-agent-inbound-artifact-review-r1.webp",
+        "alt": "AI Voice Agent — Inbound: illustrative inbound call routing sheet and silence fallback",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "voice-agent-inbound",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "voice-agent-inbound",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/voice-agent-inbound-hero.jpg",
+        "sha256": "ef2ed8bfa83d06cc1fb6f4b2cf9b8be85705ca4237eea52d6da9723a30324ce5",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f80fbe06-2660-42db-9cdd-5e351693c2cc.png",
+        "alt": "Illustrative scene: Two colleagues testing an inbound voice agent handoff at a laptop",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "voice-agent-inbound",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/voice-agent-inbound-secondary.jpg",
+        "sha256": "fc2c21ef6fb5c2406155a7ac22dcd55a2fd4437e549b4ee11a470e75c171e205",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-657f2d9c-d5a2-4261-8e63-617d8830a0db.png",
+        "alt": "Illustrative scene: A headset-wearing specialist and colleague checking call routing",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "f463891c-e703-403b-97c2-e122aca42f29",
+    "title": "Lead Generation Workflow Agent",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-premium-review/lead-generation-workflow-hero-r1.webp",
+        "alt": "Lead Generation Workflow Agent: storefront-inspired marketing page for a reviewable lead path",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-premium-review/lead-generation-workflow-experience-r1.webp",
+        "alt": "Lead Generation Workflow Agent: illustrative source, fit-check, and human-owner workflow",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "lead-generation-workflow",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "lead-generation-workflow",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/lead-generation-workflow-hero.jpg",
+        "sha256": "366287a86535ec83bda1c94c724099a33ce9598668cb817f4e935de4e6f586e1",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ceb9bab0-441f-4d1c-9315-1ad11d895db4.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: Two sales colleagues reviewing an inbound lead queue on a laptop",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "lead-generation-workflow",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/lead-generation-workflow-secondary.jpg",
+        "sha256": "85bab547b443b3be717a719c32a015524576ce5caa1df1fa5cab4c95fe571432",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ceb9bab0-441f-4d1c-9315-1ad11d895db4.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: Two professionals reviewing a source-to-CRM workflow diagram",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "6cb60c1f-6b7c-4bce-9335-fbc99063f9a9",
+    "title": "Social Media Content Agent",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/social-media-content-agent-hero-review-r1.webp",
+        "alt": "Social Media Content Agent: illustrative social post draft held for editorial approval",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/social-media-content-agent-artifact-review-r1.webp",
+        "alt": "Social Media Content Agent: illustrative content review card with source and publish gate",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "social-media-content-agent",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "social-media-content-agent",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/social-media-content-agent-hero.jpg",
+        "sha256": "60dbe086be71e16575219456e371eea5007fa9cc4c683230d2a45b96edb268bc",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-6626eb72-4b15-4401-bdb4-c1eea4a62a48.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: small editorial team of two reviewing a draft social post on a laptop before approval, candid side angle, phones and a paper source brief on the desk",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "social-media-content-agent",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/social-media-content-agent-secondary.jpg",
+        "sha256": "9e4228fb04df3732ed51f8834459ad6847dc5c16cfcf7cb64e87c919379bbc2d",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-6626eb72-4b15-4401-bdb4-c1eea4a62a48.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different pair of collaborators examining a content calendar and source notes beside a laptop, over-shoulder angle, visible human review before publishing",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "8dc13175-02b9-4ee2-90fe-f6dd5dd151b3",
+    "title": "Client Onboarding Automation",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/client-onboarding-automation-hero-review-r1.webp",
+        "alt": "Client Onboarding Automation: illustrative client onboarding status with buyer input pending",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/client-onboarding-automation-artifact-review-r1.webp",
+        "alt": "Client Onboarding Automation: illustrative onboarding handoff board with blocked-state rule",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "client-onboarding-automation",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "client-onboarding-automation",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/client-onboarding-automation-hero.jpg",
+        "sha256": "bc5c2492537750c6888ac3c5bf4c73afae958cd2d9e5b3cd3d8bfa46377bb586",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ccb4b470-182a-4b5f-937f-7787644c3b51.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: two client operations colleagues at a quiet table mapping a new client welcome sequence with a laptop and simple paper checklist, candid three-quarter view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "client-onboarding-automation",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/client-onboarding-automation-secondary.jpg",
+        "sha256": "43ef630d1fab4b07212d9c789ca041be719a96dc70427e439cba063629f1d574",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ccb4b470-182a-4b5f-937f-7787644c3b51.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different client success pair reviewing document collection and task ownership on a laptop with a printed handoff map, close side view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "7d0c9d47-116a-48a5-b31d-dbe966f30044",
+    "title": "Inbound Lead Tracking System",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/inbound-lead-tracking-hero-review-r1.webp",
+        "alt": "Inbound Lead Tracking System: illustrative inquiry queue with sources and next owners",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/inbound-lead-tracking-artifact-review-r1.webp",
+        "alt": "Inbound Lead Tracking System: illustrative lead queue and source trace",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "inbound-lead-tracking",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "inbound-lead-tracking",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-tracking-hero.jpg",
+        "sha256": "899acd9f27a28099b1b1a0d09fbd90b33e2b150ee8bd699ab9f793db5fd321e6",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c4d816aa-6348-42de-9521-92dc893165d7.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: sales operations analyst and manager at a small table reviewing an incoming inquiry queue on a laptop and deciding next owner, eye-level candid view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "inbound-lead-tracking",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-tracking-secondary.jpg",
+        "sha256": "80d06c5e3e753063b37bda4c7d119e4acec581dafb0d720435f9bc563e996c7a",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c4d816aa-6348-42de-9521-92dc893165d7.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different two colleagues tracing a lead from web form to follow-up on a paper flowchart next to a laptop, close over-shoulder view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "5e8d9f3d-8dbe-4380-b566-e284ac95a3c7",
+    "title": "Mobile App Generation",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/mobile-app-generation-hero-review-r1.webp",
+        "alt": "Mobile App Generation: illustrative mobile service request with a three-step intake",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/mobile-app-generation-artifact-review-r1.webp",
+        "alt": "Mobile App Generation: illustrative mobile request preview and human handoff journey",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "mobile-app-generation",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "mobile-app-generation",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/mobile-app-generation-hero.jpg",
+        "sha256": "20f2f5c0eb38705f3cc9df90eb3e5a563d95a29adabeaeb05ebf9bcde290178c",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-51282e23-4ebe-4a41-880e-b16a13a18e56.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: product consultant and client at a table testing a generic unbranded mobile app prototype on a phone beside a laptop, candid side view, clear human interaction",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "mobile-app-generation",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/mobile-app-generation-secondary.jpg",
+        "sha256": "52c530bb8d6d07cc03cf2073e9bcb8b161f71aacf1dd93dfb5b04f803eef1f79",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-51282e23-4ebe-4a41-880e-b16a13a18e56.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different product team pair comparing phone screen wireframes and a user journey map with a laptop, close three-quarter view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "b988910a-4db7-4c7f-b4ec-00ae35e915bf",
+    "title": "Website Development",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/website-development-hero-review-r1.webp",
+        "alt": "Website Development: illustrative website page with service and contact paths",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/website-development-artifact-review-r1.webp",
+        "alt": "Website Development: illustrative website build review board with phone and accessibility checks",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "website-development",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "website-development",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/website-development-hero.jpg",
+        "sha256": "c0b3041302a6c761a3b3312b020810e5de145894e547a3853650050ea978bfb4",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c1201933-8641-4d40-a32e-d8adcb98b700.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: web designer and client reviewing a responsive website draft on laptop and phone at a small studio table, candid eye-level view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "website-development",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/website-development-secondary.jpg",
+        "sha256": "f527424014d1fbea7ddcecdbfcc4ada5f09fda04409fdf756e0942053cc66828",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c1201933-8641-4d40-a32e-d8adcb98b700.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different developer and stakeholder comparing mobile and desktop layouts on devices with a paper accessibility checklist, close side view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "3977c48a-23ba-4e3c-8513-d17b91e61c5c",
+    "title": "AI Email Sequence Builder",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-builder-hero-review-r1.webp",
+        "alt": "AI Email Sequence Builder: illustrative email sequence trigger and stop rules",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-builder-artifact-review-r1.webp",
+        "alt": "AI Email Sequence Builder: illustrative three-message sequence map with consent exit",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "ai-email-sequence-builder",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "ai-email-sequence-builder",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-builder-hero.jpg",
+        "sha256": "f559737c2d438b0726ab2b801574d06ac18ecca94c573267e661ef43cb6c0220",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f8f5a5c3-02d8-4b52-af02-98a2e608137a.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: A marketer and owner sequencing draft email cards beside a laptop",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "ai-email-sequence-builder",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-builder-secondary.jpg",
+        "sha256": "f1747d877964391aa3a2587843655bc84d3352f091bb4fb9e577e6193500dc2d",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f8f5a5c3-02d8-4b52-af02-98a2e608137a.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: An editor and client reviewing blank email cards and an unlettered timeline",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "7c4bf4ec-a9d4-454e-933b-e22430be8ed7",
+    "title": "RAG Knowledge Base System",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/rag-knowledge-base-hero-review-r1.webp",
+        "alt": "RAG Knowledge Base System: illustrative sourced answer beside approved knowledge documents",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/rag-knowledge-base-artifact-review-r1.webp",
+        "alt": "RAG Knowledge Base System: illustrative answer review with citation, held source, and human approval state",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "rag-knowledge-base",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "rag-knowledge-base",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/rag-knowledge-base-hero.jpg",
+        "sha256": "a322f5be090a8b47fa969ad60d57c7690e55fa2b34ecd5f3868c0b841a27e46b",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4cc6cdb3-40ea-4638-b611-dab58ab38e06.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: knowledge manager and colleague seated beside a laptop, comparing an internal document with a sourced answer on screen, modest office library setting, candid three-quarter view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "rag-knowledge-base",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/rag-knowledge-base-secondary.jpg",
+        "sha256": "a480549e2849c1625ee5cebcd1a54f2f9938b804cb896d8222f7c34068373e56",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4cc6cdb3-40ea-4638-b611-dab58ab38e06.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different analyst and reviewer checking a stack of approved source documents against a laptop answer, close over-the-shoulder view, source verification rather than generic chat",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "0f7324b7-ba9e-440c-a282-f01b2919d2a4",
+    "title": "AI Strategy Workshop — Half-Day",
+    "serviceType": "workshop",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-half-day-hero-review-r1.webp",
+        "alt": "AI Strategy Workshop — Half-Day: illustrative half-day AI strategy working session",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-half-day-artifact-review-r1.webp",
+        "alt": "AI Strategy Workshop — Half-Day: illustrative half-day AI strategy output",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "ai-strategy-half-day",
+    "decision": "replace",
+    "reason": "Editorial poster or worksheet did not show active laptop-based workshop participation.",
+    "sceneCategory": "workshop",
+    "frames": [
+      {
+        "slug": "ai-strategy-half-day",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
+        "sha256": "4c0de23bbc131c25d636261b1a8e3366bb56ccd0a7e02adc6da3a798923e4f6a",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a2d21919-1bb8-41a1-a5d7-02661970f333.png",
+        "alt": "Illustrative scene: Half-day AI strategy workshop participants behind laptops prioritizing use cases",
+        "sceneCategory": "workshop"
+      },
+      {
+        "slug": "ai-strategy-half-day",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
+        "sha256": "08b32be6ffd3fd9d0cd72aa7e68aadc1b0f93a955673699f1788b471fd37f3c8",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-33270999-396b-410e-ab80-0d04ca8b8454.png",
+        "alt": "Illustrative scene: Participants behind laptops sorting blank opportunity cards with a facilitator",
+        "sceneCategory": "workshop"
+      }
+    ]
+  },
+  {
+    "id": "457da6b5-92db-4b5b-a895-ee8571a47c8c",
+    "title": "AI Strategy Workshop — Full-Day",
+    "serviceType": "workshop",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-full-day-hero-review-r1.webp",
+        "alt": "AI Strategy Workshop — Full-Day: illustrative full-day AI strategy working session",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/ai-strategy-full-day-artifact-review-r1.webp",
+        "alt": "AI Strategy Workshop — Full-Day: illustrative full-day AI strategy output",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "ai-strategy-full-day",
+    "decision": "replace",
+    "reason": "Editorial poster or worksheet did not show active laptop-based workshop participation.",
+    "sceneCategory": "workshop",
+    "frames": [
+      {
+        "slug": "ai-strategy-full-day",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
+        "sha256": "ec7cc3cbe1c34238ea9725d93ff9487115785bbbcfe7f5328d453e14677f996d",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d398ed5-96a5-44e0-b287-896d62f88cb1.png",
+        "alt": "Illustrative scene: Full-day AI strategy workshop teams behind laptops mapping workflows",
+        "sceneCategory": "workshop"
+      },
+      {
+        "slug": "ai-strategy-full-day",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
+        "sha256": "dec91824a76e204ba63ec965bc2014b802c26abedc5270145f416c91bcade8ea",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d0588a3-24bb-4851-95c2-e5f89b75ff5b.png",
+        "alt": "Illustrative scene: Full-day participants behind laptops planning an implementation sequence",
+        "sceneCategory": "workshop"
+      }
+    ]
+  },
+  {
+    "id": "d1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78",
+    "title": "Monthly Advisory Retainer",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-calibration/monthly-advisory-hero.webp",
+        "alt": "AmaduTown Monthly Advisory cover with a focused decision brief",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-calibration/monthly-advisory-artifact.webp",
+        "alt": "AmaduTown Monthly Decision Brief with an illustrative ownership question",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "monthly-advisory",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "monthly-advisory",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/monthly-advisory-hero.jpg",
+        "sha256": "b6bbb4aa416ea7d0d137e11639f0675793b195d82fe45b467172b8ad377ed70e",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-8a193525-734b-4c98-9c9b-7454c538cf89.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: one advisor and one client in a private monthly check-in at a small table, reviewing a decision memo and a simple roadmap on a laptop, warm office light, candid eye-level view, no Vambah likeness",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "monthly-advisory",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/monthly-advisory-secondary.jpg",
+        "sha256": "9e036ac3dc5f649760c7a273f77de43e39cb2daa938ae2c384b2bb4226495a23",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-8a193525-734b-4c98-9c9b-7454c538cf89.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different advisor-client pair sitting side by side marking the next month's priorities on paper beside a laptop, quiet office, close side camera",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "5c0ee962-4e59-47ce-8374-e77083cd3af8",
+    "title": "Priority Support Channel",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/priority-support-channel-hero-review-r1.webp",
+        "alt": "Priority Support Channel: illustrative priority support thread with named owner",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/priority-support-channel-artifact-review-r1.webp",
+        "alt": "Priority Support Channel: illustrative support request and escalation view",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "priority-support-channel",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "priority-support-channel",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/priority-support-channel-hero.jpg",
+        "sha256": "efcde603ca0bc9fd7969c4ee7b5f36b5dcf6bbd7e399550f0588debef5247e17",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e43b3173-fe38-4ee0-8797-b90aa683dabb.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: two engineering support professionals in a small operations office triaging an urgent client question on a laptop, one points to owner and response status, focused candid side view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "priority-support-channel",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/priority-support-channel-secondary.jpg",
+        "sha256": "a7aeee1e89b2b9a4026562b0d928f7275a533c9a672c6b38fa3c04dbc5f4b7ea",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e43b3173-fe38-4ee0-8797-b90aa683dabb.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different advisor and client on a video support call visible on a laptop while an engineer checks a troubleshooting checklist at a desk, over-shoulder angle, direct support feel",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "42dec7ad-4b54-4fed-8288-15d350c33c9e",
+    "title": "Data Migration & Onboarding",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/data-migration-onboarding-hero-review-r1.webp",
+        "alt": "Data Migration & Onboarding: illustrative source-to-target field map with a held exception",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/data-migration-onboarding-artifact-review-r1.webp",
+        "alt": "Data Migration & Onboarding: illustrative migration reconciliation board with source counts and review decision",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "data-migration-onboarding",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "data-migration-onboarding",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/data-migration-onboarding-hero.jpg",
+        "sha256": "4210fe1931f84845bb4570c464b1f6ab1d96baf4fc6f006d210ad472c686e456",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-fc31beff-df56-4d6a-a358-c5188d805458.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: A specialist and client operations lead mapping old-to-new data fields",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "data-migration-onboarding",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/data-migration-onboarding-secondary.jpg",
+        "sha256": "bb8f6be6b4f70f5acd86ca7fd97bb32f53d1f99d59d416493817f39fc9deab28",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-fc31beff-df56-4d6a-a358-c5188d805458.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: An analyst and reviewer reconciling records with an unlettered chart",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "1d3cbddd-3d36-41be-bbff-484740f33089",
+    "title": "Custom API / ERP Integrations",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-api-erp-integrations-hero-review-r1.webp",
+        "alt": "Custom API / ERP Integrations: illustrative intake event moving through validation toward an ERP",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-api-erp-integrations-artifact-review-r1.webp",
+        "alt": "Custom API / ERP Integrations: illustrative integration event trace with payload checks and replay hold",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "custom-api-erp",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "custom-api-erp",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/custom-api-erp-hero.jpg",
+        "sha256": "272d242470917c6ea0de5a9dee009702b754cf581b305efd795fbd958808ff09",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4356ed6e-bcbf-41be-8ec8-171f3b64a09d.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: integration engineer and operations lead comparing two unbranded system diagrams on blank paper beside two laptops, small executive office, candid angle from table edge, screens angled away from camera",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "custom-api-erp",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/custom-api-erp-secondary.jpg",
+        "sha256": "6be56a4451571d8c533d867556c5a318362c8c65627755fa156329e17ba246e3",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4356ed6e-bcbf-41be-8ec8-171f3b64a09d.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different pair checking an unlettered event-flow diagram and observing a test handoff on a laptop seen from behind, close side view, no readable labels",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "b8887d29-52a7-47a1-bdb1-192068f43ccb",
+    "title": "Custom Reporting & Analytics Dashboard",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-reporting-dashboard-hero-review-r1.webp",
+        "alt": "Custom Reporting & Analytics Dashboard: illustrative inquiry metric and trend with source access",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/custom-reporting-dashboard-artifact-review-r1.webp",
+        "alt": "Custom Reporting & Analytics Dashboard: illustrative reporting dashboard with metric definition, trend, and drill-down",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "custom-reporting-dashboard",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "custom-reporting-dashboard",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/custom-reporting-dashboard-hero.jpg",
+        "sha256": "d2b5f1fbd4b2bcdb235cb26f6817f74a3fb36f4c215fe7ad86d1511452a12669",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a5f47b85-0a85-42f6-a148-579393c978b6.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: executive and analyst reviewing a simple non-readable KPI dashboard on a laptop, discussing which measure supports a decision, small office, candid eye-level",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "custom-reporting-dashboard",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/custom-reporting-dashboard-secondary.jpg",
+        "sha256": "cf675457776af91bcbc61e575a47854750b97930fead16337838060b1caebfad",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a5f47b85-0a85-42f6-a148-579393c978b6.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different two colleagues checking a chart and printed metric definition sheet with indistinct marks beside a laptop, close over-shoulder angle",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "0aeccef3-eae9-4a4a-b90d-053560e53e85",
+    "title": "AI Strategy Workshop — Recorded (Self-Paced)",
+    "serviceType": "workshop",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-learning-review/recorded-ai-strategy-workshop-hero-review-r1.webp",
+        "alt": "AI Strategy Workshop — Recorded (Self-Paced): illustrative recorded AI strategy workshop poster",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-learning-review/recorded-ai-strategy-workshop-artifact-review-r1.webp",
+        "alt": "AI Strategy Workshop — Recorded (Self-Paced): illustrative self-paced strategy workbook; no playable recording is bound",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "ai-strategy-recorded",
+    "decision": "replace",
+    "reason": "Editorial poster or worksheet did not show active laptop-based workshop participation.",
+    "sceneCategory": "workshop",
+    "frames": [
+      {
+        "slug": "ai-strategy-recorded",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
+        "sha256": "89c9def18d1170732452b7ea8b856ab089aecb314dfb1fcda4e30736879f4ee0",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-948dccd2-d0bd-48bd-8ac8-ab63baa227f1.png",
+        "alt": "Illustrative scene: A self-paced AI strategy workshop learner taking notes behind a laptop",
+        "sceneCategory": "workshop"
+      },
+      {
+        "slug": "ai-strategy-recorded",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
+        "sha256": "dafb090937aa55158de636a7b532f0ddd67d7a5fc1a4ada2285ff00e157672f7",
+        "width": 1536,
+        "height": 1024,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e6e318fa-692d-4c67-bbd6-c64f4be8823e.png",
+        "alt": "Illustrative scene: A learner behind a laptop completing an AI opportunity worksheet",
+        "sceneCategory": "workshop"
+      }
+    ]
+  },
+  {
+    "id": "e65898be-4121-4f98-a441-381a56ab5467",
+    "title": "Pre-Built Chatbot Template — Self-Install",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/chatbot-self-install-hero-review-r1.webp",
+        "alt": "Pre-Built Chatbot Template — Self-Install: illustrative self-install chatbot configuration and fallback",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/chatbot-self-install-artifact-review-r1.webp",
+        "alt": "Pre-Built Chatbot Template — Self-Install: illustrative chatbot setup and test kit",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "chatbot-self-install",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "chatbot-self-install",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/chatbot-self-install-hero.jpg",
+        "sha256": "23faf11ace56910bb522d321097af12f7bbc9f0b5c36be52e3c3d4959fc22bbb",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-2266cf65-6e12-4b3b-9325-a9d2869f2b71.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: small nonprofit manager at a desk setting up a chatbot template on a laptop with a simple blank paper checklist and phone, candid side view, solo self-install feel",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "chatbot-self-install",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/chatbot-self-install-secondary.jpg",
+        "sha256": "a458444f4a9c0617b3da41e33e9de8f00fd085ae658da759003b696d9a513a83",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-2266cf65-6e12-4b3b-9325-a9d2869f2b71.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different person at home office testing an unbranded chat response on laptop while checking an installation guide whose text is out of focus, close over-shoulder angle",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "6fb4fb87-0ca5-49cc-8117-31295ee861b2",
+    "title": "Community Forum Access",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/community-forum-access-hero-review-r1.webp",
+        "alt": "Community Forum Access: illustrative moderated peer discussion thread",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/community-forum-access-artifact-review-r1.webp",
+        "alt": "Community Forum Access: illustrative forum topic map and moderation guide",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "community-forum",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "community-forum",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/community-forum-hero.jpg",
+        "sha256": "d52342f1bc9dd4454f402aec765616a881e9d4bb130a2d2a91707c5770ad6c74",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9247af75-d79f-44e8-a663-aece96e4dca8.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: two nonprofit practitioners in a modest shared office discussing a peer support forum thread on an open laptop, warm collaborative candid view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "community-forum",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/community-forum-secondary.jpg",
+        "sha256": "8be71c1e05cb0793d9a2e6ca2ebd266a4ab573dfb9304fbfe7119bfe984ab520",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9247af75-d79f-44e8-a663-aece96e4dca8.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different community moderator at a desk reviewing a forum discussion on laptop with a printed moderation map of blank boxes, close side view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb",
+    "title": "30-Day Email Support",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/thirty-day-email-support-hero-review-r1.webp",
+        "alt": "30-Day Email Support: illustrative setup question during a 30-day support window",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/thirty-day-email-support-artifact-review-r1.webp",
+        "alt": "30-Day Email Support: illustrative 30-day email support ledger",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "thirty-day-email",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "thirty-day-email",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/thirty-day-email-hero.jpg",
+        "sha256": "3f27b598db13360e9107a5acb2f82dd5db24a4b07a348d448a1df0e8a809fab3",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e8a70838-33b3-4673-97d5-142e825c4414.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: new customer at a desk writing a setup support email beside an open laptop and small equipment box, first-month onboarding atmosphere, candid eye-level",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "thirty-day-email",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/thirty-day-email-secondary.jpg",
+        "sha256": "0983d99ed09f085457e56e73c72d638d33fd4a45015479b3e2d826dd5b2c7206",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e8a70838-33b3-4673-97d5-142e825c4414.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different support advisor at a quiet office desk reviewing a setup question and preparing a clear answer on laptop, over-shoulder angle, no call center",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "0129f6d2-0c09-4ab8-a01d-6ead6819747e",
+    "title": "60-Day Email Support",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-continuity-review/sixty-day-email-support-hero-review-r1.webp",
+        "alt": "60-Day Email Support: illustrative repeat team question during a 60-day support window",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-continuity-review/sixty-day-email-support-artifact-review-r1.webp",
+        "alt": "60-Day Email Support: illustrative 60-day adoption follow-through",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "sixty-day-email",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "sixty-day-email",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/sixty-day-email-hero.jpg",
+        "sha256": "35727f4902ea01f16a926ed5c3048df1de38fb1cc809b98b0d51db05b4061f2c",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f03bc5f2-a260-4b45-8ee2-ce8c6379901f.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: experienced customer at a desk revisiting a usage question two months after setup, open laptop and notes, reflective candid side view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "sixty-day-email",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/sixty-day-email-secondary.jpg",
+        "sha256": "2c62627fc126a1cc9b558eb5b22b490bccea55e38b5451f5be8f66957cb096cd",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f03bc5f2-a260-4b45-8ee2-ce8c6379901f.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different support specialist in a quiet office reviewing an extended follow-up question on a laptop and a simple blank progress sketch, close over-shoulder view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "eaa36f0b-a20f-40cb-9d82-749c914251cd",
+    "title": "Lead Tracking Templates",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/lead-tracking-templates-hero-review-r1.webp",
+        "alt": "Lead Tracking Templates: illustrative lead sheet with source, owner, and status rows",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/lead-tracking-templates-artifact-review-r1.webp",
+        "alt": "Lead Tracking Templates: illustrative lead tracker workbook columns and review guide",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "lead-tracking-templates",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "lead-tracking-templates",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/lead-tracking-templates-hero.jpg",
+        "sha256": "9c730b5cc309763dd4288f12b704cbf231a041701e8f4e0849f1b9f3bce310df",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-7697f4d5-601a-46a0-b8de-2355ddcc7786.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: nonprofit coordinator setting up a lead-tracking spreadsheet template on a laptop beside a blank paper guide, small practical office, candid eye-level view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "lead-tracking-templates",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/lead-tracking-templates-secondary.jpg",
+        "sha256": "8cfd18156d7ea83e49daf173a2d5019c16b13baa2abca405cb43f78bc922bc10",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-7697f4d5-601a-46a0-b8de-2355ddcc7786.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different nonprofit colleague and volunteer reviewing source owner and follow-up steps on blank cards beside a laptop, side view, self-install template feel",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "c9774a8b-3cc7-4237-a668-6f02a6dc37c0",
+    "title": "Content Automation Templates",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/content-automation-templates-hero-review-r1.webp",
+        "alt": "Content Automation Templates: illustrative source-backed content brief held before publishing",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/content-automation-templates-artifact-review-r1.webp",
+        "alt": "Content Automation Templates: illustrative content brief, draft, and review template pack",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "content-automation-templates",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "content-automation-templates",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/content-automation-templates-hero.jpg",
+        "sha256": "4134c9cb0b4013c4c9c34c37bac45d31c3c27c18a2171da6679eda098a0de0f3",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-48eeac65-e9fa-4626-ac6c-ee4161c611b4.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: nonprofit communications manager adapting a reusable social content template on laptop with printed photos and blank planning cards, candid side view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "content-automation-templates",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/content-automation-templates-secondary.jpg",
+        "sha256": "0883b9df0cd0bc5b746fa68d68c714e3abf3cdc95c4fdc424b210e3ecf6ba1ab",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-48eeac65-e9fa-4626-ac6c-ee4161c611b4.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different small team pair checking a draft content plan and review checklist beside a laptop before publishing, close over-shoulder view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "7cd3e7d5-31f0-4ee3-bf27-242c92935b1e",
+    "title": "Shared Analytics Dashboard",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-digital-review/shared-analytics-dashboard-hero-review-r1.webp",
+        "alt": "Shared Analytics Dashboard: illustrative team scorecard with named measure owners",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-digital-review/shared-analytics-dashboard-artifact-review-r1.webp",
+        "alt": "Shared Analytics Dashboard: illustrative shared analytics scorecard and Friday decision cadence",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "shared-analytics-dashboard",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "shared-analytics-dashboard",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/shared-analytics-dashboard-hero.jpg",
+        "sha256": "e8e8b06ad0082b2f11aad58cd3fea7191306d64bbf984d5a251ff9067ca01740",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-53cb1b09-2479-4bfe-b424-db0aa1200d69.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: two nonprofit program leads reviewing a shared unbranded dashboard with soft blurred charts on a laptop, discussing measures at a small office table, candid eye-level view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "shared-analytics-dashboard",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/shared-analytics-dashboard-secondary.jpg",
+        "sha256": "a94f54a797347b86d78dad9cae34fae3f221dbce71eab8efab6f2f94f8b758f4",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-53cb1b09-2479-4bfe-b424-db0aa1200d69.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different program manager and analyst comparing a printed chart with indistinct marks and a laptop scorecard, close side view, shared standard metrics rather than bespoke build",
+        "sceneCategory": "consulting"
+      }
+    ]
+  },
+  {
+    "id": "312e597d-d250-4c41-aff0-0eca38ddb885",
+    "title": "AI Email Sequence Templates",
+    "serviceType": "consulting",
+    "existingFrames": [
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-templates-hero-review-r1.webp",
+        "alt": "AI Email Sequence Templates: illustrative personalized email template draft held for review",
+        "status": "illustrative concept"
+      },
+      {
+        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-templates-artifact-review-r1.webp",
+        "alt": "AI Email Sequence Templates: illustrative editable email template pack and consent checks",
+        "status": "illustrative concept"
+      }
+    ],
+    "slug": "ai-email-sequence-templates",
+    "decision": "replace",
+    "reason": "Editorial page or prototype board did not provide a credible photographic service scene.",
+    "sceneCategory": "consulting",
+    "frames": [
+      {
+        "slug": "ai-email-sequence-templates",
+        "role": "hero",
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-templates-hero.jpg",
+        "sha256": "b41b10aef562101ddff7663133a278b5e108fe336dd23da0e7310abb3419775e",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-d7f09d36-e298-4d62-a74c-eb66b49cf116.png",
+        "extract": {
+          "left": 0,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: small nonprofit director choosing among reusable email draft cards beside a laptop and blank implementation guide, private desk, candid side view",
+        "sceneCategory": "consulting"
+      },
+      {
+        "slug": "ai-email-sequence-templates",
+        "role": "secondary",
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-templates-secondary.jpg",
+        "sha256": "3dbe3c2ecb77d1914a06cb3cd7369a2aa5477435e34639220817e137df9b33d7",
+        "width": 1075,
+        "height": 625,
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-d7f09d36-e298-4d62-a74c-eb66b49cf116.png",
+        "extract": {
+          "left": 1097,
+          "top": 50,
+          "width": 1075,
+          "height": 625
+        },
+        "alt": "Illustrative scene: different team pair adapting an email template sequence and checking consent steps on blank paper beside a laptop, close over-shoulder view",
+        "sceneCategory": "consulting"
+      }
+    ]
+  }
+]

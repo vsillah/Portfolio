@@ -25,3 +25,15 @@ Hero: Preserve the approved portrait's adult facial identity, skin tone, hairsty
 Secondary: Preserve the same identity in a distinct candid Q&A view, with Vambah holding a microphone and responding to an audience member after a talk. Show a modest room, natural light, and one coherent camera view. Avoid text, logos, specific clients, and documentary claims.
 
 Both were generated as photorealistic illustrative concepts with the built-in `image_gen` tool, then converted from PNG to JPEG with `sips -s format jpeg -s formatOptions 85`. No production service record was changed.
+
+## Consulting and workshop extension (2026-11-02)
+
+The public catalog snapshot contains 31 qualifying services (`service_type=consulting`, `service_type=workshop`, or a workshop/cohort title). The [per-record audit](service-gallery-audit.json) records each original pair and decision. Website UX Refresh remains bound to its named built example and matching review artifact. Thirty galleries were replaced: five workshop/cohort offers and 25 other consulting records. AI Inbound Lead Chatbot was reclassified during the final visual pass because its robot-led hero looked like generic AI stock art.
+
+The repo and AmaduTown Drive asset search found existing editorial mockups, prototype boards, course/workshop slide exports, and some client project materials. No directly reusable approved photographic pair covered these 30 offers. The client/project materials were not repurposed as general service marketing photography. The approved Vambah portrait was referenced only for the two Management Consulting frames; no other new gallery depicts him.
+
+The 60 final JPEGs are under `public/showcases/service-photographic/`. [Asset inventory](asset-inventory.json) records every exact public path, SHA-256, dimensions, source PNG, and crop rectangle. [Generation source map](generation-source-map.json) records the original image-generation outputs and scene briefs. [Preparation script](prepare-gallery-assets.mjs) deterministically converts the eight individually generated pairs and crops the two independent panels of each approved contact sheet. The contact sheets have a neutral gutter and separate scenes; no final gallery reuses a photo or a crop. [Binding script](bind-gallery-assets.mjs) applies the reviewed pair to each exact service ID without changing service records.
+
+Each frame's visible gallery label, status, and alt text identify it as an illustrative scene. Laptop-based participation is visible in every workshop pair, including the self-paced recorded offer's solo learner setting. Management Consulting shows a private one-on-one decision session in two distinct views. Consulting scenes use small working sessions, source review, support, templates, or offer-specific artifacts. The images do not establish that any depicted event, client engagement, provider capability, result, or product interface actually occurred. Early candidates with invented readable email or migration content were rejected and are absent from the final bindings.
+
+No paid image-provider purchase, production data write, deployment, publishing, or external send was performed.

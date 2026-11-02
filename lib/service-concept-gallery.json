@@ -1,37 +1,41 @@
 {
   "d1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-brand-reset",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-calibration/monthly-advisory-hero.webp",
-        "alt": "AmaduTown Monthly Advisory cover with a focused decision brief",
+        "imageUrl": "/showcases/service-photographic/monthly-advisory-hero.jpg",
+        "alt": "Illustrative scene: one advisor and one client in a private monthly check-in at a small table, reviewing a decision memo and a simple roadmap on a laptop, warm office light, candid eye-level view, no Vambah likeness",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-calibration/monthly-advisory-artifact.webp",
-        "alt": "AmaduTown Monthly Decision Brief with an illustrative ownership question",
+        "imageUrl": "/showcases/service-photographic/monthly-advisory-secondary.jpg",
+        "alt": "Illustrative scene: different advisor-client pair sitting side by side marking the next month's priorities on paper beside a laptop, quiet office, close side camera",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "a479ce70-4856-4d3f-917b-c37bfff1f0a2": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-premium-splash-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-premium-review/inbound-lead-chatbot-hero-r1.webp",
-        "alt": "AI Inbound Lead Chatbot: receptionist-led marketing page for a configured website inquiry and human handoff",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-chatbot-hero.jpg",
+        "alt": "Illustrative scene: A small business owner and sales colleague reviewing a website inquiry on a laptop",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-premium-review/inbound-lead-chatbot-experience-r1.webp",
-        "alt": "AI Inbound Lead Chatbot: illustrative website conversation and review brief",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-chatbot-secondary.jpg",
+        "alt": "Illustrative scene: Two professionals mapping an inbound inquiry to human handoff",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
@@ -74,145 +78,161 @@
   },
   "5e8d9f3d-8dbe-4380-b566-e284ac95a3c7": {
     "expectedCurrentUrl": "/ReversR_app.png",
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-digital-review/mobile-app-generation-hero-review-r1.webp",
-        "alt": "Mobile App Generation: illustrative mobile service request with a three-step intake",
+        "imageUrl": "/showcases/service-photographic/mobile-app-generation-hero.jpg",
+        "alt": "Illustrative scene: product consultant and client at a table testing a generic unbranded mobile app prototype on a phone beside a laptop, candid side view, clear human interaction",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-digital-review/mobile-app-generation-artifact-review-r1.webp",
-        "alt": "Mobile App Generation: illustrative mobile request preview and human handoff journey",
+        "imageUrl": "/showcases/service-photographic/mobile-app-generation-secondary.jpg",
+        "alt": "Illustrative scene: different product team pair comparing phone screen wireframes and a user journey map with a laptop, close three-quarter view",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "7c4bf4ec-a9d4-454e-933b-e22430be8ed7": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-digital-review/rag-knowledge-base-hero-review-r1.webp",
-        "alt": "RAG Knowledge Base System: illustrative sourced answer beside approved knowledge documents",
+        "imageUrl": "/showcases/service-photographic/rag-knowledge-base-hero.jpg",
+        "alt": "Illustrative scene: knowledge manager and colleague seated beside a laptop, comparing an internal document with a sourced answer on screen, modest office library setting, candid three-quarter view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-digital-review/rag-knowledge-base-artifact-review-r1.webp",
-        "alt": "RAG Knowledge Base System: illustrative answer review with citation, held source, and human approval state",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/rag-knowledge-base-secondary.jpg",
+        "alt": "Illustrative scene: different analyst and reviewer checking a stack of approved source documents against a laptop answer, close over-the-shoulder view, source verification rather than generic chat",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "42dec7ad-4b54-4fed-8288-15d350c33c9e": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-digital-review/data-migration-onboarding-hero-review-r1.webp",
-        "alt": "Data Migration & Onboarding: illustrative source-to-target field map with a held exception",
+        "imageUrl": "/showcases/service-photographic/data-migration-onboarding-hero.jpg",
+        "alt": "Illustrative scene: A specialist and client operations lead mapping old-to-new data fields",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-digital-review/data-migration-onboarding-artifact-review-r1.webp",
-        "alt": "Data Migration & Onboarding: illustrative migration reconciliation board with source counts and review decision",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/data-migration-onboarding-secondary.jpg",
+        "alt": "Illustrative scene: An analyst and reviewer reconciling records with an unlettered chart",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "1d3cbddd-3d36-41be-bbff-484740f33089": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-digital-review/custom-api-erp-integrations-hero-review-r1.webp",
-        "alt": "Custom API / ERP Integrations: illustrative intake event moving through validation toward an ERP",
+        "imageUrl": "/showcases/service-photographic/custom-api-erp-hero.jpg",
+        "alt": "Illustrative scene: integration engineer and operations lead comparing two unbranded system diagrams on blank paper beside two laptops, small executive office, candid angle from table edge, screens angled away from camera",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-digital-review/custom-api-erp-integrations-artifact-review-r1.webp",
-        "alt": "Custom API / ERP Integrations: illustrative integration event trace with payload checks and replay hold",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/custom-api-erp-secondary.jpg",
+        "alt": "Illustrative scene: different pair checking an unlettered event-flow diagram and observing a test handoff on a laptop seen from behind, close side view, no readable labels",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "b8887d29-52a7-47a1-bdb1-192068f43ccb": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-digital-review/custom-reporting-dashboard-hero-review-r1.webp",
-        "alt": "Custom Reporting & Analytics Dashboard: illustrative inquiry metric and trend with source access",
+        "imageUrl": "/showcases/service-photographic/custom-reporting-dashboard-hero.jpg",
+        "alt": "Illustrative scene: executive and analyst reviewing a simple non-readable KPI dashboard on a laptop, discussing which measure supports a decision, small office, candid eye-level",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-digital-review/custom-reporting-dashboard-artifact-review-r1.webp",
-        "alt": "Custom Reporting & Analytics Dashboard: illustrative reporting dashboard with metric definition, trend, and drill-down",
+        "imageUrl": "/showcases/service-photographic/custom-reporting-dashboard-secondary.jpg",
+        "alt": "Illustrative scene: different two colleagues checking a chart and printed metric definition sheet with indistinct marks beside a laptop, close over-shoulder angle",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "7cd3e7d5-31f0-4ee3-bf27-242c92935b1e": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-digital-review/shared-analytics-dashboard-hero-review-r1.webp",
-        "alt": "Shared Analytics Dashboard: illustrative team scorecard with named measure owners",
+        "imageUrl": "/showcases/service-photographic/shared-analytics-dashboard-hero.jpg",
+        "alt": "Illustrative scene: two nonprofit program leads reviewing a shared unbranded dashboard with soft blurred charts on a laptop, discussing measures at a small office table, candid eye-level view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-digital-review/shared-analytics-dashboard-artifact-review-r1.webp",
-        "alt": "Shared Analytics Dashboard: illustrative shared analytics scorecard and Friday decision cadence",
+        "imageUrl": "/showcases/service-photographic/shared-analytics-dashboard-secondary.jpg",
+        "alt": "Illustrative scene: different program manager and analyst comparing a printed chart with indistinct marks and a laptop scorecard, close side view, shared standard metrics rather than bespoke build",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "cd2c086a-26ec-4637-b7a3-129021c0bc19": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-premium-splash-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-premium-review/accelerated-cohort-hero-r1.webp",
-        "alt": "Accelerated Cohort Workshop: editorial workshop splash page for a shared first test",
+        "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
+        "alt": "Illustrative scene: A facilitator helping a laptop-based cohort run an AI product exercise",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-premium-review/accelerated-cohort-experience-r1.webp",
-        "alt": "Accelerated Cohort Workshop: illustrative live workshop exercise and decision handoff",
+        "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
+        "alt": "Illustrative scene: Cohort participants behind laptops comparing a product experiment canvas",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "c13e9f1c-7932-4e11-8459-a11e0ef7a070": {
     "expectedCurrentUrl": "/ATAS_Innovation_Workshop.png",
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/product-innovation-workshop-hero-review-r1.webp",
-        "alt": "Product Innovation Workshop: illustrative product innovation working session",
+        "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
+        "alt": "Illustrative scene: Product workshop participants behind laptops testing paper prototypes",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/product-innovation-workshop-artifact-review-r1.webp",
-        "alt": "Product Innovation Workshop: illustrative product opportunity work product",
+        "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
+        "alt": "Illustrative scene: Participants behind laptops reviewing a journey map with a facilitator",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
@@ -238,55 +258,61 @@
   },
   "4ea3afc8-2ecc-4928-a5e6-35e82388ee10": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/management-consulting-hero-review-r1.webp",
-        "alt": "Management Consulting: illustrative management consulting decision scene",
+        "imageUrl": "/showcases/service-photographic/management-consulting-hero.jpg",
+        "alt": "Illustrative scene: Vambah and one client reviewing a decision memo across a table",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/management-consulting-artifact-review-r1.webp",
-        "alt": "Management Consulting: illustrative consulting decision and ownership work product",
+        "imageUrl": "/showcases/service-photographic/management-consulting-secondary.jpg",
+        "alt": "Illustrative scene: Vambah and one client reviewing a decision memo and laptop side by side",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "0f7324b7-ba9e-440c-a282-f01b2919d2a4": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/ai-strategy-half-day-hero-review-r1.webp",
-        "alt": "AI Strategy Workshop — Half-Day: illustrative half-day AI strategy working session",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
+        "alt": "Illustrative scene: Half-day AI strategy workshop participants behind laptops prioritizing use cases",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/ai-strategy-half-day-artifact-review-r1.webp",
-        "alt": "AI Strategy Workshop — Half-Day: illustrative half-day AI strategy output",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
+        "alt": "Illustrative scene: Participants behind laptops sorting blank opportunity cards with a facilitator",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "457da6b5-92db-4b5b-a895-ee8571a47c8c": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/ai-strategy-full-day-hero-review-r1.webp",
-        "alt": "AI Strategy Workshop — Full-Day: illustrative full-day AI strategy working session",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
+        "alt": "Illustrative scene: Full-day AI strategy workshop teams behind laptops mapping workflows",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/ai-strategy-full-day-artifact-review-r1.webp",
-        "alt": "AI Strategy Workshop — Full-Day: illustrative full-day AI strategy output",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
+        "alt": "Illustrative scene: Full-day participants behind laptops planning an implementation sequence",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
@@ -364,19 +390,21 @@
   },
   "0aeccef3-eae9-4a4a-b90d-053560e53e85": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/recorded-ai-strategy-workshop-hero-review-r1.webp",
-        "alt": "AI Strategy Workshop — Recorded (Self-Paced): illustrative recorded AI strategy workshop poster",
+        "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
+        "alt": "Illustrative scene: A self-paced AI strategy workshop learner taking notes behind a laptop",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/recorded-ai-strategy-workshop-artifact-review-r1.webp",
-        "alt": "AI Strategy Workshop — Recorded (Self-Paced): illustrative self-paced strategy workbook; no playable recording is bound",
-        "role": "course-preview poster",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
+        "alt": "Illustrative scene: A learner behind a laptop completing an AI opportunity worksheet",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
@@ -454,289 +482,321 @@
   },
   "5c0ee962-4e59-47ce-8374-e77083cd3af8": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-continuity-review/priority-support-channel-hero-review-r1.webp",
-        "alt": "Priority Support Channel: illustrative priority support thread with named owner",
+        "imageUrl": "/showcases/service-photographic/priority-support-channel-hero.jpg",
+        "alt": "Illustrative scene: two engineering support professionals in a small operations office triaging an urgent client question on a laptop, one points to owner and response status, focused candid side view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-continuity-review/priority-support-channel-artifact-review-r1.webp",
-        "alt": "Priority Support Channel: illustrative support request and escalation view",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/priority-support-channel-secondary.jpg",
+        "alt": "Illustrative scene: different advisor and client on a video support call visible on a laptop while an engineer checks a troubleshooting checklist at a desk, over-shoulder angle, direct support feel",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "e65898be-4121-4f98-a441-381a56ab5467": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-continuity-review/chatbot-self-install-hero-review-r1.webp",
-        "alt": "Pre-Built Chatbot Template — Self-Install: illustrative self-install chatbot configuration and fallback",
+        "imageUrl": "/showcases/service-photographic/chatbot-self-install-hero.jpg",
+        "alt": "Illustrative scene: small nonprofit manager at a desk setting up a chatbot template on a laptop with a simple blank paper checklist and phone, candid side view, solo self-install feel",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-continuity-review/chatbot-self-install-artifact-review-r1.webp",
-        "alt": "Pre-Built Chatbot Template — Self-Install: illustrative chatbot setup and test kit",
+        "imageUrl": "/showcases/service-photographic/chatbot-self-install-secondary.jpg",
+        "alt": "Illustrative scene: different person at home office testing an unbranded chat response on laptop while checking an installation guide whose text is out of focus, close over-shoulder angle",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "6fb4fb87-0ca5-49cc-8117-31295ee861b2": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-continuity-review/community-forum-access-hero-review-r1.webp",
-        "alt": "Community Forum Access: illustrative moderated peer discussion thread",
+        "imageUrl": "/showcases/service-photographic/community-forum-hero.jpg",
+        "alt": "Illustrative scene: two nonprofit practitioners in a modest shared office discussing a peer support forum thread on an open laptop, warm collaborative candid view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-continuity-review/community-forum-access-artifact-review-r1.webp",
-        "alt": "Community Forum Access: illustrative forum topic map and moderation guide",
+        "imageUrl": "/showcases/service-photographic/community-forum-secondary.jpg",
+        "alt": "Illustrative scene: different community moderator at a desk reviewing a forum discussion on laptop with a printed moderation map of blank boxes, close side view",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-continuity-review/thirty-day-email-support-hero-review-r1.webp",
-        "alt": "30-Day Email Support: illustrative setup question during a 30-day support window",
+        "imageUrl": "/showcases/service-photographic/thirty-day-email-hero.jpg",
+        "alt": "Illustrative scene: new customer at a desk writing a setup support email beside an open laptop and small equipment box, first-month onboarding atmosphere, candid eye-level",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-continuity-review/thirty-day-email-support-artifact-review-r1.webp",
-        "alt": "30-Day Email Support: illustrative 30-day email support ledger",
+        "imageUrl": "/showcases/service-photographic/thirty-day-email-secondary.jpg",
+        "alt": "Illustrative scene: different support advisor at a quiet office desk reviewing a setup question and preparing a clear answer on laptop, over-shoulder angle, no call center",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "0129f6d2-0c09-4ab8-a01d-6ead6819747e": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-continuity-review/sixty-day-email-support-hero-review-r1.webp",
-        "alt": "60-Day Email Support: illustrative repeat team question during a 60-day support window",
+        "imageUrl": "/showcases/service-photographic/sixty-day-email-hero.jpg",
+        "alt": "Illustrative scene: experienced customer at a desk revisiting a usage question two months after setup, open laptop and notes, reflective candid side view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-continuity-review/sixty-day-email-support-artifact-review-r1.webp",
-        "alt": "60-Day Email Support: illustrative 60-day adoption follow-through",
+        "imageUrl": "/showcases/service-photographic/sixty-day-email-secondary.jpg",
+        "alt": "Illustrative scene: different support specialist in a quiet office reviewing an extended follow-up question on a laptop and a simple blank progress sketch, close over-shoulder view",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "1313650b-1afb-44f7-8118-21f05b1ae8a0": {
     "expectedCurrentUrl": "/Chatbot_app_img.png",
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/customer-support-chatbot-hero-review-r1.webp",
-        "alt": "AI Customer Support Chatbot: illustrative support chatbot conversation with human handoff",
+        "imageUrl": "/showcases/service-photographic/customer-support-chatbot-hero.jpg",
+        "alt": "Illustrative scene: Two colleagues reviewing a support chatbot handoff on a laptop",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/customer-support-chatbot-artifact-review-r1.webp",
-        "alt": "AI Customer Support Chatbot: illustrative sourced answer and escalation map",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/customer-support-chatbot-secondary.jpg",
+        "alt": "Illustrative scene: A support specialist and colleague checking a chatbot escalation map",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "ee03425c-2d00-41e3-ad5b-18f14bfb53b3": {
     "expectedCurrentUrl": "/VF_Chatbot_img.png",
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/voice-agent-inbound-hero-review-r1.webp",
-        "alt": "AI Voice Agent — Inbound: illustrative inbound call console with human transfer rule",
+        "imageUrl": "/showcases/service-photographic/voice-agent-inbound-hero.jpg",
+        "alt": "Illustrative scene: Two colleagues testing an inbound voice agent handoff at a laptop",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/voice-agent-inbound-artifact-review-r1.webp",
-        "alt": "AI Voice Agent — Inbound: illustrative inbound call routing sheet and silence fallback",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/voice-agent-inbound-secondary.jpg",
+        "alt": "Illustrative scene: A headset-wearing specialist and colleague checking call routing",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "f463891c-e703-403b-97c2-e122aca42f29": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-premium-splash-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-premium-review/lead-generation-workflow-hero-r1.webp",
-        "alt": "Lead Generation Workflow Agent: storefront-inspired marketing page for a reviewable lead path",
+        "imageUrl": "/showcases/service-photographic/lead-generation-workflow-hero.jpg",
+        "alt": "Illustrative scene: Two sales colleagues reviewing an inbound lead queue on a laptop",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-premium-review/lead-generation-workflow-experience-r1.webp",
-        "alt": "Lead Generation Workflow Agent: illustrative source, fit-check, and human-owner workflow",
+        "imageUrl": "/showcases/service-photographic/lead-generation-workflow-secondary.jpg",
+        "alt": "Illustrative scene: Two professionals reviewing a source-to-CRM workflow diagram",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "6cb60c1f-6b7c-4bce-9335-fbc99063f9a9": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/social-media-content-agent-hero-review-r1.webp",
-        "alt": "Social Media Content Agent: illustrative social post draft held for editorial approval",
+        "imageUrl": "/showcases/service-photographic/social-media-content-agent-hero.jpg",
+        "alt": "Illustrative scene: small editorial team of two reviewing a draft social post on a laptop before approval, candid side angle, phones and a paper source brief on the desk",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/social-media-content-agent-artifact-review-r1.webp",
-        "alt": "Social Media Content Agent: illustrative content review card with source and publish gate",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/social-media-content-agent-secondary.jpg",
+        "alt": "Illustrative scene: different pair of collaborators examining a content calendar and source notes beside a laptop, over-shoulder angle, visible human review before publishing",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "8dc13175-02b9-4ee2-90fe-f6dd5dd151b3": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/client-onboarding-automation-hero-review-r1.webp",
-        "alt": "Client Onboarding Automation: illustrative client onboarding status with buyer input pending",
+        "imageUrl": "/showcases/service-photographic/client-onboarding-automation-hero.jpg",
+        "alt": "Illustrative scene: two client operations colleagues at a quiet table mapping a new client welcome sequence with a laptop and simple paper checklist, candid three-quarter view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/client-onboarding-automation-artifact-review-r1.webp",
-        "alt": "Client Onboarding Automation: illustrative onboarding handoff board with blocked-state rule",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/client-onboarding-automation-secondary.jpg",
+        "alt": "Illustrative scene: different client success pair reviewing document collection and task ownership on a laptop with a printed handoff map, close side view",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "7d0c9d47-116a-48a5-b31d-dbe966f30044": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/inbound-lead-tracking-hero-review-r1.webp",
-        "alt": "Inbound Lead Tracking System: illustrative inquiry queue with sources and next owners",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-tracking-hero.jpg",
+        "alt": "Illustrative scene: sales operations analyst and manager at a small table reviewing an incoming inquiry queue on a laptop and deciding next owner, eye-level candid view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/inbound-lead-tracking-artifact-review-r1.webp",
-        "alt": "Inbound Lead Tracking System: illustrative lead queue and source trace",
+        "imageUrl": "/showcases/service-photographic/inbound-lead-tracking-secondary.jpg",
+        "alt": "Illustrative scene: different two colleagues tracing a lead from web form to follow-up on a paper flowchart next to a laptop, close over-shoulder view",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "b988910a-4db7-4c7f-b4ec-00ae35e915bf": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/website-development-hero-review-r1.webp",
-        "alt": "Website Development: illustrative website page with service and contact paths",
+        "imageUrl": "/showcases/service-photographic/website-development-hero.jpg",
+        "alt": "Illustrative scene: web designer and client reviewing a responsive website draft on laptop and phone at a small studio table, candid eye-level view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/website-development-artifact-review-r1.webp",
-        "alt": "Website Development: illustrative website build review board with phone and accessibility checks",
+        "imageUrl": "/showcases/service-photographic/website-development-secondary.jpg",
+        "alt": "Illustrative scene: different developer and stakeholder comparing mobile and desktop layouts on devices with a paper accessibility checklist, close side view",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "3977c48a-23ba-4e3c-8513-d17b91e61c5c": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-builder-hero-review-r1.webp",
-        "alt": "AI Email Sequence Builder: illustrative email sequence trigger and stop rules",
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-builder-hero.jpg",
+        "alt": "Illustrative scene: A marketer and owner sequencing draft email cards beside a laptop",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-builder-artifact-review-r1.webp",
-        "alt": "AI Email Sequence Builder: illustrative three-message sequence map with consent exit",
-        "role": "workflow",
-        "status": "illustrative concept"
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-builder-secondary.jpg",
+        "alt": "Illustrative scene: An editor and client reviewing blank email cards and an unlettered timeline",
+        "role": "product-in-use",
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "eaa36f0b-a20f-40cb-9d82-749c914251cd": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/lead-tracking-templates-hero-review-r1.webp",
-        "alt": "Lead Tracking Templates: illustrative lead sheet with source, owner, and status rows",
+        "imageUrl": "/showcases/service-photographic/lead-tracking-templates-hero.jpg",
+        "alt": "Illustrative scene: nonprofit coordinator setting up a lead-tracking spreadsheet template on a laptop beside a blank paper guide, small practical office, candid eye-level view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/lead-tracking-templates-artifact-review-r1.webp",
-        "alt": "Lead Tracking Templates: illustrative lead tracker workbook columns and review guide",
+        "imageUrl": "/showcases/service-photographic/lead-tracking-templates-secondary.jpg",
+        "alt": "Illustrative scene: different nonprofit colleague and volunteer reviewing source owner and follow-up steps on blank cards beside a laptop, side view, self-install template feel",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "c9774a8b-3cc7-4237-a668-6f02a6dc37c0": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/content-automation-templates-hero-review-r1.webp",
-        "alt": "Content Automation Templates: illustrative source-backed content brief held before publishing",
+        "imageUrl": "/showcases/service-photographic/content-automation-templates-hero.jpg",
+        "alt": "Illustrative scene: nonprofit communications manager adapting a reusable social content template on laptop with printed photos and blank planning cards, candid side view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/content-automation-templates-artifact-review-r1.webp",
-        "alt": "Content Automation Templates: illustrative content brief, draft, and review template pack",
+        "imageUrl": "/showcases/service-photographic/content-automation-templates-secondary.jpg",
+        "alt": "Illustrative scene: different small team pair checking a draft content plan and review checklist beside a laptop before publishing, close over-shoulder view",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   },
   "312e597d-d250-4c41-aff0-0eca38ddb885": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-11-02-photographic-service-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-templates-hero-review-r1.webp",
-        "alt": "AI Email Sequence Templates: illustrative personalized email template draft held for review",
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-templates-hero.jpg",
+        "alt": "Illustrative scene: small nonprofit director choosing among reusable email draft cards beside a laptop and blank implementation guide, private desk, candid side view",
         "role": "hero",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/ai-email-sequence-templates-artifact-review-r1.webp",
-        "alt": "AI Email Sequence Templates: illustrative editable email template pack and consent checks",
+        "imageUrl": "/showcases/service-photographic/ai-email-sequence-templates-secondary.jpg",
+        "alt": "Illustrative scene: different team pair adapting an email template sequence and checking consent steps on blank paper beside a laptop, close over-shoulder view",
         "role": "product-in-use",
-        "status": "illustrative concept"
+        "status": "illustrative concept",
+        "label": "Illustrative scene"
       }
     ]
   }

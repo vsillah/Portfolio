@@ -70,8 +70,14 @@ describe('active service gallery coverage', () => {
     for (let index = 0; index < titles.length; index++) {
       const row = catalog.rows.find((item) => item.title === titles[index])!
       const [hero, experience] = resolveServiceGallery(row.id, row.image_url)
-      expect(hero.imageUrl).toBe(`/showcases/service-premium-review/${slugs[index]}-hero-r1.webp`)
-      expect(experience.imageUrl).toBe(`/showcases/service-premium-review/${slugs[index]}-experience-r1.webp`)
+      const updatedSlug = index === 2 ? 'accelerated-cohort-workshop' : slugs[index]
+      const updated = index < 3
+      expect(hero.imageUrl).toBe(updated
+        ? `/showcases/service-photographic/${updatedSlug}-hero.jpg`
+        : `/showcases/service-premium-review/${slugs[index]}-hero-r1.webp`)
+      expect(experience.imageUrl).toBe(updated
+        ? `/showcases/service-photographic/${updatedSlug}-secondary.jpg`
+        : `/showcases/service-premium-review/${slugs[index]}-experience-r1.webp`)
       expect(hero.status).toBe('illustrative concept')
       expect(experience.status).toBe('illustrative concept')
     }

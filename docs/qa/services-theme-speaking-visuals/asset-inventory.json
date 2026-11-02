@@ -1,0 +1,806 @@
+[
+  {
+    "slug": "accelerated-cohort-workshop",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
+    "sha256": "9f7dfe44b687e6b4e33f1daa08018b4e9d691bede67621c34d36c94c539ef479",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-bf5250d8-ab9b-40fb-a224-de6b895cea40.png"
+  },
+  {
+    "slug": "accelerated-cohort-workshop",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
+    "sha256": "7d638c8fe292922a7a6485f573085adae71c99589fe883a0e0a7756825828f3a",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-1ba1aac5-e3d0-472a-bd54-1309fc12a122.png"
+  },
+  {
+    "slug": "ai-email-sequence-builder",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/ai-email-sequence-builder-hero.jpg",
+    "sha256": "f559737c2d438b0726ab2b801574d06ac18ecca94c573267e661ef43cb6c0220",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f8f5a5c3-02d8-4b52-af02-98a2e608137a.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "ai-email-sequence-builder",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/ai-email-sequence-builder-secondary.jpg",
+    "sha256": "f1747d877964391aa3a2587843655bc84d3352f091bb4fb9e577e6193500dc2d",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f8f5a5c3-02d8-4b52-af02-98a2e608137a.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "ai-email-sequence-templates",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/ai-email-sequence-templates-hero.jpg",
+    "sha256": "b41b10aef562101ddff7663133a278b5e108fe336dd23da0e7310abb3419775e",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-d7f09d36-e298-4d62-a74c-eb66b49cf116.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "ai-email-sequence-templates",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/ai-email-sequence-templates-secondary.jpg",
+    "sha256": "3dbe3c2ecb77d1914a06cb3cd7369a2aa5477435e34639220817e137df9b33d7",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-d7f09d36-e298-4d62-a74c-eb66b49cf116.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "ai-strategy-full-day",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
+    "sha256": "ec7cc3cbe1c34238ea9725d93ff9487115785bbbcfe7f5328d453e14677f996d",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d398ed5-96a5-44e0-b287-896d62f88cb1.png"
+  },
+  {
+    "slug": "ai-strategy-full-day",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
+    "sha256": "dec91824a76e204ba63ec965bc2014b802c26abedc5270145f416c91bcade8ea",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d0588a3-24bb-4851-95c2-e5f89b75ff5b.png"
+  },
+  {
+    "slug": "ai-strategy-half-day",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
+    "sha256": "4c0de23bbc131c25d636261b1a8e3366bb56ccd0a7e02adc6da3a798923e4f6a",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a2d21919-1bb8-41a1-a5d7-02661970f333.png"
+  },
+  {
+    "slug": "ai-strategy-half-day",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
+    "sha256": "08b32be6ffd3fd9d0cd72aa7e68aadc1b0f93a955673699f1788b471fd37f3c8",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-33270999-396b-410e-ab80-0d04ca8b8454.png"
+  },
+  {
+    "slug": "ai-strategy-recorded",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
+    "sha256": "89c9def18d1170732452b7ea8b856ab089aecb314dfb1fcda4e30736879f4ee0",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-948dccd2-d0bd-48bd-8ac8-ab63baa227f1.png"
+  },
+  {
+    "slug": "ai-strategy-recorded",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
+    "sha256": "dafb090937aa55158de636a7b532f0ddd67d7a5fc1a4ada2285ff00e157672f7",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e6e318fa-692d-4c67-bbd6-c64f4be8823e.png"
+  },
+  {
+    "slug": "chatbot-self-install",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/chatbot-self-install-hero.jpg",
+    "sha256": "23faf11ace56910bb522d321097af12f7bbc9f0b5c36be52e3c3d4959fc22bbb",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-2266cf65-6e12-4b3b-9325-a9d2869f2b71.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "chatbot-self-install",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/chatbot-self-install-secondary.jpg",
+    "sha256": "a458444f4a9c0617b3da41e33e9de8f00fd085ae658da759003b696d9a513a83",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-2266cf65-6e12-4b3b-9325-a9d2869f2b71.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "client-onboarding-automation",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/client-onboarding-automation-hero.jpg",
+    "sha256": "bc5c2492537750c6888ac3c5bf4c73afae958cd2d9e5b3cd3d8bfa46377bb586",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ccb4b470-182a-4b5f-937f-7787644c3b51.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "client-onboarding-automation",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/client-onboarding-automation-secondary.jpg",
+    "sha256": "43ef630d1fab4b07212d9c789ca041be719a96dc70427e439cba063629f1d574",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ccb4b470-182a-4b5f-937f-7787644c3b51.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "community-forum",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/community-forum-hero.jpg",
+    "sha256": "d52342f1bc9dd4454f402aec765616a881e9d4bb130a2d2a91707c5770ad6c74",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9247af75-d79f-44e8-a663-aece96e4dca8.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "community-forum",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/community-forum-secondary.jpg",
+    "sha256": "8be71c1e05cb0793d9a2e6ca2ebd266a4ab573dfb9304fbfe7119bfe984ab520",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9247af75-d79f-44e8-a663-aece96e4dca8.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "content-automation-templates",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/content-automation-templates-hero.jpg",
+    "sha256": "4134c9cb0b4013c4c9c34c37bac45d31c3c27c18a2171da6679eda098a0de0f3",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-48eeac65-e9fa-4626-ac6c-ee4161c611b4.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "content-automation-templates",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/content-automation-templates-secondary.jpg",
+    "sha256": "0883b9df0cd0bc5b746fa68d68c714e3abf3cdc95c4fdc424b210e3ecf6ba1ab",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-48eeac65-e9fa-4626-ac6c-ee4161c611b4.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "custom-api-erp",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/custom-api-erp-hero.jpg",
+    "sha256": "272d242470917c6ea0de5a9dee009702b754cf581b305efd795fbd958808ff09",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4356ed6e-bcbf-41be-8ec8-171f3b64a09d.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "custom-api-erp",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/custom-api-erp-secondary.jpg",
+    "sha256": "6be56a4451571d8c533d867556c5a318362c8c65627755fa156329e17ba246e3",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4356ed6e-bcbf-41be-8ec8-171f3b64a09d.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "custom-reporting-dashboard",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/custom-reporting-dashboard-hero.jpg",
+    "sha256": "d2b5f1fbd4b2bcdb235cb26f6817f74a3fb36f4c215fe7ad86d1511452a12669",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a5f47b85-0a85-42f6-a148-579393c978b6.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "custom-reporting-dashboard",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/custom-reporting-dashboard-secondary.jpg",
+    "sha256": "cf675457776af91bcbc61e575a47854750b97930fead16337838060b1caebfad",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a5f47b85-0a85-42f6-a148-579393c978b6.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "customer-support-chatbot",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/customer-support-chatbot-hero.jpg",
+    "sha256": "4458d225b647db7781a12a8491fcd95f7055ec12a7124340a2ce83418a4a6f47",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a3c388c3-15d0-4611-bd8a-c3f2198a11ec.png"
+  },
+  {
+    "slug": "customer-support-chatbot",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/customer-support-chatbot-secondary.jpg",
+    "sha256": "0fe93924e17b2f0a9c6a4f123b1c0c81ea7f91d56c7730f2d6fb715c0c6f631e",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-efbb834f-6fad-445e-b74e-e9a05d1e8a8c.png"
+  },
+  {
+    "slug": "data-migration-onboarding",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/data-migration-onboarding-hero.jpg",
+    "sha256": "4210fe1931f84845bb4570c464b1f6ab1d96baf4fc6f006d210ad472c686e456",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-fc31beff-df56-4d6a-a358-c5188d805458.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "data-migration-onboarding",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/data-migration-onboarding-secondary.jpg",
+    "sha256": "bb8f6be6b4f70f5acd86ca7fd97bb32f53d1f99d59d416493817f39fc9deab28",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-fc31beff-df56-4d6a-a358-c5188d805458.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "inbound-lead-chatbot",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/inbound-lead-chatbot-hero.jpg",
+    "sha256": "866734ed723265d0fdfe136f397831cafd263b69c5cc547cd7e4518eb44dcc86",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-481063e8-3bec-4c5b-83a3-6b5a09cd2df5.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "inbound-lead-chatbot",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/inbound-lead-chatbot-secondary.jpg",
+    "sha256": "41edb9167bcb45b76b4c6f164a3de39af0b4ac3241645703b5458e7bb1b20931",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-481063e8-3bec-4c5b-83a3-6b5a09cd2df5.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "inbound-lead-tracking",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/inbound-lead-tracking-hero.jpg",
+    "sha256": "899acd9f27a28099b1b1a0d09fbd90b33e2b150ee8bd699ab9f793db5fd321e6",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c4d816aa-6348-42de-9521-92dc893165d7.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "inbound-lead-tracking",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/inbound-lead-tracking-secondary.jpg",
+    "sha256": "80d06c5e3e753063b37bda4c7d119e4acec581dafb0d720435f9bc563e996c7a",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c4d816aa-6348-42de-9521-92dc893165d7.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "lead-generation-workflow",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/lead-generation-workflow-hero.jpg",
+    "sha256": "366287a86535ec83bda1c94c724099a33ce9598668cb817f4e935de4e6f586e1",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ceb9bab0-441f-4d1c-9315-1ad11d895db4.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "lead-generation-workflow",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/lead-generation-workflow-secondary.jpg",
+    "sha256": "85bab547b443b3be717a719c32a015524576ce5caa1df1fa5cab4c95fe571432",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-ceb9bab0-441f-4d1c-9315-1ad11d895db4.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "lead-tracking-templates",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/lead-tracking-templates-hero.jpg",
+    "sha256": "9c730b5cc309763dd4288f12b704cbf231a041701e8f4e0849f1b9f3bce310df",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-7697f4d5-601a-46a0-b8de-2355ddcc7786.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "lead-tracking-templates",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/lead-tracking-templates-secondary.jpg",
+    "sha256": "8cfd18156d7ea83e49daf173a2d5019c16b13baa2abca405cb43f78bc922bc10",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-7697f4d5-601a-46a0-b8de-2355ddcc7786.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "management-consulting",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/management-consulting-hero.jpg",
+    "sha256": "cf15e8c0211bcd23280d4b562ba0931da81444c3e9a9298a54606ca063891602",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-d565eddf-af42-4ca0-be77-999387085069.png"
+  },
+  {
+    "slug": "management-consulting",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/management-consulting-secondary.jpg",
+    "sha256": "f1ca346bed6b27aebeb5ec31dbda68543d3bbf9fa54b946c9e5a0dc1c3476bb2",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4d17a167-4d5e-4754-a724-ac0da44c6487.png"
+  },
+  {
+    "slug": "mobile-app-generation",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/mobile-app-generation-hero.jpg",
+    "sha256": "20f2f5c0eb38705f3cc9df90eb3e5a563d95a29adabeaeb05ebf9bcde290178c",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-51282e23-4ebe-4a41-880e-b16a13a18e56.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "mobile-app-generation",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/mobile-app-generation-secondary.jpg",
+    "sha256": "52c530bb8d6d07cc03cf2073e9bcb8b161f71aacf1dd93dfb5b04f803eef1f79",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-51282e23-4ebe-4a41-880e-b16a13a18e56.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "monthly-advisory",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/monthly-advisory-hero.jpg",
+    "sha256": "b6bbb4aa416ea7d0d137e11639f0675793b195d82fe45b467172b8ad377ed70e",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-8a193525-734b-4c98-9c9b-7454c538cf89.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "monthly-advisory",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/monthly-advisory-secondary.jpg",
+    "sha256": "9e036ac3dc5f649760c7a273f77de43e39cb2daa938ae2c384b2bb4226495a23",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-8a193525-734b-4c98-9c9b-7454c538cf89.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "priority-support-channel",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/priority-support-channel-hero.jpg",
+    "sha256": "efcde603ca0bc9fd7969c4ee7b5f36b5dcf6bbd7e399550f0588debef5247e17",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e43b3173-fe38-4ee0-8797-b90aa683dabb.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "priority-support-channel",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/priority-support-channel-secondary.jpg",
+    "sha256": "a7aeee1e89b2b9a4026562b0d928f7275a533c9a672c6b38fa3c04dbc5f4b7ea",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e43b3173-fe38-4ee0-8797-b90aa683dabb.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "product-innovation-workshop",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
+    "sha256": "455b0411374cba0abbd6420b4aa3c780f243c748863561d0777f36dd07d0b6b5",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-89922b64-f1b7-41d0-8b29-0cdbb3672b08.png"
+  },
+  {
+    "slug": "product-innovation-workshop",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
+    "sha256": "cb3204208170af585fb2b27a25ea3852028634b6becb25e4446b6ef7669becf5",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-79af7565-12fe-4944-a656-20b1bcdc7c06.png"
+  },
+  {
+    "slug": "rag-knowledge-base",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/rag-knowledge-base-hero.jpg",
+    "sha256": "a322f5be090a8b47fa969ad60d57c7690e55fa2b34ecd5f3868c0b841a27e46b",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4cc6cdb3-40ea-4638-b611-dab58ab38e06.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "rag-knowledge-base",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/rag-knowledge-base-secondary.jpg",
+    "sha256": "a480549e2849c1625ee5cebcd1a54f2f9938b804cb896d8222f7c34068373e56",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-4cc6cdb3-40ea-4638-b611-dab58ab38e06.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "shared-analytics-dashboard",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/shared-analytics-dashboard-hero.jpg",
+    "sha256": "e8e8b06ad0082b2f11aad58cd3fea7191306d64bbf984d5a251ff9067ca01740",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-53cb1b09-2479-4bfe-b424-db0aa1200d69.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "shared-analytics-dashboard",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/shared-analytics-dashboard-secondary.jpg",
+    "sha256": "a94f54a797347b86d78dad9cae34fae3f221dbce71eab8efab6f2f94f8b758f4",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-53cb1b09-2479-4bfe-b424-db0aa1200d69.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "sixty-day-email",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/sixty-day-email-hero.jpg",
+    "sha256": "35727f4902ea01f16a926ed5c3048df1de38fb1cc809b98b0d51db05b4061f2c",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f03bc5f2-a260-4b45-8ee2-ce8c6379901f.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "sixty-day-email",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/sixty-day-email-secondary.jpg",
+    "sha256": "2c62627fc126a1cc9b558eb5b22b490bccea55e38b5451f5be8f66957cb096cd",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f03bc5f2-a260-4b45-8ee2-ce8c6379901f.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "social-media-content-agent",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/social-media-content-agent-hero.jpg",
+    "sha256": "60dbe086be71e16575219456e371eea5007fa9cc4c683230d2a45b96edb268bc",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-6626eb72-4b15-4401-bdb4-c1eea4a62a48.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "social-media-content-agent",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/social-media-content-agent-secondary.jpg",
+    "sha256": "9e4228fb04df3732ed51f8834459ad6847dc5c16cfcf7cb64e87c919379bbc2d",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-6626eb72-4b15-4401-bdb4-c1eea4a62a48.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "thirty-day-email",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/thirty-day-email-hero.jpg",
+    "sha256": "3f27b598db13360e9107a5acb2f82dd5db24a4b07a348d448a1df0e8a809fab3",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e8a70838-33b3-4673-97d5-142e825c4414.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "thirty-day-email",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/thirty-day-email-secondary.jpg",
+    "sha256": "0983d99ed09f085457e56e73c72d638d33fd4a45015479b3e2d826dd5b2c7206",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e8a70838-33b3-4673-97d5-142e825c4414.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "voice-agent-inbound",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/voice-agent-inbound-hero.jpg",
+    "sha256": "ef2ed8bfa83d06cc1fb6f4b2cf9b8be85705ca4237eea52d6da9723a30324ce5",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-f80fbe06-2660-42db-9cdd-5e351693c2cc.png"
+  },
+  {
+    "slug": "voice-agent-inbound",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/voice-agent-inbound-secondary.jpg",
+    "sha256": "fc2c21ef6fb5c2406155a7ac22dcd55a2fd4437e549b4ee11a470e75c171e205",
+    "width": 1536,
+    "height": 1024,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-657f2d9c-d5a2-4261-8e63-617d8830a0db.png"
+  },
+  {
+    "slug": "website-development",
+    "role": "hero",
+    "imageUrl": "/showcases/service-photographic/website-development-hero.jpg",
+    "sha256": "c0b3041302a6c761a3b3312b020810e5de145894e547a3853650050ea978bfb4",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c1201933-8641-4d40-a32e-d8adcb98b700.png",
+    "extract": {
+      "left": 0,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  },
+  {
+    "slug": "website-development",
+    "role": "secondary",
+    "imageUrl": "/showcases/service-photographic/website-development-secondary.jpg",
+    "sha256": "f527424014d1fbea7ddcecdbfcc4ada5f09fda04409fdf756e0942053cc66828",
+    "width": 1075,
+    "height": 625,
+    "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-c1201933-8641-4d40-a32e-d8adcb98b700.png",
+    "extract": {
+      "left": 1097,
+      "top": 50,
+      "width": 1075,
+      "height": 625
+    }
+  }
+]
