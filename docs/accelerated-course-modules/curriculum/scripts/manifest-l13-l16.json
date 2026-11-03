@@ -1,0 +1,100 @@
+{
+  "phase": 2,
+  "canonical_epub": "/Users/vambahsillah/Projects/Portfolio/accelerated_ebook_leadmagnet.epub",
+  "canonical_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "base_commit": "66168a8c18f0e570df50d9a549f299db511b3524",
+  "runtime_seconds_total": 2340,
+  "spoken_words_total": 5108,
+  "lessons": [
+    {
+      "id": "L13",
+      "title": "Strategic shifts and future concepts",
+      "runtime_seconds": 660,
+      "spoken_words": 1360,
+      "epub_files": [
+        "c024.xhtml",
+        "c025.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-momentum-plate.webp"
+      ],
+      "learner_artifact": "Strategic alternatives sheet and concept-test card",
+      "readiness": "editorial-review",
+      "scene_timecodes": [
+        "00:00\u201301:57",
+        "01:57\u201303:46",
+        "03:46\u201305:40",
+        "05:40\u201307:26",
+        "07:26\u201309:13",
+        "09:13\u201311:00"
+      ]
+    },
+    {
+      "id": "L14",
+      "title": "The last mile of influence",
+      "runtime_seconds": 480,
+      "spoken_words": 1031,
+      "epub_files": [
+        "c026.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-momentum-plate.webp"
+      ],
+      "learner_artifact": "Two-audience pitch card with source annotations",
+      "readiness": "editorial-review",
+      "scene_timecodes": [
+        "00:00\u201301:22",
+        "01:22\u201302:44",
+        "02:44\u201304:09",
+        "04:09\u201305:30",
+        "05:30\u201306:46",
+        "06:46\u201308:00"
+      ]
+    },
+    {
+      "id": "L15",
+      "title": "Governance and the system that learns",
+      "runtime_seconds": 720,
+      "spoken_words": 1620,
+      "epub_files": [
+        "c027.xhtml",
+        "c028.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-momentum-plate.webp"
+      ],
+      "learner_artifact": "Scale-readiness checklist and decision-memory record",
+      "readiness": "editorial-review",
+      "scene_timecodes": [
+        "00:00\u201302:02",
+        "02:02\u201304:03",
+        "04:03\u201306:04",
+        "06:04\u201308:01",
+        "08:01\u201310:03",
+        "10:03\u201312:00"
+      ]
+    },
+    {
+      "id": "L16",
+      "title": "What comes next",
+      "runtime_seconds": 480,
+      "spoken_words": 1097,
+      "epub_files": [
+        "c029.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/accelerated-sam-infographic.png"
+      ],
+      "learner_artifact": "One-week learning commitment and assembled decision file",
+      "readiness": "editorial-review",
+      "scene_timecodes": [
+        "00:00\u201301:21",
+        "01:21\u201302:41",
+        "02:41\u201303:59",
+        "03:59\u201305:16",
+        "05:16\u201306:48",
+        "06:48\u201308:00"
+      ]
+    }
+  ]
+}
