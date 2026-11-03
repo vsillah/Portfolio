@@ -1,0 +1,11 @@
+file 'mobile-top.jpg'
+duration 3
+file 'mobile-storyboard.jpg'
+duration 4
+file 'mobile-synthesis.jpg'
+duration 4
+file 'mobile-complete.jpg'
+duration 4
+file 'mobile-empty.jpg'
+duration 4
+file 'mobile-empty.jpg'
