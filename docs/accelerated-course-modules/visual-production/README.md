@@ -12,7 +12,7 @@ This is the scene-level review package for the approved L01–L16 narration at c
 
 The frame studies use approved plates as source art. Other scene cards remain specified instructional graphics with stable synthetic identities, pending production. They do not represent current customers, shipped tools, or measured results. No avatar, voice, provider media, final course video, upload, or external execution was produced.
 
-Human QA copy revision: the L08-03 on-screen fields are five short actions rather than a slash-delimited field string. The approved script still supplies the exact narration and source binding. Representative frames must present field choices as readable phrases or steps; the regression test rejects slash-delimited shorthand in their visible copy.
+Human QA copy revision: the L08-03 fields, L11-03 loop, and L16-06 close are short action lists. The approved scripts still supply the exact narration and source binding. Representative frames keep the title larger than interior copy. The regression test rejects arrow chains and dot/slash-delimited shorthand in their visible copy.
 
 ## Rebuild and check
 

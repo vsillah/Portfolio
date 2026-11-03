@@ -48,8 +48,17 @@ class PacketRegressionTests(unittest.TestCase):
                 visible = html.unescape(re.sub(r"<[^>]+>", " ", copy_block[1]))
                 for line in scene["on_screen_copy"].splitlines():
                     self.assertIn(re.sub(r"^\d+\.\s*", "", line), visible)
-                self.assertIsNone(re.search(r"\b[\w-]+\s*/\s*[\w-]+\b", visible), f"Slash-delimited visible copy in {lid}")
-        self.assertEqual(5, len(re.findall(r"<li>", re.search(r'<article class="frame" id="l08">(.*?)</article>', review, re.S)[1])))
+                self.assertIsNone(re.search(r"→|\b[\w-]+\s*[·/]\s*[\w-]+\b", visible), f"Shorthand visible copy in {lid}")
+                expected_steps = {"L05": 0, "L08": 5, "L11": 5, "L16": 3}[lid]
+                self.assertEqual(expected_steps, len(re.findall(r"<li>", copy_block[1])))
+
+    def test_frame_title_stays_larger_than_interior_copy(self):
+        review = (OUT / "review.html").read_text()
+        self.assertIn(".frame h3 { font:500 27px/1.15", review)
+        self.assertIn(".canvas .copy strong { font:500 clamp(20px,1.8vw,23px)", review)
+        self.assertIn(".canvas .copy .steps { margin:0; padding-left:1.45em; font:500 clamp(16px,1.35vw,20px)", review)
+        self.assertIn(".canvas .copy strong { font-size:22px }", review)
+        self.assertIn(".canvas .copy .steps { font-size:17px", review)
 
 
 if __name__ == "__main__":

@@ -524,7 +524,7 @@ Audio: One spoken owner at a time: approved narration or later native avatar aud
 
 Accessibility: At least 4.5:1 body text and 3:1 large text; verify on rendered frame Title, decision or question, evidence/source, next action; align visual reveals with narration Narration names every field and synthetic example.
 
-Lineage: docs/accelerated-course-modules/curriculum/scripts/L08.md SHA-256 `e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b`; docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md; EPUB c015.xhtml, c016.xhtml. Ch13, “The Ten Components” (`c016.xhtml`); Ch12, “Build a Metrics Ladder” (`c015.xhtml`). Synthetic identity `synthetic-course-card:L08-03:e4647b07ebafffc7`. Visual copy revision: Five book fields expanded into natural action labels for human QA; narration and script source unchanged. No invented result, customer record, live tool status, or unsupported performance claim
+Lineage: docs/accelerated-course-modules/curriculum/scripts/L08.md SHA-256 `e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b`; docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md; EPUB c015.xhtml, c016.xhtml. Ch13, “The Ten Components” (`c016.xhtml`); Ch12, “Build a Metrics Ladder” (`c015.xhtml`). Synthetic identity `synthetic-course-card:L08-03:e4647b07ebafffc7`. Visual copy revision: Book concepts rendered as short action labels for human QA; narration and script source unchanged. No invented result, customer record, live tool status, or unsupported performance claim
 
 Provider handoff: Local storyboard/review only. Later renderer must bind exact source hashes, preserve captions and native-audio ownership, and require separate provider and final-media approval.
 

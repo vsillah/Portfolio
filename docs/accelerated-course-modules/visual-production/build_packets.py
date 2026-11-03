@@ -30,9 +30,11 @@ EARLY_VISIBLE = {
     "L04": ["One moment. One test.", "Job + context", "Observed signal ≠ proposed signal", "Uncertainty", "Next validation question", "Source + review date", "Decision file: boundary → priority → evidence → persona"],
 }
 VISUAL_COPY_OVERRIDES = {
-    # Human QA revision: keep the approved narration and book fields, but make
-    # the representative worksheet copy readable as five separate actions.
+    # Human QA revision: keep narration and source bindings, but render the
+    # representative teaching sequences as actions a learner can read.
     "L08-03": "1. Define the problem\n2. Name the cohort\n3. State the hypothesis\n4. Bound the scope\n5. Choose the metrics",
+    "L11-03": "1. Notice the signal\n2. Turn it into insight\n3. Run the test\n4. Make the decision\n5. Build repeatable momentum",
+    "L16-06": "1. Choose one pain point\n2. Run one test\n3. Set one review",
 }
 SCENE_RE = re.compile(r"^## Scene (\d+) · (\d\d:\d\d)–(\d\d:\d\d) · (.+)$", re.M)
 
@@ -132,7 +134,7 @@ def build() -> tuple[dict, dict]:
                 "avatar": {"window": avatar, "placement": "When active, upper third or side window clear of captions, book labels, and worksheet text; portrait uses a separate top window", "entry_exit": "Hard cut into direct address, then cut away before dense instructional art", "gesture": "Emphasize the decision or question named in narration; no pointing to unverified results", "must_not_appear": "Dense worksheets, source text, SAM plate labels, simulated reactions, and any scene marked off"},
                 "audio": {"owner": "One spoken owner at a time: approved narration or later native avatar audio for its exact window", "mix": "If native avatar audio is used, mute the matching narration span; no double speech. Music/effects below intelligibility and absent during worksheet holds; no audio asset approved now", "sync": "Final native composite must match source frame count, rate, duration, and lip sync"},
                 "accessibility": {"contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame", "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration", "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16", "meaningful_text_alternative": access, "reduced_motion": "Static labeled end state with equivalent hold time"},
-                "lineage": {"epub_files": lesson["epub_files"], "scene_source": item["source"], "storyboard_brief": row["brief"], **({"visual_copy_revision": "Five book fields expanded into natural action labels for human QA; narration and script source unchanged"} if sid in VISUAL_COPY_OVERRIDES else {}), "book_status": "Book case or argument, never current product/customer proof", "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture", "new_synthetic_identity": f"synthetic-course-card:{sid}:{source_sha[:16]}", "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"},
+                "lineage": {"epub_files": lesson["epub_files"], "scene_source": item["source"], "storyboard_brief": row["brief"], **({"visual_copy_revision": "Book concepts rendered as short action labels for human QA; narration and script source unchanged"} if sid in VISUAL_COPY_OVERRIDES else {}), "book_status": "Book case or argument, never current product/customer proof", "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture", "new_synthetic_identity": f"synthetic-course-card:{sid}:{source_sha[:16]}", "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"},
                 "implementation": "Local storyboard/review only. Later renderer must bind exact source hashes, preserve captions and native-audio ownership, and require separate provider and final-media approval.",
             })
         packets.append({"id": lid, "title": lesson["title"], "runtime_seconds": lesson["runtime_seconds"], "learner_artifact": lesson["learner_artifact"], "source_manifest": next(name for name in MANIFESTS if any(x["id"] == lid for x in json.loads((SCRIPTS / name).read_text())["lessons"])), "scenes": scenes})

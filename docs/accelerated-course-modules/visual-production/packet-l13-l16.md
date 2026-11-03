@@ -572,7 +572,15 @@ Approved narration:
 
 ### L16-06 · 06:48–08:00 (72 s) · Close with one accountable move
 
-On screen: `One pain point · one test · one review`. Captions: exact narration in bottom 18%, two lines maximum, manually checked against final audio.
+On screen:
+
+```text
+1. Choose one pain point
+2. Run one test
+3. Set one review
+```
+
+Captions: exact narration in bottom 18%, two lines maximum, manually checked against final audio.
 
 Shot: Close with one accountable move. Artifact: one-week commitment atop complete decision file; full SAM infographic returns, then public book cover; full SAM infographic remains source art.
 
@@ -586,7 +594,7 @@ Audio: One spoken owner at a time: approved narration or later native avatar aud
 
 Accessibility: At least 4.5:1 body text and 3:1 large text; verify on rendered frame Title, decision or question, evidence/source, next action; align visual reveals with narration Narration names the instructional relationship; add a text alternative for each worksheet and art panel.
 
-Lineage: docs/accelerated-course-modules/curriculum/scripts/L16.md SHA-256 `aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d`; docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md; EPUB c029.xhtml. Ch26, “The Final Question,” “The Last Word” (`c029.xhtml`). Synthetic identity `synthetic-course-card:L16-06:aef51b9f3fce4210`. No invented result, customer record, live tool status, or unsupported performance claim
+Lineage: docs/accelerated-course-modules/curriculum/scripts/L16.md SHA-256 `aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d`; docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md; EPUB c029.xhtml. Ch26, “The Final Question,” “The Last Word” (`c029.xhtml`). Synthetic identity `synthetic-course-card:L16-06:aef51b9f3fce4210`. Visual copy revision: Book concepts rendered as short action labels for human QA; narration and script source unchanged. No invented result, customer record, live tool status, or unsupported performance claim
 
 Provider handoff: Local storyboard/review only. Later renderer must bind exact source hashes, preserve captions and native-audio ownership, and require separate provider and final-media approval.
 

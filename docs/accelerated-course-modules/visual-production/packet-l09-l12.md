@@ -352,7 +352,17 @@ Approved narration:
 
 ### L11-03 · 03:20–05:00 (100 s) · Connect signal, insight, test, decision
 
-On screen: `Signal → Insight → Test → Decision → Repeatable Momentum`. Captions: exact narration in bottom 18%, two lines maximum, manually checked against final audio.
+On screen:
+
+```text
+1. Notice the signal
+2. Turn it into insight
+3. Run the test
+4. Make the decision
+5. Build repeatable momentum
+```
+
+Captions: exact narration in bottom 18%, two lines maximum, manually checked against final audio.
 
 Shot: Connect signal, insight, test, decision Artifact: book's exact arrow sequence as text labels, then a synthetic member-feedback ledger; no invented book figure.
 
@@ -366,7 +376,7 @@ Audio: One spoken owner at a time: approved narration or later native avatar aud
 
 Accessibility: At least 4.5:1 body text and 3:1 large text; verify on rendered frame Title, decision or question, evidence/source, next action; align visual reveals with narration Narration names the instructional relationship; add a text alternative for each worksheet and art panel.
 
-Lineage: docs/accelerated-course-modules/curriculum/scripts/L11.md SHA-256 `705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5`; docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md; EPUB c020.xhtml, c021.xhtml. Ch18, “Rethink AI as Your Systems Architect,” “Connect AI Across the Build-Measure-Learn Loop” (`c021.xhtml`). Synthetic identity `synthetic-course-card:L11-03:705152fdd1f3654e`. No invented result, customer record, live tool status, or unsupported performance claim
+Lineage: docs/accelerated-course-modules/curriculum/scripts/L11.md SHA-256 `705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5`; docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md; EPUB c020.xhtml, c021.xhtml. Ch18, “Rethink AI as Your Systems Architect,” “Connect AI Across the Build-Measure-Learn Loop” (`c021.xhtml`). Synthetic identity `synthetic-course-card:L11-03:705152fdd1f3654e`. Visual copy revision: Book concepts rendered as short action labels for human QA; narration and script source unchanged. No invented result, customer record, live tool status, or unsupported performance claim
 
 Provider handoff: Local storyboard/review only. Later renderer must bind exact source hashes, preserve captions and native-audio ownership, and require separate provider and final-media approval.
 
