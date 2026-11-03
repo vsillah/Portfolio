@@ -14,6 +14,8 @@ describe('L01 review packet', () => {
     expect(lesson.scenes).toHaveLength(6)
     expect(lesson.scenes[0].start_seconds).toBe(0)
     expect(lesson.scenes.at(-1)?.end_seconds).toBe(540)
+    expect(lesson.scenes[2].on_screen_copy).toBe('Signals · Alignment · Momentum')
+    expect(lesson.scenes.every((scene) => !scene.on_screen_copy.includes(' / '))).toBe(true)
     lesson.scenes.forEach((scene, index) => {
       expect(scene.start_seconds).toBe(index ? lesson.scenes[index - 1].end_seconds : 0)
       expect(scene.narration).toBe(source.scenes[index].narration)
