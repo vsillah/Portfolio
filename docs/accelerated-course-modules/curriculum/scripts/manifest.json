@@ -1,0 +1,13 @@
+{
+  "phase": 2,
+  "canonical_epub": "/Users/vambahsillah/Projects/Portfolio/accelerated_ebook_leadmagnet.epub",
+  "base_commit": "3295b5ebacc645903f509133385b0b7033551cf6",
+  "runtime_seconds_total": 2280,
+  "spoken_words_total": 4533,
+  "lessons": [
+    {"id":"L01","title":"Build smarter, stay human","runtime_seconds":540,"spoken_words":1088,"epub_files":["c002.xhtml","c003.xhtml","c004.xhtml"],"sam_assets":["public/showcases/service-prototypes/accelerated-sam-infographic.png","public/showcases/service-prototypes/v2/sam-signals-plate.webp"],"learner_artifact":"Decision-file cover sheet and data-use boundary","readiness":"editorial-review"},
+    {"id":"L02","title":"Prioritize before generating","runtime_seconds":600,"spoken_words":1187,"epub_files":["c005.xhtml","c006.xhtml"],"sam_assets":["public/showcases/service-prototypes/v2/sam-signals-plate.webp"],"learner_artifact":"Priority decision and two alternatives","readiness":"editorial-review"},
+    {"id":"L03","title":"Answer-driven discovery","runtime_seconds":540,"spoken_words":1051,"epub_files":["c007.xhtml"],"sam_assets":[],"learner_artifact":"Decision question and evidence-gap card","readiness":"editorial-review"},
+    {"id":"L04","title":"Build small; keep personas alive","runtime_seconds":600,"spoken_words":1207,"epub_files":["c008.xhtml","c009.xhtml"],"sam_assets":[],"learner_artifact":"Living persona card with source and review date","readiness":"editorial-review"}
+  ]
+}
