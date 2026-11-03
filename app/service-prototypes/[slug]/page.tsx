@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { ArrowDown, ArrowUp, BarChart3, Bot, BrainCircuit, ClipboardList, FileText, HelpCircle, MessageSquare, Route, Sparkles, Target, Trophy, Users, Megaphone } from 'lucide-react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { prototypeForSlug } from '@/lib/service-prototypes'
@@ -26,6 +27,7 @@ function Card({ title, eyebrow, children, className = '' }: { title: string; eye
 
 const samViews = ['Full framework', 'Signals', 'Alignment', 'Momentum'] as const
 const signalInputs = ['Blank pages', 'Feedback', 'Questions', 'Observations'] as const
+const signalIcons = [FileText, MessageSquare, HelpCircle, BarChart3] as const
 const alignmentSteps = [
   { name: 'Metrics', detail: 'Agree on the measure that will tell the team whether the signal matters.' },
   { name: 'PRD', detail: 'Write the problem, evidence and decision rule in one working brief.' },
@@ -44,9 +46,12 @@ function SignalsCanvas({ compact = false }: { compact?: boolean }) {
   const [input, setInput] = useState<(typeof signalInputs)[number]>('Feedback')
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="signals">
     <header><span>ACT I · FROM BLANK PAGES TO BOLD IDEAS</span><h3>Signals</h3><p>Raw noise → clear signal</p></header>
-    <div className={styles.signalInputs} aria-label="Workshop inputs">{signalInputs.map((item) => <button type="button" key={item} aria-pressed={input === item} onClick={() => setInput(item)}>{item}</button>)}</div>
-    <div className={styles.signalFunnel} aria-label="Synthesis funnel"><span>Gather</span><span>Cluster</span><span>Test</span></div>
-    <div className={styles.signalTarget}><span aria-hidden="true">◎</span><div><small>TESTABLE SIGNAL</small><strong>{input} → one question to test</strong></div></div>
+    <div className={styles.signalIllustration}>
+      <div className={styles.signalInputs} aria-label="Workshop inputs">{signalInputs.map((item, index) => { const Icon = signalIcons[index]; return <button type="button" key={item} aria-pressed={input === item} onClick={() => setInput(item)}><Icon size={19} aria-hidden="true"/><span>{item}</span></button> })}</div>
+      <div className={styles.signalFlow} aria-hidden="true"><span/><span/><span/><span/></div>
+      <div className={styles.signalFunnel} aria-label="Synthesis funnel"><span><MessageSquare size={17} aria-hidden="true"/>Gather</span><span><Users size={17} aria-hidden="true"/>Cluster</span><span><ArrowDown size={17} aria-hidden="true"/>Test</span></div>
+      <div className={styles.signalTarget}><Target size={44} strokeWidth={1.5} aria-hidden="true"/><div><small>TESTABLE SIGNAL</small><strong>{input} → one question to test</strong></div></div>
+    </div>
   </article>
 }
 
@@ -55,8 +60,8 @@ function AlignmentCanvas({ compact = false }: { compact?: boolean }) {
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="alignment">
     <header><span>ACT II · FROM INSIGHTS TO IMPACT</span><h3>Alignment</h3><p>Insight → shared direction</p></header>
     <div className={styles.alignmentLadder} aria-label="Stakeholder buy-in to outcomes ladder">
-      {[...alignmentSteps].reverse().map((item) => <button type="button" key={item.name} aria-pressed={step.name === item.name} onClick={() => setStep(item)}>{item.name}</button>)}
-      <div className={styles.stakeholderBase}><span aria-hidden="true">◌ ◌ ◌</span><strong>Stakeholder buy-in</strong></div>
+      {[...alignmentSteps].reverse().map((item) => { const Icon = item.name === 'Outcomes' ? Trophy : item.name === 'Roadmap' ? Route : item.name === 'PRD' ? ClipboardList : BarChart3; return <div className={styles.alignmentTier} key={item.name}><button type="button" aria-pressed={step.name === item.name} onClick={() => setStep(item)}><Icon size={21} aria-hidden="true"/><span>{item.name}</span></button><ArrowUp size={18} className={styles.alignmentArrow} aria-hidden="true"/></div> })}
+      <div className={styles.stakeholderBase}><Users size={27} aria-hidden="true"/><strong>Stakeholder buy-in</strong><Users size={27} aria-hidden="true"/></div>
     </div>
     <p className={styles.samSelection}><strong>{step.name}:</strong> {step.detail}</p>
   </article>
@@ -64,9 +69,17 @@ function AlignmentCanvas({ compact = false }: { compact?: boolean }) {
 
 function MomentumCanvas({ compact = false }: { compact?: boolean }) {
   const [example, setExample] = useState<(typeof momentumExamples)[number]>(momentumExamples[3])
+  const exampleIcons = [Route, MessageSquare, Bot, BrainCircuit, Megaphone] as const
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="momentum">
     <header><span>ACT III · FROM TESTING TO TRANSFORMATION</span><h3>Momentum</h3><p>Systems that compound</p></header>
-    <div className={styles.momentumStage} aria-label="Compounding product learning loop"><div className={styles.momentumWheel}><div className={styles.momentumCore}><span aria-hidden="true">↻</span><strong>Build · Test · Learn</strong></div></div><div className={styles.momentumExamples} aria-label="Product examples">{momentumExamples.map((item) => <button type="button" key={item.name} aria-pressed={example.name === item.name} onClick={() => setExample(item)}>{item.name}</button>)}</div></div>
+    <div className={styles.momentumStage} aria-label="Compounding product learning loop">
+      <div className={styles.momentumLinks} aria-hidden="true"><span/><span/><span/><span/><span/></div>
+      <div className={styles.momentumWheel}>
+        <span className={styles.momentumArrow} data-cycle-segment="1" aria-hidden="true"/><span className={styles.momentumArrow} data-cycle-segment="2" aria-hidden="true"/><span className={styles.momentumArrow} data-cycle-segment="3" aria-hidden="true"/><span className={styles.momentumArrow} data-cycle-segment="4" aria-hidden="true"/>
+        <div className={styles.momentumCore}><Sparkles size={24} aria-hidden="true"/><strong>Build · Test · Learn</strong><span>Evidence enters the next turn</span></div>
+      </div>
+      <div className={styles.momentumExamples} aria-label="Product examples">{momentumExamples.map((item, index) => { const Icon = exampleIcons[index]; return <button type="button" key={item.name} aria-pressed={example.name === item.name} onClick={() => setExample(item)}><Icon size={22} aria-hidden="true"/><span>{item.name}</span></button> })}</div>
+    </div>
     <p className={styles.samSelection}><strong>{example.name}:</strong> {example.detail}</p>
   </article>
 }

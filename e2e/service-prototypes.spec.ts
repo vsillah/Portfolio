@@ -97,6 +97,8 @@ test('native SAM workshop canvases retain source structure and original artifact
     await page.getByRole('group', { name: 'Framework views' }).getByRole('button', { name: 'Momentum' }).click()
     await expect(canvas.locator('[data-sam-act="momentum"]')).toBeVisible()
     await expect(canvas.getByText('Systems that compound')).toBeVisible()
+    await expect(canvas.locator('[data-cycle-segment]')).toHaveCount(4)
+    await expect(canvas.getByRole('img')).toHaveCount(0)
     for (const example of ['StratQuest', 'ClientQ', 'SudoPoll', 'Learning Engine', 'AI Persuasive GPT']) await expect(canvas.getByRole('button', { name: example })).toBeVisible()
     await canvas.getByRole('button', { name: 'SudoPoll' }).click()
     await expect(canvas.getByText('Test a signal with a bounded poll.')).toBeVisible()
