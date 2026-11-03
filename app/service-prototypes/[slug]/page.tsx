@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowDown, ArrowUp, BarChart3, Bot, BrainCircuit, ClipboardList, FileText, HelpCircle, MessageSquare, Route, Sparkles, Target, Trophy, Users, Megaphone } from 'lucide-react'
+import { BarChart3, Bot, BrainCircuit, ClipboardList, FileText, HelpCircle, MessageSquare, Route, Trophy, Users, Megaphone } from 'lucide-react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { prototypeForSlug } from '@/lib/service-prototypes'
@@ -33,37 +33,42 @@ const alignmentSteps = [
   { name: 'PRD', detail: 'Write the problem, evidence and decision rule in one working brief.' },
   { name: 'Roadmap', detail: 'Sequence the smallest useful test before scaling the plan.' },
   { name: 'Outcomes', detail: 'Review what changed for people and what the team learned.' },
+  { name: 'Stakeholder buy-in', detail: 'Build shared ownership before the team moves up the alignment ladder.' },
 ] as const
 const momentumExamples = [
-  { name: 'StratQuest', detail: 'Frame the next strategic question.' },
-  { name: 'ClientQ', detail: 'Bring a client question into the loop.' },
-  { name: 'SudoPoll', detail: 'Test a signal with a bounded poll.' },
-  { name: 'Learning Engine', detail: 'Carry evidence into the next cycle.' },
-  { name: 'AI Persuasive GPT', detail: 'Turn reviewed learning into a clearer message.' },
+  { name: 'StratQuest', detail: 'Frame the next strategic question.', position: 'Upper-left medallion' },
+  { name: 'ClientQ', detail: 'Bring a client question into the loop.', position: 'Top medallion' },
+  { name: 'SudoPoll', detail: 'Test a signal with a bounded poll.', position: 'Upper-right medallion' },
+  { name: 'Learning Engine', detail: 'Carry evidence into the next cycle.', position: 'Lower-left medallion' },
+  { name: 'AI Persuasive GPT', detail: 'Turn reviewed learning into a clearer message.', position: 'Lower-right medallion' },
 ] as const
+
+function SamPlate({ src, alt, width, height }: { src: string; alt: string; width: number; height: number }) {
+  return <figure className={styles.samPlate} data-sam-plate><Image src={src} alt={alt} width={width} height={height} unoptimized/></figure>
+}
 
 function SignalsCanvas({ compact = false }: { compact?: boolean }) {
   const [input, setInput] = useState<(typeof signalInputs)[number]>('Feedback')
+  const selectedIndex = signalInputs.indexOf(input)
+  const selectedDetail = ['Choose the page or prompt the team needs to investigate.', 'Group the feedback into a pattern worth testing.', 'Turn the open question into a bounded test.', 'Compare observations and look for a repeatable signal.'][selectedIndex]
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="signals">
     <header><span>ACT I · FROM BLANK PAGES TO BOLD IDEAS</span><h3>Signals</h3><p>Raw noise → clear signal</p></header>
-    <div className={styles.signalIllustration}>
-      <div className={styles.signalInputs} aria-label="Workshop inputs">{signalInputs.map((item, index) => { const Icon = signalIcons[index]; return <button type="button" key={item} aria-pressed={input === item} onClick={() => setInput(item)}><Icon size={19} aria-hidden="true"/><span>{item}</span></button> })}</div>
-      <div className={styles.signalFlow} aria-hidden="true"><span/><span/><span/><span/></div>
-      <div className={styles.signalFunnel} aria-label="Synthesis funnel"><span><MessageSquare size={17} aria-hidden="true"/>Gather</span><span><Users size={17} aria-hidden="true"/>Cluster</span><span><ArrowDown size={17} aria-hidden="true"/>Test</span></div>
-      <div className={styles.signalTarget}><Target size={44} strokeWidth={1.5} aria-hidden="true"/><div><small>TESTABLE SIGNAL</small><strong>{input} → one question to test</strong></div></div>
+    <div className={styles.samPlateLayout}>
+      <SamPlate src="/showcases/service-prototypes/v2/sam-signals-plate.png" width={1024} height={1536} alt="Ornate gold synthesis funnel gathers pages, feedback, questions and observations, then points to a luminous target."/>
+      <div className={styles.samControlPanel}><p className={styles.samPanelLabel}>Choose a workshop input</p><div className={styles.samControls} aria-label="Workshop inputs">{signalInputs.map((item, index) => { const Icon = signalIcons[index]; return <button type="button" key={item} aria-pressed={input === item} onClick={() => setInput(item)}><Icon size={18} aria-hidden="true"/><span>{item}</span></button> })}</div><div className={styles.samCallout} aria-live="polite"><span>TESTABLE SIGNAL</span><strong>{input} → one question to test</strong><p>{selectedDetail}</p></div></div>
     </div>
   </article>
 }
 
 function AlignmentCanvas({ compact = false }: { compact?: boolean }) {
   const [step, setStep] = useState<(typeof alignmentSteps)[number]>(alignmentSteps[0])
+  const alignmentIcons = [BarChart3, ClipboardList, Route, Trophy, Users] as const
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="alignment">
     <header><span>ACT II · FROM INSIGHTS TO IMPACT</span><h3>Alignment</h3><p>Insight → shared direction</p></header>
-    <div className={styles.alignmentLadder} aria-label="Stakeholder buy-in to outcomes ladder">
-      {[...alignmentSteps].reverse().map((item) => { const Icon = item.name === 'Outcomes' ? Trophy : item.name === 'Roadmap' ? Route : item.name === 'PRD' ? ClipboardList : BarChart3; return <div className={styles.alignmentTier} key={item.name}><button type="button" aria-pressed={step.name === item.name} onClick={() => setStep(item)}><Icon size={21} aria-hidden="true"/><span>{item.name}</span></button><ArrowUp size={18} className={styles.alignmentArrow} aria-hidden="true"/></div> })}
-      <div className={styles.stakeholderBase}><Users size={27} aria-hidden="true"/><strong>Stakeholder buy-in</strong><Users size={27} aria-hidden="true"/></div>
+    <div className={styles.samPlateLayout}>
+      <SamPlate src="/showcases/service-prototypes/v2/sam-alignment-plate.png" width={1060} height={1484} alt="Dimensional gold alignment pyramid: stakeholder handshakes at the base, ascending metric, PRD and roadmap platforms, and a trophy at the summit."/>
+      <div className={styles.samControlPanel}><p className={styles.samPanelLabel}>Alignment canvas</p><div className={styles.samControls} aria-label="Alignment layers">{alignmentSteps.map((item, index) => { const Icon = alignmentIcons[index]; return <button type="button" key={item.name} aria-pressed={step.name === item.name} onClick={() => setStep(item)}><Icon size={18} aria-hidden="true"/><span>{item.name}</span></button> })}</div><div className={styles.samCallout} aria-live="polite"><span>SHARED DIRECTION</span><strong>{step.name}</strong><p>{step.detail}</p></div></div>
     </div>
-    <p className={styles.samSelection}><strong>{step.name}:</strong> {step.detail}</p>
   </article>
 }
 
@@ -72,15 +77,10 @@ function MomentumCanvas({ compact = false }: { compact?: boolean }) {
   const exampleIcons = [Route, MessageSquare, Bot, BrainCircuit, Megaphone] as const
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="momentum">
     <header><span>ACT III · FROM TESTING TO TRANSFORMATION</span><h3>Momentum</h3><p>Systems that compound</p></header>
-    <div className={styles.momentumStage} aria-label="Compounding product learning loop">
-      <div className={styles.momentumLinks} aria-hidden="true"><span/><span/><span/><span/><span/></div>
-      <div className={styles.momentumWheel}>
-        <span className={styles.momentumArrow} data-cycle-segment="1" aria-hidden="true"/><span className={styles.momentumArrow} data-cycle-segment="2" aria-hidden="true"/><span className={styles.momentumArrow} data-cycle-segment="3" aria-hidden="true"/><span className={styles.momentumArrow} data-cycle-segment="4" aria-hidden="true"/>
-        <div className={styles.momentumCore}><Sparkles size={24} aria-hidden="true"/><strong>Build · Test · Learn</strong><span>Evidence enters the next turn</span></div>
-      </div>
-      <div className={styles.momentumExamples} aria-label="Product examples">{momentumExamples.map((item, index) => { const Icon = exampleIcons[index]; return <button type="button" key={item.name} aria-pressed={example.name === item.name} onClick={() => setExample(item)}><Icon size={22} aria-hidden="true"/><span>{item.name}</span></button> })}</div>
+    <div className={styles.samPlateLayout}>
+      <SamPlate src="/showcases/service-prototypes/v2/sam-momentum-plate.png" width={1254} height={1254} alt="Ornate six-segment gold compounding loop around an inner build, test and learn cycle, connected to five product medallions."/>
+      <div className={styles.samControlPanel}><p className={styles.samPanelLabel}>Explore the product medallions</p><div className={`${styles.samControls} ${styles.samMomentumControls}`} aria-label="Momentum product examples">{momentumExamples.map((item, index) => { const Icon = exampleIcons[index]; return <button type="button" key={item.name} aria-pressed={example.name === item.name} onClick={() => setExample(item)}><Icon size={18} aria-hidden="true"/><span>{item.name}</span><small>{item.position}</small></button> })}</div><div className={styles.samCallout} aria-live="polite"><span>COMPOUNDING LEARNING</span><strong>{example.name}</strong><p>{example.detail}</p></div></div>
     </div>
-    <p className={styles.samSelection}><strong>{example.name}:</strong> {example.detail}</p>
   </article>
 }
 

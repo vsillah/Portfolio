@@ -70,12 +70,22 @@ test('canonical Accelerated cover stays in the cohort hero without hiding the wo
   }
 })
 
-test('native SAM workshop canvases retain source structure and original artifact access', async ({ page }) => {
+test('SAM illustration plates load while all exact controls stay outside the artwork', async ({ page }) => {
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/service-prototypes/accelerated-cohort')
     const canvas = page.getByTestId('sam-artifact')
-    await expect(canvas.locator('img')).toHaveCount(0)
+    const plates = canvas.locator('[data-sam-plate] img')
+    await expect(plates).toHaveCount(3)
+    const naturalSizes = await plates.evaluateAll((images) => images.map((el) => {
+      const image = el as HTMLImageElement
+      return { width: image.naturalWidth, height: image.naturalHeight }
+    }))
+    expect(naturalSizes).toEqual([{ width: 1024, height: 1536 }, { width: 1060, height: 1484 }, { width: 1254, height: 1254 }])
+    await expect(canvas.locator('[data-sam-plate] *:not(img)')).toHaveCount(0)
+    await expect(canvas.locator('[data-sam-plate] button')).toHaveCount(0)
+    await expect(canvas.locator('[data-cycle-segment]')).toHaveCount(0)
+    await expect(canvas.locator('[class*=signalFunnel], [class*=alignmentTier], [class*=momentumWheel]')).toHaveCount(0)
     await expect(canvas.locator('[data-sam-view="full"]')).toBeVisible()
     await expect(canvas.locator('[data-sam-act]')).toHaveCount(3)
     await expect(canvas.getByText('Structure It')).toBeVisible()
@@ -84,21 +94,22 @@ test('native SAM workshop canvases retain source structure and original artifact
     await page.getByRole('group', { name: 'Framework views' }).getByRole('button', { name: 'Signals' }).click()
     await expect(canvas.locator('[data-sam-act="signals"]')).toBeVisible()
     await expect(canvas.locator('[data-sam-act]')).toHaveCount(1)
-    await expect(canvas.locator('img')).toHaveCount(0)
+    await expect(canvas.locator('[data-sam-plate] img')).toHaveAttribute('src', /v2\/sam-signals-plate\.png/)
+    await expect(canvas.locator('[data-sam-plate] img')).toHaveJSProperty('complete', true)
+    await expect(canvas.locator('[data-sam-plate] button')).toHaveCount(0)
     await expect(canvas.getByText('Raw noise → clear signal')).toBeVisible()
     await canvas.getByRole('button', { name: 'Questions' }).click()
     await expect(canvas.getByText('Questions → one question to test')).toBeVisible()
     await page.getByRole('group', { name: 'Framework views' }).getByRole('button', { name: 'Alignment' }).click()
     await expect(canvas.locator('[data-sam-act="alignment"]')).toBeVisible()
-    await expect(canvas.getByText('Stakeholder buy-in')).toBeVisible()
-    for (const step of ['Metrics', 'PRD', 'Roadmap', 'Outcomes']) await expect(canvas.getByRole('button', { name: step })).toBeVisible()
+    await expect(canvas.locator('[data-sam-plate] img')).toHaveAttribute('src', /v2\/sam-alignment-plate\.png/)
+    for (const step of ['Metrics', 'PRD', 'Roadmap', 'Outcomes', 'Stakeholder buy-in']) await expect(canvas.getByRole('button', { name: step })).toBeVisible()
     await canvas.getByRole('button', { name: 'Roadmap' }).click()
     await expect(canvas.getByText('Sequence the smallest useful test')).toBeVisible()
     await page.getByRole('group', { name: 'Framework views' }).getByRole('button', { name: 'Momentum' }).click()
     await expect(canvas.locator('[data-sam-act="momentum"]')).toBeVisible()
     await expect(canvas.getByText('Systems that compound')).toBeVisible()
-    await expect(canvas.locator('[data-cycle-segment]')).toHaveCount(4)
-    await expect(canvas.getByRole('img')).toHaveCount(0)
+    await expect(canvas.locator('[data-sam-plate] img')).toHaveAttribute('src', /v2\/sam-momentum-plate\.png/)
     for (const example of ['StratQuest', 'ClientQ', 'SudoPoll', 'Learning Engine', 'AI Persuasive GPT']) await expect(canvas.getByRole('button', { name: example })).toBeVisible()
     await canvas.getByRole('button', { name: 'SudoPoll' }).click()
     await expect(canvas.getByText('Test a signal with a bounded poll.')).toBeVisible()

@@ -12,6 +12,13 @@ await fs.mkdir(output, { recursive: true })
 await fs.mkdir(evidence, { recursive: true })
 const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', args: ['--no-sandbox'] })
 const manifest = []
+async function primeIllustrations(page) {
+  for (const image of await page.locator('[data-sam-plate] img').all()) {
+    await image.scrollIntoViewIfNeeded()
+    await image.evaluate((element) => element.decode())
+  }
+  await page.evaluate(() => window.scrollTo(0, 0))
+}
 for (const slug of slugs) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
   for (let view = 1; view <= 3; view++) {
@@ -27,6 +34,7 @@ for (const slug of slugs) {
   for (const width of [768, 390]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto(`${origin}/service-prototypes/${slug}?view=1`, { waitUntil: 'networkidle' })
+    await primeIllustrations(page)
     await page.screenshot({ path: path.join(evidence, `${slug}-${width}.png`), fullPage: true, animations: 'disabled' })
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)
     if (overflow) throw new Error(`${slug} overflows at ${width}px`)
@@ -35,6 +43,7 @@ for (const slug of slugs) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto(`${origin}/service-prototypes/${slug}?view=1`, { waitUntil: 'networkidle' })
     if (await page.getByRole('button', { name: 'Dark mode' }).isVisible()) await page.getByRole('button', { name: 'Dark mode' }).click()
+    await primeIllustrations(page)
     const darkCapture = await page.screenshot({ fullPage: true, animations: 'disabled' })
     await sharp(darkCapture).webp({ quality: 88 }).toFile(path.join(evidence, `${slug}-${width}-dark.webp`))
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)
