@@ -1,0 +1,588 @@
+{
+  "id": "L01",
+  "title": "Build smarter, stay human",
+  "runtime_seconds": 540,
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L01.md",
+  "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+  "scenes": [
+    {
+      "id": "L01-01",
+      "title": "The blank document",
+      "start_seconds": 0,
+      "end_seconds": 75,
+      "duration_seconds": 75,
+      "narration": "The document is open. At the top it says, Q3 Innovation Plan. The cursor blinks. Your inbox is full of requests, your team wants a direction, and somebody wants a polished plan by Friday. I know that room. The pressure makes the blank page feel like the problem. So you open a tool, ask for ideas, and in thirty seconds you have a confident looking answer. Now what? Who will decide which idea matters? What evidence would make that choice responsible? What data did you put into the tool to get there? A beautiful page can hide those questions for a little while. It cannot answer them. In the opening of Accelerated, I start with that blinking cursor because it is familiar. The book begins with product teams carrying noise, conflicting priorities, and documents that do not move decisions. The work here is to give the team a way to learn, choose, and keep its judgment when the page fills up.",
+      "narration_sha256": "f3acd4c96add4be7ed259f5c85e3e4c615e8244876b565f5da66818eeecea147",
+      "on_screen_copy": "Q3 Innovation Plan",
+      "asset_refs": []
+    },
+    {
+      "id": "L01-02",
+      "title": "What a product system does",
+      "start_seconds": 75,
+      "end_seconds": 165,
+      "duration_seconds": 90,
+      "narration": "A product system sounds larger than it needs to be. Think about the last idea that arrived in a meeting. Someone noticed a customer problem. Someone else had a competing story. A third person asked for a number nobody had. The team left with another document to write. A system gives those moments a path. It helps you record the signal, name the decision, state what you believe, and come back to what happened. AI can help organize messy input, test the shape of an argument, and make a first draft. The judgment still belongs to people who understand the consequences. That is the argument in the first chapter. I describe AI as a strategy partner, a signal amplifier, and a structure builder. Those are jobs it may help with, under the right conditions. They are not permission to trust every output. If it gives you five polished options, you still need to ask who benefits, what is missing, and which option you can test safely. Speed can create room to think. It can also fill that room with more noise.",
+      "narration_sha256": "f6995f008d9873bb6537132003702d201349fd3e8e7cf283cb357db6d563e37f",
+      "on_screen_copy": "Signal → decision → learning",
+      "asset_refs": [
+        "sam_map",
+        "signals"
+      ]
+    },
+    {
+      "id": "L01-03",
+      "title": "The map, with the book underneath",
+      "start_seconds": 165,
+      "end_seconds": 255,
+      "duration_seconds": 90,
+      "narration": "Look at this map. Signals. Alignment. Momentum. It is a way to navigate the workshop. First, take the raw material coming at you and find a question worth answering. Then give the people carrying the decision a shared direction. Then build a rhythm that lets the next round of evidence change the plan. The book organizes its printed chapters as Systems, Align, and Momentum. The workshop uses the three labels on this existing infographic as a visual guide. You will see where those paths cross; the graphic is not a replacement for the chapters. In these first lessons we stay close to the signal side. We will choose one decision, work backward to evidence, and ask what a small test could teach us. There is a human thread through the book, too: Sam, a product manager who has talent but keeps getting pulled into reactive work. That story makes the pressure visible. It is a teaching story from the book, not a claim about a current customer. Keep that distinction in view as we move between story, worksheet, and public proof.",
+      "narration_sha256": "0276dc441f580ed9245149553117820685d33cdfeb89e412a4cedaab2f1d84a8",
+      "on_screen_copy": "Signals / Alignment / Momentum",
+      "asset_refs": [
+        "sam_map"
+      ]
+    },
+    {
+      "id": "L01-04",
+      "title": "Safety before tools",
+      "start_seconds": 255,
+      "end_seconds": 345,
+      "duration_seconds": 90,
+      "narration": "Before you try any prompt, decide what information can leave your desk. The book's data-safety note comes before the chapters for a reason. Customer details, finances, internal strategy, and company records can carry obligations that a convenient text box does not erase. My working rule for this course is simple: use public information, material your organization has approved for that use, or a made-up example. If you are unsure, stop and check the policy that governs your work. Do not put restricted material into an external model to make the worksheet feel realistic. We can learn the method with a synthetic case. Imagine a team trying to improve the first week for new members. We can invent a harmless request list and test our reasoning without using anyone's account, message, or history. On the screen, watch the example move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this particular tool and purpose, not merely available to you at work. This boundary follows the decision file through every lesson. It is part of product judgment, not an appendix.",
+      "narration_sha256": "b1f2ef67443388a19936e2b8c8bd57367497b6c9ccce5e4d2c01975cd173fab4",
+      "on_screen_copy": "Public | approved for this use | restricted",
+      "asset_refs": []
+    },
+    {
+      "id": "L01-05",
+      "title": "Make the cover sheet",
+      "start_seconds": 345,
+      "end_seconds": 440,
+      "duration_seconds": 95,
+      "narration": "Let's make the first page of your decision file. It starts with a decision, not a tool. Write one sentence: “We need to decide whether to...” It could be whether to change an onboarding step, simplify a service request, or test a different way to explain an offer. Keep the scope small enough that someone could make a choice after seeing evidence. Now write who owns that choice and when it must be made. If nobody owns it, name the role you need to ask. Underneath, write what would go wrong if you guessed. Then mark the inputs you might want to use. Public, approved for this purpose, or restricted. If the real inputs are restricted, make a safe stand-in. Preserve the shape of the problem; remove the person and the private facts. You are allowed to pause the video while you write. When you resume, you should have a cover sheet a colleague could read without asking what you are trying to decide. You should also know which inputs will stay out of any AI tool. That is a useful first result, even if the plan itself is still unfinished.",
+      "narration_sha256": "6100e707b2f0ace758ad160d1b5e249098b3ea42fd533247bf2312e87929d2a0",
+      "on_screen_copy": "Decision owner",
+      "asset_refs": []
+    },
+    {
+      "id": "L01-06",
+      "title": "Human ownership",
+      "start_seconds": 440,
+      "end_seconds": 540,
+      "duration_seconds": 100,
+      "narration": "Take one more look at your sentence. Could a fast draft make that decision for you? Probably not. It might help you list options, put questions in order, or notice that an assumption is doing too much work. But a person still has to decide what matters and what risk the team is willing to carry. That is why I ask you to keep the decision file. A chat window can be useful for a moment; the file makes the reasoning visible when the moment has passed. Write one line under the cover: “What would I need to learn before I choose?” Do not answer it yet. Let the question sit. In the next lesson we will bring that question into a crowded planning room. We will look at three possible paths and choose one worth testing. If you have only a vague problem now, that is enough. A good first page does not pretend to know the answer. It tells the truth about the decision, the evidence you have, and the information you have permission to use. Keep that first page open. The rest of this workshop will build on it.",
+      "narration_sha256": "60e9176929602130979ea378f3a8f605d88f4be8aa0818dcc4f5136f6c4ef17d",
+      "on_screen_copy": "What must we learn before choosing?",
+      "asset_refs": [
+        "signals"
+      ]
+    }
+  ],
+  "cues": [
+    {
+      "start": 0.0,
+      "end": 5.59,
+      "text": "The document is open. At the top it says, Q3 Innovation Plan.",
+      "scene": "L01-01"
+    },
+    {
+      "start": 5.59,
+      "end": 12.578,
+      "text": "The cursor blinks. Your inbox is full of requests, your team wants a direction, and",
+      "scene": "L01-01"
+    },
+    {
+      "start": 12.578,
+      "end": 17.702,
+      "text": "somebody wants a polished plan by Friday. I know that room.",
+      "scene": "L01-01"
+    },
+    {
+      "start": 17.702,
+      "end": 22.36,
+      "text": "The pressure makes the blank page feel like the problem.",
+      "scene": "L01-01"
+    },
+    {
+      "start": 22.36,
+      "end": 29.348,
+      "text": "So you open a tool, ask for ideas, and in thirty seconds you have a",
+      "scene": "L01-01"
+    },
+    {
+      "start": 29.348,
+      "end": 34.472,
+      "text": "confident looking answer. Now what? Who will decide which idea matters?",
+      "scene": "L01-01"
+    },
+    {
+      "start": 34.472,
+      "end": 41.46,
+      "text": "What evidence would make that choice responsible? What data did you put into the tool",
+      "scene": "L01-01"
+    },
+    {
+      "start": 41.46,
+      "end": 47.981,
+      "text": "to get there? A beautiful page can hide those questions for a little while.",
+      "scene": "L01-01"
+    },
+    {
+      "start": 47.981,
+      "end": 54.969,
+      "text": "It cannot answer them. In the opening of Accelerated, I start with that blinking cursor",
+      "scene": "L01-01"
+    },
+    {
+      "start": 54.969,
+      "end": 61.957,
+      "text": "because it is familiar. The book begins with product teams carrying noise, conflicting priorities, and",
+      "scene": "L01-01"
+    },
+    {
+      "start": 61.957,
+      "end": 68.944,
+      "text": "documents that do not move decisions. The work here is to give the team a",
+      "scene": "L01-01"
+    },
+    {
+      "start": 68.944,
+      "end": 75.0,
+      "text": "way to learn, choose, and keep its judgment when the page fills up.",
+      "scene": "L01-01"
+    },
+    {
+      "start": 75.0,
+      "end": 79.972,
+      "text": "A product system sounds larger than it needs to be.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 79.972,
+      "end": 84.945,
+      "text": "Think about the last idea that arrived in a meeting.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 84.945,
+      "end": 90.414,
+      "text": "Someone noticed a customer problem. Someone else had a competing story.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 90.414,
+      "end": 97.873,
+      "text": "A third person asked for a number nobody had. The team left with another document",
+      "scene": "L01-02"
+    },
+    {
+      "start": 97.873,
+      "end": 105.331,
+      "text": "to write. A system gives those moments a path. It helps you record the signal,",
+      "scene": "L01-02"
+    },
+    {
+      "start": 105.331,
+      "end": 111.796,
+      "text": "name the decision, state what you believe, and come back to what happened.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 111.796,
+      "end": 119.254,
+      "text": "AI can help organize messy input, test the shape of an argument, and make a",
+      "scene": "L01-02"
+    },
+    {
+      "start": 119.254,
+      "end": 125.221,
+      "text": "first draft. The judgment still belongs to people who understand the consequences.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 125.221,
+      "end": 132.68,
+      "text": "That is the argument in the first chapter. I describe AI as a strategy partner,",
+      "scene": "L01-02"
+    },
+    {
+      "start": 132.68,
+      "end": 140.138,
+      "text": "a signal amplifier, and a structure builder. Those are jobs it may help with, under",
+      "scene": "L01-02"
+    },
+    {
+      "start": 140.138,
+      "end": 145.608,
+      "text": "the right conditions. They are not permission to trust every output.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 145.608,
+      "end": 153.066,
+      "text": "If it gives you five polished options, you still need to ask who benefits, what",
+      "scene": "L01-02"
+    },
+    {
+      "start": 153.066,
+      "end": 160.525,
+      "text": "is missing, and which option you can test safely. Speed can create room to think.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 160.525,
+      "end": 165.0,
+      "text": "It can also fill that room with more noise.",
+      "scene": "L01-02"
+    },
+    {
+      "start": 165.0,
+      "end": 172.459,
+      "text": "Look at this map. Signals. Alignment. Momentum. It is a way to navigate the workshop.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 172.459,
+      "end": 179.42,
+      "text": "First, take the raw material coming at you and find a question worth answering.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 179.42,
+      "end": 184.392,
+      "text": "Then give the people carrying the decision a shared direction.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 184.392,
+      "end": 191.354,
+      "text": "Then build a rhythm that lets the next round of evidence change the plan.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 191.354,
+      "end": 196.823,
+      "text": "The book organizes its printed chapters as Systems, Align, and Momentum.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 196.823,
+      "end": 203.785,
+      "text": "The workshop uses the three labels on this existing infographic as a visual guide.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 203.785,
+      "end": 211.243,
+      "text": "You will see where those paths cross; the graphic is not a replacement for the",
+      "scene": "L01-03"
+    },
+    {
+      "start": 211.243,
+      "end": 217.21,
+      "text": "chapters. In these first lessons we stay close to the signal side.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 217.21,
+      "end": 224.669,
+      "text": "We will choose one decision, work backward to evidence, and ask what a small test",
+      "scene": "L01-03"
+    },
+    {
+      "start": 224.669,
+      "end": 232.127,
+      "text": "could teach us. There is a human thread through the book, too: Sam, a product",
+      "scene": "L01-03"
+    },
+    {
+      "start": 232.127,
+      "end": 237.597,
+      "text": "manager who has talent but keeps getting pulled into reactive work.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 237.597,
+      "end": 245.055,
+      "text": "That story makes the pressure visible. It is a teaching story from the book, not",
+      "scene": "L01-03"
+    },
+    {
+      "start": 245.055,
+      "end": 252.514,
+      "text": "a claim about a current customer. Keep that distinction in view as we move between",
+      "scene": "L01-03"
+    },
+    {
+      "start": 252.514,
+      "end": 255.0,
+      "text": "story, worksheet, and public proof.",
+      "scene": "L01-03"
+    },
+    {
+      "start": 255.0,
+      "end": 260.934,
+      "text": "Before you try any prompt, decide what information can leave your desk.",
+      "scene": "L01-04"
+    },
+    {
+      "start": 260.934,
+      "end": 266.374,
+      "text": "The book's data-safety note comes before the chapters for a reason.",
+      "scene": "L01-04"
+    },
+    {
+      "start": 266.374,
+      "end": 273.791,
+      "text": "Customer details, finances, internal strategy, and company records can carry obligations that a convenient text",
+      "scene": "L01-04"
+    },
+    {
+      "start": 273.791,
+      "end": 281.209,
+      "text": "box does not erase. My working rule for this course is simple: use public information,",
+      "scene": "L01-04"
+    },
+    {
+      "start": 281.209,
+      "end": 287.143,
+      "text": "material your organization has approved for that use, or a made-up example.",
+      "scene": "L01-04"
+    },
+    {
+      "start": 287.143,
+      "end": 293.571,
+      "text": "If you are unsure, stop and check the policy that governs your work.",
+      "scene": "L01-04"
+    },
+    {
+      "start": 293.571,
+      "end": 300.989,
+      "text": "Do not put restricted material into an external model to make the worksheet feel realistic.",
+      "scene": "L01-04"
+    },
+    {
+      "start": 300.989,
+      "end": 308.407,
+      "text": "We can learn the method with a synthetic case. Imagine a team trying to improve",
+      "scene": "L01-04"
+    },
+    {
+      "start": 308.407,
+      "end": 315.824,
+      "text": "the first week for new members. We can invent a harmless request list and test",
+      "scene": "L01-04"
+    },
+    {
+      "start": 315.824,
+      "end": 323.242,
+      "text": "our reasoning without using anyone's account, message, or history. On the screen, watch the example",
+      "scene": "L01-04"
+    },
+    {
+      "start": 323.242,
+      "end": 330.659,
+      "text": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this",
+      "scene": "L01-04"
+    },
+    {
+      "start": 330.659,
+      "end": 336.099,
+      "text": "particular tool and purpose, not merely available to you at work.",
+      "scene": "L01-04"
+    },
+    {
+      "start": 336.099,
+      "end": 343.516,
+      "text": "This boundary follows the decision file through every lesson. It is part of product judgment,",
+      "scene": "L01-04"
+    },
+    {
+      "start": 343.516,
+      "end": 345.0,
+      "text": "not an appendix.",
+      "scene": "L01-04"
+    },
+    {
+      "start": 345.0,
+      "end": 352.461,
+      "text": "Let's make the first page of your decision file. It starts with a decision, not",
+      "scene": "L01-05"
+    },
+    {
+      "start": 352.461,
+      "end": 359.921,
+      "text": "a tool. Write one sentence: “We need to decide whether to...” It could be whether",
+      "scene": "L01-05"
+    },
+    {
+      "start": 359.921,
+      "end": 367.382,
+      "text": "to change an onboarding step, simplify a service request, or test a different way to",
+      "scene": "L01-05"
+    },
+    {
+      "start": 367.382,
+      "end": 374.843,
+      "text": "explain an offer. Keep the scope small enough that someone could make a choice after",
+      "scene": "L01-05"
+    },
+    {
+      "start": 374.843,
+      "end": 381.806,
+      "text": "seeing evidence. Now write who owns that choice and when it must be made.",
+      "scene": "L01-05"
+    },
+    {
+      "start": 381.806,
+      "end": 387.277,
+      "text": "If nobody owns it, name the role you need to ask.",
+      "scene": "L01-05"
+    },
+    {
+      "start": 387.277,
+      "end": 394.738,
+      "text": "Underneath, write what would go wrong if you guessed. Then mark the inputs you might",
+      "scene": "L01-05"
+    },
+    {
+      "start": 394.738,
+      "end": 399.712,
+      "text": "want to use. Public, approved for this purpose, or restricted.",
+      "scene": "L01-05"
+    },
+    {
+      "start": 399.712,
+      "end": 404.686,
+      "text": "If the real inputs are restricted, make a safe stand-in.",
+      "scene": "L01-05"
+    },
+    {
+      "start": 404.686,
+      "end": 411.152,
+      "text": "Preserve the shape of the problem; remove the person and the private facts.",
+      "scene": "L01-05"
+    },
+    {
+      "start": 411.152,
+      "end": 416.126,
+      "text": "You are allowed to pause the video while you write.",
+      "scene": "L01-05"
+    },
+    {
+      "start": 416.126,
+      "end": 423.586,
+      "text": "When you resume, you should have a cover sheet a colleague could read without asking",
+      "scene": "L01-05"
+    },
+    {
+      "start": 423.586,
+      "end": 431.047,
+      "text": "what you are trying to decide. You should also know which inputs will stay out",
+      "scene": "L01-05"
+    },
+    {
+      "start": 431.047,
+      "end": 438.508,
+      "text": "of any AI tool. That is a useful first result, even if the plan itself",
+      "scene": "L01-05"
+    },
+    {
+      "start": 438.508,
+      "end": 440.0,
+      "text": "is still unfinished.",
+      "scene": "L01-05"
+    },
+    {
+      "start": 440.0,
+      "end": 447.812,
+      "text": "Take one more look at your sentence. Could a fast draft make that decision for",
+      "scene": "L01-06"
+    },
+    {
+      "start": 447.812,
+      "end": 455.625,
+      "text": "you? Probably not. It might help you list options, put questions in order, or notice",
+      "scene": "L01-06"
+    },
+    {
+      "start": 455.625,
+      "end": 463.438,
+      "text": "that an assumption is doing too much work. But a person still has to decide",
+      "scene": "L01-06"
+    },
+    {
+      "start": 463.438,
+      "end": 469.167,
+      "text": "what matters and what risk the team is willing to carry.",
+      "scene": "L01-06"
+    },
+    {
+      "start": 469.167,
+      "end": 474.896,
+      "text": "That is why I ask you to keep the decision file.",
+      "scene": "L01-06"
+    },
+    {
+      "start": 474.896,
+      "end": 482.708,
+      "text": "A chat window can be useful for a moment; the file makes the reasoning visible",
+      "scene": "L01-06"
+    },
+    {
+      "start": 482.708,
+      "end": 490.521,
+      "text": "when the moment has passed. Write one line under the cover: “What would I need",
+      "scene": "L01-06"
+    },
+    {
+      "start": 490.521,
+      "end": 495.729,
+      "text": "to learn before I choose?” Do not answer it yet.",
+      "scene": "L01-06"
+    },
+    {
+      "start": 495.729,
+      "end": 503.542,
+      "text": "Let the question sit. In the next lesson we will bring that question into a",
+      "scene": "L01-06"
+    },
+    {
+      "start": 503.542,
+      "end": 511.354,
+      "text": "crowded planning room. We will look at three possible paths and choose one worth testing.",
+      "scene": "L01-06"
+    },
+    {
+      "start": 511.354,
+      "end": 517.083,
+      "text": "If you have only a vague problem now, that is enough.",
+      "scene": "L01-06"
+    },
+    {
+      "start": 517.083,
+      "end": 522.812,
+      "text": "A good first page does not pretend to know the answer.",
+      "scene": "L01-06"
+    },
+    {
+      "start": 522.812,
+      "end": 530.625,
+      "text": "It tells the truth about the decision, the evidence you have, and the information you",
+      "scene": "L01-06"
+    },
+    {
+      "start": 530.625,
+      "end": 538.438,
+      "text": "have permission to use. Keep that first page open. The rest of this workshop will",
+      "scene": "L01-06"
+    },
+    {
+      "start": 538.438,
+      "end": 540.0,
+      "text": "build on it.",
+      "scene": "L01-06"
+    }
+  ]
+}

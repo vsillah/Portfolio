@@ -1,0 +1,336 @@
+1
+00:00:00,000 --> 00:00:05,590
+The document is open. At the top it says, Q3 Innovation Plan.
+
+2
+00:00:05,590 --> 00:00:12,578
+The cursor blinks. Your inbox is full of requests, your team wants a direction, and
+
+3
+00:00:12,578 --> 00:00:17,702
+somebody wants a polished plan by Friday. I know that room.
+
+4
+00:00:17,702 --> 00:00:22,360
+The pressure makes the blank page feel like the problem.
+
+5
+00:00:22,360 --> 00:00:29,348
+So you open a tool, ask for ideas, and in thirty seconds you have a
+
+6
+00:00:29,348 --> 00:00:34,472
+confident looking answer. Now what? Who will decide which idea matters?
+
+7
+00:00:34,472 --> 00:00:41,460
+What evidence would make that choice responsible? What data did you put into the tool
+
+8
+00:00:41,460 --> 00:00:47,981
+to get there? A beautiful page can hide those questions for a little while.
+
+9
+00:00:47,981 --> 00:00:54,969
+It cannot answer them. In the opening of Accelerated, I start with that blinking cursor
+
+10
+00:00:54,969 --> 00:01:01,957
+because it is familiar. The book begins with product teams carrying noise, conflicting priorities, and
+
+11
+00:01:01,957 --> 00:01:08,944
+documents that do not move decisions. The work here is to give the team a
+
+12
+00:01:08,944 --> 00:01:15,000
+way to learn, choose, and keep its judgment when the page fills up.
+
+13
+00:01:15,000 --> 00:01:19,972
+A product system sounds larger than it needs to be.
+
+14
+00:01:19,972 --> 00:01:24,945
+Think about the last idea that arrived in a meeting.
+
+15
+00:01:24,945 --> 00:01:30,414
+Someone noticed a customer problem. Someone else had a competing story.
+
+16
+00:01:30,414 --> 00:01:37,873
+A third person asked for a number nobody had. The team left with another document
+
+17
+00:01:37,873 --> 00:01:45,331
+to write. A system gives those moments a path. It helps you record the signal,
+
+18
+00:01:45,331 --> 00:01:51,796
+name the decision, state what you believe, and come back to what happened.
+
+19
+00:01:51,796 --> 00:01:59,254
+AI can help organize messy input, test the shape of an argument, and make a
+
+20
+00:01:59,254 --> 00:02:05,221
+first draft. The judgment still belongs to people who understand the consequences.
+
+21
+00:02:05,221 --> 00:02:12,680
+That is the argument in the first chapter. I describe AI as a strategy partner,
+
+22
+00:02:12,680 --> 00:02:20,138
+a signal amplifier, and a structure builder. Those are jobs it may help with, under
+
+23
+00:02:20,138 --> 00:02:25,608
+the right conditions. They are not permission to trust every output.
+
+24
+00:02:25,608 --> 00:02:33,066
+If it gives you five polished options, you still need to ask who benefits, what
+
+25
+00:02:33,066 --> 00:02:40,525
+is missing, and which option you can test safely. Speed can create room to think.
+
+26
+00:02:40,525 --> 00:02:45,000
+It can also fill that room with more noise.
+
+27
+00:02:45,000 --> 00:02:52,459
+Look at this map. Signals. Alignment. Momentum. It is a way to navigate the workshop.
+
+28
+00:02:52,459 --> 00:02:59,420
+First, take the raw material coming at you and find a question worth answering.
+
+29
+00:02:59,420 --> 00:03:04,392
+Then give the people carrying the decision a shared direction.
+
+30
+00:03:04,392 --> 00:03:11,354
+Then build a rhythm that lets the next round of evidence change the plan.
+
+31
+00:03:11,354 --> 00:03:16,823
+The book organizes its printed chapters as Systems, Align, and Momentum.
+
+32
+00:03:16,823 --> 00:03:23,785
+The workshop uses the three labels on this existing infographic as a visual guide.
+
+33
+00:03:23,785 --> 00:03:31,243
+You will see where those paths cross; the graphic is not a replacement for the
+
+34
+00:03:31,243 --> 00:03:37,210
+chapters. In these first lessons we stay close to the signal side.
+
+35
+00:03:37,210 --> 00:03:44,669
+We will choose one decision, work backward to evidence, and ask what a small test
+
+36
+00:03:44,669 --> 00:03:52,127
+could teach us. There is a human thread through the book, too: Sam, a product
+
+37
+00:03:52,127 --> 00:03:57,597
+manager who has talent but keeps getting pulled into reactive work.
+
+38
+00:03:57,597 --> 00:04:05,055
+That story makes the pressure visible. It is a teaching story from the book, not
+
+39
+00:04:05,055 --> 00:04:12,514
+a claim about a current customer. Keep that distinction in view as we move between
+
+40
+00:04:12,514 --> 00:04:15,000
+story, worksheet, and public proof.
+
+41
+00:04:15,000 --> 00:04:20,934
+Before you try any prompt, decide what information can leave your desk.
+
+42
+00:04:20,934 --> 00:04:26,374
+The book's data-safety note comes before the chapters for a reason.
+
+43
+00:04:26,374 --> 00:04:33,791
+Customer details, finances, internal strategy, and company records can carry obligations that a convenient text
+
+44
+00:04:33,791 --> 00:04:41,209
+box does not erase. My working rule for this course is simple: use public information,
+
+45
+00:04:41,209 --> 00:04:47,143
+material your organization has approved for that use, or a made-up example.
+
+46
+00:04:47,143 --> 00:04:53,571
+If you are unsure, stop and check the policy that governs your work.
+
+47
+00:04:53,571 --> 00:05:00,989
+Do not put restricted material into an external model to make the worksheet feel realistic.
+
+48
+00:05:00,989 --> 00:05:08,407
+We can learn the method with a synthetic case. Imagine a team trying to improve
+
+49
+00:05:08,407 --> 00:05:15,824
+the first week for new members. We can invent a harmless request list and test
+
+50
+00:05:15,824 --> 00:05:23,242
+our reasoning without using anyone's account, message, or history. On the screen, watch the example
+
+51
+00:05:23,242 --> 00:05:30,659
+move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this
+
+52
+00:05:30,659 --> 00:05:36,099
+particular tool and purpose, not merely available to you at work.
+
+53
+00:05:36,099 --> 00:05:43,516
+This boundary follows the decision file through every lesson. It is part of product judgment,
+
+54
+00:05:43,516 --> 00:05:45,000
+not an appendix.
+
+55
+00:05:45,000 --> 00:05:52,461
+Let's make the first page of your decision file. It starts with a decision, not
+
+56
+00:05:52,461 --> 00:05:59,921
+a tool. Write one sentence: “We need to decide whether to...” It could be whether
+
+57
+00:05:59,921 --> 00:06:07,382
+to change an onboarding step, simplify a service request, or test a different way to
+
+58
+00:06:07,382 --> 00:06:14,843
+explain an offer. Keep the scope small enough that someone could make a choice after
+
+59
+00:06:14,843 --> 00:06:21,806
+seeing evidence. Now write who owns that choice and when it must be made.
+
+60
+00:06:21,806 --> 00:06:27,277
+If nobody owns it, name the role you need to ask.
+
+61
+00:06:27,277 --> 00:06:34,738
+Underneath, write what would go wrong if you guessed. Then mark the inputs you might
+
+62
+00:06:34,738 --> 00:06:39,712
+want to use. Public, approved for this purpose, or restricted.
+
+63
+00:06:39,712 --> 00:06:44,686
+If the real inputs are restricted, make a safe stand-in.
+
+64
+00:06:44,686 --> 00:06:51,152
+Preserve the shape of the problem; remove the person and the private facts.
+
+65
+00:06:51,152 --> 00:06:56,126
+You are allowed to pause the video while you write.
+
+66
+00:06:56,126 --> 00:07:03,586
+When you resume, you should have a cover sheet a colleague could read without asking
+
+67
+00:07:03,586 --> 00:07:11,047
+what you are trying to decide. You should also know which inputs will stay out
+
+68
+00:07:11,047 --> 00:07:18,508
+of any AI tool. That is a useful first result, even if the plan itself
+
+69
+00:07:18,508 --> 00:07:20,000
+is still unfinished.
+
+70
+00:07:20,000 --> 00:07:27,812
+Take one more look at your sentence. Could a fast draft make that decision for
+
+71
+00:07:27,812 --> 00:07:35,625
+you? Probably not. It might help you list options, put questions in order, or notice
+
+72
+00:07:35,625 --> 00:07:43,438
+that an assumption is doing too much work. But a person still has to decide
+
+73
+00:07:43,438 --> 00:07:49,167
+what matters and what risk the team is willing to carry.
+
+74
+00:07:49,167 --> 00:07:54,896
+That is why I ask you to keep the decision file.
+
+75
+00:07:54,896 --> 00:08:02,708
+A chat window can be useful for a moment; the file makes the reasoning visible
+
+76
+00:08:02,708 --> 00:08:10,521
+when the moment has passed. Write one line under the cover: “What would I need
+
+77
+00:08:10,521 --> 00:08:15,729
+to learn before I choose?” Do not answer it yet.
+
+78
+00:08:15,729 --> 00:08:23,542
+Let the question sit. In the next lesson we will bring that question into a
+
+79
+00:08:23,542 --> 00:08:31,354
+crowded planning room. We will look at three possible paths and choose one worth testing.
+
+80
+00:08:31,354 --> 00:08:37,083
+If you have only a vague problem now, that is enough.
+
+81
+00:08:37,083 --> 00:08:42,812
+A good first page does not pretend to know the answer.
+
+82
+00:08:42,812 --> 00:08:50,625
+It tells the truth about the decision, the evidence you have, and the information you
+
+83
+00:08:50,625 --> 00:08:58,438
+have permission to use. Keep that first page open. The rest of this workshop will
+
+84
+00:08:58,438 --> 00:09:00,000
+build on it.
+

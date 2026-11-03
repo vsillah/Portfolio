@@ -1,0 +1,53 @@
+{
+  "lesson_id": "L01",
+  "classification": "public or synthetic only",
+  "assets": [
+    {
+      "id": "book-cover",
+      "path": "public/accelerated_cover_ebook.webp",
+      "role": "lesson context",
+      "status": "repository public asset",
+      "sha256": "4a3406389e73fb919ba2c005475a8c707060103cee8b589ac16c8e68e42ab78d"
+    },
+    {
+      "id": "sam-map",
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "role": "full SAM map for scenes 2 and 3",
+      "status": "approved existing art",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6"
+    },
+    {
+      "id": "signals-plate",
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "role": "scene 6 hold",
+      "status": "approved existing art",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c"
+    },
+    {
+      "id": "q3-document",
+      "path": "in-code synthetic card",
+      "role": "scenes 1 and 2",
+      "status": "fictional; no customer or company record"
+    },
+    {
+      "id": "data-boundary",
+      "path": "in-code synthetic cards",
+      "role": "scene 4",
+      "status": "fictional; no private input"
+    },
+    {
+      "id": "decision-cover",
+      "path": "in-code synthetic worksheet",
+      "role": "scenes 5 and 6",
+      "status": "blank template only"
+    }
+  ],
+  "lineage": [
+    "accelerated_ebook_leadmagnet.epub#c002.xhtml",
+    "accelerated_ebook_leadmagnet.epub#c003.xhtml",
+    "accelerated_ebook_leadmagnet.epub#c004.xhtml",
+    "docs/accelerated-course-modules/curriculum/scripts/L01.md",
+    "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+    "docs/accelerated-course-modules/visual-production/packet-l01-l04.md"
+  ]
+}

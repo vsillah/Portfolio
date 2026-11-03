@@ -1,0 +1,5 @@
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/mobile-intro.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/mobile-worksheet.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/mobile-worksheet.jpg'
