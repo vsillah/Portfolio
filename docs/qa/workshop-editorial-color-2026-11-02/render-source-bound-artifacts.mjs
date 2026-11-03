@@ -22,6 +22,18 @@ const titles = {
   'product-innovation-workshop:hero': ['Jobs from Noise'],
   'product-innovation-workshop:secondary': ['VisionScope +', 'MarketCraft'],
 }
+const photoCrops = {
+  'ai-strategy-half-day:hero': { left: 0, top: 0, width: 1000, height: 667 },
+  'ai-strategy-half-day:secondary': { left: 0, top: 0, width: 1000, height: 667 },
+  'ai-strategy-full-day:hero': { left: 500, top: 100, width: 900, height: 600 },
+  'ai-strategy-full-day:secondary': { left: 0, top: 0, width: 1536, height: 1024 },
+  'ai-strategy-recorded:hero': { left: 0, top: 0, width: 1200, height: 800 },
+  'ai-strategy-recorded:secondary': { left: 0, top: 0, width: 850, height: 567 },
+  'accelerated-cohort-workshop:hero': { left: 0, top: 0, width: 1000, height: 667 },
+  'accelerated-cohort-workshop:secondary': { left: 0, top: 0, width: 1000, height: 667 },
+  'product-innovation-workshop:hero': { left: 0, top: 0, width: 1000, height: 667 },
+  'product-innovation-workshop:secondary': { left: 0, top: 0, width: 1536, height: 1024 },
+}
 function text(x, y, value, size, weight = 700, fill = '#22313c') {
   return `<text x="${x}" y="${y}" font-family="Arial,sans-serif" font-size="${size}" font-weight="${weight}" fill="${fill}">${escape(value)}</text>`
 }
@@ -59,6 +71,8 @@ const sourceHashes = {
 for (const row of map.frames) {
   const key = `${row.slug}:${row.role}`
   if (!titles[key]) throw new Error(`No title for ${key}`)
+  const crop = photoCrops[key]
+  if (!crop) throw new Error(`No photo crop for ${key}`)
   const file = `${row.slug}-${row.role}`
   const artifactPath = path.join(qa, 'source-artifacts', `${file}.svg`)
   await fs.writeFile(artifactPath, artwork(row, key) + '\n')
@@ -69,14 +83,14 @@ for (const row of map.frames) {
     const sourcePixels = await sharp(sourceImage).resize(600, 490, { fit: 'contain', background: '#142039' }).png().toBuffer()
     composites.push({ input: sourcePixels, left: 815, top: 285 })
   }
-  await sharp(base).composite(composites).jpeg({ quality: 91, mozjpeg: true }).toFile(output + '.tmp')
+  await sharp(base).extract(crop).resize(1536, 1024).composite(composites).jpeg({ quality: 91, mozjpeg: true }).toFile(output + '.tmp')
   await fs.rename(output + '.tmp', output)
   row.sourceSha256 = sourceHashes[row.source]
   row.artifactPath = path.relative(root, artifactPath)
   row.artifactSha256 = await hash(artifactPath)
   row.basePhotoPath = path.relative(root, base)
   row.basePhotoSha256 = await hash(base)
-  row.compositeMethod = `sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel${row.source.endsWith('.png') ? '; owned SAM infographic pixels copied into panel' : ''}`
+  row.compositeMethod = `sharp full-bleed natural photo crop ${JSON.stringify(crop)} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel${row.source.endsWith('.png') ? '; owned SAM infographic pixels copied into panel' : ''}`
   row.outputPath = path.relative(root, output)
   row.outputSha256 = await hash(output)
   row.placement = 'layered editorial source callout on full-bleed photo'

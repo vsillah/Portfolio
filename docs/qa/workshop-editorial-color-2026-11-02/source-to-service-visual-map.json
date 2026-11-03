@@ -22,9 +22,9 @@
       "artifactSha256": "ae6c2433ba521b2bbf5f8a630061b09f044df3029b1fb1d18600326285acc759",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/ai-strategy-half-day-hero.jpg",
       "basePhotoSha256": "a70007f40d8e8216d0455267f4857bfcaf22d650e3ca63599a83180f03344d32",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
-      "outputSha256": "839222351aa6f15d8fe165e92bdbebe5d6a1d70c3c90512e9c088cba590ada89"
+      "outputSha256": "b8253b6c86992f342514e97616741b03723e3a72a84a4d593ae37b46c3a930a1"
     },
     {
       "slug": "ai-strategy-half-day",
@@ -46,9 +46,9 @@
       "artifactSha256": "d87896b81297137ae36a4fcd07525f441184a81e8d231568024f8865273ce34c",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/ai-strategy-half-day-secondary.jpg",
       "basePhotoSha256": "41a9d79bda3e58dfa849fd0b41480605b71b400c97870e5e4380d2ce1bb9b21b",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
-      "outputSha256": "ca25fd12596c97f54c0f589bc71651bc96bc7c786026ca64f20722b134a44b77"
+      "outputSha256": "f70052ee537127810a76e1e847aedce32b97db9d0d0519d5ca5d66aec4c00683"
     },
     {
       "slug": "ai-strategy-full-day",
@@ -71,9 +71,9 @@
       "artifactSha256": "1e4bd4184e50177fa4bd430dba08ed46cced964f47e4da6e3d2d9ec61680dd25",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/ai-strategy-full-day-hero.jpg",
       "basePhotoSha256": "56ce09d33bd5ab6cc35648a2437e10c7b02d1ae8fa27221118650bf887bb35fd",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":500,\"top\":100,\"width\":900,\"height\":600} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-      "outputSha256": "2c2fc2d2aede8cfd4910170d37289c4d7ec7d63cffb2c526456797cb176c7279"
+      "outputSha256": "bfec552e1aad7386f3cefbdc08821c59d7585c8d2578e7ee38128b277c7763af"
     },
     {
       "slug": "ai-strategy-full-day",
@@ -92,10 +92,11 @@
       "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary.svg",
       "artifactSha256": "c263250a834a58f7605367086fdca92c28bed44e041098264d5d0688f75d587a",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/ai-strategy-full-day-secondary.jpg",
-      "basePhotoSha256": "98974fc361e2ef44be658a470e2a3127889b17e57d68e36a367ce75f32d99582",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "basePhotoSha256": "e17f81e32b450de3b3d984f0a06f3d0dd89b034ef59187bea395a77b51a6153d",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1536,\"height\":1024} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-      "outputSha256": "621e77d1399a9c76c4ccaea5ae8785c96e94c42f6e17ede9d5a168892605da2f"
+      "outputSha256": "88412a7fd0d3675f6a7192fa0e8e152df246de08f524576cd675a19512565dc9",
+      "photoOrigin": "OpenAI generated fictional workshop photo, 2026-11-02; no client data, text, or analysis prop"
     },
     {
       "slug": "ai-strategy-recorded",
@@ -115,9 +116,9 @@
       "artifactSha256": "d0b79a36a610e643b55e7ad33c6db4d678021214688bd171697e95efe03d39ac",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/ai-strategy-recorded-hero.jpg",
       "basePhotoSha256": "387c79ab119fe63dbdef3840593c425569cc343d38f83a63c04da081e9777421",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1200,\"height\":800} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
       "outputPath": "public/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
-      "outputSha256": "ada4405866323fa78d59f785241ca843ac262978ced8a055114514ffca45672b"
+      "outputSha256": "cfefb64b5a33b34e8dcb8044674bf626c006b76c75c649f92c873c6755318c5e"
     },
     {
       "slug": "ai-strategy-recorded",
@@ -138,9 +139,9 @@
       "artifactSha256": "6dde7a636688d056e2c16bf17c8f0ea3019aac780792fb83fea3b7b62be869e6",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/ai-strategy-recorded-secondary.jpg",
       "basePhotoSha256": "3d0a3d4cecc67b1bfb9b65c6292d26109add5a720d1103024ce426a3f3bda524",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":850,\"height\":567} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-      "outputSha256": "740b3a66fb78cae62e5b441873ce06b9e99e6880b8d7720b7317ac4156cd14ec"
+      "outputSha256": "44db0f1271743918f8fb79d89caa8800e86c742da0fcf12731c1a2257c68189d"
     },
     {
       "slug": "accelerated-cohort-workshop",
@@ -160,9 +161,9 @@
       "artifactSha256": "ff8c2ea0a447837ee319581ad01f414514dd85d6ff1b9e3cb9eae17ab7580b50",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/accelerated-cohort-workshop-hero.jpg",
       "basePhotoSha256": "ce772d71841ed741d70e4484061cbd5d0e0f9a068e211f14e7c97babfa039dc3",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
       "outputPath": "public/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
-      "outputSha256": "a0e7c4a56240b5ad584490269b2258b1e90150aaf6cdd6f7fb1ff4e050052695"
+      "outputSha256": "a4a90f1c796842a29abcb44a410b57dd9ae1b10c9f8ede7550d1f33976e42f10"
     },
     {
       "slug": "accelerated-cohort-workshop",
@@ -183,9 +184,9 @@
       "artifactSha256": "8f243dad94615de69f0fe47a5e4574ab6a048f139216c86ead6ad5a23f57febc",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/accelerated-cohort-workshop-secondary.jpg",
       "basePhotoSha256": "571e81a9dda9a0d1b85e31e392f9084095d5141819dcdbd6db3a2d08ec77c4f3",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-      "outputSha256": "76f2c200d31ed7e9d5e77ddd357fb000edba704d400169467aeee6a5c04fca05"
+      "outputSha256": "729b2d6dd45a34d5fce526e65eca347ffcf3eee085fd2c8555a4ec0f50e165cc"
     },
     {
       "slug": "product-innovation-workshop",
@@ -206,9 +207,9 @@
       "artifactSha256": "5c78de2f5ac8cd86ea845e3c06fc58500e581582cd756e59df90c458e1650c2b",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/product-innovation-workshop-hero.jpg",
       "basePhotoSha256": "c2565c9a68d29635b8891a18be72c15888f65662506fe9de9b39282f4049c943",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-      "outputSha256": "c7d66560c5dc21d65294501816156a936b63ccd413f95b0b59326c0d13c05e77"
+      "outputSha256": "a5e77bcca858a87815f6d2f264c5ee9ba8ff2ae1ebaeefc5d1d388fe51d2288e"
     },
     {
       "slug": "product-innovation-workshop",
@@ -228,10 +229,11 @@
       "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary.svg",
       "artifactSha256": "2cb5176d7dbf06361da741b30acd2c4acda32317c82003403b880fc20ada5af5",
       "basePhotoPath": "docs/qa/workshop-editorial-color-2026-11-02/base-natural-color/product-innovation-workshop-secondary.jpg",
-      "basePhotoSha256": "7b76d108c82351884de83650bcd78120943d9e64d8c810f49f377a1243a59831",
-      "compositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+      "basePhotoSha256": "6cf63d9afe4a81f267cc1d9c8e931b0f52b7dfd7d9a2aa2a8c8dd72f170483cc",
+      "compositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1536,\"height\":1024} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
       "outputPath": "public/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-      "outputSha256": "4de4ebbf0559bd7527e58d2a8b5fe9f13c3c4b679f502b921e74a49c179ed212"
+      "outputSha256": "fd36d7de8334eea233709bc514b83d7590835e79e45305b11cbe85f55224857d",
+      "photoOrigin": "OpenAI generated fictional workshop photo, 2026-11-02; no client data, text, or analysis prop"
     }
   ]
 }

@@ -43,7 +43,7 @@
         "slug": "accelerated-cohort-workshop",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
-        "sha256": "a0e7c4a56240b5ad584490269b2258b1e90150aaf6cdd6f7fb1ff4e050052695",
+        "sha256": "a4a90f1c796842a29abcb44a410b57dd9ae1b10c9f8ede7550d1f33976e42f10",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-ca5f7802-64ab-4936-ba20-2a217c6dd0fe.png",
@@ -56,14 +56,14 @@
         "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero.svg",
         "analysisArtifactSha256": "ff8c2ea0a447837ee319581ad01f414514dd85d6ff1b9e3cb9eae17ab7580b50",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
-        "analysisOutputSha256": "a0e7c4a56240b5ad584490269b2258b1e90150aaf6cdd6f7fb1ff4e050052695"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
+        "analysisOutputSha256": "a4a90f1c796842a29abcb44a410b57dd9ae1b10c9f8ede7550d1f33976e42f10"
       },
       {
         "slug": "accelerated-cohort-workshop",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-        "sha256": "76f2c200d31ed7e9d5e77ddd357fb000edba704d400169467aeee6a5c04fca05",
+        "sha256": "729b2d6dd45a34d5fce526e65eca347ffcf3eee085fd2c8555a4ec0f50e165cc",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-6607bab5-c413-4ffa-badc-c22c67617d2f.png",
@@ -76,8 +76,8 @@
         "analysisChapter": "Chapter 10: Learning Roadmaps",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary.svg",
         "analysisArtifactSha256": "8f243dad94615de69f0fe47a5e4574ab6a048f139216c86ead6ad5a23f57febc",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "76f2c200d31ed7e9d5e77ddd357fb000edba704d400169467aeee6a5c04fca05"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "729b2d6dd45a34d5fce526e65eca347ffcf3eee085fd2c8555a4ec0f50e165cc"
       }
     ]
   },
@@ -106,7 +106,7 @@
         "slug": "product-innovation-workshop",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-        "sha256": "c7d66560c5dc21d65294501816156a936b63ccd413f95b0b59326c0d13c05e77",
+        "sha256": "a5e77bcca858a87815f6d2f264c5ee9ba8ff2ae1ebaeefc5d1d388fe51d2288e",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-c6dfe1ee-bd80-4ce7-9b24-51604e283626.png",
@@ -119,14 +119,14 @@
         "analysisChapter": "Chapter 19: To Jobs from Noise (ClientQ)",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero.svg",
         "analysisArtifactSha256": "5c78de2f5ac8cd86ea845e3c06fc58500e581582cd756e59df90c458e1650c2b",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "c7d66560c5dc21d65294501816156a936b63ccd413f95b0b59326c0d13c05e77"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "a5e77bcca858a87815f6d2f264c5ee9ba8ff2ae1ebaeefc5d1d388fe51d2288e"
       },
       {
         "slug": "product-innovation-workshop",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-        "sha256": "4de4ebbf0559bd7527e58d2a8b5fe9f13c3c4b679f502b921e74a49c179ed212",
+        "sha256": "fd36d7de8334eea233709bc514b83d7590835e79e45305b11cbe85f55224857d",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-94796773-7fe1-432d-a824-3885767e3384.png",
@@ -139,8 +139,8 @@
         "analysisChapter": "Chapter 22: Designing the Future (VisionScope & MarketCraft)",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary.svg",
         "analysisArtifactSha256": "2cb5176d7dbf06361da741b30acd2c4acda32317c82003403b880fc20ada5af5",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "4de4ebbf0559bd7527e58d2a8b5fe9f13c3c4b679f502b921e74a49c179ed212"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1536,\"height\":1024} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "fd36d7de8334eea233709bc514b83d7590835e79e45305b11cbe85f55224857d"
       }
     ]
   },
@@ -817,7 +817,7 @@
         "slug": "ai-strategy-half-day",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
-        "sha256": "839222351aa6f15d8fe165e92bdbebe5d6a1d70c3c90512e9c088cba590ada89",
+        "sha256": "b8253b6c86992f342514e97616741b03723e3a72a84a4d593ae37b46c3a930a1",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4aa6b41d-dd05-41dd-823d-5a4f45a2a540.png",
@@ -830,14 +830,14 @@
         "analysisChapter": "Chapter 7: Discovery - From Feedback to Signal",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero.svg",
         "analysisArtifactSha256": "ae6c2433ba521b2bbf5f8a630061b09f044df3029b1fb1d18600326285acc759",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "839222351aa6f15d8fe165e92bdbebe5d6a1d70c3c90512e9c088cba590ada89"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "b8253b6c86992f342514e97616741b03723e3a72a84a4d593ae37b46c3a930a1"
       },
       {
         "slug": "ai-strategy-half-day",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
-        "sha256": "ca25fd12596c97f54c0f589bc71651bc96bc7c786026ca64f20722b134a44b77",
+        "sha256": "f70052ee537127810a76e1e847aedce32b97db9d0d0519d5ca5d66aec4c00683",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-7023ab50-6d67-40a0-b13a-be51c5a58e58.png",
@@ -850,8 +850,8 @@
         "analysisChapter": "Chapter 8: Roadmaps Without Regret",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary.svg",
         "analysisArtifactSha256": "d87896b81297137ae36a4fcd07525f441184a81e8d231568024f8865273ce34c",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "ca25fd12596c97f54c0f589bc71651bc96bc7c786026ca64f20722b134a44b77"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "f70052ee537127810a76e1e847aedce32b97db9d0d0519d5ca5d66aec4c00683"
       }
     ]
   },
@@ -880,7 +880,7 @@
         "slug": "ai-strategy-full-day",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-        "sha256": "2c2fc2d2aede8cfd4910170d37289c4d7ec7d63cffb2c526456797cb176c7279",
+        "sha256": "bfec552e1aad7386f3cefbdc08821c59d7585c8d2578e7ee38128b277c7763af",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-3748b6be-396b-484f-8249-4ebb9c2ecd42.png",
@@ -893,14 +893,14 @@
         "analysisChapter": "Chapter 15: Mapping the Decision Theater",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero.svg",
         "analysisArtifactSha256": "1e4bd4184e50177fa4bd430dba08ed46cced964f47e4da6e3d2d9ec61680dd25",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "2c2fc2d2aede8cfd4910170d37289c4d7ec7d63cffb2c526456797cb176c7279"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":500,\"top\":100,\"width\":900,\"height\":600} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "bfec552e1aad7386f3cefbdc08821c59d7585c8d2578e7ee38128b277c7763af"
       },
       {
         "slug": "ai-strategy-full-day",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-        "sha256": "621e77d1399a9c76c4ccaea5ae8785c96e94c42f6e17ede9d5a168892605da2f",
+        "sha256": "88412a7fd0d3675f6a7192fa0e8e152df246de08f524576cd675a19512565dc9",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-0849f60d-d7a1-43bf-ba21-e1669b11ade7.png",
@@ -913,8 +913,8 @@
         "analysisChapter": "Chapter 12: The Metrics That Matter",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary.svg",
         "analysisArtifactSha256": "c263250a834a58f7605367086fdca92c28bed44e041098264d5d0688f75d587a",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "621e77d1399a9c76c4ccaea5ae8785c96e94c42f6e17ede9d5a168892605da2f"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1536,\"height\":1024} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "88412a7fd0d3675f6a7192fa0e8e152df246de08f524576cd675a19512565dc9"
       }
     ]
   },
@@ -1228,7 +1228,7 @@
         "slug": "ai-strategy-recorded",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
-        "sha256": "ada4405866323fa78d59f785241ca843ac262978ced8a055114514ffca45672b",
+        "sha256": "cfefb64b5a33b34e8dcb8044674bf626c006b76c75c649f92c873c6755318c5e",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-32e4f34c-d644-4a0d-bffe-353b6b479a5b.png",
@@ -1241,14 +1241,14 @@
         "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-hero.svg",
         "analysisArtifactSha256": "d0b79a36a610e643b55e7ad33c6db4d678021214688bd171697e95efe03d39ac",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
-        "analysisOutputSha256": "ada4405866323fa78d59f785241ca843ac262978ced8a055114514ffca45672b"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1200,\"height\":800} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
+        "analysisOutputSha256": "cfefb64b5a33b34e8dcb8044674bf626c006b76c75c649f92c873c6755318c5e"
       },
       {
         "slug": "ai-strategy-recorded",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-        "sha256": "740b3a66fb78cae62e5b441873ce06b9e99e6880b8d7720b7317ac4156cd14ec",
+        "sha256": "44db0f1271743918f8fb79d89caa8800e86c742da0fcf12731c1a2257c68189d",
         "width": 1536,
         "height": 1024,
         "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-791420b9-1745-4f41-ae5c-8e58efc95d82.png",
@@ -1261,8 +1261,8 @@
         "analysisChapter": "Chapter 13: The Learning Plan Framework",
         "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary.svg",
         "analysisArtifactSha256": "6dde7a636688d056e2c16bf17c8f0ea3019aac780792fb83fea3b7b62be869e6",
-        "analysisCompositeMethod": "sharp full-bleed natural photo with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-        "analysisOutputSha256": "740b3a66fb78cae62e5b441873ce06b9e99e6880b8d7720b7317ac4156cd14ec"
+        "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":850,\"height\":567} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
+        "analysisOutputSha256": "44db0f1271743918f8fb79d89caa8800e86c742da0fcf12731c1a2257c68189d"
       }
     ]
   },

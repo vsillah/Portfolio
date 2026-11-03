@@ -31,7 +31,7 @@ const rejectsGenericAnalysis = (frame: { source: string; framework: string; visi
   frame.framework.trim().length > 8 &&
   frame.visibleLabels.length >= 3 &&
   frame.visibleLabels.every((label) => label.trim().length > 2 && !/^(placeholder|sample|lorem|box \d|generic|blank)$/i.test(label)) &&
-  /sharp full-bleed natural photo with right layered source-derived callout/.test(frame.compositeMethod)
+  /sharp full-bleed natural photo crop .* resized to 1536x1024 with right layered source-derived callout/.test(frame.compositeMethod)
 
 describe('source-bound workshop analysis gallery', () => {
   it('binds all ten frames to an approved owned source and exact rendered artifact', () => {
