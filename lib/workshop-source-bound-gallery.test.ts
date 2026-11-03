@@ -31,7 +31,7 @@ const rejectsGenericAnalysis = (frame: { source: string; framework: string; visi
   frame.framework.trim().length > 8 &&
   frame.visibleLabels.length >= 3 &&
   frame.visibleLabels.every((label) => label.trim().length > 2 && !/^(placeholder|sample|lorem|box \d|generic|blank)$/i.test(label)) &&
-  /sharp SVG overlay/.test(frame.compositeMethod)
+  /sharp full-bleed natural photo with right layered source-derived callout/.test(frame.compositeMethod)
 
 describe('source-bound workshop analysis gallery', () => {
   it('binds all ten frames to an approved owned source and exact rendered artifact', () => {
@@ -47,6 +47,7 @@ describe('source-bound workshop analysis gallery', () => {
       expect(frame.outputSha256, key).toBe(hash(frame.outputPath))
       const artifact = readFileSync(path.join(root, frame.artifactPath), 'utf8')
       expect(artifact, key).not.toMatch(/placeholder|lorem ipsum|sample data|blank chart|generic diagram/i)
+      for (const label of frame.visibleLabels) expect(artifact, `${key}: visible ${label}`).toContain(label.replaceAll('&', '&amp;'))
       if (frame.member) {
         const chapter = execFileSync('unzip', ['-p', path.join(root, frame.source), frame.member], { encoding: 'utf8' }).toLowerCase()
         for (const label of frame.visibleLabels) expect(chapter, `${key}: ${label}`).toContain(label.toLowerCase())
