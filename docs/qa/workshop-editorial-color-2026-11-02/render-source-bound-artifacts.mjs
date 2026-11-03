@@ -48,22 +48,22 @@ const surfaces = {
     { kind:'paper', name:'held printed worksheet', quad:[[715,635],[1025,665],[875,900],[590,835]], part:[0,18] },
   ],
   'ai-strategy-recorded:hero': [
-    { kind:'screen', name:'laptop display', quad:[[1200,355],[1455,385],[1410,575],[1165,550]], sourceCrop:[0,0,1136,944] },
+    { kind:'screen', name:'laptop display', targetPolygon:[[1200,347],[1469,373],[1432,590],[1159,563]], quad:[[1212,362],[1453,386],[1417,572],[1178,549]], insetPx:12, sourceCrop:[0,0,1136,944] },
   ],
   'ai-strategy-recorded:secondary': [
-    { kind:'screen', name:'laptop learning-plan page', quad:[[680,225],[1110,220],[1080,535],[670,530]], cover:'#e8e9e7', part:[0,8] },
-    { kind:'paper', name:'open learning-plan notebook', quad:[[1020,650],[1410,655],[1530,975],[1050,980]], cover:'#f1efed', part:[8,14] },
+    { kind:'screen', name:'laptop learning-plan page', targetPolygon:[[677,232],[1116,245],[1084,548],[651,516]], quad:[[694,260],[1097,266],[1069,515],[674,492]], insetPx:14, cover:'#e8e9e7', part:[0,8] },
+    { kind:'paper', name:'open learning-plan notebook', targetPolygon:[[1090,648],[1530,701],[1410,997],[850,945]], quad:[[1096,704],[1488,743],[1380,948],[1064,915]], insetPx:20, cover:'#f1efed', curvaturePx:2, part:[8,14] },
   ],
   'accelerated-cohort-workshop:hero': [
     { kind:'paper', name:'printed SAM worksheet', quad:[[575,813],[965,835],[915,1000],[505,970]], cover:'#eeeae3', sourceCrop:[0,0,1136,944] },
     { kind:'phone', name:'handheld Alignment detail from SAM', quad:[[765,620],[855,615],[885,770],[790,785]], sourceCrop:[405,120,345,650] },
   ],
   'accelerated-cohort-workshop:secondary': [
-    { kind:'paper', name:'left learning-roadmap worksheet', quad:[[500,685],[820,620],[935,865],[575,940]], cover:'#f1efeb', occlusion:[[515,650],[710,650],[690,790],[515,790]], part:[0,7] },
-    { kind:'paper', name:'right learning-roadmap worksheet', quad:[[875,615],[1190,610],[1285,830],[950,870]], cover:'#f1efeb', part:[7,15] },
+    { kind:'paper', name:'left learning-roadmap worksheet', targetPolygon:[[480,748],[835,726],[969,937],[473,918]], quad:[[515,773],[815,750],[922,910],[505,895]], insetPx:12, cover:'#f1efeb', occlusion:[[370,605],[725,610],[755,780],[475,790]], curvaturePx:3, part:[0,7] },
+    { kind:'paper', name:'right learning-roadmap worksheet', targetPolygon:[[870,696],[1202,681],[1370,860],[935,886]], quad:[[902,720],[1180,703],[1326,842],[953,861]], insetPx:12, cover:'#f1efeb', curvaturePx:3, part:[7,15] },
   ],
   'product-innovation-workshop:hero': [
-    { kind:'phone', name:'handheld ClientQ reference', quad:[[735,418],[835,417],[820,690],[710,685]], cover:'#f0eff1', part:[0,17] },
+    { kind:'phone', name:'handheld ClientQ reference', targetPolygon:[[740,425],[842,427],[813,654],[705,650]], quad:[[751,443],[831,445],[799,635],[718,631]], insetPx:10, cover:'#f0eff1', occlusion:[[685,512],[768,518],[763,571],[684,567]], part:[0,7] },
     { kind:'paper', name:'printed ClientQ worksheet', quad:[[400,925],[700,860],[950,925],[650,1024]], cover:'#f4f3f0', part:[0,17] },
   ],
   'product-innovation-workshop:secondary': [
@@ -109,7 +109,9 @@ function invert(h) {
 }
 function within(x,y,q){let sign=0;for(let i=0;i<4;i++){const a=q[i],b=q[(i+1)%4],z=(b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0]);if(Math.abs(z)>1e-4){const s=Math.sign(z);if(sign&&s!==sign)return false;sign=s}}return true}
 function color(s){return [1,3,5].map(i=>parseInt(s.slice(i,i+2),16))}
-async function applySurface(base,artifact,surface) {
+function edgeDistance(x,y,q){return Math.min(...q.map((p,i)=>{const n=q[(i+1)%4],dx=n[0]-p[0],dy=n[1]-p[1];return Math.abs(dx*(y-p[1])-dy*(x-p[0]))/Math.hypot(dx,dy)}))}
+const clamp=(x,min,max)=>Math.max(min,Math.min(max,x))
+async function applySurfaceLegacy(base,artifact,surface) {
   const raw=await sharp(artifact).ensureAlpha().raw().toBuffer({resolveWithObject:true})
   const src=raw.data,sw=raw.info.width,sh=raw.info.height,q=surface.quad
   const inv=invert(homography(q,sw,sh))
@@ -122,12 +124,40 @@ async function applySurface(base,artifact,surface) {
     if(u<0||v<0||u>=sw||v>=sh)continue
     const bi=(y*1536+x)*3,si=(Math.floor(v)*sw+Math.floor(u))*4
     if(paper){
-      const edge=Math.min(...q.map((p,i)=>{const n=q[(i+1)%4],dx=n[0]-p[0],dy=n[1]-p[1];return Math.abs(dx*(y-p[1])-dy*(x-p[0]))/Math.hypot(dx,dy)}))
+      const edge=edgeDistance(x,y,q)
       const fill=(surface.kind==='screen'?.98:.96)*Math.min(1,edge/7)
       for(let c=0;c<3;c++)base[bi+c]=Math.round(base[bi+c]*(1-fill)+paper[c]*fill)
     }
     const a=src[si+3]/255*(surface.kind==='screen'?.88:surface.kind==='phone'?.9:.75)
     for(let c=0;c<3;c++)base[bi+c]=Math.round(base[bi+c]*(1-a)+src[si+c]*a)
+  }
+}
+async function applySurface(base,photographed,softLight,artifact,surface) {
+  const raw=await sharp(artifact).ensureAlpha().raw().toBuffer({resolveWithObject:true})
+  const src=raw.data,sw=raw.info.width,sh=raw.info.height,q=surface.quad
+  const target=surface.targetPolygon??q,mask=surface.maskPolygon??q
+  const inv=invert(homography(q,sw,sh))
+  const x0=Math.max(0,Math.floor(Math.min(...q.map(p=>p[0])))),x1=Math.min(1535,Math.ceil(Math.max(...q.map(p=>p[0]))))
+  const y0=Math.max(0,Math.floor(Math.min(...q.map(p=>p[1])))),y1=Math.min(1023,Math.ceil(Math.max(...q.map(p=>p[1]))))
+  const paper=surface.cover?color(surface.cover):null
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
+    if(!within(x+.5,y+.5,q)||!within(x+.5,y+.5,target)||!within(x+.5,y+.5,mask)||surface.occlusion&&within(x+.5,y+.5,surface.occlusion))continue
+    const d=inv[6]*x+inv[7]*y+inv[8],v=(inv[3]*x+inv[4]*y+inv[5])/d
+    const u=(inv[0]*x+inv[1]*y+inv[2])/d+(surface.curvaturePx??0)*Math.sin(Math.PI*v/sh)*(2*x/1536-1)
+    if(u<0||v<0||u>=sw||v>=sh)continue
+    const bi=(y*1536+x)*3,si=(Math.floor(v)*sw+Math.floor(u))*4
+    const originalLight=.2126*photographed[bi]+.7152*photographed[bi+1]+.0722*photographed[bi+2]
+    const blurredLight=.2126*softLight[bi]+.7152*softLight[bi+1]+.0722*softLight[bi+2]
+    const edge=clamp(edgeDistance(x,y,mask)/(surface.kind==='paper'?8:3),0,1)
+    if(paper){
+      const fill=(surface.kind==='screen'?.94:surface.kind==='phone'?.93:.96)*edge
+      const shade=clamp((blurredLight-225)*.25,-20,12)
+      const texture=clamp((originalLight-blurredLight)*.06,-3,3)
+      for(let c=0;c<3;c++)base[bi+c]=Math.round(base[bi+c]*(1-fill)+clamp(paper[c]+shade+texture,0,255)*fill)
+    }
+    const a=src[si+3]/255*(surface.kind==='screen'?.89:surface.kind==='phone'?.83:.77)*edge
+    const glare=surface.kind==='screen'?clamp((originalLight-blurredLight)*.08,0,9):0
+    for(let c=0;c<3;c++)base[bi+c]=Math.round(clamp(base[bi+c]*(1-a)+src[si+c]*a+glare,0,255))
   }
 }
 const sourceHashes={ 'accelerated_ebook_leadmagnet.epub':await hash(ebook), 'agentified/source-assets/accelerated/accelerated-sam-infographic.png':await hash(sourceImage) }
@@ -138,21 +168,28 @@ for(const row of map.frames){
   let excerpt=[]
   if(!sourceIsSam){const p=textOfChapter(row.member),spec=sections[key],i=p.findIndex(v=>v.includes(spec.anchor));if(i<0)throw Error(`Source anchor missing: ${key}`);excerpt=p.slice(i,i+spec.count);if(excerpt.length<spec.count)throw Error(`Source passage incomplete: ${key}`)}
   const pixels=await sharp(basePath).removeAlpha().raw().toBuffer({resolveWithObject:true});if(pixels.info.width!==1536||pixels.info.height!==1024)throw Error(`Base dimensions ${key}`)
+  const photographed=Buffer.from(pixels.data)
+  const softLight=(await sharp(basePath).blur(25).removeAlpha().raw().toBuffer({resolveWithObject:true})).data
   const entries=[]
   for(let i=0;i<s.length;i++){
     const surface=s[i],artifactPath=path.join(qa,'source-artifacts',`${file}-${i+1}.${sourceIsSam?'png':'svg'}`)
     if(sourceIsSam){const [left,top,width,height]=surface.sourceCrop;await sharp(sourceImage).extract({left,top,width,height}).png().toFile(artifactPath)}
     else await fs.writeFile(artifactPath,pageSvg(row.framework,excerpt.slice(...surface.part),surface.kind)+'\n')
-    await applySurface(pixels.data,artifactPath,surface)
-    entries.push({name:surface.name,kind:surface.kind,quad:surface.quad,occlusion:surface.occlusion??null,sourceCrop:surface.sourceCrop??null,excerptParagraphRange:surface.part??null,artifactPath:path.relative(root,artifactPath),artifactSha256:await hash(artifactPath),transform:'inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare',faceClearanceReviewed:true})
+    const strict=['ai-strategy-recorded:hero','ai-strategy-recorded:secondary','accelerated-cohort-workshop:secondary'].includes(key)||key==='product-innovation-workshop:hero'&&surface.kind==='phone'
+    if(strict)await applySurface(pixels.data,photographed,softLight,artifactPath,surface)
+    else await applySurfaceLegacy(pixels.data,artifactPath,surface)
+    entries.push({name:surface.name,kind:surface.kind,targetPolygon:surface.targetPolygon??surface.quad,quad:surface.quad,insetPx:surface.insetPx??0,maskPolygon:surface.maskPolygon??surface.quad,occlusion:surface.occlusion??null,curvaturePx:surface.curvaturePx??0,sourceCrop:surface.sourceCrop??null,excerptParagraphRange:surface.part??null,artifactPath:path.relative(root,artifactPath),artifactSha256:await hash(artifactPath),planeOutputSha256:crypto.createHash('sha256').update(pixels.data).digest('hex'),transform:'inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained',faceClearanceReviewed:true})
   }
   await sharp(pixels.data,{raw:{width:1536,height:1024,channels:3}}).jpeg({quality:91,mozjpeg:true}).toFile(output+'.tmp');await fs.rename(output+'.tmp',output)
   row.sourceSha256=sourceHashes[row.source];row.sourceExcerpt=excerpt;row.sourceExcerptSha256=crypto.createHash('sha256').update(JSON.stringify(excerpt)).digest('hex');row.physicalSurfaces=entries
   row.basePhotoPath=path.relative(root,basePath);row.basePhotoSha256=await hash(basePath);row.outputPath=path.relative(root,output);row.outputSha256=await hash(output)
+  for(const entry of entries)entry.outputSha256=row.outputSha256
   row.placement='perspective-matched source content on physical paper, display, or workshop notes; no floating panel'
-  row.compositeMethod='in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare'
+  row.compositeMethod=['ai-strategy-recorded:hero','ai-strategy-recorded:secondary','accelerated-cohort-workshop:secondary','product-innovation-workshop:hero'].includes(key)
+    ? 'in-world source artwork warped to exact physical plane, inset and polygon-clipped; photographed paper texture, contact shadow, hands, bezel, and screen glare retained'
+    : 'in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare'
   delete row.artifactPath;delete row.artifactSha256
 }
-map.version='2026-11-02-in-world-2'
+map.version='2026-11-03-in-world-3'
 map.sourcePolicy='Only owned Accelerated ebook passages or original SAM infographic pixels. Full cited paragraphs and original image crops replace abstract label-only callouts; no client data, invented metrics, floating panels, or generated analysis.'
 await fs.writeFile(mapPath,JSON.stringify(map,null,2)+'\n')

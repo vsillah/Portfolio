@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 const root = process.cwd()
 const qa = path.join(root, 'docs/qa/services-theme-speaking-visuals')
 const packet = path.join(root, 'docs/qa/workshop-editorial-color-2026-11-02')
-type Surface = { name: string; kind: string; quad: number[][]; occlusion: number[][] | null; sourceCrop: number[] | null; excerptParagraphRange: number[] | null; artifactPath: string; artifactSha256: string; faceClearanceReviewed: boolean }
+type Surface = { name: string; kind: string; targetPolygon: number[][]; quad: number[][]; insetPx: number; maskPolygon: number[][]; occlusion: number[][] | null; curvaturePx: number; sourceCrop: number[] | null; excerptParagraphRange: number[] | null; artifactPath: string; artifactSha256: string; planeOutputSha256: string; outputSha256: string; faceClearanceReviewed: boolean }
 type Frame = { slug: string; role: string; framework: string; chapter: string; source: string; sourceSha256: string; member: string | null; visibleLabels: string[]; sourceExcerpt: string[]; sourceExcerptSha256: string; physicalSurfaces: Surface[]; basePhotoPath: string; basePhotoSha256: string; compositeMethod: string; placement: string; outputPath: string; outputSha256: string }
 const map = JSON.parse(readFileSync(path.join(packet, 'source-to-service-visual-map.json'), 'utf8')) as { frames: Frame[] }
 const matrix = JSON.parse(readFileSync(path.join(qa, 'workshop-casting-matrix.json'), 'utf8')) as { assets: Array<{ slug: string; role: string; analysisSourcePath: string; analysisSourceSha256: string; analysisFramework: string; analysisPhysicalSurfaces: Surface[]; analysisSourceExcerptSha256: string; analysisCompositeMethod: string; analysisOutputSha256: string }> }
@@ -35,6 +35,14 @@ const overlaps = (quad: number[][], box: number[]) => {
   const minY=Math.min(...quad.map(p=>p[1])),maxY=Math.max(...quad.map(p=>p[1]))
   return Math.max(minX,x0)<Math.min(maxX,x1) && Math.max(minY,y0)<Math.min(maxY,y1)
 }
+const within = (x: number,y: number,quad: number[][]) => {
+  let sign=0
+  for(let i=0;i<4;i++){
+    const a=quad[i],b=quad[(i+1)%4],z=(b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0])
+    if(Math.abs(z)>1e-3){const s=Math.sign(z);if(sign&&s!==sign)return false;sign=s}
+  }
+  return true
+}
 const physical = (frame: Frame) => sourceAllowlist.has(frame.source) && frame.physicalSurfaces.length>0 && frame.physicalSurfaces.every(s=>['paper','sticky','screen','phone'].includes(s.kind) && s.quad.length===4 && s.quad.every(p=>p.length===2 && p[0]>=0 && p[0]<=1536 && p[1]>=0 && p[1]<=1024)) && /physical paper, display, or workshop notes/.test(frame.placement) && !/floating|callout|full.bleed panel/i.test(frame.compositeMethod)
 
 describe('source-bound in-world workshop gallery', () => {
@@ -52,7 +60,17 @@ describe('source-bound in-world workshop gallery', () => {
       for(const surface of frame.physicalSurfaces){
         expect(surface.artifactSha256,`${key}: ${surface.name}`).toBe(hash(surface.artifactPath))
         expect(surface.faceClearanceReviewed,`${key}: ${surface.name}`).toBe(true)
+        expect(surface.targetPolygon,`${key}: missing target plane`).toHaveLength(4)
+        expect(surface.maskPolygon,`${key}: missing mask`).toHaveLength(4)
+        expect(surface.insetPx,`${key}: missing inset`).toBeGreaterThanOrEqual(0)
+        expect(surface.planeOutputSha256,`${key}: missing plane output hash`).toMatch(/^[a-f0-9]{64}$/)
+        expect(surface.outputSha256,`${key}: stale frame output hash`).toBe(frame.outputSha256)
+        for(const point of surface.quad)expect(within(point[0],point[1],surface.targetPolygon),`${key}: content crosses target plane`).toBe(true)
+        for(const point of surface.maskPolygon)expect(within(point[0],point[1],surface.targetPolygon),`${key}: mask crosses target plane`).toBe(true)
         for(const face of faceBoxes[key])expect(overlaps(surface.quad,face),`${key}: ${surface.name} blocks a face`).toBe(false)
+      }
+      if(['ai-strategy-recorded:hero','ai-strategy-recorded:secondary','accelerated-cohort-workshop:secondary','product-innovation-workshop:hero'].includes(key)){
+        expect(frame.physicalSurfaces.some(s=>s.insetPx>=8),`${key}: rejected plane needs an inset mask`).toBe(true)
       }
       if(frame.member){
         const html=execFileSync('unzip',['-p',path.join(root,frame.source),frame.member],{encoding:'utf8'})
