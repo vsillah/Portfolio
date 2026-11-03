@@ -1,0 +1,69 @@
+{
+  "phase": 2,
+  "canonical_epub": "/Users/vambahsillah/Projects/Portfolio/accelerated_ebook_leadmagnet.epub",
+  "base_commit": "aa99a9edce6876fb4ad7a8aa81718b2188a4d617",
+  "runtime_seconds_total": 2580,
+  "spoken_words_total": 5131,
+  "lessons": [
+    {
+      "id": "L05",
+      "title": "From feedback to signal",
+      "runtime_seconds": 600,
+      "spoken_words": 1264,
+      "epub_files": [
+        "c010.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+        "public/showcases/service-prototypes/v2/sam-alignment-plate.webp"
+      ],
+      "learner_artifact": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+      "readiness": "editorial-review"
+    },
+    {
+      "id": "L06",
+      "title": "Roadmap to PRD, without drift",
+      "runtime_seconds": 660,
+      "spoken_words": 1276,
+      "epub_files": [
+        "c011.xhtml",
+        "c012.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-alignment-plate.webp"
+      ],
+      "learner_artifact": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+      "readiness": "editorial-review"
+    },
+    {
+      "id": "L07",
+      "title": "Commit to learning",
+      "runtime_seconds": 600,
+      "spoken_words": 1189,
+      "epub_files": [
+        "c013.xhtml",
+        "c014.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-alignment-plate.webp"
+      ],
+      "learner_artifact": "Two-checkpoint learning roadmap",
+      "readiness": "editorial-review"
+    },
+    {
+      "id": "L08",
+      "title": "Metrics and the ten-part learning plan",
+      "runtime_seconds": 720,
+      "spoken_words": 1402,
+      "epub_files": [
+        "c015.xhtml",
+        "c016.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-alignment-plate.webp"
+      ],
+      "learner_artifact": "Ten-component learning plan and metric definition",
+      "readiness": "editorial-review"
+    }
+  ]
+}
