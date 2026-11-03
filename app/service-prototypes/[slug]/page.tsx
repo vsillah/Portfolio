@@ -24,22 +24,63 @@ function Card({ title, eyebrow, children, className = '' }: { title: string; eye
   return <section className={`${styles.card} ${className}`}>{eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}<h2>{title}</h2>{children}</section>
 }
 
-const samViews = [
-  { label: 'Full framework', file: 'accelerated-sam-infographic.png', width: 1136, height: 944, detail: 'The full Signals → Alignment → Momentum system, including the Structure It and Scale It bridges.' },
-  { label: 'Signals', file: 'accelerated-sam-signals.png', width: 410, height: 746, detail: 'Follow the funnel from noise and scattered questions toward a clear target signal. Structure It carries that signal forward.' },
-  { label: 'Alignment', file: 'accelerated-sam-alignment.png', width: 390, height: 746, detail: 'Bring stakeholders into the decision, then connect metrics, PRD, roadmap and outcomes before scaling.' },
-  { label: 'Momentum', file: 'accelerated-sam-momentum.png', width: 410, height: 746, detail: 'The compounding loop connects product examples and a learning engine so each cycle informs the next.' },
+const samViews = ['Full framework', 'Signals', 'Alignment', 'Momentum'] as const
+const signalInputs = ['Blank pages', 'Feedback', 'Questions', 'Observations'] as const
+const alignmentSteps = [
+  { name: 'Metrics', detail: 'Agree on the measure that will tell the team whether the signal matters.' },
+  { name: 'PRD', detail: 'Write the problem, evidence and decision rule in one working brief.' },
+  { name: 'Roadmap', detail: 'Sequence the smallest useful test before scaling the plan.' },
+  { name: 'Outcomes', detail: 'Review what changed for people and what the team learned.' },
 ] as const
+const momentumExamples = [
+  { name: 'StratQuest', detail: 'Frame the next strategic question.' },
+  { name: 'ClientQ', detail: 'Bring a client question into the loop.' },
+  { name: 'SudoPoll', detail: 'Test a signal with a bounded poll.' },
+  { name: 'Learning Engine', detail: 'Carry evidence into the next cycle.' },
+  { name: 'AI Persuasive GPT', detail: 'Turn reviewed learning into a clearer message.' },
+] as const
+
+function SignalsCanvas({ compact = false }: { compact?: boolean }) {
+  const [input, setInput] = useState<(typeof signalInputs)[number]>('Feedback')
+  return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="signals">
+    <header><span>ACT I · FROM BLANK PAGES TO BOLD IDEAS</span><h3>Signals</h3><p>Raw noise → clear signal</p></header>
+    <div className={styles.signalInputs} aria-label="Workshop inputs">{signalInputs.map((item) => <button type="button" key={item} aria-pressed={input === item} onClick={() => setInput(item)}>{item}</button>)}</div>
+    <div className={styles.signalFunnel} aria-label="Synthesis funnel"><span>Gather</span><span>Cluster</span><span>Test</span></div>
+    <div className={styles.signalTarget}><span aria-hidden="true">◎</span><div><small>TESTABLE SIGNAL</small><strong>{input} → one question to test</strong></div></div>
+  </article>
+}
+
+function AlignmentCanvas({ compact = false }: { compact?: boolean }) {
+  const [step, setStep] = useState<(typeof alignmentSteps)[number]>(alignmentSteps[0])
+  return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="alignment">
+    <header><span>ACT II · FROM INSIGHTS TO IMPACT</span><h3>Alignment</h3><p>Insight → shared direction</p></header>
+    <div className={styles.alignmentLadder} aria-label="Stakeholder buy-in to outcomes ladder">
+      {[...alignmentSteps].reverse().map((item) => <button type="button" key={item.name} aria-pressed={step.name === item.name} onClick={() => setStep(item)}>{item.name}</button>)}
+      <div className={styles.stakeholderBase}><span aria-hidden="true">◌ ◌ ◌</span><strong>Stakeholder buy-in</strong></div>
+    </div>
+    <p className={styles.samSelection}><strong>{step.name}:</strong> {step.detail}</p>
+  </article>
+}
+
+function MomentumCanvas({ compact = false }: { compact?: boolean }) {
+  const [example, setExample] = useState<(typeof momentumExamples)[number]>(momentumExamples[3])
+  return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="momentum">
+    <header><span>ACT III · FROM TESTING TO TRANSFORMATION</span><h3>Momentum</h3><p>Systems that compound</p></header>
+    <div className={styles.momentumStage} aria-label="Compounding product learning loop"><div className={styles.momentumWheel}><div className={styles.momentumCore}><span aria-hidden="true">↻</span><strong>Build · Test · Learn</strong></div></div><div className={styles.momentumExamples} aria-label="Product examples">{momentumExamples.map((item) => <button type="button" key={item.name} aria-pressed={example.name === item.name} onClick={() => setExample(item)}>{item.name}</button>)}</div></div>
+    <p className={styles.samSelection}><strong>{example.name}:</strong> {example.detail}</p>
+  </article>
+}
 
 function SamArtifact({ initialView = 0, compact = false }: { initialView?: number; compact?: boolean }) {
   const [active, setActive] = useState(initialView)
   const dialog = useRef<HTMLDialogElement>(null)
-  const selected = samViews[active]
   return <section className={`${styles.samArtifact} ${compact ? styles.samArtifactCompact : ''}`} aria-label="Signals, Alignment, Momentum framework">
-    <div className={styles.samToolbar} role="group" aria-label="Framework views">{samViews.map((item, index) => <button key={item.label} type="button" aria-pressed={active === index} onClick={() => setActive(index)}>{item.label}</button>)}</div>
-    <div className={styles.samCanvas} data-testid="sam-artifact"><Image key={selected.file} src={`/showcases/service-prototypes/${selected.file}`} alt={`${selected.label}: approved Accelerated Signals, Alignment, Momentum infographic`} width={selected.width} height={selected.height} unoptimized/></div>
-    <p className={styles.samDetail}>{selected.detail}</p>
-    <button type="button" className={styles.samZoom} onClick={() => dialog.current?.showModal()}>Zoom full SAM infographic</button>
+    <div className={styles.samToolbar} role="group" aria-label="Framework views">{samViews.map((label, index) => <button key={label} type="button" aria-pressed={active === index} onClick={() => setActive(index)}>{label}</button>)}</div>
+    <div className={styles.samCanvas} data-testid="sam-artifact">
+      {active === 0 ? <div className={styles.samSystem} data-sam-view="full"><SignalsCanvas compact/><div className={styles.samBridge}>Structure It <span aria-hidden="true">↓</span></div><AlignmentCanvas compact/><div className={styles.samBridge}>Scale It <span aria-hidden="true">↓</span></div><MomentumCanvas compact/></div> : active === 1 ? <SignalsCanvas/> : active === 2 ? <AlignmentCanvas/> : <MomentumCanvas/>}
+      <p className={styles.samPrinciple}>“The system that learns is the system that wins.” <span>— Vambah Sillah</span></p>
+    </div>
+    <button type="button" className={styles.samZoom} onClick={() => dialog.current?.showModal()}>View original book artifact</button>
     <dialog ref={dialog} className={styles.samDialog} aria-label="Full Signals, Alignment, Momentum infographic" onClick={(event) => { if (event.target === dialog.current) dialog.current?.close() }}><div className={styles.samDialogInner}><button type="button" onClick={() => dialog.current?.close()}>Close infographic</button><Image src="/showcases/service-prototypes/accelerated-sam-infographic.png" alt="Full Accelerated Signals, Alignment, Momentum infographic with funnel, alignment ladder, Structure It and Scale It bridges, compounding momentum loop, product examples and learning engine" width={1136} height={944} unoptimized/></div></dialog>
   </section>
 }
@@ -89,7 +130,7 @@ function Website({ view }: { view: number }) {
 function Cohort({ view }: { view: number }) {
   const [task, setTask] = useState(false)
   const [note, setNote] = useState('')
-  return <div className={styles.twoColumns}><Card title={view === 0 ? 'Your cohort workspace' : view === 1 ? 'Live build session' : 'The learning plan'} eyebrow="Accelerated · facilitated cohort"><p>{view === 0 ? 'A shared rhythm for teams learning to make better product decisions with AI.' : view === 1 ? 'Work with a facilitator and peers on one decision from your own context.' : 'Record the assumption, signal, metric, review date and decision before building.'}</p><div className={styles.metricGrid}><div><b>04</b><span>Learning modules</span></div><div><b>02</b><span>Live sessions</span></div><div><b>{task ? '1/1' : '0/1'}</b><span>Current exercise</span></div></div><div className={styles.list}>{modules.map((module, i) => <div className={styles.row} key={module}><strong>{String(i + 1).padStart(2, '0')}</strong><span>{module}</span><Chip tone={i === 0 && task ? 'good' : 'plain'}>{i === 0 && task ? 'Done' : i === 0 ? 'Now' : 'Next'}</Chip></div>)}</div></Card><Card title={view === 1 ? 'Session room' : view === 2 ? 'Facilitated exercise' : 'This week’s work'} eyebrow={view === 1 ? '90-minute session' : 'The operating model'}><SamArtifact key={view} initialView={view === 1 ? 1 : view === 2 ? 2 : 0}/><label className={styles.field}>The decision we need to make<textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Write one decision in plain language"/></label><button onClick={() => setTask(true)} disabled={!note.trim()} title={!note.trim() ? 'Write a decision first' : undefined}>{task ? 'Exercise saved' : 'Save exercise'}</button><p className={styles.note}>{task ? 'Saved locally for this preview.' : 'Your facilitator will help pressure-test this with the group.'}</p></Card></div>
+  return <div className={`${styles.twoColumns} ${styles.samLayout}`}><Card title={view === 0 ? 'Your cohort workspace' : view === 1 ? 'Live build session' : 'The learning plan'} eyebrow="Accelerated · facilitated cohort"><p>{view === 0 ? 'A shared rhythm for teams learning to make better product decisions with AI.' : view === 1 ? 'Work with a facilitator and peers on one decision from your own context.' : 'Record the assumption, signal, metric, review date and decision before building.'}</p><div className={styles.metricGrid}><div><b>04</b><span>Learning modules</span></div><div><b>02</b><span>Live sessions</span></div><div><b>{task ? '1/1' : '0/1'}</b><span>Current exercise</span></div></div><div className={styles.list}>{modules.map((module, i) => <div className={styles.row} key={module}><strong>{String(i + 1).padStart(2, '0')}</strong><span>{module}</span><Chip tone={i === 0 && task ? 'good' : 'plain'}>{i === 0 && task ? 'Done' : i === 0 ? 'Now' : 'Next'}</Chip></div>)}</div></Card><Card title={view === 1 ? 'Session room' : view === 2 ? 'Facilitated exercise' : 'This week’s work'} eyebrow={view === 1 ? '90-minute session' : 'The operating model'}><SamArtifact key={view} initialView={view === 1 ? 1 : view === 2 ? 2 : 0}/><label className={styles.field}>The decision we need to make<textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Write one decision in plain language"/></label><button onClick={() => setTask(true)} disabled={!note.trim()} title={!note.trim() ? 'Write a decision first' : undefined}>{task ? 'Exercise saved' : 'Save exercise'}</button><p className={styles.note}>{task ? 'Saved locally for this preview.' : 'Your facilitator will help pressure-test this with the group.'}</p></Card></div>
 }
 
 function Course({ view }: { view: number }) {
@@ -120,6 +161,6 @@ export default function ServicePrototypePage() {
   const content = slug === 'ai-lead-chatbot' ? <LeadChatbot view={view}/> : slug === 'lead-workflow-agent' ? <Workflow view={view}/> : slug === 'website-ux-refresh' ? <Website view={view}/> : slug === 'accelerated-cohort' ? <Cohort view={view}/> : slug === 'self-paced-course' ? <Course view={view}/> : <Masterclass view={view}/>
   return <main className={`${styles.shell} ${dark ? styles.dark : ''}`} data-prototype={slug}>
     <header className={styles.header}><div className={styles.brand}><Image src="/amadutown-logo-upscaled.png" alt="AmaduTown" width={34} height={46}/><span>AmaduTown <small>Service experiences</small></span></div><div className={styles.headerActions}><Link href="/services">All services</Link><button aria-label={dark ? 'Use light mode' : 'Use dark mode'} onClick={() => setTheme(dark ? 'light' : 'dark')}>{dark ? 'Light mode' : 'Dark mode'}</button></div></header>
-    <div className={styles.container}><div className={`${styles.intro} ${slug === 'accelerated-cohort' ? styles.cohortIntro : ''}`}><div><p className={styles.eyebrow}>Explore the experience</p><h1>{prototype.title}</h1><p>See how the service could work in practice. Names and activity in this interactive preview are fictional.</p></div>{slug === 'accelerated-cohort' ? <div className={styles.cohortBookFeature}><div><span className={styles.bookKicker}>THE BOOK BEHIND THE COHORT</span><strong>Accelerated</strong><span>Signals. Alignment. Momentum.</span><Chip>Interactive preview</Chip></div><Image src="/accelerated_cover_ebook.jpg" alt="Accelerated: Building Smarter Products with AI book cover by Vambah Sillah" width={140} height={210} priority unoptimized data-testid="accelerated-cover"/></div> : <Chip>Interactive preview</Chip>}</div><nav className={styles.tabs} aria-label="Experience views">{prototype.views.map((label, index) => <button key={label} aria-current={view === index ? 'page' : undefined} className={view === index ? styles.active : ''} onClick={() => setView(index)}>{label}</button>)}</nav>{content}<footer className={styles.footer}>This preview uses sample information. We shape the final experience around your team, audience and operating constraints.</footer></div>
+    <div className={styles.container}><div className={`${styles.intro} ${slug === 'accelerated-cohort' ? styles.cohortIntro : ''}`}><div><p className={styles.eyebrow}>Explore the experience</p><h1>{prototype.title}</h1><p>See how the service could work in practice. Names and activity in this interactive preview are fictional.</p></div>{slug === 'accelerated-cohort' ? <figure className={styles.cohortBookFeature}><Image src="/accelerated_cover_ebook.jpg" alt="Accelerated: Building Smarter Products with AI book cover by Vambah Sillah" width={140} height={210} priority unoptimized data-testid="accelerated-cover"/><figcaption>Accelerated · Vambah Sillah</figcaption></figure> : <Chip>Interactive preview</Chip>}</div><nav className={styles.tabs} aria-label="Experience views">{prototype.views.map((label, index) => <button key={label} aria-current={view === index ? 'page' : undefined} className={view === index ? styles.active : ''} onClick={() => setView(index)}>{label}</button>)}</nav>{content}<footer className={styles.footer}>This preview uses sample information. We shape the final experience around your team, audience and operating constraints.</footer></div>
   </main>
 }
