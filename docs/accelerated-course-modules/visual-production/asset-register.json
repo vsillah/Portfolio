@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "approved_base_commit": "932870eccabd393fa7401145b2e38db142891133",
+  "assets": {
+    "book": {
+      "path": "accelerated_ebook_leadmagnet.epub",
+      "sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "origin": "Canonical local EPUB named in curriculum/production-and-provenance.md",
+      "classification": "canonical book source",
+      "use": "review-only source; no provider or publication license inferred",
+      "privacy": "Public brand/book art; check source legibility and rights again before final render"
+    },
+    "cover": {
+      "path": "public/accelerated_cover_ebook.webp",
+      "sha256": "4a3406389e73fb919ba2c005475a8c707060103cee8b589ac16c8e68e42ab78d",
+      "origin": "Portfolio public ebook cover, production-and-provenance.md A3",
+      "classification": "approved local source",
+      "use": "review-only source; no provider or publication license inferred",
+      "privacy": "Public brand/book art; check source legibility and rights again before final render"
+    },
+    "logo": {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165",
+      "origin": "Portfolio AGENTS.md default AmaduTown logo asset",
+      "classification": "approved local source",
+      "use": "review-only source; no provider or publication license inferred",
+      "privacy": "Public brand/book art; check source legibility and rights again before final render"
+    },
+    "sam_map": {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "origin": "AmaduTown Drive original in production-and-provenance.md, D1; source copy agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+      "classification": "approved local source",
+      "use": "review-only source; no provider or publication license inferred",
+      "privacy": "Public brand/book art; check source legibility and rights again before final render"
+    },
+    "signals": {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "origin": "Merged Portfolio workshop plate, production-and-provenance.md A2",
+      "classification": "approved local source",
+      "use": "review-only source; no provider or publication license inferred",
+      "privacy": "Public brand/book art; check source legibility and rights again before final render"
+    },
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "origin": "Merged Portfolio workshop plate, production-and-provenance.md A2",
+      "classification": "approved local source",
+      "use": "review-only source; no provider or publication license inferred",
+      "privacy": "Public brand/book art; check source legibility and rights again before final render"
+    },
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "origin": "Merged Portfolio workshop plate, production-and-provenance.md A2",
+      "classification": "approved local source",
+      "use": "review-only source; no provider or publication license inferred",
+      "privacy": "Public brand/book art; check source legibility and rights again before final render"
+    }
+  }
+}

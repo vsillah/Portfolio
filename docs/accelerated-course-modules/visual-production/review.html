@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accelerated · visual production packet review</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background:#08111a; color:#f5f1e8 }
+    * { box-sizing:border-box }
+    body { margin:0; background:radial-gradient(circle at 80% 0%, #173543 0, #08111a 40%); min-width:320px }
+    main { max-width:1280px; margin:auto; padding:36px clamp(18px,4vw,54px) 70px }
+    header { display:flex; gap:24px; align-items:center; border-bottom:1px solid #4b6667; padding-bottom:28px }
+    header img { width:67px; height:auto; flex:none }
+    .eyebrow { color:#cda969; letter-spacing:.16em; text-transform:uppercase; font-size:12px; font-weight:700 }
+    h1 { font-family:Georgia,serif; font-size:clamp(34px,5vw,62px); line-height:1.05; margin:8px 0 10px; font-weight:500 }
+    .dek { color:#c3d0cf; max-width:760px; line-height:1.55; margin:0 }
+    .status { display:flex; flex-wrap:wrap; gap:12px; margin:28px 0 30px }
+    .status span { padding:10px 15px; border:1px solid #567071; border-radius:999px; color:#dfebe8; font-size:13px }
+    .status strong { color:#e9c784 }
+    h2 { font: 500 clamp(26px,3vw,38px) Georgia,serif; margin:45px 0 8px }
+    .section-intro { color:#b7c8c8; line-height:1.5; margin:0 0 20px }
+    .lesson-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px }
+    .lesson { border:1px solid #36545b; border-radius:12px; padding:13px 15px; background:#10232c; min-height:75px }
+    .lesson b { display:block; color:#e9c784; font-size:13px; margin-bottom:5px }
+    .lesson span { font-size:14px; line-height:1.3 }
+    .frames { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px }
+    .frame { border:1px solid #54706b; border-radius:18px; overflow:hidden; background:#10232c }
+    .frame-head { padding:20px 22px 14px }
+    .frame .meta { font-size:12px; text-transform:uppercase; letter-spacing:.13em; color:#e7bd72; font-weight:700 }
+    .frame h3 { font:500 27px/1.15 Georgia,serif; margin:8px 0 6px }
+    .frame p { margin:0; color:#c7d4d2; line-height:1.45; font-size:14px }
+    .canvas { aspect-ratio:16/9; background:#efe6d7; position:relative; display:grid; grid-template-columns:43% 57%; overflow:hidden; color:#132e35 }
+    .canvas img.plate { width:100%; height:100%; object-fit:contain; padding:16px; background:#d8d0c3 }
+    .canvas .copy { padding:clamp(16px,3vw,37px); display:flex; flex-direction:column; justify-content:center; gap:12px; min-width:0 }
+    .canvas .copy small { color:#647877; font-size:clamp(10px,1vw,13px); letter-spacing:.12em; text-transform:uppercase; font-weight:700 }
+    .canvas .copy strong { font:500 clamp(20px,1.8vw,23px)/1.15 Georgia,serif; overflow-wrap:anywhere }
+    .canvas .copy em { font-style:normal; font-size:clamp(11px,1vw,15px); line-height:1.35; color:#39565a }
+    .canvas .copy .steps { margin:0; padding-left:1.45em; font:500 clamp(16px,1.35vw,20px)/1.22 Georgia,serif; color:#18383e }
+    .canvas .copy .steps li { margin:0 0 5px; padding-left:2px }
+    #l08 .canvas .copy { align-items:flex-start; gap:9px }
+    #l05 .canvas .copy { gap:8px }
+    #l11 .canvas .copy, #l16 .canvas .copy { align-items:flex-start; gap:8px }
+    #l16 .canvas .copy .steps { font-size:18px }
+    .worksheet-fields { display:grid; gap:3px; font-size:12px; line-height:1.25; color:#39565a }
+    .caption { position:absolute; left:10%; right:10%; bottom:0; height:18%; background:#07141bd9; display:flex; align-items:center; justify-content:center; color:white; text-align:center; padding:9px; font-size:clamp(11px,1vw,15px); line-height:1.25 }
+    .frame-foot { padding:15px 22px 20px; border-top:1px solid #36545b; color:#c0cdcb; font-size:13px; line-height:1.45 }
+    .frame-foot b { color:#f1dfb2 }
+    footer { border-top:1px solid #4b6667; margin-top:42px; padding-top:20px; color:#b5c6c5; font-size:13px; line-height:1.5 }
+    @media(max-width:800px) { .lesson-grid { grid-template-columns:repeat(2,1fr) } .frames { grid-template-columns:1fr } }
+    @media(max-width:520px) { main { padding:22px 14px 42px } header { align-items:flex-start; gap:14px } header img { width:42px } .lesson-grid { gap:7px } .lesson { padding:10px; min-height:70px } .canvas { aspect-ratio:9/16; grid-template-columns:1fr; grid-template-rows:46% 54% } .canvas img.plate { padding:8px } .canvas .copy { padding:16px 22px 35%; gap:8px } .canvas .copy strong { font-size:22px } .canvas .copy em { font-size:13px } #l08 .canvas .copy, #l11 .canvas .copy, #l16 .canvas .copy { padding:18px 20px 25%; gap:8px } .canvas .copy .steps { font-size:17px; line-height:1.2 } #l16 .canvas .copy .steps { font-size:17px } .worksheet-fields { font-size:12px } .caption { left:0; right:0; font-size:13px; height:17% } }
+  </style>
+</head>
+<body><main>
+  <header><img src="../../../public/amadutown-logo-upscaled.png" alt="AmaduTown shield"><div><div class="eyebrow">Accelerated workshop · production review</div><h1>From approved script to visual instruction</h1><p class="dek">Scene-level packets for the full 16-lesson course. Original SAM art, the book, and the approved narration anchor each production choice.</p></div></header>
+  <div class="status"><span><strong>16</strong> lessons bound</span><span><strong>98</strong> scenes timed</span><span><strong>4</strong> storyboard examples</span><span>Provider execution locked</span></div>
+  <h2>Course coverage</h2><p class="section-intro">Every scene has a timed shot, exact spoken text, caption treatment, source lineage, and a protected audio handoff.</p>
+  <div class="lesson-grid">
+    <div class="lesson"><b>Signals · L01</b><span>Build smarter, stay human</span></div><div class="lesson"><b>Signals · L02</b><span>Prioritize before generating</span></div><div class="lesson"><b>Signals · L03</b><span>Answer-driven discovery</span></div><div class="lesson"><b>Signals · L04</b><span>Build small; keep personas alive</span></div>
+    <div class="lesson"><b>Signals · L05</b><span>From feedback to signal</span></div><div class="lesson"><b>Alignment · L06</b><span>Roadmap to PRD, without drift</span></div><div class="lesson"><b>Alignment · L07</b><span>Commit to learning</span></div><div class="lesson"><b>Alignment · L08</b><span>Metrics and the learning plan</span></div>
+    <div class="lesson"><b>Alignment · L09</b><span>Map the decision theater</span></div><div class="lesson"><b>Alignment · L10</b><span>Influence before impact</span></div><div class="lesson"><b>Momentum · L11</b><span>From the shift to a repeatable loop</span></div><div class="lesson"><b>Momentum · L12</b><span>Jobs and synthetic signals</span></div>
+    <div class="lesson"><b>Momentum · L13</b><span>Strategic shifts and future concepts</span></div><div class="lesson"><b>Momentum · L14</b><span>The last mile of influence</span></div><div class="lesson"><b>Momentum · L15</b><span>Governance and the system that learns</span></div><div class="lesson"><b>Synthesis · L16</b><span>What comes next</span></div>
+  </div>
+  <h2>Representative storyboard frames</h2><p class="section-intro">Local review frames show the original plates beside instructional copy. These are composition studies, not finished course media.</p>
+  <div class="frames">
+    <article class="frame" id="l05"><div class="frame-head"><div class="meta">Signals · L05-01 · 00:00–01:40</div><h3>Find the decision</h3><p>Six notes become one question worth answering.</p></div><div class="canvas"><img class="plate" src="../../../public/showcases/service-prototypes/v2/sam-signals-plate.webp" alt="Approved SAM Signals workshop plate"><div class="copy"><small>Membership exercise: F01–F06</small><strong>Decision before theme</strong><em>Improve the first task?<br>Send a reminder?<br>Investigate another barrier?</em></div><div class="caption">Before grouping anything, write that decision above the notes.</div></div><div class="frame-foot"><b>Source:</b> Chapter 7 method; fictional membership notes. The plate follows the decision question and carries no outcome claim.</div></article>
+    <article class="frame" id="l08"><div class="frame-head"><div class="meta">Alignment · L08-03 · 04:00–06:00</div><h3>Define the learning plan</h3><p>The first five book fields become a readable worksheet.</p></div><div class="canvas"><img class="plate" src="../../../public/showcases/service-prototypes/v2/sam-alignment-plate.webp" alt="Approved SAM Alignment workshop plate"><div class="copy"><small>Decision file: learning plan</small><ol class="steps"><li>Define the problem</li><li>Name the cohort</li><li>State the hypothesis</li><li>Bound the scope</li><li>Choose the metrics</li></ol></div><div class="caption">Write the problem and the people you are trying to serve.</div></div><div class="frame-foot"><b>Source:</b> Chapter 13 field names. The worksheet is instructional and carries no claimed result.</div></article>
+    <article class="frame" id="l11"><div class="frame-head"><div class="meta">Momentum · L11-03 · 03:20–05:00</div><h3>Make the loop repeatable</h3><p>Each handoff names the next human decision.</p></div><div class="canvas"><img class="plate" src="../../../public/showcases/service-prototypes/v2/sam-momentum-plate.webp" alt="Approved SAM Momentum workshop plate"><div class="copy"><small>Book sequence from Chapter 18</small><ol class="steps"><li>Notice the signal</li><li>Turn it into insight</li><li>Run the test</li><li>Make the decision</li><li>Build repeatable momentum</li></ol></div><div class="caption">A team needs a way to return from the test to the decision.</div></div><div class="frame-foot"><b>Source:</b> Chapter 18 sequence, paired with the approved Momentum plate. No live workflow is implied.</div></article>
+    <article class="frame" id="l16"><div class="frame-head"><div class="meta">Synthesis · L16-06 · 06:48–08:00</div><h3>One accountable move</h3><p>The decision file ends with a dated review commitment.</p></div><div class="canvas"><img class="plate" src="../../../public/showcases/service-prototypes/accelerated-sam-infographic.png" alt="Approved full SAM infographic showing Signals, Alignment, and Momentum"><div class="copy"><small>Your next week</small><ol class="steps"><li>Choose one pain point</li><li>Run one test</li><li>Set one review</li></ol><div class="worksheet-fields"><span>Owner: ______</span><span>Review date: ______</span><span>Evidence to watch: ______</span></div></div><div class="caption">Choose one pain point you can act on this week.</div></div><div class="frame-foot"><b>Source:</b> Chapter 26 close, approved SAM infographic, and learner decision file. Outcome fields remain blank.</div></article>
+  </div>
+  <footer>Review only · Approved script revision 932870eccabd393fa7401145b2e38db142891133 · No provider call, avatar, voice, upload, or final media produced.</footer>
+</main></body></html>
