@@ -198,18 +198,18 @@
   },
   "cd2c086a-26ec-4637-b7a3-129021c0bc19": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-11-02-photographic-service-review",
+    "calibration": "2026-11-02-workshop-casting",
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
-        "alt": "Illustrative scene: A facilitator helping a laptop-based cohort run an AI product exercise",
+        "alt": "Illustrative scene: An active cohort tests paper and laptop prototypes in a build lab",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-        "alt": "Illustrative scene: Cohort participants behind laptops comparing a product experiment canvas",
+        "alt": "Illustrative scene: Cohort learners test a cardboard service prototype beside a laptop",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -218,18 +218,18 @@
   },
   "c13e9f1c-7932-4e11-8459-a11e0ef7a070": {
     "expectedCurrentUrl": "/ATAS_Innovation_Workshop.png",
-    "calibration": "2026-11-02-photographic-service-review",
+    "calibration": "2026-11-02-workshop-casting-natural-review",
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-        "alt": "Illustrative scene: Product workshop participants behind laptops testing paper prototypes",
+        "alt": "Illustrative scene: A participant tests a paper service interface while a product team observes and records results",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-        "alt": "Illustrative scene: Participants behind laptops reviewing a journey map with a facilitator",
+        "alt": "Illustrative scene: A product team maps an opportunity and risk on blank cards beside a laptop",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -278,18 +278,18 @@
   },
   "0f7324b7-ba9e-440c-a282-f01b2919d2a4": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-11-02-photographic-service-review",
+    "calibration": "2026-11-02-workshop-casting",
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
-        "alt": "Illustrative scene: Half-day AI strategy workshop participants behind laptops prioritizing use cases",
+        "alt": "Illustrative scene: A compact AI strategy group prioritizes use cases with a facilitator, blank cards, and a laptop",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
-        "alt": "Illustrative scene: Participants behind laptops sorting blank opportunity cards with a facilitator",
+        "alt": "Illustrative scene: Two participants rank opportunity cards beside a laptop in a library nook",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -298,18 +298,18 @@
   },
   "457da6b5-92db-4b5b-a895-ee8571a47c8c": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-11-02-photographic-service-review",
+    "calibration": "2026-11-02-workshop-casting-natural-review",
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-        "alt": "Illustrative scene: Full-day AI strategy workshop teams behind laptops mapping workflows",
+        "alt": "Illustrative scene: Two full-day workshop groups compare workflow maps with laptops and a circulating facilitator",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-        "alt": "Illustrative scene: Full-day participants behind laptops planning an implementation sequence",
+        "alt": "Illustrative scene: Full-day participants synthesize an implementation sequence at a rolling board beside a laptop",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -390,18 +390,18 @@
   },
   "0aeccef3-eae9-4a4a-b90d-053560e53e85": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-11-02-photographic-service-review",
+    "calibration": "2026-11-02-workshop-casting-natural-review",
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
-        "alt": "Illustrative scene: A self-paced AI strategy workshop learner taking notes behind a laptop",
+        "alt": "Illustrative scene: One learner pauses a recorded AI strategy lesson to take notes at home",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-        "alt": "Illustrative scene: A learner behind a laptop completing an AI opportunity worksheet",
+        "alt": "Illustrative scene: One learner compares a recorded lesson with a workflow worksheet at a library laptop",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
