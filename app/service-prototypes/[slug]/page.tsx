@@ -54,7 +54,7 @@ function SignalsCanvas({ compact = false }: { compact?: boolean }) {
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="signals">
     <header><span>ACT I · FROM BLANK PAGES TO BOLD IDEAS</span><h3>Signals</h3><p>Raw noise → clear signal</p></header>
     <div className={styles.samPlateLayout}>
-      <SamPlate src="/showcases/service-prototypes/v2/sam-signals-plate.png" width={1024} height={1536} alt="Ornate gold synthesis funnel gathers pages, feedback, questions and observations, then points to a luminous target."/>
+      <SamPlate src="/showcases/service-prototypes/v2/sam-signals-plate.webp" width={1024} height={1536} alt="Ornate gold synthesis funnel gathers pages, feedback, questions and observations, then points to a luminous target."/>
       <div className={styles.samControlPanel}><p className={styles.samPanelLabel}>Choose a workshop input</p><div className={styles.samControls} aria-label="Workshop inputs">{signalInputs.map((item, index) => { const Icon = signalIcons[index]; return <button type="button" key={item} aria-pressed={input === item} onClick={() => setInput(item)}><Icon size={18} aria-hidden="true"/><span>{item}</span></button> })}</div><div className={styles.samCallout} aria-live="polite"><span>TESTABLE SIGNAL</span><strong>{input} → one question to test</strong><p>{selectedDetail}</p></div></div>
     </div>
   </article>
@@ -66,7 +66,7 @@ function AlignmentCanvas({ compact = false }: { compact?: boolean }) {
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="alignment">
     <header><span>ACT II · FROM INSIGHTS TO IMPACT</span><h3>Alignment</h3><p>Insight → shared direction</p></header>
     <div className={styles.samPlateLayout}>
-      <SamPlate src="/showcases/service-prototypes/v2/sam-alignment-plate.png" width={1060} height={1484} alt="Dimensional gold alignment pyramid: stakeholder handshakes at the base, ascending metric, PRD and roadmap platforms, and a trophy at the summit."/>
+      <SamPlate src="/showcases/service-prototypes/v2/sam-alignment-plate.webp" width={1060} height={1484} alt="Dimensional gold alignment pyramid: stakeholder handshakes at the base, ascending metric, PRD and roadmap platforms, and a trophy at the summit."/>
       <div className={styles.samControlPanel}><p className={styles.samPanelLabel}>Alignment canvas</p><div className={styles.samControls} aria-label="Alignment layers">{alignmentSteps.map((item, index) => { const Icon = alignmentIcons[index]; return <button type="button" key={item.name} aria-pressed={step.name === item.name} onClick={() => setStep(item)}><Icon size={18} aria-hidden="true"/><span>{item.name}</span></button> })}</div><div className={styles.samCallout} aria-live="polite"><span>SHARED DIRECTION</span><strong>{step.name}</strong><p>{step.detail}</p></div></div>
     </div>
   </article>
@@ -78,7 +78,7 @@ function MomentumCanvas({ compact = false }: { compact?: boolean }) {
   return <article className={`${styles.samActCanvas} ${compact ? styles.samActCompact : ''}`} data-sam-act="momentum">
     <header><span>ACT III · FROM TESTING TO TRANSFORMATION</span><h3>Momentum</h3><p>Systems that compound</p></header>
     <div className={styles.samPlateLayout}>
-      <SamPlate src="/showcases/service-prototypes/v2/sam-momentum-plate.png" width={1254} height={1254} alt="Ornate six-segment gold compounding loop around an inner build, test and learn cycle, connected to five product medallions."/>
+      <SamPlate src="/showcases/service-prototypes/v2/sam-momentum-plate.webp" width={1254} height={1254} alt="Ornate six-segment gold compounding loop around an inner build, test and learn cycle, connected to five product medallions."/>
       <div className={styles.samControlPanel}><p className={styles.samPanelLabel}>Explore the product medallions</p><div className={`${styles.samControls} ${styles.samMomentumControls}`} aria-label="Momentum product examples">{momentumExamples.map((item, index) => { const Icon = exampleIcons[index]; return <button type="button" key={item.name} aria-pressed={example.name === item.name} onClick={() => setExample(item)}><Icon size={18} aria-hidden="true"/><span>{item.name}</span><small>{item.position}</small></button> })}</div><div className={styles.samCallout} aria-live="polite"><span>COMPOUNDING LEARNING</span><strong>{example.name}</strong><p>{example.detail}</p></div></div>
     </div>
   </article>
