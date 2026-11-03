@@ -88,11 +88,11 @@
         "slug": "product-innovation-workshop",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-        "sha256": "abd9cf7f2a31e8ad45a728305fc038d1b4fa5e01fcae4ffe048a62a61845fde0",
+        "sha256": "fc355b0a2d3d224ebb54413d48f558a5c960f1f42ff33078985187c0c1f052aa",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-56684364-cbef-41ae-889a-bb5dc94cecbf.png",
-        "alt": "Illustrative scene: A participant tests a paper interface while a product team observes",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-55984462-de38-4b7c-b515-a858e394a66c.png",
+        "alt": "Illustrative scene: A participant tests a paper service interface while a product team observes and records results",
         "sceneCategory": "workshop"
       },
       {
@@ -826,22 +826,22 @@
         "slug": "ai-strategy-full-day",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-        "sha256": "6f6f02f1d8e82ebc5960b37c7cd8a52c99049511b3faafd565879e31ec9de559",
+        "sha256": "abd7377dc11e43326499d4c130469c00964a14265f52253deb88d5ef88d98b8a",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-c6020770-60cb-44d5-b98b-2355c54ca530.png",
-        "alt": "Illustrative scene: Two full-day workshop groups map workflows at separate tables with laptops",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-e5b423ba-ef51-4a68-b3c6-89ca53b7e44e.png",
+        "alt": "Illustrative scene: Two full-day workshop groups compare workflow maps with laptops and a circulating facilitator",
         "sceneCategory": "workshop"
       },
       {
         "slug": "ai-strategy-full-day",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-        "sha256": "312cec2ece0f2caa81a223e6c99a6b681a42cbf199c2325d22a34798a7712468",
+        "sha256": "36e234313e541a99b9926d9b075212527b3dc2434a2e6aa4b062230f7d4224b2",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-bfe52671-7215-4628-8964-ae919a0d9faa.png",
-        "alt": "Illustrative scene: Full-day participants synthesize a plan at a board with a laptop nearby",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-29d0c369-0d01-4a62-860d-43d072b6c258.png",
+        "alt": "Illustrative scene: Full-day participants synthesize an implementation sequence at a rolling board beside a laptop",
         "sceneCategory": "workshop"
       }
     ]
@@ -1167,11 +1167,11 @@
         "slug": "ai-strategy-recorded",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-        "sha256": "758f0542921e41162a8f4c8985fc5601f90c507cf0d64dfaa6a7f2ad23c0e2a6",
+        "sha256": "05b7f83de2ee38e965f621a9c766020eeec8de069dd35b467b3c60025b6dce3d",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-70e02c02-0f9f-4c31-8b2f-70b4a813edc0.png",
-        "alt": "Illustrative scene: One learner reviews a recorded lesson and worksheet at a library laptop",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-8306c58e-a9c7-45a9-9bab-c266340a4942.png",
+        "alt": "Illustrative scene: One learner compares a recorded lesson with a workflow worksheet at a library laptop",
         "sceneCategory": "workshop"
       }
     ]

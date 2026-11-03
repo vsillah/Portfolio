@@ -7,6 +7,8 @@ import gallery from './service-concept-gallery.json'
 const root = process.cwd()
 const qa = path.join(root, 'docs/qa/services-theme-speaking-visuals')
 const matrix = JSON.parse(readFileSync(path.join(qa, 'workshop-casting-matrix.json'), 'utf8')) as {
+  totalGenerationCalls: number
+  rejectedGenerationCount: number
   assets: Array<{
     slug: string; role: string; imageUrl: string; scene: string; setting: string;
     camera: string; facilitationMode: string; deliveryContext: string; castingIntent: string; alt: string
@@ -43,12 +45,15 @@ describe('workshop photographic casting contract', () => {
   })
 
   it('records distinct scene roles, settings, delivery contexts, and casting intent', () => {
+    expect(matrix.totalGenerationCalls).toBe(14)
+    expect(matrix.rejectedGenerationCount).toBe(4)
     expect(new Set(matrix.assets.map((asset) => asset.scene)).size).toBe(10)
     expect(new Set(matrix.assets.map((asset) => asset.setting)).size).toBe(10)
     for (const asset of matrix.assets) {
       for (const key of ['scene', 'setting', 'camera', 'facilitationMode', 'deliveryContext', 'castingIntent'] as const) {
         expect(asset[key].length, `${asset.slug}:${asset.role} ${key}`).toBeGreaterThan(12)
       }
+      expect(asset.castingIntent, `${asset.slug}:${asset.role}`).not.toMatch(/prosthe|robotic|wheelchair|hearing aid|medical device/i)
     }
     const scene = (slug: string) => matrix.assets.filter((asset) => asset.slug === slug).map((asset) => asset.scene).join(' ')
     expect(scene('ai-strategy-half-day')).toMatch(/priorit|ranking/i)
