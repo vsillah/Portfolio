@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateBenchmark, type BenchmarkRow } from './benchmark-core'
+import { computeContentHash, validateBenchmark, type BenchmarkRow } from './benchmark-core'
 import { VALIDATOR_VERSION } from './types'
 import type { CachedFetchResult, ValidatorContext } from './types'
 
@@ -127,5 +127,20 @@ describe('validateBenchmark', () => {
     const a = await validateBenchmark(row, { now, fetchUrls: false })
     const b = await validateBenchmark(row, { now, fetchUrls: false })
     expect(a.content_hash).toBe(b.content_hash)
+  })
+
+  it('binds the content hash to economic fields and ignores review metadata', () => {
+    const hash = computeContentHash(makeRow({
+      id: 'other-id',
+      notes: 'reviewer note',
+      validation_status: 'rejected',
+      content_hash: 'old',
+      validator_version: 'stale',
+    }))
+    expect(hash).toMatch(/^[a-f0-9]{64}$/)
+    expect(hash).toBe(computeContentHash(makeRow()))
+    expect(computeContentHash(makeRow({ value: 41 }))).not.toBe(hash)
+    expect(computeContentHash(makeRow({ year: 2024 }))).not.toBe(hash)
+    expect(computeContentHash(makeRow({ source_url: null }))).not.toBe(hash)
   })
 })
