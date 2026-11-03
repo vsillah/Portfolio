@@ -1,4 +1,6 @@
 import copy
+import html
+import re
 import unittest
 
 from build_packets import OUT, build, validate
@@ -39,7 +41,15 @@ class PacketRegressionTests(unittest.TestCase):
         for lid, number in (("L05", 1), ("L08", 3), ("L11", 3), ("L16", 6)):
             with self.subTest(lesson=lid):
                 scene = next(x for x in self.manifest["lessons"] if x["id"] == lid)["scenes"][number - 1]
-                self.assertIn(scene["on_screen_copy"], review)
+                article = re.search(rf'<article class="frame" id="{lid.lower()}">(.*?)</article>', review, re.S)
+                self.assertIsNotNone(article)
+                copy_block = re.search(r'<div class="copy">(.*?)</div>', article[1], re.S)
+                self.assertIsNotNone(copy_block)
+                visible = html.unescape(re.sub(r"<[^>]+>", " ", copy_block[1]))
+                for line in scene["on_screen_copy"].splitlines():
+                    self.assertIn(re.sub(r"^\d+\.\s*", "", line), visible)
+                self.assertIsNone(re.search(r"\b[\w-]+\s*/\s*[\w-]+\b", visible), f"Slash-delimited visible copy in {lid}")
+        self.assertEqual(5, len(re.findall(r"<li>", re.search(r'<article class="frame" id="l08">(.*?)</article>', review, re.S)[1])))
 
 
 if __name__ == "__main__":

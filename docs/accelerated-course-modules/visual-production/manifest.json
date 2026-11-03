@@ -3218,7 +3218,7 @@
           "narration_sha256": "9dfacab796638b6f7912a03d87ff3ef7c3757c543914c8d4e2c73aea37fbe9ab",
           "script_path": "docs/accelerated-course-modules/curriculum/scripts/L08.md",
           "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
-          "on_screen_copy": "1–5 · problem / cohort / hypothesis / scope / metrics",
+          "on_screen_copy": "1. Define the problem\n2. Name the cohort\n3. State the hypothesis\n4. Bound the scope\n5. Choose the metrics",
           "captions": {
             "source": "Exact approved narration; final SRT/VTT must be checked against the final audio mix",
             "placement": "Bottom 18% caption band, two lines maximum, speaker and meaningful sound identified",
@@ -3266,6 +3266,7 @@
             ],
             "scene_source": "Ch13, “The Ten Components” (`c016.xhtml`); Ch12, “Build a Metrics Ladder” (`c015.xhtml`).",
             "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+            "visual_copy_revision": "Five book fields expanded into natural action labels for human QA; narration and script source unchanged",
             "book_status": "Book case or argument, never current product/customer proof",
             "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
             "new_synthetic_identity": "synthetic-course-card:L08-03:e4647b07ebafffc7",

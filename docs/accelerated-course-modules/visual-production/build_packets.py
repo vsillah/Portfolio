@@ -29,6 +29,11 @@ EARLY_VISIBLE = {
     "L03": ["What decision is being made?", "Current answer", "Strongest fair objection", "Evidence that could change it", "Quick change | deeper bet | deliberate delay", "Source + date + uncertainty"],
     "L04": ["One moment. One test.", "Job + context", "Observed signal ≠ proposed signal", "Uncertainty", "Next validation question", "Source + review date", "Decision file: boundary → priority → evidence → persona"],
 }
+VISUAL_COPY_OVERRIDES = {
+    # Human QA revision: keep the approved narration and book fields, but make
+    # the representative worksheet copy readable as five separate actions.
+    "L08-03": "1. Define the problem\n2. Name the cohort\n3. State the hypothesis\n4. Bound the scope\n5. Choose the metrics",
+}
 SCENE_RE = re.compile(r"^## Scene (\d+) · (\d\d:\d\d)–(\d\d:\d\d) · (.+)$", re.M)
 
 
@@ -106,6 +111,7 @@ def build() -> tuple[dict, dict]:
             visible = visible.strip("` .")
             if lid in EARLY_VISIBLE:
                 visible = EARLY_VISIBLE[lid][item["number"] - 1]
+            visible = VISUAL_COPY_OVERRIDES.get(sid, visible)
             if not visible:
                 visible = item["title"]
             avatar = item["avatar"]
@@ -126,7 +132,7 @@ def build() -> tuple[dict, dict]:
                 "avatar": {"window": avatar, "placement": "When active, upper third or side window clear of captions, book labels, and worksheet text; portrait uses a separate top window", "entry_exit": "Hard cut into direct address, then cut away before dense instructional art", "gesture": "Emphasize the decision or question named in narration; no pointing to unverified results", "must_not_appear": "Dense worksheets, source text, SAM plate labels, simulated reactions, and any scene marked off"},
                 "audio": {"owner": "One spoken owner at a time: approved narration or later native avatar audio for its exact window", "mix": "If native avatar audio is used, mute the matching narration span; no double speech. Music/effects below intelligibility and absent during worksheet holds; no audio asset approved now", "sync": "Final native composite must match source frame count, rate, duration, and lip sync"},
                 "accessibility": {"contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame", "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration", "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16", "meaningful_text_alternative": access, "reduced_motion": "Static labeled end state with equivalent hold time"},
-                "lineage": {"epub_files": lesson["epub_files"], "scene_source": item["source"], "storyboard_brief": row["brief"], "book_status": "Book case or argument, never current product/customer proof", "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture", "new_synthetic_identity": f"synthetic-course-card:{sid}:{source_sha[:16]}", "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"},
+                "lineage": {"epub_files": lesson["epub_files"], "scene_source": item["source"], "storyboard_brief": row["brief"], **({"visual_copy_revision": "Five book fields expanded into natural action labels for human QA; narration and script source unchanged"} if sid in VISUAL_COPY_OVERRIDES else {}), "book_status": "Book case or argument, never current product/customer proof", "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture", "new_synthetic_identity": f"synthetic-course-card:{sid}:{source_sha[:16]}", "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"},
                 "implementation": "Local storyboard/review only. Later renderer must bind exact source hashes, preserve captions and native-audio ownership, and require separate provider and final-media approval.",
             })
         packets.append({"id": lid, "title": lesson["title"], "runtime_seconds": lesson["runtime_seconds"], "learner_artifact": lesson["learner_artifact"], "source_manifest": next(name for name in MANIFESTS if any(x["id"] == lid for x in json.loads((SCRIPTS / name).read_text())["lessons"])), "scenes": scenes})
@@ -138,7 +144,10 @@ def render_packet(group: list[dict]) -> str:
     for lesson in group:
         lines += [f"## {lesson['id']} · {lesson['title']}", "", f"Runtime: {lesson['runtime_seconds']} seconds. Learner artifact: {lesson['learner_artifact']}.", ""]
         for s in lesson["scenes"]:
-            lines += [f"### {s['id']} · {s['start_tc']}–{s['end_tc']} ({s['duration_seconds']} s) · {s['title']}", "", f"On screen: `{s['on_screen_copy']}`. Captions: exact narration in bottom 18%, two lines maximum, manually checked against final audio.", "", f"Shot: {s['shot']['composition']} Artifact: {s['shot']['artifact_behavior']}", "", f"Art: {', '.join(s['asset_refs'])}. 16:9: {s['shot']['framing']} Safe area: {s['shot']['safe_area']} 9:16: {s['shot']['portrait']}", "", f"Motion: {s['motion']['choreography']} Pace: {s['motion']['pacing']} Transition: {s['motion']['transition']} Reduced motion: {s['motion']['reduced_motion']}", "", f"Avatar: {s['avatar']['window']}. {s['avatar']['placement']} {s['avatar']['entry_exit']} Gesture: {s['avatar']['gesture']} Off during: {s['avatar']['must_not_appear']}", "", f"Audio: {s['audio']['owner']} {s['audio']['mix']}", "", f"Accessibility: {s['accessibility']['contrast']} {s['accessibility']['reading_order']} {s['accessibility']['meaningful_text_alternative']}", "", f"Lineage: {s['script_path']} SHA-256 `{s['script_sha256']}`; {s['lineage']['storyboard_brief']}; EPUB {', '.join(s['lineage']['epub_files'])}. {s['lineage']['scene_source']} Synthetic identity `{s['lineage']['new_synthetic_identity']}`. {s['lineage']['claim_boundary']}", "", f"Provider handoff: {s['implementation']}", "", "Approved narration:", "", f"> {s['narration']}", ""]
+            copy = s["on_screen_copy"]
+            screen_block = f"On screen: `{copy}`. Captions: exact narration in bottom 18%, two lines maximum, manually checked against final audio." if "\n" not in copy else f"On screen:\n\n```text\n{copy}\n```\n\nCaptions: exact narration in bottom 18%, two lines maximum, manually checked against final audio."
+            lineage_note = f" Visual copy revision: {s['lineage']['visual_copy_revision']}." if s["lineage"].get("visual_copy_revision") else ""
+            lines += [f"### {s['id']} · {s['start_tc']}–{s['end_tc']} ({s['duration_seconds']} s) · {s['title']}", "", screen_block, "", f"Shot: {s['shot']['composition']} Artifact: {s['shot']['artifact_behavior']}", "", f"Art: {', '.join(s['asset_refs'])}. 16:9: {s['shot']['framing']} Safe area: {s['shot']['safe_area']} 9:16: {s['shot']['portrait']}", "", f"Motion: {s['motion']['choreography']} Pace: {s['motion']['pacing']} Transition: {s['motion']['transition']} Reduced motion: {s['motion']['reduced_motion']}", "", f"Avatar: {s['avatar']['window']}. {s['avatar']['placement']} {s['avatar']['entry_exit']} Gesture: {s['avatar']['gesture']} Off during: {s['avatar']['must_not_appear']}", "", f"Audio: {s['audio']['owner']} {s['audio']['mix']}", "", f"Accessibility: {s['accessibility']['contrast']} {s['accessibility']['reading_order']} {s['accessibility']['meaningful_text_alternative']}", "", f"Lineage: {s['script_path']} SHA-256 `{s['script_sha256']}`; {s['lineage']['storyboard_brief']}; EPUB {', '.join(s['lineage']['epub_files'])}. {s['lineage']['scene_source']} Synthetic identity `{s['lineage']['new_synthetic_identity']}`.{lineage_note} {s['lineage']['claim_boundary']}", "", f"Provider handoff: {s['implementation']}", "", "Approved narration:", "", f"> {s['narration']}", ""]
     return "\n".join(lines)
 
 
