@@ -3,12 +3,12 @@
   "scope": "Illustrative generated scenes; casting metadata records prompt intent, not verified identity inferred from pixels.",
   "generatedCount": 10,
   "providerSpendUsd": 0,
-  "providerSpendEvidence": "Built-in image_gen tool; 14 total generations, 10 active frames; no metered API charge or purchase made by this lane.",
+  "providerSpendEvidence": "Built-in image generation: 24 cumulative calls in this gallery lineage; ten current renders. No paid API call or purchase receipt.",
   "assets": [
     {
       "slug": "ai-strategy-half-day",
       "role": "hero",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b966353e-0e7a-4ab4-83b1-817e0120bcbe.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4aa6b41d-dd05-41dd-823d-5a4f45a2a540.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
       "scene": "Compact nonprofit priority selection",
       "setting": "nonprofit meeting room",
@@ -16,12 +16,15 @@
       "facilitationMode": "facilitated prioritization",
       "deliveryContext": "small in-person group",
       "castingIntent": "Four adults spanning East Asian, South Asian, Black, and white casting; 30s–60s; woman facilitator; varied body types",
-      "alt": "Illustrative scene: A compact AI strategy group prioritizes use cases with a facilitator, blank cards, and a laptop"
+      "alt": "Illustrative scene: A compact AI strategy group prioritizes use cases with a facilitator, blank cards, and a laptop",
+      "wardrobePalette": "sage, charcoal, cream, rust",
+      "environmentPalette": "white walls, wood, pale green and coral cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-half-day",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-434775de-8fd5-4c1c-b60a-8069c8c5d330.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-7023ab50-6d67-40a0-b13a-be51c5a58e58.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
       "scene": "Two-person opportunity ranking",
       "setting": "public library collaboration nook",
@@ -29,12 +32,15 @@
       "facilitationMode": "peer decision exercise",
       "deliveryContext": "small in-person pair",
       "castingIntent": "Latina woman in her 30s and Middle Eastern man in his late 40s; different body types and roles",
-      "alt": "Illustrative scene: Two participants rank opportunity cards beside a laptop in a library nook"
+      "alt": "Illustrative scene: Two participants rank opportunity cards beside a laptop in a library nook",
+      "wardrobePalette": "burgundy, gray",
+      "environmentPalette": "library wood, cream, pale multicolor cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "hero",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-e5b423ba-ef51-4a68-b3c6-89ca53b7e44e.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-3748b6be-396b-484f-8249-4ebb9c2ecd42.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
       "scene": "Two-group workflow comparison",
       "setting": "civic-center flexible workshop room",
@@ -42,12 +48,15 @@
       "facilitationMode": "facilitator circulating between working groups",
       "deliveryContext": "full-day in-person multi-group lab",
       "castingIntent": "Multiethnic adult groups spanning younger and older professionals, varied gender presentation, body types, and seniority; no unusual physical trait as focal point",
-      "alt": "Illustrative scene: Two full-day workshop groups compare workflow maps with laptops and a circulating facilitator"
+      "alt": "Illustrative scene: Two full-day workshop groups compare workflow maps with laptops and a circulating facilitator",
+      "wardrobePalette": "olive, cream, rust, denim",
+      "environmentPalette": "civic-center neutrals and varied work materials",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-29d0c369-0d01-4a62-860d-43d072b6c258.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-0849f60d-d7a1-43bf-ba21-e1669b11ade7.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
       "scene": "End-of-day implementation synthesis",
       "setting": "university extension studio",
@@ -55,12 +64,15 @@
       "facilitationMode": "shared decision synthesis",
       "deliveryContext": "full-day in-person small group",
       "castingIntent": "Older Black woman program director, younger white man facilitator, Southeast Asian woman operations lead, Latino man nonprofit executive; varied seniority and body types",
-      "alt": "Illustrative scene: Full-day participants synthesize an implementation sequence at a rolling board beside a laptop"
+      "alt": "Illustrative scene: Full-day participants synthesize an implementation sequence at a rolling board beside a laptop",
+      "wardrobePalette": "burgundy, gray, green, charcoal",
+      "environmentPalette": "brick, white wall, wood, muted board cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-recorded",
       "role": "hero",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4568446a-b7c7-4a24-86c4-5cdafd0fd94f.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-32e4f34c-d644-4a0d-bffe-353b6b479a5b.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
       "scene": "Independent recorded lesson and notes",
       "setting": "home work desk",
@@ -68,12 +80,15 @@
       "facilitationMode": "self-paced reflection",
       "deliveryContext": "solo asynchronous",
       "castingIntent": "Black man in his early 40s with broad body type, small-business owner; no other people",
-      "alt": "Illustrative scene: One learner pauses a recorded AI strategy lesson to take notes at home"
+      "alt": "Illustrative scene: One learner pauses a recorded AI strategy lesson to take notes at home",
+      "wardrobePalette": "olive",
+      "environmentPalette": "home wood, cream, rust",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-recorded",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-8306c58e-a9c7-45a9-9bab-c266340a4942.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-791420b9-1745-4f41-ae5c-8e58efc95d82.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
       "scene": "Independent recorded lesson and worksheet review",
       "setting": "public library individual study alcove",
@@ -81,12 +96,15 @@
       "facilitationMode": "self-paced worksheet review",
       "deliveryContext": "solo asynchronous",
       "castingIntent": "White woman in her late 60s studying independently with an ordinary natural appearance; no other people",
-      "alt": "Illustrative scene: One learner compares a recorded lesson with a workflow worksheet at a library laptop"
+      "alt": "Illustrative scene: One learner compares a recorded lesson with a workflow worksheet at a library laptop",
+      "wardrobePalette": "lavender",
+      "environmentPalette": "library wood, warm neutrals",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "accelerated-cohort-workshop",
       "role": "hero",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f56dcc9b-c5ac-429b-9509-ff119ef26a89.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-ca5f7802-64ab-4936-ba20-2a217c6dd0fe.png",
       "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
       "scene": "Paired digital prototype testing",
       "setting": "community college maker classroom",
@@ -94,12 +112,15 @@
       "facilitationMode": "facilitated build lab",
       "deliveryContext": "multi-pair cohort",
       "castingIntent": "Black woman facilitator, Hispanic man, East African woman, South Asian man, white woman, Middle Eastern nonbinary participant; 20s–50s; varied body types",
-      "alt": "Illustrative scene: An active cohort tests paper and laptop prototypes in a build lab"
+      "alt": "Illustrative scene: An active cohort tests paper and laptop prototypes in a build lab",
+      "wardrobePalette": "green, denim, rust, cream",
+      "environmentPalette": "maker-lab white, wood, varied paper",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "accelerated-cohort-workshop",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f828c5bb-f3c3-4072-9def-50cc8c46bf25.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-6607bab5-c413-4ffa-badc-c22c67617d2f.png",
       "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
       "scene": "Rapid physical prototype peer test",
       "setting": "neighborhood entrepreneurship hub",
@@ -107,12 +128,15 @@
       "facilitationMode": "peer testing and observation",
       "deliveryContext": "small cohort group",
       "castingIntent": "Older Southeast Asian woman, young Black nonbinary learner, white man, Latina woman; 20s–60s; varied body types",
-      "alt": "Illustrative scene: Cohort learners test a cardboard service prototype beside a laptop"
+      "alt": "Illustrative scene: Cohort learners test a cardboard service prototype beside a laptop",
+      "wardrobePalette": "red, cream, plaid, charcoal",
+      "environmentPalette": "entrepreneurship-hub neutral walls, cardboard",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "product-innovation-workshop",
       "role": "hero",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-55984462-de38-4b7c-b515-a858e394a66c.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-c6dfe1ee-bd80-4ce7-9b24-51604e283626.png",
       "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
       "scene": "Paper interface participant test",
       "setting": "small public-service design studio",
@@ -120,12 +144,15 @@
       "facilitationMode": "participant prototype testing",
       "deliveryContext": "small in-person team",
       "castingIntent": "Black woman community participant, East Asian man researcher, white woman operations lead, South Asian woman facilitator; 30s–50s and varied professional roles",
-      "alt": "Illustrative scene: A participant tests a paper service interface while a product team observes and records results"
+      "alt": "Illustrative scene: A participant tests a paper service interface while a product team records results beside a laptop",
+      "wardrobePalette": "coral, charcoal, cream, forest green",
+      "environmentPalette": "studio white, wood, gray, plants",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "product-innovation-workshop",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-60df4976-f1cc-44df-862c-1c257ff68e9b.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-94796773-7fe1-432d-a824-3885767e3384.png",
       "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
       "scene": "Opportunity and risk mapping",
       "setting": "cooperative design room",
@@ -133,9 +160,12 @@
       "facilitationMode": "evidence-led opportunity mapping",
       "deliveryContext": "small in-person team",
       "castingIntent": "Middle Eastern woman founder, older Black man operator, young white woman researcher; 20s–60s; varied body types",
-      "alt": "Illustrative scene: A product team maps an opportunity and risk on blank cards beside a laptop"
+      "alt": "Illustrative scene: A product team maps opportunities and risks with blank cards on a wall map",
+      "wardrobePalette": "light gray, lavender, olive",
+      "environmentPalette": "cooperative brick, white, wood, plants, terracotta and pale green cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     }
   ],
-  "totalGenerationCalls": 14,
-  "rejectedGenerationCount": 4
+  "totalGenerationCalls": 24,
+  "rejectedGenerationCount": 14
 }

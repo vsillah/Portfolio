@@ -222,14 +222,14 @@
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-        "alt": "Illustrative scene: A participant tests a paper service interface while a product team observes and records results",
+        "alt": "Illustrative scene: A participant tests a paper service interface while a product team records results beside a laptop",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-        "alt": "Illustrative scene: A product team maps an opportunity and risk on blank cards beside a laptop",
+        "alt": "Illustrative scene: A product team maps opportunities and risks with blank cards on a wall map",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"

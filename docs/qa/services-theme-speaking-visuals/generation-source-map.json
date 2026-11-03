@@ -3,101 +3,128 @@
     {
       "slug": "accelerated-cohort-workshop",
       "role": "hero",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f56dcc9b-c5ac-429b-9509-ff119ef26a89.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-ca5f7802-64ab-4936-ba20-2a217c6dd0fe.png",
       "scene": "Paired digital prototype testing",
       "setting": "community college maker classroom",
       "camera": "energetic eye-level wide",
       "facilitationMode": "facilitated build lab",
       "deliveryContext": "multi-pair cohort",
-      "castingIntent": "Black woman facilitator, Hispanic man, East African woman, South Asian man, white woman, Middle Eastern nonbinary participant; 20s–50s; varied body types"
+      "castingIntent": "Black woman facilitator, Hispanic man, East African woman, South Asian man, white woman, Middle Eastern nonbinary participant; 20s–50s; varied body types",
+      "wardrobePalette": "green, denim, rust, cream",
+      "environmentPalette": "maker-lab white, wood, varied paper",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "accelerated-cohort-workshop",
       "role": "secondary",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f828c5bb-f3c3-4072-9def-50cc8c46bf25.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-6607bab5-c413-4ffa-badc-c22c67617d2f.png",
       "scene": "Rapid physical prototype peer test",
       "setting": "neighborhood entrepreneurship hub",
       "camera": "close oblique",
       "facilitationMode": "peer testing and observation",
       "deliveryContext": "small cohort group",
-      "castingIntent": "Older Southeast Asian woman, young Black nonbinary learner, white man, Latina woman; 20s–60s; varied body types"
+      "castingIntent": "Older Southeast Asian woman, young Black nonbinary learner, white man, Latina woman; 20s–60s; varied body types",
+      "wardrobePalette": "red, cream, plaid, charcoal",
+      "environmentPalette": "entrepreneurship-hub neutral walls, cardboard",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "product-innovation-workshop",
       "role": "hero",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-55984462-de38-4b7c-b515-a858e394a66c.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-c6dfe1ee-bd80-4ce7-9b24-51604e283626.png",
       "scene": "Paper interface participant test",
       "setting": "small public-service design studio",
       "camera": "medium close documentary",
       "facilitationMode": "participant prototype testing",
       "deliveryContext": "small in-person team",
-      "castingIntent": "Black woman community participant, East Asian man researcher, white woman operations lead, South Asian woman facilitator; 30s–50s and varied professional roles"
+      "castingIntent": "Black woman community participant, East Asian man researcher, white woman operations lead, South Asian woman facilitator; 30s–50s and varied professional roles",
+      "wardrobePalette": "coral, charcoal, cream, forest green",
+      "environmentPalette": "studio white, wood, gray, plants",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "product-innovation-workshop",
       "role": "secondary",
       "scene": "Opportunity and risk mapping",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-60df4976-f1cc-44df-862c-1c257ff68e9b.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-94796773-7fe1-432d-a824-3885767e3384.png",
       "setting": "cooperative design room",
       "camera": "overhead three-quarter",
       "facilitationMode": "evidence-led opportunity mapping",
       "deliveryContext": "small in-person team",
-      "castingIntent": "Middle Eastern woman founder, older Black man operator, young white woman researcher; 20s–60s; varied body types"
+      "castingIntent": "Middle Eastern woman founder, older Black man operator, young white woman researcher; 20s–60s; varied body types",
+      "wardrobePalette": "light gray, lavender, olive",
+      "environmentPalette": "cooperative brick, white, wood, plants, terracotta and pale green cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-half-day",
       "role": "hero",
       "scene": "Compact nonprofit priority selection",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b966353e-0e7a-4ab4-83b1-817e0120bcbe.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4aa6b41d-dd05-41dd-823d-5a4f45a2a540.png",
       "setting": "nonprofit meeting room",
       "camera": "wide diagonal",
       "facilitationMode": "facilitated prioritization",
       "deliveryContext": "small in-person group",
-      "castingIntent": "Four adults spanning East Asian, South Asian, Black, and white casting; 30s–60s; woman facilitator; varied body types"
+      "castingIntent": "Four adults spanning East Asian, South Asian, Black, and white casting; 30s–60s; woman facilitator; varied body types",
+      "wardrobePalette": "sage, charcoal, cream, rust",
+      "environmentPalette": "white walls, wood, pale green and coral cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "hero",
       "scene": "Two-group workflow comparison",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-e5b423ba-ef51-4a68-b3c6-89ca53b7e44e.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-3748b6be-396b-484f-8249-4ebb9c2ecd42.png",
       "setting": "civic-center flexible workshop room",
       "camera": "wide documentary room-corner view",
       "facilitationMode": "facilitator circulating between working groups",
       "deliveryContext": "full-day in-person multi-group lab",
-      "castingIntent": "Multiethnic adult groups spanning younger and older professionals, varied gender presentation, body types, and seniority; no unusual physical trait as focal point"
+      "castingIntent": "Multiethnic adult groups spanning younger and older professionals, varied gender presentation, body types, and seniority; no unusual physical trait as focal point",
+      "wardrobePalette": "olive, cream, rust, denim",
+      "environmentPalette": "civic-center neutrals and varied work materials",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "secondary",
       "scene": "End-of-day implementation synthesis",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-29d0c369-0d01-4a62-860d-43d072b6c258.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-0849f60d-d7a1-43bf-ba21-e1669b11ade7.png",
       "setting": "university extension studio",
       "camera": "close side view of rolling board",
       "facilitationMode": "shared decision synthesis",
       "deliveryContext": "full-day in-person small group",
-      "castingIntent": "Older Black woman program director, younger white man facilitator, Southeast Asian woman operations lead, Latino man nonprofit executive; varied seniority and body types"
+      "castingIntent": "Older Black woman program director, younger white man facilitator, Southeast Asian woman operations lead, Latino man nonprofit executive; varied seniority and body types",
+      "wardrobePalette": "burgundy, gray, green, charcoal",
+      "environmentPalette": "brick, white wall, wood, muted board cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-recorded",
       "role": "hero",
       "scene": "Independent recorded lesson and notes",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4568446a-b7c7-4a24-86c4-5cdafd0fd94f.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-32e4f34c-d644-4a0d-bffe-353b6b479a5b.png",
       "setting": "home work desk",
       "camera": "doorway profile",
       "facilitationMode": "self-paced reflection",
       "deliveryContext": "solo asynchronous",
-      "castingIntent": "Black man in his early 40s with broad body type, small-business owner; no other people"
+      "castingIntent": "Black man in his early 40s with broad body type, small-business owner; no other people",
+      "wardrobePalette": "olive",
+      "environmentPalette": "home wood, cream, rust",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "ai-strategy-recorded",
       "role": "secondary",
       "scene": "Independent recorded lesson and worksheet review",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-8306c58e-a9c7-45a9-9bab-c266340a4942.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-791420b9-1745-4f41-ae5c-8e58efc95d82.png",
       "setting": "public library individual study alcove",
       "camera": "close over-the-shoulder profile",
       "facilitationMode": "self-paced worksheet review",
       "deliveryContext": "solo asynchronous",
-      "castingIntent": "White woman in her late 60s studying independently with an ordinary natural appearance; no other people"
+      "castingIntent": "White woman in her late 60s studying independently with an ordinary natural appearance; no other people",
+      "wardrobePalette": "lavender",
+      "environmentPalette": "library wood, warm neutrals",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     },
     {
       "slug": "management-consulting",
@@ -142,13 +169,16 @@
       "role": "secondary",
       "kind": "individual",
       "prompt": "Premium photorealistic landscape 3:2 editorial photograph, illustrative concept of a half-day AI strategy workshop. Two adult participants behind open laptops in a compact learning studio jointly rank blank color-coded opportunity cards on a table while a facilitator sits with them. Close side camera, hands and laptops clearly visible, paper cards entirely blank and whiteboard turned away, distinct from the wider hero session. No legible text, numbers, labels, logos, stage, podium, audience rows, collage, or watermark.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-434775de-8fd5-4c1c-b60a-8069c8c5d330.png",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-7023ab50-6d67-40a0-b13a-be51c5a58e58.png",
       "scene": "Two-person opportunity ranking",
       "setting": "public library collaboration nook",
       "camera": "close side view",
       "facilitationMode": "peer decision exercise",
       "deliveryContext": "small in-person pair",
-      "castingIntent": "Latina woman in her 30s and Middle Eastern man in his late 40s; different body types and roles"
+      "castingIntent": "Latina woman in her 30s and Middle Eastern man in his late 40s; different body types and roles",
+      "wardrobePalette": "burgundy, gray",
+      "environmentPalette": "library wood, cream, pale multicolor cards",
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
     }
   ],
   "sheets": [
