@@ -1,4 +1,4 @@
-# Accelerated Phase 2 · L01–L04 editorial scripts
+# Accelerated Phase 2 editorial scripts
 
 This package scripts the first four of 16 recorded lessons in the merged curriculum. It is ready for editorial review, not recording or rendering. The canonical EPUB is the authority for claims, chapter order, and book cases. The merged Phase 1 outline fixes lesson promises, runtime, and decision-file progression. The older course kit informs pacing and tactical diagrams; it does not establish live product or customer proof.
 
@@ -30,3 +30,11 @@ Total: **38:00 and 4,533 spoken words**. Pause time for writing is additional. S
 ## Next gate
 
 Editorial review should read the four scripts aloud, check pronunciation and emphasis, challenge the synthetic example's clarity, and approve or revise before any storyboard render, avatar, voice, video, capture, upload, publishing, or deployment. No provider call or media generation occurred in this phase.
+
+## L05–L08 continuation
+
+The next four lessons are [L05](L05.md), [L06](L06.md), [L07](L07.md), and [L08](L08.md). They extend the same decision file from feedback ledger through roadmap/PRD trace, two learning checkpoints, and the book's ten-component learning plan. The [L05–L08 manifest](manifest-l05-l08.json), [storyboard brief](storyboard-brief-l05-l08.md), and [source notes](source-notes-l05-l08.md) keep the continuation separate from the merged L01–L04 package. Recorded target is **43:00 and 5,131 spoken words**; learner worksheet pauses are additional.
+
+Run `python3 docs/accelerated-course-modules/curriculum/scripts/validate_l05_l08.py` from the repo root. It checks the canonical EPUB chapter text, cited section headings, six continuous scenes per lesson, 115–145 spoken words per minute, avatar windows, source art, storyboard beats, and manifest totals. The existing L01–L04 validator remains unchanged and should also pass. These scripts are ready for editorial read-aloud review, not provider production.
+
+The humanizer pass focused on spoken specificity: removed generic “here's the” transitions, broad AI promises, false certainty from synthetic notes, and symmetrical slogans. The running membership example stays explicitly hypothetical, while the book's Sam and “Just Make It Faster” cases remain attributed to their chapters. A human read-aloud and audience-copy pass remain required before media work.
