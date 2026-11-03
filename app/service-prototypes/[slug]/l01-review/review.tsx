@@ -9,8 +9,8 @@ import styles from './review.module.css'
 const clock = (value: number) => `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(Math.floor(value % 60)).padStart(2, '0')}`
 const avatars = [{ start: 0, end: 35, id: 'A01' }, { start: 235, end: 255, id: 'A02' }, { start: 345, end: 365, id: 'A03' }, { start: 515, end: 540, id: 'A04' }]
 
-export function L01Review() {
-  const [time, setTime] = useState(0)
+export function L01Review({ initialSeconds = 0, revision = '' }: { initialSeconds?: number; revision?: string }) {
+  const [time, setTime] = useState(initialSeconds)
   const [playing, setPlaying] = useState(false)
   const [captions, setCaptions] = useState(true)
   useEffect(() => {
@@ -47,7 +47,7 @@ export function L01Review() {
           <div className={styles.controls}><button type="button" onClick={() => { if (time === 540) setTime(0); setPlaying(!playing) }} aria-label={playing ? 'Pause animatic' : 'Play animatic'}>{playing ? 'Pause' : 'Play'}</button><span>{clock(time)} / 09:00</span><input aria-label="Seek animatic" type="range" min="0" max="540" step="1" value={Math.round(time)} onChange={(event) => jump(Number(event.target.value))}/><button type="button" aria-pressed={captions} onClick={() => setCaptions(!captions)}>CC {captions ? 'on' : 'off'}</button></div>
           <p className={styles.note}>Silent storyboard timing. Captions follow the approved script and need retiming against final recorded audio.</p>
         </section>
-        <aside className={styles.side}><div className={styles.sideHeading}><span>09:00 · SIX SCENES</span><h2>Follow the decision.</h2></div><nav aria-label="Animatic scenes">{lesson.scenes.map((item) => <button type="button" key={item.id} aria-current={scene.id === item.id ? 'step' : undefined} onClick={() => jump(item.start_seconds)}><span>{clock(item.start_seconds)}</span><strong>{item.title}</strong><small>{item.on_screen_copy}</small></button>)}</nav><div className={styles.artifact}><span>YOUR TAKEAWAY</span><strong>Decision-file cover sheet</strong><p>Write the decision, owner, deadline, risk of guessing, and input boundary. Use a synthetic case if the real one is restricted.</p></div></aside>
+        <aside className={styles.side}><div className={styles.sideHeading}><span>09:00 · SIX SCENES</span><h2>Follow the decision.</h2></div><nav aria-label="Animatic scenes">{lesson.scenes.map((item) => <form key={item.id} action="/service-prototypes/accelerated-cohort/l01-review" method="get">{revision && <input type="hidden" name="rev" value={revision}/>}<input type="hidden" name="t" value={item.start_seconds}/><button type="submit" aria-current={scene.id === item.id ? 'step' : undefined}><span>{clock(item.start_seconds)}</span><strong>{item.title}</strong><small>{item.on_screen_copy}</small></button></form>)}</nav><div className={styles.artifact}><span>YOUR TAKEAWAY</span><strong>Decision-file cover sheet</strong><p>Write the decision, owner, deadline, risk of guessing, and input boundary. Use a synthetic case if the real one is restricted.</p></div></aside>
       </div>
       <section className={styles.transcript}><div><p className={styles.eyebrow}>READ ALONG</p><h2>Approved narration</h2><p>The full text stays available for readers and for source review.</p></div><details><summary>Open searchable transcript</summary>{lesson.scenes.map((item) => <section key={item.id}><h3>{clock(item.start_seconds)} · {item.title}</h3><p>{item.narration}</p></section>)}</details></section>
     </div>
