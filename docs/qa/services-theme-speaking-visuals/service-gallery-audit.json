@@ -43,22 +43,22 @@
         "slug": "accelerated-cohort-workshop",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
-        "sha256": "9f7dfe44b687e6b4e33f1daa08018b4e9d691bede67621c34d36c94c539ef479",
+        "sha256": "9d45e39b621ae9a1f552d144ef1f93f26dace59165f7c7fa0ab9d39c3122ea82",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-bf5250d8-ab9b-40fb-a224-de6b895cea40.png",
-        "alt": "Illustrative scene: A facilitator helping a laptop-based cohort run an AI product exercise",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f56dcc9b-c5ac-429b-9509-ff119ef26a89.png",
+        "alt": "Illustrative scene: An active cohort tests paper and laptop prototypes in a build lab",
         "sceneCategory": "workshop"
       },
       {
         "slug": "accelerated-cohort-workshop",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-        "sha256": "7d638c8fe292922a7a6485f573085adae71c99589fe883a0e0a7756825828f3a",
+        "sha256": "6ee50aae48dfa896b39409ca08fb8ed86255051a9e5f22a171ed1156ce8e9339",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-1ba1aac5-e3d0-472a-bd54-1309fc12a122.png",
-        "alt": "Illustrative scene: Cohort participants behind laptops comparing a product experiment canvas",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f828c5bb-f3c3-4072-9def-50cc8c46bf25.png",
+        "alt": "Illustrative scene: Cohort learners test a cardboard service prototype beside a laptop",
         "sceneCategory": "workshop"
       }
     ]
@@ -88,22 +88,22 @@
         "slug": "product-innovation-workshop",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-        "sha256": "455b0411374cba0abbd6420b4aa3c780f243c748863561d0777f36dd07d0b6b5",
+        "sha256": "abd9cf7f2a31e8ad45a728305fc038d1b4fa5e01fcae4ffe048a62a61845fde0",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-89922b64-f1b7-41d0-8b29-0cdbb3672b08.png",
-        "alt": "Illustrative scene: Product workshop participants behind laptops testing paper prototypes",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-56684364-cbef-41ae-889a-bb5dc94cecbf.png",
+        "alt": "Illustrative scene: A participant tests a paper interface while a product team observes",
         "sceneCategory": "workshop"
       },
       {
         "slug": "product-innovation-workshop",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-        "sha256": "cb3204208170af585fb2b27a25ea3852028634b6becb25e4446b6ef7669becf5",
+        "sha256": "8ab1406206a40c5bf548c85dc576216bc72ae541f743ec175c65fe18a7112295",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-79af7565-12fe-4944-a656-20b1bcdc7c06.png",
-        "alt": "Illustrative scene: Participants behind laptops reviewing a journey map with a facilitator",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-60df4976-f1cc-44df-862c-1c257ff68e9b.png",
+        "alt": "Illustrative scene: A product team maps an opportunity and risk on blank cards beside a laptop",
         "sceneCategory": "workshop"
       }
     ]
@@ -781,22 +781,22 @@
         "slug": "ai-strategy-half-day",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
-        "sha256": "4c0de23bbc131c25d636261b1a8e3366bb56ccd0a7e02adc6da3a798923e4f6a",
+        "sha256": "de33c1594e57cce2d269c5713c6bff98fdf191185b032fb03e0577566bcbe6d6",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a2d21919-1bb8-41a1-a5d7-02661970f333.png",
-        "alt": "Illustrative scene: Half-day AI strategy workshop participants behind laptops prioritizing use cases",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b966353e-0e7a-4ab4-83b1-817e0120bcbe.png",
+        "alt": "Illustrative scene: A compact AI strategy group prioritizes use cases with a facilitator, blank cards, and a laptop",
         "sceneCategory": "workshop"
       },
       {
         "slug": "ai-strategy-half-day",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
-        "sha256": "08b32be6ffd3fd9d0cd72aa7e68aadc1b0f93a955673699f1788b471fd37f3c8",
+        "sha256": "8c91d986143c92c50e239762adbec9973a655ea9770c4e9ad606f2a5ec48f92f",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-33270999-396b-410e-ab80-0d04ca8b8454.png",
-        "alt": "Illustrative scene: Participants behind laptops sorting blank opportunity cards with a facilitator",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-434775de-8fd5-4c1c-b60a-8069c8c5d330.png",
+        "alt": "Illustrative scene: Two participants rank opportunity cards beside a laptop in a library nook",
         "sceneCategory": "workshop"
       }
     ]
@@ -826,22 +826,22 @@
         "slug": "ai-strategy-full-day",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-        "sha256": "ec7cc3cbe1c34238ea9725d93ff9487115785bbbcfe7f5328d453e14677f996d",
+        "sha256": "6f6f02f1d8e82ebc5960b37c7cd8a52c99049511b3faafd565879e31ec9de559",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d398ed5-96a5-44e0-b287-896d62f88cb1.png",
-        "alt": "Illustrative scene: Full-day AI strategy workshop teams behind laptops mapping workflows",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-c6020770-60cb-44d5-b98b-2355c54ca530.png",
+        "alt": "Illustrative scene: Two full-day workshop groups map workflows at separate tables with laptops",
         "sceneCategory": "workshop"
       },
       {
         "slug": "ai-strategy-full-day",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-        "sha256": "dec91824a76e204ba63ec965bc2014b802c26abedc5270145f416c91bcade8ea",
+        "sha256": "312cec2ece0f2caa81a223e6c99a6b681a42cbf199c2325d22a34798a7712468",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d0588a3-24bb-4851-95c2-e5f89b75ff5b.png",
-        "alt": "Illustrative scene: Full-day participants behind laptops planning an implementation sequence",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-bfe52671-7215-4628-8964-ae919a0d9faa.png",
+        "alt": "Illustrative scene: Full-day participants synthesize a plan at a board with a laptop nearby",
         "sceneCategory": "workshop"
       }
     ]
@@ -1156,22 +1156,22 @@
         "slug": "ai-strategy-recorded",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
-        "sha256": "89c9def18d1170732452b7ea8b856ab089aecb314dfb1fcda4e30736879f4ee0",
+        "sha256": "d5015c6a4285e7e7ea86ab601d8b16358c3c4b1365a24ea5065970a543bd6bd7",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-948dccd2-d0bd-48bd-8ac8-ab63baa227f1.png",
-        "alt": "Illustrative scene: A self-paced AI strategy workshop learner taking notes behind a laptop",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4568446a-b7c7-4a24-86c4-5cdafd0fd94f.png",
+        "alt": "Illustrative scene: One learner pauses a recorded AI strategy lesson to take notes at home",
         "sceneCategory": "workshop"
       },
       {
         "slug": "ai-strategy-recorded",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-        "sha256": "dafb090937aa55158de636a7b532f0ddd67d7a5fc1a4ada2285ff00e157672f7",
+        "sha256": "758f0542921e41162a8f4c8985fc5601f90c507cf0d64dfaa6a7f2ad23c0e2a6",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e6e318fa-692d-4c67-bbd6-c64f4be8823e.png",
-        "alt": "Illustrative scene: A learner behind a laptop completing an AI opportunity worksheet",
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-70e02c02-0f9f-4c31-8b2f-70b4a813edc0.png",
+        "alt": "Illustrative scene: One learner reviews a recorded lesson and worksheet at a library laptop",
         "sceneCategory": "workshop"
       }
     ]

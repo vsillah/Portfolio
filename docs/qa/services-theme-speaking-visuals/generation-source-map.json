@@ -3,53 +3,101 @@
     {
       "slug": "accelerated-cohort-workshop",
       "role": "hero",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-bf5250d8-ab9b-40fb-a224-de6b895cea40.png"
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f56dcc9b-c5ac-429b-9509-ff119ef26a89.png",
+      "scene": "Paired digital prototype testing",
+      "setting": "community college maker classroom",
+      "camera": "energetic eye-level wide",
+      "facilitationMode": "facilitated build lab",
+      "deliveryContext": "multi-pair cohort",
+      "castingIntent": "Black woman facilitator, Hispanic man, East African woman, South Asian man, white woman, Middle Eastern nonbinary participant; 20s–50s; varied body types"
     },
     {
       "slug": "accelerated-cohort-workshop",
       "role": "secondary",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-1ba1aac5-e3d0-472a-bd54-1309fc12a122.png"
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f828c5bb-f3c3-4072-9def-50cc8c46bf25.png",
+      "scene": "Rapid physical prototype peer test",
+      "setting": "neighborhood entrepreneurship hub",
+      "camera": "close oblique",
+      "facilitationMode": "peer testing and observation",
+      "deliveryContext": "small cohort group",
+      "castingIntent": "Older Southeast Asian woman, young Black nonbinary learner, white man, Latina woman; 20s–60s; varied body types"
     },
     {
       "slug": "product-innovation-workshop",
       "role": "hero",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-89922b64-f1b7-41d0-8b29-0cdbb3672b08.png"
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-56684364-cbef-41ae-889a-bb5dc94cecbf.png",
+      "scene": "Paper interface participant test",
+      "setting": "public-service design studio",
+      "camera": "medium close documentary",
+      "facilitationMode": "participant prototype testing",
+      "deliveryContext": "small in-person team",
+      "castingIntent": "Black woman participant, East Asian man researcher, older white man accessibility specialist, South Asian woman facilitator; 20s–60s; varied body types"
     },
     {
       "slug": "product-innovation-workshop",
       "role": "secondary",
-      "scene": "A close documentary side view of two product team members behind laptops testing a paper user journey and comparing prototype screens, while a facilitator points to a handwritten opportunity map on a whiteboard. Bright practical innovation studio, three adults, natural daylight, visible collaboration artifacts, distinct from the wider table scene.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-79af7565-12fe-4944-a656-20b1bcdc7c06.png"
+      "scene": "Opportunity and risk mapping",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-60df4976-f1cc-44df-862c-1c257ff68e9b.png",
+      "setting": "cooperative design room",
+      "camera": "overhead three-quarter",
+      "facilitationMode": "evidence-led opportunity mapping",
+      "deliveryContext": "small in-person team",
+      "castingIntent": "Middle Eastern woman founder, older Black man operator, young white woman researcher; 20s–60s; varied body types"
     },
     {
       "slug": "ai-strategy-half-day",
       "role": "hero",
-      "scene": "A half-day AI strategy working session in a compact nonprofit boardroom: four diverse adult participants behind open laptops sort candidate use cases on sticky notes while a facilitator at the table guides a priority exercise. Morning light, candid diagonal camera, visible laptops and hands, grounded practical energy.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-a2d21919-1bb8-41a1-a5d7-02661970f333.png"
+      "scene": "Compact nonprofit priority selection",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b966353e-0e7a-4ab4-83b1-817e0120bcbe.png",
+      "setting": "nonprofit meeting room",
+      "camera": "wide diagonal",
+      "facilitationMode": "facilitated prioritization",
+      "deliveryContext": "small in-person group",
+      "castingIntent": "Four adults spanning East Asian, South Asian, Black, and white casting; 30s–60s; woman facilitator; varied body types"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "hero",
-      "scene": "A full-day AI strategy workshop in a larger flexible training room: six adult professionals seated in two small working groups behind laptops, jointly mapping workflows on movable whiteboards. Facilitator circulates between groups, afternoon daylight, low candid wide camera angle, visibly active hands-on exercises.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d398ed5-96a5-44e0-b287-896d62f88cb1.png"
+      "scene": "Two-group workflow mapping",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-c6020770-60cb-44d5-b98b-2355c54ca530.png",
+      "setting": "civic-center flexible lab",
+      "camera": "wide room-edge view",
+      "facilitationMode": "multi-group facilitation",
+      "deliveryContext": "full-day in-person group",
+      "castingIntent": "Adults across Black, white, Southeast Asian, and Latina casting; 20s–60s; mixed gender and body types; participant with forearm prosthesis"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "secondary",
-      "scene": "Late-afternoon close side view at a full-day AI strategy working lab: three adult participants behind laptops comparing a hand-drawn implementation sequence on blank paper while facilitator circulates and points to a simple diagram with no words. Different room angle, people, and composition from hero; visible collaborative planning.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-9d0588a3-24bb-4851-95c2-e5f89b75ff5b.png"
+      "scene": "End-of-day synthesis",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-bfe52671-7215-4628-8964-ae919a0d9faa.png",
+      "setting": "university extension innovation lab",
+      "camera": "low close view",
+      "facilitationMode": "shared decision synthesis",
+      "deliveryContext": "full-day in-person trio",
+      "castingIntent": "Older Black woman, young white nonbinary facilitator, Pacific Islander man using a wheelchair; mixed seniority and body types"
     },
     {
       "slug": "ai-strategy-recorded",
       "role": "hero",
-      "scene": "A self-paced recorded AI strategy workshop learner at home, adult nonprofit director seated behind an open laptop viewing a facilitator's video lesson interface with indistinct content while taking notes in a workbook. Warm practical home office, candid side angle, laptop-based participation clearly visible, one person only, no classroom or live event implication.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-948dccd2-d0bd-48bd-8ac8-ab63baa227f1.png"
+      "scene": "Independent recorded lesson and notes",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4568446a-b7c7-4a24-86c4-5cdafd0fd94f.png",
+      "setting": "home work desk",
+      "camera": "doorway profile",
+      "facilitationMode": "self-paced reflection",
+      "deliveryContext": "solo asynchronous",
+      "castingIntent": "Black man in his early 40s with broad body type, small-business owner; no other people"
     },
     {
       "slug": "ai-strategy-recorded",
       "role": "secondary",
-      "scene": "Another self-paced learner in a modest library study room completing an AI opportunity worksheet beside an open laptop with a paused instructional video thumbnail; hands comparing a simple printed workflow map and notes. Close over-the-shoulder camera, distinct person and room from hero, no live classroom implication.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-e6e318fa-692d-4c67-bbd6-c64f4be8823e.png"
+      "scene": "Independent worksheet review",
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-70e02c02-0f9f-4c31-8b2f-70b4a813edc0.png",
+      "setting": "public library study alcove",
+      "camera": "over-the-shoulder side view",
+      "facilitationMode": "self-paced worksheet",
+      "deliveryContext": "solo asynchronous",
+      "castingIntent": "White woman in her late 60s with hearing aids; no other people"
     },
     {
       "slug": "management-consulting",
@@ -94,7 +142,13 @@
       "role": "secondary",
       "kind": "individual",
       "prompt": "Premium photorealistic landscape 3:2 editorial photograph, illustrative concept of a half-day AI strategy workshop. Two adult participants behind open laptops in a compact learning studio jointly rank blank color-coded opportunity cards on a table while a facilitator sits with them. Close side camera, hands and laptops clearly visible, paper cards entirely blank and whiteboard turned away, distinct from the wider hero session. No legible text, numbers, labels, logos, stage, podium, audience rows, collage, or watermark.",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19dba-634f-7a63-b8af-c4ae83a045fe/exec-33270999-396b-410e-ab80-0d04ca8b8454.png"
+      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-434775de-8fd5-4c1c-b60a-8069c8c5d330.png",
+      "scene": "Two-person opportunity ranking",
+      "setting": "public library collaboration nook",
+      "camera": "close side view",
+      "facilitationMode": "peer decision exercise",
+      "deliveryContext": "small in-person pair",
+      "castingIntent": "Latina woman in her 30s and Middle Eastern man in his late 40s; different body types and roles"
     }
   ],
   "sheets": [
