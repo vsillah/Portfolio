@@ -16,8 +16,10 @@ for (const row of map.frames) {
     item.analysisSourceMember = row.member
     item.analysisFramework = row.framework
     item.analysisChapter = row.chapter
-    item.analysisArtifactPath = row.artifactPath
-    item.analysisArtifactSha256 = row.artifactSha256
+    item.analysisArtifactPath = row.physicalSurfaces[0].artifactPath
+    item.analysisArtifactSha256 = row.physicalSurfaces[0].artifactSha256
+    item.analysisPhysicalSurfaces = row.physicalSurfaces
+    item.analysisSourceExcerptSha256 = row.sourceExcerptSha256
     item.analysisCompositeMethod = row.compositeMethod
     item.analysisOutputSha256 = row.outputSha256
   }

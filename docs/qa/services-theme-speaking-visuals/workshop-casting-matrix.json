@@ -8,15 +8,15 @@
     {
       "slug": "ai-strategy-half-day",
       "role": "hero",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4aa6b41d-dd05-41dd-823d-5a4f45a2a540.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-434775de-8fd5-4c1c-b60a-8069c8c5d330.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
-      "scene": "Compact nonprofit priority selection",
-      "setting": "nonprofit meeting room",
-      "camera": "wide diagonal",
-      "facilitationMode": "facilitated prioritization",
+      "scene": "Two-person board review of pinned discovery notes",
+      "setting": "bright meeting room with a dark pinboard",
+      "camera": "candid medium-wide side view",
+      "facilitationMode": "facilitated discovery review",
       "deliveryContext": "small in-person group",
       "castingIntent": "Four adults spanning East Asian, South Asian, Black, and white casting; 30s–60s; woman facilitator; varied body types",
-      "alt": "Illustrative scene: Workshop photo with a laptop paired with the Full Discovery Loop diagram",
+      "alt": "Illustrative scene: Two workshop participants review printed Full Discovery Loop steps pinned to a board beside a laptop",
       "wardrobePalette": "sage, charcoal, cream, rust",
       "environmentPalette": "white walls, wood, pale green and coral cards",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -25,10 +25,109 @@
       "analysisSourceMember": "c010.xhtml",
       "analysisFramework": "The Full Discovery Loop",
       "analysisChapter": "Chapter 7: Discovery - From Feedback to Signal",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero.svg",
-      "analysisArtifactSha256": "ae6c2433ba521b2bbf5f8a630061b09f044df3029b1fb1d18600326285acc759",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "b8253b6c86992f342514e97616741b03723e3a72a84a4d593ae37b46c3a930a1"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-1.svg",
+      "analysisArtifactSha256": "f9755c94853285a15be33275ab53be3ec14b43a3de1afb4a22cad9ad6b0f9b58",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "1a0209e56db986e9cb1a4bebf28cd98f62dd28e2a0bd89fee4a780403c78af4a",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "upper pinned sheet",
+          "kind": "paper",
+          "quad": [
+            [
+              1205,
+              160
+            ],
+            [
+              1395,
+              150
+            ],
+            [
+              1390,
+              300
+            ],
+            [
+              1190,
+              300
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            3
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-1.svg",
+          "artifactSha256": "f9755c94853285a15be33275ab53be3ec14b43a3de1afb4a22cad9ad6b0f9b58",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "middle pinned sheet",
+          "kind": "paper",
+          "quad": [
+            [
+              1200,
+              360
+            ],
+            [
+              1380,
+              355
+            ],
+            [
+              1380,
+              500
+            ],
+            [
+              1195,
+              500
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            3,
+            6
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-2.svg",
+          "artifactSha256": "569dc084a45b2dde46fd53ddc3aff59ed7f6b583112a3999a483d98e5d00cd05",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "lower pinned sheet",
+          "kind": "paper",
+          "quad": [
+            [
+              1190,
+              550
+            ],
+            [
+              1390,
+              560
+            ],
+            [
+              1380,
+              710
+            ],
+            [
+              1180,
+              690
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            6,
+            9
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-3.svg",
+          "artifactSha256": "180b76a4963a586e52f03ee50e126c6b946dd3363eb4abf51c77b36b71e3b2b4",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "2b362f3682a8e251f65e4d1b374890214ac5d62b36c3d9aefdbd1d54aad7852d"
     },
     {
       "slug": "ai-strategy-half-day",
@@ -41,7 +140,7 @@
       "facilitationMode": "peer decision exercise",
       "deliveryContext": "small in-person pair",
       "castingIntent": "Latina woman in her 30s and Middle Eastern man in his late 40s; different body types and roles",
-      "alt": "Illustrative scene: Workshop photo with a laptop paired with Roadmap Bet prompts",
+      "alt": "Illustrative scene: Two participants discuss full roadmap bet statements on notes beside a laptop",
       "wardrobePalette": "burgundy, gray",
       "environmentPalette": "library wood, cream, pale multicolor cards",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -50,23 +149,186 @@
       "analysisSourceMember": "c011.xhtml",
       "analysisFramework": "Turn Features into Bets",
       "analysisChapter": "Chapter 8: Roadmaps Without Regret",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary.svg",
-      "analysisArtifactSha256": "d87896b81297137ae36a4fcd07525f441184a81e8d231568024f8865273ce34c",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "f70052ee537127810a76e1e847aedce32b97db9d0d0519d5ca5d66aec4c00683"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-1.svg",
+      "analysisArtifactSha256": "ade9ed19fe1dca50200732397e17b9e84afb945b7451f2e80958f485b2c52f40",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "whiteboard note 1",
+          "kind": "sticky",
+          "quad": [
+            [
+              1345,
+              95
+            ],
+            [
+              1460,
+              80
+            ],
+            [
+              1460,
+              185
+            ],
+            [
+              1335,
+              190
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            1
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-1.svg",
+          "artifactSha256": "ade9ed19fe1dca50200732397e17b9e84afb945b7451f2e80958f485b2c52f40",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "whiteboard note 2",
+          "kind": "sticky",
+          "quad": [
+            [
+              1340,
+              210
+            ],
+            [
+              1460,
+              205
+            ],
+            [
+              1460,
+              305
+            ],
+            [
+              1340,
+              305
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            1,
+            2
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-2.svg",
+          "artifactSha256": "3540503e459f0862b28f12ff30c2f564143bb62c768ed65ea79a27d1944e172a",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "whiteboard note 3",
+          "kind": "sticky",
+          "quad": [
+            [
+              1345,
+              340
+            ],
+            [
+              1460,
+              335
+            ],
+            [
+              1460,
+              430
+            ],
+            [
+              1340,
+              430
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            2,
+            3
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-3.svg",
+          "artifactSha256": "efe3cfae42ba2f09e08a66d4819a2b1d629dd692d557549999a35e027d4cd736",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "whiteboard note 4",
+          "kind": "sticky",
+          "quad": [
+            [
+              1345,
+              470
+            ],
+            [
+              1460,
+              465
+            ],
+            [
+              1460,
+              560
+            ],
+            [
+              1340,
+              565
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            3,
+            4
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-4.svg",
+          "artifactSha256": "94e27873ea7770174d0ec035d1fdd479d7da85302c4429d0cfb6259800606e12",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "whiteboard note 5",
+          "kind": "sticky",
+          "quad": [
+            [
+              1330,
+              620
+            ],
+            [
+              1470,
+              620
+            ],
+            [
+              1460,
+              730
+            ],
+            [
+              1325,
+              715
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            4,
+            5
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-5.svg",
+          "artifactSha256": "85ac7a670a8aff7d1f4e8133370f41a3fd14527360fe4d0bde2c9913af9efaf7",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "f492fb174db53398779a69df80127dc9ca312aad720f63f8f965e840471a8e3a"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "hero",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-3748b6be-396b-484f-8249-4ebb9c2ecd42.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b966353e-0e7a-4ab4-83b1-817e0120bcbe.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-      "scene": "Two-group workflow comparison",
-      "setting": "civic-center flexible workshop room",
-      "camera": "wide documentary room-corner view",
-      "facilitationMode": "facilitator circulating between working groups",
-      "deliveryContext": "full-day in-person multi-group lab",
+      "scene": "Group maps stakeholder roles on wall notes",
+      "setting": "windowed meeting room with participant wall notes",
+      "camera": "wide eye-level view",
+      "facilitationMode": "facilitated stakeholder mapping",
+      "deliveryContext": "in-person group",
       "castingIntent": "Multiethnic adult groups spanning younger and older professionals, varied gender presentation, body types, and seniority; no unusual physical trait as focal point",
-      "alt": "Illustrative scene: Workshop photo with a laptop paired with a Decision Theater role map",
+      "alt": "Illustrative scene: A small group maps Decision Theater roles on wall notes and a meeting notebook beside a laptop",
       "wardrobePalette": "olive, cream, rust, denim",
       "environmentPalette": "civic-center neutrals and varied work materials",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -75,23 +337,218 @@
       "analysisSourceMember": "c018.xhtml",
       "analysisFramework": "Decision Theater role map",
       "analysisChapter": "Chapter 15: Mapping the Decision Theater",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero.svg",
-      "analysisArtifactSha256": "1e4bd4184e50177fa4bd430dba08ed46cced964f47e4da6e3d2d9ec61680dd25",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":500,\"top\":100,\"width\":900,\"height\":600} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "bfec552e1aad7386f3cefbdc08821c59d7585c8d2578e7ee38128b277c7763af"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-1.svg",
+      "analysisArtifactSha256": "bba13fd400b19dff9ed7ca52168c12dc193616459dc24097388542a42449c6a4",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "upper wall card 1",
+          "kind": "sticky",
+          "quad": [
+            [
+              1245,
+              67
+            ],
+            [
+              1360,
+              65
+            ],
+            [
+              1355,
+              145
+            ],
+            [
+              1240,
+              150
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            1
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-1.svg",
+          "artifactSha256": "bba13fd400b19dff9ed7ca52168c12dc193616459dc24097388542a42449c6a4",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "upper wall card 2",
+          "kind": "sticky",
+          "quad": [
+            [
+              1385,
+              58
+            ],
+            [
+              1505,
+              50
+            ],
+            [
+              1505,
+              140
+            ],
+            [
+              1380,
+              140
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            1,
+            2
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-2.svg",
+          "artifactSha256": "d4e378d5199f4d7e9ac30053aa69b744df631fccdf10c1d96a050182b85a8f32",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "middle wall card 1",
+          "kind": "sticky",
+          "quad": [
+            [
+              1245,
+              190
+            ],
+            [
+              1355,
+              185
+            ],
+            [
+              1355,
+              267
+            ],
+            [
+              1240,
+              270
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            2,
+            3
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-3.svg",
+          "artifactSha256": "d291d46c3f633e55fb1ab51b8862a9acc10cc0691b9b51f4b9cfb54f878dcd95",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "middle wall card 2",
+          "kind": "sticky",
+          "quad": [
+            [
+              1380,
+              180
+            ],
+            [
+              1505,
+              173
+            ],
+            [
+              1505,
+              262
+            ],
+            [
+              1380,
+              265
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            3,
+            4
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-4.svg",
+          "artifactSha256": "e6ae2fcfa9346dd7d36904cd6523c1a03920067e86c7829c6c73502bc0fc324e",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "table note",
+          "kind": "sticky",
+          "quad": [
+            [
+              700,
+              750
+            ],
+            [
+              830,
+              745
+            ],
+            [
+              830,
+              820
+            ],
+            [
+              700,
+              825
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            4,
+            5
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-5.svg",
+          "artifactSha256": "819d7014aae038fb242402d20dc7910cae368fc28315a06628eab44172759f86",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "foreground meeting notebook",
+          "kind": "paper",
+          "quad": [
+            [
+              1030,
+              808
+            ],
+            [
+              1255,
+              812
+            ],
+            [
+              1300,
+              970
+            ],
+            [
+              1005,
+              960
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            5,
+            6
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-6.svg",
+          "artifactSha256": "200277adb066e5d7731f3b0dbfa524bbfafcb193fbec43a4132ccb5ff54f8358",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "fbc5cdc900f02ad121264bbc2eb137ba7215cfffee43d20ee5174e9139e4d029"
     },
     {
       "slug": "ai-strategy-full-day",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-0849f60d-d7a1-43bf-ba21-e1669b11ade7.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-603b701c-6c23-4b7f-990d-eeb11379e1c8.png",
       "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-      "scene": "End-of-day implementation synthesis",
-      "setting": "university extension studio",
-      "camera": "close side view of rolling board",
-      "facilitationMode": "shared decision synthesis",
-      "deliveryContext": "full-day in-person small group",
+      "scene": "Two colleagues review a held printed worksheet",
+      "setting": "windowed meeting room",
+      "camera": "candid close view",
+      "facilitationMode": "worksheet review",
+      "deliveryContext": "in-person pair",
       "castingIntent": "Older Black woman program director, younger white man facilitator, Southeast Asian woman operations lead, Latino man nonprofit executive; varied seniority and body types",
-      "alt": "Illustrative scene: Workshop photo paired with the Metrics Ladder",
+      "alt": "Illustrative scene: Two participants read a Metrics Ladder excerpt on a held worksheet",
       "wardrobePalette": "burgundy, gray, green, charcoal",
       "environmentPalette": "brick, white wall, wood, muted board cards",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -100,10 +557,45 @@
       "analysisSourceMember": "c015.xhtml",
       "analysisFramework": "Metrics Ladder",
       "analysisChapter": "Chapter 12: The Metrics That Matter",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary.svg",
-      "analysisArtifactSha256": "c263250a834a58f7605367086fdca92c28bed44e041098264d5d0688f75d587a",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1536,\"height\":1024} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "88412a7fd0d3675f6a7192fa0e8e152df246de08f524576cd675a19512565dc9"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary-1.svg",
+      "analysisArtifactSha256": "0187e4807ce0167ec8ee3b009fb4f89e6253362f8ff86d3150a22c9fa333cba2",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "fb44d7a3d825912c4d50d02c05247809ba5c29aa864f2dd3c1025ca411d050cc",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "held printed worksheet",
+          "kind": "paper",
+          "quad": [
+            [
+              715,
+              635
+            ],
+            [
+              1025,
+              665
+            ],
+            [
+              875,
+              900
+            ],
+            [
+              590,
+              835
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            18
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary-1.svg",
+          "artifactSha256": "0187e4807ce0167ec8ee3b009fb4f89e6253362f8ff86d3150a22c9fa333cba2",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "ef5c8f3db35212657cb72c5b8d31da72dba13115ae6ce513dbb1be83fe754ed2"
     },
     {
       "slug": "ai-strategy-recorded",
@@ -116,7 +608,7 @@
       "facilitationMode": "self-paced reflection",
       "deliveryContext": "solo asynchronous",
       "castingIntent": "Black man in his early 40s with broad body type, small-business owner; no other people",
-      "alt": "Illustrative scene: Solo learner with a laptop paired with the Accelerated Signals, Alignment, Momentum diagram",
+      "alt": "Illustrative scene: A learner takes notes beside a laptop displaying the original Accelerated Signals, Alignment, Momentum infographic",
       "wardrobePalette": "olive",
       "environmentPalette": "home wood, cream, rust",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -125,10 +617,47 @@
       "analysisSourceMember": null,
       "analysisFramework": "Signals → Alignment → Momentum",
       "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-hero.svg",
-      "analysisArtifactSha256": "d0b79a36a610e643b55e7ad33c6db4d678021214688bd171697e95efe03d39ac",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1200,\"height\":800} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
-      "analysisOutputSha256": "cfefb64b5a33b34e8dcb8044674bf626c006b76c75c649f92c873c6755318c5e"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-hero-1.png",
+      "analysisArtifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "4eae87f0fe92ba1474dd86bafa0a243bdfb3aa6ee2f0bd52b492bc5cf3b37db0",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "laptop display",
+          "kind": "screen",
+          "quad": [
+            [
+              1200,
+              355
+            ],
+            [
+              1455,
+              385
+            ],
+            [
+              1410,
+              575
+            ],
+            [
+              1165,
+              550
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": [
+            0,
+            0,
+            1136,
+            944
+          ],
+          "excerptParagraphRange": null,
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-hero-1.png",
+          "artifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     {
       "slug": "ai-strategy-recorded",
@@ -141,7 +670,7 @@
       "facilitationMode": "self-paced worksheet review",
       "deliveryContext": "solo asynchronous",
       "castingIntent": "White woman in her late 60s studying independently with an ordinary natural appearance; no other people",
-      "alt": "Illustrative scene: Solo learner with a laptop paired with the Learning Plan Framework",
+      "alt": "Illustrative scene: A learner compares a Learning Plan excerpt on a printed worksheet and laptop display",
       "wardrobePalette": "lavender",
       "environmentPalette": "library wood, warm neutrals",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -150,10 +679,77 @@
       "analysisSourceMember": "c016.xhtml",
       "analysisFramework": "Learning Plan Framework",
       "analysisChapter": "Chapter 13: The Learning Plan Framework",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary.svg",
-      "analysisArtifactSha256": "6dde7a636688d056e2c16bf17c8f0ea3019aac780792fb83fea3b7b62be869e6",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":850,\"height\":567} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "44db0f1271743918f8fb79d89caa8800e86c742da0fcf12731c1a2257c68189d"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-1.svg",
+      "analysisArtifactSha256": "3fe455d442b0edb75ca156911a8b2384e7e04296c0d1e00cd5657c66a3972669",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "3e1d8d47ed9d76cfb86e1d05795374113c5816c7030c9fcef6d8734f7f04e6a6",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "laptop display",
+          "kind": "screen",
+          "quad": [
+            [
+              1095,
+              340
+            ],
+            [
+              1390,
+              340
+            ],
+            [
+              1360,
+              555
+            ],
+            [
+              1050,
+              535
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            14
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-1.svg",
+          "artifactSha256": "3fe455d442b0edb75ca156911a8b2384e7e04296c0d1e00cd5657c66a3972669",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "held printed worksheet",
+          "kind": "paper",
+          "quad": [
+            [
+              695,
+              510
+            ],
+            [
+              990,
+              565
+            ],
+            [
+              925,
+              865
+            ],
+            [
+              570,
+              795
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            14
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-2.svg",
+          "artifactSha256": "3fe455d442b0edb75ca156911a8b2384e7e04296c0d1e00cd5657c66a3972669",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "135a7f69b768488065e08f839f2367989439aad4b6c02e99ad7fdeddd723b505"
     },
     {
       "slug": "accelerated-cohort-workshop",
@@ -166,7 +762,7 @@
       "facilitationMode": "facilitated build lab",
       "deliveryContext": "multi-pair cohort",
       "castingIntent": "Black woman facilitator, Hispanic man, East African woman, South Asian man, white woman, Middle Eastern nonbinary participant; 20s–50s; varied body types",
-      "alt": "Illustrative scene: Cohort with a laptop paired with the Accelerated Signals, Alignment, Momentum infographic",
+      "alt": "Illustrative scene: Cohort participants discuss the original Accelerated Signals, Alignment, Momentum infographic on a printed worksheet and handheld reference beside a laptop",
       "wardrobePalette": "green, denim, rust, cream",
       "environmentPalette": "maker-lab white, wood, varied paper",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -175,23 +771,94 @@
       "analysisSourceMember": null,
       "analysisFramework": "Signals → Alignment → Momentum",
       "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero.svg",
-      "analysisArtifactSha256": "ff8c2ea0a447837ee319581ad01f414514dd85d6ff1b9e3cb9eae17ab7580b50",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel; owned SAM infographic pixels copied into panel",
-      "analysisOutputSha256": "a4a90f1c796842a29abcb44a410b57dd9ae1b10c9f8ede7550d1f33976e42f10"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-1.png",
+      "analysisArtifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "e7f415794ab1c0cba1678f42cda1cef68e4a478ac24ca49a436bcff2022f18c4",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "printed SAM worksheet",
+          "kind": "paper",
+          "quad": [
+            [
+              575,
+              813
+            ],
+            [
+              965,
+              835
+            ],
+            [
+              915,
+              1000
+            ],
+            [
+              505,
+              970
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": [
+            0,
+            0,
+            1136,
+            944
+          ],
+          "excerptParagraphRange": null,
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-1.png",
+          "artifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "handheld SAM reference",
+          "kind": "phone",
+          "quad": [
+            [
+              765,
+              620
+            ],
+            [
+              855,
+              615
+            ],
+            [
+              885,
+              770
+            ],
+            [
+              790,
+              785
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": [
+            170,
+            100,
+            720,
+            740
+          ],
+          "excerptParagraphRange": null,
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-2.png",
+          "artifactSha256": "c85a63f071ad432cd2d1469e05605331fe1cac12c718bc75f940f2b2506f9bb6",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     {
       "slug": "accelerated-cohort-workshop",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-6607bab5-c413-4ffa-badc-c22c67617d2f.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-70e02c02-0f9f-4c31-8b2f-70b4a813edc0.png",
       "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-      "scene": "Rapid physical prototype peer test",
-      "setting": "neighborhood entrepreneurship hub",
-      "camera": "close oblique",
-      "facilitationMode": "peer testing and observation",
-      "deliveryContext": "small cohort group",
+      "scene": "Learner reviews a roadmap on laptop and paper",
+      "setting": "quiet library workspace",
+      "camera": "over-the-shoulder medium view",
+      "facilitationMode": "self-directed cohort follow-through",
+      "deliveryContext": "recorded or remote preparation",
       "castingIntent": "Older Southeast Asian woman, young Black nonbinary learner, white man, Latina woman; 20s–60s; varied body types",
-      "alt": "Illustrative scene: Cohort with a laptop paired with a Learning Roadmap diagram",
+      "alt": "Illustrative scene: A learner reads a Learning Roadmap excerpt on a laptop and printed worksheet",
       "wardrobePalette": "red, cream, plaid, charcoal",
       "environmentPalette": "entrepreneurship-hub neutral walls, cardboard",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -200,10 +867,94 @@
       "analysisSourceMember": "c013.xhtml",
       "analysisFramework": "Learning Roadmap",
       "analysisChapter": "Chapter 10: Learning Roadmaps",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary.svg",
-      "analysisArtifactSha256": "8f243dad94615de69f0fe47a5e4574ab6a048f139216c86ead6ad5a23f57febc",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "729b2d6dd45a34d5fce526e65eca347ffcf3eee085fd2c8555a4ec0f50e165cc"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-1.svg",
+      "analysisArtifactSha256": "360eceb7a786b15ff68263574769d150073ca267da8a06e710289868e8084546",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "bc3d606002151b4414e6a582b685630dc9a32cf58bdaf3ddf40a1231aceb0f03",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "laptop learning-roadmap page",
+          "kind": "screen",
+          "quad": [
+            [
+              1040,
+              280
+            ],
+            [
+              1320,
+              290
+            ],
+            [
+              1310,
+              500
+            ],
+            [
+              1015,
+              485
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            15
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-1.svg",
+          "artifactSha256": "360eceb7a786b15ff68263574769d150073ca267da8a06e710289868e8084546",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "printed learning-roadmap worksheet",
+          "kind": "paper",
+          "quad": [
+            [
+              770,
+              650
+            ],
+            [
+              1360,
+              715
+            ],
+            [
+              1260,
+              1005
+            ],
+            [
+              615,
+              930
+            ]
+          ],
+          "occlusion": [
+            [
+              625,
+              650
+            ],
+            [
+              820,
+              650
+            ],
+            [
+              810,
+              850
+            ],
+            [
+              615,
+              850
+            ]
+          ],
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            15
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-2.svg",
+          "artifactSha256": "360eceb7a786b15ff68263574769d150073ca267da8a06e710289868e8084546",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "bf6f29fdd6cd682a53ae91c00843255b87849711d5bc9bd701310d2381f79d24"
     },
     {
       "slug": "product-innovation-workshop",
@@ -216,7 +967,7 @@
       "facilitationMode": "participant prototype testing",
       "deliveryContext": "small in-person team",
       "castingIntent": "Black woman community participant, East Asian man researcher, white woman operations lead, South Asian woman facilitator; 30s–50s and varied professional roles",
-      "alt": "Illustrative scene: Participant beside a laptop paired with a Jobs from Noise diagram",
+      "alt": "Illustrative scene: Product workshop participants review a Jobs from Noise excerpt on a handheld reference and printed worksheet beside a laptop",
       "wardrobePalette": "coral, charcoal, cream, forest green",
       "environmentPalette": "studio white, wood, gray, plants",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -225,23 +976,90 @@
       "analysisSourceMember": "c022.xhtml",
       "analysisFramework": "ClientQ: Jobs from Noise",
       "analysisChapter": "Chapter 19: To Jobs from Noise (ClientQ)",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero.svg",
-      "analysisArtifactSha256": "5c78de2f5ac8cd86ea845e3c06fc58500e581582cd756e59df90c458e1650c2b",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1000,\"height\":667} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "a5e77bcca858a87815f6d2f264c5ee9ba8ff2ae1ebaeefc5d1d388fe51d2288e"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero-1.svg",
+      "analysisArtifactSha256": "774300338d192cdc0b04dc548258a35f31e3c6b2faf244ddaf00cd526bc10fad",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "ae2777a45c0cbec08f5d6b6b886ef5d5c2cd2ad337fc149dae77977d3a968d63",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "handheld ClientQ reference",
+          "kind": "phone",
+          "quad": [
+            [
+              735,
+              418
+            ],
+            [
+              835,
+              417
+            ],
+            [
+              820,
+              690
+            ],
+            [
+              710,
+              685
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            17
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero-1.svg",
+          "artifactSha256": "774300338d192cdc0b04dc548258a35f31e3c6b2faf244ddaf00cd526bc10fad",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "printed ClientQ worksheet",
+          "kind": "paper",
+          "quad": [
+            [
+              400,
+              925
+            ],
+            [
+              700,
+              860
+            ],
+            [
+              950,
+              925
+            ],
+            [
+              650,
+              1024
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            17
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero-2.svg",
+          "artifactSha256": "774300338d192cdc0b04dc548258a35f31e3c6b2faf244ddaf00cd526bc10fad",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "d686f6c3deae544ec59724d6e3007883715a612e849670c61d1d719857ad582b"
     },
     {
       "slug": "product-innovation-workshop",
       "role": "secondary",
-      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-94796773-7fe1-432d-a824-3885767e3384.png",
+      "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b0e6a889-2f65-492c-a00e-1463dce623a5.png",
       "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-      "scene": "Opportunity and risk mapping",
-      "setting": "cooperative design room",
-      "camera": "overhead three-quarter",
-      "facilitationMode": "evidence-led opportunity mapping",
-      "deliveryContext": "small in-person team",
+      "scene": "Team discusses a printed product narrative",
+      "setting": "bright studio table",
+      "camera": "candid medium-wide table view",
+      "facilitationMode": "group narrative review",
+      "deliveryContext": "in-person group",
       "castingIntent": "Middle Eastern woman founder, older Black man operator, young white woman researcher; 20s–60s; varied body types",
-      "alt": "Illustrative scene: Product team photo paired with a VisionScope and MarketCraft diagram",
+      "alt": "Illustrative scene: A product team discusses a held VisionScope and MarketCraft worksheet",
       "wardrobePalette": "light gray, lavender, olive",
       "environmentPalette": "cooperative brick, white, wood, plants, terracotta and pale green cards",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
@@ -250,10 +1068,45 @@
       "analysisSourceMember": "c025.xhtml",
       "analysisFramework": "VisionScope + MarketCraft",
       "analysisChapter": "Chapter 22: Designing the Future (VisionScope & MarketCraft)",
-      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary.svg",
-      "analysisArtifactSha256": "2cb5176d7dbf06361da741b30acd2c4acda32317c82003403b880fc20ada5af5",
-      "analysisCompositeMethod": "sharp full-bleed natural photo crop {\"left\":0,\"top\":0,\"width\":1536,\"height\":1024} resized to 1536x1024 with right layered source-derived callout, gradient transition, shadow, and 690x844 panel",
-      "analysisOutputSha256": "fd36d7de8334eea233709bc514b83d7590835e79e45305b11cbe85f55224857d"
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary-1.svg",
+      "analysisArtifactSha256": "65156d8791daac77b7b4cf794d4ed94324d54f105da12ee6a2de30dc6eb82b98",
+      "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+      "analysisOutputSha256": "cdc151fa56e018610e26862037cd0f455cf2342d09bb31567edbdec7c80454c8",
+      "analysisPhysicalSurfaces": [
+        {
+          "name": "held VisionScope and MarketCraft worksheet",
+          "kind": "paper",
+          "quad": [
+            [
+              890,
+              765
+            ],
+            [
+              1210,
+              760
+            ],
+            [
+              1260,
+              910
+            ],
+            [
+              905,
+              930
+            ]
+          ],
+          "occlusion": null,
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            16
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary-1.svg",
+          "artifactSha256": "65156d8791daac77b7b4cf794d4ed94324d54f105da12ee6a2de30dc6eb82b98",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        }
+      ],
+      "analysisSourceExcerptSha256": "431b733627bf82b5ae6a314d7cbe49ab2e14da8cf36433a32b329b5fd1a05960"
     }
   ],
   "totalGenerationCalls": 24,

@@ -58,7 +58,7 @@ describe('workshop photographic casting contract', () => {
     }
     const scene = (slug: string) => matrix.assets.filter((asset) => asset.slug === slug).map((asset) => asset.scene).join(' ')
     expect(scene('ai-strategy-half-day')).toMatch(/priorit|ranking/i)
-    expect(scene('ai-strategy-full-day')).toMatch(/two-group|synthesis/i)
+    expect(scene('ai-strategy-full-day')).toMatch(/stakeholder|metrics|worksheet/i)
     expect(scene('ai-strategy-recorded')).toMatch(/independent/i)
     expect(scene('accelerated-cohort-workshop')).toMatch(/prototype|build/i)
     expect(scene('product-innovation-workshop')).toMatch(/participant test|opportunity/i)
