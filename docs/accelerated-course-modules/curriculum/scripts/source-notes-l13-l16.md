@@ -1,6 +1,6 @@
 # L13–L16 source and editorial notes
 
-The canonical source is `/Users/vambahsillah/.codex/worktrees/6507/Portfolio/accelerated_ebook_leadmagnet.epub`, SHA-256 `1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e`. Exact chapter/section labels were checked in its XHTML. The merged 16-lesson outline fixes promises, order, runtime, and decision-file progression. The L01–L12 packets establish format. The older course kit supplies tactical references only.
+The canonical source is `accelerated_ebook_leadmagnet.epub` at the Portfolio project path, SHA-256 `1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e`. Exact chapter/section labels were checked in its XHTML. The merged 16-lesson outline fixes promises, order, runtime, and decision-file progression. The L01–L12 packets establish format. The older course kit supplies tactical references only.
 
 | Lesson | Exact EPUB binding | Case and visual binding | Evidence boundary |
 | --- | --- | --- | --- | --- |

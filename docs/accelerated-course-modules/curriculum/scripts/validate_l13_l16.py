@@ -74,6 +74,10 @@ def main():
     board = (ROOT / "storyboard-brief-l13-l16.md").read_text()
     notes = (ROOT / "source-notes-l13-l16.md").read_text()
     assert EPUB_SHA in notes and "Book case" in notes
+    assert "`accelerated_ebook_leadmagnet.epub` at the Portfolio project path" in notes
+    assert not re.search(r"(?:\.codex/worktrees/|Portfolio\.worktrees/|/private/tmp/|/tmp/)", notes), (
+        "source notes contain a temporary checkout path"
+    )
     assert "editorial" in board.lower() and "privacy" in notes.lower()
     total_words = total_seconds = 0
     for lesson_id, minutes, files in ORDER:
