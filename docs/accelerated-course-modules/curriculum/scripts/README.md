@@ -38,3 +38,9 @@ The next four lessons are [L05](L05.md), [L06](L06.md), [L07](L07.md), and [L08]
 Run `python3 docs/accelerated-course-modules/curriculum/scripts/validate_l05_l08.py` from the repo root. It checks the canonical EPUB chapter text, cited section headings, six continuous scenes per lesson, 115–145 spoken words per minute, avatar windows, source art, storyboard beats, and manifest totals. The existing L01–L04 validator remains unchanged and should also pass. These scripts are ready for editorial read-aloud review, not provider production.
 
 The humanizer pass focused on spoken specificity: removed generic “here's the” transitions, broad AI promises, false certainty from synthetic notes, and symmetrical slogans. The running membership example stays explicitly hypothetical, while the book's Sam and “Just Make It Faster” cases remain attributed to their chapters. A human read-aloud and audience-copy pass remain required before media work.
+
+## L09–L12 continuation
+
+[L09](L09.md), [L10](L10.md), [L11](L11.md), and [L12](L12.md) carry the same decision file through the decision theater map, stakeholder-specific brief, signal-to-decision loop, and jobs/simulation validation cards. The [manifest](manifest-l09-l12.json), [source notes](source-notes-l09-l12.md), and [storyboard brief](storyboard-brief-l09-l12.md) keep this continuation separate from L01–L08. Recorded target is **41:00**; worksheet pause time is additional.
+
+Run `python3 docs/accelerated-course-modules/curriculum/scripts/validate_l09_l12.py` from the repo root. It checks the exact canonical EPUB hash and cited section text, six continuous scenes per lesson, spoken rates, avatar windows, approved SAM assets, storyboard beats, and manifest totals. These scripts are for editorial review before any provider or media production.
