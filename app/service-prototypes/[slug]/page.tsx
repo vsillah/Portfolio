@@ -7,6 +7,7 @@ import { BarChart3, Bot, BrainCircuit, ClipboardList, FileText, HelpCircle, Mess
 import { useParams, useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { prototypeForSlug } from '@/lib/service-prototypes'
+import { AcceleratedLearningPlan } from './AcceleratedLearningPlan'
 import styles from './prototype.module.css'
 
 type Lead = { name: string; need: string; source: string; priority: string; consent: string; status: string }
@@ -143,6 +144,7 @@ function Website({ view }: { view: number }) {
 function Cohort({ view }: { view: number }) {
   const [task, setTask] = useState(false)
   const [note, setNote] = useState('')
+  if (view === 2) return <AcceleratedLearningPlan />
   return <div className={`${styles.twoColumns} ${styles.samLayout}`}><Card title={view === 0 ? 'Your cohort workspace' : view === 1 ? 'Live build session' : 'The learning plan'} eyebrow="Accelerated · facilitated cohort"><p>{view === 0 ? 'A shared rhythm for teams learning to make better product decisions with AI.' : view === 1 ? 'Work with a facilitator and peers on one decision from your own context.' : 'Record the assumption, signal, metric, review date and decision before building.'}</p><div className={styles.metricGrid}><div><b>04</b><span>Learning modules</span></div><div><b>02</b><span>Live sessions</span></div><div><b>{task ? '1/1' : '0/1'}</b><span>Current exercise</span></div></div><div className={styles.list}>{modules.map((module, i) => <div className={styles.row} key={module}><strong>{String(i + 1).padStart(2, '0')}</strong><span>{module}</span><Chip tone={i === 0 && task ? 'good' : 'plain'}>{i === 0 && task ? 'Done' : i === 0 ? 'Now' : 'Next'}</Chip></div>)}</div></Card><Card title={view === 1 ? 'Session room' : view === 2 ? 'Facilitated exercise' : 'This week’s work'} eyebrow={view === 1 ? '90-minute session' : 'The operating model'}><SamArtifact key={view} initialView={view === 1 ? 1 : view === 2 ? 2 : 0}/><label className={styles.field}>The decision we need to make<textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Write one decision in plain language"/></label><button onClick={() => setTask(true)} disabled={!note.trim()} title={!note.trim() ? 'Write a decision first' : undefined}>{task ? 'Exercise saved' : 'Save exercise'}</button><p className={styles.note}>{task ? 'Saved locally for this preview.' : 'Your facilitator will help pressure-test this with the group.'}</p></Card></div>
 }
 
