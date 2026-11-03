@@ -10,6 +10,7 @@ Use this checklist for AmaduTown workshop and cohort service photos. A gallery s
 - Do not add prosthetics, robotic or augmented limbs, hearing devices, mobility equipment, or unusual physical traits merely to make a diversity prompt visible. Include disability representation only when the user explicitly requests it and the scene supports a natural, respectful, visually unambiguous depiction.
 - Ask for ordinary anatomically correct hands, limbs, and devices. Keep boards, documents, and screens unlettered or indistinct; avoid generated text and logos.
 - Keep AmaduTown's navy and gold mainly in the surrounding service UI, labels, and intentional small accents. Do not direct every participant's wardrobe, room, or prop toward those colors. Plan natural, varied editorial color across the full gallery and record each frame's wardrobe and environment palette.
+- When a customer-facing service photo depicts analysis, bind every visible framework, course screen, board, and worksheet to an attributable approved first-party source. Place source pixels or a source-derived diagram deterministically; preserve legibility at the card crop and in the detail gallery. Generated placeholder charts, blank analytical boxes, pseudo-text, and invented customer analysis fail this gate. Record the source path and hash, represented framework or chapter, artifact hash, composite method, and final output hash for each frame.
 
 ## Image review gate
 

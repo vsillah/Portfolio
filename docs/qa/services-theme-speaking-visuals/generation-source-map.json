@@ -12,7 +12,16 @@
       "castingIntent": "Black woman facilitator, Hispanic man, East African woman, South Asian man, white woman, Middle Eastern nonbinary participant; 20s–50s; varied body types",
       "wardrobePalette": "green, denim, rust, cream",
       "environmentPalette": "maker-lab white, wood, varied paper",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+      "analysisSourceSha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "analysisSourceMember": null,
+      "analysisFramework": "Signals → Alignment → Momentum",
+      "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero.svg",
+      "analysisArtifactSha256": "569caa56e9b9668146034643d07499f6bfcc1f669663183e994e817d6f2731f0",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (470,825,600,185) affine [[1,-0.15],[0.04,0.7]] plus source infographic pixel placement",
+      "analysisOutputSha256": "74c279f3a7295cfe1af84c7cc39d544b0ce6a9a4fbc024d9d6b27da6615c88f6"
     },
     {
       "slug": "accelerated-cohort-workshop",
@@ -26,7 +35,16 @@
       "castingIntent": "Older Southeast Asian woman, young Black nonbinary learner, white man, Latina woman; 20s–60s; varied body types",
       "wardrobePalette": "red, cream, plaid, charcoal",
       "environmentPalette": "entrepreneurship-hub neutral walls, cardboard",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c013.xhtml",
+      "analysisFramework": "Learning Roadmap",
+      "analysisChapter": "Chapter 10: Learning Roadmaps",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary.svg",
+      "analysisArtifactSha256": "dd4b2dffae41f0da7dedab8be8b3884be09bcd881d66cb0e2e5508327428e287",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (702,530,220,260)",
+      "analysisOutputSha256": "05e49834832a64824e778dbe224a3536b04249b4f6a003fd89f2431b07913a7d"
     },
     {
       "slug": "product-innovation-workshop",
@@ -40,7 +58,16 @@
       "castingIntent": "Black woman community participant, East Asian man researcher, white woman operations lead, South Asian woman facilitator; 30s–50s and varied professional roles",
       "wardrobePalette": "coral, charcoal, cream, forest green",
       "environmentPalette": "studio white, wood, gray, plants",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c022.xhtml",
+      "analysisFramework": "ClientQ: Jobs from Noise",
+      "analysisChapter": "Chapter 19: To Jobs from Noise (ClientQ)",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero.svg",
+      "analysisArtifactSha256": "79476da3acc6306f39c5280857703a3e122c9215352f7afe79374e44b57d4a1d",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (485,825,645,185) affine [[1,-0.15],[0.04,0.7]] plus phone screen labels",
+      "analysisOutputSha256": "a309700a31bc7890a383b2d7b4c465e4cf70e63865f18c90680ef7c43b9b9675"
     },
     {
       "slug": "product-innovation-workshop",
@@ -54,7 +81,16 @@
       "castingIntent": "Middle Eastern woman founder, older Black man operator, young white woman researcher; 20s–60s; varied body types",
       "wardrobePalette": "light gray, lavender, olive",
       "environmentPalette": "cooperative brick, white, wood, plants, terracotta and pale green cards",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c025.xhtml",
+      "analysisFramework": "VisionScope + MarketCraft",
+      "analysisChapter": "Chapter 22: Designing the Future (VisionScope & MarketCraft)",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary.svg",
+      "analysisArtifactSha256": "6d511f913b34fd149c767be39b820e50edb5a8713668f8ce1df0fcd8787d12b5",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (535,8,665,530)",
+      "analysisOutputSha256": "3e32385ceeef58623ec02e3255294d22d3803af26b1ee4b8fea8515fd7144563"
     },
     {
       "slug": "ai-strategy-half-day",
@@ -68,7 +104,16 @@
       "castingIntent": "Four adults spanning East Asian, South Asian, Black, and white casting; 30s–60s; woman facilitator; varied body types",
       "wardrobePalette": "sage, charcoal, cream, rust",
       "environmentPalette": "white walls, wood, pale green and coral cards",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c010.xhtml",
+      "analysisFramework": "The Full Discovery Loop",
+      "analysisChapter": "Chapter 7: Discovery - From Feedback to Signal",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero.svg",
+      "analysisArtifactSha256": "6fb51ac5c67a8177e93b02957872718db4d3f05298e9752e5f3e691701f62994",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (455,805,550,180) affine [[1,-0.13],[0.04,0.65]]",
+      "analysisOutputSha256": "029708822be278bb0cbc8c467ef89aa835bd11977465342184cb0a05950da5e8"
     },
     {
       "slug": "ai-strategy-full-day",
@@ -82,7 +127,16 @@
       "castingIntent": "Multiethnic adult groups spanning younger and older professionals, varied gender presentation, body types, and seniority; no unusual physical trait as focal point",
       "wardrobePalette": "olive, cream, rust, denim",
       "environmentPalette": "civic-center neutrals and varied work materials",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c018.xhtml",
+      "analysisFramework": "Decision Theater role map",
+      "analysisChapter": "Chapter 15: Mapping the Decision Theater",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero.svg",
+      "analysisArtifactSha256": "2aa975fb1e0b3d9f220ee518306f3e929142db08afd2b751f55ad4c6dbfc8ea5",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (440,725,590,230) affine [[1,-0.13],[0.04,0.68]]",
+      "analysisOutputSha256": "1c66605b843aa8469e88ebff2f812194f805b1043f6f48665a71cc7467e62847"
     },
     {
       "slug": "ai-strategy-full-day",
@@ -96,7 +150,16 @@
       "castingIntent": "Older Black woman program director, younger white man facilitator, Southeast Asian woman operations lead, Latino man nonprofit executive; varied seniority and body types",
       "wardrobePalette": "burgundy, gray, green, charcoal",
       "environmentPalette": "brick, white wall, wood, muted board cards",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c015.xhtml",
+      "analysisFramework": "Metrics Ladder",
+      "analysisChapter": "Chapter 12: The Metrics That Matter",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary.svg",
+      "analysisArtifactSha256": "19b7534fa2589c69e92b9297c1b33cb5b178b7438db16200c11b1aa57d925157",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (650,85,560,470)",
+      "analysisOutputSha256": "8057894396d1a8ca334ee6d2244e57b06ee2d0c221335dc7aa2c82bf36e0457f"
     },
     {
       "slug": "ai-strategy-recorded",
@@ -110,7 +173,16 @@
       "castingIntent": "Black man in his early 40s with broad body type, small-business owner; no other people",
       "wardrobePalette": "olive",
       "environmentPalette": "home wood, cream, rust",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+      "analysisSourceSha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "analysisSourceMember": null,
+      "analysisFramework": "Signals → Alignment → Momentum",
+      "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-hero.svg",
+      "analysisArtifactSha256": "a5c021d245418451042426500c5b6dacf64f904eb7c2cb905de42a4b8efa14f0",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (1170,345,290,220)",
+      "analysisOutputSha256": "909173c7a69d3d55c2eb89edb345094c7be0b4338e459a4a76753bb7455b1f6c"
     },
     {
       "slug": "ai-strategy-recorded",
@@ -124,7 +196,16 @@
       "castingIntent": "White woman in her late 60s studying independently with an ordinary natural appearance; no other people",
       "wardrobePalette": "lavender",
       "environmentPalette": "library wood, warm neutrals",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c016.xhtml",
+      "analysisFramework": "Learning Plan Framework",
+      "analysisChapter": "Chapter 13: The Learning Plan Framework",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary.svg",
+      "analysisArtifactSha256": "aca80eedcfac06c4c7b800f97d2dd8c521bb98d4e4dedbf07bee87e872369565",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (1080,342,305,190) plus worksheet placement",
+      "analysisOutputSha256": "fe4e9de3381e1e13aa79375380e003df4a64557ae453ab61c33a3ec7140cb95e"
     },
     {
       "slug": "management-consulting",
@@ -178,7 +259,16 @@
       "castingIntent": "Latina woman in her 30s and Middle Eastern man in his late 40s; different body types and roles",
       "wardrobePalette": "burgundy, gray",
       "environmentPalette": "library wood, cream, pale multicolor cards",
-      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI"
+      "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
+      "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+      "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "analysisSourceMember": "c011.xhtml",
+      "analysisFramework": "Turn Features into Bets",
+      "analysisChapter": "Chapter 8: Roadmaps Without Regret",
+      "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary.svg",
+      "analysisArtifactSha256": "c27423d9e0ac7314ae0ffdcdf4c169f8f73ba63dc5a85211f0ba5c23f84da63e",
+      "analysisCompositeMethod": "sharp SVG overlay on owned-source-derived worksheet at (1260,65,255,630)",
+      "analysisOutputSha256": "eac40a19ec0f8c991ca99643d8bb8fe5a7fd512a4e7a369f2a1b7b23231e2d78"
     }
   ],
   "sheets": [

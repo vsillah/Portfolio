@@ -202,14 +202,14 @@
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
-        "alt": "Illustrative scene: An active cohort tests paper and laptop prototypes in a build lab",
+        "alt": "Illustrative scene: Cohort learners work with the Accelerated Signals, Alignment, Momentum diagram, a prototype, and a laptop",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-        "alt": "Illustrative scene: Cohort learners test a cardboard service prototype beside a laptop",
+        "alt": "Illustrative scene: Cohort learners test a cardboard prototype with a Learning Roadmap worksheet",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -222,14 +222,14 @@
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-        "alt": "Illustrative scene: A participant tests a paper service interface while a product team records results beside a laptop",
+        "alt": "Illustrative scene: A participant tests a paper interface beside a laptop while the team reviews a Jobs from Noise handout",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-        "alt": "Illustrative scene: A product team maps opportunities and risks with blank cards on a wall map",
+        "alt": "Illustrative scene: A product team maps VisionScope and MarketCraft decisions on a workshop wall",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -282,14 +282,14 @@
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
-        "alt": "Illustrative scene: A compact AI strategy group prioritizes use cases with a facilitator, blank cards, and a laptop",
+        "alt": "Illustrative scene: A small AI strategy group works through the Full Discovery Loop beside a laptop",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
-        "alt": "Illustrative scene: Two participants rank opportunity cards beside a laptop in a library nook",
+        "alt": "Illustrative scene: Two participants review roadmap bet prompts beside a laptop",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -302,14 +302,14 @@
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-        "alt": "Illustrative scene: Two full-day workshop groups compare workflow maps with laptops and a circulating facilitator",
+        "alt": "Illustrative scene: Full-day workshop groups discuss a Decision Theater role map and laptop work",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-        "alt": "Illustrative scene: Full-day participants synthesize an implementation sequence at a rolling board beside a laptop",
+        "alt": "Illustrative scene: Participants discuss a Metrics Ladder on a workshop board beside a laptop",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -394,14 +394,14 @@
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
-        "alt": "Illustrative scene: One learner pauses a recorded AI strategy lesson to take notes at home",
+        "alt": "Illustrative scene: One learner takes notes while a Signals, Alignment, Momentum lesson plays on a laptop",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-        "alt": "Illustrative scene: One learner compares a recorded lesson with a workflow worksheet at a library laptop",
+        "alt": "Illustrative scene: One learner reviews a Learning Plan on a course laptop and worksheet",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
