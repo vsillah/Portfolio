@@ -46,3 +46,49 @@ test('cohort exercise and course assessment provide useful blocked states', asyn
   await page.getByRole('button', { name: 'Submit answer' }).click()
   await expect(page.getByText('Certificate milestone unlocked for this preview')).toBeVisible()
 })
+
+test('canonical Accelerated cover stays in the cohort hero without hiding the workspace', async ({ page }) => {
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/service-prototypes/accelerated-cohort')
+    const cover = page.getByTestId('accelerated-cover')
+    await expect(cover).toBeVisible()
+    await expect(cover).toHaveAttribute('alt', 'Accelerated: Building Smarter Products with AI book cover by Vambah Sillah')
+    const image = await cover.evaluate((element) => {
+      const img = element as HTMLImageElement
+      const rect = img.getBoundingClientRect()
+      return { naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight, width: rect.width, height: rect.height, top: rect.top, bottom: rect.bottom }
+    })
+    expect(image.naturalWidth).toBe(1800)
+    expect(image.naturalHeight).toBe(2700)
+    expect(image.width / image.height).toBeCloseTo(2 / 3, 2)
+    expect(image.top).toBeGreaterThanOrEqual(0)
+    expect(image.bottom).toBeLessThan(900)
+    expect(await page.getByRole('heading', { name: 'Your cohort workspace' }).evaluate((element) => element.getBoundingClientRect().top)).toBeLessThan(900)
+  }
+})
+
+test('approved SAM art is readable through full, focused and zoom views', async ({ page }) => {
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/service-prototypes/accelerated-cohort')
+    const artwork = page.getByTestId('sam-artifact').locator('img')
+    await expect(artwork).toHaveAttribute('src', /accelerated-sam-infographic\.png/)
+    await page.getByRole('group', { name: 'Framework views' }).getByRole('button', { name: 'Signals' }).click()
+    await expect(artwork).toHaveAttribute('src', /accelerated-sam-signals\.png/)
+    await page.getByRole('group', { name: 'Framework views' }).getByRole('button', { name: 'Alignment' }).click()
+    await expect(artwork).toHaveAttribute('src', /accelerated-sam-alignment\.png/)
+    await page.getByRole('group', { name: 'Framework views' }).getByRole('button', { name: 'Momentum' }).click()
+    await expect(artwork).toHaveAttribute('src', /accelerated-sam-momentum\.png/)
+    await page.getByRole('button', { name: 'Zoom full SAM infographic' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Full Signals, Alignment, Momentum infographic' })
+    await expect(dialog).toBeVisible()
+    await expect(dialog.locator('img')).toHaveAttribute('src', /accelerated-sam-infographic\.png/)
+    await page.getByRole('button', { name: 'Close infographic' }).click()
+    await expect(dialog).not.toBeVisible()
+    await page.getByRole('navigation', { name: 'Experience views' }).getByRole('button').nth(1).click()
+    await expect(artwork).toHaveAttribute('src', /accelerated-sam-signals\.png/)
+    await page.getByRole('navigation', { name: 'Experience views' }).getByRole('button').nth(2).click()
+    await expect(artwork).toHaveAttribute('src', /accelerated-sam-alignment\.png/)
+  }
+})

@@ -11,6 +11,18 @@ const page = await context.newPage()
 for (const slug of ['ai-lead-chatbot', 'lead-workflow-agent', 'website-ux-refresh', 'accelerated-cohort', 'self-paced-course', 'premium-masterclass']) {
   await page.goto(`${origin}/service-prototypes/${slug}?view=1`, { waitUntil: 'networkidle' })
   await page.waitForTimeout(1100)
+  if (slug === 'accelerated-cohort') {
+    await page.getByTestId('sam-artifact').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(500)
+    const framework = page.getByRole('group', { name: 'Framework views' })
+    for (const act of ['Signals', 'Alignment', 'Momentum']) {
+      await framework.getByRole('button', { name: act }).click()
+      await page.waitForTimeout(800)
+    }
+    await page.getByRole('button', { name: 'Zoom full SAM infographic' }).click()
+    await page.waitForTimeout(1300)
+    await page.getByRole('button', { name: 'Close infographic' }).click()
+  }
   const tabs = page.getByRole('navigation', { name: 'Experience views' }).getByRole('button')
   await tabs.nth(1).click()
   await page.waitForTimeout(1000)

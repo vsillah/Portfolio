@@ -60,16 +60,7 @@
 .stage{background:linear-gradient(130deg,#101b2c,#1e334c);border:1px solid #b89432;border-radius:8px;box-shadow:inset 0 0 0 7px rgba(212,175,55,.05)}
 .stage strong{font-family:var(--font-cormorant),serif;font-size:clamp(30px,3vw,43px)}
 .stage small{color:#e5c86c}
-.sam{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0 22px;padding:11px;background:#111c2d;border:1px solid #a9852f;border-radius:4px;box-shadow:0 12px 28px rgba(18,30,49,.17)}
-.samAct{display:flex;flex-direction:column;min-width:0;min-height:228px;padding:12px;border:1px solid #987728;background:linear-gradient(135deg,#192536,#28333e);color:#f6f3e9}
-.samNumber{font-family:var(--font-orbitron),sans-serif;font-size:9px;letter-spacing:.18em;color:#d4af37}
-.samAct>strong{font-family:var(--font-cormorant),serif;font-size:27px;line-height:1.05;margin:6px 0 7px}
-.samAct>em{font-style:normal;font-size:12px;line-height:1.22;color:#e9c85b;font-weight:800;min-height:31px}
-.samArtifacts{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:auto;padding-top:11px}
-.samArtifacts span{display:grid;place-items:center;min-height:31px;padding:3px 4px;border:1px solid rgba(212,175,55,.48);background:#101b2b;color:#e7e9e9;font-size:10px;text-align:center}
-.samCompact{margin-top:24px;gap:5px;padding:6px}.samCompact .samAct{min-height:152px;padding:8px}.samCompact .samAct>strong{font-size:22px}.samCompact .samAct>em{font-size:10px}.samCompact .samArtifacts{grid-template-columns:1fr 1fr}.samCompact .samArtifacts span{font-size:8px;min-height:25px}
-@media(max-width:1050px){.sam{grid-template-columns:1fr}.samAct{min-height:0}.samArtifacts{grid-template-columns:repeat(4,1fr)}.samCompact{grid-template-columns:repeat(3,minmax(0,1fr))}.samCompact .samAct{min-height:160px}.samCompact .samArtifacts{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.intro{padding-left:13px}.intro h1{font-size:clamp(38px,11vw,54px)}.card h2{font-size:30px}.samCompact{grid-template-columns:1fr}.samCompact .samAct{min-height:0}.samCompact .samArtifacts{grid-template-columns:repeat(4,1fr)}.samArtifacts span{font-size:9px}}
+@media(max-width:600px){.intro{padding-left:13px}.intro h1{font-size:clamp(38px,11vw,54px)}.card h2{font-size:30px}}
 .heroPhoto{height:265px;align-items:center;background:radial-gradient(circle at 80% 25%,rgba(212,175,55,.23),transparent 37%),linear-gradient(135deg,#0d1a2b,#24475b);padding:24px}
 .heroPhoto>div{width:100%}.heroPhoto small{font-size:10px;letter-spacing:.15em;color:#e6c463;font-weight:800}
 .heroPrograms{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:6px!important;margin-top:11px}
@@ -81,3 +72,21 @@
 .shell[data-prototype="self-paced-course"] .card{border-top-color:#9d8db3}
 .shell[data-prototype="premium-masterclass"] .card{border-top-color:#aa7895}
 @media(max-width:600px){.heroPhoto{height:265px}.stage{align-items:start}.stage img{width:82px;height:118px}.stage strong{font-size:28px}}
+.cohortIntro{display:grid;grid-template-columns:minmax(0,1fr) 370px;align-items:center;gap:28px;min-height:228px;padding:14px 22px 14px 25px;border:1px solid rgba(212,175,55,.55);border-left:5px solid var(--radiant-gold);border-radius:8px;background:radial-gradient(circle at 70% 10%,rgba(212,175,55,.16),transparent 36%),linear-gradient(110deg,#0e1b2d,#24394d);color:#f7f5ee;box-shadow:0 14px 38px rgba(18,30,49,.2)}
+.cohortIntro .eyebrow{color:#e7c965!important}.cohortIntro h1{font-size:clamp(42px,4.2vw,61px);margin:4px 0 8px;color:#fff}.cohortIntro>div:first-child>p:last-child{max-width:620px;color:#d7e0e5;font-size:14px;margin:0}
+.cohortBookFeature{display:flex;justify-content:flex-end;align-items:center;gap:13px;min-width:0}.cohortBookFeature>div{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}.cohortBookFeature .bookKicker{font-family:var(--font-orbitron),sans-serif;font-size:9px;letter-spacing:.12em;color:#d8b65b}.cohortBookFeature strong{font-family:var(--font-cormorant),serif;font-size:29px;line-height:1}.cohortBookFeature>div>span:not(.bookKicker){font-size:11px;color:#d4dee3}.cohortBookFeature .chip{margin-top:4px;background:rgba(18,30,49,.7);border-color:rgba(212,175,55,.5);color:#fff}.cohortBookFeature img{display:block;width:140px;height:210px;flex:0 0 140px;object-fit:contain;box-shadow:9px 9px 18px rgba(0,0,0,.33);border:1px solid rgba(212,175,55,.6)}
+@media(max-width:950px){.cohortIntro{grid-template-columns:minmax(0,1fr) 260px;gap:15px}.cohortBookFeature>div>span:not(.bookKicker){display:none}.cohortBookFeature img{width:112px;height:168px;flex-basis:112px}}
+@media(max-width:600px){.cohortIntro{grid-template-columns:1fr;gap:8px;padding:17px}.cohortIntro h1{font-size:46px}.cohortBookFeature{justify-content:space-between;border-top:1px solid rgba(212,175,55,.28);padding-top:9px}.cohortBookFeature>div>span:not(.bookKicker){display:block}.cohortBookFeature img{width:98px;height:147px;flex-basis:98px}.cohortBookFeature strong{font-size:27px}}
+
+.samArtifact{margin:18px 0 20px;min-width:0}
+.samToolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.shell .samToolbar button{min-height:34px;padding:6px 9px;font-size:11px;background:transparent;color:var(--ink);border:1px solid var(--line)}
+.shell .samToolbar button[aria-pressed="true"]{background:#d4af37;color:#101b2c;border-color:#a9852f}
+.samCanvas{display:flex;align-items:center;justify-content:center;min-height:285px;max-height:560px;overflow:auto;background:#101b2c;border:1px solid #a9852f;border-radius:5px;padding:8px}
+.samCanvas img{display:block;max-width:100%;max-height:540px;width:auto;height:auto;object-fit:contain}
+.samDetail{font-size:13px;line-height:1.45;color:var(--muted);margin:9px 0!important}
+.shell .samZoom{font-size:12px;min-height:34px;padding:7px 11px;background:transparent;color:var(--ink);border:1px solid var(--accent)}
+.samArtifactCompact .samCanvas{max-height:350px;min-height:200px}.samArtifactCompact .samCanvas img{max-height:330px}
+.samDialog{position:fixed;inset:0;max-width:min(96vw,1200px);max-height:94vh;width:100%;padding:0;border:1px solid #d4af37;border-radius:8px;background:#101b2c;color:#fff;overflow:auto}.samDialog::backdrop{background:rgba(5,12,24,.84)}
+.samDialogInner{padding:12px;min-width:680px}.samDialogInner button{position:sticky;top:0;z-index:1;margin-bottom:10px}.samDialogInner img{display:block;width:100%;height:auto}
+@media(max-width:600px){.samCanvas{max-height:420px;min-height:220px}.samCanvas img{max-height:400px}.samToolbar{display:grid;grid-template-columns:1fr 1fr}.samDialogInner{min-width:600px}}
