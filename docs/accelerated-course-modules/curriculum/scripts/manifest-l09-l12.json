@@ -1,0 +1,68 @@
+{
+  "phase": 2,
+  "canonical_epub": "/Users/vambahsillah/Projects/Portfolio/accelerated_ebook_leadmagnet.epub",
+  "base_commit": "2546d07bd25c6ec9ee84dd7b19771fb72a0a6c37",
+  "runtime_seconds_total": 2460,
+  "spoken_words_total": 5096,
+  "lessons": [
+    {
+      "id": "L09",
+      "title": "Map the decision theater",
+      "runtime_seconds": 660,
+      "spoken_words": 1365,
+      "epub_files": [
+        "c017.xhtml",
+        "c018.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-alignment-plate.webp"
+      ],
+      "learner_artifact": "Decision theater map and pre-meeting sequence",
+      "readiness": "editorial-review"
+    },
+    {
+      "id": "L10",
+      "title": "Influence before impact",
+      "runtime_seconds": 540,
+      "spoken_words": 1195,
+      "epub_files": [
+        "c019.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-alignment-plate.webp"
+      ],
+      "learner_artifact": "Stakeholder-specific decision brief",
+      "readiness": "editorial-review"
+    },
+    {
+      "id": "L11",
+      "title": "From the shift to a repeatable loop",
+      "runtime_seconds": 600,
+      "spoken_words": 1253,
+      "epub_files": [
+        "c020.xhtml",
+        "c021.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-momentum-plate.webp"
+      ],
+      "learner_artifact": "Signal-to-decision loop map with owner and review gate",
+      "readiness": "editorial-review"
+    },
+    {
+      "id": "L12",
+      "title": "Jobs and synthetic signals",
+      "runtime_seconds": 660,
+      "spoken_words": 1283,
+      "epub_files": [
+        "c022.xhtml",
+        "c023.xhtml"
+      ],
+      "sam_assets": [
+        "public/showcases/service-prototypes/v2/sam-momentum-plate.webp"
+      ],
+      "learner_artifact": "Jobs card and synthetic-signal caveat/validation card",
+      "readiness": "editorial-review"
+    }
+  ]
+}
