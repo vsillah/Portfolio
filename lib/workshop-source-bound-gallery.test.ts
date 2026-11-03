@@ -23,9 +23,9 @@ const faceBoxes: Record<string, number[][]> = {
   'ai-strategy-full-day:hero': [[0,250,370,620],[470,260,830,570],[850,40,1180,310],[1300,350,1535,670]],
   'ai-strategy-full-day:secondary': [[0,0,530,500],[520,0,1000,470]],
   'ai-strategy-recorded:hero': [[300,20,830,530]],
-  'ai-strategy-recorded:secondary': [[0,0,720,470]],
+  'ai-strategy-recorded:secondary': [[0,0,650,470]],
   'accelerated-cohort-workshop:hero': [[430,100,850,530],[820,150,1280,570]],
-  'accelerated-cohort-workshop:secondary': [[0,0,720,470]],
+  'accelerated-cohort-workshop:secondary': [[150,0,840,520],[850,0,1420,520]],
   'product-innovation-workshop:hero': [[0,100,500,600],[500,0,960,400],[1110,40,1535,430]],
   'product-innovation-workshop:secondary': [[0,150,360,620],[280,250,650,640],[570,0,980,340],[900,260,1280,680]],
 }
@@ -66,6 +66,10 @@ describe('source-bound in-world workshop gallery', () => {
         expect(frame.source).toMatch(/accelerated-sam-infographic\.png$/)
         expect(frame.visibleLabels).toEqual(['SIGNALS','ALIGNMENT','MOMENTUM'])
         expect(frame.physicalSurfaces.some(s=>s.sourceCrop?.join(',')==='0,0,1136,944'),`${key}: original SAM presentation`).toBe(true)
+        if(key==='accelerated-cohort-workshop:hero'){
+          const phone=frame.physicalSurfaces.find(s=>s.kind==='phone')
+          expect(phone?.sourceCrop,`${key}: distinct phone detail`).toEqual([405,120,345,650])
+        }
       }
       const asset=matrix.assets.find(a=>`${a.slug}:${a.role}`===key)
       const item=inventory.find(a=>`${a.slug}:${a.role}`===key)

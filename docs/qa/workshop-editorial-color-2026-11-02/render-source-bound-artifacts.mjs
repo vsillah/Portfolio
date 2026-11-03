@@ -51,16 +51,16 @@ const surfaces = {
     { kind:'screen', name:'laptop display', quad:[[1200,355],[1455,385],[1410,575],[1165,550]], sourceCrop:[0,0,1136,944] },
   ],
   'ai-strategy-recorded:secondary': [
-    { kind:'screen', name:'laptop display', quad:[[1095,340],[1390,340],[1360,555],[1050,535]], cover:'#e8e9e7', part:[0,14] },
-    { kind:'paper', name:'held printed worksheet', quad:[[695,510],[990,565],[925,865],[570,795]], cover:'#f1efed', part:[0,14] },
+    { kind:'screen', name:'laptop learning-plan page', quad:[[680,225],[1110,220],[1080,535],[670,530]], cover:'#e8e9e7', part:[0,8] },
+    { kind:'paper', name:'open learning-plan notebook', quad:[[1020,650],[1410,655],[1530,975],[1050,980]], cover:'#f1efed', part:[8,14] },
   ],
   'accelerated-cohort-workshop:hero': [
     { kind:'paper', name:'printed SAM worksheet', quad:[[575,813],[965,835],[915,1000],[505,970]], cover:'#eeeae3', sourceCrop:[0,0,1136,944] },
-    { kind:'phone', name:'handheld SAM reference', quad:[[765,620],[855,615],[885,770],[790,785]], sourceCrop:[170,100,720,740] },
+    { kind:'phone', name:'handheld Alignment detail from SAM', quad:[[765,620],[855,615],[885,770],[790,785]], sourceCrop:[405,120,345,650] },
   ],
   'accelerated-cohort-workshop:secondary': [
-    { kind:'screen', name:'laptop learning-roadmap page', quad:[[1040,280],[1320,290],[1310,500],[1015,485]], cover:'#e9ebe9', part:[0,15] },
-    { kind:'paper', name:'printed learning-roadmap worksheet', quad:[[770,650],[1360,715],[1260,1005],[615,930]], cover:'#f1efeb', occlusion:[[625,650],[820,650],[810,850],[615,850]], part:[0,15] },
+    { kind:'paper', name:'left learning-roadmap worksheet', quad:[[500,685],[820,620],[935,865],[575,940]], cover:'#f1efeb', occlusion:[[515,650],[710,650],[690,790],[515,790]], part:[0,7] },
+    { kind:'paper', name:'right learning-roadmap worksheet', quad:[[875,615],[1190,610],[1285,830],[950,870]], cover:'#f1efeb', part:[7,15] },
   ],
   'product-innovation-workshop:hero': [
     { kind:'phone', name:'handheld ClientQ reference', quad:[[735,418],[835,417],[820,690],[710,685]], cover:'#f0eff1', part:[0,17] },

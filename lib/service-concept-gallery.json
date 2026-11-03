@@ -202,14 +202,14 @@
     "frames": [
       {
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
-        "alt": "Illustrative scene: Cohort participants discuss the original Accelerated Signals, Alignment, Momentum infographic on a printed worksheet and handheld reference beside a laptop",
+        "alt": "Illustrative scene: Cohort participants discuss the original Accelerated Signals, Alignment, Momentum infographic on a printed worksheet and an Alignment detail on a handheld phone beside a laptop",
         "role": "hero",
         "status": "illustrative concept",
         "label": "Illustrative scene"
       },
       {
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-        "alt": "Illustrative scene: A learner reads a Learning Roadmap excerpt on a laptop and printed worksheet",
+        "alt": "Illustrative scene: Two cohort participants review Learning Roadmap excerpts across printed worksheets",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"
@@ -401,7 +401,7 @@
       },
       {
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-        "alt": "Illustrative scene: A learner compares a Learning Plan excerpt on a printed worksheet and laptop display",
+        "alt": "Illustrative scene: A learner reviews a Learning Plan excerpt on a laptop and open notebook",
         "role": "product-in-use",
         "status": "illustrative concept",
         "label": "Illustrative scene"

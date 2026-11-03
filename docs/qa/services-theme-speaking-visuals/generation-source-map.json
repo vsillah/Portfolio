@@ -21,7 +21,7 @@
       "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-1.png",
       "analysisArtifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
       "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
-      "analysisOutputSha256": "e7f415794ab1c0cba1678f42cda1cef68e4a478ac24ca49a436bcff2022f18c4",
+      "analysisOutputSha256": "10fb19b8e0c167734dae15d468b9f15a9d0c832d99fe90304d99e0d9ba93aa23",
       "analysisPhysicalSurfaces": [
         {
           "name": "printed SAM worksheet",
@@ -58,7 +58,7 @@
           "faceClearanceReviewed": true
         },
         {
-          "name": "handheld SAM reference",
+          "name": "handheld Alignment detail from SAM",
           "kind": "phone",
           "quad": [
             [
@@ -80,14 +80,14 @@
           ],
           "occlusion": null,
           "sourceCrop": [
-            170,
-            100,
-            720,
-            740
+            405,
+            120,
+            345,
+            650
           ],
           "excerptParagraphRange": null,
           "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-2.png",
-          "artifactSha256": "c85a63f071ad432cd2d1469e05605331fe1cac12c718bc75f940f2b2506f9bb6",
+          "artifactSha256": "d0b583c608c559b14762e9e1809a6f5afc264b9f2a689ac93f83abcaaeb89a5a",
           "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
           "faceClearanceReviewed": true
         }
@@ -97,15 +97,15 @@
     {
       "slug": "accelerated-cohort-workshop",
       "role": "secondary",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-70e02c02-0f9f-4c31-8b2f-70b4a813edc0.png",
-      "scene": "Learner reviews a roadmap on laptop and paper",
-      "setting": "quiet library workspace",
-      "camera": "over-the-shoulder medium view",
-      "facilitationMode": "self-directed cohort follow-through",
-      "deliveryContext": "recorded or remote preparation",
-      "castingIntent": "Older Southeast Asian woman, young Black nonbinary learner, white man, Latina woman; 20s–60s; varied body types",
-      "wardrobePalette": "red, cream, plaid, charcoal",
-      "environmentPalette": "entrepreneurship-hub neutral walls, cardboard",
+      "path": "public/showcases/service-photographic/custom-api-erp-hero.jpg",
+      "scene": "Two cohort participants build a learning roadmap across printed worksheets",
+      "setting": "bright shared work table",
+      "camera": "candid medium table view",
+      "facilitationMode": "collaborative roadmap review",
+      "deliveryContext": "in-person cohort pair",
+      "castingIntent": "Adult man and woman collaborating at a table over worksheets",
+      "wardrobePalette": "dark blue knit and cream blouse",
+      "environmentPalette": "bright window, wood table, and dark wall",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
       "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
       "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
@@ -113,88 +113,88 @@
       "analysisFramework": "Learning Roadmap",
       "analysisChapter": "Chapter 10: Learning Roadmaps",
       "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-1.svg",
-      "analysisArtifactSha256": "360eceb7a786b15ff68263574769d150073ca267da8a06e710289868e8084546",
+      "analysisArtifactSha256": "3f52c59fb7d1df7dbdc0e500545000070d49491c21cd9422c3917cd303c8ab04",
       "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
-      "analysisOutputSha256": "bc3d606002151b4414e6a582b685630dc9a32cf58bdaf3ddf40a1231aceb0f03",
+      "analysisOutputSha256": "bed304ec69e96dc8a8a2b6152889db5dec12fcf6b338fdfb1c11a5ac0643b01a",
       "analysisPhysicalSurfaces": [
         {
-          "name": "laptop learning-roadmap page",
-          "kind": "screen",
+          "name": "left learning-roadmap worksheet",
+          "kind": "paper",
           "quad": [
             [
-              1040,
-              280
+              500,
+              685
             ],
             [
-              1320,
-              290
+              820,
+              620
             ],
             [
-              1310,
-              500
+              935,
+              865
             ],
             [
-              1015,
-              485
+              575,
+              940
+            ]
+          ],
+          "occlusion": [
+            [
+              515,
+              650
+            ],
+            [
+              710,
+              650
+            ],
+            [
+              690,
+              790
+            ],
+            [
+              515,
+              790
+            ]
+          ],
+          "sourceCrop": null,
+          "excerptParagraphRange": [
+            0,
+            7
+          ],
+          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-1.svg",
+          "artifactSha256": "3f52c59fb7d1df7dbdc0e500545000070d49491c21cd9422c3917cd303c8ab04",
+          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
+          "faceClearanceReviewed": true
+        },
+        {
+          "name": "right learning-roadmap worksheet",
+          "kind": "paper",
+          "quad": [
+            [
+              875,
+              615
+            ],
+            [
+              1190,
+              610
+            ],
+            [
+              1285,
+              830
+            ],
+            [
+              950,
+              870
             ]
           ],
           "occlusion": null,
           "sourceCrop": null,
           "excerptParagraphRange": [
-            0,
-            15
-          ],
-          "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-1.svg",
-          "artifactSha256": "360eceb7a786b15ff68263574769d150073ca267da8a06e710289868e8084546",
-          "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
-          "faceClearanceReviewed": true
-        },
-        {
-          "name": "printed learning-roadmap worksheet",
-          "kind": "paper",
-          "quad": [
-            [
-              770,
-              650
-            ],
-            [
-              1360,
-              715
-            ],
-            [
-              1260,
-              1005
-            ],
-            [
-              615,
-              930
-            ]
-          ],
-          "occlusion": [
-            [
-              625,
-              650
-            ],
-            [
-              820,
-              650
-            ],
-            [
-              810,
-              850
-            ],
-            [
-              615,
-              850
-            ]
-          ],
-          "sourceCrop": null,
-          "excerptParagraphRange": [
-            0,
+            7,
             15
           ],
           "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-2.svg",
-          "artifactSha256": "360eceb7a786b15ff68263574769d150073ca267da8a06e710289868e8084546",
+          "artifactSha256": "a710893b701f3561a3af34db9a7d229e549e363cb70a413bc02cef1d86662715",
           "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
           "faceClearanceReviewed": true
         }
@@ -810,15 +810,15 @@
     {
       "slug": "ai-strategy-recorded",
       "role": "secondary",
-      "scene": "Independent recorded lesson and worksheet review",
-      "path": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-791420b9-1745-4f41-ae5c-8e58efc95d82.png",
-      "setting": "public library individual study alcove",
-      "camera": "close over-the-shoulder profile",
-      "facilitationMode": "self-paced worksheet review",
+      "scene": "Independent learner reviews a learning plan on a laptop and notebook",
+      "path": "public/showcases/service-photographic/sixty-day-email-secondary.jpg",
+      "setting": "quiet desk workspace",
+      "camera": "over-the-shoulder medium view",
+      "facilitationMode": "self-paced recorded lesson",
       "deliveryContext": "solo asynchronous",
-      "castingIntent": "White woman in her late 60s studying independently with an ordinary natural appearance; no other people",
-      "wardrobePalette": "lavender",
-      "environmentPalette": "library wood, warm neutrals",
+      "castingIntent": "Adult learner seen from behind at a desk; no other people",
+      "wardrobePalette": "cream knit and muted blue",
+      "environmentPalette": "warm wood desk, plants, and neutral walls",
       "paletteIntent": "natural editorial color; brand palette reserved for surrounding UI",
       "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
       "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
@@ -826,71 +826,71 @@
       "analysisFramework": "Learning Plan Framework",
       "analysisChapter": "Chapter 13: The Learning Plan Framework",
       "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-1.svg",
-      "analysisArtifactSha256": "3fe455d442b0edb75ca156911a8b2384e7e04296c0d1e00cd5657c66a3972669",
+      "analysisArtifactSha256": "b09db4c596d2d002a5f71d8a9a23062ae454688d5703f7f12c84b1cab0ba6672",
       "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
-      "analysisOutputSha256": "3e1d8d47ed9d76cfb86e1d05795374113c5816c7030c9fcef6d8734f7f04e6a6",
+      "analysisOutputSha256": "5dc2e97ee9abe4aeb58d4441412730d29574dba6f54abec262e81e4819ca40d4",
       "analysisPhysicalSurfaces": [
         {
-          "name": "laptop display",
+          "name": "laptop learning-plan page",
           "kind": "screen",
           "quad": [
             [
-              1095,
-              340
+              680,
+              225
             ],
             [
-              1390,
-              340
+              1110,
+              220
             ],
             [
-              1360,
-              555
-            ],
-            [
-              1050,
+              1080,
               535
+            ],
+            [
+              670,
+              530
             ]
           ],
           "occlusion": null,
           "sourceCrop": null,
           "excerptParagraphRange": [
             0,
-            14
+            8
           ],
           "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-1.svg",
-          "artifactSha256": "3fe455d442b0edb75ca156911a8b2384e7e04296c0d1e00cd5657c66a3972669",
+          "artifactSha256": "b09db4c596d2d002a5f71d8a9a23062ae454688d5703f7f12c84b1cab0ba6672",
           "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
           "faceClearanceReviewed": true
         },
         {
-          "name": "held printed worksheet",
+          "name": "open learning-plan notebook",
           "kind": "paper",
           "quad": [
             [
-              695,
-              510
+              1020,
+              650
             ],
             [
-              990,
-              565
+              1410,
+              655
             ],
             [
-              925,
-              865
+              1530,
+              975
             ],
             [
-              570,
-              795
+              1050,
+              980
             ]
           ],
           "occlusion": null,
           "sourceCrop": null,
           "excerptParagraphRange": [
-            0,
+            8,
             14
           ],
           "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-2.svg",
-          "artifactSha256": "3fe455d442b0edb75ca156911a8b2384e7e04296c0d1e00cd5657c66a3972669",
+          "artifactSha256": "726b23c7edcb2390582f5832eb66e65b6cef6bbf56e44c1f1a5e58ae18e10e97",
           "transform": "inverse 3x3 homography to physical quadrilateral; paper ink blends with photographed surface; screen pixels retain source presentation and subdued glare",
           "faceClearanceReviewed": true
         }
