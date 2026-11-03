@@ -9,6 +9,7 @@ import type { Service } from '@/lib/types/store'
 import { formatDollarAmount } from '@/lib/pricing-model'
 import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
 import { resolveServiceGallery } from '@/lib/showcase-preview'
+import { prototypeForService, prototypeGallery } from '@/lib/service-prototypes'
 import ShowcaseCarousel from './ShowcaseCarousel'
 
 interface ServiceCardProps {
@@ -52,7 +53,8 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
     imageVariants: service.image_variants,
     theme: resolvedTheme,
   })
-  const gallery = resolveServiceGallery(service.id, service.image_url)
+  const prototype = prototypeForService(service.id, service.image_url)
+  const gallery = prototype ? prototypeGallery(service.id, service.image_url) : resolveServiceGallery(service.id, service.image_url)
   const quoteRequired = service.is_quote_based || service.price === null
 
   const handleAction = () => {
@@ -132,6 +134,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
         )}
 
         {/* View details link */}
+        {prototype && <div className="mb-3"><Link href={`/service-prototypes/${prototype.slug}`} className="inline-flex items-center gap-1 text-sm font-semibold text-card-foreground underline decoration-accent underline-offset-4">Explore interactive preview <ArrowRight size={14} /></Link></div>}
         {viewDetailsHref && (
           <div className="mb-3">
             <Link
