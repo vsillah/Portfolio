@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "status": "request-draft-locked",
+  "lesson_id": "L01",
+  "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+  "provider": "HeyGen",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_pilot_spend_usd": 0,
+  "future_provider_cost": "unquoted; obtain a binding price and enforceable cap before approval or execution",
+  "format": {
+    "master": "1920x1080 16:9",
+    "portrait": "separate 1080x1920 reflow",
+    "frame_rate": 30
+  },
+  "segments": [
+    {
+      "id": "A01",
+      "start": "00:00",
+      "end": "00:35",
+      "duration_seconds": 35,
+      "scene": "L01-01",
+      "placement": "upper center",
+      "delivery": "direct address; two-beat silent cursor opening",
+      "narration_text": "The document is open. At the top it says, Q3 Innovation Plan. The cursor blinks. Your inbox is full of requests, your team wants a direction, and somebody wants a polished plan by Friday. I know that room. The pressure makes the blank page feel like the problem. So you open a tool, ask for ideas, and in thirty seconds you have a confident looking answer. Now what? Who will decide which idea matters?",
+      "timing_status": "storyboard estimate; rebind to exact recorded audio before provider approval"
+    },
+    {
+      "id": "A02",
+      "start": "03:55",
+      "end": "04:15",
+      "duration_seconds": 20,
+      "scene": "L01-03",
+      "placement": "upper third or side",
+      "delivery": "short chapter pivot",
+      "narration_text": "That story makes the pressure visible. It is a teaching story from the book, not a claim about a current customer. Keep that distinction in view as we move between story, worksheet, and public proof.",
+      "timing_status": "storyboard estimate; rebind to exact recorded audio before provider approval"
+    },
+    {
+      "id": "A03",
+      "start": "05:45",
+      "end": "06:05",
+      "duration_seconds": 20,
+      "scene": "L01-05",
+      "placement": "upper third or side",
+      "delivery": "exercise setup",
+      "narration_text": "Let's make the first page of your decision file. It starts with a decision, not a tool. Write one sentence: “We need to decide whether to...” It could be whether",
+      "timing_status": "storyboard estimate; rebind to exact recorded audio before provider approval"
+    },
+    {
+      "id": "A04",
+      "start": "08:35",
+      "end": "09:00",
+      "duration_seconds": 25,
+      "scene": "L01-06",
+      "placement": "upper third or side",
+      "delivery": "quiet close",
+      "narration_text": "A good first page does not pretend to know the answer. It tells the truth about the decision, the evidence you have, and the information you have permission to use. Keep that first page open. The rest of this workshop will build on it.",
+      "timing_status": "storyboard estimate; rebind to exact recorded audio before provider approval"
+    }
+  ],
+  "total_avatar_seconds": 100,
+  "script_binding": "Extract exact spoken spans from the approved L01 narration after timing to recorded audio; no paraphrase or provider submission from this draft",
+  "pronunciation": {
+    "SAM": "sam",
+    "Q3": "cue three",
+    "AI": "A I"
+  },
+  "audio_ownership": "One speaker at a time. If approved native avatar audio is used, mute the matching narration span. Never layer both.",
+  "composition": "Reserve a top or side avatar window clear of captions and worksheet fields. Hard cuts in and out; native MP4 is source of truth. Preserve source frame rate, duration, count, and lip sync in final FFmpeg composite.",
+  "required_before_execution": [
+    "human approval of exact avatar identity and rights",
+    "recorded narration timing and final segment text",
+    "binding provider quote and enforceable spend cap",
+    "privacy and source review",
+    "separate provider execution authorization"
+  ]
+}

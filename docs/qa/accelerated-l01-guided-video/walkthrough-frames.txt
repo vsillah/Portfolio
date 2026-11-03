@@ -1,0 +1,15 @@
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/desktop-scene-1.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/desktop-scene-2.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/desktop-scene-3.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/desktop-safety.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/mobile-intro.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/mobile-worksheet.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/desktop-scene-6.jpg'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/fb2c/Portfolio/docs/qa/accelerated-l01-guided-video/desktop-scene-6.jpg'
