@@ -43,23 +43,356 @@
         "slug": "accelerated-cohort-workshop",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg",
-        "sha256": "9d45e39b621ae9a1f552d144ef1f93f26dace59165f7c7fa0ab9d39c3122ea82",
+        "sha256": "10fb19b8e0c167734dae15d468b9f15a9d0c832d99fe90304d99e0d9ba93aa23",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f56dcc9b-c5ac-429b-9509-ff119ef26a89.png",
-        "alt": "Illustrative scene: An active cohort tests paper and laptop prototypes in a build lab",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-ca5f7802-64ab-4936-ba20-2a217c6dd0fe.png",
+        "alt": "Illustrative scene: Cohort participants discuss the original Accelerated Signals, Alignment, Momentum infographic on a printed worksheet and an Alignment detail on a handheld phone beside a laptop",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+        "analysisSourceSha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+        "analysisSourceMember": null,
+        "analysisFramework": "Signals → Alignment → Momentum",
+        "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-1.png",
+        "analysisArtifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+        "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+        "analysisOutputSha256": "10fb19b8e0c167734dae15d468b9f15a9d0c832d99fe90304d99e0d9ba93aa23",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "printed SAM worksheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                575,
+                813
+              ],
+              [
+                965,
+                835
+              ],
+              [
+                915,
+                1000
+              ],
+              [
+                505,
+                970
+              ]
+            ],
+            "quad": [
+              [
+                575,
+                813
+              ],
+              [
+                965,
+                835
+              ],
+              [
+                915,
+                1000
+              ],
+              [
+                505,
+                970
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                575,
+                813
+              ],
+              [
+                965,
+                835
+              ],
+              [
+                915,
+                1000
+              ],
+              [
+                505,
+                970
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": [
+              0,
+              0,
+              1136,
+              944
+            ],
+            "excerptParagraphRange": null,
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-1.png",
+            "artifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+            "planeOutputSha256": "daef2a315cd3750019eedd630265d2f379f07dad18b7769b03cd270e080af496",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "10fb19b8e0c167734dae15d468b9f15a9d0c832d99fe90304d99e0d9ba93aa23"
+          },
+          {
+            "name": "handheld Alignment detail from SAM",
+            "kind": "phone",
+            "targetPolygon": [
+              [
+                765,
+                620
+              ],
+              [
+                855,
+                615
+              ],
+              [
+                885,
+                770
+              ],
+              [
+                790,
+                785
+              ]
+            ],
+            "quad": [
+              [
+                765,
+                620
+              ],
+              [
+                855,
+                615
+              ],
+              [
+                885,
+                770
+              ],
+              [
+                790,
+                785
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                765,
+                620
+              ],
+              [
+                855,
+                615
+              ],
+              [
+                885,
+                770
+              ],
+              [
+                790,
+                785
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": [
+              405,
+              120,
+              345,
+              650
+            ],
+            "excerptParagraphRange": null,
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-hero-2.png",
+            "artifactSha256": "d0b583c608c559b14762e9e1809a6f5afc264b9f2a689ac93f83abcaaeb89a5a",
+            "planeOutputSha256": "a114c4690e2ef1eb247d056db240670bf134d6920628492746e39edb658068c0",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "10fb19b8e0c167734dae15d468b9f15a9d0c832d99fe90304d99e0d9ba93aa23"
+          }
+        ],
+        "analysisSourceExcerptSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       {
         "slug": "accelerated-cohort-workshop",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/accelerated-cohort-workshop-secondary.jpg",
-        "sha256": "6ee50aae48dfa896b39409ca08fb8ed86255051a9e5f22a171ed1156ce8e9339",
+        "sha256": "d8b96c6eaace61ff327d1278ccd16e4e076accbdf06d34f1360b0c65d8cea75c",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-f828c5bb-f3c3-4072-9def-50cc8c46bf25.png",
-        "alt": "Illustrative scene: Cohort learners test a cardboard service prototype beside a laptop",
-        "sceneCategory": "workshop"
+        "source": "public/showcases/service-photographic/custom-api-erp-hero.jpg",
+        "alt": "Illustrative scene: Two cohort participants review Learning Roadmap excerpts across printed worksheets",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c013.xhtml",
+        "analysisFramework": "Learning Roadmap",
+        "analysisChapter": "Chapter 10: Learning Roadmaps",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-1.svg",
+        "analysisArtifactSha256": "3f52c59fb7d1df7dbdc0e500545000070d49491c21cd9422c3917cd303c8ab04",
+        "analysisCompositeMethod": "in-world source artwork warped to exact physical plane, inset and polygon-clipped; photographed paper texture, contact shadow, hands, bezel, and screen glare retained",
+        "analysisOutputSha256": "d8b96c6eaace61ff327d1278ccd16e4e076accbdf06d34f1360b0c65d8cea75c",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "left learning-roadmap worksheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                480,
+                748
+              ],
+              [
+                835,
+                726
+              ],
+              [
+                969,
+                937
+              ],
+              [
+                473,
+                918
+              ]
+            ],
+            "quad": [
+              [
+                515,
+                773
+              ],
+              [
+                815,
+                750
+              ],
+              [
+                922,
+                910
+              ],
+              [
+                505,
+                895
+              ]
+            ],
+            "insetPx": 12,
+            "maskPolygon": [
+              [
+                515,
+                773
+              ],
+              [
+                815,
+                750
+              ],
+              [
+                922,
+                910
+              ],
+              [
+                505,
+                895
+              ]
+            ],
+            "occlusion": [
+              [
+                370,
+                605
+              ],
+              [
+                725,
+                610
+              ],
+              [
+                755,
+                780
+              ],
+              [
+                475,
+                790
+              ]
+            ],
+            "curvaturePx": 3,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              7
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-1.svg",
+            "artifactSha256": "3f52c59fb7d1df7dbdc0e500545000070d49491c21cd9422c3917cd303c8ab04",
+            "planeOutputSha256": "1cec82592190636575a130509533cf63f9041bb3f5a39fb9c53d37aabb0cfed4",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "d8b96c6eaace61ff327d1278ccd16e4e076accbdf06d34f1360b0c65d8cea75c"
+          },
+          {
+            "name": "right learning-roadmap worksheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                870,
+                696
+              ],
+              [
+                1202,
+                681
+              ],
+              [
+                1370,
+                860
+              ],
+              [
+                935,
+                886
+              ]
+            ],
+            "quad": [
+              [
+                902,
+                720
+              ],
+              [
+                1180,
+                703
+              ],
+              [
+                1326,
+                842
+              ],
+              [
+                953,
+                861
+              ]
+            ],
+            "insetPx": 12,
+            "maskPolygon": [
+              [
+                902,
+                720
+              ],
+              [
+                1180,
+                703
+              ],
+              [
+                1326,
+                842
+              ],
+              [
+                953,
+                861
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 3,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              7,
+              15
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/accelerated-cohort-workshop-secondary-2.svg",
+            "artifactSha256": "a710893b701f3561a3af34db9a7d229e549e363cb70a413bc02cef1d86662715",
+            "planeOutputSha256": "66844f890d3968ca39082a067e86c98daa0e21c2e00b1617561f672c8d37ceed",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "d8b96c6eaace61ff327d1278ccd16e4e076accbdf06d34f1360b0c65d8cea75c"
+          }
+        ],
+        "analysisSourceExcerptSha256": "bf6f29fdd6cd682a53ae91c00843255b87849711d5bc9bd701310d2381f79d24"
       }
     ]
   },
@@ -88,23 +421,280 @@
         "slug": "product-innovation-workshop",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-hero.jpg",
-        "sha256": "fc355b0a2d3d224ebb54413d48f558a5c960f1f42ff33078985187c0c1f052aa",
+        "sha256": "9ea3f23befdd2f7852e3232a998f70ad4241f2e2364274f4f6fcb83890dc545b",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-55984462-de38-4b7c-b515-a858e394a66c.png",
-        "alt": "Illustrative scene: A participant tests a paper service interface while a product team observes and records results",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-c6dfe1ee-bd80-4ce7-9b24-51604e283626.png",
+        "alt": "Illustrative scene: Product workshop participants review a Jobs from Noise excerpt on a handheld reference and printed worksheet beside a laptop",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c022.xhtml",
+        "analysisFramework": "ClientQ: Jobs from Noise",
+        "analysisChapter": "Chapter 19: To Jobs from Noise (ClientQ)",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero-1.svg",
+        "analysisArtifactSha256": "e477d6ecfeb98e2b1aa12c194b55fcd48fbf2019d3aeaa0e9dc533c5bf3cc7c5",
+        "analysisCompositeMethod": "in-world source artwork warped to exact physical plane, inset and polygon-clipped; photographed paper texture, contact shadow, hands, bezel, and screen glare retained",
+        "analysisOutputSha256": "9ea3f23befdd2f7852e3232a998f70ad4241f2e2364274f4f6fcb83890dc545b",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "handheld ClientQ reference",
+            "kind": "phone",
+            "targetPolygon": [
+              [
+                740,
+                425
+              ],
+              [
+                842,
+                427
+              ],
+              [
+                813,
+                654
+              ],
+              [
+                705,
+                650
+              ]
+            ],
+            "quad": [
+              [
+                751,
+                443
+              ],
+              [
+                831,
+                445
+              ],
+              [
+                799,
+                635
+              ],
+              [
+                718,
+                631
+              ]
+            ],
+            "insetPx": 10,
+            "maskPolygon": [
+              [
+                751,
+                443
+              ],
+              [
+                831,
+                445
+              ],
+              [
+                799,
+                635
+              ],
+              [
+                718,
+                631
+              ]
+            ],
+            "occlusion": [
+              [
+                685,
+                512
+              ],
+              [
+                768,
+                518
+              ],
+              [
+                763,
+                571
+              ],
+              [
+                684,
+                567
+              ]
+            ],
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              7
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero-1.svg",
+            "artifactSha256": "e477d6ecfeb98e2b1aa12c194b55fcd48fbf2019d3aeaa0e9dc533c5bf3cc7c5",
+            "planeOutputSha256": "2849c369fc470b6a6a5b40b34b784ccaa2ccf59ec2259343a21bdd85039b82cc",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "9ea3f23befdd2f7852e3232a998f70ad4241f2e2364274f4f6fcb83890dc545b"
+          },
+          {
+            "name": "printed ClientQ worksheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                400,
+                925
+              ],
+              [
+                700,
+                860
+              ],
+              [
+                950,
+                925
+              ],
+              [
+                650,
+                1024
+              ]
+            ],
+            "quad": [
+              [
+                400,
+                925
+              ],
+              [
+                700,
+                860
+              ],
+              [
+                950,
+                925
+              ],
+              [
+                650,
+                1024
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                400,
+                925
+              ],
+              [
+                700,
+                860
+              ],
+              [
+                950,
+                925
+              ],
+              [
+                650,
+                1024
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              17
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-hero-2.svg",
+            "artifactSha256": "774300338d192cdc0b04dc548258a35f31e3c6b2faf244ddaf00cd526bc10fad",
+            "planeOutputSha256": "d30df5cf15b587e2b65bd1d53456188240bb060338f4a177aec787392db7f6e1",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "9ea3f23befdd2f7852e3232a998f70ad4241f2e2364274f4f6fcb83890dc545b"
+          }
+        ],
+        "analysisSourceExcerptSha256": "d686f6c3deae544ec59724d6e3007883715a612e849670c61d1d719857ad582b"
       },
       {
         "slug": "product-innovation-workshop",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/product-innovation-workshop-secondary.jpg",
-        "sha256": "8ab1406206a40c5bf548c85dc576216bc72ae541f743ec175c65fe18a7112295",
+        "sha256": "cdc151fa56e018610e26862037cd0f455cf2342d09bb31567edbdec7c80454c8",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-60df4976-f1cc-44df-862c-1c257ff68e9b.png",
-        "alt": "Illustrative scene: A product team maps an opportunity and risk on blank cards beside a laptop",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b0e6a889-2f65-492c-a00e-1463dce623a5.png",
+        "alt": "Illustrative scene: A product team discusses a held VisionScope and MarketCraft worksheet",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c025.xhtml",
+        "analysisFramework": "VisionScope + MarketCraft",
+        "analysisChapter": "Chapter 22: Designing the Future (VisionScope & MarketCraft)",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary-1.svg",
+        "analysisArtifactSha256": "65156d8791daac77b7b4cf794d4ed94324d54f105da12ee6a2de30dc6eb82b98",
+        "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+        "analysisOutputSha256": "cdc151fa56e018610e26862037cd0f455cf2342d09bb31567edbdec7c80454c8",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "held VisionScope and MarketCraft worksheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                890,
+                765
+              ],
+              [
+                1210,
+                760
+              ],
+              [
+                1260,
+                910
+              ],
+              [
+                905,
+                930
+              ]
+            ],
+            "quad": [
+              [
+                890,
+                765
+              ],
+              [
+                1210,
+                760
+              ],
+              [
+                1260,
+                910
+              ],
+              [
+                905,
+                930
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                890,
+                765
+              ],
+              [
+                1210,
+                760
+              ],
+              [
+                1260,
+                910
+              ],
+              [
+                905,
+                930
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              16
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/product-innovation-workshop-secondary-1.svg",
+            "artifactSha256": "65156d8791daac77b7b4cf794d4ed94324d54f105da12ee6a2de30dc6eb82b98",
+            "planeOutputSha256": "266dea2e7ba20bb2d5fe2ccda8e631ffa320c4e0b03cc9260b681ab66617df50",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "cdc151fa56e018610e26862037cd0f455cf2342d09bb31567edbdec7c80454c8"
+          }
+        ],
+        "analysisSourceExcerptSha256": "431b733627bf82b5ae6a314d7cbe49ab2e14da8cf36433a32b329b5fd1a05960"
       }
     ]
   },
@@ -781,23 +1371,623 @@
         "slug": "ai-strategy-half-day",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-hero.jpg",
-        "sha256": "de33c1594e57cce2d269c5713c6bff98fdf191185b032fb03e0577566bcbe6d6",
+        "sha256": "1a0209e56db986e9cb1a4bebf28cd98f62dd28e2a0bd89fee4a780403c78af4a",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b966353e-0e7a-4ab4-83b1-817e0120bcbe.png",
-        "alt": "Illustrative scene: A compact AI strategy group prioritizes use cases with a facilitator, blank cards, and a laptop",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-434775de-8fd5-4c1c-b60a-8069c8c5d330.png",
+        "alt": "Illustrative scene: Two workshop participants review printed Full Discovery Loop steps pinned to a board beside a laptop",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c010.xhtml",
+        "analysisFramework": "The Full Discovery Loop",
+        "analysisChapter": "Chapter 7: Discovery - From Feedback to Signal",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-1.svg",
+        "analysisArtifactSha256": "f9755c94853285a15be33275ab53be3ec14b43a3de1afb4a22cad9ad6b0f9b58",
+        "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+        "analysisOutputSha256": "1a0209e56db986e9cb1a4bebf28cd98f62dd28e2a0bd89fee4a780403c78af4a",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "upper pinned sheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                1205,
+                160
+              ],
+              [
+                1395,
+                150
+              ],
+              [
+                1390,
+                300
+              ],
+              [
+                1190,
+                300
+              ]
+            ],
+            "quad": [
+              [
+                1205,
+                160
+              ],
+              [
+                1395,
+                150
+              ],
+              [
+                1390,
+                300
+              ],
+              [
+                1190,
+                300
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1205,
+                160
+              ],
+              [
+                1395,
+                150
+              ],
+              [
+                1390,
+                300
+              ],
+              [
+                1190,
+                300
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              3
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-1.svg",
+            "artifactSha256": "f9755c94853285a15be33275ab53be3ec14b43a3de1afb4a22cad9ad6b0f9b58",
+            "planeOutputSha256": "546687f3d80fab46ce9f38b73cebafe401289c812c784b45d4685b2dd756a419",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "1a0209e56db986e9cb1a4bebf28cd98f62dd28e2a0bd89fee4a780403c78af4a"
+          },
+          {
+            "name": "middle pinned sheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                1200,
+                360
+              ],
+              [
+                1380,
+                355
+              ],
+              [
+                1380,
+                500
+              ],
+              [
+                1195,
+                500
+              ]
+            ],
+            "quad": [
+              [
+                1200,
+                360
+              ],
+              [
+                1380,
+                355
+              ],
+              [
+                1380,
+                500
+              ],
+              [
+                1195,
+                500
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1200,
+                360
+              ],
+              [
+                1380,
+                355
+              ],
+              [
+                1380,
+                500
+              ],
+              [
+                1195,
+                500
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              3,
+              6
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-2.svg",
+            "artifactSha256": "569dc084a45b2dde46fd53ddc3aff59ed7f6b583112a3999a483d98e5d00cd05",
+            "planeOutputSha256": "183c74d3b31fc296f2300881a4be11a59dd3da4b0b696e6230fc887b6ec5bb2c",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "1a0209e56db986e9cb1a4bebf28cd98f62dd28e2a0bd89fee4a780403c78af4a"
+          },
+          {
+            "name": "lower pinned sheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                1190,
+                550
+              ],
+              [
+                1390,
+                560
+              ],
+              [
+                1380,
+                710
+              ],
+              [
+                1180,
+                690
+              ]
+            ],
+            "quad": [
+              [
+                1190,
+                550
+              ],
+              [
+                1390,
+                560
+              ],
+              [
+                1380,
+                710
+              ],
+              [
+                1180,
+                690
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1190,
+                550
+              ],
+              [
+                1390,
+                560
+              ],
+              [
+                1380,
+                710
+              ],
+              [
+                1180,
+                690
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              6,
+              9
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-hero-3.svg",
+            "artifactSha256": "180b76a4963a586e52f03ee50e126c6b946dd3363eb4abf51c77b36b71e3b2b4",
+            "planeOutputSha256": "096c4fcb5ac29b4d58497e82629d1a140c0a5a73df0b313fa7aadbbcd932fa97",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "1a0209e56db986e9cb1a4bebf28cd98f62dd28e2a0bd89fee4a780403c78af4a"
+          }
+        ],
+        "analysisSourceExcerptSha256": "2b362f3682a8e251f65e4d1b374890214ac5d62b36c3d9aefdbd1d54aad7852d"
       },
       {
         "slug": "ai-strategy-half-day",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-half-day-secondary.jpg",
-        "sha256": "8c91d986143c92c50e239762adbec9973a655ea9770c4e9ad606f2a5ec48f92f",
+        "sha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-434775de-8fd5-4c1c-b60a-8069c8c5d330.png",
-        "alt": "Illustrative scene: Two participants rank opportunity cards beside a laptop in a library nook",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-7023ab50-6d67-40a0-b13a-be51c5a58e58.png",
+        "alt": "Illustrative scene: Two participants discuss full roadmap bet statements on notes beside a laptop",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c011.xhtml",
+        "analysisFramework": "Turn Features into Bets",
+        "analysisChapter": "Chapter 8: Roadmaps Without Regret",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-1.svg",
+        "analysisArtifactSha256": "ade9ed19fe1dca50200732397e17b9e84afb945b7451f2e80958f485b2c52f40",
+        "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+        "analysisOutputSha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "whiteboard note 1",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1345,
+                95
+              ],
+              [
+                1460,
+                80
+              ],
+              [
+                1460,
+                185
+              ],
+              [
+                1335,
+                190
+              ]
+            ],
+            "quad": [
+              [
+                1345,
+                95
+              ],
+              [
+                1460,
+                80
+              ],
+              [
+                1460,
+                185
+              ],
+              [
+                1335,
+                190
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1345,
+                95
+              ],
+              [
+                1460,
+                80
+              ],
+              [
+                1460,
+                185
+              ],
+              [
+                1335,
+                190
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              1
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-1.svg",
+            "artifactSha256": "ade9ed19fe1dca50200732397e17b9e84afb945b7451f2e80958f485b2c52f40",
+            "planeOutputSha256": "0044a5c2ec55720b7efafc41132d3d9e8534f97343cf3778aa493b2d940aaf5f",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe"
+          },
+          {
+            "name": "whiteboard note 2",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1340,
+                210
+              ],
+              [
+                1460,
+                205
+              ],
+              [
+                1460,
+                305
+              ],
+              [
+                1340,
+                305
+              ]
+            ],
+            "quad": [
+              [
+                1340,
+                210
+              ],
+              [
+                1460,
+                205
+              ],
+              [
+                1460,
+                305
+              ],
+              [
+                1340,
+                305
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1340,
+                210
+              ],
+              [
+                1460,
+                205
+              ],
+              [
+                1460,
+                305
+              ],
+              [
+                1340,
+                305
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              1,
+              2
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-2.svg",
+            "artifactSha256": "3540503e459f0862b28f12ff30c2f564143bb62c768ed65ea79a27d1944e172a",
+            "planeOutputSha256": "fb2bb4ce2cc08cf94be567118db60277ef2ef916b823bdc2cb3dcb3e3534810f",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe"
+          },
+          {
+            "name": "whiteboard note 3",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1345,
+                340
+              ],
+              [
+                1460,
+                335
+              ],
+              [
+                1460,
+                430
+              ],
+              [
+                1340,
+                430
+              ]
+            ],
+            "quad": [
+              [
+                1345,
+                340
+              ],
+              [
+                1460,
+                335
+              ],
+              [
+                1460,
+                430
+              ],
+              [
+                1340,
+                430
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1345,
+                340
+              ],
+              [
+                1460,
+                335
+              ],
+              [
+                1460,
+                430
+              ],
+              [
+                1340,
+                430
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              2,
+              3
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-3.svg",
+            "artifactSha256": "efe3cfae42ba2f09e08a66d4819a2b1d629dd692d557549999a35e027d4cd736",
+            "planeOutputSha256": "038c8f2bb86c2a962f13a013b88638740b5aa8e26b5ad5f4a8b6bd1a4c55b243",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe"
+          },
+          {
+            "name": "whiteboard note 4",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1345,
+                470
+              ],
+              [
+                1460,
+                465
+              ],
+              [
+                1460,
+                560
+              ],
+              [
+                1340,
+                565
+              ]
+            ],
+            "quad": [
+              [
+                1345,
+                470
+              ],
+              [
+                1460,
+                465
+              ],
+              [
+                1460,
+                560
+              ],
+              [
+                1340,
+                565
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1345,
+                470
+              ],
+              [
+                1460,
+                465
+              ],
+              [
+                1460,
+                560
+              ],
+              [
+                1340,
+                565
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              3,
+              4
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-4.svg",
+            "artifactSha256": "94e27873ea7770174d0ec035d1fdd479d7da85302c4429d0cfb6259800606e12",
+            "planeOutputSha256": "7238bb875555c301369f4ddd14d77efc2bbb536d0c7886e6603efcff6d813721",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe"
+          },
+          {
+            "name": "whiteboard note 5",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1330,
+                620
+              ],
+              [
+                1470,
+                620
+              ],
+              [
+                1460,
+                730
+              ],
+              [
+                1325,
+                715
+              ]
+            ],
+            "quad": [
+              [
+                1330,
+                620
+              ],
+              [
+                1470,
+                620
+              ],
+              [
+                1460,
+                730
+              ],
+              [
+                1325,
+                715
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1330,
+                620
+              ],
+              [
+                1470,
+                620
+              ],
+              [
+                1460,
+                730
+              ],
+              [
+                1325,
+                715
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              4,
+              5
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-half-day-secondary-5.svg",
+            "artifactSha256": "85ac7a670a8aff7d1f4e8133370f41a3fd14527360fe4d0bde2c9913af9efaf7",
+            "planeOutputSha256": "f562d7408834cf416963050f76fa62930ce6e4d44702f335b332ff4694742f5d",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "34a01ba9fd916c0eea3441d49ae3dcceb51a3d5e8e29dcd0b9579b11b31e77fe"
+          }
+        ],
+        "analysisSourceExcerptSha256": "f492fb174db53398779a69df80127dc9ca312aad720f63f8f965e840471a8e3a"
       }
     ]
   },
@@ -826,23 +2016,551 @@
         "slug": "ai-strategy-full-day",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-hero.jpg",
-        "sha256": "abd7377dc11e43326499d4c130469c00964a14265f52253deb88d5ef88d98b8a",
+        "sha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-e5b423ba-ef51-4a68-b3c6-89ca53b7e44e.png",
-        "alt": "Illustrative scene: Two full-day workshop groups compare workflow maps with laptops and a circulating facilitator",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-b966353e-0e7a-4ab4-83b1-817e0120bcbe.png",
+        "alt": "Illustrative scene: A small group maps Decision Theater roles on wall notes and a meeting notebook beside a laptop",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c018.xhtml",
+        "analysisFramework": "Decision Theater role map",
+        "analysisChapter": "Chapter 15: Mapping the Decision Theater",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-1.svg",
+        "analysisArtifactSha256": "bba13fd400b19dff9ed7ca52168c12dc193616459dc24097388542a42449c6a4",
+        "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+        "analysisOutputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "upper wall card 1",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1245,
+                67
+              ],
+              [
+                1360,
+                65
+              ],
+              [
+                1355,
+                145
+              ],
+              [
+                1240,
+                150
+              ]
+            ],
+            "quad": [
+              [
+                1245,
+                67
+              ],
+              [
+                1360,
+                65
+              ],
+              [
+                1355,
+                145
+              ],
+              [
+                1240,
+                150
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1245,
+                67
+              ],
+              [
+                1360,
+                65
+              ],
+              [
+                1355,
+                145
+              ],
+              [
+                1240,
+                150
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              1
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-1.svg",
+            "artifactSha256": "bba13fd400b19dff9ed7ca52168c12dc193616459dc24097388542a42449c6a4",
+            "planeOutputSha256": "b19577349712a018aa295c3d9d93d500b4b1487ee906e46109e54410e2fb493d",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3"
+          },
+          {
+            "name": "upper wall card 2",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1385,
+                58
+              ],
+              [
+                1505,
+                50
+              ],
+              [
+                1505,
+                140
+              ],
+              [
+                1380,
+                140
+              ]
+            ],
+            "quad": [
+              [
+                1385,
+                58
+              ],
+              [
+                1505,
+                50
+              ],
+              [
+                1505,
+                140
+              ],
+              [
+                1380,
+                140
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1385,
+                58
+              ],
+              [
+                1505,
+                50
+              ],
+              [
+                1505,
+                140
+              ],
+              [
+                1380,
+                140
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              1,
+              2
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-2.svg",
+            "artifactSha256": "d4e378d5199f4d7e9ac30053aa69b744df631fccdf10c1d96a050182b85a8f32",
+            "planeOutputSha256": "7542ae6a202a14be249e227d661a1323179b1e6017823f56380f3945d94e10a0",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3"
+          },
+          {
+            "name": "middle wall card 1",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1245,
+                190
+              ],
+              [
+                1355,
+                185
+              ],
+              [
+                1355,
+                267
+              ],
+              [
+                1240,
+                270
+              ]
+            ],
+            "quad": [
+              [
+                1245,
+                190
+              ],
+              [
+                1355,
+                185
+              ],
+              [
+                1355,
+                267
+              ],
+              [
+                1240,
+                270
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1245,
+                190
+              ],
+              [
+                1355,
+                185
+              ],
+              [
+                1355,
+                267
+              ],
+              [
+                1240,
+                270
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              2,
+              3
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-3.svg",
+            "artifactSha256": "d291d46c3f633e55fb1ab51b8862a9acc10cc0691b9b51f4b9cfb54f878dcd95",
+            "planeOutputSha256": "ed04717237e09fd180cbbea610d0baadb3d359b20ec52008e3220a09197bf1f1",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3"
+          },
+          {
+            "name": "middle wall card 2",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                1380,
+                180
+              ],
+              [
+                1505,
+                173
+              ],
+              [
+                1505,
+                262
+              ],
+              [
+                1380,
+                265
+              ]
+            ],
+            "quad": [
+              [
+                1380,
+                180
+              ],
+              [
+                1505,
+                173
+              ],
+              [
+                1505,
+                262
+              ],
+              [
+                1380,
+                265
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1380,
+                180
+              ],
+              [
+                1505,
+                173
+              ],
+              [
+                1505,
+                262
+              ],
+              [
+                1380,
+                265
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              3,
+              4
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-4.svg",
+            "artifactSha256": "e6ae2fcfa9346dd7d36904cd6523c1a03920067e86c7829c6c73502bc0fc324e",
+            "planeOutputSha256": "b43ac2441a92da74c7cb3060d1ce35315156db17e2d59bcb939d39ead62dfa9c",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3"
+          },
+          {
+            "name": "table note",
+            "kind": "sticky",
+            "targetPolygon": [
+              [
+                700,
+                750
+              ],
+              [
+                830,
+                745
+              ],
+              [
+                830,
+                820
+              ],
+              [
+                700,
+                825
+              ]
+            ],
+            "quad": [
+              [
+                700,
+                750
+              ],
+              [
+                830,
+                745
+              ],
+              [
+                830,
+                820
+              ],
+              [
+                700,
+                825
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                700,
+                750
+              ],
+              [
+                830,
+                745
+              ],
+              [
+                830,
+                820
+              ],
+              [
+                700,
+                825
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              4,
+              5
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-5.svg",
+            "artifactSha256": "819d7014aae038fb242402d20dc7910cae368fc28315a06628eab44172759f86",
+            "planeOutputSha256": "3248edc94c19a0b349fa104d5b23ad88fd0323d465838f49babb21c6a7255131",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3"
+          },
+          {
+            "name": "foreground meeting notebook",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                1030,
+                808
+              ],
+              [
+                1255,
+                812
+              ],
+              [
+                1300,
+                970
+              ],
+              [
+                1005,
+                960
+              ]
+            ],
+            "quad": [
+              [
+                1030,
+                808
+              ],
+              [
+                1255,
+                812
+              ],
+              [
+                1300,
+                970
+              ],
+              [
+                1005,
+                960
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                1030,
+                808
+              ],
+              [
+                1255,
+                812
+              ],
+              [
+                1300,
+                970
+              ],
+              [
+                1005,
+                960
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              5,
+              6
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-hero-6.svg",
+            "artifactSha256": "200277adb066e5d7731f3b0dbfa524bbfafcb193fbec43a4132ccb5ff54f8358",
+            "planeOutputSha256": "35890a18f0b31cb6037d8dc65ff755602edcd86d3282cebb597eb6d6ac1691a9",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "f0ef03f48e41b37a85a782b35bf6a31ca1e8112e4bbd9983282818ba903e0ed3"
+          }
+        ],
+        "analysisSourceExcerptSha256": "fbc5cdc900f02ad121264bbc2eb137ba7215cfffee43d20ee5174e9139e4d029"
       },
       {
         "slug": "ai-strategy-full-day",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-full-day-secondary.jpg",
-        "sha256": "36e234313e541a99b9926d9b075212527b3dc2434a2e6aa4b062230f7d4224b2",
+        "sha256": "fb44d7a3d825912c4d50d02c05247809ba5c29aa864f2dd3c1025ca411d050cc",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-29d0c369-0d01-4a62-860d-43d072b6c258.png",
-        "alt": "Illustrative scene: Full-day participants synthesize an implementation sequence at a rolling board beside a laptop",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-603b701c-6c23-4b7f-990d-eeb11379e1c8.png",
+        "alt": "Illustrative scene: Two participants read a Metrics Ladder excerpt on a held worksheet",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c015.xhtml",
+        "analysisFramework": "Metrics Ladder",
+        "analysisChapter": "Chapter 12: The Metrics That Matter",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary-1.svg",
+        "analysisArtifactSha256": "0187e4807ce0167ec8ee3b009fb4f89e6253362f8ff86d3150a22c9fa333cba2",
+        "analysisCompositeMethod": "in-world source artwork warped to surveyed physical surface quads; paper ink multiplied through photographed texture or screen pixels blended with native glare",
+        "analysisOutputSha256": "fb44d7a3d825912c4d50d02c05247809ba5c29aa864f2dd3c1025ca411d050cc",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "held printed worksheet",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                715,
+                635
+              ],
+              [
+                1025,
+                665
+              ],
+              [
+                875,
+                900
+              ],
+              [
+                590,
+                835
+              ]
+            ],
+            "quad": [
+              [
+                715,
+                635
+              ],
+              [
+                1025,
+                665
+              ],
+              [
+                875,
+                900
+              ],
+              [
+                590,
+                835
+              ]
+            ],
+            "insetPx": 0,
+            "maskPolygon": [
+              [
+                715,
+                635
+              ],
+              [
+                1025,
+                665
+              ],
+              [
+                875,
+                900
+              ],
+              [
+                590,
+                835
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              18
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-full-day-secondary-1.svg",
+            "artifactSha256": "0187e4807ce0167ec8ee3b009fb4f89e6253362f8ff86d3150a22c9fa333cba2",
+            "planeOutputSha256": "977dc95a74e067cf110f103b6d0a2a1c1a83ae759f6ea6efe583f7a3ec8d9f59",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "fb44d7a3d825912c4d50d02c05247809ba5c29aa864f2dd3c1025ca411d050cc"
+          }
+        ],
+        "analysisSourceExcerptSha256": "ef5c8f3db35212657cb72c5b8d31da72dba13115ae6ce513dbb1be83fe754ed2"
       }
     ]
   },
@@ -1156,23 +2874,265 @@
         "slug": "ai-strategy-recorded",
         "role": "hero",
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-hero.jpg",
-        "sha256": "d5015c6a4285e7e7ea86ab601d8b16358c3c4b1365a24ea5065970a543bd6bd7",
+        "sha256": "6339cd4b81ddec1af19d5c1347ab554edcc432d712ff9a36508f9024315ed1d0",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-4568446a-b7c7-4a24-86c4-5cdafd0fd94f.png",
-        "alt": "Illustrative scene: One learner pauses a recorded AI strategy lesson to take notes at home",
-        "sceneCategory": "workshop"
+        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-32e4f34c-d644-4a0d-bffe-353b6b479a5b.png",
+        "alt": "Illustrative scene: A learner takes notes beside a laptop displaying the original Accelerated Signals, Alignment, Momentum infographic",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+        "analysisSourceSha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+        "analysisSourceMember": null,
+        "analysisFramework": "Signals → Alignment → Momentum",
+        "analysisChapter": "Accelerated: Building Smarter Products with AI infographic",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-hero-1.png",
+        "analysisArtifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+        "analysisCompositeMethod": "in-world source artwork warped to exact physical plane, inset and polygon-clipped; photographed paper texture, contact shadow, hands, bezel, and screen glare retained",
+        "analysisOutputSha256": "6339cd4b81ddec1af19d5c1347ab554edcc432d712ff9a36508f9024315ed1d0",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "laptop display",
+            "kind": "screen",
+            "targetPolygon": [
+              [
+                1200,
+                347
+              ],
+              [
+                1469,
+                373
+              ],
+              [
+                1432,
+                590
+              ],
+              [
+                1159,
+                563
+              ]
+            ],
+            "quad": [
+              [
+                1212,
+                362
+              ],
+              [
+                1453,
+                386
+              ],
+              [
+                1417,
+                572
+              ],
+              [
+                1178,
+                549
+              ]
+            ],
+            "insetPx": 12,
+            "maskPolygon": [
+              [
+                1212,
+                362
+              ],
+              [
+                1453,
+                386
+              ],
+              [
+                1417,
+                572
+              ],
+              [
+                1178,
+                549
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": [
+              0,
+              0,
+              1136,
+              944
+            ],
+            "excerptParagraphRange": null,
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-hero-1.png",
+            "artifactSha256": "4e0cb7c299440b1c0400bcf93cba587c42e06c1d523b182c713899c97986e81b",
+            "planeOutputSha256": "4473bd25545ed9f8348cda2b011cf85e883bba35e8c6976822f178098136676c",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "6339cd4b81ddec1af19d5c1347ab554edcc432d712ff9a36508f9024315ed1d0"
+          }
+        ],
+        "analysisSourceExcerptSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       {
         "slug": "ai-strategy-recorded",
         "role": "secondary",
         "imageUrl": "/showcases/service-photographic/ai-strategy-recorded-secondary.jpg",
-        "sha256": "05b7f83de2ee38e965f621a9c766020eeec8de069dd35b467b3c60025b6dce3d",
+        "sha256": "6153504c4b00657dd9cc6f315fcf4cb825cd54717145af3795e0d22d23f4d93a",
         "width": 1536,
         "height": 1024,
-        "source": "/Users/vambahsillah/.codex/generated_images/01a19edc-d3f7-77b2-8429-ed7f07b738ca/exec-8306c58e-a9c7-45a9-9bab-c266340a4942.png",
-        "alt": "Illustrative scene: One learner compares a recorded lesson with a workflow worksheet at a library laptop",
-        "sceneCategory": "workshop"
+        "source": "public/showcases/service-photographic/sixty-day-email-secondary.jpg",
+        "alt": "Illustrative scene: A learner reviews a Learning Plan excerpt on a laptop and open notebook",
+        "sceneCategory": "workshop",
+        "analysisSourcePath": "accelerated_ebook_leadmagnet.epub",
+        "analysisSourceSha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+        "analysisSourceMember": "c016.xhtml",
+        "analysisFramework": "Learning Plan Framework",
+        "analysisChapter": "Chapter 13: The Learning Plan Framework",
+        "analysisArtifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-1.svg",
+        "analysisArtifactSha256": "b09db4c596d2d002a5f71d8a9a23062ae454688d5703f7f12c84b1cab0ba6672",
+        "analysisCompositeMethod": "in-world source artwork warped to exact physical plane, inset and polygon-clipped; photographed paper texture, contact shadow, hands, bezel, and screen glare retained",
+        "analysisOutputSha256": "6153504c4b00657dd9cc6f315fcf4cb825cd54717145af3795e0d22d23f4d93a",
+        "analysisPhysicalSurfaces": [
+          {
+            "name": "laptop learning-plan page",
+            "kind": "screen",
+            "targetPolygon": [
+              [
+                677,
+                232
+              ],
+              [
+                1116,
+                245
+              ],
+              [
+                1084,
+                548
+              ],
+              [
+                651,
+                516
+              ]
+            ],
+            "quad": [
+              [
+                694,
+                260
+              ],
+              [
+                1097,
+                266
+              ],
+              [
+                1069,
+                515
+              ],
+              [
+                674,
+                492
+              ]
+            ],
+            "insetPx": 14,
+            "maskPolygon": [
+              [
+                694,
+                260
+              ],
+              [
+                1097,
+                266
+              ],
+              [
+                1069,
+                515
+              ],
+              [
+                674,
+                492
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 0,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              0,
+              8
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-1.svg",
+            "artifactSha256": "b09db4c596d2d002a5f71d8a9a23062ae454688d5703f7f12c84b1cab0ba6672",
+            "planeOutputSha256": "d80097c502269c7988ad8bf4d12ce1723767de9c97a3cb981ad1828e5f9c3826",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "6153504c4b00657dd9cc6f315fcf4cb825cd54717145af3795e0d22d23f4d93a"
+          },
+          {
+            "name": "open learning-plan notebook",
+            "kind": "paper",
+            "targetPolygon": [
+              [
+                1090,
+                648
+              ],
+              [
+                1530,
+                701
+              ],
+              [
+                1410,
+                997
+              ],
+              [
+                850,
+                945
+              ]
+            ],
+            "quad": [
+              [
+                1096,
+                704
+              ],
+              [
+                1488,
+                743
+              ],
+              [
+                1380,
+                948
+              ],
+              [
+                1064,
+                915
+              ]
+            ],
+            "insetPx": 20,
+            "maskPolygon": [
+              [
+                1096,
+                704
+              ],
+              [
+                1488,
+                743
+              ],
+              [
+                1380,
+                948
+              ],
+              [
+                1064,
+                915
+              ]
+            ],
+            "occlusion": null,
+            "curvaturePx": 2,
+            "sourceCrop": null,
+            "excerptParagraphRange": [
+              8,
+              14
+            ],
+            "artifactPath": "docs/qa/workshop-editorial-color-2026-11-02/source-artifacts/ai-strategy-recorded-secondary-2.svg",
+            "artifactSha256": "726b23c7edcb2390582f5832eb66e65b6cef6bbf56e44c1f1a5e58ae18e10e97",
+            "planeOutputSha256": "0c631bf7da4cf3ce6024217ec5ea40ed81ed86ff8401e12f3fa94d52055888f7",
+            "transform": "inverse 3x3 homography into surveyed plane; inset polygon clip; photographed bezel, paper edge, hand occlusion, glare, and lighting retained",
+            "faceClearanceReviewed": true,
+            "outputSha256": "6153504c4b00657dd9cc6f315fcf4cb825cd54717145af3795e0d22d23f4d93a"
+          }
+        ],
+        "analysisSourceExcerptSha256": "135a7f69b768488065e08f839f2367989439aad4b6c02e99ad7fdeddd723b505"
       }
     ]
   },

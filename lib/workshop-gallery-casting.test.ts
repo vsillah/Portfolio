@@ -11,7 +11,8 @@ const matrix = JSON.parse(readFileSync(path.join(qa, 'workshop-casting-matrix.js
   rejectedGenerationCount: number
   assets: Array<{
     slug: string; role: string; imageUrl: string; scene: string; setting: string;
-    camera: string; facilitationMode: string; deliveryContext: string; castingIntent: string; alt: string
+    camera: string; facilitationMode: string; deliveryContext: string; castingIntent: string; alt: string;
+    wardrobePalette: string; environmentPalette: string; paletteIntent: string
   }>
 }
 const audit = JSON.parse(readFileSync(path.join(qa, 'service-gallery-audit.json'), 'utf8')) as Array<{
@@ -45,8 +46,8 @@ describe('workshop photographic casting contract', () => {
   })
 
   it('records distinct scene roles, settings, delivery contexts, and casting intent', () => {
-    expect(matrix.totalGenerationCalls).toBe(14)
-    expect(matrix.rejectedGenerationCount).toBe(4)
+    expect(matrix.totalGenerationCalls).toBe(24)
+    expect(matrix.rejectedGenerationCount).toBe(14)
     expect(new Set(matrix.assets.map((asset) => asset.scene)).size).toBe(10)
     expect(new Set(matrix.assets.map((asset) => asset.setting)).size).toBe(10)
     for (const asset of matrix.assets) {
@@ -57,10 +58,21 @@ describe('workshop photographic casting contract', () => {
     }
     const scene = (slug: string) => matrix.assets.filter((asset) => asset.slug === slug).map((asset) => asset.scene).join(' ')
     expect(scene('ai-strategy-half-day')).toMatch(/priorit|ranking/i)
-    expect(scene('ai-strategy-full-day')).toMatch(/two-group|synthesis/i)
+    expect(scene('ai-strategy-full-day')).toMatch(/stakeholder|metrics|worksheet/i)
     expect(scene('ai-strategy-recorded')).toMatch(/independent/i)
     expect(scene('accelerated-cohort-workshop')).toMatch(/prototype|build/i)
     expect(scene('product-innovation-workshop')).toMatch(/participant test|opportunity/i)
     expect(matrix.assets.filter((asset) => asset.slug === 'ai-strategy-recorded').every((asset) => asset.deliveryContext === 'solo asynchronous')).toBe(true)
+  })
+
+  it('records varied editorial color without making brand colors a photographic uniform', () => {
+    expect(new Set(matrix.assets.map((asset) => asset.wardrobePalette)).size).toBeGreaterThanOrEqual(8)
+    expect(new Set(matrix.assets.map((asset) => asset.environmentPalette)).size).toBe(10)
+    for (const asset of matrix.assets) {
+      expect(asset.wardrobePalette.length).toBeGreaterThan(3)
+      expect(asset.environmentPalette.length).toBeGreaterThan(12)
+      expect(asset.paletteIntent).toMatch(/brand palette reserved for surrounding UI/i)
+      expect(`${asset.wardrobePalette} ${asset.environmentPalette}`).not.toMatch(/navy|gold/i)
+    }
   })
 })
