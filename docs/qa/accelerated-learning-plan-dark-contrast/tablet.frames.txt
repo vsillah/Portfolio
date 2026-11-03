@@ -1,0 +1,9 @@
+file 'tablet-dark-ready.jpg'
+duration 3
+file 'tablet-dark-complete.jpg'
+duration 3
+file 'tablet-light-complete.jpg'
+duration 3
+file 'tablet-light-alignment.jpg'
+duration 3
+file 'tablet-light-alignment.jpg'

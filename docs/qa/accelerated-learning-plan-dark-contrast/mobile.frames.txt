@@ -1,0 +1,7 @@
+file 'mobile-light-alignment.jpg'
+duration 3
+file 'mobile-dark-alignment.jpg'
+duration 3
+file 'mobile-dark-focus.jpg'
+duration 3
+file 'mobile-dark-focus.jpg'
