@@ -18,6 +18,7 @@ for (const slug of slugs) {
     const url = `${origin}/service-prototypes/${slug}?view=${view}`
     await page.goto(url, { waitUntil: 'networkidle' })
     await page.locator('[data-prototype]').waitFor()
+    if (await page.getByRole('button', { name: 'Light mode' }).isVisible()) await page.getByRole('button', { name: 'Light mode' }).click()
     const raw = await page.screenshot({ animations: 'disabled' })
     const image = path.join(output, `${slug}-${view}.webp`)
     await sharp(raw).webp({ quality: 86 }).toFile(image)
@@ -29,6 +30,15 @@ for (const slug of slugs) {
     await page.screenshot({ path: path.join(evidence, `${slug}-${width}.png`), fullPage: true, animations: 'disabled' })
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)
     if (overflow) throw new Error(`${slug} overflows at ${width}px`)
+  }
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto(`${origin}/service-prototypes/${slug}?view=1`, { waitUntil: 'networkidle' })
+    if (await page.getByRole('button', { name: 'Dark mode' }).isVisible()) await page.getByRole('button', { name: 'Dark mode' }).click()
+    const darkCapture = await page.screenshot({ fullPage: true, animations: 'disabled' })
+    await sharp(darkCapture).webp({ quality: 88 }).toFile(path.join(evidence, `${slug}-${width}-dark.webp`))
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)
+    if (overflow) throw new Error(`${slug} overflows in dark mode at ${width}px`)
   }
   await page.close()
 }
