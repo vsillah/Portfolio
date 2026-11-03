@@ -1,0 +1,164 @@
+[
+  {
+    "slug": "ai-lead-chatbot",
+    "view": 1,
+    "url": "http://127.0.0.1:5467/service-prototypes/ai-lead-chatbot?view=1",
+    "imageUrl": "/showcases/service-prototypes/ai-lead-chatbot-1.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/ai-lead-chatbot?view=1",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "ai-lead-chatbot",
+    "view": 2,
+    "url": "http://127.0.0.1:5467/service-prototypes/ai-lead-chatbot?view=2",
+    "imageUrl": "/showcases/service-prototypes/ai-lead-chatbot-2.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/ai-lead-chatbot?view=2",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "ai-lead-chatbot",
+    "view": 3,
+    "url": "http://127.0.0.1:5467/service-prototypes/ai-lead-chatbot?view=3",
+    "imageUrl": "/showcases/service-prototypes/ai-lead-chatbot-3.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/ai-lead-chatbot?view=3",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "lead-workflow-agent",
+    "view": 1,
+    "url": "http://127.0.0.1:5467/service-prototypes/lead-workflow-agent?view=1",
+    "imageUrl": "/showcases/service-prototypes/lead-workflow-agent-1.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/lead-workflow-agent?view=1",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "lead-workflow-agent",
+    "view": 2,
+    "url": "http://127.0.0.1:5467/service-prototypes/lead-workflow-agent?view=2",
+    "imageUrl": "/showcases/service-prototypes/lead-workflow-agent-2.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/lead-workflow-agent?view=2",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "lead-workflow-agent",
+    "view": 3,
+    "url": "http://127.0.0.1:5467/service-prototypes/lead-workflow-agent?view=3",
+    "imageUrl": "/showcases/service-prototypes/lead-workflow-agent-3.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/lead-workflow-agent?view=3",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "website-ux-refresh",
+    "view": 1,
+    "url": "http://127.0.0.1:5467/service-prototypes/website-ux-refresh?view=1",
+    "imageUrl": "/showcases/service-prototypes/website-ux-refresh-1.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/website-ux-refresh?view=1",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "website-ux-refresh",
+    "view": 2,
+    "url": "http://127.0.0.1:5467/service-prototypes/website-ux-refresh?view=2",
+    "imageUrl": "/showcases/service-prototypes/website-ux-refresh-2.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/website-ux-refresh?view=2",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "website-ux-refresh",
+    "view": 3,
+    "url": "http://127.0.0.1:5467/service-prototypes/website-ux-refresh?view=3",
+    "imageUrl": "/showcases/service-prototypes/website-ux-refresh-3.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/website-ux-refresh?view=3",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "accelerated-cohort",
+    "view": 1,
+    "url": "http://127.0.0.1:5467/service-prototypes/accelerated-cohort?view=1",
+    "imageUrl": "/showcases/service-prototypes/accelerated-cohort-1.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/accelerated-cohort?view=1",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "accelerated-cohort",
+    "view": 2,
+    "url": "http://127.0.0.1:5467/service-prototypes/accelerated-cohort?view=2",
+    "imageUrl": "/showcases/service-prototypes/accelerated-cohort-2.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/accelerated-cohort?view=2",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "accelerated-cohort",
+    "view": 3,
+    "url": "http://127.0.0.1:5467/service-prototypes/accelerated-cohort?view=3",
+    "imageUrl": "/showcases/service-prototypes/accelerated-cohort-3.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/accelerated-cohort?view=3",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "self-paced-course",
+    "view": 1,
+    "url": "http://127.0.0.1:5467/service-prototypes/self-paced-course?view=1",
+    "imageUrl": "/showcases/service-prototypes/self-paced-course-1.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/self-paced-course?view=1",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "self-paced-course",
+    "view": 2,
+    "url": "http://127.0.0.1:5467/service-prototypes/self-paced-course?view=2",
+    "imageUrl": "/showcases/service-prototypes/self-paced-course-2.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/self-paced-course?view=2",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "self-paced-course",
+    "view": 3,
+    "url": "http://127.0.0.1:5467/service-prototypes/self-paced-course?view=3",
+    "imageUrl": "/showcases/service-prototypes/self-paced-course-3.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/self-paced-course?view=3",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "premium-masterclass",
+    "view": 1,
+    "url": "http://127.0.0.1:5467/service-prototypes/premium-masterclass?view=1",
+    "imageUrl": "/showcases/service-prototypes/premium-masterclass-1.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/premium-masterclass?view=1",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "premium-masterclass",
+    "view": 2,
+    "url": "http://127.0.0.1:5467/service-prototypes/premium-masterclass?view=2",
+    "imageUrl": "/showcases/service-prototypes/premium-masterclass-2.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/premium-masterclass?view=2",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "slug": "premium-masterclass",
+    "view": 3,
+    "url": "http://127.0.0.1:5467/service-prototypes/premium-masterclass?view=3",
+    "imageUrl": "/showcases/service-prototypes/premium-masterclass-3.webp",
+    "source": "Rendered local interactive route at http://127.0.0.1:5467/service-prototypes/premium-masterclass?view=3",
+    "width": 1440,
+    "height": 900
+  }
+]

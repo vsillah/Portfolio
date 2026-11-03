@@ -26,6 +26,7 @@ import PortfolioVisualMockup from '@/components/visual-assets/PortfolioVisualMoc
 import { recommendSpeakerFit, SPEAKING_SERVICE_ID, type SpeakerFitInput } from '@/lib/speaker-fit'
 import ShowcaseCarousel from '@/components/ShowcaseCarousel'
 import { resolveServiceGallery } from '@/lib/showcase-preview'
+import { prototypeForService, prototypeGallery } from '@/lib/service-prototypes'
 
 interface Service {
   id: string
@@ -181,7 +182,8 @@ export default function ServiceDetailPage() {
   }
 
   const delivery = DELIVERY_ICONS[service.delivery_method] || DELIVERY_ICONS.virtual
-  const gallery = resolveServiceGallery(service.id, service.image_url)
+  const prototype = prototypeForService(service.id, service.image_url)
+  const gallery = prototype ? prototypeGallery(service.id, service.image_url) : resolveServiceGallery(service.id, service.image_url)
   const quoteRequired = service.is_quote_based || service.price === null
   const deliverablesList = Array.isArray(service.deliverables) ? service.deliverables : []
   const topicsList = Array.isArray(service.topics) ? service.topics : []
@@ -396,6 +398,7 @@ export default function ServiceDetailPage() {
                 <h1 className="mt-4 font-premium text-3xl text-card-foreground md:text-4xl">
                   {service.title}
                 </h1>
+                {prototype && <Link href={`/service-prototypes/${prototype.slug}`} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-card-foreground underline decoration-accent underline-offset-4">Explore interactive preview <ExternalLink size={15} /></Link>}
               </div>
             </div>
 

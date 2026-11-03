@@ -1,0 +1,71 @@
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { chromium } from 'playwright-core'
+
+const output = path.join(process.cwd(), 'docs/qa/service-prototypes')
+const origin = process.env.PROTOTYPE_ORIGIN || 'http://127.0.0.1:5467'
+await fs.mkdir(output, { recursive: true })
+const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', args: ['--no-sandbox'] })
+const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, recordVideo: { dir: output, size: { width: 1280, height: 800 } } })
+const page = await context.newPage()
+for (const slug of ['ai-lead-chatbot', 'lead-workflow-agent', 'website-ux-refresh', 'accelerated-cohort', 'self-paced-course', 'premium-masterclass']) {
+  await page.goto(`${origin}/service-prototypes/${slug}?view=1`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(1100)
+  if (slug === 'accelerated-cohort') {
+    await page.getByTestId('sam-artifact').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(500)
+    const framework = page.getByRole('group', { name: 'Framework views' })
+    for (const [act, control] of [['Signals', 'Questions'], ['Alignment', 'Roadmap'], ['Momentum', 'SudoPoll']]) {
+      await framework.getByRole('button', { name: act }).click()
+      const actPanel = page.locator(`[data-sam-act="${act.toLowerCase()}"]`)
+      await actPanel.scrollIntoViewIfNeeded()
+      await page.waitForTimeout(500)
+      await actPanel.getByRole('button', { name: control }).click()
+      await page.waitForTimeout(1100)
+    }
+    await page.getByRole('button', { name: 'View original book artifact' }).click()
+    await page.waitForTimeout(1300)
+    await page.getByRole('button', { name: 'Close infographic' }).click()
+  }
+  const tabs = page.getByRole('navigation', { name: 'Experience views' }).getByRole('button')
+  await tabs.nth(1).click()
+  await page.waitForTimeout(1000)
+  await tabs.nth(2).click()
+  await page.waitForTimeout(1000)
+}
+const video = page.video()
+await context.close()
+await video.saveAs(path.join(output, 'service-prototypes-source.webm'))
+await fs.unlink(await video.path())
+const cohortContext = await browser.newContext({ viewport: { width: 1280, height: 800 }, recordVideo: { dir: output, size: { width: 1280, height: 800 } } })
+const cohortPage = await cohortContext.newPage()
+await cohortPage.goto(`${origin}/service-prototypes/accelerated-cohort?view=1`, { waitUntil: 'networkidle' })
+await cohortPage.waitForTimeout(1800)
+await cohortPage.getByTestId('sam-artifact').scrollIntoViewIfNeeded()
+const cohortFramework = cohortPage.getByRole('group', { name: 'Framework views' })
+for (const [act, control] of [['Signals', 'Questions'], ['Alignment', 'Roadmap'], ['Momentum', 'SudoPoll']]) {
+  await cohortFramework.getByRole('button', { name: act }).click()
+  const actPanel = cohortPage.locator(`[data-sam-act="${act.toLowerCase()}"]`)
+  await actPanel.scrollIntoViewIfNeeded()
+  const controlButton = actPanel.getByRole('button', { name: control })
+  await controlButton.scrollIntoViewIfNeeded()
+  await cohortPage.waitForTimeout(300)
+  await controlButton.click()
+  await cohortPage.waitForTimeout(1300)
+}
+await cohortPage.getByRole('button', { name: 'View original book artifact' }).click()
+await cohortPage.waitForTimeout(1700)
+await cohortPage.getByRole('button', { name: 'Close infographic' }).click()
+await cohortPage.getByRole('navigation', { name: 'Experience views' }).getByRole('button', { name: 'Live session' }).click()
+await cohortPage.evaluate(() => window.scrollTo(0, 420))
+await cohortPage.waitForTimeout(1300)
+await cohortPage.getByRole('navigation', { name: 'Experience views' }).getByRole('button', { name: 'Learning plan' }).click()
+await cohortPage.evaluate(() => window.scrollTo(0, 420))
+await cohortPage.waitForTimeout(1300)
+const cohortVideo = cohortPage.video()
+await cohortContext.close()
+await cohortVideo.saveAs(path.join(output, 'accelerated-cohort-workshop-source.webm'))
+await fs.unlink(await cohortVideo.path())
+await browser.close()
+console.log(path.join(output, 'service-prototypes-source.webm'))
+console.log(path.join(output, 'accelerated-cohort-workshop-source.webm'))
