@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Image from 'next/image'
 import styles from './learning-plan.module.css'
 
@@ -42,6 +42,7 @@ const storyboard: Record<string, string> = {
 }
 
 export function AcceleratedLearningPlan() {
+  const detailRef = useRef<HTMLElement>(null)
   const [selected, setSelected] = useState('L01')
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
@@ -52,6 +53,12 @@ export function AcceleratedLearningPlan() {
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
+  const selectLesson = (id: string) => {
+    setSelected(id)
+    if (window.matchMedia?.('(max-width: 1050px)').matches) {
+      detailRef.current?.scrollIntoView({ block: 'start' })
+    }
+  }
 
   return <section className={styles.plan} aria-label="Accelerated learning plan">
     <div className={styles.heading}>
@@ -64,16 +71,16 @@ export function AcceleratedLearningPlan() {
         {visible.length === 0 ? <div className={styles.empty}><strong>No lessons found.</strong><p>Try another term or show the full plan.</p><button type="button" onClick={() => { setQuery(''); setFilter('All') }}>Show all lessons</button></div> : acts.map((group) => {
           const groupLessons = visible.filter((item) => item.act === group.name)
           if (!groupLessons.length) return null
-          return <section key={group.name} className={styles.actGroup} aria-label={`${group.name} lessons`}><div className={styles.actHeader}><div><h3>{group.name}</h3><p>{group.line}</p></div><span>{groupLessons.length} lessons</span></div><div className={styles.lessonList}>{groupLessons.map((item) => <button type="button" key={item.id} className={styles.lessonRow} aria-label={`${item.id}: ${item.title}, ${completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}`} aria-current={selected === item.id ? 'true' : undefined} onClick={() => setSelected(item.id)}><span className={styles.lessonNumber}>{item.id}</span><span className={styles.lessonName}><strong>{item.title}</strong><small>{item.minutes} min · {item.artifact}</small></span><span className={styles.state}>{completed.includes(item.id) ? 'Complete' : current === item.id ? 'Current' : 'Ready'}</span></button>)}</div></section>
+          return <section key={group.name} className={styles.actGroup} aria-label={`${group.name} lessons`}><div className={styles.actHeader}><div><h3>{group.name}</h3><p>{group.line}</p></div><span>{groupLessons.length} lessons</span></div><div className={styles.lessonList}>{groupLessons.map((item) => <button type="button" key={item.id} className={styles.lessonRow} aria-label={`${item.id}: ${item.title}, ${completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}`} aria-current={selected === item.id ? 'true' : undefined} onClick={() => selectLesson(item.id)}><span className={styles.lessonNumber}>{item.id}</span><span className={styles.lessonName}><strong>{item.title}</strong><small>{item.minutes} min · {item.artifact}</small></span><span className={styles.state}>{completed.includes(item.id) ? 'Complete' : current === item.id ? 'Current' : 'Ready'}</span></button>)}</div></section>
         })}
       </div>
-      <article className={styles.detail} aria-live="polite">
+      <article ref={detailRef} className={styles.detail} aria-live="polite">
         <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState}>{completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
         <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · approved workshop visual</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>Storyboard preview · representative frame</figcaption></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>
-        <div className={styles.actions}><button type="button" onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { setSelected(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
+        <div className={styles.actions}><button type="button" onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
         <p className={styles.previewNote}>Progress is for this preview only. Use public, synthetic, or approved material in the exercises.</p>
       </article>
     </div>
