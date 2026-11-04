@@ -1,0 +1,26 @@
+{
+  "lesson_id": "L02",
+  "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c005.xhtml",
+    "c006.xhtml"
+  ],
+  "approved_assets": {
+    "signals": {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "synthetic_scenes": {
+    "L02-01": "synthetic-course-card:L02-01:73119dd526db5221",
+    "L02-02": "synthetic-course-card:L02-02:73119dd526db5221",
+    "L02-03": "synthetic-course-card:L02-03:73119dd526db5221",
+    "L02-04": "synthetic-course-card:L02-04:73119dd526db5221",
+    "L02-05": "synthetic-course-card:L02-05:73119dd526db5221",
+    "L02-06": "synthetic-course-card:L02-06:73119dd526db5221",
+    "L02-07": "synthetic-course-card:L02-07:73119dd526db5221"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}

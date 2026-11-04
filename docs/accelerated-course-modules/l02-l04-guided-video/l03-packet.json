@@ -1,0 +1,874 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L03",
+  "title": "Answer-driven discovery",
+  "runtime_seconds": 540,
+  "learner_artifact": "Decision question and evidence-gap card",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L03.md",
+  "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "d9b6a46def5756831e1788cdf97769347048cc9318e87061dbae7bbf962ca1b6",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c007.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L03-01",
+      "title": "A dashboard in the room",
+      "start_seconds": 0,
+      "end_seconds": 86,
+      "narration": "Imagine walking into a review with a dashboard redesign. You have evidence that people struggle with the current screen. You have a proposed fix. You put up the first slide and someone asks, “Is this the best use of engineering time right now?” That is a reasonable question. It may feel like a rejection, but it is also a clue. The person across the table is being asked to trade one piece of work for another. A pile of research about the screen does not yet explain the trade. Chapter Four of Accelerated tells this as the dashboard that almost died. The first pitch described the confusing dashboard and asked for a redesign. The later pitch put options on the table, including a smaller change, a larger bet, and a delay. The book reports a decision after the frame changed. In this workshop we use the case to study the question, not to promise the same result. What would an owner need to believe before moving engineering time? That is where discovery starts.",
+      "narration_sha256": "8784cb7b967616c87f2a2c633397555924cfe5f759bdf0482abb9891049c29ab",
+      "on_screen_copy": "What decision is being made?",
+      "shot": "Avatar, then synthetic meeting table and dashboard choice.",
+      "visual": "S: no real analytics capture.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A01",
+        "scene": "L03-01",
+        "start_seconds": 0,
+        "end_seconds": 29.827,
+        "duration_seconds": 29.827,
+        "narration_text": "Imagine walking into a review with a dashboard redesign. You have evidence that people struggle with the current screen. You have a proposed fix. You put up the first slide and someone asks, “Is this the best use of engineering time right now?” That is a reasonable question. It may feel like a rejection, but it is also a clue.",
+        "handoff_visual": "S: no real analytics capture.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names leadership's tradeoff; no fabricated metrics.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c007.xhtml"
+        ],
+        "scene_source": "Ch4, “A Real Example: The Dashboard That Almost Died” (`c007.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L03-01:41d9233ab15a1922",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L03-02",
+      "title": "Work backward from the choice",
+      "start_seconds": 86,
+      "end_seconds": 174,
+      "narration": "Open the priority page you made in Lesson Two. You chose one path and wrote an assumption that could overturn it. Now write the decision owner’s question in their words. For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line. Label it provisional. Under that, write the strongest objection a thoughtful colleague could raise. The objection is not a nuisance to remove from the slide. It tells you what evidence the decision needs. The chapter argues that insight can land flat when its frame ignores the risk the other person carries. So we work backward: decision, likely answer, objection, evidence. Only then do we choose what to observe or ask. The order keeps research attached to action.",
+      "narration_sha256": "917d03ad6c03db9bb80f6d3f9ac902fd9e2d34935418fcb6b59959306c3e8de2",
+      "on_screen_copy": "Current answer",
+      "shot": "Decision/evidence card traced backward.",
+      "visual": "S: decision, provisional answer, objection, evidence.",
+      "asset_refs": [],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives order; arrow direction has text labels.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c007.xhtml"
+        ],
+        "scene_source": "Ch4, “When Insight Isn't Enough,” “The Analyst Frame vs. the Prize Frame,” “The Three Questions That Change Everything” (`c007.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L03-02:41d9233ab15a1922",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L03-03",
+      "title": "Keep alternatives visible",
+      "start_seconds": 174,
+      "end_seconds": 262,
+      "narration": "A single polished idea invites a yes or no. Chapter Four calls this the binary trap. The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay. Each path has a different cost and a different thing it could teach. Your priority file already has two alternatives. Bring them forward rather than hiding them after you choose. For the membership example, the welcome email could be the light change. The guided task is the small behavior test. The staff dashboard is a visibility investment. None of those labels is a fact about customers. They are ways to make the trade visible. If the objection is “We are solving the wrong part of onboarding,” the evidence should tell you where a person stops and why. If the objection is “We cannot support another workflow,” the evidence may need to include staff effort. A stronger frame does not mean louder language. It means the choice is clear enough for another person to challenge.",
+      "narration_sha256": "46946a56a48e0529bd5ed05061a083e7ee8ac5052dc245183e375bfef69d5711",
+      "on_screen_copy": "Strongest fair objection",
+      "shot": "Avatar pivot, then three dashboard paths compared.",
+      "visual": "S: quick change/deeper bet/delay cards from book case.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A02",
+        "scene": "L03-03",
+        "start_seconds": 174,
+        "end_seconds": 193.442,
+        "duration_seconds": 19.442,
+        "narration_text": "A single polished idea invites a yes or no. Chapter Four calls this the binary trap. The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay.",
+        "handoff_visual": "S: quick change/deeper bet/delay cards from book case.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration distinguishes case from current proof.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c007.xhtml"
+        ],
+        "scene_source": "Ch4, “Avoid the Binary Trap,” “A Real Example: The Dashboard That Almost Died” (`c007.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L03-03:41d9233ab15a1922",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L03-04",
+      "title": "Ask what would change your mind",
+      "start_seconds": 262,
+      "end_seconds": 349,
+      "narration": "Suppose you can ask only one more question before the review. What would change your mind? That question keeps discovery honest. If you would make the same recommendation no matter what the answer is, you may be collecting support for a story rather than testing it. The book suggests pressure-testing a pitch from different angles and anticipating objections. You can do that with a safe, fictional brief before anyone sees the recommendation. Ask what a skeptical finance lead, an operator, or a customer might question. Then compare those possible objections with what real evidence is available. An AI tool can help you rehearse the questions. It cannot turn a simulated objection into a customer interview. On our card, write one evidence gap that matters. Maybe we do not know whether people abandon the first step because they cannot find it, cannot understand it, or do not value it. Those are different problems. We should not build a guided path for all three without learning which one we have.",
+      "narration_sha256": "029221830e219f83b38716494e7ab3f5b2873bce2136ea96f6215560fe6b428b",
+      "on_screen_copy": "Evidence that could change it",
+      "shot": "Synthetic research question sheet with missing evidence highlighted.",
+      "visual": "S: no customer quotations.",
+      "asset_refs": [],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration states simulated objections are not interviews.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c007.xhtml"
+        ],
+        "scene_source": "Ch4, “Make Framing Repeatable,” “Manage Bias with Better Questions” (`c007.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L03-04:41d9233ab15a1922",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L03-05",
+      "title": "Design a small evidence move",
+      "start_seconds": 349,
+      "end_seconds": 441,
+      "narration": "Let's fill the rest of the card. The decision is whether to test a guided first task. Our current answer is yes, because the team suspects people need a clearer starting point. The strongest objection is that the first step may already be clear; maybe the real issue comes later. The missing evidence is an observation of where people hesitate and a short question about what they expected to happen next. A safe test could use a prototype and willing participants under an approved research process. We would record what they did, what they said, and what remains uncertain. That last field matters. A few observations can direct the next question; they do not establish a population-wide result. If you have no approved research access, keep the card as a plan. Do not manufacture quotes or silently substitute simulated people for participants. The dashboard case in the book helps us see how a named trade can make evidence relevant. Our exercise turns that lesson into an action you can take without pretending that the answer is already known.",
+      "narration_sha256": "2703517e62828bf55d390abb4f5091af591d0922947435de68dffd781975c123",
+      "on_screen_copy": "Quick change | deeper bet | deliberate delay",
+      "shot": "Avatar setup, then evidence-gap card fills each field.",
+      "visual": "S: membership example, invented.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A03",
+        "scene": "L03-05",
+        "start_seconds": 349,
+        "end_seconds": 365.539,
+        "duration_seconds": 16.539,
+        "narration_text": "Let's fill the rest of the card. The decision is whether to test a guided first task. Our current answer is yes, because the team suspects people need a clearer starting point.",
+        "handoff_visual": "S: membership example, invented.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration identifies unknowns and safe test.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c007.xhtml"
+        ],
+        "scene_source": "Ch4, “The Three Questions That Change Everything,” “Avoid the Binary Trap,” “A Real Example: The Dashboard That Almost Died” (`c007.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L03-05:41d9233ab15a1922",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L03-06",
+      "title": "Carry the question forward",
+      "start_seconds": 441,
+      "end_seconds": 540,
+      "narration": "Pause and make your own card. Write the decision in a sentence. Write the answer you currently believe. Write the strongest fair objection. Then write one piece of evidence that could change the decision and a safe way to seek it. If your evidence is already available, record its source and date. If it is missing, say missing. Your file should now show a line from priority choice to evidence gap. That line is the point of these first three lessons. A good question can save you from a month of defending the wrong artifact. When you resume, look at the person behind the evidence. We tend to summarize that person as a persona and leave the slide untouched for a year. In the next lesson we will make the customer situation more specific and the persona easier to revise. You do not have to win the room with a perfect story today. You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to. Keep the card attached to your priority page. We are going to use it again.",
+      "narration_sha256": "4b345ee7b2e6fcfe585d358bb1b0c8e3863296581d3fb95a450a3203f5639674",
+      "on_screen_copy": "Source + date + uncertainty",
+      "shot": "Card joins decision file; blank living-persona outline, avatar close.",
+      "visual": "S: file stack.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A04",
+        "scene": "L03-06",
+        "start_seconds": 513.947,
+        "end_seconds": 532.184,
+        "duration_seconds": 18.237,
+        "narration_text": "You do not have to win the room with a perfect story today. You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to.",
+        "handoff_visual": "S: file stack.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives pause/resume and next lesson.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c007.xhtml"
+        ],
+        "scene_source": "Ch4, “When Insight Isn't Enough,” “Make Framing Repeatable,” “Conclusion” (`c007.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L03-06:41d9233ab15a1922",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 4.474,
+      "text": "Imagine walking into a review with a dashboard redesign.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 4.474,
+      "end": 9.445,
+      "text": "You have evidence that people struggle with the current screen.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 9.445,
+      "end": 11.931,
+      "text": "You have a proposed fix.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 11.931,
+      "end": 23.861,
+      "text": "You put up the first slide and someone asks, “Is this the best use of engineering time right now?” That is a reasonable question.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 23.861,
+      "end": 29.827,
+      "text": "It may feel like a rejection, but it is also a clue.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 29.827,
+      "end": 37.78,
+      "text": "The person across the table is being asked to trade one piece of work for another.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 37.78,
+      "end": 44.243,
+      "text": "A pile of research about the screen does not yet explain the trade.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 44.243,
+      "end": 50.208,
+      "text": "Chapter Four of Accelerated tells this as the dashboard that almost died.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 50.208,
+      "end": 56.173,
+      "text": "The first pitch described the confusing dashboard and asked for a redesign.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 56.173,
+      "end": 65.121,
+      "text": "The later pitch put options on the table, including a smaller change, a larger bet, and a delay.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 65.121,
+      "end": 69.595,
+      "text": "The book reports a decision after the frame changed.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 69.595,
+      "end": 78.046,
+      "text": "In this workshop we use the case to study the question, not to promise the same result.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 78.046,
+      "end": 83.514,
+      "text": "What would an owner need to believe before moving engineering time?",
+      "scene": "L03-01"
+    },
+    {
+      "start": 83.514,
+      "end": 86,
+      "text": "That is where discovery starts.",
+      "scene": "L03-01"
+    },
+    {
+      "start": 86,
+      "end": 90.659,
+      "text": "Open the priority page you made in Lesson Two.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 90.659,
+      "end": 96.871,
+      "text": "You chose one path and wrote an assumption that could overturn it.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 96.871,
+      "end": 101.529,
+      "text": "Now write the decision owner’s question in their words.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 101.529,
+      "end": 134.141,
+      "text": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 134.141,
+      "end": 135.694,
+      "text": "Label it provisional.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 135.694,
+      "end": 141.388,
+      "text": "Under that, write the strongest objection a thoughtful colleague could raise.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 141.388,
+      "end": 147.082,
+      "text": "The objection is not a nuisance to remove from the slide.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 147.082,
+      "end": 151.224,
+      "text": "It tells you what evidence the decision needs.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 151.224,
+      "end": 160.541,
+      "text": "The chapter argues that insight can land flat when its frame ignores the risk the other person carries.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 160.541,
+      "end": 165.2,
+      "text": "So we work backward: decision, likely answer, objection, evidence.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 165.2,
+      "end": 170.376,
+      "text": "Only then do we choose what to observe or ask.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 170.376,
+      "end": 174,
+      "text": "The order keeps research attached to action.",
+      "scene": "L03-02"
+    },
+    {
+      "start": 174,
+      "end": 178.605,
+      "text": "A single polished idea invites a yes or no.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 178.605,
+      "end": 182.186,
+      "text": "Chapter Four calls this the binary trap.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 182.186,
+      "end": 193.442,
+      "text": "The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 193.442,
+      "end": 200.093,
+      "text": "Each path has a different cost and a different thing it could teach.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 200.093,
+      "end": 203.674,
+      "text": "Your priority file already has two alternatives.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 203.674,
+      "end": 208.791,
+      "text": "Bring them forward rather than hiding them after you choose.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 208.791,
+      "end": 214.93,
+      "text": "For the membership example, the welcome email could be the light change.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 214.93,
+      "end": 219.023,
+      "text": "The guided task is the small behavior test.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 219.023,
+      "end": 222.605,
+      "text": "The staff dashboard is a visibility investment.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 222.605,
+      "end": 227.209,
+      "text": "None of those labels is a fact about customers.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 227.209,
+      "end": 231.302,
+      "text": "They are ways to make the trade visible.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 231.302,
+      "end": 243.07,
+      "text": "If the objection is “We are solving the wrong part of onboarding,” the evidence should tell you where a person stops and why.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 243.07,
+      "end": 251.767,
+      "text": "If the objection is “We cannot support another workflow,” the evidence may need to include staff effort.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 251.767,
+      "end": 255.86,
+      "text": "A stronger frame does not mean louder language.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 255.86,
+      "end": 262,
+      "text": "It means the choice is clear enough for another person to challenge.",
+      "scene": "L03-03"
+    },
+    {
+      "start": 262,
+      "end": 267.696,
+      "text": "Suppose you can ask only one more question before the review.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 267.696,
+      "end": 270.286,
+      "text": "What would change your mind?",
+      "scene": "L03-04"
+    },
+    {
+      "start": 270.286,
+      "end": 272.875,
+      "text": "That question keeps discovery honest.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 272.875,
+      "end": 285.821,
+      "text": "If you would make the same recommendation no matter what the answer is, you may be collecting support for a story rather than testing it.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 285.821,
+      "end": 292.036,
+      "text": "The book suggests pressure-testing a pitch from different angles and anticipating objections.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 292.036,
+      "end": 299.286,
+      "text": "You can do that with a safe, fictional brief before anyone sees the recommendation.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 299.286,
+      "end": 306.018,
+      "text": "Ask what a skeptical finance lead, an operator, or a customer might question.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 306.018,
+      "end": 311.714,
+      "text": "Then compare those possible objections with what real evidence is available.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 311.714,
+      "end": 316.375,
+      "text": "An AI tool can help you rehearse the questions.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 316.375,
+      "end": 321.554,
+      "text": "It cannot turn a simulated objection into a customer interview.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 321.554,
+      "end": 326.214,
+      "text": "On our card, write one evidence gap that matters.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 326.214,
+      "end": 338.643,
+      "text": "Maybe we do not know whether people abandon the first step because they cannot find it, cannot understand it, or do not value it.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 338.643,
+      "end": 340.714,
+      "text": "Those are different problems.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 340.714,
+      "end": 349,
+      "text": "We should not build a guided path for all three without learning which one we have.",
+      "scene": "L03-04"
+    },
+    {
+      "start": 349,
+      "end": 352.618,
+      "text": "Let's fill the rest of the card.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 352.618,
+      "end": 357.787,
+      "text": "The decision is whether to test a guided first task.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 357.787,
+      "end": 365.539,
+      "text": "Our current answer is yes, because the team suspects people need a clearer starting point.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 365.539,
+      "end": 374.843,
+      "text": "The strongest objection is that the first step may already be clear; maybe the real issue comes later.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 374.843,
+      "end": 385.697,
+      "text": "The missing evidence is an observation of where people hesitate and a short question about what they expected to happen next.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 385.697,
+      "end": 393.449,
+      "text": "A safe test could use a prototype and willing participants under an approved research process.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 393.449,
+      "end": 400.169,
+      "text": "We would record what they did, what they said, and what remains uncertain.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 400.169,
+      "end": 402.236,
+      "text": "That last field matters.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 402.236,
+      "end": 409.989,
+      "text": "A few observations can direct the next question; they do not establish a population-wide result.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 409.989,
+      "end": 416.708,
+      "text": "If you have no approved research access, keep the card as a plan.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 416.708,
+      "end": 422.393,
+      "text": "Do not manufacture quotes or silently substitute simulated people for participants.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 422.393,
+      "end": 431.18,
+      "text": "The dashboard case in the book helps us see how a named trade can make evidence relevant.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 431.18,
+      "end": 441,
+      "text": "Our exercise turns that lesson into an action you can take without pretending that the answer is already known.",
+      "scene": "L03-05"
+    },
+    {
+      "start": 441,
+      "end": 444.126,
+      "text": "Pause and make your own card.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 444.126,
+      "end": 447.253,
+      "text": "Write the decision in a sentence.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 447.253,
+      "end": 450.379,
+      "text": "Write the answer you currently believe.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 450.379,
+      "end": 452.984,
+      "text": "Write the strongest fair objection.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 452.984,
+      "end": 462.363,
+      "text": "Then write one piece of evidence that could change the decision and a safe way to seek it.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 462.363,
+      "end": 468.095,
+      "text": "If your evidence is already available, record its source and date.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 468.095,
+      "end": 471.221,
+      "text": "If it is missing, say missing.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 471.221,
+      "end": 477.995,
+      "text": "Your file should now show a line from priority choice to evidence gap.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 477.995,
+      "end": 483.205,
+      "text": "That line is the point of these first three lessons.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 483.205,
+      "end": 490.5,
+      "text": "A good question can save you from a month of defending the wrong artifact.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 490.5,
+      "end": 495.711,
+      "text": "When you resume, look at the person behind the evidence.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 495.711,
+      "end": 504.568,
+      "text": "We tend to summarize that person as a persona and leave the slide untouched for a year.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 504.568,
+      "end": 513.947,
+      "text": "In the next lesson we will make the customer situation more specific and the persona easier to revise.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 513.947,
+      "end": 520.721,
+      "text": "You do not have to win the room with a perfect story today.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 520.721,
+      "end": 532.184,
+      "text": "You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 532.184,
+      "end": 536.353,
+      "text": "Keep the card attached to your priority page.",
+      "scene": "L03-06"
+    },
+    {
+      "start": 536.353,
+      "end": 540,
+      "text": "We are going to use it again.",
+      "scene": "L03-06"
+    }
+  ],
+  "assets": {},
+  "exercise": "Pause at 07:25. Write a decision question, provisional answer, strongest fair objection, one evidence gap, and a safe way to seek evidence. Resume with the evidence-gap card attached to L02's priority decision. Use public, synthetic, or approved information only. A simulated answer cannot be logged as observed customer evidence.\n\nPrivate customer records and restricted company plans stay outside the course example and any external AI tool.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 29.827,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 29.827,
+      "end_seconds": 174,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 174,
+      "end_seconds": 193.442,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 193.442,
+      "end_seconds": 349,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 349,
+      "end_seconds": 365.539,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 365.539,
+      "end_seconds": 513.947,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 513.947,
+      "end_seconds": 532.184,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 532.184,
+      "end_seconds": 540,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L03-01",
+        "start_seconds": 0,
+        "end_seconds": 29.827,
+        "duration_seconds": 29.827,
+        "narration_text": "Imagine walking into a review with a dashboard redesign. You have evidence that people struggle with the current screen. You have a proposed fix. You put up the first slide and someone asks, “Is this the best use of engineering time right now?” That is a reasonable question. It may feel like a rejection, but it is also a clue.",
+        "handoff_visual": "S: no real analytics capture.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L03-03",
+        "start_seconds": 174,
+        "end_seconds": 193.442,
+        "duration_seconds": 19.442,
+        "narration_text": "A single polished idea invites a yes or no. Chapter Four calls this the binary trap. The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay.",
+        "handoff_visual": "S: quick change/deeper bet/delay cards from book case.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L03-05",
+        "start_seconds": 349,
+        "end_seconds": 365.539,
+        "duration_seconds": 16.539,
+        "narration_text": "Let's fill the rest of the card. The decision is whether to test a guided first task. Our current answer is yes, because the team suspects people need a clearer starting point.",
+        "handoff_visual": "S: membership example, invented.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L03-06",
+        "start_seconds": 513.947,
+        "end_seconds": 532.184,
+        "duration_seconds": 18.237,
+        "narration_text": "You do not have to win the room with a perfect story today. You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to.",
+        "handoff_visual": "S: file stack.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio",
+      "quote absent or above cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

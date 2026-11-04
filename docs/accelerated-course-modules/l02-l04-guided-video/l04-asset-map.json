@@ -1,0 +1,20 @@
+{
+  "lesson_id": "L04",
+  "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c008.xhtml",
+    "c009.xhtml"
+  ],
+  "approved_assets": {},
+  "synthetic_scenes": {
+    "L04-01": "synthetic-course-card:L04-01:3b6a268fa8d19a62",
+    "L04-02": "synthetic-course-card:L04-02:3b6a268fa8d19a62",
+    "L04-03": "synthetic-course-card:L04-03:3b6a268fa8d19a62",
+    "L04-04": "synthetic-course-card:L04-04:3b6a268fa8d19a62",
+    "L04-05": "synthetic-course-card:L04-05:3b6a268fa8d19a62",
+    "L04-06": "synthetic-course-card:L04-06:3b6a268fa8d19a62",
+    "L04-07": "synthetic-course-card:L04-07:3b6a268fa8d19a62"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}
