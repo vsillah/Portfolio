@@ -50,18 +50,23 @@
   "total_presenter_seconds": 1521.317,
   "safest_first_executable_batch": null,
   "first_candidate_after_separate_authorization": "L02 only; one job, no retry",
-  "missing_bindings_for_every_lesson": [
+  "pre_job_missing_bindings_for_every_lesson": [
     "authorized_provider_account",
     "approved_avatar_id",
     "avatar_rights_receipt",
     "approved_voice_id",
     "voice_rights_receipt",
-    "recorded_audio_sha256",
-    "recorded_audio_timing_receipt",
     "privacy_review_receipt",
     "binding_all_in_quote",
     "provider_billing_units_and_rounding",
     "enforceable_credit_or_spend_cap",
     "current_exact_batch_authorization"
+  ],
+  "post_job_required_outputs_for_every_lesson": [
+    "provider_job_receipt",
+    "native_source_clip_sha256",
+    "native_source_audio_sha256",
+    "exact_native_timing_receipt",
+    "actual_credit_cost_receipt"
   ]
 }

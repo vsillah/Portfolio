@@ -7,40 +7,43 @@
   "retry_allowed": false,
   "spend_cap_usd": 0,
   "provider": "HeyGen",
+  "provider_precedent_record": "docs/accelerated-course-modules/provider-authority/l01-precedent.json",
+  "provider_precedent_sha256": "c4874607f494f08a2c6f766c272fb2b60171cbe17ea908cca4bc66da4649b62a",
   "provider_precedent": {
-    "lesson": "L01 only",
     "avatar_display_name": "Vambah green sweater",
     "voice_display_name": "Vambah green sweater",
-    "source": "/Users/vambahsillah/.codex/visualizations/2026/06/23/019ef636-39d4-7180-953c-660515b5604a/accelerated-l01-heygen-pilot/corrected-provider-receipt.json",
-    "source_receipt_sha256": "6abe8568e425f4d74a13db6104f39a41bf7a3a73ae2a5fd86cf3b8e53bb4b7cc",
-    "provider_job_id": "c5639a0b76144ae5bcd76b1f2de85ed5",
-    "native_source_sha256": "2c502e0e9fc03b93fb71f85abae1ce936c2c33a43e01307620a845424f233626",
     "historical_credits_consumed": 59,
     "historical_incremental_cost_usd": 0,
-    "limitation": "Historical L01 precedent only; no current balance, current price, IDs, or L02-L16 rights established."
+    "limitation": "No current credit balance, price, avatar/voice IDs, L02-L16 rights, or provider authority established."
   },
-  "required_bindings": {
+  "pre_job_required_bindings": {
     "authorized_provider_account": null,
     "approved_avatar_id": null,
     "avatar_rights_receipt": null,
     "approved_voice_id": null,
     "voice_rights_receipt": null,
-    "recorded_audio_sha256": null,
-    "recorded_audio_timing_receipt": null,
     "privacy_review_receipt": null,
     "binding_all_in_quote": null,
     "provider_billing_units_and_rounding": null,
     "enforceable_credit_or_spend_cap": null,
     "current_exact_batch_authorization": null
   },
+  "post_job_required_outputs": {
+    "provider_job_receipt": null,
+    "native_source_clip_sha256": null,
+    "native_source_audio_sha256": null,
+    "exact_native_timing_receipt": null,
+    "actual_credit_cost_receipt": null
+  },
+  "provider_input": "Exact approved narration_text in each source request segment, spoken with the approved avatar-native voice; no separately recorded audio is a pre-job input.",
   "quote_and_cap_rule": "Obtain a current binding quote for each exact job and all-in batch total, including provider rounding, fees, taxes and any credit purchase. Verify an enforceable account/job cap before execution; historical credits are not a cap.",
   "stop_no_retry": [
     "source or approved text/hash drift",
     "missing or changed avatar/voice rights",
-    "recorded-audio timing unbound",
     "quote or cap absent/exceeded",
     "privacy concern",
-    "provider error or unexpected output; inspect before any new authorization"
+    "provider error or unexpected output; inspect before any new authorization",
+    "post-job native clip/audio hash or exact timing missing or mismatched; stop before composite"
   ],
   "batch_boundary": "No later lesson or batch follows automatically; each job needs exact current authority and its own receipt.",
   "lessons": [
@@ -91,21 +94,28 @@
         }
       ],
       "presenter_seconds": 112.679,
-      "timing_status": "estimated; bind to approved recorded audio",
-      "missing_bindings": [
+      "approved_narration_text_sha256": "6aac31052d93a53adbb7b0ee4da87f224991b213c5fd4ce64c95998d6c2967ed",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
         "authorized_provider_account",
         "approved_avatar_id",
         "avatar_rights_receipt",
         "approved_voice_id",
         "voice_rights_receipt",
-        "recorded_audio_sha256",
-        "recorded_audio_timing_receipt",
         "privacy_review_receipt",
         "binding_all_in_quote",
         "provider_billing_units_and_rounding",
         "enforceable_credit_or_spend_cap",
         "current_exact_batch_authorization"
       ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
       "execution_allowed": false
     },
     {
@@ -154,21 +164,28 @@
         }
       ],
       "presenter_seconds": 108.673,
-      "timing_status": "estimated; bind to approved recorded audio",
-      "missing_bindings": [
+      "approved_narration_text_sha256": "a79d343606a06a9994e467a48a03beae77deffbf4d15d03dc490871e486ea9a2",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
         "authorized_provider_account",
         "approved_avatar_id",
         "avatar_rights_receipt",
         "approved_voice_id",
         "voice_rights_receipt",
-        "recorded_audio_sha256",
-        "recorded_audio_timing_receipt",
         "privacy_review_receipt",
         "binding_all_in_quote",
         "provider_billing_units_and_rounding",
         "enforceable_credit_or_spend_cap",
         "current_exact_batch_authorization"
       ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
       "execution_allowed": false
     },
     {
@@ -218,21 +235,28 @@
         }
       ],
       "presenter_seconds": 113.618,
-      "timing_status": "estimated; bind to approved recorded audio",
-      "missing_bindings": [
+      "approved_narration_text_sha256": "6a014709a67e1ad66c78c141a9ca2059fe9425c3f883dca422379813c13bf89a",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
         "authorized_provider_account",
         "approved_avatar_id",
         "avatar_rights_receipt",
         "approved_voice_id",
         "voice_rights_receipt",
-        "recorded_audio_sha256",
-        "recorded_audio_timing_receipt",
         "privacy_review_receipt",
         "binding_all_in_quote",
         "provider_billing_units_and_rounding",
         "enforceable_credit_or_spend_cap",
         "current_exact_batch_authorization"
       ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
       "execution_allowed": false
     },
     {
@@ -281,21 +305,28 @@
         }
       ],
       "presenter_seconds": 118.975,
-      "timing_status": "estimated; bind to approved recorded audio",
-      "missing_bindings": [
+      "approved_narration_text_sha256": "2909e5e3e2c642292024cd439df6df2538c33b8452ffd3c7e4808e21ef21245e",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
         "authorized_provider_account",
         "approved_avatar_id",
         "avatar_rights_receipt",
         "approved_voice_id",
         "voice_rights_receipt",
-        "recorded_audio_sha256",
-        "recorded_audio_timing_receipt",
         "privacy_review_receipt",
         "binding_all_in_quote",
         "provider_billing_units_and_rounding",
         "enforceable_credit_or_spend_cap",
         "current_exact_batch_authorization"
       ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
       "execution_allowed": false
     }
   ],
