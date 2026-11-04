@@ -1,0 +1,256 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:04.474
+Imagine walking into a review with a dashboard redesign.
+
+00:00:04.474 --> 00:00:09.445
+You have evidence that people struggle with the current screen.
+
+00:00:09.445 --> 00:00:11.931
+You have a proposed fix.
+
+00:00:11.931 --> 00:00:23.861
+You put up the first slide and someone asks, “Is this the best use of engineering time right now?” That is a reasonable question.
+
+00:00:23.861 --> 00:00:29.827
+It may feel like a rejection, but it is also a clue.
+
+00:00:29.827 --> 00:00:37.780
+The person across the table is being asked to trade one piece of work for another.
+
+00:00:37.780 --> 00:00:44.243
+A pile of research about the screen does not yet explain the trade.
+
+00:00:44.243 --> 00:00:50.208
+Chapter Four of Accelerated tells this as the dashboard that almost died.
+
+00:00:50.208 --> 00:00:56.173
+The first pitch described the confusing dashboard and asked for a redesign.
+
+00:00:56.173 --> 00:01:05.121
+The later pitch put options on the table, including a smaller change, a larger bet, and a delay.
+
+00:01:05.121 --> 00:01:09.595
+The book reports a decision after the frame changed.
+
+00:01:09.595 --> 00:01:18.046
+In this workshop we use the case to study the question, not to promise the same result.
+
+00:01:18.046 --> 00:01:23.514
+What would an owner need to believe before moving engineering time?
+
+00:01:23.514 --> 00:01:26.000
+That is where discovery starts.
+
+00:01:26.000 --> 00:01:30.659
+Open the priority page you made in Lesson Two.
+
+00:01:30.659 --> 00:01:36.871
+You chose one path and wrote an assumption that could overturn it.
+
+00:01:36.871 --> 00:01:41.529
+Now write the decision owner’s question in their words.
+
+00:01:41.529 --> 00:02:14.141
+For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.
+
+00:02:14.141 --> 00:02:15.694
+Label it provisional.
+
+00:02:15.694 --> 00:02:21.388
+Under that, write the strongest objection a thoughtful colleague could raise.
+
+00:02:21.388 --> 00:02:27.082
+The objection is not a nuisance to remove from the slide.
+
+00:02:27.082 --> 00:02:31.224
+It tells you what evidence the decision needs.
+
+00:02:31.224 --> 00:02:40.541
+The chapter argues that insight can land flat when its frame ignores the risk the other person carries.
+
+00:02:40.541 --> 00:02:45.200
+So we work backward: decision, likely answer, objection, evidence.
+
+00:02:45.200 --> 00:02:50.376
+Only then do we choose what to observe or ask.
+
+00:02:50.376 --> 00:02:54.000
+The order keeps research attached to action.
+
+00:02:54.000 --> 00:02:58.605
+A single polished idea invites a yes or no.
+
+00:02:58.605 --> 00:03:02.186
+Chapter Four calls this the binary trap.
+
+00:03:02.186 --> 00:03:13.442
+The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay.
+
+00:03:13.442 --> 00:03:20.093
+Each path has a different cost and a different thing it could teach.
+
+00:03:20.093 --> 00:03:23.674
+Your priority file already has two alternatives.
+
+00:03:23.674 --> 00:03:28.791
+Bring them forward rather than hiding them after you choose.
+
+00:03:28.791 --> 00:03:34.930
+For the membership example, the welcome email could be the light change.
+
+00:03:34.930 --> 00:03:39.023
+The guided task is the small behavior test.
+
+00:03:39.023 --> 00:03:42.605
+The staff dashboard is a visibility investment.
+
+00:03:42.605 --> 00:03:47.209
+None of those labels is a fact about customers.
+
+00:03:47.209 --> 00:03:51.302
+They are ways to make the trade visible.
+
+00:03:51.302 --> 00:04:03.070
+If the objection is “We are solving the wrong part of onboarding,” the evidence should tell you where a person stops and why.
+
+00:04:03.070 --> 00:04:11.767
+If the objection is “We cannot support another workflow,” the evidence may need to include staff effort.
+
+00:04:11.767 --> 00:04:15.860
+A stronger frame does not mean louder language.
+
+00:04:15.860 --> 00:04:22.000
+It means the choice is clear enough for another person to challenge.
+
+00:04:22.000 --> 00:04:27.696
+Suppose you can ask only one more question before the review.
+
+00:04:27.696 --> 00:04:30.286
+What would change your mind?
+
+00:04:30.286 --> 00:04:32.875
+That question keeps discovery honest.
+
+00:04:32.875 --> 00:04:45.821
+If you would make the same recommendation no matter what the answer is, you may be collecting support for a story rather than testing it.
+
+00:04:45.821 --> 00:04:52.036
+The book suggests pressure-testing a pitch from different angles and anticipating objections.
+
+00:04:52.036 --> 00:04:59.286
+You can do that with a safe, fictional brief before anyone sees the recommendation.
+
+00:04:59.286 --> 00:05:06.018
+Ask what a skeptical finance lead, an operator, or a customer might question.
+
+00:05:06.018 --> 00:05:11.714
+Then compare those possible objections with what real evidence is available.
+
+00:05:11.714 --> 00:05:16.375
+An AI tool can help you rehearse the questions.
+
+00:05:16.375 --> 00:05:21.554
+It cannot turn a simulated objection into a customer interview.
+
+00:05:21.554 --> 00:05:26.214
+On our card, write one evidence gap that matters.
+
+00:05:26.214 --> 00:05:38.643
+Maybe we do not know whether people abandon the first step because they cannot find it, cannot understand it, or do not value it.
+
+00:05:38.643 --> 00:05:40.714
+Those are different problems.
+
+00:05:40.714 --> 00:05:49.000
+We should not build a guided path for all three without learning which one we have.
+
+00:05:49.000 --> 00:05:52.618
+Let's fill the rest of the card.
+
+00:05:52.618 --> 00:05:57.787
+The decision is whether to test a guided first task.
+
+00:05:57.787 --> 00:06:05.539
+Our current answer is yes, because the team suspects people need a clearer starting point.
+
+00:06:05.539 --> 00:06:14.843
+The strongest objection is that the first step may already be clear; maybe the real issue comes later.
+
+00:06:14.843 --> 00:06:25.697
+The missing evidence is an observation of where people hesitate and a short question about what they expected to happen next.
+
+00:06:25.697 --> 00:06:33.449
+A safe test could use a prototype and willing participants under an approved research process.
+
+00:06:33.449 --> 00:06:40.169
+We would record what they did, what they said, and what remains uncertain.
+
+00:06:40.169 --> 00:06:42.236
+That last field matters.
+
+00:06:42.236 --> 00:06:49.989
+A few observations can direct the next question; they do not establish a population-wide result.
+
+00:06:49.989 --> 00:06:56.708
+If you have no approved research access, keep the card as a plan.
+
+00:06:56.708 --> 00:07:02.393
+Do not manufacture quotes or silently substitute simulated people for participants.
+
+00:07:02.393 --> 00:07:11.180
+The dashboard case in the book helps us see how a named trade can make evidence relevant.
+
+00:07:11.180 --> 00:07:21.000
+Our exercise turns that lesson into an action you can take without pretending that the answer is already known.
+
+00:07:21.000 --> 00:07:24.126
+Pause and make your own card.
+
+00:07:24.126 --> 00:07:27.253
+Write the decision in a sentence.
+
+00:07:27.253 --> 00:07:30.379
+Write the answer you currently believe.
+
+00:07:30.379 --> 00:07:32.984
+Write the strongest fair objection.
+
+00:07:32.984 --> 00:07:42.363
+Then write one piece of evidence that could change the decision and a safe way to seek it.
+
+00:07:42.363 --> 00:07:48.095
+If your evidence is already available, record its source and date.
+
+00:07:48.095 --> 00:07:51.221
+If it is missing, say missing.
+
+00:07:51.221 --> 00:07:57.995
+Your file should now show a line from priority choice to evidence gap.
+
+00:07:57.995 --> 00:08:03.205
+That line is the point of these first three lessons.
+
+00:08:03.205 --> 00:08:10.500
+A good question can save you from a month of defending the wrong artifact.
+
+00:08:10.500 --> 00:08:15.711
+When you resume, look at the person behind the evidence.
+
+00:08:15.711 --> 00:08:24.568
+We tend to summarize that person as a persona and leave the slide untouched for a year.
+
+00:08:24.568 --> 00:08:33.947
+In the next lesson we will make the customer situation more specific and the persona easier to revise.
+
+00:08:33.947 --> 00:08:40.721
+You do not have to win the room with a perfect story today.
+
+00:08:40.721 --> 00:08:52.184
+You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to.
+
+00:08:52.184 --> 00:08:56.353
+Keep the card attached to your priority page.
+
+00:08:56.353 --> 00:09:00.000
+We are going to use it again.

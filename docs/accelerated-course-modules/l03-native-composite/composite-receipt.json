@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "project": "Portfolio",
+  "lesson": "Accelerated L03",
+  "source_commit": "7663edf66b7eb6c88d7129ae331199616ae44345",
+  "provider_job_id": "5c5f6bbd4193fedc3570d8a4cf4f7bf6",
+  "approved_source_sha256": "064e049bfaee6d60d5d811d516dbcdf9c14466602afef9a34e07cbf31c551198",
+  "resolution_deviation_receipt_sha256": "f6cd2f7a060859efadd8f3021877d91eccd4ac3b6314a74ce716c84effd7f7f2",
+  "composite": {
+    "filename": "accelerated-l03-native-composite.mp4",
+    "sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+    "duration_seconds": 540.0,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": 25,
+    "video_frames": 13500,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "caption_codec": "mov_text"
+  },
+  "verification": {
+    "full_decode": "pass",
+    "native_source_speed": 1.0,
+    "native_source_cropped": false,
+    "native_source_enlarged": false,
+    "source_audio_only_in_presenter_windows": true,
+    "presenter_frame": "aspect-correct solid gold 16:9",
+    "presenter_placement": "reserved storyboard panel above caption-safe band",
+    "meaningful_content_obscured": false,
+    "sentence_complete_passages": [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+    ],
+    "approved_assets_preserved": true,
+    "approved_captions_preserved": true
+  },
+  "external_actions": {
+    "provider_calls": 0,
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false,
+    "other_lessons_generated": false,
+    "incremental_cost_usd": 0
+  },
+  "human_qa": {
+    "source_status": "approved_with_resolution_deviation",
+    "composite_status": "pending"
+  },
+  "current_gate": "native_composite_human_qa"
+}
