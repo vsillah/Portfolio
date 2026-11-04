@@ -74,7 +74,7 @@ describe('Accelerated L03 learner binding', () => {
     })).toThrow(/artifact binding mismatch/)
   })
 
-  it('plays L03 with captions and transcript, returns to plan, and keeps L04 and L09–L16 locked', () => {
+  it('plays L03 with captions and transcript, returns to plan, and keeps L09–L16 locked', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery/ }))
     expect(screen.getByText('L03 guided video is ready')).toBeInTheDocument()
@@ -95,7 +95,7 @@ describe('Accelerated L03 learner binding', () => {
     expect(screen.queryByLabelText('L03 Answer-driven discovery guided video')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
-    for (const lesson of lessons.filter((item) => item.id === 'L04' || Number(item.id.slice(1)) >= 9)) {
+    for (const lesson of lessons.filter((item) => Number(item.id.slice(1)) >= 9)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${lesson.id}:.*locked`) }))
       expect(screen.getByRole('button', { name: new RegExp(`Watch ${lesson.id} guided video`) })).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Completion unavailable' })).toBeDisabled()

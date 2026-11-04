@@ -72,7 +72,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByText('Code six synthetic comments, name one pattern, and flag what contradicts it.')).toBeInTheDocument()
     expect(screen.getByAltText('Representative storyboard frame for L05')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeEnabled()
-    for (const item of lessons.filter((lesson) => lesson.id === 'L04' || Number(lesson.id.slice(1)) >= 9)) {
+    for (const item of lessons.filter((lesson) => Number(lesson.id.slice(1)) >= 9)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
       expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
     }

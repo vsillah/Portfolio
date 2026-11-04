@@ -1,0 +1,475 @@
+{
+  "source_srt_sha256": "a183b1c2b5e100f449eb12481b314d09bd65d11aa0b81321c8499ac5bd03474c",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:03.765",
+      "text": "We are back at the Q3 Innovation Plan."
+    },
+    {
+      "start": "00:03.765",
+      "end": "00:06.588",
+      "text": "The page is no longer empty."
+    },
+    {
+      "start": "00:06.588",
+      "end": "00:13.647",
+      "text": "You have chosen a priority and written down the evidence that could change your mind."
+    },
+    {
+      "start": "00:13.647",
+      "end": "00:19.294",
+      "text": "But the broad idea is still sitting there: improve the member experience."
+    },
+    {
+      "start": "00:19.294",
+      "end": "00:25.882",
+      "text": "Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything."
+    },
+    {
+      "start": "00:25.882",
+      "end": "00:28.235",
+      "text": "Those ambitions can be useful."
+    },
+    {
+      "start": "00:28.235",
+      "end": "00:32.471",
+      "text": "They are hard to test as a single bet."
+    },
+    {
+      "start": "00:32.471",
+      "end": "00:41.412",
+      "text": "Chapter Five of Accelerated opens with an empty planning document and asks us to think big while building small."
+    },
+    {
+      "start": "00:41.412",
+      "end": "00:45.176",
+      "text": "The first move is to shrink the question."
+    },
+    {
+      "start": "00:45.176",
+      "end": "01:00.706",
+      "text": "Instead of \u201cWhat should we build for everyone?\u201d ask, \u201cWhat is one moment we can understand better this week?\u201d In our fictional membership service, that moment is the first task after someone joins."
+    },
+    {
+      "start": "01:00.706",
+      "end": "01:06.824",
+      "text": "A small prototype can show us whether the instruction helps a person begin."
+    },
+    {
+      "start": "01:06.824",
+      "end": "01:10.118",
+      "text": "It cannot prove the whole program works."
+    },
+    {
+      "start": "01:10.118",
+      "end": "01:11.529",
+      "text": "That is fine."
+    },
+    {
+      "start": "01:11.529",
+      "end": "01:20.000",
+      "text": "The point of a small test is to let reality correct the plan before the plan becomes expensive."
+    },
+    {
+      "start": "01:20.000",
+      "end": "01:24.000",
+      "text": "Now picture the persona deck beside that plan."
+    },
+    {
+      "start": "01:24.000",
+      "end": "01:25.500",
+      "text": "It looks finished."
+    },
+    {
+      "start": "01:25.500",
+      "end": "01:34.500",
+      "text": "There is a stock photo, a name, a city, a favorite app, and a line about wanting convenience."
+    },
+    {
+      "start": "01:34.500",
+      "end": "01:42.500",
+      "text": "In Chapter Six, I describe a gorgeous deck that did not help my team make decisions."
+    },
+    {
+      "start": "01:42.500",
+      "end": "01:47.500",
+      "text": "That is an uncomfortable confession because the work looked careful."
+    },
+    {
+      "start": "01:47.500",
+      "end": "01:54.500",
+      "text": "The question was whether the details pointed to a real moment in the product."
+    },
+    {
+      "start": "01:54.500",
+      "end": "02:04.000",
+      "text": "If we say our member is thirty-four and busy, what should the team do differently on the first task?"
+    },
+    {
+      "start": "02:04.000",
+      "end": "02:06.000",
+      "text": "We do not know."
+    },
+    {
+      "start": "02:06.000",
+      "end": "02:20.000",
+      "text": "If we say the member needs to understand where to start without asking for help, we can observe a situation, compare a design, and notice what we missed."
+    },
+    {
+      "start": "02:20.000",
+      "end": "02:23.000",
+      "text": "The first statement paints a person."
+    },
+    {
+      "start": "02:23.000",
+      "end": "02:26.500",
+      "text": "The second names a job in context."
+    },
+    {
+      "start": "02:26.500",
+      "end": "02:33.500",
+      "text": "Do not throw away demographic information when it is genuinely relevant and responsibly gathered."
+    },
+    {
+      "start": "02:33.500",
+      "end": "02:40.000",
+      "text": "Just do not let a polished portrait stand in for evidence about behavior."
+    },
+    {
+      "start": "02:40.000",
+      "end": "02:45.000",
+      "text": "The persona has to earn its place in the decision."
+    },
+    {
+      "start": "02:45.000",
+      "end": "02:48.556",
+      "text": "The book makes this shift with Sarah."
+    },
+    {
+      "start": "02:48.556",
+      "end": "02:53.128",
+      "text": "A static description tells us who she supposedly is."
+    },
+    {
+      "start": "02:53.128",
+      "end": "03:00.241",
+      "text": "A job description asks what she is trying to do in a particular moment."
+    },
+    {
+      "start": "03:00.241",
+      "end": "03:12.941",
+      "text": "In the book example, she is preparing for a Monday meeting and needs progress updates without sending messages that make her feel like a micromanager."
+    },
+    {
+      "start": "03:12.941",
+      "end": "03:17.005",
+      "text": "That gives a team something to work with."
+    },
+    {
+      "start": "03:17.005",
+      "end": "03:23.610",
+      "text": "There is a time pressure, a current workaround, and a risk to trust."
+    },
+    {
+      "start": "03:23.610",
+      "end": "03:31.738",
+      "text": "The same person can have a different job on Wednesday when a blocked project needs attention."
+    },
+    {
+      "start": "03:31.738",
+      "end": "03:38.342",
+      "text": "That is why a living persona follows the situation, not only the person."
+    },
+    {
+      "start": "03:38.342",
+      "end": "03:57.139",
+      "text": "For our fictional service, write: \u201cWhen a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.\u201d That sentence is a hypothesis."
+    },
+    {
+      "start": "03:57.139",
+      "end": "04:00.187",
+      "text": "We have not interviewed a member."
+    },
+    {
+      "start": "04:00.187",
+      "end": "04:07.299",
+      "text": "We can still use it to decide what to test and what to ask."
+    },
+    {
+      "start": "04:07.299",
+      "end": "04:13.396",
+      "text": "Put a question mark beside the part you are least sure about."
+    },
+    {
+      "start": "04:13.396",
+      "end": "04:20.000",
+      "text": "The mark is a reminder to listen, not a flaw in the card."
+    },
+    {
+      "start": "04:20.000",
+      "end": "04:25.028",
+      "text": "Once the job is visible, the build can get smaller."
+    },
+    {
+      "start": "04:25.028",
+      "end": "04:33.073",
+      "text": "We do not need a complete onboarding platform to learn whether the first action is clear."
+    },
+    {
+      "start": "04:33.073",
+      "end": "04:47.151",
+      "text": "We can make three versions of a first-task card: one with a short instruction, one with a guided step, and one that points to a person for help."
+    },
+    {
+      "start": "04:47.151",
+      "end": "04:54.693",
+      "text": "Then we can ask what each version asks of the member and of the staff."
+    },
+    {
+      "start": "04:54.693",
+      "end": "04:56.704",
+      "text": "The book's sequence matters."
+    },
+    {
+      "start": "04:56.704",
+      "end": "04:58.212",
+      "text": "Shrink the question."
+    },
+    {
+      "start": "04:58.212",
+      "end": "05:03.743",
+      "text": "Generate possible approaches without falling in love with the first one."
+    },
+    {
+      "start": "05:03.743",
+      "end": "05:06.257",
+      "text": "Anchor the choice to strategy."
+    },
+    {
+      "start": "05:06.257",
+      "end": "05:12.291",
+      "text": "Let AI help with an early draft if the inputs are safe."
+    },
+    {
+      "start": "05:12.291",
+      "end": "05:18.324",
+      "text": "A quick draft is useful because it gives us something to inspect."
+    },
+    {
+      "start": "05:18.324",
+      "end": "05:21.341",
+      "text": "It is not a user test."
+    },
+    {
+      "start": "05:21.341",
+      "end": "05:32.905",
+      "text": "In the synthetic demonstration, I choose the guided step as the first prototype because it addresses the starting-point question from our decision file."
+    },
+    {
+      "start": "05:32.905",
+      "end": "05:35.922",
+      "text": "I keep the other versions visible."
+    },
+    {
+      "start": "05:35.922",
+      "end": "05:42.458",
+      "text": "If research shows that the instruction was already clear, I will change course."
+    },
+    {
+      "start": "05:42.458",
+      "end": "05:50.000",
+      "text": "The purpose of the prototype is to put the assumption where we can see it."
+    },
+    {
+      "start": "05:50.000",
+      "end": "05:55.562",
+      "text": "A living persona needs a record of where it came from."
+    },
+    {
+      "start": "05:55.562",
+      "end": "06:05.674",
+      "text": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question."
+    },
+    {
+      "start": "06:05.674",
+      "end": "06:09.213",
+      "text": "Add a source and a review date."
+    },
+    {
+      "start": "06:09.213",
+      "end": "06:22.360",
+      "text": "If this card is based on a real interview or a permitted product signal, cite the approved record without exposing the person in the course file."
+    },
+    {
+      "start": "06:22.360",
+      "end": "06:31.461",
+      "text": "If it is a synthetic exercise, say so in the working evidence layer and leave \u201cobserved signal\u201d blank."
+    },
+    {
+      "start": "06:31.461",
+      "end": "06:39.045",
+      "text": "You can write a proposed signal to look for, but do not call it observed."
+    },
+    {
+      "start": "06:39.045",
+      "end": "06:44.607",
+      "text": "Chapter Six is explicit that synthetic data can help generate hypotheses."
+    },
+    {
+      "start": "06:44.607",
+      "end": "06:50.169",
+      "text": "It cannot replace real research or justify a high-stakes irreversible decision."
+    },
+    {
+      "start": "06:50.169",
+      "end": "06:57.753",
+      "text": "This is especially easy to forget when a simulated person speaks in a convincing voice."
+    },
+    {
+      "start": "06:57.753",
+      "end": "07:00.787",
+      "text": "A plausible quote is still invented."
+    },
+    {
+      "start": "07:00.787",
+      "end": "07:06.348",
+      "text": "In our example, we do not know where actual members hesitate."
+    },
+    {
+      "start": "07:06.348",
+      "end": "07:09.382",
+      "text": "The card should say that plainly."
+    },
+    {
+      "start": "07:09.382",
+      "end": "07:13.933",
+      "text": "A useful persona can hold an unknown without collapsing."
+    },
+    {
+      "start": "07:13.933",
+      "end": "07:20.000",
+      "text": "That is how it stays alive long enough to become more accurate."
+    },
+    {
+      "start": "07:20.000",
+      "end": "07:33.532",
+      "text": "Imagine the test happens and the team learns that members understand the first instruction but pause because they cannot tell how long the task will take."
+    },
+    {
+      "start": "07:33.532",
+      "end": "07:36.135",
+      "text": "That would change the card."
+    },
+    {
+      "start": "07:36.135",
+      "end": "07:47.064",
+      "text": "The job might be less about finding the next action and more about knowing whether there is enough time to begin."
+    },
+    {
+      "start": "07:47.064",
+      "end": "07:58.515",
+      "text": "I am making up that result to show how revision works; it is not a claim about a product or a customer."
+    },
+    {
+      "start": "07:58.515",
+      "end": "08:07.883",
+      "text": "The important move is to date the update and keep the old assumption visible in the decision file."
+    },
+    {
+      "start": "08:07.883",
+      "end": "08:18.292",
+      "text": "A persona that changes with evidence is more useful than a deck that stays beautiful while the work moves on."
+    },
+    {
+      "start": "08:18.292",
+      "end": "08:25.579",
+      "text": "This does not require collecting every click or building a profile of every person."
+    },
+    {
+      "start": "08:25.579",
+      "end": "08:34.947",
+      "text": "It requires consent, an approved source, and the discipline to separate what you observed from what you inferred."
+    },
+    {
+      "start": "08:34.947",
+      "end": "08:40.152",
+      "text": "Ask whether the card helps you make today's product choice."
+    },
+    {
+      "start": "08:40.152",
+      "end": "08:44.836",
+      "text": "If it cannot, revise the job or the question."
+    },
+    {
+      "start": "08:44.836",
+      "end": "08:49.000",
+      "text": "The person behind the work deserves that care."
+    },
+    {
+      "start": "08:49.000",
+      "end": "08:52.270",
+      "text": "Pause and finish one living persona card."
+    },
+    {
+      "start": "08:52.270",
+      "end": "09:09.086",
+      "text": "Write the job in a specific moment, the current workaround if you know it, the observed signal or an honest blank, the biggest uncertainty, the next question, the source, and the date you will review it."
+    },
+    {
+      "start": "09:09.086",
+      "end": "09:13.757",
+      "text": "Then look at all four pages of your decision file."
+    },
+    {
+      "start": "09:13.757",
+      "end": "09:18.428",
+      "text": "The first page names the choice and the data boundary."
+    },
+    {
+      "start": "09:18.428",
+      "end": "09:22.164",
+      "text": "The second shows the priority and the alternatives."
+    },
+    {
+      "start": "09:22.164",
+      "end": "09:26.368",
+      "text": "The third names evidence that could change your mind."
+    },
+    {
+      "start": "09:26.368",
+      "end": "09:32.908",
+      "text": "This page keeps the human situation in view while you design a small test."
+    },
+    {
+      "start": "09:32.908",
+      "end": "09:39.447",
+      "text": "That is a real working file, even if much of it is still provisional."
+    },
+    {
+      "start": "09:39.447",
+      "end": "09:45.987",
+      "text": "In the next lesson, the workshop will turn more raw feedback into traceable signal."
+    },
+    {
+      "start": "09:45.987",
+      "end": "09:49.724",
+      "text": "For now, hold on to the small question."
+    },
+    {
+      "start": "09:49.724",
+      "end": "09:52.059",
+      "text": "Build only enough to learn."
+    },
+    {
+      "start": "09:52.059",
+      "end": "09:54.862",
+      "text": "Keep the card open to correction."
+    },
+    {
+      "start": "09:54.862",
+      "end": "10:00.000",
+      "text": "That is how we move faster without leaving the person behind."
+    }
+  ]
+}
