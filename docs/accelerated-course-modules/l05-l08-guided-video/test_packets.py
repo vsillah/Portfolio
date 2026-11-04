@@ -55,6 +55,11 @@ class BatchPacketTests(unittest.TestCase):
             expected, name = line.split('  ', 1)
             self.assertEqual(expected, hashlib.sha256((HERE / name).read_bytes()).hexdigest(), name)
 
+    def test_long_provenance_wraps_on_mobile(self):
+        review = (HERE / 'review.html').read_text()
+        self.assertIn('details{min-width:0}', review)
+        self.assertIn('.provenance{overflow-wrap:anywhere}', review)
+
 
 if __name__ == '__main__':
     unittest.main()
