@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L05",
+  "video_id": "f6679f32fb22a008f7b950955ae81eae",
+  "source_sha256": "0552d604907a469ecd615395ee7768b69dde2e224353ff96c76fc2c313fbe332",
+  "duration_seconds": 65.495,
+  "frame_rate": "25/1",
+  "video_frames": 1637,
+  "passage_order": ["A01", "A02", "A03", "A04"],
+  "sentence_complete": true,
+  "timing_status": "native source accepted for deterministic paragraph-gap binding",
+  "retry_count": 0
+}

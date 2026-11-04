@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "batch": "Accelerated L05-L08",
+  "status": "human_qa_pending",
+  "source_commits": {
+    "portfolio": "30289b59511c661ccf38e3a4279248cb4dc1de0d",
+    "scripts": "2546d07bd25c6ec9ee84dd7b19771fb72a0a6c37",
+    "requests": "3d9978269ffaf8194fcce246786b0591659c19c7"
+  },
+  "provider": {
+    "account": "AmaduTown Portfolio",
+    "engine": "HeyGen Avatar IV",
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "jobs_submitted": 4,
+    "jobs_completed": 4,
+    "retries": 0,
+    "credits": 1324,
+    "cost_usd": 22.066667,
+    "authorized_cap_usd": 31.15,
+    "starting_balance_usd": 34.67,
+    "final_balance_usd": 12.6,
+    "auto_reload": "off",
+    "purchases": 0
+  },
+  "lessons": [
+    {"lesson":"L05","video_id":"f6679f32fb22a008f7b950955ae81eae","source_sha256":"0552d604907a469ecd615395ee7768b69dde2e224353ff96c76fc2c313fbe332","composite_sha256":"bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62"},
+    {"lesson":"L06","video_id":"559205f2a611e9f84305604eaefae5ed","source_sha256":"8dc3228ed97cfba6d655ebe1a66a85f539ebbf610404fa97a2ccdb7d978059ab","composite_sha256":"161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729"},
+    {"lesson":"L07","video_id":"3ff41f194e89e43bf07fa2d90b4ed6e4","source_sha256":"6d0961aa4656d5d094278375620a18be405c1ca9b0e02ecefbdfc95bfc386a59","composite_sha256":"6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f"},
+    {"lesson":"L08","video_id":"17943580f758ea713903310f21b69759","source_sha256":"4dca01d174ed0c5f7e484653b66d43f51f27ef207646e0f6d6e4c32538d385d6","composite_sha256":"1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b"}
+  ],
+  "walkthrough": {
+    "filename": "accelerated-l05-l08-human-qa-walkthrough.mp4",
+    "sha256": "81fbfa9b79cdb7dca8b05b3ea970cf51bbf3f87c6632f9db571624dddc376524",
+    "duration_seconds": 86.701333,
+    "privacy_safe": true
+  },
+  "validation": {
+    "artifact_hashes": "pass",
+    "sentence_complete_passages": "pass",
+    "caption_streams": "pass",
+    "timing_and_frame_counts": "pass",
+    "aspect_ratio": "pass",
+    "unobscured_presenter_lanes": "pass",
+    "full_decode": "pass",
+    "learner_plan_binding": "not_started"
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "next_gate": "four_lesson_human_qa"
+}

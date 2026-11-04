@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L07",
+  "video_id": "3ff41f194e89e43bf07fa2d90b4ed6e4",
+  "title": "Accelerated L07 review-only source",
+  "status": "completed",
+  "submitted_once": true,
+  "retry_count": 0,
+  "request": {
+    "source_commit": "30289b59511c661ccf38e3a4279248cb4dc1de0d",
+    "script_source_commit": "2546d07bd25c6ec9ee84dd7b19771fb72a0a6c37",
+    "request_source_commit": "3d9978269ffaf8194fcce246786b0591659c19c7",
+    "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+    "request_sha256": "945828c55e643e4f6bac4658ad4262f4c137e8a994ac3c00c9d1103cf08a600e",
+    "packet_sha256": "282edc62956b400505394424b46a63daaa9026b6dcad2630f45a067f28966eaa",
+    "asset_map_sha256": "b97647d9cca7670e5489b8c4f84a37d7d34e6a11be433d62e5c33828a8f23560",
+    "audio_map_sha256": "89dfe20ef8b5e794e6a7fdb28f404bd48425d52bf796c2857f661d7c6f88f4bb",
+    "passages": ["A01", "A02", "A03", "A04"],
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe"
+  },
+  "billing": {
+    "credits": 290,
+    "cost_usd": 4.833333,
+    "per_job_cap_usd": 7.15,
+    "cap_result": "pass",
+    "auto_reload": "off",
+    "purchase_made": false
+  },
+  "artifact": {
+    "filename": "accelerated-l07-heygen-native.mp4",
+    "sha256": "6d0961aa4656d5d094278375620a18be405c1ca9b0e02ecefbdfc95bfc386a59",
+    "duration_seconds": 60.44,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "video_frames": 1511
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "human_qa": "pending"
+}
