@@ -1,0 +1,942 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L07",
+  "title": "Commit to learning",
+  "runtime_seconds": 600,
+  "learner_artifact": "Two-checkpoint learning roadmap",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L07.md",
+  "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "7b2a96126a5997c3baf67a4fdc39050259c57e07ddf303bc1228eedb043e6533",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c013.xhtml",
+    "c014.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L07-01",
+      "title": "The quarter is full",
+      "start_seconds": 0,
+      "end_seconds": 100,
+      "narration": "The quarter is full before it starts. A new first-task card is due in two weeks. A reminder system is penciled in after that. Someone has promised a dashboard by the end of the month. The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task? Our feedback ledger gave us a possible explanation. The roadmap bet gave us a small test. Chapter Ten asks us to put the learning beside the delivery. Write the outcome we seek at the top: a member can understand and begin the first task without staff translating it. Under that, write what we need to learn first. Is the barrier unclear instruction, weak confirmation, or something else? A feature date can tell us when work will ship. A learning checkpoint tells us when we will inspect what the work taught us and decide whether to continue. Let us build two checkpoints for the membership service we have been following. We are planning the questions before any member responds. Keep the dates visible, but make each date earn a question. Otherwise a team can meet every deadline while its original uncertainty travels untouched into the next quarter.",
+      "narration_sha256": "9807fef81653aa7912d0fd27af543e2b319816b457c4ed5fafbf61af3123c964",
+      "on_screen_copy": "Delivery date + learning question",
+      "shot": "Avatar beside crowded quarter; outcome column takes focus.",
+      "visual": "S quarter plan.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L07-01",
+        "start_seconds": 0,
+        "end_seconds": 28.079,
+        "duration_seconds": 28.079,
+        "narration_text": "The quarter is full before it starts. A new first-task card is due in two weeks. A reminder system is penciled in after that. Someone has promised a dashboard by the end of the month. The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task?",
+        "handoff_visual": "S quarter plan.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the unanswered customer question.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c013.xhtml",
+          "c014.xhtml"
+        ],
+        "scene_source": "Ch10, “Anchor Roadmaps in Customer Outcomes,” “Make Learning the Only Guaranteed Deliverable” (`c013.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L07-01:394d030424d8d190",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L07-02",
+      "title": "Checkpoint one: diagnose before expanding",
+      "start_seconds": 100,
+      "end_seconds": 200,
+      "narration": "Checkpoint one is a diagnosis. The question is whether new members understand the first instruction and the purpose of the task. The method could be a small observation of the starting moment, paired with the original feedback IDs. The owner schedules the review before a larger build begins. If participants can explain the action but cannot tell whether pressing begin worked, confirmation becomes the stronger next question. If they cannot explain what the task is for, the instruction and purpose deserve attention. If both are clear, we reopen the problem instead of forcing one of our planned features through. Write those possible adjustments now. This is what the book means by making learning a deliverable. The team is accountable for running a sound test, reviewing the evidence, and recording a decision. It cannot honestly guarantee the customer outcome before seeing what happens. Keep the method proportionate to the question. A team walkthrough can catch confusing copy before a participant sees it. It cannot tell us how members behave. For that, invite people through a consented research process and keep their notes where your team protects customer information. It is a blueprint for the decision, with enough detail to let another person run the checkpoint.",
+      "narration_sha256": "2af51725309166ad8322db39c46229df07d719e3b56282068234d7c6f225498a",
+      "on_screen_copy": "Checkpoint 1 · diagnose",
+      "shot": "Checkpoint one card fills question, method, owner, date, adjustment.",
+      "visual": "S diagnostic card.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration explains synthetic versus observed input.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c013.xhtml",
+          "c014.xhtml"
+        ],
+        "scene_source": "Ch10, “Make Learning the Only Guaranteed Deliverable,” “Design with Triggers, Not Commitments” (`c013.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L07-02:394d030424d8d190",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L07-03",
+      "title": "Checkpoint two: test the smaller change",
+      "start_seconds": 200,
+      "end_seconds": 300,
+      "narration": "Checkpoint two follows only if the first review supports the instruction hypothesis. The team tests the smaller first-task card against the existing version in a planned study. Before observing anyone, define what “clear enough” means. In a moderated task, can the person identify the next action and say why it matters without a staff explanation? What happens when the start action fails? Record the observation method, the number and type of participants the study can responsibly support, and the date the team will decide. The exact threshold is a local design choice for the real test; we will not invent one and call it evidence. On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work. The roadmap now shows a delivery task and two learning reviews. People can still plan engineering time. They can also see where a result may change that plan. That is more useful than a date that only asks whether the ticket closed.",
+      "narration_sha256": "80acd9f791064b16d33046f2f55651e5c43fb02829c49bbe274a03bc8900f1c5",
+      "on_screen_copy": "Checkpoint 2 · test the smaller change",
+      "shot": "Avatar, then second checkpoint beside first-task prototype.",
+      "visual": "S card and prototype.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L07-03",
+        "start_seconds": 200,
+        "end_seconds": 217.5,
+        "duration_seconds": 17.5,
+        "narration_text": "Checkpoint two follows only if the first review supports the instruction hypothesis. The team tests the smaller first-task card against the existing version in a planned study. Before observing anyone, define what “clear enough” means.",
+        "handoff_visual": "S card and prototype.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration states conditional branch, not outcome.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c013.xhtml",
+          "c014.xhtml"
+        ],
+        "scene_source": "Ch10, “Make Learning the Only Guaranteed Deliverable,” “Design with Triggers, Not Commitments” (`c013.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L07-03:394d030424d8d190",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L07-04",
+      "title": "Sam's team changes its question",
+      "start_seconds": 300,
+      "end_seconds": 400,
+      "narration": "Chapter Eleven tells a story about Sam and her team. A junior product manager brings an unfinished idea into the team channel. Sam expects to step in and shape it. Instead, colleagues ask what customer outcome the idea addresses, whether the job has been validated, and what they would learn by testing it. The point of that moment is not that every conversation became perfect. It is that the team had a shared way to examine an idea without waiting for one leader to supply all the judgment. I am using Sam as the book's narrative illustration. That moment belongs to Sam’s story in the book. In the story, the team also stops treating sunk cost as a reason to keep building. That matters because a learning checkpoint only works if the people in the room can act on what they find. If the review date arrives and everyone is afraid to change the plan, the checkpoint is decoration. Put the owner, evidence, and possible adjustment on the roadmap where the team can see them. Make the question normal enough for engineering, design, support, and leadership to use in their own words.",
+      "narration_sha256": "36ba9d029512e32521d3492f34b6591270ee38ba8e042f3d419322141e82c229",
+      "on_screen_copy": "What customer outcome? What will we learn?",
+      "shot": "Sam book-story card and three team questions.",
+      "visual": "S text only; no documentary reconstruction.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration identifies Sam as book story.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c013.xhtml",
+          "c014.xhtml"
+        ],
+        "scene_source": "Ch11, “The Moment Sam Knew It Was Working,” “The Questions That Changed Everything,” “What They Stopped Doing” (`c014.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L07-04:394d030424d8d190",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L07-05",
+      "title": "A failed test still changes the plan",
+      "start_seconds": 400,
+      "end_seconds": 500,
+      "narration": "The book gives Sam's team a test that does not support the feature they built. They try document previews, expecting people to find the right file faster. The review points them toward a different need: better search. The team records the learning and changes direction. What matters for us is how the team responded when the test challenged its original bet. Look at the sequence. They stated a hypothesis. They chose a signal and review point. They inspected the result. Then they asked what the result meant for the user's job. A low number by itself would not tell them whether the feature was hidden, unwanted, or solving the wrong task. The follow-up conversation mattered. Apply that discipline to our membership example. If the first-task card gets used but members still need staff help, do not declare success because the card was opened. If people never reach it, check the entry path before judging its wording. If the instruction helps but the next step fails, write that down. The team can hold delivery accountable and still let evidence change the next bet. That is a practical promise to the people who have to live with the roadmap.",
+      "narration_sha256": "98d3df66823bd01c0787bfce22e86e636aa805c6b6f5da44c73ea1b87c57505e",
+      "on_screen_copy": "A failed test can change the next question",
+      "shot": "Book preview-feature card becomes search question.",
+      "visual": "S book-derived cards; no figures.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L07-05",
+        "start_seconds": 400,
+        "end_seconds": 418.782,
+        "duration_seconds": 18.782,
+        "narration_text": "The book gives Sam's team a test that does not support the feature they built. They try document previews, expecting people to find the right file faster. The review points them toward a different need: better search.",
+        "handoff_visual": "S book-derived cards; no figures.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration explains failed-test interpretation.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c013.xhtml",
+          "c014.xhtml"
+        ],
+        "scene_source": "Ch11, “When Tests Failed (And Why That Was Okay),” “What They Stopped Doing” (`c014.xhtml`); Ch10, “Design with Triggers, Not Commitments” (`c013.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L07-05:394d030424d8d190",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L07-06",
+      "title": "Two dates, two decisions",
+      "start_seconds": 500,
+      "end_seconds": 600,
+      "narration": "Pause and choose one delivery milestone from your own plan or from our example. Add two learning checkpoints beside it. For each checkpoint, write the question, the evidence you will use, the owner, the review date, and the adjustment you could make. The first should reduce uncertainty before the team commits too much. The second should inspect the smallest useful test. If a result would never change the plan, rewrite the question until the review has a real consequence. Resume when you can tell a teammate what you will know at each date and what you may do differently. Use information you have permission to share on this worksheet. Keep participant notes in your team’s research system. Your decision file now has a source trail, a living product handoff, and a roadmap that can learn. The two checkpoint cards make the next decision visible to everyone who owns the work. In the next lesson, we will define the measures and write the full learning plan before results arrive. A plan becomes more trustworthy when it shows where it can change. The date is useful because someone has agreed to look, listen, and decide.",
+      "narration_sha256": "460545853b17511e97428c3cac313203711fabc8415c00d3d21d546698e27838",
+      "on_screen_copy": "Two checkpoints · two decisions",
+      "shot": "Two-checkpoint worksheet and brief Alignment plate, avatar close.",
+      "visual": "S worksheet; A3.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L07-06",
+        "start_seconds": 569.948,
+        "end_seconds": 593.264,
+        "duration_seconds": 23.316,
+        "narration_text": "The two checkpoint cards make the next decision visible to everyone who owns the work. In the next lesson, we will define the measures and write the full learning plan before results arrive. A plan becomes more trustworthy when it shows where it can change.",
+        "handoff_visual": "S worksheet; A3.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives pause/resume for each decision.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c013.xhtml",
+          "c014.xhtml"
+        ],
+        "scene_source": "Ch10, “Make Learning the Only Guaranteed Deliverable,” “Design with Triggers, Not Commitments,” “Bottom Line” (`c013.xhtml`); Ch11, “The Questions That Changed Everything” (`c014.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L07-06:394d030424d8d190",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 3.448,
+      "text": "The quarter is full before it starts.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 3.448,
+      "end": 7.882,
+      "text": "A new first-task card is due in two weeks.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 7.882,
+      "end": 11.823,
+      "text": "A reminder system is penciled in after that.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 11.823,
+      "end": 17.241,
+      "text": "Someone has promised a dashboard by the end of the month.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 17.241,
+      "end": 28.079,
+      "text": "The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task?",
+      "scene": "L07-01"
+    },
+    {
+      "start": 28.079,
+      "end": 32.02,
+      "text": "Our feedback ledger gave us a possible explanation.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 32.02,
+      "end": 35.961,
+      "text": "The roadmap bet gave us a small test.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 35.961,
+      "end": 41.379,
+      "text": "Chapter Ten asks us to put the learning beside the delivery.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 41.379,
+      "end": 51.724,
+      "text": "Write the outcome we seek at the top: a member can understand and begin the first task without staff translating it.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 51.724,
+      "end": 56.158,
+      "text": "Under that, write what we need to learn first.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 56.158,
+      "end": 61.084,
+      "text": "Is the barrier unclear instruction, weak confirmation, or something else?",
+      "scene": "L07-01"
+    },
+    {
+      "start": 61.084,
+      "end": 66.01,
+      "text": "A feature date can tell us when work will ship.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 66.01,
+      "end": 75.369,
+      "text": "A learning checkpoint tells us when we will inspect what the work taught us and decide whether to continue.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 75.369,
+      "end": 81.773,
+      "text": "Let us build two checkpoints for the membership service we have been following.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 81.773,
+      "end": 86.207,
+      "text": "We are planning the questions before any member responds.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 86.207,
+      "end": 91.626,
+      "text": "Keep the dates visible, but make each date earn a question.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 91.626,
+      "end": 100,
+      "text": "Otherwise a team can meet every deadline while its original uncertainty travels untouched into the next quarter.",
+      "scene": "L07-01"
+    },
+    {
+      "start": 100,
+      "end": 102.451,
+      "text": "Checkpoint one is a diagnosis.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 102.451,
+      "end": 110.294,
+      "text": "The question is whether new members understand the first instruction and the purpose of the task.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 110.294,
+      "end": 118.627,
+      "text": "The method could be a small observation of the starting moment, paired with the original feedback IDs.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 118.627,
+      "end": 123.529,
+      "text": "The owner schedules the review before a larger build begins.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 123.529,
+      "end": 132.843,
+      "text": "If participants can explain the action but cannot tell whether pressing begin worked, confirmation becomes the stronger next question.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 132.843,
+      "end": 140.196,
+      "text": "If they cannot explain what the task is for, the instruction and purpose deserve attention.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 140.196,
+      "end": 148.529,
+      "text": "If both are clear, we reopen the problem instead of forcing one of our planned features through.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 148.529,
+      "end": 150.98,
+      "text": "Write those possible adjustments now.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 150.98,
+      "end": 156.373,
+      "text": "This is what the book means by making learning a deliverable.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 156.373,
+      "end": 164.216,
+      "text": "The team is accountable for running a sound test, reviewing the evidence, and recording a decision.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 164.216,
+      "end": 169.608,
+      "text": "It cannot honestly guarantee the customer outcome before seeing what happens.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 169.608,
+      "end": 173.039,
+      "text": "Keep the method proportionate to the question.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 173.039,
+      "end": 178.922,
+      "text": "A team walkthrough can catch confusing copy before a participant sees it.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 178.922,
+      "end": 182.353,
+      "text": "It cannot tell us how members behave.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 182.353,
+      "end": 191.667,
+      "text": "For that, invite people through a consented research process and keep their notes where your team protects customer information.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 191.667,
+      "end": 200,
+      "text": "It is a blueprint for the decision, with enough detail to let another person run the checkpoint.",
+      "scene": "L07-02"
+    },
+    {
+      "start": 200,
+      "end": 206.0,
+      "text": "Checkpoint two follows only if the first review supports the instruction hypothesis.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 206.0,
+      "end": 213.5,
+      "text": "The team tests the smaller first-task card against the existing version in a planned study.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 213.5,
+      "end": 217.5,
+      "text": "Before observing anyone, define what “clear enough” means.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 217.5,
+      "end": 227.5,
+      "text": "In a moderated task, can the person identify the next action and say why it matters without a staff explanation?",
+      "scene": "L07-03"
+    },
+    {
+      "start": 227.5,
+      "end": 231.0,
+      "text": "What happens when the start action fails?",
+      "scene": "L07-03"
+    },
+    {
+      "start": 231.0,
+      "end": 242.0,
+      "text": "Record the observation method, the number and type of participants the study can responsibly support, and the date the team will decide.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 242.0,
+      "end": 252.5,
+      "text": "The exact threshold is a local design choice for the real test; we will not invent one and call it evidence.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 252.5,
+      "end": 279.0,
+      "text": "On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 279.0,
+      "end": 284.5,
+      "text": "The roadmap now shows a delivery task and two learning reviews.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 284.5,
+      "end": 287.5,
+      "text": "People can still plan engineering time.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 287.5,
+      "end": 293.0,
+      "text": "They can also see where a result may change that plan.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 293.0,
+      "end": 300,
+      "text": "That is more useful than a date that only asks whether the ticket closed.",
+      "scene": "L07-03"
+    },
+    {
+      "start": 300,
+      "end": 305.208,
+      "text": "Chapter Eleven tells a story about Sam and her team.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 305.208,
+      "end": 311.458,
+      "text": "A junior product manager brings an unfinished idea into the team channel.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 311.458,
+      "end": 315.625,
+      "text": "Sam expects to step in and shape it.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 315.625,
+      "end": 327.604,
+      "text": "Instead, colleagues ask what customer outcome the idea addresses, whether the job has been validated, and what they would learn by testing it.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 327.604,
+      "end": 333.854,
+      "text": "The point of that moment is not that every conversation became perfect.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 333.854,
+      "end": 345.833,
+      "text": "It is that the team had a shared way to examine an idea without waiting for one leader to supply all the judgment.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 345.833,
+      "end": 350.521,
+      "text": "I am using Sam as the book's narrative illustration.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 350.521,
+      "end": 355.208,
+      "text": "That moment belongs to Sam’s story in the book.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 355.208,
+      "end": 363.542,
+      "text": "In the story, the team also stops treating sunk cost as a reason to keep building.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 363.542,
+      "end": 373.958,
+      "text": "That matters because a learning checkpoint only works if the people in the room can act on what they find.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 373.958,
+      "end": 382.812,
+      "text": "If the review date arrives and everyone is afraid to change the plan, the checkpoint is decoration.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 382.812,
+      "end": 391.146,
+      "text": "Put the owner, evidence, and possible adjustment on the roadmap where the team can see them.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 391.146,
+      "end": 400,
+      "text": "Make the question normal enough for engineering, design, support, and leadership to use in their own words.",
+      "scene": "L07-04"
+    },
+    {
+      "start": 400,
+      "end": 407.614,
+      "text": "The book gives Sam's team a test that does not support the feature they built.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 407.614,
+      "end": 413.706,
+      "text": "They try document previews, expecting people to find the right file faster.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 413.706,
+      "end": 418.782,
+      "text": "The review points them toward a different need: better search.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 418.782,
+      "end": 422.843,
+      "text": "The team records the learning and changes direction.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 422.843,
+      "end": 430.964,
+      "text": "What matters for us is how the team responded when the test challenged its original bet.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 430.964,
+      "end": 432.995,
+      "text": "Look at the sequence.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 432.995,
+      "end": 435.025,
+      "text": "They stated a hypothesis.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 435.025,
+      "end": 438.579,
+      "text": "They chose a signal and review point.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 438.579,
+      "end": 440.609,
+      "text": "They inspected the result.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 440.609,
+      "end": 446.193,
+      "text": "Then they asked what the result meant for the user's job.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 446.193,
+      "end": 456.345,
+      "text": "A low number by itself would not tell them whether the feature was hidden, unwanted, or solving the wrong task.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 456.345,
+      "end": 458.376,
+      "text": "The follow-up conversation mattered.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 458.376,
+      "end": 461.929,
+      "text": "Apply that discipline to our membership example.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 461.929,
+      "end": 472.589,
+      "text": "If the first-task card gets used but members still need staff help, do not declare success because the card was opened.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 472.589,
+      "end": 479.188,
+      "text": "If people never reach it, check the entry path before judging its wording.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 479.188,
+      "end": 485.279,
+      "text": "If the instruction helps but the next step fails, write that down.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 485.279,
+      "end": 492.386,
+      "text": "The team can hold delivery accountable and still let evidence change the next bet.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 492.386,
+      "end": 500,
+      "text": "That is a practical promise to the people who have to live with the roadmap.",
+      "scene": "L07-05"
+    },
+    {
+      "start": 500,
+      "end": 507.254,
+      "text": "Pause and choose one delivery milestone from your own plan or from our example.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 507.254,
+      "end": 510.363,
+      "text": "Add two learning checkpoints beside it.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 510.363,
+      "end": 521.762,
+      "text": "For each checkpoint, write the question, the evidence you will use, the owner, the review date, and the adjustment you could make.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 521.762,
+      "end": 527.461,
+      "text": "The first should reduce uncertainty before the team commits too much.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 527.461,
+      "end": 531.606,
+      "text": "The second should inspect the smallest useful test.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 531.606,
+      "end": 540.933,
+      "text": "If a result would never change the plan, rewrite the question until the review has a real consequence.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 540.933,
+      "end": 551.295,
+      "text": "Resume when you can tell a teammate what you will know at each date and what you may do differently.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 551.295,
+      "end": 556.477,
+      "text": "Use information you have permission to share on this worksheet.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 556.477,
+      "end": 560.622,
+      "text": "Keep participant notes in your team’s research system.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 560.622,
+      "end": 569.948,
+      "text": "Your decision file now has a source trail, a living product handoff, and a roadmap that can learn.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 569.948,
+      "end": 577.72,
+      "text": "The two checkpoint cards make the next decision visible to everyone who owns the work.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 577.72,
+      "end": 587.047,
+      "text": "In the next lesson, we will define the measures and write the full learning plan before results arrive.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 587.047,
+      "end": 593.264,
+      "text": "A plan becomes more trustworthy when it shows where it can change.",
+      "scene": "L07-06"
+    },
+    {
+      "start": 593.264,
+      "end": 600,
+      "text": "The date is useful because someone has agreed to look, listen, and decide.",
+      "scene": "L07-06"
+    }
+  ],
+  "assets": {
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 08:30. Convert one delivery milestone into a two-checkpoint learning roadmap. Record a question, evidence method, owner, review date, and possible adjustment for each checkpoint. Resume when both reviews can alter a named decision. Keep private participant data out of the workshop file and use only public, synthetic, or approved inputs.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 28.079,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 28.079,
+      "end_seconds": 200,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 200,
+      "end_seconds": 217.5,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 217.5,
+      "end_seconds": 400,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 400,
+      "end_seconds": 418.782,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 418.782,
+      "end_seconds": 569.948,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 569.948,
+      "end_seconds": 593.264,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 593.264,
+      "end_seconds": 600,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "publication_authorization": null,
+    "external_send_authorization": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L07-01",
+        "start_seconds": 0,
+        "end_seconds": 28.079,
+        "duration_seconds": 28.079,
+        "narration_text": "The quarter is full before it starts. A new first-task card is due in two weeks. A reminder system is penciled in after that. Someone has promised a dashboard by the end of the month. The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task?",
+        "handoff_visual": "S quarter plan.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L07-03",
+        "start_seconds": 200,
+        "end_seconds": 217.5,
+        "duration_seconds": 17.5,
+        "narration_text": "Checkpoint two follows only if the first review supports the instruction hypothesis. The team tests the smaller first-task card against the existing version in a planned study. Before observing anyone, define what “clear enough” means.",
+        "handoff_visual": "S card and prototype.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L07-05",
+        "start_seconds": 400,
+        "end_seconds": 418.782,
+        "duration_seconds": 18.782,
+        "narration_text": "The book gives Sam's team a test that does not support the feature they built. They try document previews, expecting people to find the right file faster. The review points them toward a different need: better search.",
+        "handoff_visual": "S book-derived cards; no figures.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L07-06",
+        "start_seconds": 569.948,
+        "end_seconds": 593.264,
+        "duration_seconds": 23.316,
+        "narration_text": "The two checkpoint cards make the next decision visible to everyone who owns the work. In the next lesson, we will define the measures and write the full learning plan before results arrive. A plan becomes more trustworthy when it shows where it can change.",
+        "handoff_visual": "S worksheet; A3.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

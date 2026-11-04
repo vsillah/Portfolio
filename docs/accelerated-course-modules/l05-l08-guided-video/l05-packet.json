@@ -1,0 +1,1016 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L05",
+  "title": "From feedback to signal",
+  "runtime_seconds": 600,
+  "learner_artifact": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L05.md",
+  "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "7b2a96126a5997c3baf67a4fdc39050259c57e07ddf303bc1228eedb043e6533",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c010.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L05-01",
+      "title": "A full inbox and an empty decision",
+      "start_seconds": 0,
+      "end_seconds": 100,
+      "narration": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full, and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change. In Chapter Seven of Accelerated, discovery begins by asking what job people are trying to do when the trouble appears. That means keeping the original words close enough to check our interpretation. Imagine six notes from a membership service. Each has an ID, a moment, and a short comment. We can practice the method with them before applying it to interviews. The decision in our file is whether to improve the first task, add reminders, or investigate another barrier. Before grouping anything, write that decision above the notes. It gives the analysis a purpose. Then ask what evidence would make one of those paths more sensible than the others. A theme is useful only when it helps answer a real choice. The Signals plate is a map of that movement. We start with what people said, examine the situation behind it, and carry a narrower question into the next test.",
+      "narration_sha256": "6325d5f35d453d7cb0b656fdbaeead0ba979779d49fb2882bc71b1645337f832",
+      "on_screen_copy": "Decision before theme",
+      "shot": "Avatar at inbox; six ID cards resolve to one decision question, then Signals plate.",
+      "visual": "S notes; A2.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L05-01",
+        "start_seconds": 0,
+        "end_seconds": 25.743,
+        "duration_seconds": 25.743,
+        "narration_text": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full, and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change.",
+        "handoff_visual": "S notes; A2.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration distinguishes comment count from decision evidence.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c010.xhtml"
+        ],
+        "scene_source": "Ch7, “Where This Fits in the System,” “Find the Job, Not the Quote” (`c010.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L05-01:48fdf9358e855fd4",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L05-02",
+      "title": "Keep the raw words traceable",
+      "start_seconds": 100,
+      "end_seconds": 200,
+      "narration": "Look at the first two notes. F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed. Their moments are different. The first person needs confirmation that an action worked. The second needs a reliable place to resume. If we label both “performance,” we may build the wrong fix. Give each row an input ID, the exact comment, the task underway, and a proposed job statement. Leave the job statement open to correction. We have not asked a person what they meant. The ID matters because a colleague can return to the note and challenge our reading. Add F zero three, who says the instructions are too long, and F zero four, who says a staff member explained the task in one sentence. Those notes may point to an instruction problem. They may also reflect different circumstances. Chapter Seven uses case structuring to move from anecdote to decision insight. Structuring is not sanding away the detail. It is a way to compare situations without losing the path back to the evidence. If a summary drops the IDs, the team loses that path. Keep the source beside every interpretation.",
+      "narration_sha256": "dcd5645e25a2e29efbc0aa646ace2250bd0108a8a6cbf6821e269cd67d7b86c7",
+      "on_screen_copy": "F01–F06 · words / moment / possible job",
+      "shot": "F01–F06 become ledger rows; raw wording stays adjacent to proposed job.",
+      "visual": "S ledger, no real feedback.",
+      "asset_refs": [],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Read F01 and F02 aloud; do not rely on color coding.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c010.xhtml"
+        ],
+        "scene_source": "Ch7, “Find the Job, Not the Quote,” “Structure Your Raw Feedback” (`c010.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L05-02:48fdf9358e855fd4",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L05-03",
+      "title": "One complaint can hide several jobs",
+      "start_seconds": 200,
+      "end_seconds": 300,
+      "narration": "The book has a useful warning here. In the “Just Make It Faster” case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views. The response to one need would not solve the others. I am treating that as a case from the book, not as a measurement of any tool we are showing today. In our example, F zero one belongs under confirmation. F zero two belongs under resume. F zero three and F zero four may belong under instruction clarity. Keep those groups provisional. Now read F zero five: “The first task loaded quickly, but I did not know whether it mattered.” That is a counterexample to the easy “speed” label and a clue about purpose. If we ignored it, we could make a fast page that still leaves someone stranded. F zero six says, “I started after the welcome email showed the first step.” That may support a clearer entry point, but one note cannot establish a general pattern. Ask what the people were trying to accomplish and where the workflow made that harder. The answer should lead toward a question the team can actually test.",
+      "narration_sha256": "830469b12045fc1938baa3e7133131ab4a5232e97f2b226122c422a3e2a0e29c",
+      "on_screen_copy": "One complaint, several jobs",
+      "shot": "Book-case heading, then confirmation/resume/instruction comparison.",
+      "visual": "S cards sourced to Ch7; no book-case numbers.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A02",
+        "scene": "L05-03",
+        "start_seconds": 200,
+        "end_seconds": 223.256,
+        "duration_seconds": 23.256,
+        "narration_text": "The book has a useful warning here. In the “Just Make It Faster” case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views.",
+        "handoff_visual": "S cards sourced to Ch7; no book-case numbers.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the distinct jobs and synthetic counterexample.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c010.xhtml"
+        ],
+        "scene_source": "Ch7, “A Real Example: The \\\"Just Make It Faster\\\" Problem,” “Structure Your Raw Feedback” (`c010.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L05-03:48fdf9358e855fd4",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L05-04",
+      "title": "A machine can cluster; a person must inspect",
+      "start_seconds": 300,
+      "end_seconds": 400,
+      "narration": "Suppose a safe local draft groups F zero one through F zero five under “slow onboarding.” It sounds confident. Look at F zero five again. The page loaded quickly. The person did not understand why the task mattered. The draft has collapsed a meaning problem into a timing problem. Move that row back and record why. A tool can help sort a large set, suggest job statements, or point to questions the team has missed. In the book, that is an accelerator for discovery. The review still belongs to people who can check source, context, consent, and consequence. With private or restricted feedback, do not paste raw records into an external model without an approved data path. We can practice with the six notes in front of us. When your team uses its own feedback, keep consent, source, and context attached to each record. A polished cluster chart can make the room feel certain before the evidence is strong. Chapter Seven calls that danger feedback theater. The correction we just made is small, but it changes the possible product choice. We might test whether clearer purpose and confirmation help people begin. We would not claim that faster loading is the answer merely because the summary used the word “slow.”",
+      "narration_sha256": "762453a6df08a43ac9de22c1af9af73d01380af1d81e11ae053a4f989eb91460",
+      "on_screen_copy": "Check the source before accepting a cluster",
+      "shot": "Draft misgroups F01; human review returns to original note and corrects row.",
+      "visual": "S local draft and correction.",
+      "asset_refs": [],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration explains why the classification changed.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c010.xhtml"
+        ],
+        "scene_source": "Ch7, “Accelerate With AI,” “Pair It With an Automation Tool to Accelerate Faster,” “A PSA About Feedback Theater” (`c010.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L05-04:48fdf9358e855fd4",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L05-05",
+      "title": "Make one opportunity testable",
+      "start_seconds": 400,
+      "end_seconds": 500,
+      "narration": "Our six notes support a question, not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation, and one suggests an entry point that helped. That is too little to rank the needs of a real membership program. It is enough to practice the decision path. Write the proposed pattern as “people may hesitate at the first task when they cannot see what to do or why it matters.” Attach F zero three, F zero four, and F zero five. Keep F zero one visible as a competing confirmation need. The proposed decision is to test a clearer first-task card before committing to a reminder system. The next step could be a short observation with participants who agree to take part. First, a team walkthrough can catch obvious confusion in the card. Then participant evidence can show how people actually behave. The book's discovery loop moves through collecting, synthesizing, prioritizing, validating, and archiving learning. We are at the synthesis step. We have not validated an outcome. Link this ledger to the living persona card from the last lesson, then write the question that would change the decision. If members understand the card yet still hesitate, we need to look elsewhere.",
+      "narration_sha256": "f4ad705f8ec73db9541e9f8a38d3a1e30febc00704305c14e5804fd0df2370d6",
+      "on_screen_copy": "Pattern · counterexample · proposed decision",
+      "shot": "Pattern, contrary note, and proposed decision link to living persona.",
+      "visual": "S ledger and L04 card.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A03",
+        "scene": "L05-05",
+        "start_seconds": 400,
+        "end_seconds": 417.453,
+        "duration_seconds": 17.453,
+        "narration_text": "Our six notes support a question, not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation, and one suggests an entry point that helped.",
+        "handoff_visual": "S ledger and L04 card.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration says the sample cannot rank real needs.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c010.xhtml"
+        ],
+        "scene_source": "Ch7, “The Full Discovery Loop,” “Focus the Problem Space” (`c010.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L05-05:48fdf9358e855fd4",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L05-06",
+      "title": "Leave room for the contrary note",
+      "start_seconds": 500,
+      "end_seconds": 600,
+      "narration": "Pause and code the six notes. Put each ID beside its raw wording. Add the moment, a possible job, and the group you would test. Mark at least one note that resists your favorite explanation. Then write a pattern in cautious language and name the decision it could affect. Resume when someone else could trace your recommendation back to the input rows and see where you might be wrong. If you use your own material, choose records you have permission to share. Keep names and contact details in your team’s research system, away from this worksheet. This ledger is another page in your decision file. It carries the original signal forward without pretending a small sample is a finding. The temptation is to end with a crisp theme and move immediately to a feature. Stay one step longer. Ask whose job this describes, who may be absent from the notes, and what observation would challenge it. You can make a decision under uncertainty as long as the uncertainty travels with it. In the next lesson, this proposed choice enters a roadmap and then a product requirements document. If the source disappears along that path, the team may build a polished answer to a question nobody asked. Keep the ID in view.",
+      "narration_sha256": "488cf1fde7f2ab1682af7dfd834871ebb0050af0872d2b311df7e4b146e8af8b",
+      "on_screen_copy": "Pause: code six notes, keep one contrary note",
+      "shot": "Learner completes ledger; brief Alignment transition and avatar close.",
+      "visual": "S worksheet; A3.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L05-06",
+        "start_seconds": 573.934,
+        "end_seconds": 588.626,
+        "duration_seconds": 14.692,
+        "narration_text": "You can make a decision under uncertainty as long as the uncertainty travels with it. In the next lesson, this proposed choice enters a roadmap and then a product requirements document.",
+        "handoff_visual": "S worksheet; A3.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives pause/resume and limits of the evidence.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c010.xhtml"
+        ],
+        "scene_source": "Ch7, “The Full Discovery Loop,” “A PSA About Feedback Theater,” “Bottom Line” (`c010.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L05-06:48fdf9358e855fd4",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 1.98,
+      "text": "The comments keep coming.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 1.98,
+      "end": 5.446,
+      "text": "One person says the service is slow.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 5.446,
+      "end": 8.911,
+      "text": "Another says it is hard to start.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 8.911,
+      "end": 10.891,
+      "text": "Someone wants a reminder.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 10.891,
+      "end": 15.842,
+      "text": "The inbox is full, and the roadmap meeting is tomorrow.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 15.842,
+      "end": 18.317,
+      "text": "You can count the comments.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 18.317,
+      "end": 22.277,
+      "text": "You can paste them into a summary tool.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 22.277,
+      "end": 25.743,
+      "text": "Neither action tells you what to change.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 25.743,
+      "end": 35.644,
+      "text": "In Chapter Seven of Accelerated, discovery begins by asking what job people are trying to do when the trouble appears.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 35.644,
+      "end": 41.584,
+      "text": "That means keeping the original words close enough to check our interpretation.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 41.584,
+      "end": 45.05,
+      "text": "Imagine six notes from a membership service.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 45.05,
+      "end": 50.0,
+      "text": "Each has an ID, a moment, and a short comment.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 50.0,
+      "end": 55.941,
+      "text": "We can practice the method with them before applying it to interviews.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 55.941,
+      "end": 64.851,
+      "text": "The decision in our file is whether to improve the first task, add reminders, or investigate another barrier.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 64.851,
+      "end": 69.307,
+      "text": "Before grouping anything, write that decision above the notes.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 69.307,
+      "end": 72.277,
+      "text": "It gives the analysis a purpose.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 72.277,
+      "end": 79.703,
+      "text": "Then ask what evidence would make one of those paths more sensible than the others.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 79.703,
+      "end": 85.644,
+      "text": "A theme is useful only when it helps answer a real choice.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 85.644,
+      "end": 90.099,
+      "text": "The Signals plate is a map of that movement.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 90.099,
+      "end": 100,
+      "text": "We start with what people said, examine the situation behind it, and carry a narrower question into the next test.",
+      "scene": "L05-01"
+    },
+    {
+      "start": 100,
+      "end": 102.791,
+      "text": "Look at the first two notes.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 102.791,
+      "end": 120.465,
+      "text": "F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 120.465,
+      "end": 122.326,
+      "text": "Their moments are different.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 122.326,
+      "end": 126.512,
+      "text": "The first person needs confirmation that an action worked.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 126.512,
+      "end": 130.233,
+      "text": "The second needs a reliable place to resume.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 130.233,
+      "end": 135.349,
+      "text": "If we label both “performance,” we may build the wrong fix.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 135.349,
+      "end": 143.256,
+      "text": "Give each row an input ID, the exact comment, the task underway, and a proposed job statement.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 143.256,
+      "end": 146.512,
+      "text": "Leave the job statement open to correction.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 146.512,
+      "end": 150.698,
+      "text": "We have not asked a person what they meant.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 150.698,
+      "end": 157.674,
+      "text": "The ID matters because a colleague can return to the note and challenge our reading.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 157.674,
+      "end": 169.767,
+      "text": "Add F zero three, who says the instructions are too long, and F zero four, who says a staff member explained the task in one sentence.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 169.767,
+      "end": 173.488,
+      "text": "Those notes may point to an instruction problem.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 173.488,
+      "end": 176.279,
+      "text": "They may also reflect different circumstances.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 176.279,
+      "end": 181.86,
+      "text": "Chapter Seven uses case structuring to move from anecdote to decision insight.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 181.86,
+      "end": 185.116,
+      "text": "Structuring is not sanding away the detail.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 185.116,
+      "end": 192.093,
+      "text": "It is a way to compare situations without losing the path back to the evidence.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 192.093,
+      "end": 197.209,
+      "text": "If a summary drops the IDs, the team loses that path.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 197.209,
+      "end": 200,
+      "text": "Keep the source beside every interpretation.",
+      "scene": "L05-02"
+    },
+    {
+      "start": 200,
+      "end": 203.256,
+      "text": "The book has a useful warning here.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 203.256,
+      "end": 211.163,
+      "text": "In the “Just Make It Faster” case, a team received feedback that sounded like one performance complaint.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 211.163,
+      "end": 223.256,
+      "text": "When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 223.256,
+      "end": 227.907,
+      "text": "The response to one need would not solve the others.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 227.907,
+      "end": 237.674,
+      "text": "I am treating that as a case from the book, not as a measurement of any tool we are showing today.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 237.674,
+      "end": 241.86,
+      "text": "In our example, F zero one belongs under confirmation.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 241.86,
+      "end": 244.651,
+      "text": "F zero two belongs under resume.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 244.651,
+      "end": 250.233,
+      "text": "F zero three and F zero four may belong under instruction clarity.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 250.233,
+      "end": 252.093,
+      "text": "Keep those groups provisional.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 252.093,
+      "end": 266.977,
+      "text": "Now read F zero five: “The first task loaded quickly, but I did not know whether it mattered.” That is a counterexample to the easy “speed” label and a clue about purpose.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 266.977,
+      "end": 273.953,
+      "text": "If we ignored it, we could make a fast page that still leaves someone stranded.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 273.953,
+      "end": 287.442,
+      "text": "F zero six says, “I started after the welcome email showed the first step.” That may support a clearer entry point, but one note cannot establish a general pattern.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 287.442,
+      "end": 294.419,
+      "text": "Ask what the people were trying to accomplish and where the workflow made that harder.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 294.419,
+      "end": 300,
+      "text": "The answer should lead toward a question the team can actually test.",
+      "scene": "L05-03"
+    },
+    {
+      "start": 300,
+      "end": 309.091,
+      "text": "Suppose a safe local draft groups F zero one through F zero five under “slow onboarding.” It sounds confident.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 309.091,
+      "end": 311.962,
+      "text": "Look at F zero five again.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 311.962,
+      "end": 313.876,
+      "text": "The page loaded quickly.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 313.876,
+      "end": 318.182,
+      "text": "The person did not understand why the task mattered.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 318.182,
+      "end": 323.445,
+      "text": "The draft has collapsed a meaning problem into a timing problem.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 323.445,
+      "end": 326.794,
+      "text": "Move that row back and record why.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 326.794,
+      "end": 335.885,
+      "text": "A tool can help sort a large set, suggest job statements, or point to questions the team has missed.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 335.885,
+      "end": 340.191,
+      "text": "In the book, that is an accelerator for discovery.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 340.191,
+      "end": 346.89,
+      "text": "The review still belongs to people who can check source, context, consent, and consequence.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 346.89,
+      "end": 355.981,
+      "text": "With private or restricted feedback, do not paste raw records into an external model without an approved data path.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 355.981,
+      "end": 361.244,
+      "text": "We can practice with the six notes in front of us.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 361.244,
+      "end": 368.9,
+      "text": "When your team uses its own feedback, keep consent, source, and context attached to each record.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 368.9,
+      "end": 376.077,
+      "text": "A polished cluster chart can make the room feel certain before the evidence is strong.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 376.077,
+      "end": 379.426,
+      "text": "Chapter Seven calls that danger feedback theater.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 379.426,
+      "end": 386.124,
+      "text": "The correction we just made is small, but it changes the possible product choice.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 386.124,
+      "end": 391.388,
+      "text": "We might test whether clearer purpose and confirmation help people begin.",
+      "scene": "L05-04"
+    },
+    {
+      "start": 391.388,
+      "end": 400,
+      "text": "We would not claim that faster loading is the answer merely because the summary used the word “slow.”",
+      "scene": "L05-04"
+    },
+    {
+      "start": 400,
+      "end": 404.245,
+      "text": "Our six notes support a question, not a verdict.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 404.245,
+      "end": 407.075,
+      "text": "Two notes point toward instruction clarity.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 407.075,
+      "end": 409.434,
+      "text": "One points toward action confirmation.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 409.434,
+      "end": 411.321,
+      "text": "One points toward resuming.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 411.321,
+      "end": 417.453,
+      "text": "One challenges the speed explanation, and one suggests an entry point that helped.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 417.453,
+      "end": 423.585,
+      "text": "That is too little to rank the needs of a real membership program.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 423.585,
+      "end": 427.358,
+      "text": "It is enough to practice the decision path.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 427.358,
+      "end": 443.396,
+      "text": "Write the proposed pattern as “people may hesitate at the first task when they cannot see what to do or why it matters.” Attach F zero three, F zero four, and F zero five.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 443.396,
+      "end": 448.113,
+      "text": "Keep F zero one visible as a competing confirmation need.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 448.113,
+      "end": 455.66,
+      "text": "The proposed decision is to test a clearer first-task card before committing to a reminder system.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 455.66,
+      "end": 462.736,
+      "text": "The next step could be a short observation with participants who agree to take part.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 462.736,
+      "end": 467.925,
+      "text": "First, a team walkthrough can catch obvious confusion in the card.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 467.925,
+      "end": 472.17,
+      "text": "Then participant evidence can show how people actually behave.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 472.17,
+      "end": 478.302,
+      "text": "The book's discovery loop moves through collecting, synthesizing, prioritizing, validating, and archiving learning.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 478.302,
+      "end": 481.132,
+      "text": "We are at the synthesis step.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 481.132,
+      "end": 483.962,
+      "text": "We have not validated an outcome.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 483.962,
+      "end": 493.868,
+      "text": "Link this ledger to the living persona card from the last lesson, then write the question that would change the decision.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 493.868,
+      "end": 500,
+      "text": "If members understand the card yet still hesitate, we need to look elsewhere.",
+      "scene": "L05-05"
+    },
+    {
+      "start": 500,
+      "end": 502.844,
+      "text": "Pause and code the six notes.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 502.844,
+      "end": 506.161,
+      "text": "Put each ID beside its raw wording.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 506.161,
+      "end": 511.848,
+      "text": "Add the moment, a possible job, and the group you would test.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 511.848,
+      "end": 516.588,
+      "text": "Mark at least one note that resists your favorite explanation.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 516.588,
+      "end": 523.223,
+      "text": "Then write a pattern in cautious language and name the decision it could affect.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 523.223,
+      "end": 532.701,
+      "text": "Resume when someone else could trace your recommendation back to the input rows and see where you might be wrong.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 532.701,
+      "end": 538.863,
+      "text": "If you use your own material, choose records you have permission to share.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 538.863,
+      "end": 545.498,
+      "text": "Keep names and contact details in your team’s research system, away from this worksheet.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 545.498,
+      "end": 549.763,
+      "text": "This ledger is another page in your decision file.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 549.763,
+      "end": 556.398,
+      "text": "It carries the original signal forward without pretending a small sample is a finding.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 556.398,
+      "end": 563.507,
+      "text": "The temptation is to end with a crisp theme and move immediately to a feature.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 563.507,
+      "end": 565.403,
+      "text": "Stay one step longer.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 565.403,
+      "end": 573.934,
+      "text": "Ask whose job this describes, who may be absent from the notes, and what observation would challenge it.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 573.934,
+      "end": 581.043,
+      "text": "You can make a decision under uncertainty as long as the uncertainty travels with it.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 581.043,
+      "end": 588.626,
+      "text": "In the next lesson, this proposed choice enters a roadmap and then a product requirements document.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 588.626,
+      "end": 597.63,
+      "text": "If the source disappears along that path, the team may build a polished answer to a question nobody asked.",
+      "scene": "L05-06"
+    },
+    {
+      "start": 597.63,
+      "end": 600,
+      "text": "Keep the ID in view.",
+      "scene": "L05-06"
+    }
+  ],
+  "assets": {
+    "signals": {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "status": "approved existing art; preserve aspect ratio"
+    },
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 08:30. Code six synthetic feedback snippets F01–F06 in a feedback-to-signal ledger; retain original wording and IDs, name one provisional pattern, flag a counterexample, and state one proposed decision plus the evidence needed to change it. Resume when the ledger links to L04's living persona. Use public, synthetic, or approved input only. Private feedback and identifiable records require a separate approved, redacted workflow.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 25.743,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 25.743,
+      "end_seconds": 200,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 200,
+      "end_seconds": 223.256,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 223.256,
+      "end_seconds": 400,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 400,
+      "end_seconds": 417.453,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 417.453,
+      "end_seconds": 573.934,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 573.934,
+      "end_seconds": 588.626,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 588.626,
+      "end_seconds": 600,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "publication_authorization": null,
+    "external_send_authorization": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L05-01",
+        "start_seconds": 0,
+        "end_seconds": 25.743,
+        "duration_seconds": 25.743,
+        "narration_text": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full, and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change.",
+        "handoff_visual": "S notes; A2.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L05-03",
+        "start_seconds": 200,
+        "end_seconds": 223.256,
+        "duration_seconds": 23.256,
+        "narration_text": "The book has a useful warning here. In the “Just Make It Faster” case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views.",
+        "handoff_visual": "S cards sourced to Ch7; no book-case numbers.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L05-05",
+        "start_seconds": 400,
+        "end_seconds": 417.453,
+        "duration_seconds": 17.453,
+        "narration_text": "Our six notes support a question, not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation, and one suggests an entry point that helped.",
+        "handoff_visual": "S ledger and L04 card.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L05-06",
+        "start_seconds": 573.934,
+        "end_seconds": 588.626,
+        "duration_seconds": 14.692,
+        "narration_text": "You can make a decision under uncertainty as long as the uncertainty travels with it. In the next lesson, this proposed choice enters a roadmap and then a product requirements document.",
+        "handoff_visual": "S worksheet; A3.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

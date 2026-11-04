@@ -1,0 +1,415 @@
+1
+00:00:00,000 --> 00:00:01,980
+The comments keep coming.
+
+2
+00:00:01,980 --> 00:00:05,446
+One person says the service is slow.
+
+3
+00:00:05,446 --> 00:00:08,911
+Another says it is hard to start.
+
+4
+00:00:08,911 --> 00:00:10,891
+Someone wants a reminder.
+
+5
+00:00:10,891 --> 00:00:15,842
+The inbox is full, and the roadmap meeting is tomorrow.
+
+6
+00:00:15,842 --> 00:00:18,317
+You can count the comments.
+
+7
+00:00:18,317 --> 00:00:22,277
+You can paste them into a summary tool.
+
+8
+00:00:22,277 --> 00:00:25,743
+Neither action tells you what to change.
+
+9
+00:00:25,743 --> 00:00:35,644
+In Chapter Seven of Accelerated, discovery begins by asking what job people are trying to do when the trouble appears.
+
+10
+00:00:35,644 --> 00:00:41,584
+That means keeping the original words close enough to check our interpretation.
+
+11
+00:00:41,584 --> 00:00:45,050
+Imagine six notes from a membership service.
+
+12
+00:00:45,050 --> 00:00:50,000
+Each has an ID, a moment, and a short comment.
+
+13
+00:00:50,000 --> 00:00:55,941
+We can practice the method with them before applying it to interviews.
+
+14
+00:00:55,941 --> 00:01:04,851
+The decision in our file is whether to improve the first task, add reminders, or investigate another barrier.
+
+15
+00:01:04,851 --> 00:01:09,307
+Before grouping anything, write that decision above the notes.
+
+16
+00:01:09,307 --> 00:01:12,277
+It gives the analysis a purpose.
+
+17
+00:01:12,277 --> 00:01:19,703
+Then ask what evidence would make one of those paths more sensible than the others.
+
+18
+00:01:19,703 --> 00:01:25,644
+A theme is useful only when it helps answer a real choice.
+
+19
+00:01:25,644 --> 00:01:30,099
+The Signals plate is a map of that movement.
+
+20
+00:01:30,099 --> 00:01:40,000
+We start with what people said, examine the situation behind it, and carry a narrower question into the next test.
+
+21
+00:01:40,000 --> 00:01:42,791
+Look at the first two notes.
+
+22
+00:01:42,791 --> 00:02:00,465
+F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.
+
+23
+00:02:00,465 --> 00:02:02,326
+Their moments are different.
+
+24
+00:02:02,326 --> 00:02:06,512
+The first person needs confirmation that an action worked.
+
+25
+00:02:06,512 --> 00:02:10,233
+The second needs a reliable place to resume.
+
+26
+00:02:10,233 --> 00:02:15,349
+If we label both “performance,” we may build the wrong fix.
+
+27
+00:02:15,349 --> 00:02:23,256
+Give each row an input ID, the exact comment, the task underway, and a proposed job statement.
+
+28
+00:02:23,256 --> 00:02:26,512
+Leave the job statement open to correction.
+
+29
+00:02:26,512 --> 00:02:30,698
+We have not asked a person what they meant.
+
+30
+00:02:30,698 --> 00:02:37,674
+The ID matters because a colleague can return to the note and challenge our reading.
+
+31
+00:02:37,674 --> 00:02:49,767
+Add F zero three, who says the instructions are too long, and F zero four, who says a staff member explained the task in one sentence.
+
+32
+00:02:49,767 --> 00:02:53,488
+Those notes may point to an instruction problem.
+
+33
+00:02:53,488 --> 00:02:56,279
+They may also reflect different circumstances.
+
+34
+00:02:56,279 --> 00:03:01,860
+Chapter Seven uses case structuring to move from anecdote to decision insight.
+
+35
+00:03:01,860 --> 00:03:05,116
+Structuring is not sanding away the detail.
+
+36
+00:03:05,116 --> 00:03:12,093
+It is a way to compare situations without losing the path back to the evidence.
+
+37
+00:03:12,093 --> 00:03:17,209
+If a summary drops the IDs, the team loses that path.
+
+38
+00:03:17,209 --> 00:03:20,000
+Keep the source beside every interpretation.
+
+39
+00:03:20,000 --> 00:03:23,256
+The book has a useful warning here.
+
+40
+00:03:23,256 --> 00:03:31,163
+In the “Just Make It Faster” case, a team received feedback that sounded like one performance complaint.
+
+41
+00:03:31,163 --> 00:03:43,256
+When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views.
+
+42
+00:03:43,256 --> 00:03:47,907
+The response to one need would not solve the others.
+
+43
+00:03:47,907 --> 00:03:57,674
+I am treating that as a case from the book, not as a measurement of any tool we are showing today.
+
+44
+00:03:57,674 --> 00:04:01,860
+In our example, F zero one belongs under confirmation.
+
+45
+00:04:01,860 --> 00:04:04,651
+F zero two belongs under resume.
+
+46
+00:04:04,651 --> 00:04:10,233
+F zero three and F zero four may belong under instruction clarity.
+
+47
+00:04:10,233 --> 00:04:12,093
+Keep those groups provisional.
+
+48
+00:04:12,093 --> 00:04:26,977
+Now read F zero five: “The first task loaded quickly, but I did not know whether it mattered.” That is a counterexample to the easy “speed” label and a clue about purpose.
+
+49
+00:04:26,977 --> 00:04:33,953
+If we ignored it, we could make a fast page that still leaves someone stranded.
+
+50
+00:04:33,953 --> 00:04:47,442
+F zero six says, “I started after the welcome email showed the first step.” That may support a clearer entry point, but one note cannot establish a general pattern.
+
+51
+00:04:47,442 --> 00:04:54,419
+Ask what the people were trying to accomplish and where the workflow made that harder.
+
+52
+00:04:54,419 --> 00:05:00,000
+The answer should lead toward a question the team can actually test.
+
+53
+00:05:00,000 --> 00:05:09,091
+Suppose a safe local draft groups F zero one through F zero five under “slow onboarding.” It sounds confident.
+
+54
+00:05:09,091 --> 00:05:11,962
+Look at F zero five again.
+
+55
+00:05:11,962 --> 00:05:13,876
+The page loaded quickly.
+
+56
+00:05:13,876 --> 00:05:18,182
+The person did not understand why the task mattered.
+
+57
+00:05:18,182 --> 00:05:23,445
+The draft has collapsed a meaning problem into a timing problem.
+
+58
+00:05:23,445 --> 00:05:26,794
+Move that row back and record why.
+
+59
+00:05:26,794 --> 00:05:35,885
+A tool can help sort a large set, suggest job statements, or point to questions the team has missed.
+
+60
+00:05:35,885 --> 00:05:40,191
+In the book, that is an accelerator for discovery.
+
+61
+00:05:40,191 --> 00:05:46,890
+The review still belongs to people who can check source, context, consent, and consequence.
+
+62
+00:05:46,890 --> 00:05:55,981
+With private or restricted feedback, do not paste raw records into an external model without an approved data path.
+
+63
+00:05:55,981 --> 00:06:01,244
+We can practice with the six notes in front of us.
+
+64
+00:06:01,244 --> 00:06:08,900
+When your team uses its own feedback, keep consent, source, and context attached to each record.
+
+65
+00:06:08,900 --> 00:06:16,077
+A polished cluster chart can make the room feel certain before the evidence is strong.
+
+66
+00:06:16,077 --> 00:06:19,426
+Chapter Seven calls that danger feedback theater.
+
+67
+00:06:19,426 --> 00:06:26,124
+The correction we just made is small, but it changes the possible product choice.
+
+68
+00:06:26,124 --> 00:06:31,388
+We might test whether clearer purpose and confirmation help people begin.
+
+69
+00:06:31,388 --> 00:06:40,000
+We would not claim that faster loading is the answer merely because the summary used the word “slow.”
+
+70
+00:06:40,000 --> 00:06:44,245
+Our six notes support a question, not a verdict.
+
+71
+00:06:44,245 --> 00:06:47,075
+Two notes point toward instruction clarity.
+
+72
+00:06:47,075 --> 00:06:49,434
+One points toward action confirmation.
+
+73
+00:06:49,434 --> 00:06:51,321
+One points toward resuming.
+
+74
+00:06:51,321 --> 00:06:57,453
+One challenges the speed explanation, and one suggests an entry point that helped.
+
+75
+00:06:57,453 --> 00:07:03,585
+That is too little to rank the needs of a real membership program.
+
+76
+00:07:03,585 --> 00:07:07,358
+It is enough to practice the decision path.
+
+77
+00:07:07,358 --> 00:07:23,396
+Write the proposed pattern as “people may hesitate at the first task when they cannot see what to do or why it matters.” Attach F zero three, F zero four, and F zero five.
+
+78
+00:07:23,396 --> 00:07:28,113
+Keep F zero one visible as a competing confirmation need.
+
+79
+00:07:28,113 --> 00:07:35,660
+The proposed decision is to test a clearer first-task card before committing to a reminder system.
+
+80
+00:07:35,660 --> 00:07:42,736
+The next step could be a short observation with participants who agree to take part.
+
+81
+00:07:42,736 --> 00:07:47,925
+First, a team walkthrough can catch obvious confusion in the card.
+
+82
+00:07:47,925 --> 00:07:52,170
+Then participant evidence can show how people actually behave.
+
+83
+00:07:52,170 --> 00:07:58,302
+The book's discovery loop moves through collecting, synthesizing, prioritizing, validating, and archiving learning.
+
+84
+00:07:58,302 --> 00:08:01,132
+We are at the synthesis step.
+
+85
+00:08:01,132 --> 00:08:03,962
+We have not validated an outcome.
+
+86
+00:08:03,962 --> 00:08:13,868
+Link this ledger to the living persona card from the last lesson, then write the question that would change the decision.
+
+87
+00:08:13,868 --> 00:08:20,000
+If members understand the card yet still hesitate, we need to look elsewhere.
+
+88
+00:08:20,000 --> 00:08:22,844
+Pause and code the six notes.
+
+89
+00:08:22,844 --> 00:08:26,161
+Put each ID beside its raw wording.
+
+90
+00:08:26,161 --> 00:08:31,848
+Add the moment, a possible job, and the group you would test.
+
+91
+00:08:31,848 --> 00:08:36,588
+Mark at least one note that resists your favorite explanation.
+
+92
+00:08:36,588 --> 00:08:43,223
+Then write a pattern in cautious language and name the decision it could affect.
+
+93
+00:08:43,223 --> 00:08:52,701
+Resume when someone else could trace your recommendation back to the input rows and see where you might be wrong.
+
+94
+00:08:52,701 --> 00:08:58,863
+If you use your own material, choose records you have permission to share.
+
+95
+00:08:58,863 --> 00:09:05,498
+Keep names and contact details in your team’s research system, away from this worksheet.
+
+96
+00:09:05,498 --> 00:09:09,763
+This ledger is another page in your decision file.
+
+97
+00:09:09,763 --> 00:09:16,398
+It carries the original signal forward without pretending a small sample is a finding.
+
+98
+00:09:16,398 --> 00:09:23,507
+The temptation is to end with a crisp theme and move immediately to a feature.
+
+99
+00:09:23,507 --> 00:09:25,403
+Stay one step longer.
+
+100
+00:09:25,403 --> 00:09:33,934
+Ask whose job this describes, who may be absent from the notes, and what observation would challenge it.
+
+101
+00:09:33,934 --> 00:09:41,043
+You can make a decision under uncertainty as long as the uncertainty travels with it.
+
+102
+00:09:41,043 --> 00:09:48,626
+In the next lesson, this proposed choice enters a roadmap and then a product requirements document.
+
+103
+00:09:48,626 --> 00:09:57,630
+If the source disappears along that path, the team may build a polished answer to a question nobody asked.
+
+104
+00:09:57,630 --> 00:10:00,000
+Keep the ID in view.

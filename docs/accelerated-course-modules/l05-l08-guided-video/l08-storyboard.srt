@@ -1,0 +1,459 @@
+1
+00:00:00,000 --> 00:00:02,043
+The dashboard is green.
+
+2
+00:00:02,043 --> 00:00:05,106
+More people are opening the page.
+
+3
+00:00:05,106 --> 00:00:12,255
+The team celebrates, then support hears that members still cannot finish the first task.
+
+4
+00:00:12,255 --> 00:00:19,404
+A rising activity line did not answer the question we were trying to solve.
+
+5
+00:00:19,404 --> 00:00:29,617
+Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome.
+
+6
+00:00:29,617 --> 00:00:35,745
+The point is to choose a measure that belongs to the decision.
+
+7
+00:00:35,745 --> 00:00:41,872
+In the membership service example, the business may care about sustained participation.
+
+8
+00:00:41,872 --> 00:00:45,957
+A member cares about getting started without confusion.
+
+9
+00:00:45,957 --> 00:00:53,106
+The team can first observe whether a person identifies and begins the intended action.
+
+10
+00:00:53,106 --> 00:01:02,298
+Those are different levels of the metrics ladder in the book: business value, customer value, and near-term traction.
+
+11
+00:01:02,298 --> 00:01:07,404
+The lower step does not automatically cause the upper one.
+
+12
+00:01:07,404 --> 00:01:10,468
+We need to test the connection.
+
+13
+00:01:10,468 --> 00:01:21,191
+If page opens rise while people still ask staff what to do, the green chart is a warning, not a win.
+
+14
+00:01:21,191 --> 00:01:26,809
+Write the customer behavior in a sentence before selecting a metric.
+
+15
+00:01:26,809 --> 00:01:36,511
+For this lesson, it is: a new member understands the first task and starts it without translation from staff.
+
+16
+00:01:36,511 --> 00:01:41,617
+Now ask what observation would support or challenge that sentence.
+
+17
+00:01:41,617 --> 00:01:46,213
+A useful measure can be counted or described consistently.
+
+18
+00:01:46,213 --> 00:01:53,362
+It also needs a definition that another person can apply to the same event.
+
+19
+00:01:53,362 --> 00:02:00,000
+We will put that definition into the learning plan before seeing any result.
+
+20
+00:02:00,000 --> 00:02:04,120
+Define a successful start before the test begins.
+
+21
+00:02:04,120 --> 00:02:19,056
+For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.
+
+22
+00:02:19,056 --> 00:02:25,236
+The numerator is the number of observed participants who meet that definition.
+
+23
+00:02:25,236 --> 00:02:31,931
+The denominator is the number of eligible participants who reach the first-task moment.
+
+24
+00:02:31,931 --> 00:02:39,142
+Record exclusions before the session, such as an interrupted test or a technical outage.
+
+25
+00:02:39,142 --> 00:02:46,867
+A second observer should be able to check the same notes and understand the count.
+
+26
+00:02:46,867 --> 00:02:51,502
+That measure is close to the behavior we seek.
+
+27
+00:02:51,502 --> 00:02:54,592
+It still cannot tell us everything.
+
+28
+00:02:54,592 --> 00:03:00,773
+Ask the participant where they hesitated and what they expected to happen.
+
+29
+00:03:00,773 --> 00:03:08,498
+That qualitative note may show whether the copy, confirmation, or task itself is the problem.
+
+30
+00:03:08,498 --> 00:03:12,618
+Chapter Twelve also warns about destructive metric pairs.
+
+31
+00:03:12,618 --> 00:03:21,373
+We could maximize time spent on the first task while saying we want people to begin quickly.
+
+32
+00:03:21,373 --> 00:03:27,039
+Longer time might mean careful engagement, or it might mean confusion.
+
+33
+00:03:27,039 --> 00:03:31,159
+We need the context before celebrating either direction.
+
+34
+00:03:31,159 --> 00:03:45,579
+Pair the successful-start measure with a guardrail: the person should not have to ask staff to rescue the flow or repeat an action because the state is unclear.
+
+35
+00:03:45,579 --> 00:03:50,730
+A planned measurement cannot promise a conversion or retention lift.
+
+36
+00:03:50,730 --> 00:04:00,000
+The definition is a proposed measurement instrument; the outcome remains unknown until a test is run and reviewed.
+
+37
+00:04:00,000 --> 00:04:04,034
+Chapter Thirteen gives the learning plan ten components.
+
+38
+00:04:04,034 --> 00:04:08,067
+The first five establish what we are testing.
+
+39
+00:04:08,067 --> 00:04:11,092
+One: business problem and customer outcome.
+
+40
+00:04:11,092 --> 00:04:19,664
+Our example names the friction at the first task and the member's need to begin with confidence.
+
+41
+00:04:19,664 --> 00:04:25,210
+We will not claim a business lift from this small exercise.
+
+42
+00:04:25,210 --> 00:04:27,731
+Two: target persona or cohort.
+
+43
+00:04:27,731 --> 00:04:35,294
+Use the living persona card from lesson four: a new member at the first-task moment.
+
+44
+00:04:35,294 --> 00:04:42,857
+Add the source and the uncertainty so the card stays honest about what we know.
+
+45
+00:04:42,857 --> 00:04:44,370
+Three: hypothesis statement.
+
+46
+00:04:44,370 --> 00:04:56,975
+We believe a clearer first-task card, for a new member in that moment, will help them identify and begin the intended action without staff translation.
+
+47
+00:04:56,975 --> 00:04:58,487
+Four: experiment scope.
+
+48
+00:04:58,487 --> 00:05:08,067
+Specify the test setting, who is eligible, how long observation lasts, and which version of the card they see.
+
+49
+00:05:08,067 --> 00:05:12,605
+Exclude the reminder system and the rest of onboarding.
+
+50
+00:05:12,605 --> 00:05:15,126
+Five: metrics and success criteria.
+
+51
+00:05:15,126 --> 00:05:26,723
+Use the successful-start definition we just wrote, the qualitative hesitation notes, and a threshold set by the actual study owner before data arrives.
+
+52
+00:05:26,723 --> 00:05:28,739
+These fields belong together.
+
+53
+00:05:28,739 --> 00:05:33,782
+If the cohort is vague, a clean metric can mislead.
+
+54
+00:05:33,782 --> 00:05:41,849
+If the outcome is vague, a detailed experiment may only test whether a screen is clickable.
+
+55
+00:05:41,849 --> 00:05:47,395
+On this worksheet, leave the actual threshold marked for owner decision.
+
+56
+00:05:47,395 --> 00:05:49,412
+That blank is honest.
+
+57
+00:05:49,412 --> 00:06:00,000
+The team must fill it before running a real test; it must not choose a convenient number after looking at results.
+
+58
+00:06:00,000 --> 00:06:06,154
+The next five components keep the test from ending at a chart.
+
+59
+00:06:06,154 --> 00:06:08,718
+Six: timing and review strategy.
+
+60
+00:06:08,718 --> 00:06:18,974
+Decide when the team checks for setup problems, when it reads the observations, and when it makes the next decision.
+
+61
+00:06:18,974 --> 00:06:21,026
+Seven: triggers and tripwires.
+
+62
+00:06:21,026 --> 00:06:31,282
+State what pattern would support continuing, what would require revision, and what would make the team stop or investigate harm.
+
+63
+00:06:31,282 --> 00:06:40,000
+For our example, repeated confusion or unclear failure states would pause expansion even if some people begin.
+
+64
+00:06:40,000 --> 00:06:46,154
+The exact numerical threshold is still an owner decision before the test.
+
+65
+00:06:46,154 --> 00:06:47,692
+Eight: pivot options.
+
+66
+00:06:47,692 --> 00:06:53,846
+If members understand the card but never return, investigate the reminder path.
+
+67
+00:06:53,846 --> 00:07:01,026
+If they reach the card but cannot tell whether the action worked, test confirmation.
+
+68
+00:07:01,026 --> 00:07:04,103
+Those are possible branches, not findings.
+
+69
+00:07:04,103 --> 00:07:06,154
+Nine: future state path.
+
+70
+00:07:06,154 --> 00:07:17,436
+If the small test supports the hypothesis and passes its guardrail, name the next bounded question rather than announcing a full rollout.
+
+71
+00:07:17,436 --> 00:07:23,077
+Perhaps the team tests the same instruction with another eligible group.
+
+72
+00:07:23,077 --> 00:07:24,615
+Ten: hypothesis backlog.
+
+73
+00:07:24,615 --> 00:07:34,872
+Save the original belief, result, learning, owner, and date so the next team does not start from an empty page.
+
+74
+00:07:34,872 --> 00:07:37,436
+That is the book's order.
+
+75
+00:07:37,436 --> 00:07:45,128
+The plan carries both a decision and a memory of how the decision was made.
+
+76
+00:07:45,128 --> 00:07:49,231
+A result can be positive, negative, or inconclusive.
+
+77
+00:07:49,231 --> 00:08:00,000
+The point is that each route has a responsible next action already visible before the room gets attached to one answer.
+
+78
+00:08:00,000 --> 00:08:06,234
+Before there is any data, walk the plan through two possible results.
+
+79
+00:08:06,234 --> 00:08:14,545
+In the first, participants understand the action and begin, but several say the confirmation is unclear.
+
+80
+00:08:14,545 --> 00:08:17,662
+The successful-start measure may look promising.
+
+81
+00:08:17,662 --> 00:08:22,338
+The guardrail tells us the work is not finished.
+
+82
+00:08:22,338 --> 00:08:29,610
+We record the uncertainty and test feedback after the action before broadening the scope.
+
+83
+00:08:29,610 --> 00:08:34,805
+In the second, participants cannot explain why the task matters.
+
+84
+00:08:34,805 --> 00:08:37,922
+That result challenges the instruction itself.
+
+85
+00:08:37,922 --> 00:08:42,597
+The team revises the purpose statement and tests again.
+
+86
+00:08:42,597 --> 00:08:44,675
+These are imagined branches.
+
+87
+00:08:44,675 --> 00:08:47,792
+Both results are possibilities, not findings.
+
+88
+00:08:47,792 --> 00:08:51,948
+Notice how the metric definition changes the conversation.
+
+89
+00:08:51,948 --> 00:08:56,623
+“More opens” would let both situations hide behind activity.
+
+90
+00:08:56,623 --> 00:09:02,338
+“Understands and begins without translation” brings the actual behavior into view.
+
+91
+00:09:02,338 --> 00:09:09,610
+The qualitative note explains why a count moved and what it cannot tell us.
+
+92
+00:09:09,610 --> 00:09:18,961
+If the sample is too small, unrepresentative, or interrupted, mark the outcome inconclusive and choose a better test.
+
+93
+00:09:18,961 --> 00:09:26,234
+Chapter Twelve asks us to tie measures to hypotheses and prepare to be wrong.
+
+94
+00:09:26,234 --> 00:09:31,429
+Chapter Thirteen gives us a place to record that preparation.
+
+95
+00:09:31,429 --> 00:09:39,740
+The worksheet is useful only if a team can follow it when the answer is inconvenient.
+
+96
+00:09:39,740 --> 00:09:45,455
+Keep the threshold, exclusions, and branch choices dated before the test.
+
+97
+00:09:45,455 --> 00:09:52,208
+Then, after a real review, record what happened and what the team decided.
+
+98
+00:09:52,208 --> 00:10:00,000
+Do not rewrite the original bet to make the result look inevitable afterward to anyone.
+
+99
+00:10:00,000 --> 00:10:05,195
+Pause and complete all ten fields for one small test.
+
+100
+00:10:05,195 --> 00:10:15,065
+Start with the business problem and customer outcome, then the target cohort, hypothesis, scope, and metrics with success criteria.
+
+101
+00:10:15,065 --> 00:10:27,532
+Add timing and review strategy, triggers and tripwires, pivot options, future state path, and the hypothesis backlog entry you will fill after the review.
+
+102
+00:10:27,532 --> 00:10:37,922
+Define one measure precisely: who counts, what event counts, the observation window, exclusions, and who will inspect the raw evidence.
+
+103
+00:10:37,922 --> 00:10:45,714
+Put a guardrail beside it so a rising number cannot hide a worse customer experience.
+
+104
+00:10:45,714 --> 00:10:52,468
+Resume when the stop or pivot condition is written before any result appears.
+
+105
+00:10:52,468 --> 00:11:03,377
+If this is your project, use information you have permission to share and keep participant notes in your team’s research system.
+
+106
+00:11:03,377 --> 00:11:07,013
+Our example stays with the membership service.
+
+107
+00:11:07,013 --> 00:11:10,649
+The book's framework supplies its ten fields.
+
+108
+00:11:10,649 --> 00:11:17,922
+The loop at the end helps you follow the plan into the next decision.
+
+109
+00:11:17,922 --> 00:11:21,039
+Look back at the decision file.
+
+110
+00:11:21,039 --> 00:11:34,545
+You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results.
+
+111
+00:11:34,545 --> 00:11:38,182
+The work is still open to correction.
+
+112
+00:11:38,182 --> 00:11:41,299
+That is what makes it usable.
+
+113
+00:11:41,299 --> 00:11:50,130
+In the next module, the question moves into a decision room with other people's risks and authority.
+
+114
+00:11:50,130 --> 00:11:56,364
+Bring the evidence and the limits with you, clearly and honestly marked.
+
+115
+00:11:56,364 --> 00:12:00,000
+Let the unanswered question remain visible there.

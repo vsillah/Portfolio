@@ -1,0 +1,972 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L06",
+  "title": "Roadmap to PRD, without drift",
+  "runtime_seconds": 660,
+  "learner_artifact": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L06.md",
+  "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "7b2a96126a5997c3baf67a4fdc39050259c57e07ddf303bc1228eedb043e6533",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c011.xhtml",
+    "c012.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L06-01",
+      "title": "Three cards on the wall",
+      "start_seconds": 0,
+      "end_seconds": 110,
+      "narration": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. F zero three, F zero four, and F zero five suggest that the first task may need clearer direction and purpose. F zero one suggests another need: confirmation that an action worked. None of those six notes proves a solution. They do give us a reason to ask a better roadmap question. Chapter Eight says to turn features into bets about customer and business outcomes. A bet states what we believe will change, for whom, and how we will know. For the membership service, write: “If a clearer first-task card helps new members understand the next action, more of them should begin that task without staff translating the instruction.” That is a hypothesis, not a promise. The other two cards stay on the wall. We need a reason to choose now and a signal that would bring an alternative back. The roadmap should carry both, in words the team can remember.",
+      "narration_sha256": "6b901e61788f1cb1641118ab1d20330516023f32e1f7ff711cbf8234f6d338f9",
+      "on_screen_copy": "Three options · one current bet",
+      "shot": "Avatar and three roadmap cards beside L05 ledger.",
+      "visual": "S cards and ledger.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L06-01",
+        "start_seconds": 0,
+        "end_seconds": 32.019,
+        "duration_seconds": 32.019,
+        "narration_text": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards.",
+        "handoff_visual": "S cards and ledger.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names all three and the hypothesis.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c011.xhtml",
+          "c012.xhtml"
+        ],
+        "scene_source": "Ch8, “Why Most Roadmaps Fail,” “Turn Features into Bets” (`c011.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L06-01:f4708e088f65d171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L06-02",
+      "title": "Choose with criteria and keep the alternatives",
+      "start_seconds": 110,
+      "end_seconds": 220,
+      "narration": "Place four questions under each card. Does the idea address the observed problem? Does it fit the outcome we are trying to improve? Can we test it at a responsible cost? What do we still not know? The first-task guide has a plausible connection to our ledger and a small test path. A reminder may help people return, but our six notes do not yet show that forgetting is the main barrier. A staff dashboard could improve support work; we would need staff evidence before making that the lead bet. These are judgments in the example, not measured rankings. We are not assigning made-up scores to make the choice look scientific. Chapter Eight's prioritization warning is that an ordered list can hide weak reasoning. It asks what we say no to and what signal would make us revisit that answer. Write the first-task guide as the current bet. Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book. It does not prove this choice. The evidence ledger and the criteria carry that burden, and invite careful review.",
+      "narration_sha256": "a6fb222e721881a0eaee9e2ebeedc9e30846cee00256e2ac96965416b3dae00c",
+      "on_screen_copy": "Why this now? What would reopen the others?",
+      "shot": "Qualitative comparison, then Alignment plate.",
+      "visual": "S criteria; A3.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives revisit signal for each excluded option.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c011.xhtml",
+          "c012.xhtml"
+        ],
+        "scene_source": "Ch8, “Avoid the Prioritization Trap,” “Real example: Outcome First Thinking in Practice” (`c011.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L06-02:f4708e088f65d171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L06-03",
+      "title": "The PRD opens with the change we seek",
+      "start_seconds": 220,
+      "end_seconds": 330,
+      "narration": "Now the bet enters a product requirements document. A blank template can make a team start with controls and screens. For this exercise, begin one line earlier: “A new member opens the first task and cannot tell what action matters or why.” Under that line, link the ledger IDs. Name the affected situation from the living persona card. State the desired behavior: the member can identify the next action and begin it without asking staff to translate the instruction. This is the comprehension layer Chapter Nine asks for. A developer should be able to explain why the work exists before describing the interface. Then add the proposed scope. We will test one first-task card with a clear action, a short reason, and a visible confirmation after beginning. We will not build a full reminder system, redesign the whole journey, or claim that this card increases retention. Those exclusions protect the learning question. They also leave room for engineering and design to find a better implementation. The document is a map of the problem, evidence, intended behavior, limits, and measure. It is not a script for every click. If the team spots a safer or simpler way to learn, the PRD should make that conversation possible before the build grows too large.",
+      "narration_sha256": "87652eef7f7874ebfefbacee7bf80545029355724164e8afdab3a0329fe3fb48",
+      "on_screen_copy": "Problem · person · evidence · behavior",
+      "shot": "Avatar yields to PRD opening: problem, person, evidence, behavior.",
+      "visual": "S PRD.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L06-03",
+        "start_seconds": 220,
+        "end_seconds": 245.545,
+        "duration_seconds": 25.545,
+        "narration_text": "Now the bet enters a product requirements document. A blank template can make a team start with controls and screens. For this exercise, begin one line earlier: “A new member opens the first task and cannot tell what action matters or why.” Under that line, link the ledger IDs.",
+        "handoff_visual": "S PRD.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration expands PRD and explains exclusions.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c011.xhtml",
+          "c012.xhtml"
+        ],
+        "scene_source": "Ch9, “Build Comprehension Over Completion,” “Write Like a Map, Not a Script” (`c012.xhtml`); Ch8, “Turn Features into Bets” (`c011.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L06-03:f4708e088f65d171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L06-04",
+      "title": "Ask someone to explain the handoff back",
+      "start_seconds": 330,
+      "end_seconds": 440,
+      "narration": "Before anyone builds, ask a teammate to explain the bet back in their own words. “We want to see whether a clearer first task helps a new member begin. We are testing one card, and we will observe the starting moment.” Good. Then ask what happens if the member presses begin and loses connection. Does the interface say the action worked? Can the person safely try again? F zero one already warned us that confirmation may matter. A document that says “show success” without defining this case leaves a real decision to chance. Chapter Nine recommends pre-testing the handoff for ambiguity and edge cases. A model may suggest questions from material your team can safely use, but its answer is not engineering sign-off. A person who will build or support the change needs to review the meaning. Add an acceptance check: after a successful start, the member sees a clear state; after a failed attempt, the card says what happened and what to do next. The team may refine that check during design. Record who made the decision and why. This is a small handoff, yet it contains the same failure mode as a large program: the source question can disappear while the document becomes more detailed. Keep it visible at the top.",
+      "narration_sha256": "24bdcc8402a2a2cc9e36e99b82849dc72f99fe4cccc1e6bd4f6c0d9d75891460",
+      "on_screen_copy": "What happens when begin fails?",
+      "shot": "Handoff dialogue and failed-start edge case.",
+      "visual": "S dialogue cards; no real team messages.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration defines success and failure state.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c011.xhtml",
+          "c012.xhtml"
+        ],
+        "scene_source": "Ch9, “Pre-Test Your Handoff,” “Build Comprehension Over Completion” (`c012.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L06-04:f4708e088f65d171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L06-05",
+      "title": "Keep a living line from evidence to measure",
+      "start_seconds": 440,
+      "end_seconds": 550,
+      "narration": "Imagine the team tests the card and finds that people understand the action but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction. Update the PRD and the trace card. Keep the original assumption, add the new observation with its source and method, and record the date, owner, and reason for the change. Chapter Nine's living document is how decisions made in review, design, and development remain visible to the people who were not in every conversation. The roadmap should change with that learning as well. It is a story about the outcome we are trying to move and the bets we are willing to test, not a schedule that erases its own history. Our trace card has a source: the L05 ledger. It has a current decision: test the first-task guide. It has an owner and a limited scope. It names the exclusions. The measure is whether a participant can identify and begin the intended action in a planned test, with the observation method stated before the result. We have not measured it yet. A clean trace lets a future teammate ask why this work entered the plan and see an answer they can challenge.",
+      "narration_sha256": "6aa78bc403e027834dcf5d24b194a2ae221fe2833c3988e0bb0bdfaa11918f66",
+      "on_screen_copy": "Source · owner · scope · measure · change reason",
+      "shot": "Trace card records source, owner, scope, measure, and dated revision.",
+      "visual": "S trace, no real PRD.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L06-05",
+        "start_seconds": 440,
+        "end_seconds": 460.657,
+        "duration_seconds": 20.657,
+        "narration_text": "Imagine the team tests the card and finds that people understand the action but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
+        "handoff_visual": "S trace, no real PRD.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration distinguishes possible result from observed evidence.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c011.xhtml",
+          "c012.xhtml"
+        ],
+        "scene_source": "Ch9, “Make the Document Live,” “Conclusion” (`c012.xhtml`); Ch8, “Your Roadmap Is a Story, Not a Gantt Chart” (`c011.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L06-05:f4708e088f65d171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L06-06",
+      "title": "Draw the line all the way through",
+      "start_seconds": 550,
+      "end_seconds": 660,
+      "narration": "Pause and draw one line across your decision file. Start with the source IDs that support the problem. State the roadmap bet in a sentence a teammate could disagree with. Name the person or team who owns the decision, the smallest useful scope, and what is outside it. Write one acceptance check that a builder can explain back. Then choose a measure that would tell you whether the customer behavior changed, and say how you will observe it. Resume when each item points to the next without requiring someone to guess what you meant. If you are using a real project, keep identifiable records in your team’s research system. The line helps us follow the handoff from the roadmap bet to the living PRD. If a review uncovers a different problem, change the card with a dated reason. Do not quietly swap the measure after seeing a result. The next lesson will put learning checkpoints beside delivery work. For now, the trace is the safeguard. It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review. Ask a teammate to point to the original feedback note and the success check. If they cannot, the line still has a gap to repair.",
+      "narration_sha256": "0045c73e4b50d51faf7941c89c84ef316d9f6963403b4b8019133ec7be44a3d7",
+      "on_screen_copy": "Evidence → bet → PRD → observation",
+      "shot": "Source ID → bet → PRD → observation; avatar close.",
+      "visual": "S pipeline from course-kit brief.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L06-06",
+        "start_seconds": 630.837,
+        "end_seconds": 654.372,
+        "duration_seconds": 23.535,
+        "narration_text": "For now, the trace is the safeguard. It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review. Ask a teammate to point to the original feedback note and the success check.",
+        "handoff_visual": "S pipeline from course-kit brief.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration says course-kit line is a teaching aid.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c011.xhtml",
+          "c012.xhtml"
+        ],
+        "scene_source": "Ch8, “Turn Features into Bets,” “Your Roadmap Is a Story, Not a Gantt Chart” (`c011.xhtml`); Ch9, “Pre-Test Your Handoff,” “Make the Document Live” (`c012.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L06-06:f4708e088f65d171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 3.615,
+      "text": "There are three cards on the wall.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 3.615,
+      "end": 5.164,
+      "text": "Add a reminder.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 5.164,
+      "end": 7.23,
+      "text": "Rewrite the first task.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 7.23,
+      "end": 9.296,
+      "text": "Give staff a dashboard.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 9.296,
+      "end": 14.977,
+      "text": "Every card has someone who can make a case for it.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 14.977,
+      "end": 26.338,
+      "text": "The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 26.338,
+      "end": 32.019,
+      "text": "Put the feedback ledger from the last lesson beside the cards.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 32.019,
+      "end": 42.864,
+      "text": "F zero three, F zero four, and F zero five suggest that the first task may need clearer direction and purpose.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 42.864,
+      "end": 48.545,
+      "text": "F zero one suggests another need: confirmation that an action worked.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 48.545,
+      "end": 52.676,
+      "text": "None of those six notes proves a solution.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 52.676,
+      "end": 58.873,
+      "text": "They do give us a reason to ask a better roadmap question.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 58.873,
+      "end": 65.587,
+      "text": "Chapter Eight says to turn features into bets about customer and business outcomes.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 65.587,
+      "end": 73.333,
+      "text": "A bet states what we believe will change, for whom, and how we will know.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 73.333,
+      "end": 91.925,
+      "text": "For the membership service, write: “If a clearer first-task card helps new members understand the next action, more of them should begin that task without staff translating the instruction.” That is a hypothesis, not a promise.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 91.925,
+      "end": 96.056,
+      "text": "The other two cards stay on the wall.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 96.056,
+      "end": 104.319,
+      "text": "We need a reason to choose now and a signal that would bring an alternative back.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 104.319,
+      "end": 110,
+      "text": "The roadmap should carry both, in words the team can remember.",
+      "scene": "L06-01"
+    },
+    {
+      "start": 110,
+      "end": 113.128,
+      "text": "Place four questions under each card.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 113.128,
+      "end": 116.777,
+      "text": "Does the idea address the observed problem?",
+      "scene": "L06-02"
+    },
+    {
+      "start": 116.777,
+      "end": 121.991,
+      "text": "Does it fit the outcome we are trying to improve?",
+      "scene": "L06-02"
+    },
+    {
+      "start": 121.991,
+      "end": 126.161,
+      "text": "Can we test it at a responsible cost?",
+      "scene": "L06-02"
+    },
+    {
+      "start": 126.161,
+      "end": 129.289,
+      "text": "What do we still not know?",
+      "scene": "L06-02"
+    },
+    {
+      "start": 129.289,
+      "end": 137.109,
+      "text": "The first-task guide has a plausible connection to our ledger and a small test path.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 137.109,
+      "end": 147.536,
+      "text": "A reminder may help people return, but our six notes do not yet show that forgetting is the main barrier.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 147.536,
+      "end": 156.919,
+      "text": "A staff dashboard could improve support work; we would need staff evidence before making that the lead bet.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 156.919,
+      "end": 161.611,
+      "text": "These are judgments in the example, not measured rankings.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 161.611,
+      "end": 167.867,
+      "text": "We are not assigning made-up scores to make the choice look scientific.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 167.867,
+      "end": 174.645,
+      "text": "Chapter Eight's prioritization warning is that an ordered list can hide weak reasoning.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 174.645,
+      "end": 182.986,
+      "text": "It asks what we say no to and what signal would make us revisit that answer.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 182.986,
+      "end": 187.156,
+      "text": "Write the first-task guide as the current bet.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 187.156,
+      "end": 210.095,
+      "text": "Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 210.095,
+      "end": 213.223,
+      "text": "It does not prove this choice.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 213.223,
+      "end": 220,
+      "text": "The evidence ledger and the criteria carry that burden, and invite careful review.",
+      "scene": "L06-02"
+    },
+    {
+      "start": 220,
+      "end": 224.171,
+      "text": "Now the bet enters a product requirements document.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 224.171,
+      "end": 230.427,
+      "text": "A blank template can make a team start with controls and screens.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 230.427,
+      "end": 245.545,
+      "text": "For this exercise, begin one line earlier: “A new member opens the first task and cannot tell what action matters or why.” Under that line, link the ledger IDs.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 245.545,
+      "end": 250.237,
+      "text": "Name the affected situation from the living persona card.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 250.237,
+      "end": 261.185,
+      "text": "State the desired behavior: the member can identify the next action and begin it without asking staff to translate the instruction.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 261.185,
+      "end": 265.877,
+      "text": "This is the comprehension layer Chapter Nine asks for.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 265.877,
+      "end": 273.697,
+      "text": "A developer should be able to explain why the work exists before describing the interface.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 273.697,
+      "end": 276.303,
+      "text": "Then add the proposed scope.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 276.303,
+      "end": 286.209,
+      "text": "We will test one first-task card with a clear action, a short reason, and a visible confirmation after beginning.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 286.209,
+      "end": 296.114,
+      "text": "We will not build a full reminder system, redesign the whole journey, or claim that this card increases retention.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 296.114,
+      "end": 299.242,
+      "text": "Those exclusions protect the learning question.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 299.242,
+      "end": 306.019,
+      "text": "They also leave room for engineering and design to find a better implementation.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 306.019,
+      "end": 313.318,
+      "text": "The document is a map of the problem, evidence, intended behavior, limits, and measure.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 313.318,
+      "end": 317.488,
+      "text": "It is not a script for every click.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 317.488,
+      "end": 330,
+      "text": "If the team spots a safer or simpler way to learn, the PRD should make that conversation possible before the build grows too large.",
+      "scene": "L06-03"
+    },
+    {
+      "start": 330,
+      "end": 337.746,
+      "text": "Before anyone builds, ask a teammate to explain the bet back in their own words.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 337.746,
+      "end": 344.977,
+      "text": "“We want to see whether a clearer first task helps a new member begin.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 344.977,
+      "end": 351.69,
+      "text": "We are testing one card, and we will observe the starting moment.” Good.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 351.69,
+      "end": 357.887,
+      "text": "Then ask what happens if the member presses begin and loses connection.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 357.887,
+      "end": 361.502,
+      "text": "Does the interface say the action worked?",
+      "scene": "L06-04"
+    },
+    {
+      "start": 361.502,
+      "end": 364.601,
+      "text": "Can the person safely try again?",
+      "scene": "L06-04"
+    },
+    {
+      "start": 364.601,
+      "end": 369.765,
+      "text": "F zero one already warned us that confirmation may matter.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 369.765,
+      "end": 378.028,
+      "text": "A document that says “show success” without defining this case leaves a real decision to chance.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 378.028,
+      "end": 383.709,
+      "text": "Chapter Nine recommends pre-testing the handoff for ambiguity and edge cases.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 383.709,
+      "end": 393.521,
+      "text": "A model may suggest questions from material your team can safely use, but its answer is not engineering sign-off.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 393.521,
+      "end": 400.751,
+      "text": "A person who will build or support the change needs to review the meaning.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 400.751,
+      "end": 415.211,
+      "text": "Add an acceptance check: after a successful start, the member sees a clear state; after a failed attempt, the card says what happened and what to do next.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 415.211,
+      "end": 419.343,
+      "text": "The team may refine that check during design.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 419.343,
+      "end": 422.958,
+      "text": "Record who made the decision and why.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 422.958,
+      "end": 436.901,
+      "text": "This is a small handoff, yet it contains the same failure mode as a large program: the source question can disappear while the document becomes more detailed.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 436.901,
+      "end": 440,
+      "text": "Keep it visible at the top.",
+      "scene": "L06-04"
+    },
+    {
+      "start": 440,
+      "end": 451.362,
+      "text": "Imagine the team tests the card and finds that people understand the action but still cannot tell whether they have finished it.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 451.362,
+      "end": 454.46,
+      "text": "Imagine that result for a moment.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 454.46,
+      "end": 460.657,
+      "text": "The next move may be better completion feedback rather than more instruction.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 460.657,
+      "end": 464.272,
+      "text": "Update the PRD and the trace card.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 464.272,
+      "end": 476.15,
+      "text": "Keep the original assumption, add the new observation with its source and method, and record the date, owner, and reason for the change.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 476.15,
+      "end": 488.545,
+      "text": "Chapter Nine's living document is how decisions made in review, design, and development remain visible to the people who were not in every conversation.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 488.545,
+      "end": 493.192,
+      "text": "The roadmap should change with that learning as well.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 493.192,
+      "end": 507.653,
+      "text": "It is a story about the outcome we are trying to move and the bets we are willing to test, not a schedule that erases its own history.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 507.653,
+      "end": 512.3,
+      "text": "Our trace card has a source: the L05 ledger.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 512.3,
+      "end": 516.948,
+      "text": "It has a current decision: test the first-task guide.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 516.948,
+      "end": 521.08,
+      "text": "It has an owner and a limited scope.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 521.08,
+      "end": 523.146,
+      "text": "It names the exclusions.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 523.146,
+      "end": 536.056,
+      "text": "The measure is whether a participant can identify and begin the intended action in a planned test, with the observation method stated before the result.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 536.056,
+      "end": 539.155,
+      "text": "We have not measured it yet.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 539.155,
+      "end": 550,
+      "text": "A clean trace lets a future teammate ask why this work entered the plan and see an answer they can challenge.",
+      "scene": "L06-05"
+    },
+    {
+      "start": 550,
+      "end": 554.605,
+      "text": "Pause and draw one line across your decision file.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 554.605,
+      "end": 559.209,
+      "text": "Start with the source IDs that support the problem.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 559.209,
+      "end": 565.349,
+      "text": "State the roadmap bet in a sentence a teammate could disagree with.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 565.349,
+      "end": 574.558,
+      "text": "Name the person or team who owns the decision, the smallest useful scope, and what is outside it.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 574.558,
+      "end": 579.674,
+      "text": "Write one acceptance check that a builder can explain back.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 579.674,
+      "end": 589.907,
+      "text": "Then choose a measure that would tell you whether the customer behavior changed, and say how you will observe it.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 589.907,
+      "end": 598.093,
+      "text": "Resume when each item points to the next without requiring someone to guess what you meant.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 598.093,
+      "end": 605.767,
+      "text": "If you are using a real project, keep identifiable records in your team’s research system.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 605.767,
+      "end": 613.442,
+      "text": "The line helps us follow the handoff from the roadmap bet to the living PRD.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 613.442,
+      "end": 620.605,
+      "text": "If a review uncovers a different problem, change the card with a dated reason.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 620.605,
+      "end": 625.721,
+      "text": "Do not quietly swap the measure after seeing a result.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 625.721,
+      "end": 630.837,
+      "text": "The next lesson will put learning checkpoints beside delivery work.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 630.837,
+      "end": 634.419,
+      "text": "For now, the trace is the safeguard.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 634.419,
+      "end": 647.209,
+      "text": "It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 647.209,
+      "end": 654.372,
+      "text": "Ask a teammate to point to the original feedback note and the success check.",
+      "scene": "L06-06"
+    },
+    {
+      "start": 654.372,
+      "end": 660,
+      "text": "If they cannot, the line still has a gap to repair.",
+      "scene": "L06-06"
+    }
+  ],
+  "assets": {
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 09:20. Make a roadmap/PRD trace card with source IDs, current bet, decision owner, small scope, explicit exclusions, one acceptance check, observation method, and a measure tied to the desired behavior. Resume after another person could follow the line from evidence to planned test. Use only public, synthetic, or approved source material; private customer records remain in their protected system.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 32.019,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 32.019,
+      "end_seconds": 220,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 220,
+      "end_seconds": 245.545,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 245.545,
+      "end_seconds": 440,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 440,
+      "end_seconds": 460.657,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 460.657,
+      "end_seconds": 630.837,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 630.837,
+      "end_seconds": 654.372,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 654.372,
+      "end_seconds": 660,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "publication_authorization": null,
+    "external_send_authorization": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L06-01",
+        "start_seconds": 0,
+        "end_seconds": 32.019,
+        "duration_seconds": 32.019,
+        "narration_text": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards.",
+        "handoff_visual": "S cards and ledger.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L06-03",
+        "start_seconds": 220,
+        "end_seconds": 245.545,
+        "duration_seconds": 25.545,
+        "narration_text": "Now the bet enters a product requirements document. A blank template can make a team start with controls and screens. For this exercise, begin one line earlier: “A new member opens the first task and cannot tell what action matters or why.” Under that line, link the ledger IDs.",
+        "handoff_visual": "S PRD.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L06-05",
+        "start_seconds": 440,
+        "end_seconds": 460.657,
+        "duration_seconds": 20.657,
+        "narration_text": "Imagine the team tests the card and finds that people understand the action but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
+        "handoff_visual": "S trace, no real PRD.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L06-06",
+        "start_seconds": 630.837,
+        "end_seconds": 654.372,
+        "duration_seconds": 23.535,
+        "narration_text": "For now, the trace is the safeguard. It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review. Ask a teammate to point to the original feedback note and the success check.",
+        "handoff_visual": "S pipeline from course-kit brief.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

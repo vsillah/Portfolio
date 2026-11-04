@@ -1,0 +1,82 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "publication_authorization": null,
+  "external_send_authorization": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L07-01",
+      "start_seconds": 0,
+      "end_seconds": 28.079,
+      "duration_seconds": 28.079,
+      "narration_text": "The quarter is full before it starts. A new first-task card is due in two weeks. A reminder system is penciled in after that. Someone has promised a dashboard by the end of the month. The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task?",
+      "handoff_visual": "S quarter plan.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L07-03",
+      "start_seconds": 200,
+      "end_seconds": 217.5,
+      "duration_seconds": 17.5,
+      "narration_text": "Checkpoint two follows only if the first review supports the instruction hypothesis. The team tests the smaller first-task card against the existing version in a planned study. Before observing anyone, define what “clear enough” means.",
+      "handoff_visual": "S card and prototype.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L07-05",
+      "start_seconds": 400,
+      "end_seconds": 418.782,
+      "duration_seconds": 18.782,
+      "narration_text": "The book gives Sam's team a test that does not support the feature they built. They try document previews, expecting people to find the right file faster. The review points them toward a different need: better search.",
+      "handoff_visual": "S book-derived cards; no figures.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L07-06",
+      "start_seconds": 569.948,
+      "end_seconds": 593.264,
+      "duration_seconds": 23.316,
+      "narration_text": "The two checkpoint cards make the next decision visible to everyone who owns the work. In the next lesson, we will define the measures and write the full learning plan before results arrive. A plan becomes more trustworthy when it shows where it can change.",
+      "handoff_visual": "S worksheet; A3.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L07",
+  "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03"
+}
