@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "batch_id": "L05-L08",
+  "status": "review_only_blocked",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "retry_allowed": false,
+  "spend_cap_usd": 0,
+  "provider": "HeyGen",
+  "provider_precedent_record": "docs/accelerated-course-modules/provider-authority/l01-precedent.json",
+  "provider_precedent_sha256": "c4874607f494f08a2c6f766c272fb2b60171cbe17ea908cca4bc66da4649b62a",
+  "provider_precedent": {
+    "avatar_display_name": "Vambah green sweater",
+    "voice_display_name": "Vambah green sweater",
+    "historical_credits_consumed": 59,
+    "historical_incremental_cost_usd": 0,
+    "limitation": "No current credit balance, price, avatar/voice IDs, L02-L16 rights, or provider authority established."
+  },
+  "pre_job_required_bindings": {
+    "authorized_provider_account": null,
+    "approved_avatar_id": null,
+    "avatar_rights_receipt": null,
+    "approved_voice_id": null,
+    "voice_rights_receipt": null,
+    "privacy_review_receipt": null,
+    "binding_all_in_quote": null,
+    "provider_billing_units_and_rounding": null,
+    "enforceable_credit_or_spend_cap": null,
+    "current_exact_batch_authorization": null
+  },
+  "post_job_required_outputs": {
+    "provider_job_receipt": null,
+    "native_source_clip_sha256": null,
+    "native_source_audio_sha256": null,
+    "exact_native_timing_receipt": null,
+    "actual_credit_cost_receipt": null
+  },
+  "provider_input": "Exact approved narration_text in each source request segment, spoken with the approved avatar-native voice; no separately recorded audio is a pre-job input.",
+  "quote_and_cap_rule": "Obtain a current binding quote for each exact job and all-in batch total, including provider rounding, fees, taxes and any credit purchase. Verify an enforceable account/job cap before execution; historical credits are not a cap.",
+  "stop_no_retry": [
+    "source or approved text/hash drift",
+    "missing or changed avatar/voice rights",
+    "quote or cap absent/exceeded",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any new authorization",
+    "post-job native clip/audio hash or exact timing missing or mismatched; stop before composite"
+  ],
+  "batch_boundary": "No later lesson or batch follows automatically; each job needs exact current authority and its own receipt.",
+  "lessons": [
+    {
+      "lesson_id": "L05",
+      "title": "From feedback to signal",
+      "request_path": "docs/accelerated-course-modules/l05-l08-guided-video/l05-heygen-request.json",
+      "request_sha256": "f733620121d9fd740683c5f692516a68a609f341e4f77a51ae72d60adfc72a85",
+      "packet_path": "docs/accelerated-course-modules/l05-l08-guided-video/l05-packet.json",
+      "packet_sha256": "6c4c12c0a1d5e50e8865f630b5e41ec608f4f6552afaddf23ed34cee6cc19a7c",
+      "asset_map_sha256": "922bd48c12ae9b74b634a0d4bbc87ea18f940be4e12b5026429870af6fde896a",
+      "audio_map_sha256": "e99e87f7ab15ab76a3a31ed188fa6df4ef2daac16ee20d3094a993729bbd9b5b",
+      "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c010.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L05-01",
+          "start_seconds": 0,
+          "end_seconds": 25.743,
+          "duration_seconds": 25.743
+        },
+        {
+          "id": "A02",
+          "scene": "L05-03",
+          "start_seconds": 200,
+          "end_seconds": 223.256,
+          "duration_seconds": 23.256
+        },
+        {
+          "id": "A03",
+          "scene": "L05-05",
+          "start_seconds": 400,
+          "end_seconds": 417.453,
+          "duration_seconds": 17.453
+        },
+        {
+          "id": "A04",
+          "scene": "L05-06",
+          "start_seconds": 573.934,
+          "end_seconds": 588.626,
+          "duration_seconds": 14.692
+        }
+      ],
+      "presenter_seconds": 81.144,
+      "approved_narration_text_sha256": "faf0395180284f5deb4c19f8772e134f998da3a71e03b42223079a7c43fb50cd",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L06",
+      "title": "Roadmap to PRD, without drift",
+      "request_path": "docs/accelerated-course-modules/l05-l08-guided-video/l06-heygen-request.json",
+      "request_sha256": "71a94054fcef4f367cfc346f3a08aac4ede86973f71f21e82fac771a6af7287e",
+      "packet_path": "docs/accelerated-course-modules/l05-l08-guided-video/l06-packet.json",
+      "packet_sha256": "04c92134c1796a39aa032dbae461b7dae773da437eff2f7b4f622c9fd4cf8b80",
+      "asset_map_sha256": "1d53bf794301911fa0301f2f876ec3213bdc8f2ac138e2c4b2d1e0f9e6e53d36",
+      "audio_map_sha256": "e8d93e6b76145f0cd2122907724a5c2e3706a9a8fb6810dc32d7b55ff13d5844",
+      "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c011.xhtml",
+        "c012.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L06-01",
+          "start_seconds": 0,
+          "end_seconds": 32.019,
+          "duration_seconds": 32.019
+        },
+        {
+          "id": "A02",
+          "scene": "L06-03",
+          "start_seconds": 220,
+          "end_seconds": 245.545,
+          "duration_seconds": 25.545
+        },
+        {
+          "id": "A03",
+          "scene": "L06-05",
+          "start_seconds": 440,
+          "end_seconds": 460.657,
+          "duration_seconds": 20.657
+        },
+        {
+          "id": "A04",
+          "scene": "L06-06",
+          "start_seconds": 630.837,
+          "end_seconds": 654.372,
+          "duration_seconds": 23.535
+        }
+      ],
+      "presenter_seconds": 101.756,
+      "approved_narration_text_sha256": "b293caa65b724b0b84abd8df28d823cfb36d80c2f21dda91fb9d0747e5ca51c1",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L07",
+      "title": "Commit to learning",
+      "request_path": "docs/accelerated-course-modules/l05-l08-guided-video/l07-heygen-request.json",
+      "request_sha256": "945828c55e643e4f6bac4658ad4262f4c137e8a994ac3c00c9d1103cf08a600e",
+      "packet_path": "docs/accelerated-course-modules/l05-l08-guided-video/l07-packet.json",
+      "packet_sha256": "282edc62956b400505394424b46a63daaa9026b6dcad2630f45a067f28966eaa",
+      "asset_map_sha256": "b97647d9cca7670e5489b8c4f84a37d7d34e6a11be433d62e5c33828a8f23560",
+      "audio_map_sha256": "89dfe20ef8b5e794e6a7fdb28f404bd48425d52bf796c2857f661d7c6f88f4bb",
+      "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c013.xhtml",
+        "c014.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L07-01",
+          "start_seconds": 0,
+          "end_seconds": 28.079,
+          "duration_seconds": 28.079
+        },
+        {
+          "id": "A02",
+          "scene": "L07-03",
+          "start_seconds": 200,
+          "end_seconds": 217.5,
+          "duration_seconds": 17.5
+        },
+        {
+          "id": "A03",
+          "scene": "L07-05",
+          "start_seconds": 400,
+          "end_seconds": 418.782,
+          "duration_seconds": 18.782
+        },
+        {
+          "id": "A04",
+          "scene": "L07-06",
+          "start_seconds": 569.948,
+          "end_seconds": 593.264,
+          "duration_seconds": 23.316
+        }
+      ],
+      "presenter_seconds": 87.677,
+      "approved_narration_text_sha256": "544356fe9f315e5dfd677ffbf8ad42ad3b38bb049e77e03bf7b94385337df5e4",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L08",
+      "title": "Metrics and the ten-part learning plan",
+      "request_path": "docs/accelerated-course-modules/l05-l08-guided-video/l08-heygen-request.json",
+      "request_sha256": "915a2c515acd3e6a1727d914b1fc14601a2e71af8d829bf36279bb73f211063b",
+      "packet_path": "docs/accelerated-course-modules/l05-l08-guided-video/l08-packet.json",
+      "packet_sha256": "edef34ec3796d5376e011f3ecfdef355cb0454600b2a8b15c7ceea3f1dac64eb",
+      "asset_map_sha256": "33c002c2c94c3b0f747a283f9bc50e55b382a1775d65197cb9d16627dddc5b08",
+      "audio_map_sha256": "074164c095dc0198ce1d3fe8d1cdc5e244b269db1aca0082a74f4e6e59410c82",
+      "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c015.xhtml",
+        "c016.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L08-01",
+          "start_seconds": 0,
+          "end_seconds": 35.745,
+          "duration_seconds": 35.745
+        },
+        {
+          "id": "A02",
+          "scene": "L08-03",
+          "start_seconds": 240,
+          "end_seconds": 265.21,
+          "duration_seconds": 25.21
+        },
+        {
+          "id": "A03",
+          "scene": "L08-05",
+          "start_seconds": 480,
+          "end_seconds": 502.338,
+          "duration_seconds": 22.338
+        },
+        {
+          "id": "A04",
+          "scene": "L08-06",
+          "start_seconds": 681.039,
+          "end_seconds": 710.13,
+          "duration_seconds": 29.091
+        }
+      ],
+      "presenter_seconds": 112.384,
+      "approved_narration_text_sha256": "2f1ab613d95c03ff24624894b499f1234e87a5c00c4f9628451100df599fdf89",
+      "provider_input_status": "source-bound approved text; avatar-native voice pending exact ID and rights",
+      "timing_status": "storyboard estimate; verify native source timing after job before composite",
+      "pre_job_missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "post_job_required_outputs": {
+        "provider_job_receipt": null,
+        "native_source_clip_sha256": null,
+        "native_source_audio_sha256": null,
+        "exact_native_timing_receipt": null,
+        "actual_credit_cost_receipt": null
+      },
+      "execution_allowed": false
+    }
+  ],
+  "total_presenter_seconds": 382.961
+}

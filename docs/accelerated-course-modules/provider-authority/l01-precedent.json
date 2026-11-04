@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "scope": "historical L01 precedent only",
+  "source_receipt": {
+    "name": "corrected-provider-receipt.json",
+    "sha256": "6abe8568e425f4d74a13db6104f39a41bf7a3a73ae2a5fd86cf3b8e53bb4b7cc",
+    "provenance": "L01 approved local artifact package documented in the repository's l01-guided-video/approved-composite/README.md"
+  },
+  "provider": "HeyGen",
+  "job_id": "c5639a0b76144ae5bcd76b1f2de85ed5",
+  "avatar_display_name": "Vambah green sweater",
+  "voice_display_name": "Vambah green sweater",
+  "native_source": {
+    "sha256": "2c502e0e9fc03b93fb71f85abae1ce936c2c33a43e01307620a845424f233626",
+    "format": "16:9 1080p MP4",
+    "frame_rate": 25,
+    "duration_seconds": 73.175
+  },
+  "usage": {
+    "historical_credits_consumed": 59,
+    "historical_incremental_cost_usd": 0,
+    "purchase_or_overage": false
+  },
+  "native_composite_method": {
+    "source": "docs/accelerated-course-modules/l01-guided-video/approved-composite/composite-receipt.json",
+    "source_speed": 1,
+    "source_audio_only_in_presenter_windows": true
+  },
+  "limitations": "No current credit balance, price, avatar/voice IDs, L02-L16 rights, or provider authority established."
+}
