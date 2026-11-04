@@ -1,0 +1,944 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L16",
+  "title": "What comes next",
+  "runtime_seconds": 480,
+  "learner_artifact": "One-week learning commitment and assembled decision file",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L16.md",
+  "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "f9cc259fa9416ec68b7c2413f0dc479ffbd259ae3049becf022f5767473c55b1",
+  "source_notes_sha256": "4a12a775a24d911979a9bf4d0cf49fcbafa6e3dd1592b8807d951012045a5336",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c029.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L16-01",
+      "title": "Return to the first decision",
+      "start_seconds": 0,
+      "end_seconds": 81,
+      "narration": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request: improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it. Chapter Twenty-Six calls for starting with one pain point. That is the right size for the next week. Look at the Signals, Alignment, and Momentum labels on the approved Accelerated SAM infographic. They describe the path we have practiced: notice a signal, align a choice, and keep the learning available for the next decision. The art is a map, not a claim that your organization has finished the journey. Which question in your file is both important and answerable in seven days? Choose one. If the evidence is too weak for a launch, the next move may be an interview, a source audit, or a prototype test. A smaller honest move is more valuable than a large promise that cannot be checked.",
+      "narration_sha256": "101ed34c92d168ff0d305b14d1fab18633aafb5bd809d59980af2dc56829f25f",
+      "on_screen_copy": "Which decision can move next week?",
+      "shot": "Return to the first decision.",
+      "visual": "full approved SAM infographic followed by the L01 cover sheet; full SAM infographic remains source art.",
+      "asset_refs": [
+        "sam_map"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L16-01",
+        "start_seconds": 0,
+        "end_seconds": 31.79,
+        "duration_seconds": 31.79,
+        "narration_text": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request: improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it. Chapter Twenty-Six calls for starting with one pain point.",
+        "handoff_visual": "full approved SAM infographic followed by the L01 cover sheet; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c029.xhtml"
+        ],
+        "scene_source": "Ch26, “What This Book Is Really About,” “The Final Question” (`c029.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L16-01:aef51b9f3fce4210",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L16-02",
+      "title": "Show how the file changed",
+      "start_seconds": 81,
+      "end_seconds": 161,
+      "narration": "Sam appears again in the final chapter. A junior colleague can find a past decision and use it without asking her to reconstruct the whole story. That is a book illustration, not a verified outcome in this course. The learner's file should make a similar handoff possible on a smaller scale. Read it from front to back. The cover sheet states the data boundary. The priority page records the alternatives you passed over. The evidence ledger and living persona show what you know about the job and what remains uncertain. The roadmap and PRD trace keep the test connected to implementation. The ten-component learning plan names the measure and tripwire. The influence map shows who needs which evidence. The strategy and concept cards show a possible future without treating it as fact. The governance pages tell a second team what can travel. If one page contradicts another, fix the record now. The goal is not a beautiful binder. It is a decision another person can understand, challenge, and revisit. Pick the one unresolved question that matters most to the next move.",
+      "narration_sha256": "4960185d75679b3289009c312d8d9f325c67257f71637ee0b05b71f9ae45730c",
+      "on_screen_copy": "Trace the choice back to evidence",
+      "shot": "Show how the file changed.",
+      "visual": "assembled decision-file pages; Sam book-story title remains distinct from learner artifact; full SAM infographic remains source art.",
+      "asset_refs": [
+        "sam_map"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c029.xhtml"
+        ],
+        "scene_source": "Ch26, “The Moment Sam Realized It Worked,” “What This Book Is Really About” (`c029.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L16-02:aef51b9f3fce4210",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L16-03",
+      "title": "Set a seven-day test",
+      "start_seconds": 161,
+      "end_seconds": 239,
+      "narration": "Write the next action in a sentence that begins with a verb. Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small, eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Add a review date within the next seven days. Decide in advance what evidence you will collect and where it will be stored. Name one observation that would make you revise the idea and one condition that would stop the test. If the work touches sensitive data, pricing, access, or a promise to a customer, bring the authorized owner into the design before acting. A model can help organize the question or draft a card. It cannot grant consent, approve a change, or absorb responsibility for a result. The final chapter's call to start small becomes practical when the small step has a date and a person attached to it.",
+      "narration_sha256": "d292fe2314e1b3229a3cd7843efce0431abc1af94241c81d48a7b652b5241c40",
+      "on_screen_copy": "Action · owner · evidence · date",
+      "shot": "Set a seven-day test.",
+      "visual": "one-week commitment card with action, owner, evidence, and stop condition; full SAM infographic remains source art.",
+      "asset_refs": [
+        "sam_map"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L16-03",
+        "start_seconds": 161,
+        "end_seconds": 191.333,
+        "duration_seconds": 30.333,
+        "narration_text": "Write the next action in a sentence that begins with a verb. Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small, eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it.",
+        "handoff_visual": "one-week commitment card with action, owner, evidence, and stop condition; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c029.xhtml"
+        ],
+        "scene_source": "Ch26, “The Final Question,” “The Last Word” (`c029.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L16-03:aef51b9f3fce4210",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L16-04",
+      "title": "Protect the boundary",
+      "start_seconds": 239,
+      "end_seconds": 316,
+      "narration": "Before you schedule the review, inspect the source labels. An observed note records what a person actually said or did under an approved process. An interpretation states what you think it means. A simulation suggests a question to ask. These three can sit in one decision file, but they cannot be merged into one claim. The same applies to the book's cases. StratQuest, VisionScope, MarketCraft, Persuasive GPT, and Sam's story belong to the book. They offered teaching frames; they do not establish that a tool is deployed here or that a result happened in your organization. If your next action depends on a result you have only imagined, move the action back to validation. If it depends on private records, keep those records in the system that is authorized to hold them. Use public, synthetic, or approved material for this workshop. Good boundaries make learning possible because the team can tell what it is allowed to use, what still needs consent, and what remains a hypothesis. That clarity makes the next decision easier to trust.",
+      "narration_sha256": "958f3ffa71d98c17310224125b82c212456f386e2ae61bbd6d30944f63fc0d63",
+      "on_screen_copy": "Observation · interpretation · simulation",
+      "shot": "Protect the boundary.",
+      "visual": "three source-status cards: observed, inferred, simulation; approved SAM art stays unaltered; full SAM infographic remains source art.",
+      "asset_refs": [
+        "sam_map"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c029.xhtml"
+        ],
+        "scene_source": "Ch26, “What This Book Is Really About,” “The Final Question” (`c029.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L16-04:aef51b9f3fce4210",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L16-05",
+      "title": "Plan the review conversation",
+      "start_seconds": 316,
+      "end_seconds": 408,
+      "narration": "Put a short review on the calendar with the owner and anyone whose work or access the test affects. Send the decision question and the source links in advance. At the meeting, open with what happened, including the observations that complicate your preferred story. Compare the result with the threshold you wrote before the test. Record one of four next states: continue, revise, stop, or gather a specific missing piece of evidence. Leave the outcome field blank until the review. The book's closing image is a system that grows through repeated choices, not a final piece of software to install once. Your first loop may be a page and a calendar reminder. That is enough if the page is honest and the reminder brings people back to a real decision. If the test fails, keep the learning. If it succeeds in one context, state that context before sharing it. A result becomes reusable when its limits travel with it. Give the next owner a record they can read without guessing what you meant. The chapter's One Year From Now passage imagines a large body of feedback, experiments, and decisions. Treat those figures as a possible future in the book, never as a forecast or a result promised by this course.",
+      "narration_sha256": "8053eabd80724ce8aebdcd5cad1dfc429355bf014cfe3f8d050fd46f82710efe",
+      "on_screen_copy": "What changed your mind?",
+      "shot": "Plan the review conversation.",
+      "visual": "calendar card and a decision-log entry with blank outcome field; full SAM infographic remains source art.",
+      "asset_refs": [
+        "sam_map"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L16-05",
+        "start_seconds": 316,
+        "end_seconds": 347.543,
+        "duration_seconds": 31.543,
+        "narration_text": "Put a short review on the calendar with the owner and anyone whose work or access the test affects. Send the decision question and the source links in advance. At the meeting, open with what happened, including the observations that complicate your preferred story. Compare the result with the threshold you wrote before the test. Record one of four next states: continue, revise, stop, or gather a specific missing piece of evidence.",
+        "handoff_visual": "calendar card and a decision-log entry with blank outcome field; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c029.xhtml"
+        ],
+        "scene_source": "Ch26, “The Moment Sam Realized It Worked,” “One Year From Now,” “The Last Word” (`c029.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L16-05:aef51b9f3fce4210",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L16-06",
+      "title": "Close with one accountable move",
+      "start_seconds": 408,
+      "end_seconds": 480,
+      "narration": "Pause and assemble the file. Put the one-week commitment on top: the decision, next action, owner, evidence to collect, review date, and stop or revision condition. Check that every claim below it carries a source or an uncertainty label. Resume when you can say the action aloud to another person and they can tell what will happen next. You do not need to run every tool named in the book. You do need a way to notice a problem, test a response, preserve the result, and let someone make the next choice with that knowledge. The final chapter says the system is unfinished. That is a useful ending because real work changes. People change. Conditions change. A decision file should make revision possible without erasing the path that brought you here. Next week, do the one move you wrote down. Then return to the record. What did you observe? What did it change? Who needs to know? Write the answer, and the next loop begins.",
+      "narration_sha256": "d97317e2febc8b7f7b279fa07e4436398f52510f4b07b360641ccb4cafcd01bd",
+      "on_screen_copy": "1. Choose one pain point\n2. Run one test\n3. Set one review",
+      "shot": "Close with one accountable move.",
+      "visual": "one-week commitment atop complete decision file; full SAM infographic returns, then public book cover; full SAM infographic remains source art.",
+      "asset_refs": [
+        "sam_map",
+        "cover"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L16-06",
+        "start_seconds": 449.455,
+        "end_seconds": 474.764,
+        "duration_seconds": 25.309,
+        "narration_text": "The final chapter says the system is unfinished. That is a useful ending because real work changes. People change. Conditions change. A decision file should make revision possible without erasing the path that brought you here. Next week, do the one move you wrote down. Then return to the record. What did you observe? What did it change?",
+        "handoff_visual": "one-week commitment atop complete decision file; full SAM infographic returns, then public book cover; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c029.xhtml"
+        ],
+        "scene_source": "Ch26, “The Final Question,” “The Last Word” (`c029.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "visual_copy_revision": "Book concepts rendered as short action labels for human QA; narration and script source unchanged",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L16-06:aef51b9f3fce4210",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 4.79,
+      "text": "Go back to the decision you wrote on the first page.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 4.79,
+      "end": 13.5,
+      "text": "At the time, it may have been a broad request: improve onboarding, grow revenue, or use AI to move faster.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 13.5,
+      "end": 16.548,
+      "text": "The file now gives that request edges.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 16.548,
+      "end": 27.871,
+      "text": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 27.871,
+      "end": 31.79,
+      "text": "Chapter Twenty-Six calls for starting with one pain point.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 31.79,
+      "end": 35.71,
+      "text": "That is the right size for the next week.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 35.71,
+      "end": 41.806,
+      "text": "Look at the Signals, Alignment, and Momentum labels on the approved Accelerated SAM infographic.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 41.806,
+      "end": 51.387,
+      "text": "They describe the path we have practiced: notice a signal, align a choice, and keep the learning available for the next decision.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 51.387,
+      "end": 57.919,
+      "text": "The art is a map, not a claim that your organization has finished the journey.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 57.919,
+      "end": 63.581,
+      "text": "Which question in your file is both important and answerable in seven days?",
+      "scene": "L16-01"
+    },
+    {
+      "start": 63.581,
+      "end": 64.452,
+      "text": "Choose one.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 64.452,
+      "end": 74.468,
+      "text": "If the evidence is too weak for a launch, the next move may be an interview, a source audit, or a prototype test.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 74.468,
+      "end": 81,
+      "text": "A smaller honest move is more valuable than a large promise that cannot be checked.",
+      "scene": "L16-01"
+    },
+    {
+      "start": 81,
+      "end": 84.094,
+      "text": "Sam appears again in the final chapter.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 84.094,
+      "end": 92.492,
+      "text": "A junior colleague can find a past decision and use it without asking her to reconstruct the whole story.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 92.492,
+      "end": 97.796,
+      "text": "That is a book illustration, not a verified outcome in this course.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 97.796,
+      "end": 103.541,
+      "text": "The learner's file should make a similar handoff possible on a smaller scale.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 103.541,
+      "end": 106.193,
+      "text": "Read it from front to back.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 106.193,
+      "end": 109.287,
+      "text": "The cover sheet states the data boundary.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 109.287,
+      "end": 113.265,
+      "text": "The priority page records the alternatives you passed over.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 113.265,
+      "end": 120.779,
+      "text": "The evidence ledger and living persona show what you know about the job and what remains uncertain.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 120.779,
+      "end": 125.641,
+      "text": "The roadmap and PRD trace keep the test connected to implementation.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 125.641,
+      "end": 129.619,
+      "text": "The ten-component learning plan names the measure and tripwire.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 129.619,
+      "end": 133.155,
+      "text": "The influence map shows who needs which evidence.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 133.155,
+      "end": 139.343,
+      "text": "The strategy and concept cards show a possible future without treating it as fact.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 139.343,
+      "end": 143.762,
+      "text": "The governance pages tell a second team what can travel.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 143.762,
+      "end": 147.74,
+      "text": "If one page contradicts another, fix the record now.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 147.74,
+      "end": 150.834,
+      "text": "The goal is not a beautiful binder.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 150.834,
+      "end": 155.696,
+      "text": "It is a decision another person can understand, challenge, and revisit.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 155.696,
+      "end": 161,
+      "text": "Pick the one unresolved question that matters most to the next move.",
+      "scene": "L16-02"
+    },
+    {
+      "start": 161,
+      "end": 166.2,
+      "text": "Write the next action in a sentence that begins with a verb.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 166.2,
+      "end": 169.667,
+      "text": "Interview three approved participants about the first task.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 169.667,
+      "end": 173.133,
+      "text": "Review six source notes with the service owner.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 173.133,
+      "end": 177.9,
+      "text": "Test two versions of a concept with a small, eligible group.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 177.9,
+      "end": 184.4,
+      "text": "The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 184.4,
+      "end": 188.733,
+      "text": "Choose the move that fits your actual permission and capacity.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 188.733,
+      "end": 191.333,
+      "text": "Add a person who owns it.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 191.333,
+      "end": 195.233,
+      "text": "Add a review date within the next seven days.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 195.233,
+      "end": 201.3,
+      "text": "Decide in advance what evidence you will collect and where it will be stored.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 201.3,
+      "end": 209.1,
+      "text": "Name one observation that would make you revise the idea and one condition that would stop the test.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 209.1,
+      "end": 219.067,
+      "text": "If the work touches sensitive data, pricing, access, or a promise to a customer, bring the authorized owner into the design before acting.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 219.067,
+      "end": 223.833,
+      "text": "A model can help organize the question or draft a card.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 223.833,
+      "end": 229.467,
+      "text": "It cannot grant consent, approve a change, or absorb responsibility for a result.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 229.467,
+      "end": 239,
+      "text": "The final chapter's call to start small becomes practical when the small step has a date and a person attached to it.",
+      "scene": "L16-03"
+    },
+    {
+      "start": 239,
+      "end": 242.96,
+      "text": "Before you schedule the review, inspect the source labels.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 242.96,
+      "end": 249.56,
+      "text": "An observed note records what a person actually said or did under an approved process.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 249.56,
+      "end": 253.08,
+      "text": "An interpretation states what you think it means.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 253.08,
+      "end": 256.16,
+      "text": "A simulation suggests a question to ask.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 256.16,
+      "end": 263.2,
+      "text": "These three can sit in one decision file, but they cannot be merged into one claim.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 263.2,
+      "end": 266.28,
+      "text": "The same applies to the book's cases.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 266.28,
+      "end": 271.56,
+      "text": "StratQuest, VisionScope, MarketCraft, Persuasive GPT, and Sam's story belong to the book.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 271.56,
+      "end": 281.24,
+      "text": "They offered teaching frames; they do not establish that a tool is deployed here or that a result happened in your organization.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 281.24,
+      "end": 289.16,
+      "text": "If your next action depends on a result you have only imagined, move the action back to validation.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 289.16,
+      "end": 297.08,
+      "text": "If it depends on private records, keep those records in the system that is authorized to hold them.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 297.08,
+      "end": 301.04,
+      "text": "Use public, synthetic, or approved material for this workshop.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 301.04,
+      "end": 312.04,
+      "text": "Good boundaries make learning possible because the team can tell what it is allowed to use, what still needs consent, and what remains a hypothesis.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 312.04,
+      "end": 316,
+      "text": "That clarity makes the next decision easier to trust.",
+      "scene": "L16-04"
+    },
+    {
+      "start": 316,
+      "end": 324.324,
+      "text": "Put a short review on the calendar with the owner and anyone whose work or access the test affects.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 324.324,
+      "end": 328.705,
+      "text": "Send the decision question and the source links in advance.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 328.705,
+      "end": 335.276,
+      "text": "At the meeting, open with what happened, including the observations that complicate your preferred story.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 335.276,
+      "end": 340.095,
+      "text": "Compare the result with the threshold you wrote before the test.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 340.095,
+      "end": 347.543,
+      "text": "Record one of four next states: continue, revise, stop, or gather a specific missing piece of evidence.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 347.543,
+      "end": 351.048,
+      "text": "Leave the outcome field blank until the review.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 351.048,
+      "end": 360.248,
+      "text": "The book's closing image is a system that grows through repeated choices, not a final piece of software to install once.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 360.248,
+      "end": 365.067,
+      "text": "Your first loop may be a page and a calendar reminder.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 365.067,
+      "end": 372.952,
+      "text": "That is enough if the page is honest and the reminder brings people back to a real decision.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 372.952,
+      "end": 376.019,
+      "text": "If the test fails, keep the learning.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 376.019,
+      "end": 381.276,
+      "text": "If it succeeds in one context, state that context before sharing it.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 381.276,
+      "end": 385.657,
+      "text": "A result becomes reusable when its limits travel with it.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 385.657,
+      "end": 391.79,
+      "text": "Give the next owner a record they can read without guessing what you meant.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 391.79,
+      "end": 398.8,
+      "text": "The chapter's One Year From Now passage imagines a large body of feedback, experiments, and decisions.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 398.8,
+      "end": 408,
+      "text": "Treat those figures as a possible future in the book, never as a forecast or a result promised by this course.",
+      "scene": "L16-05"
+    },
+    {
+      "start": 408,
+      "end": 410.182,
+      "text": "Pause and assemble the file.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 410.182,
+      "end": 419.345,
+      "text": "Put the one-week commitment on top: the decision, next action, owner, evidence to collect, review date, and stop or revision condition.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 419.345,
+      "end": 425.018,
+      "text": "Check that every claim below it carries a source or an uncertainty label.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 425.018,
+      "end": 433.309,
+      "text": "Resume when you can say the action aloud to another person and they can tell what will happen next.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 433.309,
+      "end": 438.545,
+      "text": "You do not need to run every tool named in the book.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 438.545,
+      "end": 449.455,
+      "text": "You do need a way to notice a problem, test a response, preserve the result, and let someone make the next choice with that knowledge.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 449.455,
+      "end": 452.945,
+      "text": "The final chapter says the system is unfinished.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 452.945,
+      "end": 456.873,
+      "text": "That is a useful ending because real work changes.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 456.873,
+      "end": 457.745,
+      "text": "People change.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 457.745,
+      "end": 458.618,
+      "text": "Conditions change.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 458.618,
+      "end": 465.164,
+      "text": "A decision file should make revision possible without erasing the path that brought you here.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 465.164,
+      "end": 469.091,
+      "text": "Next week, do the one move you wrote down.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 469.091,
+      "end": 471.273,
+      "text": "Then return to the record.",
+      "scene": "L16-06"
+    },
+    {
+      "start": 471.273,
+      "end": 473.018,
+      "text": "What did you observe?",
+      "scene": "L16-06"
+    },
+    {
+      "start": 473.018,
+      "end": 474.764,
+      "text": "What did it change?",
+      "scene": "L16-06"
+    },
+    {
+      "start": 474.764,
+      "end": 476.509,
+      "text": "Who needs to know?",
+      "scene": "L16-06"
+    },
+    {
+      "start": 476.509,
+      "end": 480,
+      "text": "Write the answer, and the next loop begins.",
+      "scene": "L16-06"
+    }
+  ],
+  "assets": {
+    "sam_map": {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "status": "approved existing art; preserve aspect ratio"
+    },
+    "cover": {
+      "path": "public/accelerated_cover_ebook.webp",
+      "sha256": "4a3406389e73fb919ba2c005475a8c707060103cee8b589ac16c8e68e42ab78d",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause during Scene 6. Complete the one-week learning commitment and assembled decision file. Resume only after the source, owner, review date, evidence gap, and stop or revision condition are explicit. Use public, synthetic, or approved input. Private customer or company material stays in its authorized system.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 31.79,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 31.79,
+      "end_seconds": 161,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 161,
+      "end_seconds": 191.333,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 191.333,
+      "end_seconds": 316,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 316,
+      "end_seconds": 347.543,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 347.543,
+      "end_seconds": 449.455,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 449.455,
+      "end_seconds": 474.764,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 474.764,
+      "end_seconds": 480,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L16-01",
+        "start_seconds": 0,
+        "end_seconds": 31.79,
+        "duration_seconds": 31.79,
+        "narration_text": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request: improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it. Chapter Twenty-Six calls for starting with one pain point.",
+        "handoff_visual": "full approved SAM infographic followed by the L01 cover sheet; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L16-03",
+        "start_seconds": 161,
+        "end_seconds": 191.333,
+        "duration_seconds": 30.333,
+        "narration_text": "Write the next action in a sentence that begins with a verb. Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small, eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it.",
+        "handoff_visual": "one-week commitment card with action, owner, evidence, and stop condition; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L16-05",
+        "start_seconds": 316,
+        "end_seconds": 347.543,
+        "duration_seconds": 31.543,
+        "narration_text": "Put a short review on the calendar with the owner and anyone whose work or access the test affects. Send the decision question and the source links in advance. At the meeting, open with what happened, including the observations that complicate your preferred story. Compare the result with the threshold you wrote before the test. Record one of four next states: continue, revise, stop, or gather a specific missing piece of evidence.",
+        "handoff_visual": "calendar card and a decision-log entry with blank outcome field; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L16-06",
+        "start_seconds": 449.455,
+        "end_seconds": 474.764,
+        "duration_seconds": 25.309,
+        "narration_text": "The final chapter says the system is unfinished. That is a useful ending because real work changes. People change. Conditions change. A decision file should make revision possible without erasing the path that brought you here. Next week, do the one move you wrote down. Then return to the record. What did you observe? What did it change?",
+        "handoff_visual": "one-week commitment atop complete decision file; full SAM infographic returns, then public book cover; full SAM infographic remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

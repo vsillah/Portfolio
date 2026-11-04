@@ -1,0 +1,29 @@
+{
+  "lesson_id": "L16",
+  "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c029.xhtml"
+  ],
+  "approved_assets": {
+    "sam_map": {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "status": "approved existing art; preserve aspect ratio"
+    },
+    "cover": {
+      "path": "public/accelerated_cover_ebook.webp",
+      "sha256": "4a3406389e73fb919ba2c005475a8c707060103cee8b589ac16c8e68e42ab78d",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "synthetic_scenes": {
+    "L16-01": "synthetic-course-card:L16-01:aef51b9f3fce4210",
+    "L16-02": "synthetic-course-card:L16-02:aef51b9f3fce4210",
+    "L16-03": "synthetic-course-card:L16-03:aef51b9f3fce4210",
+    "L16-04": "synthetic-course-card:L16-04:aef51b9f3fce4210",
+    "L16-05": "synthetic-course-card:L16-05:aef51b9f3fce4210",
+    "L16-06": "synthetic-course-card:L16-06:aef51b9f3fce4210"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}
