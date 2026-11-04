@@ -64,6 +64,7 @@ describe('Accelerated L05–L08 learner binding', () => {
     const item = lessons.find((lesson) => lesson.id === id)!
     fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${id}:`) }))
     expect(screen.getByText(`${id} guided video is ready`)).toBeInTheDocument()
+    expect(screen.queryByText(/approved workshop visual|Storyboard preview · representative frame|Progress is for this preview only/)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: new RegExp(`Watch ${id} guided video`) }))
     const video = screen.getByLabelText(`${id} ${item.title} guided video`)
     expect(video).toHaveAttribute('controls')
