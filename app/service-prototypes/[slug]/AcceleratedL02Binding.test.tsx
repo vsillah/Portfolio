@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
@@ -12,8 +13,16 @@ vi.mock('next/image', () => ({
 }))
 
 const hash = (file: string) => createHash('sha256').update(readFileSync(file)).digest('hex')
+const require = createRequire(import.meta.url)
 
 describe('Accelerated L02 learner binding', () => {
+  it('keeps static L02 media out of the oversized admin function trace', () => {
+    const config = require('../../../next.config.js')
+    const exclusions = config.experimental.outputFileTracingExcludes['/api/admin/social-content/*/bind-approved-master']
+    expect(exclusions).toContain('./public/accelerated/lessons/l01/approved-ee09bf72/*')
+    expect(exclusions).toContain('./public/accelerated/lessons/l02/approved-ded23edb/*')
+  })
+
   it('binds exact L02 media, approved captions, native source, and lesson identity', () => {
     const manifest = JSON.parse(readFileSync('docs/accelerated-course-modules/l02-native-composite/composite-manifest.json', 'utf8'))
     const receipt = JSON.parse(readFileSync('docs/accelerated-course-modules/l02-native-composite/composite-receipt.json', 'utf8'))

@@ -27,9 +27,10 @@ const nextConfig = {
     },
     outputFileTracingExcludes: {
       // This admin route reads the Dark Castle master from public/ at runtime.
-      // Its broad trace also catches the unrelated, statically served L01 media.
+      // Its broad trace also catches unrelated, statically served learner media.
       '/api/admin/social-content/*/bind-approved-master': [
         './public/accelerated/lessons/l01/approved-ee09bf72/*',
+        './public/accelerated/lessons/l02/approved-ded23edb/*',
       ],
     },
     serverActions: {
