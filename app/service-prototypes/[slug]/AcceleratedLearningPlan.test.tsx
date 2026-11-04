@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
-import { AcceleratedLearningPlan, lessons } from './AcceleratedLearningPlan'
+import { AcceleratedLearningPlan, l01Media, lessons } from './AcceleratedLearningPlan'
 
 vi.mock('next/image', () => ({
   default: ({ unoptimized: _unoptimized, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
@@ -45,15 +46,31 @@ describe('Accelerated learning plan', () => {
     expect([...new Set(lessons.map(({ act }) => act))]).toEqual(['Signals', 'Alignment', 'Momentum', 'Synthesis'])
   })
 
-  it('shows a learner brief, locked media, storyboard, and truthful preview progress', () => {
+  it('binds only L01 to the approved composite and captions', () => {
+    const asset = (url: string) => readFileSync(`public${url}`)
+    expect(createHash('sha256').update(asset(l01Media.video)).digest('hex')).toBe('ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a')
+    expect(asset(l01Media.captions).toString()).toContain('WEBVTT')
+    expect(l01Media.duration).toBe('09:00')
+  })
+
+  it('shows a learner brief, playable L01, locked later media, storyboard, and truthful preview progress', () => {
     render(<AcceleratedLearningPlan />)
     expect(screen.getByRole('heading', { name: 'Sixteen lessons. One decision file.' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L09: Map the decision theater/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'ready')
-    expect(screen.getByRole('button', { name: /Watch L01 guided video/ })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
+    expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')
+    expect(document.querySelector('video source')).toHaveAttribute('src', l01Media.video)
+    expect(document.querySelector('video track')).toHaveAttribute('src', l01Media.captions)
+    expect(screen.getByRole('button', { name: 'English captions on' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByText('Read along with L01 transcript'))
+    expect(screen.getByText('The document is open. At the top it says, Q3 Innovation Plan.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
+    expect(screen.queryByLabelText('L01 Build smarter, stay human guided video')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /L05: From feedback to signal/ }))
     expect(screen.getByText('Code six synthetic comments, name one pattern, and flag what contradicts it.')).toBeInTheDocument()
     expect(screen.getByAltText('Representative storyboard frame for L05')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeDisabled()
     expect(screen.queryByText(/production packet|source hash|provider instruction/i)).not.toBeInTheDocument()
   })
 

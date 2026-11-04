@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "lesson": "Accelerated L01",
+  "source_commit": "ccb0e108cc96e2903722901e66a85114f13dcc6f",
+  "provider_job_id": "c5639a0b76144ae5bcd76b1f2de85ed5",
+  "source_sha256": "2c502e0e9fc03b93fb71f85abae1ce936c2c33a43e01307620a845424f233626",
+  "output_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+  "fps": 25,
+  "output_frames": 13500,
+  "output_duration_seconds": 540.0,
+  "overlay": {
+    "content_width": 440,
+    "content_height": 248,
+    "frame_width": 448,
+    "frame_height": 256,
+    "fit": "contain",
+    "style": "solid gold",
+    "placement": "scene-specific negative space"
+  },
+  "captions": {
+    "path": "l01-approved-captions.srt",
+    "sha256": "8327cef2e84cb5d61d0b63d5d6c42ec233ce5d9e512728b8a703ff195dbfb303",
+    "embedded": "mov_text default"
+  },
+  "timeline": [
+    {
+      "name": "01-a01",
+      "image": "scene1-clean.png",
+      "frames": 788,
+      "source": [
+        0,
+        788
+      ],
+      "sequence_start": 0.0,
+      "overlay": [
+        1420,
+        260
+      ],
+      "timeline_start_seconds": 0.0,
+      "timeline_end_seconds": 31.52
+    },
+    {
+      "name": "02-scene1",
+      "image": "scene1-clean.png",
+      "frames": 1087,
+      "timeline_start_seconds": 31.52,
+      "timeline_end_seconds": 75.0
+    },
+    {
+      "name": "03-scene2",
+      "image": "scene2-clean.png",
+      "frames": 2250,
+      "timeline_start_seconds": 75.0,
+      "timeline_end_seconds": 165.0
+    },
+    {
+      "name": "04-scene3",
+      "image": "scene3-clean.png",
+      "frames": 1750,
+      "timeline_start_seconds": 165.0,
+      "timeline_end_seconds": 235.0
+    },
+    {
+      "name": "05-a02",
+      "image": "scene3-clean.png",
+      "frames": 330,
+      "source": [
+        788,
+        1118
+      ],
+      "sequence_start": 235.0,
+      "overlay": [
+        1420,
+        790
+      ],
+      "timeline_start_seconds": 235.0,
+      "timeline_end_seconds": 248.2
+    },
+    {
+      "name": "06-a02-boundary",
+      "image": "scene3-clean.png",
+      "frames": 170,
+      "evidence_card": true,
+      "overlay": [
+        1420,
+        790
+      ],
+      "timeline_start_seconds": 248.2,
+      "timeline_end_seconds": 255.0
+    },
+    {
+      "name": "07-scene4",
+      "image": "scene4-clean.png",
+      "frames": 2250,
+      "timeline_start_seconds": 255.0,
+      "timeline_end_seconds": 345.0
+    },
+    {
+      "name": "08-a03",
+      "image": "scene5-clean.png",
+      "frames": 349,
+      "source": [
+        1118,
+        1467
+      ],
+      "sequence_start": 345.0,
+      "overlay": [
+        1420,
+        790
+      ],
+      "timeline_start_seconds": 345.0,
+      "timeline_end_seconds": 358.96
+    },
+    {
+      "name": "09-scene5",
+      "image": "scene5-clean.png",
+      "frames": 2026,
+      "timeline_start_seconds": 358.96,
+      "timeline_end_seconds": 440.0
+    },
+    {
+      "name": "10-scene6",
+      "image": "scene6-clean.png",
+      "frames": 1875,
+      "timeline_start_seconds": 440.0,
+      "timeline_end_seconds": 515.0
+    },
+    {
+      "name": "11-a04",
+      "image": "scene6-clean.png",
+      "frames": 362,
+      "source": [
+        1467,
+        1829
+      ],
+      "sequence_start": 515.0,
+      "overlay": [
+        60,
+        790
+      ],
+      "timeline_start_seconds": 515.0,
+      "timeline_end_seconds": 529.48
+    },
+    {
+      "name": "12-scene6",
+      "image": "scene6-clean.png",
+      "frames": 263,
+      "timeline_start_seconds": 529.48,
+      "timeline_end_seconds": 540.0
+    }
+  ],
+  "constraints": {
+    "source_speed": 1.0,
+    "source_crop": false,
+    "source_audio_owner_in_avatar_windows": true,
+    "provider_calls": 0,
+    "external_actions": 0
+  },
+  "a02_handoff": {
+    "source_window_end_seconds": 248.2,
+    "evidence_card_end_seconds": 255.0,
+    "purpose": "Replace the abrupt presenter disappearance with a content-aligned evidence boundary.",
+    "repeated_presenter_frames": false
+  }
+}
