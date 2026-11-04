@@ -49,7 +49,8 @@ describe('Accelerated learning plan', () => {
   it('binds only L01 to the approved composite and captions', () => {
     const asset = (url: string) => readFileSync(`public${url}`)
     expect(createHash('sha256').update(asset(l01Media.video)).digest('hex')).toBe('ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a')
-    expect(asset(l01Media.captions).toString()).toContain('WEBVTT')
+    expect(createHash('sha256').update(asset(l01Media.captions)).digest('hex')).toBe('ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f')
+    expect(asset(l01Media.captions).toString().match(/-->/g)).toHaveLength(84)
     expect(l01Media.duration).toBe('09:00')
   })
 
@@ -71,6 +72,10 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByText('Code six synthetic comments, name one pattern, and flag what contradicts it.')).toBeInTheDocument()
     expect(screen.getByAltText('Representative storyboard frame for L05')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeDisabled()
+    for (const item of lessons.slice(1)) {
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
+      expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
+    }
     expect(screen.queryByText(/production packet|source hash|provider instruction/i)).not.toBeInTheDocument()
   })
 
