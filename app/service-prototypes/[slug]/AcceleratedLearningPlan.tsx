@@ -3,12 +3,22 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
+import l02Transcript from '@/docs/accelerated-course-modules/l02-native-composite/l02-learner-transcript.json'
 import styles from './learning-plan.module.css'
 
 export const l01Media = {
   video: '/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4',
   captions: '/accelerated/lessons/l01/approved-ee09bf72/l01-approved-captions.vtt',
   duration: '09:00',
+} as const
+
+export const l02Media = {
+  video: '/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4',
+  captions: '/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt',
+  duration: '10:00',
+  compositeSha256: 'ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6',
+  sourceSha256: '2beae8254c76a6f8bf168afb8483e83e63c13b621ec3934c81397d3167cd1a3d',
+  captionsSourceSha256: 'ed1f824f36a64d9b783266c54a9840e2d89a71e1e526bd55efbbea7359d70ca0',
 } as const
 
 type Act = 'Signals' | 'Alignment' | 'Momentum' | 'Synthesis'
@@ -65,6 +75,7 @@ export function AcceleratedLearningPlan() {
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
+  const locked = (id: string) => id !== 'L01' && id !== 'L02'
   useEffect(() => {
     if (videoOpen) {
       playerRef.current?.focus()
@@ -95,11 +106,11 @@ export function AcceleratedLearningPlan() {
         {visible.length === 0 ? <div className={styles.empty}><strong>No lessons found.</strong><p>Try another term or show the full plan.</p><button type="button" onClick={() => { setQuery(''); setFilter('All') }}>Show all lessons</button></div> : acts.map((group) => {
           const groupLessons = visible.filter((item) => item.act === group.name)
           if (!groupLessons.length) return null
-          return <section key={group.name} className={styles.actGroup} aria-label={`${group.name} lessons`}><div className={styles.actHeader}><div><h3>{group.name}</h3><p>{group.line}</p></div><span>{groupLessons.length} lessons</span></div><div className={styles.lessonList}>{groupLessons.map((item) => <button type="button" key={item.id} className={styles.lessonRow} aria-label={`${item.id}: ${item.title}, ${completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}`} aria-current={selected === item.id ? 'true' : undefined} onClick={() => selectLesson(item.id)}><span className={styles.lessonNumber}>{item.id}</span><span className={styles.lessonName}><strong>{item.title}</strong><small>{item.minutes} min · {item.artifact}</small></span><span className={styles.state} data-state={completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}>{completed.includes(item.id) ? 'Complete' : current === item.id ? 'Current' : 'Ready'}</span></button>)}</div></section>
+          return <section key={group.name} className={styles.actGroup} aria-label={`${group.name} lessons`}><div className={styles.actHeader}><div><h3>{group.name}</h3><p>{group.line}</p></div><span>{groupLessons.length} lessons</span></div><div className={styles.lessonList}>{groupLessons.map((item) => <button type="button" key={item.id} className={styles.lessonRow} aria-label={`${item.id}: ${item.title}, ${locked(item.id) ? 'locked' : completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}`} aria-current={selected === item.id ? 'true' : undefined} onClick={() => selectLesson(item.id)}><span className={styles.lessonNumber}>{item.id}</span><span className={styles.lessonName}><strong>{item.title}</strong><small>{item.minutes} min · {item.artifact}</small></span><span className={styles.state} data-state={locked(item.id) ? 'locked' : completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}>{locked(item.id) ? 'Locked' : completed.includes(item.id) ? 'Complete' : current === item.id ? 'Current' : 'Ready'}</span></button>)}</div></section>
         })}
       </div>
       <article ref={detailRef} className={styles.detail} aria-live="polite">
-        <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState} data-state={completed.includes(lesson.id) ? 'complete' : current === lesson.id ? 'current' : 'ready'}>{completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
+        <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState} data-state={locked(lesson.id) ? 'locked' : completed.includes(lesson.id) ? 'complete' : current === lesson.id ? 'current' : 'ready'}>{locked(lesson.id) ? 'Video locked · brief preview' : completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
         <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · approved workshop visual</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>Storyboard preview · representative frame</figcaption></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
@@ -112,8 +123,17 @@ export function AcceleratedLearningPlan() {
           </video>
           <div className={styles.playerTools}><span>Duration {l01Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
           <details className={styles.transcript}><summary>Read along with L01 transcript</summary><ol>{transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
-        </section> : <div className={styles.mediaNotice}><strong>L01 guided video is ready</strong><p>Watch the approved nine-minute lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L01 guided video · 09:00</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
-        <div className={styles.actions}><button type="button" onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
+        </section> : <div className={styles.mediaNotice}><strong>L01 guided video is ready</strong><p>Watch the approved nine-minute lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L01 guided video · 09:00</button></div> : lesson.id === 'L02' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L02 guided video">
+          <div className={styles.playerHeading}><div><strong>Guided video · L02</strong><p>Watch the ten-minute lesson, then choose one priority to test in your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
+          <video ref={videoRef} controls playsInline preload="metadata" aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+            <source src={l02Media.video} type="video/mp4" />
+            <track kind="captions" src={l02Media.captions} srcLang="en" label="English captions" default />
+            Your browser cannot play this video. The read-along transcript is available below.
+          </video>
+          <div className={styles.playerTools}><span>Duration {l02Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
+          <details className={styles.transcript}><summary>Read along with L02 transcript</summary><ol>{l02Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
+        </section> : <div className={styles.mediaNotice}><strong>L02 guided video is ready</strong><p>Watch the approved ten-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L02 guided video · 10:00</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
+        <div className={styles.actions}><button type="button" disabled={locked(lesson.id)} title={locked(lesson.id) ? 'Completion opens after the guided video is approved' : undefined} onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{locked(lesson.id) ? 'Completion unavailable' : completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
         <p className={styles.previewNote}>Progress is for this preview only. Use public, synthetic, or approved material in the exercises.</p>
       </article>
     </div>
