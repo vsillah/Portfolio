@@ -10,11 +10,19 @@ const files = {
   script: 'docs/accelerated-course-modules/curriculum/scripts/L03.md',
   manifest: 'docs/accelerated-course-modules/l03-native-composite/composite-manifest.json',
   receipt: 'docs/accelerated-course-modules/l03-native-composite/composite-receipt.json',
+  approval: 'docs/accelerated-course-modules/l03-native-composite/human-qa-approval-receipt.json',
   deviation: 'docs/accelerated-course-modules/l03-native-composite/resolution-deviation-receipt.json',
   l01Video: 'public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4',
   l01Captions: 'public/accelerated/lessons/l01/approved-ee09bf72/l01-approved-captions.vtt',
   l02Video: 'public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4',
   l02Captions: 'public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt',
+}
+
+const approvalIdentity = {
+  messageId: '01a1a7dd-1768-7aa2-ae4d-94873644fe8c',
+  reviewedPr: 1200,
+  reviewedPrHead: '3fb377f9c57feaaad77644b309991b0e22d95143',
+  reviewer: 'Vambah Sillah',
 }
 const expected = {
   composite: '02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a',
@@ -35,10 +43,33 @@ function assertHash(name, base) {
   if (actual !== expected[name]) throw new Error(`Accelerated ${name} hash mismatch: ${actual}`)
 }
 
+export function validateL03HumanQaApproval(approval) {
+  if (!approval || approval.status !== 'approved') {
+    throw new Error('Accelerated L03 Human QA approval is absent or pending')
+  }
+  if (approval.receipt_type !== 'accelerated_guided_video_human_qa_approval' ||
+      approval.project !== 'Portfolio' || approval.lesson !== 'Accelerated L03' ||
+      approval.approval?.message_id !== approvalIdentity.messageId ||
+      approval.approval?.reviewed_pr !== approvalIdentity.reviewedPr ||
+      approval.approval?.reviewed_pr_head !== approvalIdentity.reviewedPrHead ||
+      approval.reviewer?.identity !== approvalIdentity.reviewer) {
+    throw new Error('Accelerated L03 Human QA approval is stale or identity-mismatched')
+  }
+  if (approval.bindings?.composite_sha256 !== expected.composite ||
+      approval.bindings?.provider_source_sha256 !== expected.source ||
+      approval.bindings?.script_sha256 !== expected.script ||
+      approval.bindings?.captions_source_sha256 !== expected.captions ||
+      approval.external_actions_authorized !== false) {
+    throw new Error('Accelerated L03 Human QA approval artifact binding mismatch')
+  }
+  return approval
+}
+
 export function validateAndStageL03(base = root) {
   for (const name of ['composite', 'captions', 'script', 'deviation', 'l01Video', 'l01Captions', 'l02Video', 'l02Captions']) assertHash(name, base)
   const manifest = JSON.parse(read('manifest', base))
   const receipt = JSON.parse(read('receipt', base))
+  const approval = validateL03HumanQaApproval(JSON.parse(read('approval', base)))
   const deviation = JSON.parse(read('deviation', base))
   if (manifest.lesson !== 'Accelerated L03' || receipt.lesson !== manifest.lesson || deviation.lesson !== manifest.lesson ||
       manifest.source_commit !== '7663edf66b7eb6c88d7129ae331199616ae44345' ||
@@ -49,6 +80,9 @@ export function validateAndStageL03(base = root) {
       manifest.output_duration_seconds !== 540 || manifest.output_frames !== 13500 || receipt.composite?.duration_seconds !== 540 ||
       receipt.composite?.video_frames !== 13500 || deviation.status !== 'approved') {
     throw new Error('Accelerated L03 identity or approved source lineage mismatch')
+  }
+  if (approval.bindings.pre_approval_composite_receipt !== files.receipt) {
+    throw new Error('Accelerated L03 Human QA approval receipt lineage mismatch')
   }
   const srt = read('captions', base).toString('utf8').trim().replace(/\r\n/g, '\n')
   const cues = srt.split(/\n\n+/).map((block, index) => {

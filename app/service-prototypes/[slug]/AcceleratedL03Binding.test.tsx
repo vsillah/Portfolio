@@ -29,6 +29,7 @@ describe('Accelerated L03 learner binding', () => {
     const dir = 'docs/accelerated-course-modules/l03-native-composite'
     const manifest = JSON.parse(readFileSync(`${dir}/composite-manifest.json`, 'utf8'))
     const receipt = JSON.parse(readFileSync(`${dir}/composite-receipt.json`, 'utf8'))
+    const approval = JSON.parse(readFileSync(`${dir}/human-qa-approval-receipt.json`, 'utf8'))
     const deviation = JSON.parse(readFileSync(`${dir}/resolution-deviation-receipt.json`, 'utf8'))
     const transcript = JSON.parse(readFileSync(`${dir}/l03-learner-transcript.json`, 'utf8'))
     expect(hash(`public${l03Media.video}`)).toBe(l03Media.compositeSha256)
@@ -40,6 +41,14 @@ describe('Accelerated L03 learner binding', () => {
     expect(manifest.source_sha256).toBe(l03Media.sourceSha256)
     expect(receipt.composite.sha256).toBe(l03Media.compositeSha256)
     expect(receipt.approved_source_sha256).toBe(l03Media.sourceSha256)
+    expect(receipt.human_qa.composite_status).toBe('pending')
+    expect(approval.status).toBe('approved')
+    expect(approval.approval.message_id).toBe('01a1a7dd-1768-7aa2-ae4d-94873644fe8c')
+    expect(approval.approval.reviewed_pr_head).toBe('3fb377f9c57feaaad77644b309991b0e22d95143')
+    expect(approval.bindings.composite_sha256).toBe(l03Media.compositeSha256)
+    expect(approval.bindings.provider_source_sha256).toBe(l03Media.sourceSha256)
+    expect(approval.bindings.script_sha256).toBe(manifest.script_sha256)
+    expect(approval.external_actions_authorized).toBe(false)
     expect(deviation.status).toBe('approved')
     expect(transcript.source_srt_sha256).toBe(l03Media.captionsSourceSha256)
     expect(transcript.cues).toHaveLength(85)
@@ -48,6 +57,21 @@ describe('Accelerated L03 learner binding', () => {
     expect(l02Media.video).toBe('/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4')
     expect(hash(`public${l01Media.video}`)).toBe('ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a')
     expect(hash(`public${l02Media.video}`)).toBe(l02Media.compositeSha256)
+  })
+
+  it('fails closed for absent, pending, stale, or identity-mismatched Human QA approval', async () => {
+    const { validateL03HumanQaApproval } = await import('../../../scripts/stage-accelerated-l03-media.mjs')
+    const approval = JSON.parse(readFileSync('docs/accelerated-course-modules/l03-native-composite/human-qa-approval-receipt.json', 'utf8'))
+    expect(() => validateL03HumanQaApproval(undefined)).toThrow(/absent or pending/)
+    expect(() => validateL03HumanQaApproval({ ...approval, status: 'pending' })).toThrow(/absent or pending/)
+    expect(() => validateL03HumanQaApproval({
+      ...approval,
+      approval: { ...approval.approval, reviewed_pr_head: 'stale-head' },
+    })).toThrow(/stale or identity-mismatched/)
+    expect(() => validateL03HumanQaApproval({
+      ...approval,
+      bindings: { ...approval.bindings, composite_sha256: 'mismatched-composite' },
+    })).toThrow(/artifact binding mismatch/)
   })
 
   it('plays L03 with captions and transcript, returns to plan, and keeps L04–L16 locked', () => {
