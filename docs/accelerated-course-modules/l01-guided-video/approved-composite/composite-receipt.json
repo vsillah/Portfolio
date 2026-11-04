@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "project": "Portfolio",
+  "lesson": "Accelerated L01",
+  "source_commit": "ccb0e108cc96e2903722901e66a85114f13dcc6f",
+  "provider_job_id": "c5639a0b76144ae5bcd76b1f2de85ed5",
+  "approved_source_sha256": "2c502e0e9fc03b93fb71f85abae1ce936c2c33a43e01307620a845424f233626",
+  "composite": {
+    "filename": "accelerated-l01-native-composite.mp4",
+    "sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+    "duration_seconds": 540.0,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": 25,
+    "video_frames": 13500,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "caption_codec": "mov_text",
+    "caption_cues": 85
+  },
+  "a02_handoff": {
+    "presenter_end_seconds": 248.2,
+    "evidence_card_end_seconds": 255.0,
+    "behavior": "The native presenter hands off to a branded teaching-story boundary card instead of disappearing into empty space.",
+    "provider_source_changed": false,
+    "repeated_presenter_frames": false
+  },
+  "verification": {
+    "full_decode": "pass",
+    "native_source_speed": 1.0,
+    "native_source_cropped": false,
+    "source_audio_only_in_presenter_windows": true,
+    "presenter_frame": "aspect-correct solid gold 16:9",
+    "presenter_placement": "scene-specific negative space",
+    "meaningful_content_obscured": false,
+    "a03_sentence_complete": true,
+    "a04_ending_complete": true,
+    "sam_and_book_assets_preserved": true,
+    "approved_captions_preserved": true
+  },
+  "external_actions": {
+    "provider_calls": 0,
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false,
+    "other_lessons_generated": false,
+    "incremental_cost_usd": 0
+  },
+  "human_qa": {"source_status": "approved", "composite_status": "pending"},
+  "current_gate": "native_composite_human_qa"
+}

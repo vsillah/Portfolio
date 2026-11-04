@@ -1,8 +1,15 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
 import styles from './learning-plan.module.css'
+
+export const l01Media = {
+  video: '/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4',
+  captions: '/accelerated/lessons/l01/approved-ee09bf72/l01-approved-captions.vtt',
+  duration: '09:00',
+} as const
 
 type Act = 'Signals' | 'Alignment' | 'Momentum' | 'Synthesis'
 type Lesson = { id: string; title: string; minutes: number; act: Act; summary: string; exercise: string; artifact: string }
@@ -43,7 +50,12 @@ const storyboard: Record<string, string> = {
 
 export function AcceleratedLearningPlan() {
   const detailRef = useRef<HTMLElement>(null)
+  const playerRef = useRef<HTMLElement>(null)
+  const watchRef = useRef<HTMLButtonElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [selected, setSelected] = useState('L01')
+  const [videoOpen, setVideoOpen] = useState(false)
+  const [captionsOn, setCaptionsOn] = useState(true)
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
   const [completed, setCompleted] = useState<string[]>([])
@@ -53,11 +65,23 @@ export function AcceleratedLearningPlan() {
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
+  useEffect(() => {
+    if (videoOpen) {
+      playerRef.current?.focus()
+      playerRef.current?.scrollIntoView?.({ block: 'start' })
+    }
+  }, [videoOpen])
   const selectLesson = (id: string) => {
     setSelected(id)
+    setVideoOpen(false)
     if (window.matchMedia?.('(max-width: 1050px)').matches) {
       detailRef.current?.scrollIntoView({ block: 'start' })
     }
+  }
+  const setCaptionMode = (enabled: boolean) => {
+    setCaptionsOn(enabled)
+    const track = videoRef.current?.textTracks[0]
+    if (track) track.mode = enabled ? 'showing' : 'disabled'
   }
 
   return <section className={styles.plan} aria-label="Accelerated learning plan">
@@ -79,7 +103,16 @@ export function AcceleratedLearningPlan() {
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
         <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · approved workshop visual</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>Storyboard preview · representative frame</figcaption></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
-        <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>
+        {lesson.id === 'L01' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L01 guided video">
+          <div className={styles.playerHeading}><div><strong>Guided video · L01</strong><p>Watch the nine-minute lesson, then use the exercise above to start your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
+          <video ref={videoRef} controls playsInline preload="metadata" aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+            <source src={l01Media.video} type="video/mp4" />
+            <track kind="captions" src={l01Media.captions} srcLang="en" label="English captions" default />
+            Your browser cannot play this video. The read-along transcript is available below.
+          </video>
+          <div className={styles.playerTools}><span>Duration {l01Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
+          <details className={styles.transcript}><summary>Read along with L01 transcript</summary><ol>{transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
+        </section> : <div className={styles.mediaNotice}><strong>L01 guided video is ready</strong><p>Watch the approved nine-minute lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L01 guided video · 09:00</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
         <div className={styles.actions}><button type="button" onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
         <p className={styles.previewNote}>Progress is for this preview only. Use public, synthetic, or approved material in the exercises.</p>
       </article>

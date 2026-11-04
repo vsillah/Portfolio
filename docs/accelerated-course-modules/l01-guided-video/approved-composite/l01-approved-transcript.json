@@ -1,0 +1,425 @@
+{
+  "source_vtt_sha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:05.590",
+      "text": "The document is open. At the top it says, Q3 Innovation Plan."
+    },
+    {
+      "start": "00:05.590",
+      "end": "00:12.578",
+      "text": "The cursor blinks. Your inbox is full of requests, your team wants a direction, and"
+    },
+    {
+      "start": "00:12.578",
+      "end": "00:17.702",
+      "text": "somebody wants a polished plan by Friday. I know that room."
+    },
+    {
+      "start": "00:17.702",
+      "end": "00:22.360",
+      "text": "The pressure makes the blank page feel like the problem."
+    },
+    {
+      "start": "00:22.360",
+      "end": "00:29.348",
+      "text": "So you open a tool, ask for ideas, and in thirty seconds you have a"
+    },
+    {
+      "start": "00:29.348",
+      "end": "00:34.472",
+      "text": "confident looking answer. Now what? Who will decide which idea matters?"
+    },
+    {
+      "start": "00:34.472",
+      "end": "00:41.460",
+      "text": "What evidence would make that choice responsible? What data did you put into the tool"
+    },
+    {
+      "start": "00:41.460",
+      "end": "00:47.981",
+      "text": "to get there? A beautiful page can hide those questions for a little while."
+    },
+    {
+      "start": "00:47.981",
+      "end": "00:54.969",
+      "text": "It cannot answer them. In the opening of Accelerated, I start with that blinking cursor"
+    },
+    {
+      "start": "00:54.969",
+      "end": "01:01.957",
+      "text": "because it is familiar. The book begins with product teams carrying noise, conflicting priorities, and"
+    },
+    {
+      "start": "01:01.957",
+      "end": "01:08.944",
+      "text": "documents that do not move decisions. The work here is to give the team a"
+    },
+    {
+      "start": "01:08.944",
+      "end": "01:15.000",
+      "text": "way to learn, choose, and keep its judgment when the page fills up."
+    },
+    {
+      "start": "01:15.000",
+      "end": "01:19.972",
+      "text": "A product system sounds larger than it needs to be."
+    },
+    {
+      "start": "01:19.972",
+      "end": "01:24.945",
+      "text": "Think about the last idea that arrived in a meeting."
+    },
+    {
+      "start": "01:24.945",
+      "end": "01:30.414",
+      "text": "Someone noticed a customer problem. Someone else had a competing story."
+    },
+    {
+      "start": "01:30.414",
+      "end": "01:37.873",
+      "text": "A third person asked for a number nobody had. The team left with another document"
+    },
+    {
+      "start": "01:37.873",
+      "end": "01:45.331",
+      "text": "to write. A system gives those moments a path. It helps you record the signal,"
+    },
+    {
+      "start": "01:45.331",
+      "end": "01:51.796",
+      "text": "name the decision, state what you believe, and come back to what happened."
+    },
+    {
+      "start": "01:51.796",
+      "end": "01:59.254",
+      "text": "AI can help organize messy input, test the shape of an argument, and make a"
+    },
+    {
+      "start": "01:59.254",
+      "end": "02:05.221",
+      "text": "first draft. The judgment still belongs to people who understand the consequences."
+    },
+    {
+      "start": "02:05.221",
+      "end": "02:12.680",
+      "text": "That is the argument in the first chapter. I describe AI as a strategy partner,"
+    },
+    {
+      "start": "02:12.680",
+      "end": "02:20.138",
+      "text": "a signal amplifier, and a structure builder. Those are jobs it may help with, under"
+    },
+    {
+      "start": "02:20.138",
+      "end": "02:25.608",
+      "text": "the right conditions. They are not permission to trust every output."
+    },
+    {
+      "start": "02:25.608",
+      "end": "02:33.066",
+      "text": "If it gives you five polished options, you still need to ask who benefits, what"
+    },
+    {
+      "start": "02:33.066",
+      "end": "02:40.525",
+      "text": "is missing, and which option you can test safely. Speed can create room to think."
+    },
+    {
+      "start": "02:40.525",
+      "end": "02:45.000",
+      "text": "It can also fill that room with more noise."
+    },
+    {
+      "start": "02:45.000",
+      "end": "02:52.459",
+      "text": "Look at this map. Signals. Alignment. Momentum. It is a way to navigate the workshop."
+    },
+    {
+      "start": "02:52.459",
+      "end": "02:59.420",
+      "text": "First, take the raw material coming at you and find a question worth answering."
+    },
+    {
+      "start": "02:59.420",
+      "end": "03:04.392",
+      "text": "Then give the people carrying the decision a shared direction."
+    },
+    {
+      "start": "03:04.392",
+      "end": "03:11.354",
+      "text": "Then build a rhythm that lets the next round of evidence change the plan."
+    },
+    {
+      "start": "03:11.354",
+      "end": "03:16.823",
+      "text": "The book organizes its printed chapters as Systems, Align, and Momentum."
+    },
+    {
+      "start": "03:16.823",
+      "end": "03:23.785",
+      "text": "The workshop uses the three labels on this existing infographic as a visual guide."
+    },
+    {
+      "start": "03:23.785",
+      "end": "03:31.243",
+      "text": "You will see where those paths cross; the graphic is not a replacement for the"
+    },
+    {
+      "start": "03:31.243",
+      "end": "03:37.210",
+      "text": "chapters. In these first lessons we stay close to the signal side."
+    },
+    {
+      "start": "03:37.210",
+      "end": "03:44.669",
+      "text": "We will choose one decision, work backward to evidence, and ask what a small test"
+    },
+    {
+      "start": "03:44.669",
+      "end": "03:52.127",
+      "text": "could teach us. There is a human thread through the book, too: Sam, a product"
+    },
+    {
+      "start": "03:52.127",
+      "end": "03:57.597",
+      "text": "manager who has talent but keeps getting pulled into reactive work."
+    },
+    {
+      "start": "03:57.597",
+      "end": "04:05.055",
+      "text": "That story makes the pressure visible. It is a teaching story from the book, not"
+    },
+    {
+      "start": "04:05.055",
+      "end": "04:12.514",
+      "text": "a claim about a current customer. Keep that distinction in view as we move between"
+    },
+    {
+      "start": "04:12.514",
+      "end": "04:15.000",
+      "text": "story, worksheet, and public proof."
+    },
+    {
+      "start": "04:15.000",
+      "end": "04:20.934",
+      "text": "Before you try any prompt, decide what information can leave your desk."
+    },
+    {
+      "start": "04:20.934",
+      "end": "04:26.374",
+      "text": "The book's data-safety note comes before the chapters for a reason."
+    },
+    {
+      "start": "04:26.374",
+      "end": "04:33.791",
+      "text": "Customer details, finances, internal strategy, and company records can carry obligations that a convenient text"
+    },
+    {
+      "start": "04:33.791",
+      "end": "04:41.209",
+      "text": "box does not erase. My working rule for this course is simple: use public information,"
+    },
+    {
+      "start": "04:41.209",
+      "end": "04:47.143",
+      "text": "material your organization has approved for that use, or a made-up example."
+    },
+    {
+      "start": "04:47.143",
+      "end": "04:53.571",
+      "text": "If you are unsure, stop and check the policy that governs your work."
+    },
+    {
+      "start": "04:53.571",
+      "end": "05:00.989",
+      "text": "Do not put restricted material into an external model to make the worksheet feel realistic."
+    },
+    {
+      "start": "05:00.989",
+      "end": "05:08.407",
+      "text": "We can learn the method with a synthetic case. Imagine a team trying to improve"
+    },
+    {
+      "start": "05:08.407",
+      "end": "05:15.824",
+      "text": "the first week for new members. We can invent a harmless request list and test"
+    },
+    {
+      "start": "05:15.824",
+      "end": "05:23.242",
+      "text": "our reasoning without using anyone's account, message, or history. On the screen, watch the example"
+    },
+    {
+      "start": "05:23.242",
+      "end": "05:30.659",
+      "text": "move into a three-column boundary: public, approved internal, restricted. \u201cApproved internal\u201d means approved for this"
+    },
+    {
+      "start": "05:30.659",
+      "end": "05:36.099",
+      "text": "particular tool and purpose, not merely available to you at work."
+    },
+    {
+      "start": "05:36.099",
+      "end": "05:43.516",
+      "text": "This boundary follows the decision file through every lesson. It is part of product judgment,"
+    },
+    {
+      "start": "05:43.516",
+      "end": "05:45.000",
+      "text": "not an appendix."
+    },
+    {
+      "start": "05:45.000",
+      "end": "05:52.461",
+      "text": "Let's make the first page of your decision file. It starts with a decision, not"
+    },
+    {
+      "start": "05:52.461",
+      "end": "05:59.921",
+      "text": "a tool. Write one sentence: \u201cWe need to decide whether to...\u201d It could be whether"
+    },
+    {
+      "start": "05:59.921",
+      "end": "06:07.382",
+      "text": "to change an onboarding step, simplify a service request, or test a different way to"
+    },
+    {
+      "start": "06:07.382",
+      "end": "06:14.843",
+      "text": "explain an offer. Keep the scope small enough that someone could make a choice after"
+    },
+    {
+      "start": "06:14.843",
+      "end": "06:21.806",
+      "text": "seeing evidence. Now write who owns that choice and when it must be made."
+    },
+    {
+      "start": "06:21.806",
+      "end": "06:27.277",
+      "text": "If nobody owns it, name the role you need to ask."
+    },
+    {
+      "start": "06:27.277",
+      "end": "06:34.738",
+      "text": "Underneath, write what would go wrong if you guessed. Then mark the inputs you might"
+    },
+    {
+      "start": "06:34.738",
+      "end": "06:39.712",
+      "text": "want to use. Public, approved for this purpose, or restricted."
+    },
+    {
+      "start": "06:39.712",
+      "end": "06:44.686",
+      "text": "If the real inputs are restricted, make a safe stand-in."
+    },
+    {
+      "start": "06:44.686",
+      "end": "06:51.152",
+      "text": "Preserve the shape of the problem; remove the person and the private facts."
+    },
+    {
+      "start": "06:51.152",
+      "end": "06:56.126",
+      "text": "You are allowed to pause the video while you write."
+    },
+    {
+      "start": "06:56.126",
+      "end": "07:03.586",
+      "text": "When you resume, you should have a cover sheet a colleague could read without asking"
+    },
+    {
+      "start": "07:03.586",
+      "end": "07:11.047",
+      "text": "what you are trying to decide. You should also know which inputs will stay out"
+    },
+    {
+      "start": "07:11.047",
+      "end": "07:18.508",
+      "text": "of any AI tool. That is a useful first result, even if the plan itself"
+    },
+    {
+      "start": "07:18.508",
+      "end": "07:20.000",
+      "text": "is still unfinished."
+    },
+    {
+      "start": "07:20.000",
+      "end": "07:27.812",
+      "text": "Take one more look at your sentence. Could a fast draft make that decision for"
+    },
+    {
+      "start": "07:27.812",
+      "end": "07:35.625",
+      "text": "you? Probably not. It might help you list options, put questions in order, or notice"
+    },
+    {
+      "start": "07:35.625",
+      "end": "07:43.438",
+      "text": "that an assumption is doing too much work. But a person still has to decide"
+    },
+    {
+      "start": "07:43.438",
+      "end": "07:49.167",
+      "text": "what matters and what risk the team is willing to carry."
+    },
+    {
+      "start": "07:49.167",
+      "end": "07:54.896",
+      "text": "That is why I ask you to keep the decision file."
+    },
+    {
+      "start": "07:54.896",
+      "end": "08:02.708",
+      "text": "A chat window can be useful for a moment; the file makes the reasoning visible"
+    },
+    {
+      "start": "08:02.708",
+      "end": "08:10.521",
+      "text": "when the moment has passed. Write one line under the cover: \u201cWhat would I need"
+    },
+    {
+      "start": "08:10.521",
+      "end": "08:15.729",
+      "text": "to learn before I choose?\u201d Do not answer it yet."
+    },
+    {
+      "start": "08:15.729",
+      "end": "08:23.542",
+      "text": "Let the question sit. In the next lesson we will bring that question into a"
+    },
+    {
+      "start": "08:23.542",
+      "end": "08:31.354",
+      "text": "crowded planning room. We will look at three possible paths and choose one worth testing."
+    },
+    {
+      "start": "08:31.354",
+      "end": "08:37.083",
+      "text": "If you have only a vague problem now, that is enough."
+    },
+    {
+      "start": "08:37.083",
+      "end": "08:42.812",
+      "text": "A good first page does not pretend to know the answer."
+    },
+    {
+      "start": "08:42.812",
+      "end": "08:50.625",
+      "text": "It tells the truth about the decision, the evidence you have, and the information you"
+    },
+    {
+      "start": "08:50.625",
+      "end": "08:58.438",
+      "text": "have permission to use. Keep that first page open. The rest of this workshop will"
+    },
+    {
+      "start": "08:58.438",
+      "end": "09:00.000",
+      "text": "build on it."
+    }
+  ]
+}

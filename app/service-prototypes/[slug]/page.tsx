@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { BarChart3, Bot, BrainCircuit, ClipboardList, FileText, HelpCircle, MessageSquare, Route, Trophy, Users, Megaphone } from 'lucide-react'
@@ -171,7 +171,9 @@ export default function ServicePrototypePage() {
   const initial = useMemo(() => Math.max(0, Math.min(2, Number(search.get('view') || 1) - 1 || 0)), [search])
   const [view, setView] = useState(initial)
   const { resolvedTheme, setTheme } = useTheme()
-  const dark = resolvedTheme === 'dark'
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const dark = mounted && resolvedTheme === 'dark'
   if (!prototype) return <main className={styles.missing}><h1>Prototype unavailable</h1><p>This service preview could not be found.</p><Link href="/services">Return to services</Link></main>
   const content = slug === 'ai-lead-chatbot' ? <LeadChatbot view={view}/> : slug === 'lead-workflow-agent' ? <Workflow view={view}/> : slug === 'website-ux-refresh' ? <Website view={view}/> : slug === 'accelerated-cohort' ? <Cohort view={view}/> : slug === 'self-paced-course' ? <Course view={view}/> : <Masterclass view={view}/>
   return <main className={`${styles.shell} ${dark ? styles.dark : ''}`} data-prototype={slug}>
