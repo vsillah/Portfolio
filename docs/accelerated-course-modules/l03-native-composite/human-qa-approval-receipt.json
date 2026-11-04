@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "receipt_type": "accelerated_guided_video_human_qa_approval",
+  "project": "Portfolio",
+  "lesson": "Accelerated L03",
+  "status": "approved",
+  "reviewer": {
+    "identity": "Vambah Sillah",
+    "role": "Human QA approver"
+  },
+  "approval": {
+    "message_id": "01a1a7dd-1768-7aa2-ae4d-94873644fe8c",
+    "reviewed_pr": 1200,
+    "reviewed_pr_head": "3fb377f9c57feaaad77644b309991b0e22d95143",
+    "recorded_at": "2026-11-04T18:48:44Z",
+    "scope": [
+      "exact Accelerated L03 composite",
+      "captions and transcript",
+      "learner-facing player",
+      "progress and return flow",
+      "unchanged L01-L02 bindings",
+      "responsive presentation",
+      "locked L04-L16 states"
+    ]
+  },
+  "bindings": {
+    "composite_sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+    "provider_source_sha256": "064e049bfaee6d60d5d811d516dbcdf9c14466602afef9a34e07cbf31c551198",
+    "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+    "captions_source_sha256": "ee59adb3cd88e195c25bebaeb04ca0f9b78cc42c7291b1300b205f5958a917de",
+    "pre_approval_composite_receipt": "docs/accelerated-course-modules/l03-native-composite/composite-receipt.json"
+  },
+  "external_actions_authorized": false
+}

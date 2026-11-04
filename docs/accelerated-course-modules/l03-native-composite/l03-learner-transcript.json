@@ -1,0 +1,430 @@
+{
+  "source_srt_sha256": "ee59adb3cd88e195c25bebaeb04ca0f9b78cc42c7291b1300b205f5958a917de",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:04.474",
+      "text": "Imagine walking into a review with a dashboard redesign."
+    },
+    {
+      "start": "00:04.474",
+      "end": "00:09.445",
+      "text": "You have evidence that people struggle with the current screen."
+    },
+    {
+      "start": "00:09.445",
+      "end": "00:11.931",
+      "text": "You have a proposed fix."
+    },
+    {
+      "start": "00:11.931",
+      "end": "00:23.861",
+      "text": "You put up the first slide and someone asks, “Is this the best use of engineering time right now?” That is a reasonable question."
+    },
+    {
+      "start": "00:23.861",
+      "end": "00:29.827",
+      "text": "It may feel like a rejection, but it is also a clue."
+    },
+    {
+      "start": "00:29.827",
+      "end": "00:37.780",
+      "text": "The person across the table is being asked to trade one piece of work for another."
+    },
+    {
+      "start": "00:37.780",
+      "end": "00:44.243",
+      "text": "A pile of research about the screen does not yet explain the trade."
+    },
+    {
+      "start": "00:44.243",
+      "end": "00:50.208",
+      "text": "Chapter Four of Accelerated tells this as the dashboard that almost died."
+    },
+    {
+      "start": "00:50.208",
+      "end": "00:56.173",
+      "text": "The first pitch described the confusing dashboard and asked for a redesign."
+    },
+    {
+      "start": "00:56.173",
+      "end": "01:05.121",
+      "text": "The later pitch put options on the table, including a smaller change, a larger bet, and a delay."
+    },
+    {
+      "start": "01:05.121",
+      "end": "01:09.595",
+      "text": "The book reports a decision after the frame changed."
+    },
+    {
+      "start": "01:09.595",
+      "end": "01:18.046",
+      "text": "In this workshop we use the case to study the question, not to promise the same result."
+    },
+    {
+      "start": "01:18.046",
+      "end": "01:23.514",
+      "text": "What would an owner need to believe before moving engineering time?"
+    },
+    {
+      "start": "01:23.514",
+      "end": "01:26.000",
+      "text": "That is where discovery starts."
+    },
+    {
+      "start": "01:26.000",
+      "end": "01:30.659",
+      "text": "Open the priority page you made in Lesson Two."
+    },
+    {
+      "start": "01:30.659",
+      "end": "01:36.871",
+      "text": "You chose one path and wrote an assumption that could overturn it."
+    },
+    {
+      "start": "01:36.871",
+      "end": "01:41.529",
+      "text": "Now write the decision owner’s question in their words."
+    },
+    {
+      "start": "01:41.529",
+      "end": "02:14.141",
+      "text": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line."
+    },
+    {
+      "start": "02:14.141",
+      "end": "02:15.694",
+      "text": "Label it provisional."
+    },
+    {
+      "start": "02:15.694",
+      "end": "02:21.388",
+      "text": "Under that, write the strongest objection a thoughtful colleague could raise."
+    },
+    {
+      "start": "02:21.388",
+      "end": "02:27.082",
+      "text": "The objection is not a nuisance to remove from the slide."
+    },
+    {
+      "start": "02:27.082",
+      "end": "02:31.224",
+      "text": "It tells you what evidence the decision needs."
+    },
+    {
+      "start": "02:31.224",
+      "end": "02:40.541",
+      "text": "The chapter argues that insight can land flat when its frame ignores the risk the other person carries."
+    },
+    {
+      "start": "02:40.541",
+      "end": "02:45.200",
+      "text": "So we work backward: decision, likely answer, objection, evidence."
+    },
+    {
+      "start": "02:45.200",
+      "end": "02:50.376",
+      "text": "Only then do we choose what to observe or ask."
+    },
+    {
+      "start": "02:50.376",
+      "end": "02:54.000",
+      "text": "The order keeps research attached to action."
+    },
+    {
+      "start": "02:54.000",
+      "end": "02:58.605",
+      "text": "A single polished idea invites a yes or no."
+    },
+    {
+      "start": "02:58.605",
+      "end": "03:02.186",
+      "text": "Chapter Four calls this the binary trap."
+    },
+    {
+      "start": "03:02.186",
+      "end": "03:13.442",
+      "text": "The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay."
+    },
+    {
+      "start": "03:13.442",
+      "end": "03:20.093",
+      "text": "Each path has a different cost and a different thing it could teach."
+    },
+    {
+      "start": "03:20.093",
+      "end": "03:23.674",
+      "text": "Your priority file already has two alternatives."
+    },
+    {
+      "start": "03:23.674",
+      "end": "03:28.791",
+      "text": "Bring them forward rather than hiding them after you choose."
+    },
+    {
+      "start": "03:28.791",
+      "end": "03:34.930",
+      "text": "For the membership example, the welcome email could be the light change."
+    },
+    {
+      "start": "03:34.930",
+      "end": "03:39.023",
+      "text": "The guided task is the small behavior test."
+    },
+    {
+      "start": "03:39.023",
+      "end": "03:42.605",
+      "text": "The staff dashboard is a visibility investment."
+    },
+    {
+      "start": "03:42.605",
+      "end": "03:47.209",
+      "text": "None of those labels is a fact about customers."
+    },
+    {
+      "start": "03:47.209",
+      "end": "03:51.302",
+      "text": "They are ways to make the trade visible."
+    },
+    {
+      "start": "03:51.302",
+      "end": "04:03.070",
+      "text": "If the objection is “We are solving the wrong part of onboarding,” the evidence should tell you where a person stops and why."
+    },
+    {
+      "start": "04:03.070",
+      "end": "04:11.767",
+      "text": "If the objection is “We cannot support another workflow,” the evidence may need to include staff effort."
+    },
+    {
+      "start": "04:11.767",
+      "end": "04:15.860",
+      "text": "A stronger frame does not mean louder language."
+    },
+    {
+      "start": "04:15.860",
+      "end": "04:22.000",
+      "text": "It means the choice is clear enough for another person to challenge."
+    },
+    {
+      "start": "04:22.000",
+      "end": "04:27.696",
+      "text": "Suppose you can ask only one more question before the review."
+    },
+    {
+      "start": "04:27.696",
+      "end": "04:30.286",
+      "text": "What would change your mind?"
+    },
+    {
+      "start": "04:30.286",
+      "end": "04:32.875",
+      "text": "That question keeps discovery honest."
+    },
+    {
+      "start": "04:32.875",
+      "end": "04:45.821",
+      "text": "If you would make the same recommendation no matter what the answer is, you may be collecting support for a story rather than testing it."
+    },
+    {
+      "start": "04:45.821",
+      "end": "04:52.036",
+      "text": "The book suggests pressure-testing a pitch from different angles and anticipating objections."
+    },
+    {
+      "start": "04:52.036",
+      "end": "04:59.286",
+      "text": "You can do that with a safe, fictional brief before anyone sees the recommendation."
+    },
+    {
+      "start": "04:59.286",
+      "end": "05:06.018",
+      "text": "Ask what a skeptical finance lead, an operator, or a customer might question."
+    },
+    {
+      "start": "05:06.018",
+      "end": "05:11.714",
+      "text": "Then compare those possible objections with what real evidence is available."
+    },
+    {
+      "start": "05:11.714",
+      "end": "05:16.375",
+      "text": "An AI tool can help you rehearse the questions."
+    },
+    {
+      "start": "05:16.375",
+      "end": "05:21.554",
+      "text": "It cannot turn a simulated objection into a customer interview."
+    },
+    {
+      "start": "05:21.554",
+      "end": "05:26.214",
+      "text": "On our card, write one evidence gap that matters."
+    },
+    {
+      "start": "05:26.214",
+      "end": "05:38.643",
+      "text": "Maybe we do not know whether people abandon the first step because they cannot find it, cannot understand it, or do not value it."
+    },
+    {
+      "start": "05:38.643",
+      "end": "05:40.714",
+      "text": "Those are different problems."
+    },
+    {
+      "start": "05:40.714",
+      "end": "05:49.000",
+      "text": "We should not build a guided path for all three without learning which one we have."
+    },
+    {
+      "start": "05:49.000",
+      "end": "05:52.618",
+      "text": "Let's fill the rest of the card."
+    },
+    {
+      "start": "05:52.618",
+      "end": "05:57.787",
+      "text": "The decision is whether to test a guided first task."
+    },
+    {
+      "start": "05:57.787",
+      "end": "06:05.539",
+      "text": "Our current answer is yes, because the team suspects people need a clearer starting point."
+    },
+    {
+      "start": "06:05.539",
+      "end": "06:14.843",
+      "text": "The strongest objection is that the first step may already be clear; maybe the real issue comes later."
+    },
+    {
+      "start": "06:14.843",
+      "end": "06:25.697",
+      "text": "The missing evidence is an observation of where people hesitate and a short question about what they expected to happen next."
+    },
+    {
+      "start": "06:25.697",
+      "end": "06:33.449",
+      "text": "A safe test could use a prototype and willing participants under an approved research process."
+    },
+    {
+      "start": "06:33.449",
+      "end": "06:40.169",
+      "text": "We would record what they did, what they said, and what remains uncertain."
+    },
+    {
+      "start": "06:40.169",
+      "end": "06:42.236",
+      "text": "That last field matters."
+    },
+    {
+      "start": "06:42.236",
+      "end": "06:49.989",
+      "text": "A few observations can direct the next question; they do not establish a population-wide result."
+    },
+    {
+      "start": "06:49.989",
+      "end": "06:56.708",
+      "text": "If you have no approved research access, keep the card as a plan."
+    },
+    {
+      "start": "06:56.708",
+      "end": "07:02.393",
+      "text": "Do not manufacture quotes or silently substitute simulated people for participants."
+    },
+    {
+      "start": "07:02.393",
+      "end": "07:11.180",
+      "text": "The dashboard case in the book helps us see how a named trade can make evidence relevant."
+    },
+    {
+      "start": "07:11.180",
+      "end": "07:21.000",
+      "text": "Our exercise turns that lesson into an action you can take without pretending that the answer is already known."
+    },
+    {
+      "start": "07:21.000",
+      "end": "07:24.126",
+      "text": "Pause and make your own card."
+    },
+    {
+      "start": "07:24.126",
+      "end": "07:27.253",
+      "text": "Write the decision in a sentence."
+    },
+    {
+      "start": "07:27.253",
+      "end": "07:30.379",
+      "text": "Write the answer you currently believe."
+    },
+    {
+      "start": "07:30.379",
+      "end": "07:32.984",
+      "text": "Write the strongest fair objection."
+    },
+    {
+      "start": "07:32.984",
+      "end": "07:42.363",
+      "text": "Then write one piece of evidence that could change the decision and a safe way to seek it."
+    },
+    {
+      "start": "07:42.363",
+      "end": "07:48.095",
+      "text": "If your evidence is already available, record its source and date."
+    },
+    {
+      "start": "07:48.095",
+      "end": "07:51.221",
+      "text": "If it is missing, say missing."
+    },
+    {
+      "start": "07:51.221",
+      "end": "07:57.995",
+      "text": "Your file should now show a line from priority choice to evidence gap."
+    },
+    {
+      "start": "07:57.995",
+      "end": "08:03.205",
+      "text": "That line is the point of these first three lessons."
+    },
+    {
+      "start": "08:03.205",
+      "end": "08:10.500",
+      "text": "A good question can save you from a month of defending the wrong artifact."
+    },
+    {
+      "start": "08:10.500",
+      "end": "08:15.711",
+      "text": "When you resume, look at the person behind the evidence."
+    },
+    {
+      "start": "08:15.711",
+      "end": "08:24.568",
+      "text": "We tend to summarize that person as a persona and leave the slide untouched for a year."
+    },
+    {
+      "start": "08:24.568",
+      "end": "08:33.947",
+      "text": "In the next lesson we will make the customer situation more specific and the persona easier to revise."
+    },
+    {
+      "start": "08:33.947",
+      "end": "08:40.721",
+      "text": "You do not have to win the room with a perfect story today."
+    },
+    {
+      "start": "08:40.721",
+      "end": "08:52.184",
+      "text": "You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to."
+    },
+    {
+      "start": "08:52.184",
+      "end": "08:56.353",
+      "text": "Keep the card attached to your priority page."
+    },
+    {
+      "start": "08:56.353",
+      "end": "09:00.000",
+      "text": "We are going to use it again."
+    }
+  ]
+}

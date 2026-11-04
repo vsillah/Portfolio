@@ -31,6 +31,7 @@ const nextConfig = {
       '/api/admin/social-content/*/bind-approved-master': [
         './public/accelerated/lessons/l01/approved-ee09bf72/*',
         './public/accelerated/lessons/l02/approved-ded23edb/*',
+        './public/accelerated/lessons/l03/approved-02b9c3ea/*',
       ],
     },
     serverActions: {

@@ -72,7 +72,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByText('Code six synthetic comments, name one pattern, and flag what contradicts it.')).toBeInTheDocument()
     expect(screen.getByAltText('Representative storyboard frame for L05')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeDisabled()
-    for (const item of lessons.slice(2)) {
+    for (const item of lessons.slice(3)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
       expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
     }
@@ -134,7 +134,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.queryByRole('button', { name: /Next lesson/ })).not.toBeInTheDocument()
   })
 
-  it('closes the L01 player when L02 is selected, opens exact L02 media, and keeps L03 locked', () => {
+  it('closes the L01 player when L02 is selected and opens exact L02 media', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
     const video = screen.getByLabelText('L01 Build smarter, stay human guided video')
@@ -151,7 +151,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('controls')
     expect(document.querySelector('video source')).toHaveAttribute('src', l02Media.video)
     expect(document.querySelector('video track')).toHaveAttribute('src', l02Media.captions)
-    fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery, locked/ }))
-    expect(screen.getByRole('button', { name: /Watch L03 guided video/ })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery, ready/ }))
+    expect(screen.getByRole('button', { name: /Watch L03 guided video/ })).toBeEnabled()
   })
 })
