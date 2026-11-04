@@ -25,6 +25,13 @@ const nextConfig = {
         './data/source-protocol/banned-books-evidence-qa-approvals.sample.json',
       ],
     },
+    outputFileTracingExcludes: {
+      // This admin route reads the Dark Castle master from public/ at runtime.
+      // Its broad trace also catches the unrelated, statically served L01 media.
+      '/api/admin/social-content/*/bind-approved-master': [
+        './public/accelerated/lessons/l01/approved-ee09bf72/*',
+      ],
+    },
     serverActions: {
       bodySizeLimit: '50mb',
     },
