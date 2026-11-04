@@ -1,0 +1,1093 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L08",
+  "title": "Metrics and the ten-part learning plan",
+  "runtime_seconds": 720,
+  "learner_artifact": "Ten-component learning plan and metric definition",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L08.md",
+  "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "7b2a96126a5997c3baf67a4fdc39050259c57e07ddf303bc1228eedb043e6533",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c015.xhtml",
+    "c016.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L08-01",
+      "title": "A dashboard can look healthy",
+      "start_seconds": 0,
+      "end_seconds": 120,
+      "narration": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision. In the membership service example, the business may care about sustained participation. A member cares about getting started without confusion. The team can first observe whether a person identifies and begins the intended action. Those are different levels of the metrics ladder in the book: business value, customer value, and near-term traction. The lower step does not automatically cause the upper one. We need to test the connection. If page opens rise while people still ask staff what to do, the green chart is a warning, not a win. Write the customer behavior in a sentence before selecting a metric. For this lesson, it is: a new member understands the first task and starts it without translation from staff. Now ask what observation would support or challenge that sentence. A useful measure can be counted or described consistently. It also needs a definition that another person can apply to the same event. We will put that definition into the learning plan before seeing any result.",
+      "narration_sha256": "21037fb5cec411d2470840b8aa17c2c0564433cc0dc89e9c625033e1c2b76389",
+      "on_screen_copy": "Activity is not the customer outcome",
+      "shot": "Avatar; green synthetic activity line coexists with unanswered task question.",
+      "visual": "S illustrative dashboard, never real analytics.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L08-01",
+        "start_seconds": 0,
+        "end_seconds": 35.745,
+        "duration_seconds": 35.745,
+        "narration_text": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision.",
+        "handoff_visual": "S illustrative dashboard, never real analytics.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration says activity does not establish outcome.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c015.xhtml",
+          "c016.xhtml"
+        ],
+        "scene_source": "Ch12, “Real Story: The Dashboard That Looked Great While We Failed,” “Build a Metrics Ladder” (`c015.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L08-01:e4647b07ebafffc7",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L08-02",
+      "title": "Define the measure and its guardrail",
+      "start_seconds": 120,
+      "end_seconds": 240,
+      "narration": "Define a successful start before the test begins. For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction. The numerator is the number of observed participants who meet that definition. The denominator is the number of eligible participants who reach the first-task moment. Record exclusions before the session, such as an interrupted test or a technical outage. A second observer should be able to check the same notes and understand the count. That measure is close to the behavior we seek. It still cannot tell us everything. Ask the participant where they hesitated and what they expected to happen. That qualitative note may show whether the copy, confirmation, or task itself is the problem. Chapter Twelve also warns about destructive metric pairs. We could maximize time spent on the first task while saying we want people to begin quickly. Longer time might mean careful engagement, or it might mean confusion. We need the context before celebrating either direction. Pair the successful-start measure with a guardrail: the person should not have to ask staff to rescue the flow or repeat an action because the state is unclear. A planned measurement cannot promise a conversion or retention lift. The definition is a proposed measurement instrument; the outcome remains unknown until a test is run and reviewed.",
+      "narration_sha256": "81941f77515a5f52e74ad83e1a2cdb186f857abb190d98052c79526394fc3994",
+      "on_screen_copy": "Define a successful start",
+      "shot": "Measure definition and guardrail beside opens versus starts.",
+      "visual": "S metric card, no numbers that resemble results.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration reads what counts and what does not.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c015.xhtml",
+          "c016.xhtml"
+        ],
+        "scene_source": "Ch12, “Tie Metrics to Hypotheses, Not Just Outputs,” “Beware of Destructive Metric Pairs,” “Balance Quantitative with Qualitative” (`c015.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L08-02:e4647b07ebafffc7",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L08-03",
+      "title": "The first five components establish the bet",
+      "start_seconds": 240,
+      "end_seconds": 360,
+      "narration": "Chapter Thirteen gives the learning plan ten components. The first five establish what we are testing. One: business problem and customer outcome. Our example names the friction at the first task and the member's need to begin with confidence. We will not claim a business lift from this small exercise. Two: target persona or cohort. Use the living persona card from lesson four: a new member at the first-task moment. Add the source and the uncertainty so the card stays honest about what we know. Three: hypothesis statement. We believe a clearer first-task card, for a new member in that moment, will help them identify and begin the intended action without staff translation. Four: experiment scope. Specify the test setting, who is eligible, how long observation lasts, and which version of the card they see. Exclude the reminder system and the rest of onboarding. Five: metrics and success criteria. Use the successful-start definition we just wrote, the qualitative hesitation notes, and a threshold set by the actual study owner before data arrives. These fields belong together. If the cohort is vague, a clean metric can mislead. If the outcome is vague, a detailed experiment may only test whether a screen is clickable. On this worksheet, leave the actual threshold marked for owner decision. That blank is honest. The team must fill it before running a real test; it must not choose a convenient number after looking at results.",
+      "narration_sha256": "9dfacab796638b6f7912a03d87ff3ef7c3757c543914c8d4e2c73aea37fbe9ab",
+      "on_screen_copy": "1. Define the problem\n2. Name the cohort\n3. State the hypothesis\n4. Bound the scope\n5. Choose the metrics",
+      "shot": "Avatar, then exact book fields 1–5.",
+      "visual": "S worksheet from Ch13, labels exact.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L08-03",
+        "start_seconds": 240,
+        "end_seconds": 265.21,
+        "duration_seconds": 25.21,
+        "narration_text": "Chapter Thirteen gives the learning plan ten components. The first five establish what we are testing. One: business problem and customer outcome. Our example names the friction at the first task and the member's need to begin with confidence. We will not claim a business lift from this small exercise.",
+        "handoff_visual": "S worksheet from Ch13, labels exact.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names every field and synthetic example.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c015.xhtml",
+          "c016.xhtml"
+        ],
+        "scene_source": "Ch13, “The Ten Components” (`c016.xhtml`); Ch12, “Build a Metrics Ladder” (`c015.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "visual_copy_revision": "Book concepts rendered as short action labels for human QA; narration and script source unchanged",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L08-03:e4647b07ebafffc7",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L08-04",
+      "title": "The next five decide what happens afterward",
+      "start_seconds": 360,
+      "end_seconds": 480,
+      "narration": "The next five components keep the test from ending at a chart. Six: timing and review strategy. Decide when the team checks for setup problems, when it reads the observations, and when it makes the next decision. Seven: triggers and tripwires. State what pattern would support continuing, what would require revision, and what would make the team stop or investigate harm. For our example, repeated confusion or unclear failure states would pause expansion even if some people begin. The exact numerical threshold is still an owner decision before the test. Eight: pivot options. If members understand the card but never return, investigate the reminder path. If they reach the card but cannot tell whether the action worked, test confirmation. Those are possible branches, not findings. Nine: future state path. If the small test supports the hypothesis and passes its guardrail, name the next bounded question rather than announcing a full rollout. Perhaps the team tests the same instruction with another eligible group. Ten: hypothesis backlog. Save the original belief, result, learning, owner, and date so the next team does not start from an empty page. That is the book's order. The plan carries both a decision and a memory of how the decision was made. A result can be positive, negative, or inconclusive. The point is that each route has a responsible next action already visible before the room gets attached to one answer.",
+      "narration_sha256": "31a07517995e61daf4bdf67a8e35d1eac2054511359122a3c0f8d97450a4ebe9",
+      "on_screen_copy": "6–10 · timing / tripwires / pivots / future path / backlog",
+      "shot": "Exact book fields 6–10 and conditional branch.",
+      "visual": "S worksheet from Ch13.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration distinguishes thresholds from results.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c015.xhtml",
+          "c016.xhtml"
+        ],
+        "scene_source": "Ch13, “The Ten Components,” “Final Point” (`c016.xhtml`); Ch12, “Set Triggers—And Prepare to Be Wrong” (`c015.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L08-04:e4647b07ebafffc7",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L08-05",
+      "title": "Walk the plan against two possible results",
+      "start_seconds": 480,
+      "end_seconds": 600,
+      "narration": "Before there is any data, walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful-start measure may look promising. The guardrail tells us the work is not finished. We record the uncertainty and test feedback after the action before broadening the scope. In the second, participants cannot explain why the task matters. That result challenges the instruction itself. The team revises the purpose statement and tests again. These are imagined branches. Both results are possibilities, not findings. Notice how the metric definition changes the conversation. “More opens” would let both situations hide behind activity. “Understands and begins without translation” brings the actual behavior into view. The qualitative note explains why a count moved and what it cannot tell us. If the sample is too small, unrepresentative, or interrupted, mark the outcome inconclusive and choose a better test. Chapter Twelve asks us to tie measures to hypotheses and prepare to be wrong. Chapter Thirteen gives us a place to record that preparation. The worksheet is useful only if a team can follow it when the answer is inconvenient. Keep the threshold, exclusions, and branch choices dated before the test. Then, after a real review, record what happened and what the team decided. Do not rewrite the original bet to make the result look inevitable afterward to anyone.",
+      "narration_sha256": "25f04a8d9d06428310f327ceabad977892f257f3739de75eef9627cced8da07f",
+      "on_screen_copy": "If A → next question · If B → next question",
+      "shot": "Two conditional result cards, each points to next question.",
+      "visual": "S hypothetical cards, no measured values.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L08-05",
+        "start_seconds": 480,
+        "end_seconds": 502.338,
+        "duration_seconds": 22.338,
+        "narration_text": "Before there is any data, walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful-start measure may look promising. The guardrail tells us the work is not finished.",
+        "handoff_visual": "S hypothetical cards, no measured values.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration repeatedly marks conditional status.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c015.xhtml",
+          "c016.xhtml"
+        ],
+        "scene_source": "Ch12, “Tie Metrics to Hypotheses, Not Just Outputs,” “Set Triggers—And Prepare to Be Wrong,” “Balance Quantitative with Qualitative” (`c015.xhtml`); Ch13, “The Ten Components” (`c016.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L08-05:e4647b07ebafffc7",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L08-06",
+      "title": "Complete the file before the test",
+      "start_seconds": 600,
+      "end_seconds": 720,
+      "narration": "Pause and complete all ten fields for one small test. Start with the business problem and customer outcome, then the target cohort, hypothesis, scope, and metrics with success criteria. Add timing and review strategy, triggers and tripwires, pivot options, future state path, and the hypothesis backlog entry you will fill after the review. Define one measure precisely: who counts, what event counts, the observation window, exclusions, and who will inspect the raw evidence. Put a guardrail beside it so a rising number cannot hide a worse customer experience. Resume when the stop or pivot condition is written before any result appears. If this is your project, use information you have permission to share and keep participant notes in your team’s research system. Our example stays with the membership service. The book's framework supplies its ten fields. The loop at the end helps you follow the plan into the next decision. Look back at the decision file. You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results. The work is still open to correction. That is what makes it usable. In the next module, the question moves into a decision room with other people's risks and authority. Bring the evidence and the limits with you, clearly and honestly marked. Let the unanswered question remain visible there.",
+      "narration_sha256": "39dbd13cf4501cccd29c99048a9ffec613e6da77e62aba05ea944b5b3d3e1c1c",
+      "on_screen_copy": "Write the stop condition before results",
+      "shot": "Ten-field file and measure, then Learning System Loop as course-kit orientation; avatar close.",
+      "visual": "S worksheet and course-kit loop brief; A3 optional chapter art.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L08-06",
+        "start_seconds": 681.039,
+        "end_seconds": 710.13,
+        "duration_seconds": 29.091,
+        "narration_text": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results. The work is still open to correction. That is what makes it usable. In the next module, the question moves into a decision room with other people's risks and authority.",
+        "handoff_visual": "S worksheet and course-kit loop brief; A3 optional chapter art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names all fields and pre-result stop condition.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c015.xhtml",
+          "c016.xhtml"
+        ],
+        "scene_source": "Ch13, “The Ten Components,” “Final Point” (`c016.xhtml`); Ch12, “Build a Metrics Ladder,” “Beware of Destructive Metric Pairs” (`c015.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l05-l08.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L08-06:e4647b07ebafffc7",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 2.043,
+      "text": "The dashboard is green.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 2.043,
+      "end": 5.106,
+      "text": "More people are opening the page.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 5.106,
+      "end": 12.255,
+      "text": "The team celebrates, then support hears that members still cannot finish the first task.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 12.255,
+      "end": 19.404,
+      "text": "A rising activity line did not answer the question we were trying to solve.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 19.404,
+      "end": 29.617,
+      "text": "Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 29.617,
+      "end": 35.745,
+      "text": "The point is to choose a measure that belongs to the decision.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 35.745,
+      "end": 41.872,
+      "text": "In the membership service example, the business may care about sustained participation.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 41.872,
+      "end": 45.957,
+      "text": "A member cares about getting started without confusion.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 45.957,
+      "end": 53.106,
+      "text": "The team can first observe whether a person identifies and begins the intended action.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 53.106,
+      "end": 62.298,
+      "text": "Those are different levels of the metrics ladder in the book: business value, customer value, and near-term traction.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 62.298,
+      "end": 67.404,
+      "text": "The lower step does not automatically cause the upper one.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 67.404,
+      "end": 70.468,
+      "text": "We need to test the connection.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 70.468,
+      "end": 81.191,
+      "text": "If page opens rise while people still ask staff what to do, the green chart is a warning, not a win.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 81.191,
+      "end": 86.809,
+      "text": "Write the customer behavior in a sentence before selecting a metric.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 86.809,
+      "end": 96.511,
+      "text": "For this lesson, it is: a new member understands the first task and starts it without translation from staff.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 96.511,
+      "end": 101.617,
+      "text": "Now ask what observation would support or challenge that sentence.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 101.617,
+      "end": 106.213,
+      "text": "A useful measure can be counted or described consistently.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 106.213,
+      "end": 113.362,
+      "text": "It also needs a definition that another person can apply to the same event.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 113.362,
+      "end": 120,
+      "text": "We will put that definition into the learning plan before seeing any result.",
+      "scene": "L08-01"
+    },
+    {
+      "start": 120,
+      "end": 124.12,
+      "text": "Define a successful start before the test begins.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 124.12,
+      "end": 139.056,
+      "text": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 139.056,
+      "end": 145.236,
+      "text": "The numerator is the number of observed participants who meet that definition.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 145.236,
+      "end": 151.931,
+      "text": "The denominator is the number of eligible participants who reach the first-task moment.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 151.931,
+      "end": 159.142,
+      "text": "Record exclusions before the session, such as an interrupted test or a technical outage.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 159.142,
+      "end": 166.867,
+      "text": "A second observer should be able to check the same notes and understand the count.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 166.867,
+      "end": 171.502,
+      "text": "That measure is close to the behavior we seek.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 171.502,
+      "end": 174.592,
+      "text": "It still cannot tell us everything.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 174.592,
+      "end": 180.773,
+      "text": "Ask the participant where they hesitated and what they expected to happen.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 180.773,
+      "end": 188.498,
+      "text": "That qualitative note may show whether the copy, confirmation, or task itself is the problem.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 188.498,
+      "end": 192.618,
+      "text": "Chapter Twelve also warns about destructive metric pairs.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 192.618,
+      "end": 201.373,
+      "text": "We could maximize time spent on the first task while saying we want people to begin quickly.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 201.373,
+      "end": 207.039,
+      "text": "Longer time might mean careful engagement, or it might mean confusion.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 207.039,
+      "end": 211.159,
+      "text": "We need the context before celebrating either direction.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 211.159,
+      "end": 225.579,
+      "text": "Pair the successful-start measure with a guardrail: the person should not have to ask staff to rescue the flow or repeat an action because the state is unclear.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 225.579,
+      "end": 230.73,
+      "text": "A planned measurement cannot promise a conversion or retention lift.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 230.73,
+      "end": 240,
+      "text": "The definition is a proposed measurement instrument; the outcome remains unknown until a test is run and reviewed.",
+      "scene": "L08-02"
+    },
+    {
+      "start": 240,
+      "end": 244.034,
+      "text": "Chapter Thirteen gives the learning plan ten components.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 244.034,
+      "end": 248.067,
+      "text": "The first five establish what we are testing.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 248.067,
+      "end": 251.092,
+      "text": "One: business problem and customer outcome.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 251.092,
+      "end": 259.664,
+      "text": "Our example names the friction at the first task and the member's need to begin with confidence.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 259.664,
+      "end": 265.21,
+      "text": "We will not claim a business lift from this small exercise.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 265.21,
+      "end": 267.731,
+      "text": "Two: target persona or cohort.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 267.731,
+      "end": 275.294,
+      "text": "Use the living persona card from lesson four: a new member at the first-task moment.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 275.294,
+      "end": 282.857,
+      "text": "Add the source and the uncertainty so the card stays honest about what we know.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 282.857,
+      "end": 284.37,
+      "text": "Three: hypothesis statement.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 284.37,
+      "end": 296.975,
+      "text": "We believe a clearer first-task card, for a new member in that moment, will help them identify and begin the intended action without staff translation.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 296.975,
+      "end": 298.487,
+      "text": "Four: experiment scope.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 298.487,
+      "end": 308.067,
+      "text": "Specify the test setting, who is eligible, how long observation lasts, and which version of the card they see.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 308.067,
+      "end": 312.605,
+      "text": "Exclude the reminder system and the rest of onboarding.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 312.605,
+      "end": 315.126,
+      "text": "Five: metrics and success criteria.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 315.126,
+      "end": 326.723,
+      "text": "Use the successful-start definition we just wrote, the qualitative hesitation notes, and a threshold set by the actual study owner before data arrives.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 326.723,
+      "end": 328.739,
+      "text": "These fields belong together.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 328.739,
+      "end": 333.782,
+      "text": "If the cohort is vague, a clean metric can mislead.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 333.782,
+      "end": 341.849,
+      "text": "If the outcome is vague, a detailed experiment may only test whether a screen is clickable.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 341.849,
+      "end": 347.395,
+      "text": "On this worksheet, leave the actual threshold marked for owner decision.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 347.395,
+      "end": 349.412,
+      "text": "That blank is honest.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 349.412,
+      "end": 360,
+      "text": "The team must fill it before running a real test; it must not choose a convenient number after looking at results.",
+      "scene": "L08-03"
+    },
+    {
+      "start": 360,
+      "end": 366.154,
+      "text": "The next five components keep the test from ending at a chart.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 366.154,
+      "end": 368.718,
+      "text": "Six: timing and review strategy.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 368.718,
+      "end": 378.974,
+      "text": "Decide when the team checks for setup problems, when it reads the observations, and when it makes the next decision.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 378.974,
+      "end": 381.026,
+      "text": "Seven: triggers and tripwires.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 381.026,
+      "end": 391.282,
+      "text": "State what pattern would support continuing, what would require revision, and what would make the team stop or investigate harm.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 391.282,
+      "end": 400.0,
+      "text": "For our example, repeated confusion or unclear failure states would pause expansion even if some people begin.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 400.0,
+      "end": 406.154,
+      "text": "The exact numerical threshold is still an owner decision before the test.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 406.154,
+      "end": 407.692,
+      "text": "Eight: pivot options.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 407.692,
+      "end": 413.846,
+      "text": "If members understand the card but never return, investigate the reminder path.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 413.846,
+      "end": 421.026,
+      "text": "If they reach the card but cannot tell whether the action worked, test confirmation.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 421.026,
+      "end": 424.103,
+      "text": "Those are possible branches, not findings.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 424.103,
+      "end": 426.154,
+      "text": "Nine: future state path.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 426.154,
+      "end": 437.436,
+      "text": "If the small test supports the hypothesis and passes its guardrail, name the next bounded question rather than announcing a full rollout.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 437.436,
+      "end": 443.077,
+      "text": "Perhaps the team tests the same instruction with another eligible group.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 443.077,
+      "end": 444.615,
+      "text": "Ten: hypothesis backlog.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 444.615,
+      "end": 454.872,
+      "text": "Save the original belief, result, learning, owner, and date so the next team does not start from an empty page.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 454.872,
+      "end": 457.436,
+      "text": "That is the book's order.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 457.436,
+      "end": 465.128,
+      "text": "The plan carries both a decision and a memory of how the decision was made.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 465.128,
+      "end": 469.231,
+      "text": "A result can be positive, negative, or inconclusive.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 469.231,
+      "end": 480,
+      "text": "The point is that each route has a responsible next action already visible before the room gets attached to one answer.",
+      "scene": "L08-04"
+    },
+    {
+      "start": 480,
+      "end": 486.234,
+      "text": "Before there is any data, walk the plan through two possible results.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 486.234,
+      "end": 494.545,
+      "text": "In the first, participants understand the action and begin, but several say the confirmation is unclear.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 494.545,
+      "end": 497.662,
+      "text": "The successful-start measure may look promising.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 497.662,
+      "end": 502.338,
+      "text": "The guardrail tells us the work is not finished.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 502.338,
+      "end": 509.61,
+      "text": "We record the uncertainty and test feedback after the action before broadening the scope.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 509.61,
+      "end": 514.805,
+      "text": "In the second, participants cannot explain why the task matters.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 514.805,
+      "end": 517.922,
+      "text": "That result challenges the instruction itself.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 517.922,
+      "end": 522.597,
+      "text": "The team revises the purpose statement and tests again.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 522.597,
+      "end": 524.675,
+      "text": "These are imagined branches.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 524.675,
+      "end": 527.792,
+      "text": "Both results are possibilities, not findings.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 527.792,
+      "end": 531.948,
+      "text": "Notice how the metric definition changes the conversation.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 531.948,
+      "end": 536.623,
+      "text": "“More opens” would let both situations hide behind activity.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 536.623,
+      "end": 542.338,
+      "text": "“Understands and begins without translation” brings the actual behavior into view.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 542.338,
+      "end": 549.61,
+      "text": "The qualitative note explains why a count moved and what it cannot tell us.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 549.61,
+      "end": 558.961,
+      "text": "If the sample is too small, unrepresentative, or interrupted, mark the outcome inconclusive and choose a better test.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 558.961,
+      "end": 566.234,
+      "text": "Chapter Twelve asks us to tie measures to hypotheses and prepare to be wrong.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 566.234,
+      "end": 571.429,
+      "text": "Chapter Thirteen gives us a place to record that preparation.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 571.429,
+      "end": 579.74,
+      "text": "The worksheet is useful only if a team can follow it when the answer is inconvenient.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 579.74,
+      "end": 585.455,
+      "text": "Keep the threshold, exclusions, and branch choices dated before the test.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 585.455,
+      "end": 592.208,
+      "text": "Then, after a real review, record what happened and what the team decided.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 592.208,
+      "end": 600,
+      "text": "Do not rewrite the original bet to make the result look inevitable afterward to anyone.",
+      "scene": "L08-05"
+    },
+    {
+      "start": 600,
+      "end": 605.195,
+      "text": "Pause and complete all ten fields for one small test.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 605.195,
+      "end": 615.065,
+      "text": "Start with the business problem and customer outcome, then the target cohort, hypothesis, scope, and metrics with success criteria.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 615.065,
+      "end": 627.532,
+      "text": "Add timing and review strategy, triggers and tripwires, pivot options, future state path, and the hypothesis backlog entry you will fill after the review.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 627.532,
+      "end": 637.922,
+      "text": "Define one measure precisely: who counts, what event counts, the observation window, exclusions, and who will inspect the raw evidence.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 637.922,
+      "end": 645.714,
+      "text": "Put a guardrail beside it so a rising number cannot hide a worse customer experience.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 645.714,
+      "end": 652.468,
+      "text": "Resume when the stop or pivot condition is written before any result appears.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 652.468,
+      "end": 663.377,
+      "text": "If this is your project, use information you have permission to share and keep participant notes in your team’s research system.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 663.377,
+      "end": 667.013,
+      "text": "Our example stays with the membership service.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 667.013,
+      "end": 670.649,
+      "text": "The book's framework supplies its ten fields.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 670.649,
+      "end": 677.922,
+      "text": "The loop at the end helps you follow the plan into the next decision.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 677.922,
+      "end": 681.039,
+      "text": "Look back at the decision file.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 681.039,
+      "end": 694.545,
+      "text": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 694.545,
+      "end": 698.182,
+      "text": "The work is still open to correction.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 698.182,
+      "end": 701.299,
+      "text": "That is what makes it usable.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 701.299,
+      "end": 710.13,
+      "text": "In the next module, the question moves into a decision room with other people's risks and authority.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 710.13,
+      "end": 716.364,
+      "text": "Bring the evidence and the limits with you, clearly and honestly marked.",
+      "scene": "L08-06"
+    },
+    {
+      "start": 716.364,
+      "end": 720,
+      "text": "Let the unanswered question remain visible there.",
+      "scene": "L08-06"
+    }
+  ],
+  "assets": {
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 10:10. Complete all ten book fields and a precise metric definition for one small test. Record the numerator, denominator, window, exclusions, reviewer, qualitative companion, and a stop or pivot threshold before any results. Resume when the plan names what happens for supportive, contrary, and inconclusive evidence. Use only public, synthetic, or approved inputs; private participant data remains in the protected research system.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 35.745,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 35.745,
+      "end_seconds": 240,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 240,
+      "end_seconds": 265.21,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 265.21,
+      "end_seconds": 480,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 480,
+      "end_seconds": 502.338,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 502.338,
+      "end_seconds": 681.039,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 681.039,
+      "end_seconds": 710.13,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 710.13,
+      "end_seconds": 720,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "publication_authorization": null,
+    "external_send_authorization": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L08-01",
+        "start_seconds": 0,
+        "end_seconds": 35.745,
+        "duration_seconds": 35.745,
+        "narration_text": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision.",
+        "handoff_visual": "S illustrative dashboard, never real analytics.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L08-03",
+        "start_seconds": 240,
+        "end_seconds": 265.21,
+        "duration_seconds": 25.21,
+        "narration_text": "Chapter Thirteen gives the learning plan ten components. The first five establish what we are testing. One: business problem and customer outcome. Our example names the friction at the first task and the member's need to begin with confidence. We will not claim a business lift from this small exercise.",
+        "handoff_visual": "S worksheet from Ch13, labels exact.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L08-05",
+        "start_seconds": 480,
+        "end_seconds": 502.338,
+        "duration_seconds": 22.338,
+        "narration_text": "Before there is any data, walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful-start measure may look promising. The guardrail tells us the work is not finished.",
+        "handoff_visual": "S hypothetical cards, no measured values.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L08-06",
+        "start_seconds": 681.039,
+        "end_seconds": 710.13,
+        "duration_seconds": 29.091,
+        "narration_text": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results. The work is still open to correction. That is what makes it usable. In the next module, the question moves into a decision room with other people's risks and authority.",
+        "handoff_visual": "S worksheet and course-kit loop brief; A3 optional chapter art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

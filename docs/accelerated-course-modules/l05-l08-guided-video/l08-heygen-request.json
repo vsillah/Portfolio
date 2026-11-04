@@ -1,0 +1,82 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "publication_authorization": null,
+  "external_send_authorization": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L08-01",
+      "start_seconds": 0,
+      "end_seconds": 35.745,
+      "duration_seconds": 35.745,
+      "narration_text": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision.",
+      "handoff_visual": "S illustrative dashboard, never real analytics.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L08-03",
+      "start_seconds": 240,
+      "end_seconds": 265.21,
+      "duration_seconds": 25.21,
+      "narration_text": "Chapter Thirteen gives the learning plan ten components. The first five establish what we are testing. One: business problem and customer outcome. Our example names the friction at the first task and the member's need to begin with confidence. We will not claim a business lift from this small exercise.",
+      "handoff_visual": "S worksheet from Ch13, labels exact.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L08-05",
+      "start_seconds": 480,
+      "end_seconds": 502.338,
+      "duration_seconds": 22.338,
+      "narration_text": "Before there is any data, walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful-start measure may look promising. The guardrail tells us the work is not finished.",
+      "handoff_visual": "S hypothetical cards, no measured values.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L08-06",
+      "start_seconds": 681.039,
+      "end_seconds": 710.13,
+      "duration_seconds": 29.091,
+      "narration_text": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results. The work is still open to correction. That is what makes it usable. In the next module, the question moves into a decision room with other people's risks and authority.",
+      "handoff_visual": "S worksheet and course-kit loop brief; A3 optional chapter art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L08",
+  "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b"
+}
