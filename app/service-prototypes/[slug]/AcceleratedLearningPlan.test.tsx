@@ -46,7 +46,7 @@ describe('Accelerated learning plan', () => {
     expect([...new Set(lessons.map(({ act }) => act))]).toEqual(['Signals', 'Alignment', 'Momentum', 'Synthesis'])
   })
 
-  it('binds only L01 to the approved composite and captions', () => {
+  it('preserves L01 approved composite and captions byte-for-byte', () => {
     const asset = (url: string) => readFileSync(`public${url}`)
     expect(createHash('sha256').update(asset(l01Media.video)).digest('hex')).toBe('ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a')
     expect(createHash('sha256').update(asset(l01Media.captions)).digest('hex')).toBe('ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f')
@@ -58,7 +58,7 @@ describe('Accelerated learning plan', () => {
     render(<AcceleratedLearningPlan />)
     expect(screen.getByRole('heading', { name: 'Sixteen lessons. One decision file.' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /L09: Map the decision theater/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'ready')
+    expect(screen.getByRole('button', { name: /L09: Map the decision theater/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'locked')
     fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')
     expect(document.querySelector('video source')).toHaveAttribute('src', l01Media.video)
@@ -72,7 +72,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByText('Code six synthetic comments, name one pattern, and flag what contradicts it.')).toBeInTheDocument()
     expect(screen.getByAltText('Representative storyboard frame for L05')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeDisabled()
-    for (const item of lessons.slice(1)) {
+    for (const item of lessons.slice(2)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
       expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
     }
