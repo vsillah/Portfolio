@@ -1,0 +1,29 @@
+{
+  "status": "offline-review-only",
+  "lessons": [
+    {
+      "id": "L09",
+      "title": "Map the decision theater",
+      "packet": "l09-packet.json",
+      "runtime_seconds": 660
+    },
+    {
+      "id": "L10",
+      "title": "Influence before impact",
+      "packet": "l10-packet.json",
+      "runtime_seconds": 540
+    },
+    {
+      "id": "L11",
+      "title": "From the shift to a repeatable loop",
+      "packet": "l11-packet.json",
+      "runtime_seconds": 600
+    },
+    {
+      "id": "L12",
+      "title": "Jobs and synthetic signals",
+      "packet": "l12-packet.json",
+      "runtime_seconds": 660
+    }
+  ]
+}

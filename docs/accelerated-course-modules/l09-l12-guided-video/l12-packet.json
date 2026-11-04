@@ -1,0 +1,980 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L12",
+  "title": "Jobs and synthetic signals",
+  "runtime_seconds": 660,
+  "learner_artifact": "Jobs card and synthetic-signal caveat/validation card",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L12.md",
+  "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "bca05bc1f997a071e954f18f46d3905a19248db5214883dfec6f10541249fb4a",
+  "source_notes_sha256": "d1d6a1ba6ffbfdbd3cfd5b4bb1276b9d59624743c07a7f1f72001c9c1a79ee78",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c022.xhtml",
+    "c023.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L12-01",
+      "title": "A pile of feedback is not a job",
+      "start_seconds": 0,
+      "end_seconds": 110,
+      "narration": "The feedback pile is growing again. One note says, “I could not tell where to start.” Another asks for a reminder. A third says the task looked complete but the page gave no confirmation. These are fictional member comments carried forward from our earlier exercise. If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked. Chapter Nineteen introduces ClientQ as a way to translate messy feedback into jobs. The book case gives us a method for examining the notes. The useful discipline is to keep every proposed job tied to the source note that suggested it. Start with what the person was trying to do, the context in which it mattered, and the outcome they wanted. Then ask whether another note points to the same job or a different one. A cluster can be convenient and still be wrong. We also need the contrary note that challenges the pattern. In the decision file, F01 through F06 remain visible beside any synthesis. If one sentence is ambiguous, mark it for a human follow-up rather than turn it into an invented certainty. Today we will write a job card and then test its weak spots with simulation. The source stays visible throughout.",
+      "narration_sha256": "79dbae9820dab2758d234cc2a7be6e161a2c3d4f9a9b865be960cc3140d19580",
+      "on_screen_copy": "Keep the source beside the job",
+      "shot": "A pile of feedback is not a job",
+      "visual": "six fictional feedback cards F01–F06 from L05 ledger; approved Momentum plate opens briefly.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L12-01",
+        "start_seconds": 0,
+        "end_seconds": 35.117,
+        "duration_seconds": 35.117,
+        "narration_text": "The feedback pile is growing again. One note says, “I could not tell where to start.” Another asks for a reminder. A third says the task looked complete but the page gave no confirmation. These are fictional member comments carried forward from our earlier exercise. If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked.",
+        "handoff_visual": "six fictional feedback cards F01–F06 from L05 ledger; approved Momentum plate opens briefly.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c022.xhtml",
+          "c023.xhtml"
+        ],
+        "scene_source": "Ch19, “When Feedback Becomes a Problem,” “The Solution: ClientQ” (`c022.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L12-01:e8eaeb9628811002",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L12-02",
+      "title": "Translate without inventing",
+      "start_seconds": 110,
+      "end_seconds": 220,
+      "narration": "Chapter Nineteen makes a crucial distinction: ClientQ processes data; it does not create the underlying customer experience. Work through one fictional note. F01 says the member does not know which action begins the service. The context is the first visit after joining. A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote. Write F01 beside it. F03 may support the same job, but inspect its wording before adding it. A note about missing confirmation may instead become a separate job: “Help me know whether the action succeeded so I can move on with confidence.” Do not combine them just because they occur on the same screen. The book also shows an outcome-style formulation, such as reducing time spent searching when a task is urgent. We can use that grammar without pretending to have measured importance or satisfaction. If an AI assistant suggests a job, compare it against each source. Ask what word in the original note supports the proposed context and outcome. Where support is thin, label the job provisional. The next step is a question for a person or an observation, not a confident backlog priority.",
+      "narration_sha256": "1aa18c361a391f730d733954df33723dce2ee3ab0b7fbc1b9d883dbe03738dac",
+      "on_screen_copy": "Source ID → context → job → question",
+      "shot": "Translate without inventing",
+      "visual": "source-to-job card with IDs, context, proposed outcome, and open question; no actual customer data.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c022.xhtml",
+          "c023.xhtml"
+        ],
+        "scene_source": "Ch19, “What ClientQ Actually Does,” “How to Start,” “A Warning About Synthetic vs. Real” (`c022.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L12-02:e8eaeb9628811002",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L12-03",
+      "title": "ClientQ is a book case, not proof of our workflow",
+      "start_seconds": 220,
+      "end_seconds": 330,
+      "narration": "The book calls ClientQ a translator for customer language. It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog. That is a case in the book. Our six-card exercise is separate. The cards in this exercise are imagined member notes, separate from observed research. A third category would be actual research collected with permission. Keep these three categories apart when you present a job statement. In a real project, preserve the original note, source date, consent and access rules, the interpretation, and who reviewed it. If a team reports frequency, the count must come from the actual source set and its defined unit, such as people or comments. Do not invent a percentage because several cards on a training slide look similar. The book's warning is clear: synthesis cannot replace talking with people. A pattern extracted from comments may help choose which conversation to have next. It cannot tell us by itself whether a proposed screen solves the need. For our decision file, put the job card beside the first-task hypothesis from earlier lessons. Ask whether the hypothesis still matches the job. If the problem is knowing whether an action worked, a clearer first-task invitation may be the wrong test. Correcting the question before building is progress.",
+      "narration_sha256": "6265a9c4380ef49115ce0c09cdd8a9f9e749e0f390ea37062ce9a3a7711cc28d",
+      "on_screen_copy": "Book case / exercise / observed evidence",
+      "shot": "ClientQ is a book case, not proof of our workflow",
+      "visual": "attributed ClientQ case title and synthetic comparison of raw note versus proposed job; no branded tool UI.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L12-03",
+        "start_seconds": 220,
+        "end_seconds": 245.024,
+        "duration_seconds": 25.024,
+        "narration_text": "The book calls ClientQ a translator for customer language. It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog. That is a case in the book. Our six-card exercise is separate. The cards in this exercise are imagined member notes, separate from observed research.",
+        "handoff_visual": "attributed ClientQ case title and synthetic comparison of raw note versus proposed job; no branded tool UI.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c022.xhtml",
+          "c023.xhtml"
+        ],
+        "scene_source": "Ch19, “The Solution: ClientQ,” “What ClientQ Actually Does,” “A Warning About Synthetic vs. Real” (`c022.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L12-03:e8eaeb9628811002",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L12-04",
+      "title": "Simulate objections without borrowing authority",
+      "start_seconds": 330,
+      "end_seconds": 440,
+      "narration": "Chapter Twenty introduces SudoPoll, a book case for synthetic persona reactions. It can suggest objections to a concept, but its output is a simulation. It is not a customer interview, a survey, or a statistically valid preference count. Imagine asking how a new member might respond to two versions of the first-task card. One simulated response says the shorter card is easier to scan but does not explain what happens after the click. Another says the detailed card feels safer but is too much to read at the doorway. Both reactions are invented for this teaching example. They are useful as questions: do real members need a clearer outcome promise, a stronger confirmation, or less text? They are not votes for one design. The book names three limits around emotional nuance, cultural context, and behavioral prediction. Those limits matter especially when the service touches trust or access. A model can draw on patterns it has seen; it cannot stand in for the people the organization serves. Put a visible Simulation label on every generated reaction. Keep the proposed objection beside the exact concept version that produced it. If the model imagines a concern you had not considered, add it to a validation plan. Do not claim that real customers raised it.",
+      "narration_sha256": "1cbe817c3b02998e157ae6168d20274cecdc3a57006094447e286b157c75c43b",
+      "on_screen_copy": "Simulation suggests a question; people supply evidence",
+      "shot": "Simulate objections without borrowing authority",
+      "visual": "attributed SudoPoll book-case title; two hypothetical reaction cards carry a persistent `Simulation` label.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c022.xhtml",
+          "c023.xhtml"
+        ],
+        "scene_source": "Ch20, “The Solution: SudoPoll,” “What SudoPoll Actually Does,” “What It's NOT Good For” (`c023.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L12-04:e8eaeb9628811002",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L12-05",
+      "title": "Set the real-world checkpoint",
+      "start_seconds": 440,
+      "end_seconds": 550,
+      "narration": "The simulation points to two questions, not two answers. First: can an eligible new member explain the first action before beginning it? Second: after acting, can they tell whether it worked? Put each beside a real observation method. The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation. The team must decide in advance who is eligible, how the notes are protected, what the measure means, and what would stop expansion. If the stakes rise toward a launch decision, simulated reactions are no longer enough. Chapter Twenty says to graduate to real people when behavior matters or cultural and emotional context could change the interpretation. In our fictional case, the launch choice stays blocked until actual evidence is reviewed. Even if every simulated persona likes the card, the team has learned only that the card survived a rehearsal. We can use that rehearsal to improve the research questions. We cannot use it to fill the result field of the ten-component plan. Keep the job statement and its original source notes in the file. Keep the simulation output in a separate, clearly marked section. At the review, compare both with what real people did and said. If reality contradicts the simulation, the real observation changes the course.",
+      "narration_sha256": "1a991e4086845443c3d5ed92513018912cfc3cbca50a2987c437c93b963093ce",
+      "on_screen_copy": "Hypothesis now · Validation before launch",
+      "shot": "Set the real-world checkpoint",
+      "visual": "two-column evidence card: simulated question and real observation required; no invented customer result.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L12-05",
+        "start_seconds": 440,
+        "end_seconds": 469.163,
+        "duration_seconds": 29.163,
+        "narration_text": "The simulation points to two questions, not two answers. First: can an eligible new member explain the first action before beginning it? Second: after acting, can they tell whether it worked? Put each beside a real observation method. The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation.",
+        "handoff_visual": "two-column evidence card: simulated question and real observation required; no invented customer result.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c022.xhtml",
+          "c023.xhtml"
+        ],
+        "scene_source": "Ch20, “How to Use It Responsibly,” “When to Graduate from Synthetic to Real,” “The Right Mindset: Synthetic as Scaffolding” (`c023.xhtml`); Ch19, “A Warning About Synthetic vs. Real” (`c022.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L12-05:e8eaeb9628811002",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L12-06",
+      "title": "Finish the two cards",
+      "start_seconds": 550,
+      "end_seconds": 660,
+      "narration": "Pause and make two cards. On the first, write one job statement from the synthetic feedback bundle. Add the source IDs, context, desired outcome, contrary note, and the uncertainty that still needs a person to resolve. On the second, write two questions you might ask a simulation about the proposed change. Label its possible answers as simulation, then state the real evidence required before a launch decision. Resume when each question has an observation method, owner, review date, and a condition that would make you revise or stop. You may use your own approved material in a real project; keep private records inside its authorized research system. This course example stays fictional. Look back at the full decision file. It now holds the original problem, feedback ledger, persona, roadmap and PRD trace, learning plan, decision-room map, influence brief, operating loop, and these two cards. The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward. If the evidence is weak, say so. A clear unknown is a better starting point than a polished claim that no one can trace.",
+      "narration_sha256": "b4cd99de1e006550d4afaf73d78270653801af762925d79c9f72c18f9352c35f",
+      "on_screen_copy": "One job · Two questions · A real test",
+      "shot": "Finish the two cards",
+      "visual": "jobs card and simulation-validation card beside earlier decision file; brief Momentum plate return.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L12-06",
+        "start_seconds": 622.661,
+        "end_seconds": 651.422,
+        "duration_seconds": 28.761,
+        "narration_text": "The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward. If the evidence is weak, say so.",
+        "handoff_visual": "jobs card and simulation-validation card beside earlier decision file; brief Momentum plate return.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c022.xhtml",
+          "c023.xhtml"
+        ],
+        "scene_source": "Ch19, “How to Start,” “A Warning About Synthetic vs. Real” (`c022.xhtml`); Ch20, “How to Use It Responsibly,” “When to Graduate from Synthetic to Real” (`c023.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L12-06:e8eaeb9628811002",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 3.099,
+      "text": "The feedback pile is growing again.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 3.099,
+      "end": 10.845,
+      "text": "One note says, “I could not tell where to start.” Another asks for a reminder.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 10.845,
+      "end": 17.559,
+      "text": "A third says the task looked complete but the page gave no confirmation.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 17.559,
+      "end": 23.239,
+      "text": "These are fictional member comments carried forward from our earlier exercise.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 23.239,
+      "end": 35.117,
+      "text": "If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 35.117,
+      "end": 41.831,
+      "text": "Chapter Nineteen introduces ClientQ as a way to translate messy feedback into jobs.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 41.831,
+      "end": 47.512,
+      "text": "The book case gives us a method for examining the notes.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 47.512,
+      "end": 56.291,
+      "text": "The useful discipline is to keep every proposed job tied to the source note that suggested it.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 56.291,
+      "end": 66.62,
+      "text": "Start with what the person was trying to do, the context in which it mattered, and the outcome they wanted.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 66.62,
+      "end": 73.85,
+      "text": "Then ask whether another note points to the same job or a different one.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 73.85,
+      "end": 78.498,
+      "text": "A cluster can be convenient and still be wrong.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 78.498,
+      "end": 83.662,
+      "text": "We also need the contrary note that challenges the pattern.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 83.662,
+      "end": 89.859,
+      "text": "In the decision file, F01 through F06 remain visible beside any synthesis.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 89.859,
+      "end": 99.671,
+      "text": "If one sentence is ambiguous, mark it for a human follow-up rather than turn it into an invented certainty.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 99.671,
+      "end": 107.418,
+      "text": "Today we will write a job card and then test its weak spots with simulation.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 107.418,
+      "end": 110,
+      "text": "The source stays visible throughout.",
+      "scene": "L12-01"
+    },
+    {
+      "start": 110,
+      "end": 118.698,
+      "text": "Chapter Nineteen makes a crucial distinction: ClientQ processes data; it does not create the underlying customer experience.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 118.698,
+      "end": 121.256,
+      "text": "Work through one fictional note.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 121.256,
+      "end": 127.395,
+      "text": "F01 says the member does not know which action begins the service.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 127.395,
+      "end": 131.488,
+      "text": "The context is the first visit after joining.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 131.488,
+      "end": 150.93,
+      "text": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 150.93,
+      "end": 152.977,
+      "text": "Write F01 beside it.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 152.977,
+      "end": 159.628,
+      "text": "F03 may support the same job, but inspect its wording before adding it.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 159.628,
+      "end": 178.558,
+      "text": "A note about missing confirmation may instead become a separate job: “Help me know whether the action succeeded so I can move on with confidence.” Do not combine them just because they occur on the same screen.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 178.558,
+      "end": 187.767,
+      "text": "The book also shows an outcome-style formulation, such as reducing time spent searching when a task is urgent.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 187.767,
+      "end": 194.419,
+      "text": "We can use that grammar without pretending to have measured importance or satisfaction.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 194.419,
+      "end": 200.558,
+      "text": "If an AI assistant suggests a job, compare it against each source.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 200.558,
+      "end": 207.209,
+      "text": "Ask what word in the original note supports the proposed context and outcome.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 207.209,
+      "end": 211.302,
+      "text": "Where support is thin, label the job provisional.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 211.302,
+      "end": 220,
+      "text": "The next step is a question for a person or an observation, not a confident backlog priority.",
+      "scene": "L12-02"
+    },
+    {
+      "start": 220,
+      "end": 224.692,
+      "text": "The book calls ClientQ a translator for customer language.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 224.692,
+      "end": 231.991,
+      "text": "It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 231.991,
+      "end": 235.64,
+      "text": "That is a case in the book.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 235.64,
+      "end": 238.246,
+      "text": "Our six-card exercise is separate.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 238.246,
+      "end": 245.024,
+      "text": "The cards in this exercise are imagined member notes, separate from observed research.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 245.024,
+      "end": 250.237,
+      "text": "A third category would be actual research collected with permission.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 250.237,
+      "end": 255.972,
+      "text": "Keep these three categories apart when you present a job statement.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 255.972,
+      "end": 266.398,
+      "text": "In a real project, preserve the original note, source date, consent and access rules, the interpretation, and who reviewed it.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 266.398,
+      "end": 278.389,
+      "text": "If a team reports frequency, the count must come from the actual source set and its defined unit, such as people or comments.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 278.389,
+      "end": 285.687,
+      "text": "Do not invent a percentage because several cards on a training slide look similar.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 285.687,
+      "end": 291.422,
+      "text": "The book's warning is clear: synthesis cannot replace talking with people.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 291.422,
+      "end": 298.199,
+      "text": "A pattern extracted from comments may help choose which conversation to have next.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 298.199,
+      "end": 304.976,
+      "text": "It cannot tell us by itself whether a proposed screen solves the need.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 304.976,
+      "end": 312.796,
+      "text": "For our decision file, put the job card beside the first-task hypothesis from earlier lessons.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 312.796,
+      "end": 316.967,
+      "text": "Ask whether the hypothesis still matches the job.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 316.967,
+      "end": 326.351,
+      "text": "If the problem is knowing whether an action worked, a clearer first-task invitation may be the wrong test.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 326.351,
+      "end": 330,
+      "text": "Correcting the question before building is progress.",
+      "scene": "L12-03"
+    },
+    {
+      "start": 330,
+      "end": 335.735,
+      "text": "Chapter Twenty introduces SudoPoll, a book case for synthetic persona reactions.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 335.735,
+      "end": 342.512,
+      "text": "It can suggest objections to a concept, but its output is a simulation.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 342.512,
+      "end": 349.81,
+      "text": "It is not a customer interview, a survey, or a statistically valid preference count.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 349.81,
+      "end": 357.63,
+      "text": "Imagine asking how a new member might respond to two versions of the first-task card.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 357.63,
+      "end": 368.057,
+      "text": "One simulated response says the shorter card is easier to scan but does not explain what happens after the click.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 368.057,
+      "end": 376.398,
+      "text": "Another says the detailed card feels safer but is too much to read at the doorway.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 376.398,
+      "end": 380.569,
+      "text": "Both reactions are invented for this teaching example.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 380.569,
+      "end": 390.474,
+      "text": "They are useful as questions: do real members need a clearer outcome promise, a stronger confirmation, or less text?",
+      "scene": "L12-04"
+    },
+    {
+      "start": 390.474,
+      "end": 394.123,
+      "text": "They are not votes for one design.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 394.123,
+      "end": 400.9,
+      "text": "The book names three limits around emotional nuance, cultural context, and behavioral prediction.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 400.9,
+      "end": 406.635,
+      "text": "Those limits matter especially when the service touches trust or access.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 406.635,
+      "end": 416.54,
+      "text": "A model can draw on patterns it has seen; it cannot stand in for the people the organization serves.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 416.54,
+      "end": 421.232,
+      "text": "Put a visible Simulation label on every generated reaction.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 421.232,
+      "end": 427.488,
+      "text": "Keep the proposed objection beside the exact concept version that produced it.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 427.488,
+      "end": 435.829,
+      "text": "If the model imagines a concern you had not considered, add it to a validation plan.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 435.829,
+      "end": 440,
+      "text": "Do not claim that real customers raised it.",
+      "scene": "L12-04"
+    },
+    {
+      "start": 440,
+      "end": 444.605,
+      "text": "The simulation points to two questions, not two answers.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 444.605,
+      "end": 451.256,
+      "text": "First: can an eligible new member explain the first action before beginning it?",
+      "scene": "L12-05"
+    },
+    {
+      "start": 451.256,
+      "end": 455.86,
+      "text": "Second: after acting, can they tell whether it worked?",
+      "scene": "L12-05"
+    },
+    {
+      "start": 455.86,
+      "end": 459.442,
+      "text": "Put each beside a real observation method.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 459.442,
+      "end": 469.163,
+      "text": "The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 469.163,
+      "end": 480.93,
+      "text": "The team must decide in advance who is eligible, how the notes are protected, what the measure means, and what would stop expansion.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 480.93,
+      "end": 488.093,
+      "text": "If the stakes rise toward a launch decision, simulated reactions are no longer enough.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 488.093,
+      "end": 498.326,
+      "text": "Chapter Twenty says to graduate to real people when behavior matters or cultural and emotional context could change the interpretation.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 498.326,
+      "end": 505.488,
+      "text": "In our fictional case, the launch choice stays blocked until actual evidence is reviewed.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 505.488,
+      "end": 515.209,
+      "text": "Even if every simulated persona likes the card, the team has learned only that the card survived a rehearsal.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 515.209,
+      "end": 520.326,
+      "text": "We can use that rehearsal to improve the research questions.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 520.326,
+      "end": 526.977,
+      "text": "We cannot use it to fill the result field of the ten-component plan.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 526.977,
+      "end": 533.116,
+      "text": "Keep the job statement and its original source notes in the file.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 533.116,
+      "end": 538.233,
+      "text": "Keep the simulation output in a separate, clearly marked section.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 538.233,
+      "end": 544.372,
+      "text": "At the review, compare both with what real people did and said.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 544.372,
+      "end": 550,
+      "text": "If reality contradicts the simulation, the real observation changes the course.",
+      "scene": "L12-05"
+    },
+    {
+      "start": 550,
+      "end": 552.523,
+      "text": "Pause and make two cards.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 552.523,
+      "end": 558.578,
+      "text": "On the first, write one job statement from the synthetic feedback bundle.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 558.578,
+      "end": 568.165,
+      "text": "Add the source IDs, context, desired outcome, contrary note, and the uncertainty that still needs a person to resolve.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 568.165,
+      "end": 575.734,
+      "text": "On the second, write two questions you might ask a simulation about the proposed change.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 575.734,
+      "end": 583.807,
+      "text": "Label its possible answers as simulation, then state the real evidence required before a launch decision.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 583.807,
+      "end": 594.404,
+      "text": "Resume when each question has an observation method, owner, review date, and a condition that would make you revise or stop.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 594.404,
+      "end": 603.991,
+      "text": "You may use your own approved material in a real project; keep private records inside its authorized research system.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 603.991,
+      "end": 606.514,
+      "text": "This course example stays fictional.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 606.514,
+      "end": 610.046,
+      "text": "Look back at the full decision file.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 610.046,
+      "end": 622.661,
+      "text": "It now holds the original problem, feedback ledger, persona, roadmap and PRD trace, learning plan, decision-room map, influence brief, operating loop, and these two cards.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 622.661,
+      "end": 629.22,
+      "text": "The structure helps you see where a source ends and an inference begins.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 629.22,
+      "end": 637.294,
+      "text": "It also helps you avoid asking a model to settle a question only people can answer.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 637.294,
+      "end": 643.853,
+      "text": "The next module uses this discipline to examine strategic shifts and future concepts.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 643.853,
+      "end": 647.89,
+      "text": "Bring the job and the unresolved question forward.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 647.89,
+      "end": 651.422,
+      "text": "If the evidence is weak, say so.",
+      "scene": "L12-06"
+    },
+    {
+      "start": 651.422,
+      "end": 660,
+      "text": "A clear unknown is a better starting point than a polished claim that no one can trace.",
+      "scene": "L12-06"
+    }
+  ],
+  "assets": {
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 09:15. Write a sourced job statement and two simulation questions, then bind each to a real observation, owner, review date, and stop or revision condition. Resume when book case, synthetic teaching example, and eventual observed evidence are separately labeled. Use public, synthetic, or approved input only; private customer material stays protected.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 35.117,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 35.117,
+      "end_seconds": 220,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 220,
+      "end_seconds": 245.024,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 245.024,
+      "end_seconds": 440,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 440,
+      "end_seconds": 469.163,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 469.163,
+      "end_seconds": 622.661,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 622.661,
+      "end_seconds": 651.422,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 651.422,
+      "end_seconds": 660,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L12-01",
+        "start_seconds": 0,
+        "end_seconds": 35.117,
+        "duration_seconds": 35.117,
+        "narration_text": "The feedback pile is growing again. One note says, “I could not tell where to start.” Another asks for a reminder. A third says the task looked complete but the page gave no confirmation. These are fictional member comments carried forward from our earlier exercise. If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked.",
+        "handoff_visual": "six fictional feedback cards F01–F06 from L05 ledger; approved Momentum plate opens briefly.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L12-03",
+        "start_seconds": 220,
+        "end_seconds": 245.024,
+        "duration_seconds": 25.024,
+        "narration_text": "The book calls ClientQ a translator for customer language. It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog. That is a case in the book. Our six-card exercise is separate. The cards in this exercise are imagined member notes, separate from observed research.",
+        "handoff_visual": "attributed ClientQ case title and synthetic comparison of raw note versus proposed job; no branded tool UI.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L12-05",
+        "start_seconds": 440,
+        "end_seconds": 469.163,
+        "duration_seconds": 29.163,
+        "narration_text": "The simulation points to two questions, not two answers. First: can an eligible new member explain the first action before beginning it? Second: after acting, can they tell whether it worked? Put each beside a real observation method. The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation.",
+        "handoff_visual": "two-column evidence card: simulated question and real observation required; no invented customer result.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L12-06",
+        "start_seconds": 622.661,
+        "end_seconds": 651.422,
+        "duration_seconds": 28.761,
+        "narration_text": "The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward. If the evidence is weak, say so.",
+        "handoff_visual": "jobs card and simulation-validation card beside earlier decision file; brief Momentum plate return.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

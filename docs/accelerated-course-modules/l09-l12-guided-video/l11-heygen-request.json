@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L11-01",
+      "start_seconds": 0,
+      "end_seconds": 30.435,
+      "duration_seconds": 30.435,
+      "narration_text": "In Chapter Seventeen, Sam arrives at a roadmap meeting that feels different. The team has already gathered feedback, translated it into a question, and prepared a learning choice. The meeting can spend its time on the decision. Sam is a character in the book's story, not a member of a team we are showing live. What changed was the work before the meeting.",
+      "handoff_visual": "Sam book-story title card; approved Momentum plate; no documentary reconstruction of a real team.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L11-03",
+      "start_seconds": 200,
+      "end_seconds": 223.874,
+      "duration_seconds": 23.874,
+      "narration_text": "Chapter Eighteen moves from scattered tools to a connected system. Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum. A signal is a traceable observation, such as a set of first-task notes with source IDs. An insight is an interpretation: perhaps members cannot tell which action starts the service.",
+      "handoff_visual": "book's exact arrow sequence as text labels, then a synthetic member-feedback ledger; no invented book figure.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L11-05",
+      "start_seconds": 400,
+      "end_seconds": 428.78,
+      "duration_seconds": 28.78,
+      "narration_text": "Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner.",
+      "handoff_visual": "synthetic decision-memory record with original bet, evidence links, result state, and next owner.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L11-06",
+      "start_seconds": 561.576,
+      "end_seconds": 587.685,
+      "duration_seconds": 26.109,
+      "narration_text": "The Learning System Loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
+      "handoff_visual": "completed loop worksheet, then approved Momentum plate; no real n8n or admin capture.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L11",
+  "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5"
+}

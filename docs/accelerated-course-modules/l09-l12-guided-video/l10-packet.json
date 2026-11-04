@@ -1,0 +1,967 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L10",
+  "title": "Influence before impact",
+  "runtime_seconds": 540,
+  "learner_artifact": "Stakeholder-specific decision brief",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L10.md",
+  "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "bca05bc1f997a071e954f18f46d3905a19248db5214883dfec6f10541249fb4a",
+  "source_notes_sha256": "d1d6a1ba6ffbfdbd3cfd5b4bb1276b9d59624743c07a7f1f72001c9c1a79ee78",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c019.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L10-01",
+      "title": "The proposal that did not land",
+      "start_seconds": 0,
+      "end_seconds": 90,
+      "narration": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research. Finance sees an unpriced commitment. Engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter Sixteen describes that kind of meeting. It also returns to the decision theater: stakeholders have authority, fears, and limited attention. Our membership-service example is fictional. We want to test a clearer first-task card, and the map from lesson nine tells us who needs to hear the case. Before changing the message, hold the evidence steady. We have a hypothesis about confusion, a proposed observation method, and a stop condition. We do not have a measured lift or a real approval. Write that distinction at the top of the brief. Then ask what each person must decide. The service director decides whether the test is worth running. Operations decides whether staff can observe it safely. Finance needs the time and cost bound. One proposal can answer all three without pretending that their risks are identical. That is where influence begins.",
+      "narration_sha256": "867d4838f2be117d3362d93b79f11f0c71f6cd9fb9af26138dc0fb7216c80919",
+      "on_screen_copy": "A strong case needs a path to the decision",
+      "shot": "The proposal that did not land",
+      "visual": "synthetic proposal card beside the L09 map; approved Alignment plate opens briefly.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L10-01",
+        "start_seconds": 0,
+        "end_seconds": 28.615,
+        "duration_seconds": 28.615,
+        "narration_text": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research. Finance sees an unpriced commitment. Engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter Sixteen describes that kind of meeting.",
+        "handoff_visual": "synthetic proposal card beside the L09 map; approved Alignment plate opens briefly.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c019.xhtml"
+        ],
+        "scene_source": "Ch16, “Real Example: Perfect logic? I lost anyway,” “Understand the Decision Theater” (`c019.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L10-01:582238a183ab7171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L10-02",
+      "title": "Keep the claim, change the emphasis",
+      "start_seconds": 90,
+      "end_seconds": 180,
+      "narration": "Try the same proposal in three conversations. For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them. The current state remains a hypothesis until we hear from real members. The measure remains the successful-start definition from lesson eight. The cost remains visible in all three versions. Chapter Sixteen asks us to read the room and reveal a story rather than make the slide do the speaking. In this case, the human story is a member arriving at a task and needing help to know what to do. We can show that situation with a fictional card. We cannot claim a real member said these words. A good audience-specific brief changes the order of explanation, not the truth of the proposal. If a sentence becomes stronger only because you removed its uncertainty, put the uncertainty back.",
+      "narration_sha256": "3fbf745648d7f5fb1d3ca7a162b5b81fa436f64f199f49b8eeb4ec383cdd496e",
+      "on_screen_copy": "Same evidence · Different decision concern",
+      "shot": "Keep the claim, change the emphasis",
+      "visual": "three synthetic pitch cards with common evidence footer and different first sentences.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c019.xhtml"
+        ],
+        "scene_source": "Ch16, “The Playbook for Influence,” “Reveal the Story, Not Just the Slide” (`c019.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L10-02:582238a183ab7171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L10-03",
+      "title": "Name the option we are passing over",
+      "start_seconds": 180,
+      "end_seconds": 270,
+      "narration": "Chapter Sixteen uses a notification-settings case. An initial request for granular controls did not land. The revised case made the underlying problem, options, and tradeoffs easier to judge. We are borrowing that decision structure, not its reported results. In our exercise, option one is to rewrite the first-task card and observe whether members understand and begin. Option two is a guided introduction by staff. That may help now, but it may also increase staff burden. Option three is to defer the change while we gather better evidence about where confusion starts. The recommendation is option one, a small test with an explicit stop condition. The other options remain on the page. If the card is clear but people still do not return, the next question may concern reminders or motivation. If the instruction is misunderstood, we revise it. If operations cannot support the observation, we change the test plan before asking for approval. The brief should name what we are not doing and why. That gives a decision owner a real choice. It also protects the team from turning a narrow learning bet into an unlimited promise after the meeting.",
+      "narration_sha256": "89a2becad043c957d9f90ec4ac55523d1961eb84c786239b6a20ab878e6100b6",
+      "on_screen_copy": "Card test / guided introduction / defer",
+      "shot": "Name the option we are passing over",
+      "visual": "book case title card, then synthetic option comparison; no book result figures.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L10-03",
+        "start_seconds": 180,
+        "end_seconds": 206.526,
+        "duration_seconds": 26.526,
+        "narration_text": "Chapter Sixteen uses a notification-settings case. An initial request for granular controls did not land. The revised case made the underlying problem, options, and tradeoffs easier to judge. We are borrowing that decision structure, not its reported results. In our exercise, option one is to rewrite the first-task card and observe whether members understand and begin.",
+        "handoff_visual": "book case title card, then synthetic option comparison; no book result figures.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c019.xhtml"
+        ],
+        "scene_source": "Ch16, “A Complete Example: The Notification Settings That Changed Everything,” “The Playbook for Influence” (`c019.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L10-03:582238a183ab7171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L10-04",
+      "title": "State the tradeoff without theater",
+      "start_seconds": 270,
+      "end_seconds": 360,
+      "narration": "Tradeoffs are where a polished pitch often turns vague. Say exactly what this test would take. Someone must write two versions of the card, recruit eligible participants through an approved process, observe the first-task moment, and review the notes. The team must decide which small task moves to make room. We do not have a credible cost figure in this synthetic case, so the real owner must fill it in before a real approval. The test excludes a reminder redesign and the rest of onboarding. The decision file already has a measure, a qualitative companion, and a stop condition. Put their owners and dates beside the ask. If the guardrail shows that people need staff rescue or cannot tell whether an action worked, the team pauses expansion. If observation is too thin to support a choice, record that too. Chapter Sixteen's pitch checklist asks for the problem, evidence, options, tradeoffs, and an ask. The ask here is permission to run a bounded learning test. It is not permission to launch the redesigned experience to everyone. A clear limit gives the decision owner a safer way to say yes, revise, or decline. It also gives the team a way to know what was actually approved.",
+      "narration_sha256": "3770a101b8885ac4f18294ec0daa666113a82d17927236fe3dba75eb90d79560",
+      "on_screen_copy": "Cost · Exclusion · Owner · Review date",
+      "shot": "State the tradeoff without theater",
+      "visual": "synthetic decision brief with cost, exclusion, owner, and review date; no fabricated ROI chart.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c019.xhtml"
+        ],
+        "scene_source": "Ch16, “The Playbook for Influence,” “What Great Could Look Like” (`c019.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L10-04:582238a183ab7171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L10-05",
+      "title": "Rehearse a real objection",
+      "start_seconds": 360,
+      "end_seconds": 450,
+      "narration": "Imagine operations says, “We cannot spare staff to watch a long session.” Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment? If none is feasible, stop and redesign the test. Imagine finance says, “Why should this displace the dashboard task?” Show the explicit alternative, the staff time, and the learning question that each option answers. Ask what evidence would make the tradeoff acceptable. An AI rehearsal with a synthetic brief can suggest possible objections, but it cannot report what operations or finance actually thinks. Only their answers can do that. Chapter Sixteen treats pre-meeting conversations as part of influence. The useful outcome is not a script that defeats every objection. It is a proposal that has absorbed the right ones. Record the objection in the decision file, with its source and date. Mark whether the response changes scope, timing, owner, or the recommendation itself. If you find that the test would burden the very staff it is meant to help, that is a reason to pause. Responsible influence leaves room for the other person to improve the choice.",
+      "narration_sha256": "8e7339a7d6fc129316a40248b832b10fe4a7db7a244e17e51922464867732166",
+      "on_screen_copy": "Objection → evidence needed → possible revision",
+      "shot": "Rehearse a real objection",
+      "visual": "two synthetic objection cards, each linked to a response and a question for a person.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L10-05",
+        "start_seconds": 360,
+        "end_seconds": 384.059,
+        "duration_seconds": 24.059,
+        "narration_text": "Imagine operations says, “We cannot spare staff to watch a long session.” Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment? If none is feasible, stop and redesign the test.",
+        "handoff_visual": "two synthetic objection cards, each linked to a response and a question for a person.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c019.xhtml"
+        ],
+        "scene_source": "Ch16, “The Playbook for Influence,” “Reveal the Story, Not Just the Slide” (`c019.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L10-05:582238a183ab7171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L10-06",
+      "title": "Deliver the 90-second decision brief",
+      "start_seconds": 450,
+      "end_seconds": 540,
+      "narration": "Pause and draft a ninety-second recommendation for one decision owner on your map. Open with the decision you need. State the problem and what evidence actually supports it. Give the preferred small option and one credible alternative. Name its cost, the work it displaces, who owns the test, and the date of review. End with the result that would make you stop or change course. Resume when you can say the whole thing aloud without a slide. For our fictional service director, it might sound like this: “We propose a small test of the first-task card. The current friction is a hypothesis. We will observe whether eligible new members understand and begin without staff translation. Operations must confirm the time and recruitment path. A guided introduction remains the alternative. If participants remain confused or need staff rescue, we revise before expansion. We will bring the observations back on the agreed date.” That brief does not claim success in advance. Write a second opening for the operations lead, using the same facts and their concern. Then answer one final question: what would change your mind? If the answer is “nothing,” revisit the learning plan. A decision brief should make learning possible, even when the answer is inconvenient.",
+      "narration_sha256": "466528df9f396f36443fa25e9b4444fa1b7838bc7594547aa514455189be48f2",
+      "on_screen_copy": "What would change your mind?",
+      "shot": "Deliver the 90-second decision brief",
+      "visual": "completed stakeholder-specific brief and L09 map; worksheet hold.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L10-06",
+        "start_seconds": 511.602,
+        "end_seconds": 534.32,
+        "duration_seconds": 22.718,
+        "narration_text": "We will bring the observations back on the agreed date.” That brief does not claim success in advance. Write a second opening for the operations lead, using the same facts and their concern. Then answer one final question: what would change your mind? If the answer is “nothing,” revisit the learning plan.",
+        "handoff_visual": "completed stakeholder-specific brief and L09 map; worksheet hold.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c019.xhtml"
+        ],
+        "scene_source": "Ch16, “Bottom Line: The Pitch Checklist,” “What Great Could Look Like” (`c019.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L10-06:582238a183ab7171",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 6.923,
+      "text": "A proposal can be right about the customer and still arrive in the wrong form.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 6.923,
+      "end": 9.231,
+      "text": "The team sees the research.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 9.231,
+      "end": 11.538,
+      "text": "Finance sees an unpriced commitment.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 11.538,
+      "end": 15.692,
+      "text": "Engineering sees work that may displace a promised upgrade.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 15.692,
+      "end": 25.385,
+      "text": "The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 25.385,
+      "end": 28.615,
+      "text": "Chapter Sixteen describes that kind of meeting.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 28.615,
+      "end": 35.077,
+      "text": "It also returns to the decision theater: stakeholders have authority, fears, and limited attention.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 35.077,
+      "end": 37.385,
+      "text": "Our membership-service example is fictional.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 37.385,
+      "end": 47.538,
+      "text": "We want to test a clearer first-task card, and the map from lesson nine tells us who needs to hear the case.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 47.538,
+      "end": 51.231,
+      "text": "Before changing the message, hold the evidence steady.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 51.231,
+      "end": 57.692,
+      "text": "We have a hypothesis about confusion, a proposed observation method, and a stop condition.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 57.692,
+      "end": 62.769,
+      "text": "We do not have a measured lift or a real approval.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 62.769,
+      "end": 66.923,
+      "text": "Write that distinction at the top of the brief.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 66.923,
+      "end": 70.154,
+      "text": "Then ask what each person must decide.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 70.154,
+      "end": 74.769,
+      "text": "The service director decides whether the test is worth running.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 74.769,
+      "end": 78.462,
+      "text": "Operations decides whether staff can observe it safely.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 78.462,
+      "end": 81.692,
+      "text": "Finance needs the time and cost bound.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 81.692,
+      "end": 87.692,
+      "text": "One proposal can answer all three without pretending that their risks are identical.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 87.692,
+      "end": 90,
+      "text": "That is where influence begins.",
+      "scene": "L10-01"
+    },
+    {
+      "start": 90,
+      "end": 93.182,
+      "text": "Try the same proposal in three conversations.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 93.182,
+      "end": 126.364,
+      "text": "For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 126.364,
+      "end": 131.818,
+      "text": "The current state remains a hypothesis until we hear from real members.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 131.818,
+      "end": 135.909,
+      "text": "The measure remains the successful-start definition from lesson eight.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 135.909,
+      "end": 139.545,
+      "text": "The cost remains visible in all three versions.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 139.545,
+      "end": 148.636,
+      "text": "Chapter Sixteen asks us to read the room and reveal a story rather than make the slide do the speaking.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 148.636,
+      "end": 158.182,
+      "text": "In this case, the human story is a member arriving at a task and needing help to know what to do.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 158.182,
+      "end": 162.273,
+      "text": "We can show that situation with a fictional card.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 162.273,
+      "end": 166.364,
+      "text": "We cannot claim a real member said these words.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 166.364,
+      "end": 173.182,
+      "text": "A good audience-specific brief changes the order of explanation, not the truth of the proposal.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 173.182,
+      "end": 180,
+      "text": "If a sentence becomes stronger only because you removed its uncertainty, put the uncertainty back.",
+      "scene": "L10-02"
+    },
+    {
+      "start": 180,
+      "end": 182.842,
+      "text": "Chapter Sixteen uses a notification-settings case.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 182.842,
+      "end": 187.105,
+      "text": "An initial request for granular controls did not land.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 187.105,
+      "end": 193.263,
+      "text": "The revised case made the underlying problem, options, and tradeoffs easier to judge.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 193.263,
+      "end": 198.0,
+      "text": "We are borrowing that decision structure, not its reported results.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 198.0,
+      "end": 206.526,
+      "text": "In our exercise, option one is to rewrite the first-task card and observe whether members understand and begin.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 206.526,
+      "end": 210.316,
+      "text": "Option two is a guided introduction by staff.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 210.316,
+      "end": 215.526,
+      "text": "That may help now, but it may also increase staff burden.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 215.526,
+      "end": 223.105,
+      "text": "Option three is to defer the change while we gather better evidence about where confusion starts.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 223.105,
+      "end": 229.263,
+      "text": "The recommendation is option one, a small test with an explicit stop condition.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 229.263,
+      "end": 232.579,
+      "text": "The other options remain on the page.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 232.579,
+      "end": 241.579,
+      "text": "If the card is clear but people still do not return, the next question may concern reminders or motivation.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 241.579,
+      "end": 245.368,
+      "text": "If the instruction is misunderstood, we revise it.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 245.368,
+      "end": 252.474,
+      "text": "If operations cannot support the observation, we change the test plan before asking for approval.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 252.474,
+      "end": 257.684,
+      "text": "The brief should name what we are not doing and why.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 257.684,
+      "end": 261.474,
+      "text": "That gives a decision owner a real choice.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 261.474,
+      "end": 270,
+      "text": "It also protects the team from turning a narrow learning bet into an unlimited promise after the meeting.",
+      "scene": "L10-03"
+    },
+    {
+      "start": 270,
+      "end": 273.971,
+      "text": "Tradeoffs are where a polished pitch often turns vague.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 273.971,
+      "end": 277.059,
+      "text": "Say exactly what this test would take.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 277.059,
+      "end": 287.206,
+      "text": "Someone must write two versions of the card, recruit eligible participants through an approved process, observe the first-task moment, and review the notes.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 287.206,
+      "end": 292.059,
+      "text": "The team must decide which small task moves to make room.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 292.059,
+      "end": 302.647,
+      "text": "We do not have a credible cost figure in this synthetic case, so the real owner must fill it in before a real approval.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 302.647,
+      "end": 307.5,
+      "text": "The test excludes a reminder redesign and the rest of onboarding.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 307.5,
+      "end": 313.676,
+      "text": "The decision file already has a measure, a qualitative companion, and a stop condition.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 313.676,
+      "end": 317.206,
+      "text": "Put their owners and dates beside the ask.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 317.206,
+      "end": 326.029,
+      "text": "If the guardrail shows that people need staff rescue or cannot tell whether an action worked, the team pauses expansion.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 326.029,
+      "end": 331.324,
+      "text": "If observation is too thin to support a choice, record that too.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 331.324,
+      "end": 337.5,
+      "text": "Chapter Sixteen's pitch checklist asks for the problem, evidence, options, tradeoffs, and an ask.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 337.5,
+      "end": 342.353,
+      "text": "The ask here is permission to run a bounded learning test.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 342.353,
+      "end": 347.206,
+      "text": "It is not permission to launch the redesigned experience to everyone.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 347.206,
+      "end": 354.265,
+      "text": "A clear limit gives the decision owner a safer way to say yes, revise, or decline.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 354.265,
+      "end": 360,
+      "text": "It also gives the team a way to know what was actually approved.",
+      "scene": "L10-04"
+    },
+    {
+      "start": 360,
+      "end": 369.802,
+      "text": "Imagine operations says, “We cannot spare staff to watch a long session.” Do not answer by repeating why the customer problem matters.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 369.802,
+      "end": 373.812,
+      "text": "Ask which part of the observation creates the burden.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 373.812,
+      "end": 380.05,
+      "text": "Could the test use fewer sessions, a shorter window, or an existing research appointment?",
+      "scene": "L10-05"
+    },
+    {
+      "start": 380.05,
+      "end": 384.059,
+      "text": "If none is feasible, stop and redesign the test.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 384.059,
+      "end": 395.198,
+      "text": "Imagine finance says, “Why should this displace the dashboard task?” Show the explicit alternative, the staff time, and the learning question that each option answers.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 395.198,
+      "end": 398.762,
+      "text": "Ask what evidence would make the tradeoff acceptable.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 398.762,
+      "end": 408.119,
+      "text": "An AI rehearsal with a synthetic brief can suggest possible objections, but it cannot report what operations or finance actually thinks.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 408.119,
+      "end": 410.792,
+      "text": "Only their answers can do that.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 410.792,
+      "end": 414.802,
+      "text": "Chapter Sixteen treats pre-meeting conversations as part of influence.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 414.802,
+      "end": 419.703,
+      "text": "The useful outcome is not a script that defeats every objection.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 419.703,
+      "end": 424.158,
+      "text": "It is a proposal that has absorbed the right ones.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 424.158,
+      "end": 429.505,
+      "text": "Record the objection in the decision file, with its source and date.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 429.505,
+      "end": 434.851,
+      "text": "Mark whether the response changes scope, timing, owner, or the recommendation itself.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 434.851,
+      "end": 444.653,
+      "text": "If you find that the test would burden the very staff it is meant to help, that is a reason to pause.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 444.653,
+      "end": 450,
+      "text": "Responsible influence leaves room for the other person to improve the choice.",
+      "scene": "L10-05"
+    },
+    {
+      "start": 450,
+      "end": 455.68,
+      "text": "Pause and draft a ninety-second recommendation for one decision owner on your map.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 455.68,
+      "end": 458.301,
+      "text": "Open with the decision you need.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 458.301,
+      "end": 462.233,
+      "text": "State the problem and what evidence actually supports it.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 462.233,
+      "end": 466.165,
+      "text": "Give the preferred small option and one credible alternative.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 466.165,
+      "end": 473.155,
+      "text": "Name its cost, the work it displaces, who owns the test, and the date of review.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 473.155,
+      "end": 478.398,
+      "text": "End with the result that would make you stop or change course.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 478.398,
+      "end": 483.641,
+      "text": "Resume when you can say the whole thing aloud without a slide.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 483.641,
+      "end": 491.942,
+      "text": "For our fictional service director, it might sound like this: “We propose a small test of the first-task card.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 491.942,
+      "end": 494.563,
+      "text": "The current friction is a hypothesis.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 494.563,
+      "end": 500.243,
+      "text": "We will observe whether eligible new members understand and begin without staff translation.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 500.243,
+      "end": 503.738,
+      "text": "Operations must confirm the time and recruitment path.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 503.738,
+      "end": 506.359,
+      "text": "A guided introduction remains the alternative.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 506.359,
+      "end": 511.602,
+      "text": "If participants remain confused or need staff rescue, we revise before expansion.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 511.602,
+      "end": 519.466,
+      "text": "We will bring the observations back on the agreed date.” That brief does not claim success in advance.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 519.466,
+      "end": 526.019,
+      "text": "Write a second opening for the operations lead, using the same facts and their concern.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 526.019,
+      "end": 530.388,
+      "text": "Then answer one final question: what would change your mind?",
+      "scene": "L10-06"
+    },
+    {
+      "start": 530.388,
+      "end": 534.32,
+      "text": "If the answer is “nothing,” revisit the learning plan.",
+      "scene": "L10-06"
+    },
+    {
+      "start": 534.32,
+      "end": 540,
+      "text": "A decision brief should make learning possible, even when the answer is inconvenient.",
+      "scene": "L10-06"
+    }
+  ],
+  "assets": {
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 07:35. Draft and speak a 90-second recommendation for one fictional decision owner; state another option, cost, displacement, review date, and evidence that would change your mind. Resume when the second stakeholder opening preserves the same evidence. Use only public, synthetic, or approved inputs; private conversations stay in an authorized system.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 28.615,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 28.615,
+      "end_seconds": 180,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 180,
+      "end_seconds": 206.526,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 206.526,
+      "end_seconds": 360,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 360,
+      "end_seconds": 384.059,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 384.059,
+      "end_seconds": 511.602,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 511.602,
+      "end_seconds": 534.32,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 534.32,
+      "end_seconds": 540,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L10-01",
+        "start_seconds": 0,
+        "end_seconds": 28.615,
+        "duration_seconds": 28.615,
+        "narration_text": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research. Finance sees an unpriced commitment. Engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter Sixteen describes that kind of meeting.",
+        "handoff_visual": "synthetic proposal card beside the L09 map; approved Alignment plate opens briefly.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L10-03",
+        "start_seconds": 180,
+        "end_seconds": 206.526,
+        "duration_seconds": 26.526,
+        "narration_text": "Chapter Sixteen uses a notification-settings case. An initial request for granular controls did not land. The revised case made the underlying problem, options, and tradeoffs easier to judge. We are borrowing that decision structure, not its reported results. In our exercise, option one is to rewrite the first-task card and observe whether members understand and begin.",
+        "handoff_visual": "book case title card, then synthetic option comparison; no book result figures.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L10-05",
+        "start_seconds": 360,
+        "end_seconds": 384.059,
+        "duration_seconds": 24.059,
+        "narration_text": "Imagine operations says, “We cannot spare staff to watch a long session.” Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment? If none is feasible, stop and redesign the test.",
+        "handoff_visual": "two synthetic objection cards, each linked to a response and a question for a person.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L10-06",
+        "start_seconds": 511.602,
+        "end_seconds": 534.32,
+        "duration_seconds": 22.718,
+        "narration_text": "We will bring the observations back on the agreed date.” That brief does not claim success in advance. Write a second opening for the operations lead, using the same facts and their concern. Then answer one final question: what would change your mind? If the answer is “nothing,” revisit the learning plan.",
+        "handoff_visual": "completed stakeholder-specific brief and L09 map; worksheet hold.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

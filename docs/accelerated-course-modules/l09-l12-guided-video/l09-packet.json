@@ -1,0 +1,1118 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L09",
+  "title": "Map the decision theater",
+  "runtime_seconds": 660,
+  "learner_artifact": "Decision theater map and pre-meeting sequence",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L09.md",
+  "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "bca05bc1f997a071e954f18f46d3905a19248db5214883dfec6f10541249fb4a",
+  "source_notes_sha256": "d1d6a1ba6ffbfdbd3cfd5b4bb1276b9d59624743c07a7f1f72001c9c1a79ee78",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c017.xhtml",
+    "c018.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L09-01",
+      "title": "The slow no",
+      "start_seconds": 0,
+      "end_seconds": 110,
+      "narration": "You bring a careful recommendation into the room. The research is sound. The test plan has a measure and a stop condition. Someone asks about a competing priority. Engineering asks whose work will move. A person who was not in the meeting raises a concern afterward. The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no. Its lesson is practical: the evidence may be strong while the path to a decision is weak. People in the room have different information, responsibilities, and memories of the last failed bet. A leader may see budget risk. An engineer may see a promised platform change. A support lead may see another workflow they will have to explain. Before you call those reactions resistance, find out what each person is trying to protect. Return to the learning plan you wrote in lesson eight. You know the customer behavior you hope to change, the test you propose, and what would stop it. Now write the actual decision you need from this room. Is it permission to run the small test, funding for a larger build, or agreement to stop something else? Those are different asks. For our fictional membership service, the ask is a bounded test of a clearer first-task card. We will map the people and conversations that would make that test responsible.",
+      "narration_sha256": "b9c580e1dabaf844c4acc17547cd3e7b645007323cd3619e17ae66f920f259a9",
+      "on_screen_copy": "A sound recommendation can still stall",
+      "shot": "The slow no",
+      "visual": "synthetic proposal and meeting card; approved Alignment plate opens the module.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L09-01",
+        "start_seconds": 0,
+        "end_seconds": 31.013,
+        "duration_seconds": 31.013,
+        "narration_text": "You bring a careful recommendation into the room. The research is sound. The test plan has a measure and a stop condition. Someone asks about a competing priority. Engineering asks whose work will move. A person who was not in the meeting raises a concern afterward. The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no.",
+        "handoff_visual": "synthetic proposal and meeting card; approved Alignment plate opens the module.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c017.xhtml",
+          "c018.xhtml"
+        ],
+        "scene_source": "Ch14, “The System Wasn't Built for Ideas to Win by Default,” “The Most Common Blockers to Product Approval” (`c017.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L09-01:72f88ce4aa6cb4f1",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L09-02",
+      "title": "Build the argument before the deck",
+      "start_seconds": 110,
+      "end_seconds": 220,
+      "narration": "Chapter Fourteen names a Strategic Argument Blueprint. It has six parts, and the order matters. First, the problem: new members struggle to identify the first action without staff translation. That is a hypothesis for this exercise, not a measured customer finding. Second, the opportunity: a clearer entry might reduce that burden and help members begin. We do not assign a revenue figure to that possibility. Third, options: clarify the card, test a guided introduction, or hold the current flow until we learn more. Fourth, the recommendation: test the smallest card change because it gives us an answer with limited build effort. Fifth, tradeoffs: somebody must prepare the card, observe sessions, and delay another small task. Put that cost in the open. Sixth, outcome: the learning plan defines what a successful start looks like and what confusion would stop expansion. This is an argument for a decision, not a list of features. The same six fields can fit a short brief. In an email, lead with the decision requested. In a live meeting, let people see the problem and then the options. In a one-to-one conversation, listen for a missing criterion before polishing the deck. The blueprint does not guarantee agreement. It makes the choice and its cost visible enough for people to challenge honestly.",
+      "narration_sha256": "aa8747fad28941f8b94906bc1eac4bbeeeeb9c583e5717dce403c8a5fe1cf89d",
+      "on_screen_copy": "Problem · Opportunity · Options · Recommendation · Tradeoffs · Outcome",
+      "shot": "Build the argument before the deck",
+      "visual": "six exact book blueprint labels on a synthetic decision card.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c017.xhtml",
+          "c018.xhtml"
+        ],
+        "scene_source": "Ch14, “The Strategic Argument Blueprint,” “Match Delivery to the Moment” (`c017.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L09-02:72f88ce4aa6cb4f1",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L09-03",
+      "title": "Map roles and behavior",
+      "start_seconds": 220,
+      "end_seconds": 330,
+      "narration": "Chapter Fifteen says an org chart is a start, but it will not show every decision path. Its first stakeholder lens is role type. A decision-maker can approve or stop the work. An influencer shapes that person's view. A gatekeeper controls access, capacity, or information. A champion advocates. A skeptic asks hard questions. A blocker may actively oppose the idea. One person can occupy more than one role, and the label is a working hypothesis, not a verdict on character. On the synthetic card, a service director can authorize the test. An operations lead controls the staff time needed to observe it. A front-line worker knows where members lose the thread. A finance partner wants to know what the test displaces. We use fictional roles because this exercise needs a map, not anyone's private contact history. Add behavior next. Who tends to ask for customer evidence? Who trusts the team that must build the change? Who remembers an earlier rollout that increased support work? The answer changes what you bring into a conversation. It should not change the underlying evidence. Give the operations lead the observation burden and exclusions. Give the service director the decision and stop condition. Ask the front-line worker whether our assumed friction even matches what they see. If they say no, revise the hypothesis before the meeting. Mapping makes you more accurate about the work and the people who carry it.",
+      "narration_sha256": "8a2da77abc7a66b6397a358a066a1edee1b731785edc0baf19df06d50c020ddf",
+      "on_screen_copy": "Who decides? Who shapes? Who controls access?",
+      "shot": "Map roles and behavior",
+      "visual": "synthetic role cards, with book role labels.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L09-03",
+        "start_seconds": 220,
+        "end_seconds": 244.809,
+        "duration_seconds": 24.809,
+        "narration_text": "Chapter Fifteen says an org chart is a start, but it will not show every decision path. Its first stakeholder lens is role type. A decision-maker can approve or stop the work. An influencer shapes that person's view. A gatekeeper controls access, capacity, or information. A champion advocates. A skeptic asks hard questions.",
+        "handoff_visual": "synthetic role cards, with book role labels.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c017.xhtml",
+          "c018.xhtml"
+        ],
+        "scene_source": "Ch15, “Stakeholder Mapping—Beyond the Org Chart” (`c018.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L09-03:72f88ce4aa6cb4f1",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L09-04",
+      "title": "Use the book's power-interest grid",
+      "start_seconds": 330,
+      "end_seconds": 440,
+      "narration": "The book's third lens is a power-interest grid. High power and high interest means manage closely. High power and low interest means keep satisfied. Low power and high interest means keep informed. Low power and low interest means monitor. Those are the book's four labels. Draw the two axes and place our four fictional roles for this one decision. The service director has authority and cares about the member experience, so manage closely. The operations lead can withhold observation time and has a strong interest in the workflow, so manage closely too. The front-line worker may have little formal power but deep interest and useful evidence: keep informed and invite their challenge early. The finance partner may have approval influence but only intermittent interest: keep satisfied with a clear cost and review point. This placement is provisional. A policy change could move finance into the center. A staff member who has the director's trust may carry more informal influence than their title suggests. Ask the people involved, then update the map. Do not use the grid to silence people with less formal power. They may know the customer burden first. The visual helps plan communication; it does not decide whose knowledge counts. Put an objection beside each role and one piece of evidence or question that would help. If you cannot name what would change a person's mind, have a conversation before sending a finished pitch.",
+      "narration_sha256": "ab08d00982ed422094775b723e02232d72db0ddf74d83e203f546dbf7df14e82",
+      "on_screen_copy": "Manage Closely · Keep Satisfied · Keep Informed · Monitor",
+      "shot": "Use the book's power-interest grid",
+      "visual": "faithful book power-interest grid, retaining both axes and all four quadrant labels.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c017.xhtml",
+          "c018.xhtml"
+        ],
+        "scene_source": "Ch15, “Stakeholder Mapping—Beyond the Org Chart” (`c018.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L09-04:72f88ce4aa6cb4f1",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L09-05",
+      "title": "Sequence quiet conversations",
+      "start_seconds": 440,
+      "end_seconds": 550,
+      "narration": "The book calls the pre-meeting work Shuttle Diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take and which staffing constraint would make it unsafe. Next, ask the front-line worker whether the proposed card addresses the moment they see members hesitate. If the answer is another problem entirely, record it. Then ask the finance partner what cost or displaced work they would expect to see in the brief. Finally, give the service director the revised options and the specific decision requested. These are conversations with real stakes in a real project. Here they are a fictional sequence for practice, not a report that outreach happened. Keep confidential notes out of a rehearsal tool. If you rehearse objections with AI, use a synthetic brief and treat the output as questions to examine, never as that person's opinion. Chapter Fourteen recommends rehearsing pushback. The stronger version of that advice is to let people correct your understanding when you can speak with them. Update the decision file after each conversation: concern raised, evidence supporting it, what remains unknown, and whether the proposal changed. A meeting can focus on the live choice instead of surprising people with costs that were visible all week.",
+      "narration_sha256": "3491935ab2d5c92f0a6ac3cb176bdbdb74b3c2f898e544d01de7095cecd86a74",
+      "on_screen_copy": "Ask early · Listen · Revise · Bring the decision",
+      "shot": "Sequence quiet conversations",
+      "visual": "synthetic conversation schedule linked to objections.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L09-05",
+        "start_seconds": 440,
+        "end_seconds": 463.0,
+        "duration_seconds": 23.0,
+        "narration_text": "The book calls the pre-meeting work Shuttle Diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take and which staffing constraint would make it unsafe.",
+        "handoff_visual": "synthetic conversation schedule linked to objections.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c017.xhtml",
+          "c018.xhtml"
+        ],
+        "scene_source": "Ch15, “The Shuttle Diplomacy Playbook,” “Tailor Your Message to the Audience” (`c018.xhtml`); Ch14, “Rehearse the Pushback—Not Just the Pitch” (`c017.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L09-05:72f88ce4aa6cb4f1",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L09-06",
+      "title": "Complete the map",
+      "start_seconds": 550,
+      "end_seconds": 660,
+      "narration": "Pause here and use four fictional role names for the decision you have carried through this course. Mark who can decide, who controls resources, who knows the customer situation, and who may challenge the proposal. Put each on the book's power-interest grid. Write their likely interest and objection as a question, because you have not heard their answer yet. Choose one source of evidence or one conversation that could answer each question. Then order the conversations. Who must be heard before the brief is final? Who needs the options and tradeoffs early? Who will make the formal decision? Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence. Keep private names and messages in your authorized workspace. Use fictional roles for this exercise. Look at the six fields of the Strategic Argument Blueprint beside your map. The problem and recommendation may stay the same, but a real objection can change the options, timing, or tradeoff. That is useful learning. A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch. It must tell the truth about what we know, what we hope to learn, and what we would give up to run the test.",
+      "narration_sha256": "23d873383f9b0048aecc7920ab198bcd84140a9d58fc89689bd3f8fa5dd4a85e",
+      "on_screen_copy": "Map four roles before the meeting",
+      "shot": "Complete the map",
+      "visual": "decision file page fills with grid, roles, questions, and conversation order; brief Alignment plate return.",
+      "asset_refs": [
+        "alignment"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L09-06",
+        "start_seconds": 630.73,
+        "end_seconds": 648.67,
+        "duration_seconds": 17.94,
+        "narration_text": "A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
+        "handoff_visual": "decision file page fills with grid, roles, questions, and conversation order; brief Alignment plate return.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c017.xhtml",
+          "c018.xhtml"
+        ],
+        "scene_source": "Ch15, “Stakeholder Mapping—Beyond the Org Chart,” “The Shuttle Diplomacy Playbook” (`c018.xhtml`); Ch14, “The Strategic Argument Blueprint” (`c017.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L09-06:72f88ce4aa6cb4f1",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 3.877,
+      "text": "You bring a careful recommendation into the room.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 3.877,
+      "end": 5.815,
+      "text": "The research is sound.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 5.815,
+      "end": 10.661,
+      "text": "The test plan has a measure and a stop condition.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 10.661,
+      "end": 13.568,
+      "text": "Someone asks about a competing priority.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 13.568,
+      "end": 16.476,
+      "text": "Engineering asks whose work will move.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 16.476,
+      "end": 22.291,
+      "text": "A person who was not in the meeting raises a concern afterward.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 22.291,
+      "end": 31.013,
+      "text": "The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 31.013,
+      "end": 39.251,
+      "text": "Its lesson is practical: the evidence may be strong while the path to a decision is weak.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 39.251,
+      "end": 46.52,
+      "text": "People in the room have different information, responsibilities, and memories of the last failed bet.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 46.52,
+      "end": 49.427,
+      "text": "A leader may see budget risk.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 49.427,
+      "end": 53.304,
+      "text": "An engineer may see a promised platform change.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 53.304,
+      "end": 59.119,
+      "text": "A support lead may see another workflow they will have to explain.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 59.119,
+      "end": 66.388,
+      "text": "Before you call those reactions resistance, find out what each person is trying to protect.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 66.388,
+      "end": 71.233,
+      "text": "Return to the learning plan you wrote in lesson eight.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 71.233,
+      "end": 79.956,
+      "text": "You know the customer behavior you hope to change, the test you propose, and what would stop it.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 79.956,
+      "end": 84.802,
+      "text": "Now write the actual decision you need from this room.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 84.802,
+      "end": 94.009,
+      "text": "Is it permission to run the small test, funding for a larger build, or agreement to stop something else?",
+      "scene": "L09-01"
+    },
+    {
+      "start": 94.009,
+      "end": 95.947,
+      "text": "Those are different asks.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 95.947,
+      "end": 103.7,
+      "text": "For our fictional membership service, the ask is a bounded test of a clearer first-task card.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 103.7,
+      "end": 110,
+      "text": "We will map the people and conversations that would make that test responsible.",
+      "scene": "L09-01"
+    },
+    {
+      "start": 110,
+      "end": 113.598,
+      "text": "Chapter Fourteen names a Strategic Argument Blueprint.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 113.598,
+      "end": 117.71,
+      "text": "It has six parts, and the order matters.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 117.71,
+      "end": 124.907,
+      "text": "First, the problem: new members struggle to identify the first action without staff translation.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 124.907,
+      "end": 131.075,
+      "text": "That is a hypothesis for this exercise, not a measured customer finding.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 131.075,
+      "end": 138.271,
+      "text": "Second, the opportunity: a clearer entry might reduce that burden and help members begin.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 138.271,
+      "end": 143.411,
+      "text": "We do not assign a revenue figure to that possibility.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 143.411,
+      "end": 152.664,
+      "text": "Third, options: clarify the card, test a guided introduction, or hold the current flow until we learn more.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 152.664,
+      "end": 161.916,
+      "text": "Fourth, the recommendation: test the smallest card change because it gives us an answer with limited build effort.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 161.916,
+      "end": 169.112,
+      "text": "Fifth, tradeoffs: somebody must prepare the card, observe sessions, and delay another small task.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 169.112,
+      "end": 172.196,
+      "text": "Put that cost in the open.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 172.196,
+      "end": 181.449,
+      "text": "Sixth, outcome: the learning plan defines what a successful start looks like and what confusion would stop expansion.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 181.449,
+      "end": 187.617,
+      "text": "This is an argument for a decision, not a list of features.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 187.617,
+      "end": 192.243,
+      "text": "The same six fields can fit a short brief.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 192.243,
+      "end": 196.355,
+      "text": "In an email, lead with the decision requested.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 196.355,
+      "end": 203.037,
+      "text": "In a live meeting, let people see the problem and then the options.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 203.037,
+      "end": 209.72,
+      "text": "In a one-to-one conversation, listen for a missing criterion before polishing the deck.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 209.72,
+      "end": 212.804,
+      "text": "The blueprint does not guarantee agreement.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 212.804,
+      "end": 220,
+      "text": "It makes the choice and its cost visible enough for people to challenge honestly.",
+      "scene": "L09-02"
+    },
+    {
+      "start": 220,
+      "end": 227.957,
+      "text": "Chapter Fifteen says an org chart is a start, but it will not show every decision path.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 227.957,
+      "end": 231.234,
+      "text": "Its first stakeholder lens is role type.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 231.234,
+      "end": 234.979,
+      "text": "A decision-maker can approve or stop the work.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 234.979,
+      "end": 237.787,
+      "text": "An influencer shapes that person's view.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 237.787,
+      "end": 241.064,
+      "text": "A gatekeeper controls access, capacity, or information.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 241.064,
+      "end": 242.468,
+      "text": "A champion advocates.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 242.468,
+      "end": 244.809,
+      "text": "A skeptic asks hard questions.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 244.809,
+      "end": 248.085,
+      "text": "A blocker may actively oppose the idea.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 248.085,
+      "end": 257.447,
+      "text": "One person can occupy more than one role, and the label is a working hypothesis, not a verdict on character.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 257.447,
+      "end": 262.596,
+      "text": "On the synthetic card, a service director can authorize the test.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 262.596,
+      "end": 267.745,
+      "text": "An operations lead controls the staff time needed to observe it.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 267.745,
+      "end": 271.957,
+      "text": "A front-line worker knows where members lose the thread.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 271.957,
+      "end": 276.638,
+      "text": "A finance partner wants to know what the test displaces.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 276.638,
+      "end": 283.66,
+      "text": "We use fictional roles because this exercise needs a map, not anyone's private contact history.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 283.66,
+      "end": 285.064,
+      "text": "Add behavior next.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 285.064,
+      "end": 288.34,
+      "text": "Who tends to ask for customer evidence?",
+      "scene": "L09-03"
+    },
+    {
+      "start": 288.34,
+      "end": 292.553,
+      "text": "Who trusts the team that must build the change?",
+      "scene": "L09-03"
+    },
+    {
+      "start": 292.553,
+      "end": 296.766,
+      "text": "Who remembers an earlier rollout that increased support work?",
+      "scene": "L09-03"
+    },
+    {
+      "start": 296.766,
+      "end": 300.979,
+      "text": "The answer changes what you bring into a conversation.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 300.979,
+      "end": 304.255,
+      "text": "It should not change the underlying evidence.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 304.255,
+      "end": 308.468,
+      "text": "Give the operations lead the observation burden and exclusions.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 308.468,
+      "end": 312.681,
+      "text": "Give the service director the decision and stop condition.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 312.681,
+      "end": 318.766,
+      "text": "Ask the front-line worker whether our assumed friction even matches what they see.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 318.766,
+      "end": 323.447,
+      "text": "If they say no, revise the hypothesis before the meeting.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 323.447,
+      "end": 330,
+      "text": "Mapping makes you more accurate about the work and the people who carry it.",
+      "scene": "L09-03"
+    },
+    {
+      "start": 330,
+      "end": 333.729,
+      "text": "The book's third lens is a power-interest grid.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 333.729,
+      "end": 337.458,
+      "text": "High power and high interest means manage closely.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 337.458,
+      "end": 341.186,
+      "text": "High power and low interest means keep satisfied.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 341.186,
+      "end": 344.915,
+      "text": "Low power and high interest means keep informed.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 344.915,
+      "end": 348.178,
+      "text": "Low power and low interest means monitor.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 348.178,
+      "end": 350.975,
+      "text": "Those are the book's four labels.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 350.975,
+      "end": 357.5,
+      "text": "Draw the two axes and place our four fictional roles for this one decision.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 357.5,
+      "end": 364.025,
+      "text": "The service director has authority and cares about the member experience, so manage closely.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 364.025,
+      "end": 372.881,
+      "text": "The operations lead can withhold observation time and has a strong interest in the workflow, so manage closely too.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 372.881,
+      "end": 382.669,
+      "text": "The front-line worker may have little formal power but deep interest and useful evidence: keep informed and invite their challenge early.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 382.669,
+      "end": 391.992,
+      "text": "The finance partner may have approval influence but only intermittent interest: keep satisfied with a clear cost and review point.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 391.992,
+      "end": 393.856,
+      "text": "This placement is provisional.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 393.856,
+      "end": 398.051,
+      "text": "A policy change could move finance into the center.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 398.051,
+      "end": 405.975,
+      "text": "A staff member who has the director's trust may carry more informal influence than their title suggests.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 405.975,
+      "end": 409.703,
+      "text": "Ask the people involved, then update the map.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 409.703,
+      "end": 415.297,
+      "text": "Do not use the grid to silence people with less formal power.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 415.297,
+      "end": 418.559,
+      "text": "They may know the customer burden first.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 418.559,
+      "end": 424.153,
+      "text": "The visual helps plan communication; it does not decide whose knowledge counts.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 424.153,
+      "end": 431.61,
+      "text": "Put an objection beside each role and one piece of evidence or question that would help.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 431.61,
+      "end": 440,
+      "text": "If you cannot name what would change a person's mind, have a conversation before sending a finished pitch.",
+      "scene": "L09-04"
+    },
+    {
+      "start": 440,
+      "end": 444.0,
+      "text": "The book calls the pre-meeting work Shuttle Diplomacy.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 444.0,
+      "end": 449.5,
+      "text": "Learn the decision criteria before a deck hardens around one answer.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 449.5,
+      "end": 454.0,
+      "text": "Start with the person who will do the observation.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 454.0,
+      "end": 463.0,
+      "text": "Ask the operations lead what time the test would take and which staffing constraint would make it unsafe.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 463.0,
+      "end": 471.0,
+      "text": "Next, ask the front-line worker whether the proposed card addresses the moment they see members hesitate.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 471.0,
+      "end": 475.5,
+      "text": "If the answer is another problem entirely, record it.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 475.5,
+      "end": 484.5,
+      "text": "Then ask the finance partner what cost or displaced work they would expect to see in the brief.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 484.5,
+      "end": 491.0,
+      "text": "Finally, give the service director the revised options and the specific decision requested.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 491.0,
+      "end": 496.0,
+      "text": "These are conversations with real stakes in a real project.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 496.0,
+      "end": 503.0,
+      "text": "Here they are a fictional sequence for practice, not a report that outreach happened.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 503.0,
+      "end": 507.0,
+      "text": "Keep confidential notes out of a rehearsal tool.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 507.0,
+      "end": 518.5,
+      "text": "If you rehearse objections with AI, use a synthetic brief and treat the output as questions to examine, never as that person's opinion.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 518.5,
+      "end": 521.0,
+      "text": "Chapter Fourteen recommends rehearsing pushback.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 521.0,
+      "end": 530.5,
+      "text": "The stronger version of that advice is to let people correct your understanding when you can speak with them.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 530.5,
+      "end": 540.5,
+      "text": "Update the decision file after each conversation: concern raised, evidence supporting it, what remains unknown, and whether the proposal changed.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 540.5,
+      "end": 550,
+      "text": "A meeting can focus on the live choice instead of surprising people with costs that were visible all week.",
+      "scene": "L09-05"
+    },
+    {
+      "start": 550,
+      "end": 558.026,
+      "text": "Pause here and use four fictional role names for the decision you have carried through this course.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 558.026,
+      "end": 566.524,
+      "text": "Mark who can decide, who controls resources, who knows the customer situation, and who may challenge the proposal.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 566.524,
+      "end": 569.828,
+      "text": "Put each on the book's power-interest grid.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 569.828,
+      "end": 577.854,
+      "text": "Write their likely interest and objection as a question, because you have not heard their answer yet.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 577.854,
+      "end": 583.991,
+      "text": "Choose one source of evidence or one conversation that could answer each question.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 583.991,
+      "end": 585.88,
+      "text": "Then order the conversations.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 585.88,
+      "end": 590.129,
+      "text": "Who must be heard before the brief is final?",
+      "scene": "L09-06"
+    },
+    {
+      "start": 590.129,
+      "end": 593.433,
+      "text": "Who needs the options and tradeoffs early?",
+      "scene": "L09-06"
+    },
+    {
+      "start": 593.433,
+      "end": 596.266,
+      "text": "Who will make the formal decision?",
+      "scene": "L09-06"
+    },
+    {
+      "start": 596.266,
+      "end": 606.652,
+      "text": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 606.652,
+      "end": 610.901,
+      "text": "Keep private names and messages in your authorized workspace.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 610.901,
+      "end": 613.734,
+      "text": "Use fictional roles for this exercise.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 613.734,
+      "end": 619.871,
+      "text": "Look at the six fields of the Strategic Argument Blueprint beside your map.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 619.871,
+      "end": 628.841,
+      "text": "The problem and recommendation may stay the same, but a real objection can change the options, timing, or tradeoff.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 628.841,
+      "end": 630.73,
+      "text": "That is useful learning.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 630.73,
+      "end": 634.979,
+      "text": "A map is not a way to manufacture agreement.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 634.979,
+      "end": 641.588,
+      "text": "It helps you find missing information and name the people who bear the cost.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 641.588,
+      "end": 648.67,
+      "text": "In the next lesson, we will take the same choice into a short, responsible pitch.",
+      "scene": "L09-06"
+    },
+    {
+      "start": 648.67,
+      "end": 660,
+      "text": "It must tell the truth about what we know, what we hope to learn, and what we would give up to run the test.",
+      "scene": "L09-06"
+    }
+  ],
+  "assets": {
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 09:20. Map four fictional roles, power and interest, provisional objection, needed evidence, and conversation order. Resume when the decision, tradeoff, and sequence are written. Use only public, synthetic, or approved inputs; keep private stakeholder correspondence out of the course file.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 31.013,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 31.013,
+      "end_seconds": 220,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 220,
+      "end_seconds": 244.809,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 244.809,
+      "end_seconds": 440,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 440,
+      "end_seconds": 463.0,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 463.0,
+      "end_seconds": 630.73,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 630.73,
+      "end_seconds": 648.67,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 648.67,
+      "end_seconds": 660,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L09-01",
+        "start_seconds": 0,
+        "end_seconds": 31.013,
+        "duration_seconds": 31.013,
+        "narration_text": "You bring a careful recommendation into the room. The research is sound. The test plan has a measure and a stop condition. Someone asks about a competing priority. Engineering asks whose work will move. A person who was not in the meeting raises a concern afterward. The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no.",
+        "handoff_visual": "synthetic proposal and meeting card; approved Alignment plate opens the module.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L09-03",
+        "start_seconds": 220,
+        "end_seconds": 244.809,
+        "duration_seconds": 24.809,
+        "narration_text": "Chapter Fifteen says an org chart is a start, but it will not show every decision path. Its first stakeholder lens is role type. A decision-maker can approve or stop the work. An influencer shapes that person's view. A gatekeeper controls access, capacity, or information. A champion advocates. A skeptic asks hard questions.",
+        "handoff_visual": "synthetic role cards, with book role labels.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L09-05",
+        "start_seconds": 440,
+        "end_seconds": 463.0,
+        "duration_seconds": 23.0,
+        "narration_text": "The book calls the pre-meeting work Shuttle Diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take and which staffing constraint would make it unsafe.",
+        "handoff_visual": "synthetic conversation schedule linked to objections.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L09-06",
+        "start_seconds": 630.73,
+        "end_seconds": 648.67,
+        "duration_seconds": 17.94,
+        "narration_text": "A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
+        "handoff_visual": "decision file page fills with grid, roles, questions, and conversation order; brief Alignment plate return.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}
