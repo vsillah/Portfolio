@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "lesson": "Accelerated L02",
+  "source_commit": "63103bac7bd2598988674d6f48fc9d70bdbabd2f",
+  "provider_job_id": "b4b8b4e83c18429feca3f4f4f45ae28b",
+  "source_sha256": "2beae8254c76a6f8bf168afb8483e83e63c13b621ec3934c81397d3167cd1a3d",
+  "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+  "packet_sha256": "a3cf10bcb3c6e556868bdf390d0da0d93bfd089564d46f22d5c09ab072b70357",
+  "captions_sha256": "ed1f824f36a64d9b783266c54a9840e2d89a71e1e526bd55efbbea7359d70ca0",
+  "output_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+  "fps": 25,
+  "output_frames": 15000,
+  "output_duration_seconds": 600.0,
+  "overlay": {
+    "content_width": 900,
+    "content_height": 506,
+    "frame_width": 916,
+    "frame_height": 522,
+    "fit": "contain",
+    "style": "solid gold",
+    "placement": "approved presenter panel above caption-safe band"
+  },
+  "source_passage_boundaries": {
+    "method": "native frame boundaries selected at measured sentence-group pauses",
+    "ranges": [
+      [
+        0,
+        744
+      ],
+      [
+        744,
+        1101
+      ],
+      [
+        1101,
+        1356
+      ],
+      [
+        1356,
+        1690
+      ]
+    ],
+    "source_frames": 1690,
+    "source_duration_seconds": 67.6,
+    "speed": 1.0
+  },
+  "timeline": [
+    {
+      "name": "01-a01",
+      "image": "scene1-presenter.png",
+      "frames": 744,
+      "source": [
+        0,
+        744
+      ],
+      "overlay": [
+        949,
+        182
+      ],
+      "timeline_start_seconds": 0.0,
+      "timeline_end_seconds": 29.76
+    },
+    {
+      "name": "02-scene1",
+      "image": "scene1-clean.png",
+      "frames": 1506,
+      "timeline_start_seconds": 29.76,
+      "timeline_end_seconds": 90.0
+    },
+    {
+      "name": "03-scene2",
+      "image": "scene2-clean.png",
+      "frames": 2250,
+      "timeline_start_seconds": 90.0,
+      "timeline_end_seconds": 180.0
+    },
+    {
+      "name": "04-a02",
+      "image": "scene3-presenter.png",
+      "frames": 357,
+      "source": [
+        744,
+        1101
+      ],
+      "overlay": [
+        949,
+        182
+      ],
+      "timeline_start_seconds": 180.0,
+      "timeline_end_seconds": 194.28
+    },
+    {
+      "name": "05-scene3",
+      "image": "scene3-clean.png",
+      "frames": 1968,
+      "timeline_start_seconds": 194.28,
+      "timeline_end_seconds": 273.0
+    },
+    {
+      "name": "06-scene4",
+      "image": "scene4-clean.png",
+      "frames": 2325,
+      "timeline_start_seconds": 273.0,
+      "timeline_end_seconds": 366.0
+    },
+    {
+      "name": "07-a03",
+      "image": "scene5-presenter.png",
+      "frames": 255,
+      "source": [
+        1101,
+        1356
+      ],
+      "overlay": [
+        949,
+        182
+      ],
+      "timeline_start_seconds": 366.0,
+      "timeline_end_seconds": 376.2
+    },
+    {
+      "name": "08-scene5",
+      "image": "scene5-clean.png",
+      "frames": 1870,
+      "timeline_start_seconds": 376.2,
+      "timeline_end_seconds": 451.0
+    },
+    {
+      "name": "09-scene6",
+      "image": "scene6-clean.png",
+      "frames": 2375,
+      "timeline_start_seconds": 451.0,
+      "timeline_end_seconds": 546.0
+    },
+    {
+      "name": "10-scene7-pre",
+      "image": "scene7-clean.png",
+      "frames": 697,
+      "timeline_start_seconds": 546.0,
+      "timeline_end_seconds": 573.88
+    },
+    {
+      "name": "11-a04",
+      "image": "scene7-presenter.png",
+      "frames": 334,
+      "source": [
+        1356,
+        1690
+      ],
+      "overlay": [
+        949,
+        182
+      ],
+      "timeline_start_seconds": 573.88,
+      "timeline_end_seconds": 587.24
+    },
+    {
+      "name": "12-scene7-close",
+      "image": "scene7-clean.png",
+      "frames": 319,
+      "timeline_start_seconds": 587.24,
+      "timeline_end_seconds": 600.0
+    }
+  ],
+  "constraints": {
+    "source_speed": 1.0,
+    "source_crop": false,
+    "source_audio_owner_in_avatar_windows": true,
+    "estimated_caption_text_burned_in": false,
+    "provider_calls": 0,
+    "external_actions": 0,
+    "incremental_cost_usd": 0
+  },
+  "probe": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "mime_codec_string": "avc1.640028",
+        "width": 1920,
+        "height": 1080,
+        "coded_width": 1920,
+        "coded_height": 1080,
+        "has_b_frames": 2,
+        "sample_aspect_ratio": "1:1",
+        "display_aspect_ratio": "16:9",
+        "pix_fmt": "yuv420p",
+        "level": 40,
+        "chroma_location": "left",
+        "field_order": "progressive",
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "id": "0x1",
+        "r_frame_rate": "25/1",
+        "avg_frame_rate": "25/1",
+        "time_base": "1/12800",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 7680000,
+        "duration": "600.000000",
+        "bit_rate": "156351",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "15000",
+        "extradata_size": 48,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "encoder": "Lavc62.28.101 libx264"
+        }
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "mime_codec_string": "mp4a.40.2",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "initial_padding": 0,
+        "id": "0x2",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 28800000,
+        "duration": "600.000000",
+        "bit_rate": "23905",
+        "nb_frames": "28143",
+        "extradata_size": 5,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "SoundHandler"
+        }
+      },
+      {
+        "index": 2,
+        "codec_name": "mov_text",
+        "codec_long_name": "MOV text",
+        "codec_type": "subtitle",
+        "codec_tag_string": "tx3g",
+        "codec_tag": "0x67337874",
+        "id": "0x3",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/1000000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 600000000,
+        "duration": "600.000000",
+        "bit_rate": "91",
+        "nb_frames": "95",
+        "extradata_size": 68,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "eng",
+          "handler_name": "SubtitleHandler"
+        }
+      }
+    ],
+    "format": {
+      "filename": "/Users/vambahsillah/.codex/worktrees/accelerated-l02-native-composite/Portfolio/docs/accelerated-course-modules/l02-native-composite/accelerated-l02-native-composite.mp4",
+      "nb_streams": 3,
+      "nb_programs": 0,
+      "nb_stream_groups": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "600.000000",
+      "size": "13988158",
+      "bit_rate": "186508",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf62.12.101"
+      }
+    }
+  }
+}
