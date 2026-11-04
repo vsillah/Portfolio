@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L06",
+  "video_id": "559205f2a611e9f84305604eaefae5ed",
+  "title": "Accelerated L06 review-only source",
+  "status": "completed",
+  "submitted_once": true,
+  "retry_count": 0,
+  "request": {
+    "source_commit": "30289b59511c661ccf38e3a4279248cb4dc1de0d",
+    "script_source_commit": "2546d07bd25c6ec9ee84dd7b19771fb72a0a6c37",
+    "request_source_commit": "3d9978269ffaf8194fcce246786b0591659c19c7",
+    "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+    "request_sha256": "71a94054fcef4f367cfc346f3a08aac4ede86973f71f21e82fac771a6af7287e",
+    "packet_sha256": "04c92134c1796a39aa032dbae461b7dae773da437eff2f7b4f622c9fd4cf8b80",
+    "asset_map_sha256": "1d53bf794301911fa0301f2f876ec3213bdc8f2ac138e2c4b2d1e0f9e6e53d36",
+    "audio_map_sha256": "e8d93e6b76145f0cd2122907724a5c2e3706a9a8fb6810dc32d7b55ff13d5844",
+    "passages": ["A01", "A02", "A03", "A04"],
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe"
+  },
+  "billing": {
+    "credits": 319,
+    "cost_usd": 5.316667,
+    "per_job_cap_usd": 8.25,
+    "cap_result": "pass",
+    "auto_reload": "off",
+    "purchase_made": false
+  },
+  "artifact": {
+    "filename": "accelerated-l06-heygen-native.mp4",
+    "sha256": "8dc3228ed97cfba6d655ebe1a66a85f539ebbf610404fa97a2ccdb7d978059ab",
+    "duration_seconds": 66.37,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "video_frames": 1659
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "human_qa": "pending"
+}

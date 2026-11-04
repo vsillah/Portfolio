@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L08",
+  "video_id": "17943580f758ea713903310f21b69759",
+  "title": "Accelerated L08 review-only source",
+  "status": "completed",
+  "submitted_once": true,
+  "retry_count": 0,
+  "request": {
+    "source_commit": "30289b59511c661ccf38e3a4279248cb4dc1de0d",
+    "script_source_commit": "2546d07bd25c6ec9ee84dd7b19771fb72a0a6c37",
+    "request_source_commit": "3d9978269ffaf8194fcce246786b0591659c19c7",
+    "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+    "request_sha256": "915a2c515acd3e6a1727d914b1fc14601a2e71af8d829bf36279bb73f211063b",
+    "packet_sha256": "edef34ec3796d5376e011f3ecfdef355cb0454600b2a8b15c7ceea3f1dac64eb",
+    "asset_map_sha256": "33c002c2c94c3b0f747a283f9bc50e55b382a1775d65197cb9d16627dddc5b08",
+    "audio_map_sha256": "074164c095dc0198ce1d3fe8d1cdc5e244b269db1aca0082a74f4e6e59410c82",
+    "passages": ["A01", "A02", "A03", "A04"],
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe"
+  },
+  "billing": {
+    "credits": 401,
+    "cost_usd": 6.683333,
+    "per_job_cap_usd": 9.15,
+    "cap_result": "pass",
+    "auto_reload": "off",
+    "purchase_made": false
+  },
+  "artifact": {
+    "filename": "accelerated-l08-heygen-native.mp4",
+    "sha256": "4dca01d174ed0c5f7e484653b66d43f51f27ef207646e0f6d6e4c32538d385d6",
+    "duration_seconds": 83.65,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "video_frames": 2091
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "human_qa": "pending"
+}
