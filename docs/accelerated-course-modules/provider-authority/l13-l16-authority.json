@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "batch_id": "L13-L16",
+  "status": "review_only_blocked",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "retry_allowed": false,
+  "spend_cap_usd": 0,
+  "provider": "HeyGen",
+  "provider_precedent": {
+    "lesson": "L01 only",
+    "avatar_display_name": "Vambah green sweater",
+    "voice_display_name": "Vambah green sweater",
+    "source": "/Users/vambahsillah/.codex/visualizations/2026/06/23/019ef636-39d4-7180-953c-660515b5604a/accelerated-l01-heygen-pilot/corrected-provider-receipt.json",
+    "source_receipt_sha256": "6abe8568e425f4d74a13db6104f39a41bf7a3a73ae2a5fd86cf3b8e53bb4b7cc",
+    "provider_job_id": "c5639a0b76144ae5bcd76b1f2de85ed5",
+    "native_source_sha256": "2c502e0e9fc03b93fb71f85abae1ce936c2c33a43e01307620a845424f233626",
+    "historical_credits_consumed": 59,
+    "historical_incremental_cost_usd": 0,
+    "limitation": "Historical L01 precedent only; no current balance, current price, IDs, or L02-L16 rights established."
+  },
+  "required_bindings": {
+    "authorized_provider_account": null,
+    "approved_avatar_id": null,
+    "avatar_rights_receipt": null,
+    "approved_voice_id": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "recorded_audio_timing_receipt": null,
+    "privacy_review_receipt": null,
+    "binding_all_in_quote": null,
+    "provider_billing_units_and_rounding": null,
+    "enforceable_credit_or_spend_cap": null,
+    "current_exact_batch_authorization": null
+  },
+  "quote_and_cap_rule": "Obtain a current binding quote for each exact job and all-in batch total, including provider rounding, fees, taxes and any credit purchase. Verify an enforceable account/job cap before execution; historical credits are not a cap.",
+  "stop_no_retry": [
+    "source or approved text/hash drift",
+    "missing or changed avatar/voice rights",
+    "recorded-audio timing unbound",
+    "quote or cap absent/exceeded",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any new authorization"
+  ],
+  "batch_boundary": "No later lesson or batch follows automatically; each job needs exact current authority and its own receipt.",
+  "lessons": [
+    {
+      "lesson_id": "L13",
+      "title": "Strategic shifts and future concepts",
+      "request_path": "docs/accelerated-course-modules/l13-l16-guided-video/l13-heygen-request.json",
+      "request_sha256": "db52f7b8ca79afc37dd80a698b160bc9543111cc2f9fcf5c09077a743e7aa055",
+      "packet_path": "docs/accelerated-course-modules/l13-l16-guided-video/l13-packet.json",
+      "packet_sha256": "cdd1168caa00ae43615268158bd2fa9c3e1b86092a4a2ce602880844e96a811e",
+      "asset_map_sha256": "02d147c82162bc9d76065f54eb640b1b28200eac276f2ced975b97249c008c4e",
+      "audio_map_sha256": "02a5f949a5966e68a0abcf3be670404888411d14e425f4e2ec569df4adc59a91",
+      "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c024.xhtml",
+        "c025.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L13-01",
+          "start_seconds": 0,
+          "end_seconds": 32.527,
+          "duration_seconds": 32.527
+        },
+        {
+          "id": "A02",
+          "scene": "L13-03",
+          "start_seconds": 226,
+          "end_seconds": 252.308,
+          "duration_seconds": 26.308
+        },
+        {
+          "id": "A03",
+          "scene": "L13-05",
+          "start_seconds": 446,
+          "end_seconds": 477.471,
+          "duration_seconds": 31.471
+        },
+        {
+          "id": "A04",
+          "scene": "L13-06",
+          "start_seconds": 632.277,
+          "end_seconds": 654.65,
+          "duration_seconds": 22.373
+        }
+      ],
+      "presenter_seconds": 112.679,
+      "timing_status": "estimated; bind to approved recorded audio",
+      "missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "recorded_audio_sha256",
+        "recorded_audio_timing_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L14",
+      "title": "The last mile of influence",
+      "request_path": "docs/accelerated-course-modules/l13-l16-guided-video/l14-heygen-request.json",
+      "request_sha256": "f7677ae063c6641838eec81f644ccc5f6f214c37ccea99d3e9cf3e828ebcc20a",
+      "packet_path": "docs/accelerated-course-modules/l13-l16-guided-video/l14-packet.json",
+      "packet_sha256": "7020af28aa300f8ecdf4acea37fef70befc9a72d4b122b46e55bd920b0c9cb9f",
+      "asset_map_sha256": "f8475a00a80a071ba02f77711476793046380f9cf4a3ee2c3b639fbcf58e64c9",
+      "audio_map_sha256": "a70dea06d31233cfbe8026febb8d19f91c6ed9002dd7546ce60ed83ee2696a96",
+      "script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c026.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L14-01",
+          "start_seconds": 0,
+          "end_seconds": 30.75,
+          "duration_seconds": 30.75
+        },
+        {
+          "id": "A02",
+          "scene": "L14-03",
+          "start_seconds": 164,
+          "end_seconds": 193.586,
+          "duration_seconds": 29.586
+        },
+        {
+          "id": "A03",
+          "scene": "L14-05",
+          "start_seconds": 330,
+          "end_seconds": 359.374,
+          "duration_seconds": 29.374
+        },
+        {
+          "id": "A04",
+          "scene": "L14-06",
+          "start_seconds": 451.325,
+          "end_seconds": 470.288,
+          "duration_seconds": 18.963
+        }
+      ],
+      "presenter_seconds": 108.673,
+      "timing_status": "estimated; bind to approved recorded audio",
+      "missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "recorded_audio_sha256",
+        "recorded_audio_timing_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L15",
+      "title": "Governance and the system that learns",
+      "request_path": "docs/accelerated-course-modules/l13-l16-guided-video/l15-heygen-request.json",
+      "request_sha256": "e8b72fc0535603209ab8c1fa6fa7e060942104199737a10a2b4aac2876aec79f",
+      "packet_path": "docs/accelerated-course-modules/l13-l16-guided-video/l15-packet.json",
+      "packet_sha256": "39c9fe61885dea3535308efe1a8ba52087d6fc753c395eef35badf91ffc5ec0f",
+      "asset_map_sha256": "faba0261ba58b48236bb4ffa7a8d93f5823223302a9364db2041d4266500fb5b",
+      "audio_map_sha256": "7e2c7e91aa94883ff674ff15b2590274ba1f754376f8ff31c5fe6cba78ad9570",
+      "script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c027.xhtml",
+        "c028.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L15-01",
+          "start_seconds": 0,
+          "end_seconds": 28.836,
+          "duration_seconds": 28.836
+        },
+        {
+          "id": "A02",
+          "scene": "L15-03",
+          "start_seconds": 243,
+          "end_seconds": 273.912,
+          "duration_seconds": 30.912
+        },
+        {
+          "id": "A03",
+          "scene": "L15-05",
+          "start_seconds": 481,
+          "end_seconds": 510.495,
+          "duration_seconds": 29.495
+        },
+        {
+          "id": "A04",
+          "scene": "L15-06",
+          "start_seconds": 688.091,
+          "end_seconds": 712.466,
+          "duration_seconds": 24.375
+        }
+      ],
+      "presenter_seconds": 113.618,
+      "timing_status": "estimated; bind to approved recorded audio",
+      "missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "recorded_audio_sha256",
+        "recorded_audio_timing_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L16",
+      "title": "What comes next",
+      "request_path": "docs/accelerated-course-modules/l13-l16-guided-video/l16-heygen-request.json",
+      "request_sha256": "fced240c2e105b21b2feca5648cf41cb6d53dafc0774626663945f31284f8a25",
+      "packet_path": "docs/accelerated-course-modules/l13-l16-guided-video/l16-packet.json",
+      "packet_sha256": "2b603f8d02c77884c998c4698c5b610d1535b25621530de3e22a8be19349f6fc",
+      "asset_map_sha256": "9bab7e83437f54776cf028c94cd7bb6af05cd97def46fa6745cda55ff7493a1f",
+      "audio_map_sha256": "34808777d1a90630a294b35d29cd75cf3aa3142d39a50a7a121a8cc7d7e2b332",
+      "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c029.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L16-01",
+          "start_seconds": 0,
+          "end_seconds": 31.79,
+          "duration_seconds": 31.79
+        },
+        {
+          "id": "A02",
+          "scene": "L16-03",
+          "start_seconds": 161,
+          "end_seconds": 191.333,
+          "duration_seconds": 30.333
+        },
+        {
+          "id": "A03",
+          "scene": "L16-05",
+          "start_seconds": 316,
+          "end_seconds": 347.543,
+          "duration_seconds": 31.543
+        },
+        {
+          "id": "A04",
+          "scene": "L16-06",
+          "start_seconds": 449.455,
+          "end_seconds": 474.764,
+          "duration_seconds": 25.309
+        }
+      ],
+      "presenter_seconds": 118.975,
+      "timing_status": "estimated; bind to approved recorded audio",
+      "missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "recorded_audio_sha256",
+        "recorded_audio_timing_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "execution_allowed": false
+    }
+  ],
+  "total_presenter_seconds": 453.945
+}

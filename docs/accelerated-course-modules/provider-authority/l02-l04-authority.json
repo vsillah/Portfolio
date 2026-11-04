@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "batch_id": "L02-L04",
+  "status": "review_only_blocked",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "retry_allowed": false,
+  "spend_cap_usd": 0,
+  "provider": "HeyGen",
+  "provider_precedent": {
+    "lesson": "L01 only",
+    "avatar_display_name": "Vambah green sweater",
+    "voice_display_name": "Vambah green sweater",
+    "source": "/Users/vambahsillah/.codex/visualizations/2026/06/23/019ef636-39d4-7180-953c-660515b5604a/accelerated-l01-heygen-pilot/corrected-provider-receipt.json",
+    "source_receipt_sha256": "6abe8568e425f4d74a13db6104f39a41bf7a3a73ae2a5fd86cf3b8e53bb4b7cc",
+    "provider_job_id": "c5639a0b76144ae5bcd76b1f2de85ed5",
+    "native_source_sha256": "2c502e0e9fc03b93fb71f85abae1ce936c2c33a43e01307620a845424f233626",
+    "historical_credits_consumed": 59,
+    "historical_incremental_cost_usd": 0,
+    "limitation": "Historical L01 precedent only; no current balance, current price, IDs, or L02-L16 rights established."
+  },
+  "required_bindings": {
+    "authorized_provider_account": null,
+    "approved_avatar_id": null,
+    "avatar_rights_receipt": null,
+    "approved_voice_id": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "recorded_audio_timing_receipt": null,
+    "privacy_review_receipt": null,
+    "binding_all_in_quote": null,
+    "provider_billing_units_and_rounding": null,
+    "enforceable_credit_or_spend_cap": null,
+    "current_exact_batch_authorization": null
+  },
+  "quote_and_cap_rule": "Obtain a current binding quote for each exact job and all-in batch total, including provider rounding, fees, taxes and any credit purchase. Verify an enforceable account/job cap before execution; historical credits are not a cap.",
+  "stop_no_retry": [
+    "source or approved text/hash drift",
+    "missing or changed avatar/voice rights",
+    "recorded-audio timing unbound",
+    "quote or cap absent/exceeded",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any new authorization"
+  ],
+  "batch_boundary": "No later lesson or batch follows automatically; each job needs exact current authority and its own receipt.",
+  "lessons": [
+    {
+      "lesson_id": "L02",
+      "title": "Prioritize before generating",
+      "request_path": "docs/accelerated-course-modules/l02-l04-guided-video/l02-heygen-request.json",
+      "request_sha256": "89495d39f893e8312fcac2d07146919c597dbfdafa014318471f690a024debdc",
+      "packet_path": "docs/accelerated-course-modules/l02-l04-guided-video/l02-packet.json",
+      "packet_sha256": "a3cf10bcb3c6e556868bdf390d0da0d93bfd089564d46f22d5c09ab072b70357",
+      "asset_map_sha256": "afed445aa414317a14afe877849cca904b88c4092a4190052a12856b28f4e619",
+      "audio_map_sha256": "c06f00680b9c523a1ad4fda25e6b29e4f881ee1c5bf72efb3138fd4ba2376ae3",
+      "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c005.xhtml",
+        "c006.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L02-01",
+          "start_seconds": 0,
+          "end_seconds": 29.483,
+          "duration_seconds": 29.483
+        },
+        {
+          "id": "A02",
+          "scene": "L02-03",
+          "start_seconds": 180,
+          "end_seconds": 199.743,
+          "duration_seconds": 19.743
+        },
+        {
+          "id": "A03",
+          "scene": "L02-05",
+          "start_seconds": 366,
+          "end_seconds": 386.636,
+          "duration_seconds": 20.636
+        },
+        {
+          "id": "A04",
+          "scene": "L02-07",
+          "start_seconds": 573.885,
+          "end_seconds": 593.803,
+          "duration_seconds": 19.918
+        }
+      ],
+      "presenter_seconds": 89.78,
+      "timing_status": "estimated; bind to approved recorded audio",
+      "missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "recorded_audio_sha256",
+        "recorded_audio_timing_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L03",
+      "title": "Answer-driven discovery",
+      "request_path": "docs/accelerated-course-modules/l02-l04-guided-video/l03-heygen-request.json",
+      "request_sha256": "e6b7ceb57ded6dca2f8d105b252eb5a293be9956dfd5c736eb075fc6c8f20363",
+      "packet_path": "docs/accelerated-course-modules/l02-l04-guided-video/l03-packet.json",
+      "packet_sha256": "9b3fd51c788e75716ab1a81b26f9da7e9e5c31b469ff61636b24900ec904ad66",
+      "asset_map_sha256": "51eecc7dcc50c8427db18f050c1685b2c4233692efa4f7447eebb7f2498d6c0e",
+      "audio_map_sha256": "eba66588845f3aaaf6838ce4bc0d2e4df2b11ecb06b5bf6bb98546e27d04b30d",
+      "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c007.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L03-01",
+          "start_seconds": 0,
+          "end_seconds": 29.827,
+          "duration_seconds": 29.827
+        },
+        {
+          "id": "A02",
+          "scene": "L03-03",
+          "start_seconds": 174,
+          "end_seconds": 193.442,
+          "duration_seconds": 19.442
+        },
+        {
+          "id": "A03",
+          "scene": "L03-05",
+          "start_seconds": 349,
+          "end_seconds": 365.539,
+          "duration_seconds": 16.539
+        },
+        {
+          "id": "A04",
+          "scene": "L03-06",
+          "start_seconds": 513.947,
+          "end_seconds": 532.184,
+          "duration_seconds": 18.237
+        }
+      ],
+      "presenter_seconds": 84.045,
+      "timing_status": "estimated; bind to approved recorded audio",
+      "missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "recorded_audio_sha256",
+        "recorded_audio_timing_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "execution_allowed": false
+    },
+    {
+      "lesson_id": "L04",
+      "title": "Build small; keep personas alive",
+      "request_path": "docs/accelerated-course-modules/l02-l04-guided-video/l04-heygen-request.json",
+      "request_sha256": "51c722b502e7d7e0749c7ec68530f0f4e01b0b2605f57468722389c1048921d1",
+      "packet_path": "docs/accelerated-course-modules/l02-l04-guided-video/l04-packet.json",
+      "packet_sha256": "ea54637272cba597705cee05e5a6786dc13d9b33b059c73c70d474375b5d5905",
+      "asset_map_sha256": "37e048e5c8b2bc1250aa4b626f4d8a47d62afc41e17e92ca13d47b2e7f68b5ec",
+      "audio_map_sha256": "2a99119d9b9a5b0ce45a4c44b82d05efd6feb202c056777f3517248f1af7a3d0",
+      "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+      "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+      "book_sections": [
+        "c008.xhtml",
+        "c009.xhtml"
+      ],
+      "presenter_segments": [
+        {
+          "id": "A01",
+          "scene": "L04-01",
+          "start_seconds": 0,
+          "end_seconds": 28.235,
+          "duration_seconds": 28.235
+        },
+        {
+          "id": "A02",
+          "scene": "L04-03",
+          "start_seconds": 165,
+          "end_seconds": 180.241,
+          "duration_seconds": 15.241
+        },
+        {
+          "id": "A03",
+          "scene": "L04-05",
+          "start_seconds": 350,
+          "end_seconds": 369.213,
+          "duration_seconds": 19.213
+        },
+        {
+          "id": "A04",
+          "scene": "L04-07",
+          "start_seconds": 572.908,
+          "end_seconds": 594.862,
+          "duration_seconds": 21.954
+        }
+      ],
+      "presenter_seconds": 84.643,
+      "timing_status": "estimated; bind to approved recorded audio",
+      "missing_bindings": [
+        "authorized_provider_account",
+        "approved_avatar_id",
+        "avatar_rights_receipt",
+        "approved_voice_id",
+        "voice_rights_receipt",
+        "recorded_audio_sha256",
+        "recorded_audio_timing_receipt",
+        "privacy_review_receipt",
+        "binding_all_in_quote",
+        "provider_billing_units_and_rounding",
+        "enforceable_credit_or_spend_cap",
+        "current_exact_batch_authorization"
+      ],
+      "execution_allowed": false
+    }
+  ],
+  "total_presenter_seconds": 258.468
+}
