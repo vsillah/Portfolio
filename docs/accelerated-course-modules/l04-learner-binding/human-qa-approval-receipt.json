@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "receipt_type": "accelerated_guided_video_human_qa_approval",
+  "project": "Portfolio",
+  "lesson": "Accelerated L04",
+  "status": "approved",
+  "reviewer": {
+    "identity": "Vambah Sillah",
+    "role": "Human QA approver"
+  },
+  "approval": {
+    "message_id": "msg_0b99e4d3546af239016aebc1eebe94819c8508b64284d53437",
+    "source_thread_id": "019ef636-39d4-7180-953c-660515b5604a",
+    "source_commit": "30289b59511c661ccf38e3a4279248cb4dc1de0d",
+    "implementation_head": "81e1548b124bee3d304e6a722f2093d2713b6fee",
+    "scope": "Exact L04 learner-plan binding and review"
+  },
+  "bindings": {
+    "composite_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+    "provider_source_sha256": "cf8f8e78c48a8f4471e0a4bb53b57b4f71f3ad52d30f92cf356482b4d1be9c3e",
+    "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+    "captions_source_sha256": "a183b1c2b5e100f449eb12481b314d09bd65d11aa0b81321c8499ac5bd03474c",
+    "pre_approval_composite_receipt": "docs/accelerated-course-modules/l04-learner-binding/composite-receipt.json"
+  },
+  "external_actions_authorized": false
+}

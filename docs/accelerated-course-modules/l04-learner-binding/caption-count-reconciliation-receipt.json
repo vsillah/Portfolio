@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "receipt_type": "accelerated_l04_caption_count_reconciliation",
+  "status": "reconciled",
+  "lesson": "Accelerated L04",
+  "approval_message_id": "msg_0b99e4d3546af239016aebc1eebe94819c8508b64284d53437",
+  "implementation_head": "81e1548b124bee3d304e6a722f2093d2713b6fee",
+  "bindings": {
+    "original_packet_sha256": "370d7b9295c35eeeabb9f5da4b78170942979b06830d2321dcd3c63f1e563240",
+    "approved_srt_sha256": "a183b1c2b5e100f449eb12481b314d09bd65d11aa0b81321c8499ac5bd03474c",
+    "composite_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613"
+  },
+  "evidence": {
+    "srt_numeric_cue_headers": "1-94",
+    "srt_timestamp_rows": 94,
+    "composite_subtitle_packets": 94,
+    "composite_subtitle_frames": 94,
+    "original_packet_caption_cues_field": 95,
+    "finding": "The original packet caption_cues field is erroneous; approved caption and composite bytes are unchanged."
+  }
+}
