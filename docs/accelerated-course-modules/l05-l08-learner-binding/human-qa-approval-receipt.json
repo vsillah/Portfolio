@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "receipt_type": "accelerated_l05_l08_human_qa_approval",
+  "status": "approved",
+  "project": "Portfolio",
+  "scope": "Accelerated L05-L08 learner-plan binding",
+  "approval_source": {
+    "delegated_task_source_thread_id": "019ef636-39d4-7180-953c-660515b5604a",
+    "reviewed_pr": 1201,
+    "reviewed_pr_head": "c050efc06d583528fffa220066315a07a4a79400",
+    "merged_base_commit": "9dda6126fb0bab0468080e394b5b3d91806a99f9",
+    "reviewer": "Vambah Sillah"
+  },
+  "bindings": {
+    "L05": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+    "L06": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+    "L07": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+    "L08": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b"
+  },
+  "pre_approval_batch_receipt": "artifacts/accelerated-l05-l08-native-composite-2026-11-04/batch-receipt.json",
+  "external_actions_authorized": false
+}

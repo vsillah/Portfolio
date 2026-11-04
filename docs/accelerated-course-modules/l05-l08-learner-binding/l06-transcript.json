@@ -1,0 +1,480 @@
+{
+  "source_srt_sha256": "c97d1944d3a4c121f7004bac60a5a0fce00bc1741fd4ce2b00d137ae4401f920",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:03.615",
+      "text": "There are three cards on the wall."
+    },
+    {
+      "start": "00:03.615",
+      "end": "00:05.164",
+      "text": "Add a reminder."
+    },
+    {
+      "start": "00:05.164",
+      "end": "00:07.230",
+      "text": "Rewrite the first task."
+    },
+    {
+      "start": "00:07.230",
+      "end": "00:09.296",
+      "text": "Give staff a dashboard."
+    },
+    {
+      "start": "00:09.296",
+      "end": "00:14.977",
+      "text": "Every card has someone who can make a case for it."
+    },
+    {
+      "start": "00:14.977",
+      "end": "00:26.338",
+      "text": "The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little."
+    },
+    {
+      "start": "00:26.338",
+      "end": "00:32.019",
+      "text": "Put the feedback ledger from the last lesson beside the cards."
+    },
+    {
+      "start": "00:32.019",
+      "end": "00:42.864",
+      "text": "F zero three, F zero four, and F zero five suggest that the first task may need clearer direction and purpose."
+    },
+    {
+      "start": "00:42.864",
+      "end": "00:48.545",
+      "text": "F zero one suggests another need: confirmation that an action worked."
+    },
+    {
+      "start": "00:48.545",
+      "end": "00:52.676",
+      "text": "None of those six notes proves a solution."
+    },
+    {
+      "start": "00:52.676",
+      "end": "00:58.873",
+      "text": "They do give us a reason to ask a better roadmap question."
+    },
+    {
+      "start": "00:58.873",
+      "end": "01:05.587",
+      "text": "Chapter Eight says to turn features into bets about customer and business outcomes."
+    },
+    {
+      "start": "01:05.587",
+      "end": "01:13.333",
+      "text": "A bet states what we believe will change, for whom, and how we will know."
+    },
+    {
+      "start": "01:13.333",
+      "end": "01:31.925",
+      "text": "For the membership service, write: \u201cIf a clearer first-task card helps new members understand the next action, more of them should begin that task without staff translating the instruction.\u201d That is a hypothesis, not a promise."
+    },
+    {
+      "start": "01:31.925",
+      "end": "01:36.056",
+      "text": "The other two cards stay on the wall."
+    },
+    {
+      "start": "01:36.056",
+      "end": "01:44.319",
+      "text": "We need a reason to choose now and a signal that would bring an alternative back."
+    },
+    {
+      "start": "01:44.319",
+      "end": "01:50.000",
+      "text": "The roadmap should carry both, in words the team can remember."
+    },
+    {
+      "start": "01:50.000",
+      "end": "01:53.128",
+      "text": "Place four questions under each card."
+    },
+    {
+      "start": "01:53.128",
+      "end": "01:56.777",
+      "text": "Does the idea address the observed problem?"
+    },
+    {
+      "start": "01:56.777",
+      "end": "02:01.991",
+      "text": "Does it fit the outcome we are trying to improve?"
+    },
+    {
+      "start": "02:01.991",
+      "end": "02:06.161",
+      "text": "Can we test it at a responsible cost?"
+    },
+    {
+      "start": "02:06.161",
+      "end": "02:09.289",
+      "text": "What do we still not know?"
+    },
+    {
+      "start": "02:09.289",
+      "end": "02:17.109",
+      "text": "The first-task guide has a plausible connection to our ledger and a small test path."
+    },
+    {
+      "start": "02:17.109",
+      "end": "02:27.536",
+      "text": "A reminder may help people return, but our six notes do not yet show that forgetting is the main barrier."
+    },
+    {
+      "start": "02:27.536",
+      "end": "02:36.919",
+      "text": "A staff dashboard could improve support work; we would need staff evidence before making that the lead bet."
+    },
+    {
+      "start": "02:36.919",
+      "end": "02:41.611",
+      "text": "These are judgments in the example, not measured rankings."
+    },
+    {
+      "start": "02:41.611",
+      "end": "02:47.867",
+      "text": "We are not assigning made-up scores to make the choice look scientific."
+    },
+    {
+      "start": "02:47.867",
+      "end": "02:54.645",
+      "text": "Chapter Eight's prioritization warning is that an ordered list can hide weak reasoning."
+    },
+    {
+      "start": "02:54.645",
+      "end": "03:02.986",
+      "text": "It asks what we say no to and what signal would make us revisit that answer."
+    },
+    {
+      "start": "03:02.986",
+      "end": "03:07.156",
+      "text": "Write the first-task guide as the current bet."
+    },
+    {
+      "start": "03:07.156",
+      "end": "03:30.095",
+      "text": "Next to the reminder, write \u201crevisit if observations show people understand the task but forget to return.\u201d Next to the dashboard, write \u201crevisit if staff cannot see where members need help.\u201d The Alignment plate can orient us to the next part of the book."
+    },
+    {
+      "start": "03:30.095",
+      "end": "03:33.223",
+      "text": "It does not prove this choice."
+    },
+    {
+      "start": "03:33.223",
+      "end": "03:40.000",
+      "text": "The evidence ledger and the criteria carry that burden, and invite careful review."
+    },
+    {
+      "start": "03:40.000",
+      "end": "03:44.171",
+      "text": "Now the bet enters a product requirements document."
+    },
+    {
+      "start": "03:44.171",
+      "end": "03:50.427",
+      "text": "A blank template can make a team start with controls and screens."
+    },
+    {
+      "start": "03:50.427",
+      "end": "04:05.545",
+      "text": "For this exercise, begin one line earlier: \u201cA new member opens the first task and cannot tell what action matters or why.\u201d Under that line, link the ledger IDs."
+    },
+    {
+      "start": "04:05.545",
+      "end": "04:10.237",
+      "text": "Name the affected situation from the living persona card."
+    },
+    {
+      "start": "04:10.237",
+      "end": "04:21.185",
+      "text": "State the desired behavior: the member can identify the next action and begin it without asking staff to translate the instruction."
+    },
+    {
+      "start": "04:21.185",
+      "end": "04:25.877",
+      "text": "This is the comprehension layer Chapter Nine asks for."
+    },
+    {
+      "start": "04:25.877",
+      "end": "04:33.697",
+      "text": "A developer should be able to explain why the work exists before describing the interface."
+    },
+    {
+      "start": "04:33.697",
+      "end": "04:36.303",
+      "text": "Then add the proposed scope."
+    },
+    {
+      "start": "04:36.303",
+      "end": "04:46.209",
+      "text": "We will test one first-task card with a clear action, a short reason, and a visible confirmation after beginning."
+    },
+    {
+      "start": "04:46.209",
+      "end": "04:56.114",
+      "text": "We will not build a full reminder system, redesign the whole journey, or claim that this card increases retention."
+    },
+    {
+      "start": "04:56.114",
+      "end": "04:59.242",
+      "text": "Those exclusions protect the learning question."
+    },
+    {
+      "start": "04:59.242",
+      "end": "05:06.019",
+      "text": "They also leave room for engineering and design to find a better implementation."
+    },
+    {
+      "start": "05:06.019",
+      "end": "05:13.318",
+      "text": "The document is a map of the problem, evidence, intended behavior, limits, and measure."
+    },
+    {
+      "start": "05:13.318",
+      "end": "05:17.488",
+      "text": "It is not a script for every click."
+    },
+    {
+      "start": "05:17.488",
+      "end": "05:30.000",
+      "text": "If the team spots a safer or simpler way to learn, the PRD should make that conversation possible before the build grows too large."
+    },
+    {
+      "start": "05:30.000",
+      "end": "05:37.746",
+      "text": "Before anyone builds, ask a teammate to explain the bet back in their own words."
+    },
+    {
+      "start": "05:37.746",
+      "end": "05:44.977",
+      "text": "\u201cWe want to see whether a clearer first task helps a new member begin."
+    },
+    {
+      "start": "05:44.977",
+      "end": "05:51.690",
+      "text": "We are testing one card, and we will observe the starting moment.\u201d Good."
+    },
+    {
+      "start": "05:51.690",
+      "end": "05:57.887",
+      "text": "Then ask what happens if the member presses begin and loses connection."
+    },
+    {
+      "start": "05:57.887",
+      "end": "06:01.502",
+      "text": "Does the interface say the action worked?"
+    },
+    {
+      "start": "06:01.502",
+      "end": "06:04.601",
+      "text": "Can the person safely try again?"
+    },
+    {
+      "start": "06:04.601",
+      "end": "06:09.765",
+      "text": "F zero one already warned us that confirmation may matter."
+    },
+    {
+      "start": "06:09.765",
+      "end": "06:18.028",
+      "text": "A document that says \u201cshow success\u201d without defining this case leaves a real decision to chance."
+    },
+    {
+      "start": "06:18.028",
+      "end": "06:23.709",
+      "text": "Chapter Nine recommends pre-testing the handoff for ambiguity and edge cases."
+    },
+    {
+      "start": "06:23.709",
+      "end": "06:33.521",
+      "text": "A model may suggest questions from material your team can safely use, but its answer is not engineering sign-off."
+    },
+    {
+      "start": "06:33.521",
+      "end": "06:40.751",
+      "text": "A person who will build or support the change needs to review the meaning."
+    },
+    {
+      "start": "06:40.751",
+      "end": "06:55.211",
+      "text": "Add an acceptance check: after a successful start, the member sees a clear state; after a failed attempt, the card says what happened and what to do next."
+    },
+    {
+      "start": "06:55.211",
+      "end": "06:59.343",
+      "text": "The team may refine that check during design."
+    },
+    {
+      "start": "06:59.343",
+      "end": "07:02.958",
+      "text": "Record who made the decision and why."
+    },
+    {
+      "start": "07:02.958",
+      "end": "07:16.901",
+      "text": "This is a small handoff, yet it contains the same failure mode as a large program: the source question can disappear while the document becomes more detailed."
+    },
+    {
+      "start": "07:16.901",
+      "end": "07:20.000",
+      "text": "Keep it visible at the top."
+    },
+    {
+      "start": "07:20.000",
+      "end": "07:31.362",
+      "text": "Imagine the team tests the card and finds that people understand the action but still cannot tell whether they have finished it."
+    },
+    {
+      "start": "07:31.362",
+      "end": "07:34.460",
+      "text": "Imagine that result for a moment."
+    },
+    {
+      "start": "07:34.460",
+      "end": "07:40.657",
+      "text": "The next move may be better completion feedback rather than more instruction."
+    },
+    {
+      "start": "07:40.657",
+      "end": "07:44.272",
+      "text": "Update the PRD and the trace card."
+    },
+    {
+      "start": "07:44.272",
+      "end": "07:56.150",
+      "text": "Keep the original assumption, add the new observation with its source and method, and record the date, owner, and reason for the change."
+    },
+    {
+      "start": "07:56.150",
+      "end": "08:08.545",
+      "text": "Chapter Nine's living document is how decisions made in review, design, and development remain visible to the people who were not in every conversation."
+    },
+    {
+      "start": "08:08.545",
+      "end": "08:13.192",
+      "text": "The roadmap should change with that learning as well."
+    },
+    {
+      "start": "08:13.192",
+      "end": "08:27.653",
+      "text": "It is a story about the outcome we are trying to move and the bets we are willing to test, not a schedule that erases its own history."
+    },
+    {
+      "start": "08:27.653",
+      "end": "08:32.300",
+      "text": "Our trace card has a source: the L05 ledger."
+    },
+    {
+      "start": "08:32.300",
+      "end": "08:36.948",
+      "text": "It has a current decision: test the first-task guide."
+    },
+    {
+      "start": "08:36.948",
+      "end": "08:41.080",
+      "text": "It has an owner and a limited scope."
+    },
+    {
+      "start": "08:41.080",
+      "end": "08:43.146",
+      "text": "It names the exclusions."
+    },
+    {
+      "start": "08:43.146",
+      "end": "08:56.056",
+      "text": "The measure is whether a participant can identify and begin the intended action in a planned test, with the observation method stated before the result."
+    },
+    {
+      "start": "08:56.056",
+      "end": "08:59.155",
+      "text": "We have not measured it yet."
+    },
+    {
+      "start": "08:59.155",
+      "end": "09:10.000",
+      "text": "A clean trace lets a future teammate ask why this work entered the plan and see an answer they can challenge."
+    },
+    {
+      "start": "09:10.000",
+      "end": "09:14.605",
+      "text": "Pause and draw one line across your decision file."
+    },
+    {
+      "start": "09:14.605",
+      "end": "09:19.209",
+      "text": "Start with the source IDs that support the problem."
+    },
+    {
+      "start": "09:19.209",
+      "end": "09:25.349",
+      "text": "State the roadmap bet in a sentence a teammate could disagree with."
+    },
+    {
+      "start": "09:25.349",
+      "end": "09:34.558",
+      "text": "Name the person or team who owns the decision, the smallest useful scope, and what is outside it."
+    },
+    {
+      "start": "09:34.558",
+      "end": "09:39.674",
+      "text": "Write one acceptance check that a builder can explain back."
+    },
+    {
+      "start": "09:39.674",
+      "end": "09:49.907",
+      "text": "Then choose a measure that would tell you whether the customer behavior changed, and say how you will observe it."
+    },
+    {
+      "start": "09:49.907",
+      "end": "09:58.093",
+      "text": "Resume when each item points to the next without requiring someone to guess what you meant."
+    },
+    {
+      "start": "09:58.093",
+      "end": "10:05.767",
+      "text": "If you are using a real project, keep identifiable records in your team\u2019s research system."
+    },
+    {
+      "start": "10:05.767",
+      "end": "10:13.442",
+      "text": "The line helps us follow the handoff from the roadmap bet to the living PRD."
+    },
+    {
+      "start": "10:13.442",
+      "end": "10:20.605",
+      "text": "If a review uncovers a different problem, change the card with a dated reason."
+    },
+    {
+      "start": "10:20.605",
+      "end": "10:25.721",
+      "text": "Do not quietly swap the measure after seeing a result."
+    },
+    {
+      "start": "10:25.721",
+      "end": "10:30.837",
+      "text": "The next lesson will put learning checkpoints beside delivery work."
+    },
+    {
+      "start": "10:30.837",
+      "end": "10:34.419",
+      "text": "For now, the trace is the safeguard."
+    },
+    {
+      "start": "10:34.419",
+      "end": "10:47.209",
+      "text": "It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review."
+    },
+    {
+      "start": "10:47.209",
+      "end": "10:54.372",
+      "text": "Ask a teammate to point to the original feedback note and the success check."
+    },
+    {
+      "start": "10:54.372",
+      "end": "11:00.000",
+      "text": "If they cannot, the line still has a gap to repair."
+    }
+  ]
+}

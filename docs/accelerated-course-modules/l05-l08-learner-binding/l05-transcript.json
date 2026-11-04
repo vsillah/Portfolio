@@ -1,0 +1,525 @@
+{
+  "source_srt_sha256": "6f19b3655dc1ca8a0a4f949e92bc4b35abedf013013944eb5033edd117e40308",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:01.980",
+      "text": "The comments keep coming."
+    },
+    {
+      "start": "00:01.980",
+      "end": "00:05.446",
+      "text": "One person says the service is slow."
+    },
+    {
+      "start": "00:05.446",
+      "end": "00:08.911",
+      "text": "Another says it is hard to start."
+    },
+    {
+      "start": "00:08.911",
+      "end": "00:10.891",
+      "text": "Someone wants a reminder."
+    },
+    {
+      "start": "00:10.891",
+      "end": "00:15.842",
+      "text": "The inbox is full, and the roadmap meeting is tomorrow."
+    },
+    {
+      "start": "00:15.842",
+      "end": "00:18.317",
+      "text": "You can count the comments."
+    },
+    {
+      "start": "00:18.317",
+      "end": "00:22.277",
+      "text": "You can paste them into a summary tool."
+    },
+    {
+      "start": "00:22.277",
+      "end": "00:25.743",
+      "text": "Neither action tells you what to change."
+    },
+    {
+      "start": "00:25.743",
+      "end": "00:35.644",
+      "text": "In Chapter Seven of Accelerated, discovery begins by asking what job people are trying to do when the trouble appears."
+    },
+    {
+      "start": "00:35.644",
+      "end": "00:41.584",
+      "text": "That means keeping the original words close enough to check our interpretation."
+    },
+    {
+      "start": "00:41.584",
+      "end": "00:45.050",
+      "text": "Imagine six notes from a membership service."
+    },
+    {
+      "start": "00:45.050",
+      "end": "00:50.000",
+      "text": "Each has an ID, a moment, and a short comment."
+    },
+    {
+      "start": "00:50.000",
+      "end": "00:55.941",
+      "text": "We can practice the method with them before applying it to interviews."
+    },
+    {
+      "start": "00:55.941",
+      "end": "01:04.851",
+      "text": "The decision in our file is whether to improve the first task, add reminders, or investigate another barrier."
+    },
+    {
+      "start": "01:04.851",
+      "end": "01:09.307",
+      "text": "Before grouping anything, write that decision above the notes."
+    },
+    {
+      "start": "01:09.307",
+      "end": "01:12.277",
+      "text": "It gives the analysis a purpose."
+    },
+    {
+      "start": "01:12.277",
+      "end": "01:19.703",
+      "text": "Then ask what evidence would make one of those paths more sensible than the others."
+    },
+    {
+      "start": "01:19.703",
+      "end": "01:25.644",
+      "text": "A theme is useful only when it helps answer a real choice."
+    },
+    {
+      "start": "01:25.644",
+      "end": "01:30.099",
+      "text": "The Signals plate is a map of that movement."
+    },
+    {
+      "start": "01:30.099",
+      "end": "01:40.000",
+      "text": "We start with what people said, examine the situation behind it, and carry a narrower question into the next test."
+    },
+    {
+      "start": "01:40.000",
+      "end": "01:42.791",
+      "text": "Look at the first two notes."
+    },
+    {
+      "start": "01:42.791",
+      "end": "02:00.465",
+      "text": "F zero one says, \u201cI clicked begin and could not tell if anything happened.\u201d F zero two says, \u201cI came back later and could not find where I left off.\u201d Both can sound like a request for speed."
+    },
+    {
+      "start": "02:00.465",
+      "end": "02:02.326",
+      "text": "Their moments are different."
+    },
+    {
+      "start": "02:02.326",
+      "end": "02:06.512",
+      "text": "The first person needs confirmation that an action worked."
+    },
+    {
+      "start": "02:06.512",
+      "end": "02:10.233",
+      "text": "The second needs a reliable place to resume."
+    },
+    {
+      "start": "02:10.233",
+      "end": "02:15.349",
+      "text": "If we label both \u201cperformance,\u201d we may build the wrong fix."
+    },
+    {
+      "start": "02:15.349",
+      "end": "02:23.256",
+      "text": "Give each row an input ID, the exact comment, the task underway, and a proposed job statement."
+    },
+    {
+      "start": "02:23.256",
+      "end": "02:26.512",
+      "text": "Leave the job statement open to correction."
+    },
+    {
+      "start": "02:26.512",
+      "end": "02:30.698",
+      "text": "We have not asked a person what they meant."
+    },
+    {
+      "start": "02:30.698",
+      "end": "02:37.674",
+      "text": "The ID matters because a colleague can return to the note and challenge our reading."
+    },
+    {
+      "start": "02:37.674",
+      "end": "02:49.767",
+      "text": "Add F zero three, who says the instructions are too long, and F zero four, who says a staff member explained the task in one sentence."
+    },
+    {
+      "start": "02:49.767",
+      "end": "02:53.488",
+      "text": "Those notes may point to an instruction problem."
+    },
+    {
+      "start": "02:53.488",
+      "end": "02:56.279",
+      "text": "They may also reflect different circumstances."
+    },
+    {
+      "start": "02:56.279",
+      "end": "03:01.860",
+      "text": "Chapter Seven uses case structuring to move from anecdote to decision insight."
+    },
+    {
+      "start": "03:01.860",
+      "end": "03:05.116",
+      "text": "Structuring is not sanding away the detail."
+    },
+    {
+      "start": "03:05.116",
+      "end": "03:12.093",
+      "text": "It is a way to compare situations without losing the path back to the evidence."
+    },
+    {
+      "start": "03:12.093",
+      "end": "03:17.209",
+      "text": "If a summary drops the IDs, the team loses that path."
+    },
+    {
+      "start": "03:17.209",
+      "end": "03:20.000",
+      "text": "Keep the source beside every interpretation."
+    },
+    {
+      "start": "03:20.000",
+      "end": "03:23.256",
+      "text": "The book has a useful warning here."
+    },
+    {
+      "start": "03:23.256",
+      "end": "03:31.163",
+      "text": "In the \u201cJust Make It Faster\u201d case, a team received feedback that sounded like one performance complaint."
+    },
+    {
+      "start": "03:31.163",
+      "end": "03:43.256",
+      "text": "When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views."
+    },
+    {
+      "start": "03:43.256",
+      "end": "03:47.907",
+      "text": "The response to one need would not solve the others."
+    },
+    {
+      "start": "03:47.907",
+      "end": "03:57.674",
+      "text": "I am treating that as a case from the book, not as a measurement of any tool we are showing today."
+    },
+    {
+      "start": "03:57.674",
+      "end": "04:01.860",
+      "text": "In our example, F zero one belongs under confirmation."
+    },
+    {
+      "start": "04:01.860",
+      "end": "04:04.651",
+      "text": "F zero two belongs under resume."
+    },
+    {
+      "start": "04:04.651",
+      "end": "04:10.233",
+      "text": "F zero three and F zero four may belong under instruction clarity."
+    },
+    {
+      "start": "04:10.233",
+      "end": "04:12.093",
+      "text": "Keep those groups provisional."
+    },
+    {
+      "start": "04:12.093",
+      "end": "04:26.977",
+      "text": "Now read F zero five: \u201cThe first task loaded quickly, but I did not know whether it mattered.\u201d That is a counterexample to the easy \u201cspeed\u201d label and a clue about purpose."
+    },
+    {
+      "start": "04:26.977",
+      "end": "04:33.953",
+      "text": "If we ignored it, we could make a fast page that still leaves someone stranded."
+    },
+    {
+      "start": "04:33.953",
+      "end": "04:47.442",
+      "text": "F zero six says, \u201cI started after the welcome email showed the first step.\u201d That may support a clearer entry point, but one note cannot establish a general pattern."
+    },
+    {
+      "start": "04:47.442",
+      "end": "04:54.419",
+      "text": "Ask what the people were trying to accomplish and where the workflow made that harder."
+    },
+    {
+      "start": "04:54.419",
+      "end": "05:00.000",
+      "text": "The answer should lead toward a question the team can actually test."
+    },
+    {
+      "start": "05:00.000",
+      "end": "05:09.091",
+      "text": "Suppose a safe local draft groups F zero one through F zero five under \u201cslow onboarding.\u201d It sounds confident."
+    },
+    {
+      "start": "05:09.091",
+      "end": "05:11.962",
+      "text": "Look at F zero five again."
+    },
+    {
+      "start": "05:11.962",
+      "end": "05:13.876",
+      "text": "The page loaded quickly."
+    },
+    {
+      "start": "05:13.876",
+      "end": "05:18.182",
+      "text": "The person did not understand why the task mattered."
+    },
+    {
+      "start": "05:18.182",
+      "end": "05:23.445",
+      "text": "The draft has collapsed a meaning problem into a timing problem."
+    },
+    {
+      "start": "05:23.445",
+      "end": "05:26.794",
+      "text": "Move that row back and record why."
+    },
+    {
+      "start": "05:26.794",
+      "end": "05:35.885",
+      "text": "A tool can help sort a large set, suggest job statements, or point to questions the team has missed."
+    },
+    {
+      "start": "05:35.885",
+      "end": "05:40.191",
+      "text": "In the book, that is an accelerator for discovery."
+    },
+    {
+      "start": "05:40.191",
+      "end": "05:46.890",
+      "text": "The review still belongs to people who can check source, context, consent, and consequence."
+    },
+    {
+      "start": "05:46.890",
+      "end": "05:55.981",
+      "text": "With private or restricted feedback, do not paste raw records into an external model without an approved data path."
+    },
+    {
+      "start": "05:55.981",
+      "end": "06:01.244",
+      "text": "We can practice with the six notes in front of us."
+    },
+    {
+      "start": "06:01.244",
+      "end": "06:08.900",
+      "text": "When your team uses its own feedback, keep consent, source, and context attached to each record."
+    },
+    {
+      "start": "06:08.900",
+      "end": "06:16.077",
+      "text": "A polished cluster chart can make the room feel certain before the evidence is strong."
+    },
+    {
+      "start": "06:16.077",
+      "end": "06:19.426",
+      "text": "Chapter Seven calls that danger feedback theater."
+    },
+    {
+      "start": "06:19.426",
+      "end": "06:26.124",
+      "text": "The correction we just made is small, but it changes the possible product choice."
+    },
+    {
+      "start": "06:26.124",
+      "end": "06:31.388",
+      "text": "We might test whether clearer purpose and confirmation help people begin."
+    },
+    {
+      "start": "06:31.388",
+      "end": "06:40.000",
+      "text": "We would not claim that faster loading is the answer merely because the summary used the word \u201cslow.\u201d"
+    },
+    {
+      "start": "06:40.000",
+      "end": "06:44.245",
+      "text": "Our six notes support a question, not a verdict."
+    },
+    {
+      "start": "06:44.245",
+      "end": "06:47.075",
+      "text": "Two notes point toward instruction clarity."
+    },
+    {
+      "start": "06:47.075",
+      "end": "06:49.434",
+      "text": "One points toward action confirmation."
+    },
+    {
+      "start": "06:49.434",
+      "end": "06:51.321",
+      "text": "One points toward resuming."
+    },
+    {
+      "start": "06:51.321",
+      "end": "06:57.453",
+      "text": "One challenges the speed explanation, and one suggests an entry point that helped."
+    },
+    {
+      "start": "06:57.453",
+      "end": "07:03.585",
+      "text": "That is too little to rank the needs of a real membership program."
+    },
+    {
+      "start": "07:03.585",
+      "end": "07:07.358",
+      "text": "It is enough to practice the decision path."
+    },
+    {
+      "start": "07:07.358",
+      "end": "07:23.396",
+      "text": "Write the proposed pattern as \u201cpeople may hesitate at the first task when they cannot see what to do or why it matters.\u201d Attach F zero three, F zero four, and F zero five."
+    },
+    {
+      "start": "07:23.396",
+      "end": "07:28.113",
+      "text": "Keep F zero one visible as a competing confirmation need."
+    },
+    {
+      "start": "07:28.113",
+      "end": "07:35.660",
+      "text": "The proposed decision is to test a clearer first-task card before committing to a reminder system."
+    },
+    {
+      "start": "07:35.660",
+      "end": "07:42.736",
+      "text": "The next step could be a short observation with participants who agree to take part."
+    },
+    {
+      "start": "07:42.736",
+      "end": "07:47.925",
+      "text": "First, a team walkthrough can catch obvious confusion in the card."
+    },
+    {
+      "start": "07:47.925",
+      "end": "07:52.170",
+      "text": "Then participant evidence can show how people actually behave."
+    },
+    {
+      "start": "07:52.170",
+      "end": "07:58.302",
+      "text": "The book's discovery loop moves through collecting, synthesizing, prioritizing, validating, and archiving learning."
+    },
+    {
+      "start": "07:58.302",
+      "end": "08:01.132",
+      "text": "We are at the synthesis step."
+    },
+    {
+      "start": "08:01.132",
+      "end": "08:03.962",
+      "text": "We have not validated an outcome."
+    },
+    {
+      "start": "08:03.962",
+      "end": "08:13.868",
+      "text": "Link this ledger to the living persona card from the last lesson, then write the question that would change the decision."
+    },
+    {
+      "start": "08:13.868",
+      "end": "08:20.000",
+      "text": "If members understand the card yet still hesitate, we need to look elsewhere."
+    },
+    {
+      "start": "08:20.000",
+      "end": "08:22.844",
+      "text": "Pause and code the six notes."
+    },
+    {
+      "start": "08:22.844",
+      "end": "08:26.161",
+      "text": "Put each ID beside its raw wording."
+    },
+    {
+      "start": "08:26.161",
+      "end": "08:31.848",
+      "text": "Add the moment, a possible job, and the group you would test."
+    },
+    {
+      "start": "08:31.848",
+      "end": "08:36.588",
+      "text": "Mark at least one note that resists your favorite explanation."
+    },
+    {
+      "start": "08:36.588",
+      "end": "08:43.223",
+      "text": "Then write a pattern in cautious language and name the decision it could affect."
+    },
+    {
+      "start": "08:43.223",
+      "end": "08:52.701",
+      "text": "Resume when someone else could trace your recommendation back to the input rows and see where you might be wrong."
+    },
+    {
+      "start": "08:52.701",
+      "end": "08:58.863",
+      "text": "If you use your own material, choose records you have permission to share."
+    },
+    {
+      "start": "08:58.863",
+      "end": "09:05.498",
+      "text": "Keep names and contact details in your team\u2019s research system, away from this worksheet."
+    },
+    {
+      "start": "09:05.498",
+      "end": "09:09.763",
+      "text": "This ledger is another page in your decision file."
+    },
+    {
+      "start": "09:09.763",
+      "end": "09:16.398",
+      "text": "It carries the original signal forward without pretending a small sample is a finding."
+    },
+    {
+      "start": "09:16.398",
+      "end": "09:23.507",
+      "text": "The temptation is to end with a crisp theme and move immediately to a feature."
+    },
+    {
+      "start": "09:23.507",
+      "end": "09:25.403",
+      "text": "Stay one step longer."
+    },
+    {
+      "start": "09:25.403",
+      "end": "09:33.934",
+      "text": "Ask whose job this describes, who may be absent from the notes, and what observation would challenge it."
+    },
+    {
+      "start": "09:33.934",
+      "end": "09:41.043",
+      "text": "You can make a decision under uncertainty as long as the uncertainty travels with it."
+    },
+    {
+      "start": "09:41.043",
+      "end": "09:48.626",
+      "text": "In the next lesson, this proposed choice enters a roadmap and then a product requirements document."
+    },
+    {
+      "start": "09:48.626",
+      "end": "09:57.630",
+      "text": "If the source disappears along that path, the team may build a polished answer to a question nobody asked."
+    },
+    {
+      "start": "09:57.630",
+      "end": "10:00.000",
+      "text": "Keep the ID in view."
+    }
+  ]
+}
