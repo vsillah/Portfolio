@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "lesson": "Accelerated L03",
+  "approved_at": "2026-11-04",
+  "reviewer": "Vambah Sillah",
+  "authorization_message_id": "msg_0b99e4d3546af239016aeb736013f0819cb5779f98a54dc5c2",
+  "source_sha256": "064e049bfaee6d60d5d811d516dbcdf9c14466602afef9a34e07cbf31c551198",
+  "requested_resolution": "1920x1080",
+  "observed_native_resolution": "1280x720",
+  "approved_composite_resolution": "1920x1080",
+  "approved_treatment": {
+    "preserve_aspect_ratio": true,
+    "source_crop": false,
+    "source_enlargement": false,
+    "presenter_window_pixels": "900x506 within a 916x522 frame",
+    "provider_retry": false
+  },
+  "scope": "Accept the exact native source only for the provider-free L03 composite and retain this deviation receipt.",
+  "external_actions": {
+    "provider_calls": 0,
+    "uploads": 0,
+    "publishing": 0,
+    "distribution": 0,
+    "spend_usd": 0
+  }
+}
