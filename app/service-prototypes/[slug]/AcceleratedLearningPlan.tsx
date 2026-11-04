@@ -5,6 +5,10 @@ import Image from 'next/image'
 import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
 import l02Transcript from '@/docs/accelerated-course-modules/l02-native-composite/l02-learner-transcript.json'
 import l03Transcript from '@/docs/accelerated-course-modules/l03-native-composite/l03-learner-transcript.json'
+import l05Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l05-transcript.json'
+import l06Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l06-transcript.json'
+import l07Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l07-transcript.json'
+import l08Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l08-transcript.json'
 import styles from './learning-plan.module.css'
 
 export const l01Media = {
@@ -29,6 +33,13 @@ export const l03Media = {
   compositeSha256: '02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a',
   sourceSha256: '064e049bfaee6d60d5d811d516dbcdf9c14466602afef9a34e07cbf31c551198',
   captionsSourceSha256: 'ee59adb3cd88e195c25bebaeb04ca0f9b78cc42c7291b1300b205f5958a917de',
+} as const
+
+export const approvedL05L08Media = {
+  L05: { video: '/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4', captions: '/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt', duration: '10:00', compositeSha256: 'bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62', transcript: l05Transcript },
+  L06: { video: '/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4', captions: '/accelerated/lessons/l06/approved-16167226/l06-captions.vtt', duration: '11:00', compositeSha256: '161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729', transcript: l06Transcript },
+  L07: { video: '/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4', captions: '/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt', duration: '10:00', compositeSha256: '6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f', transcript: l07Transcript },
+  L08: { video: '/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4', captions: '/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt', duration: '12:00', compositeSha256: '1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b', transcript: l08Transcript },
 } as const
 
 type Act = 'Signals' | 'Alignment' | 'Momentum' | 'Synthesis'
@@ -85,7 +96,8 @@ export function AcceleratedLearningPlan() {
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
-  const locked = (id: string) => id !== 'L01' && id !== 'L02' && id !== 'L03'
+  const locked = (id: string) => id === 'L04' || Number(id.slice(1)) >= 9
+  const approvedBatchMedia = selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : null
   useEffect(() => {
     if (videoOpen) {
       playerRef.current?.focus()
@@ -122,7 +134,7 @@ export function AcceleratedLearningPlan() {
       <article ref={detailRef} className={styles.detail} aria-live="polite">
         <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState} data-state={locked(lesson.id) ? 'locked' : completed.includes(lesson.id) ? 'complete' : current === lesson.id ? 'current' : 'ready'}>{locked(lesson.id) ? 'Video locked · brief preview' : completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
-        <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · approved workshop visual</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>Storyboard preview · representative frame</figcaption></figure>}</div>
+        <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · {approvedBatchMedia ? 'lesson visual' : 'approved workshop visual'}</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>{approvedBatchMedia ? 'Lesson illustration' : 'Storyboard preview · representative frame'}</figcaption></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         {lesson.id === 'L01' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L01 guided video">
           <div className={styles.playerHeading}><div><strong>Guided video · L01</strong><p>Watch the nine-minute lesson, then use the exercise above to start your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
@@ -151,9 +163,18 @@ export function AcceleratedLearningPlan() {
           </video>
           <div className={styles.playerTools}><span>Duration {l03Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
           <details className={styles.transcript}><summary>Read along with L03 transcript</summary><ol>{l03Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
-        </section> : <div className={styles.mediaNotice}><strong>L03 guided video is ready</strong><p>Watch the approved nine-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L03 guided video · 09:00</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
+        </section> : <div className={styles.mediaNotice}><strong>L03 guided video is ready</strong><p>Watch the approved nine-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L03 guided video · 09:00</button></div> : approvedBatchMedia ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label={`${lesson.id} guided video`}>
+          <div className={styles.playerHeading}><div><strong>Guided video · {lesson.id}</strong><p>Watch the lesson, then use the exercise above to add to your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
+          <video ref={videoRef} controls playsInline preload="metadata" aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+            <source src={approvedBatchMedia.video} type="video/mp4" />
+            <track kind="captions" src={approvedBatchMedia.captions} srcLang="en" label="English captions" default />
+            Your browser cannot play this video. The read-along transcript is available below.
+          </video>
+          <div className={styles.playerTools}><span>Duration {approvedBatchMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
+          <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{approvedBatchMedia.transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
+        </section> : <div className={styles.mediaNotice}><strong>{lesson.id} guided video is ready</strong><p>Watch the lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch {lesson.id} guided video · {approvedBatchMedia.duration}</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
         <div className={styles.actions}><button type="button" disabled={locked(lesson.id)} title={locked(lesson.id) ? 'Completion opens after the guided video is approved' : undefined} onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{locked(lesson.id) ? 'Completion unavailable' : completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
-        <p className={styles.previewNote}>Progress is for this preview only. Use public, synthetic, or approved material in the exercises.</p>
+        <p className={styles.previewNote}>{approvedBatchMedia ? 'Progress is saved for this session. Use material you have permission to share in the exercises.' : 'Progress is for this preview only. Use public, synthetic, or approved material in the exercises.'}</p>
       </article>
     </div>
   </section>

@@ -1,0 +1,455 @@
+{
+  "source_srt_sha256": "47625bfb64d55e30e69f26e36ede74e742c7bdcc3bdd6922bdb54fab4b570b37",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:03.448",
+      "text": "The quarter is full before it starts."
+    },
+    {
+      "start": "00:03.448",
+      "end": "00:07.882",
+      "text": "A new first-task card is due in two weeks."
+    },
+    {
+      "start": "00:07.882",
+      "end": "00:11.823",
+      "text": "A reminder system is penciled in after that."
+    },
+    {
+      "start": "00:11.823",
+      "end": "00:17.241",
+      "text": "Someone has promised a dashboard by the end of the month."
+    },
+    {
+      "start": "00:17.241",
+      "end": "00:28.079",
+      "text": "The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task?"
+    },
+    {
+      "start": "00:28.079",
+      "end": "00:32.020",
+      "text": "Our feedback ledger gave us a possible explanation."
+    },
+    {
+      "start": "00:32.020",
+      "end": "00:35.961",
+      "text": "The roadmap bet gave us a small test."
+    },
+    {
+      "start": "00:35.961",
+      "end": "00:41.379",
+      "text": "Chapter Ten asks us to put the learning beside the delivery."
+    },
+    {
+      "start": "00:41.379",
+      "end": "00:51.724",
+      "text": "Write the outcome we seek at the top: a member can understand and begin the first task without staff translating it."
+    },
+    {
+      "start": "00:51.724",
+      "end": "00:56.158",
+      "text": "Under that, write what we need to learn first."
+    },
+    {
+      "start": "00:56.158",
+      "end": "01:01.084",
+      "text": "Is the barrier unclear instruction, weak confirmation, or something else?"
+    },
+    {
+      "start": "01:01.084",
+      "end": "01:06.010",
+      "text": "A feature date can tell us when work will ship."
+    },
+    {
+      "start": "01:06.010",
+      "end": "01:15.369",
+      "text": "A learning checkpoint tells us when we will inspect what the work taught us and decide whether to continue."
+    },
+    {
+      "start": "01:15.369",
+      "end": "01:21.773",
+      "text": "Let us build two checkpoints for the membership service we have been following."
+    },
+    {
+      "start": "01:21.773",
+      "end": "01:26.207",
+      "text": "We are planning the questions before any member responds."
+    },
+    {
+      "start": "01:26.207",
+      "end": "01:31.626",
+      "text": "Keep the dates visible, but make each date earn a question."
+    },
+    {
+      "start": "01:31.626",
+      "end": "01:40.000",
+      "text": "Otherwise a team can meet every deadline while its original uncertainty travels untouched into the next quarter."
+    },
+    {
+      "start": "01:40.000",
+      "end": "01:42.451",
+      "text": "Checkpoint one is a diagnosis."
+    },
+    {
+      "start": "01:42.451",
+      "end": "01:50.294",
+      "text": "The question is whether new members understand the first instruction and the purpose of the task."
+    },
+    {
+      "start": "01:50.294",
+      "end": "01:58.627",
+      "text": "The method could be a small observation of the starting moment, paired with the original feedback IDs."
+    },
+    {
+      "start": "01:58.627",
+      "end": "02:03.529",
+      "text": "The owner schedules the review before a larger build begins."
+    },
+    {
+      "start": "02:03.529",
+      "end": "02:12.843",
+      "text": "If participants can explain the action but cannot tell whether pressing begin worked, confirmation becomes the stronger next question."
+    },
+    {
+      "start": "02:12.843",
+      "end": "02:20.196",
+      "text": "If they cannot explain what the task is for, the instruction and purpose deserve attention."
+    },
+    {
+      "start": "02:20.196",
+      "end": "02:28.529",
+      "text": "If both are clear, we reopen the problem instead of forcing one of our planned features through."
+    },
+    {
+      "start": "02:28.529",
+      "end": "02:30.980",
+      "text": "Write those possible adjustments now."
+    },
+    {
+      "start": "02:30.980",
+      "end": "02:36.373",
+      "text": "This is what the book means by making learning a deliverable."
+    },
+    {
+      "start": "02:36.373",
+      "end": "02:44.216",
+      "text": "The team is accountable for running a sound test, reviewing the evidence, and recording a decision."
+    },
+    {
+      "start": "02:44.216",
+      "end": "02:49.608",
+      "text": "It cannot honestly guarantee the customer outcome before seeing what happens."
+    },
+    {
+      "start": "02:49.608",
+      "end": "02:53.039",
+      "text": "Keep the method proportionate to the question."
+    },
+    {
+      "start": "02:53.039",
+      "end": "02:58.922",
+      "text": "A team walkthrough can catch confusing copy before a participant sees it."
+    },
+    {
+      "start": "02:58.922",
+      "end": "03:02.353",
+      "text": "It cannot tell us how members behave."
+    },
+    {
+      "start": "03:02.353",
+      "end": "03:11.667",
+      "text": "For that, invite people through a consented research process and keep their notes where your team protects customer information."
+    },
+    {
+      "start": "03:11.667",
+      "end": "03:20.000",
+      "text": "It is a blueprint for the decision, with enough detail to let another person run the checkpoint."
+    },
+    {
+      "start": "03:20.000",
+      "end": "03:26.000",
+      "text": "Checkpoint two follows only if the first review supports the instruction hypothesis."
+    },
+    {
+      "start": "03:26.000",
+      "end": "03:33.500",
+      "text": "The team tests the smaller first-task card against the existing version in a planned study."
+    },
+    {
+      "start": "03:33.500",
+      "end": "03:37.500",
+      "text": "Before observing anyone, define what \u201cclear enough\u201d means."
+    },
+    {
+      "start": "03:37.500",
+      "end": "03:47.500",
+      "text": "In a moderated task, can the person identify the next action and say why it matters without a staff explanation?"
+    },
+    {
+      "start": "03:47.500",
+      "end": "03:51.000",
+      "text": "What happens when the start action fails?"
+    },
+    {
+      "start": "03:51.000",
+      "end": "04:02.000",
+      "text": "Record the observation method, the number and type of participants the study can responsibly support, and the date the team will decide."
+    },
+    {
+      "start": "04:02.000",
+      "end": "04:12.500",
+      "text": "The exact threshold is a local design choice for the real test; we will not invent one and call it evidence."
+    },
+    {
+      "start": "04:12.500",
+      "end": "04:39.000",
+      "text": "On the card, write the condition in plain terms: \u201cIf most observed participants still need translation, revise the card and retest before expanding scope.\u201d Also write the alternative: \u201cIf they understand the card but do not return, investigate the reminder question.\u201d This is a branch, not a promise that a reminder will work."
+    },
+    {
+      "start": "04:39.000",
+      "end": "04:44.500",
+      "text": "The roadmap now shows a delivery task and two learning reviews."
+    },
+    {
+      "start": "04:44.500",
+      "end": "04:47.500",
+      "text": "People can still plan engineering time."
+    },
+    {
+      "start": "04:47.500",
+      "end": "04:53.000",
+      "text": "They can also see where a result may change that plan."
+    },
+    {
+      "start": "04:53.000",
+      "end": "05:00.000",
+      "text": "That is more useful than a date that only asks whether the ticket closed."
+    },
+    {
+      "start": "05:00.000",
+      "end": "05:05.208",
+      "text": "Chapter Eleven tells a story about Sam and her team."
+    },
+    {
+      "start": "05:05.208",
+      "end": "05:11.458",
+      "text": "A junior product manager brings an unfinished idea into the team channel."
+    },
+    {
+      "start": "05:11.458",
+      "end": "05:15.625",
+      "text": "Sam expects to step in and shape it."
+    },
+    {
+      "start": "05:15.625",
+      "end": "05:27.604",
+      "text": "Instead, colleagues ask what customer outcome the idea addresses, whether the job has been validated, and what they would learn by testing it."
+    },
+    {
+      "start": "05:27.604",
+      "end": "05:33.854",
+      "text": "The point of that moment is not that every conversation became perfect."
+    },
+    {
+      "start": "05:33.854",
+      "end": "05:45.833",
+      "text": "It is that the team had a shared way to examine an idea without waiting for one leader to supply all the judgment."
+    },
+    {
+      "start": "05:45.833",
+      "end": "05:50.521",
+      "text": "I am using Sam as the book's narrative illustration."
+    },
+    {
+      "start": "05:50.521",
+      "end": "05:55.208",
+      "text": "That moment belongs to Sam\u2019s story in the book."
+    },
+    {
+      "start": "05:55.208",
+      "end": "06:03.542",
+      "text": "In the story, the team also stops treating sunk cost as a reason to keep building."
+    },
+    {
+      "start": "06:03.542",
+      "end": "06:13.958",
+      "text": "That matters because a learning checkpoint only works if the people in the room can act on what they find."
+    },
+    {
+      "start": "06:13.958",
+      "end": "06:22.812",
+      "text": "If the review date arrives and everyone is afraid to change the plan, the checkpoint is decoration."
+    },
+    {
+      "start": "06:22.812",
+      "end": "06:31.146",
+      "text": "Put the owner, evidence, and possible adjustment on the roadmap where the team can see them."
+    },
+    {
+      "start": "06:31.146",
+      "end": "06:40.000",
+      "text": "Make the question normal enough for engineering, design, support, and leadership to use in their own words."
+    },
+    {
+      "start": "06:40.000",
+      "end": "06:47.614",
+      "text": "The book gives Sam's team a test that does not support the feature they built."
+    },
+    {
+      "start": "06:47.614",
+      "end": "06:53.706",
+      "text": "They try document previews, expecting people to find the right file faster."
+    },
+    {
+      "start": "06:53.706",
+      "end": "06:58.782",
+      "text": "The review points them toward a different need: better search."
+    },
+    {
+      "start": "06:58.782",
+      "end": "07:02.843",
+      "text": "The team records the learning and changes direction."
+    },
+    {
+      "start": "07:02.843",
+      "end": "07:10.964",
+      "text": "What matters for us is how the team responded when the test challenged its original bet."
+    },
+    {
+      "start": "07:10.964",
+      "end": "07:12.995",
+      "text": "Look at the sequence."
+    },
+    {
+      "start": "07:12.995",
+      "end": "07:15.025",
+      "text": "They stated a hypothesis."
+    },
+    {
+      "start": "07:15.025",
+      "end": "07:18.579",
+      "text": "They chose a signal and review point."
+    },
+    {
+      "start": "07:18.579",
+      "end": "07:20.609",
+      "text": "They inspected the result."
+    },
+    {
+      "start": "07:20.609",
+      "end": "07:26.193",
+      "text": "Then they asked what the result meant for the user's job."
+    },
+    {
+      "start": "07:26.193",
+      "end": "07:36.345",
+      "text": "A low number by itself would not tell them whether the feature was hidden, unwanted, or solving the wrong task."
+    },
+    {
+      "start": "07:36.345",
+      "end": "07:38.376",
+      "text": "The follow-up conversation mattered."
+    },
+    {
+      "start": "07:38.376",
+      "end": "07:41.929",
+      "text": "Apply that discipline to our membership example."
+    },
+    {
+      "start": "07:41.929",
+      "end": "07:52.589",
+      "text": "If the first-task card gets used but members still need staff help, do not declare success because the card was opened."
+    },
+    {
+      "start": "07:52.589",
+      "end": "07:59.188",
+      "text": "If people never reach it, check the entry path before judging its wording."
+    },
+    {
+      "start": "07:59.188",
+      "end": "08:05.279",
+      "text": "If the instruction helps but the next step fails, write that down."
+    },
+    {
+      "start": "08:05.279",
+      "end": "08:12.386",
+      "text": "The team can hold delivery accountable and still let evidence change the next bet."
+    },
+    {
+      "start": "08:12.386",
+      "end": "08:20.000",
+      "text": "That is a practical promise to the people who have to live with the roadmap."
+    },
+    {
+      "start": "08:20.000",
+      "end": "08:27.254",
+      "text": "Pause and choose one delivery milestone from your own plan or from our example."
+    },
+    {
+      "start": "08:27.254",
+      "end": "08:30.363",
+      "text": "Add two learning checkpoints beside it."
+    },
+    {
+      "start": "08:30.363",
+      "end": "08:41.762",
+      "text": "For each checkpoint, write the question, the evidence you will use, the owner, the review date, and the adjustment you could make."
+    },
+    {
+      "start": "08:41.762",
+      "end": "08:47.461",
+      "text": "The first should reduce uncertainty before the team commits too much."
+    },
+    {
+      "start": "08:47.461",
+      "end": "08:51.606",
+      "text": "The second should inspect the smallest useful test."
+    },
+    {
+      "start": "08:51.606",
+      "end": "09:00.933",
+      "text": "If a result would never change the plan, rewrite the question until the review has a real consequence."
+    },
+    {
+      "start": "09:00.933",
+      "end": "09:11.295",
+      "text": "Resume when you can tell a teammate what you will know at each date and what you may do differently."
+    },
+    {
+      "start": "09:11.295",
+      "end": "09:16.477",
+      "text": "Use information you have permission to share on this worksheet."
+    },
+    {
+      "start": "09:16.477",
+      "end": "09:20.622",
+      "text": "Keep participant notes in your team\u2019s research system."
+    },
+    {
+      "start": "09:20.622",
+      "end": "09:29.948",
+      "text": "Your decision file now has a source trail, a living product handoff, and a roadmap that can learn."
+    },
+    {
+      "start": "09:29.948",
+      "end": "09:37.720",
+      "text": "The two checkpoint cards make the next decision visible to everyone who owns the work."
+    },
+    {
+      "start": "09:37.720",
+      "end": "09:47.047",
+      "text": "In the next lesson, we will define the measures and write the full learning plan before results arrive."
+    },
+    {
+      "start": "09:47.047",
+      "end": "09:53.264",
+      "text": "A plan becomes more trustworthy when it shows where it can change."
+    },
+    {
+      "start": "09:53.264",
+      "end": "10:00.000",
+      "text": "The date is useful because someone has agreed to look, listen, and decide."
+    }
+  ]
+}

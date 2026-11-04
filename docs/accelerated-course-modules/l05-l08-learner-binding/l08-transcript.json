@@ -1,0 +1,580 @@
+{
+  "source_srt_sha256": "5add292407ff3c364e384d01e59a9bcad687e0fa890faac109d49e35ec46339c",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:02.043",
+      "text": "The dashboard is green."
+    },
+    {
+      "start": "00:02.043",
+      "end": "00:05.106",
+      "text": "More people are opening the page."
+    },
+    {
+      "start": "00:05.106",
+      "end": "00:12.255",
+      "text": "The team celebrates, then support hears that members still cannot finish the first task."
+    },
+    {
+      "start": "00:12.255",
+      "end": "00:19.404",
+      "text": "A rising activity line did not answer the question we were trying to solve."
+    },
+    {
+      "start": "00:19.404",
+      "end": "00:29.617",
+      "text": "Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome."
+    },
+    {
+      "start": "00:29.617",
+      "end": "00:35.745",
+      "text": "The point is to choose a measure that belongs to the decision."
+    },
+    {
+      "start": "00:35.745",
+      "end": "00:41.872",
+      "text": "In the membership service example, the business may care about sustained participation."
+    },
+    {
+      "start": "00:41.872",
+      "end": "00:45.957",
+      "text": "A member cares about getting started without confusion."
+    },
+    {
+      "start": "00:45.957",
+      "end": "00:53.106",
+      "text": "The team can first observe whether a person identifies and begins the intended action."
+    },
+    {
+      "start": "00:53.106",
+      "end": "01:02.298",
+      "text": "Those are different levels of the metrics ladder in the book: business value, customer value, and near-term traction."
+    },
+    {
+      "start": "01:02.298",
+      "end": "01:07.404",
+      "text": "The lower step does not automatically cause the upper one."
+    },
+    {
+      "start": "01:07.404",
+      "end": "01:10.468",
+      "text": "We need to test the connection."
+    },
+    {
+      "start": "01:10.468",
+      "end": "01:21.191",
+      "text": "If page opens rise while people still ask staff what to do, the green chart is a warning, not a win."
+    },
+    {
+      "start": "01:21.191",
+      "end": "01:26.809",
+      "text": "Write the customer behavior in a sentence before selecting a metric."
+    },
+    {
+      "start": "01:26.809",
+      "end": "01:36.511",
+      "text": "For this lesson, it is: a new member understands the first task and starts it without translation from staff."
+    },
+    {
+      "start": "01:36.511",
+      "end": "01:41.617",
+      "text": "Now ask what observation would support or challenge that sentence."
+    },
+    {
+      "start": "01:41.617",
+      "end": "01:46.213",
+      "text": "A useful measure can be counted or described consistently."
+    },
+    {
+      "start": "01:46.213",
+      "end": "01:53.362",
+      "text": "It also needs a definition that another person can apply to the same event."
+    },
+    {
+      "start": "01:53.362",
+      "end": "02:00.000",
+      "text": "We will put that definition into the learning plan before seeing any result."
+    },
+    {
+      "start": "02:00.000",
+      "end": "02:04.120",
+      "text": "Define a successful start before the test begins."
+    },
+    {
+      "start": "02:04.120",
+      "end": "02:19.056",
+      "text": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction."
+    },
+    {
+      "start": "02:19.056",
+      "end": "02:25.236",
+      "text": "The numerator is the number of observed participants who meet that definition."
+    },
+    {
+      "start": "02:25.236",
+      "end": "02:31.931",
+      "text": "The denominator is the number of eligible participants who reach the first-task moment."
+    },
+    {
+      "start": "02:31.931",
+      "end": "02:39.142",
+      "text": "Record exclusions before the session, such as an interrupted test or a technical outage."
+    },
+    {
+      "start": "02:39.142",
+      "end": "02:46.867",
+      "text": "A second observer should be able to check the same notes and understand the count."
+    },
+    {
+      "start": "02:46.867",
+      "end": "02:51.502",
+      "text": "That measure is close to the behavior we seek."
+    },
+    {
+      "start": "02:51.502",
+      "end": "02:54.592",
+      "text": "It still cannot tell us everything."
+    },
+    {
+      "start": "02:54.592",
+      "end": "03:00.773",
+      "text": "Ask the participant where they hesitated and what they expected to happen."
+    },
+    {
+      "start": "03:00.773",
+      "end": "03:08.498",
+      "text": "That qualitative note may show whether the copy, confirmation, or task itself is the problem."
+    },
+    {
+      "start": "03:08.498",
+      "end": "03:12.618",
+      "text": "Chapter Twelve also warns about destructive metric pairs."
+    },
+    {
+      "start": "03:12.618",
+      "end": "03:21.373",
+      "text": "We could maximize time spent on the first task while saying we want people to begin quickly."
+    },
+    {
+      "start": "03:21.373",
+      "end": "03:27.039",
+      "text": "Longer time might mean careful engagement, or it might mean confusion."
+    },
+    {
+      "start": "03:27.039",
+      "end": "03:31.159",
+      "text": "We need the context before celebrating either direction."
+    },
+    {
+      "start": "03:31.159",
+      "end": "03:45.579",
+      "text": "Pair the successful-start measure with a guardrail: the person should not have to ask staff to rescue the flow or repeat an action because the state is unclear."
+    },
+    {
+      "start": "03:45.579",
+      "end": "03:50.730",
+      "text": "A planned measurement cannot promise a conversion or retention lift."
+    },
+    {
+      "start": "03:50.730",
+      "end": "04:00.000",
+      "text": "The definition is a proposed measurement instrument; the outcome remains unknown until a test is run and reviewed."
+    },
+    {
+      "start": "04:00.000",
+      "end": "04:04.034",
+      "text": "Chapter Thirteen gives the learning plan ten components."
+    },
+    {
+      "start": "04:04.034",
+      "end": "04:08.067",
+      "text": "The first five establish what we are testing."
+    },
+    {
+      "start": "04:08.067",
+      "end": "04:11.092",
+      "text": "One: business problem and customer outcome."
+    },
+    {
+      "start": "04:11.092",
+      "end": "04:19.664",
+      "text": "Our example names the friction at the first task and the member's need to begin with confidence."
+    },
+    {
+      "start": "04:19.664",
+      "end": "04:25.210",
+      "text": "We will not claim a business lift from this small exercise."
+    },
+    {
+      "start": "04:25.210",
+      "end": "04:27.731",
+      "text": "Two: target persona or cohort."
+    },
+    {
+      "start": "04:27.731",
+      "end": "04:35.294",
+      "text": "Use the living persona card from lesson four: a new member at the first-task moment."
+    },
+    {
+      "start": "04:35.294",
+      "end": "04:42.857",
+      "text": "Add the source and the uncertainty so the card stays honest about what we know."
+    },
+    {
+      "start": "04:42.857",
+      "end": "04:44.370",
+      "text": "Three: hypothesis statement."
+    },
+    {
+      "start": "04:44.370",
+      "end": "04:56.975",
+      "text": "We believe a clearer first-task card, for a new member in that moment, will help them identify and begin the intended action without staff translation."
+    },
+    {
+      "start": "04:56.975",
+      "end": "04:58.487",
+      "text": "Four: experiment scope."
+    },
+    {
+      "start": "04:58.487",
+      "end": "05:08.067",
+      "text": "Specify the test setting, who is eligible, how long observation lasts, and which version of the card they see."
+    },
+    {
+      "start": "05:08.067",
+      "end": "05:12.605",
+      "text": "Exclude the reminder system and the rest of onboarding."
+    },
+    {
+      "start": "05:12.605",
+      "end": "05:15.126",
+      "text": "Five: metrics and success criteria."
+    },
+    {
+      "start": "05:15.126",
+      "end": "05:26.723",
+      "text": "Use the successful-start definition we just wrote, the qualitative hesitation notes, and a threshold set by the actual study owner before data arrives."
+    },
+    {
+      "start": "05:26.723",
+      "end": "05:28.739",
+      "text": "These fields belong together."
+    },
+    {
+      "start": "05:28.739",
+      "end": "05:33.782",
+      "text": "If the cohort is vague, a clean metric can mislead."
+    },
+    {
+      "start": "05:33.782",
+      "end": "05:41.849",
+      "text": "If the outcome is vague, a detailed experiment may only test whether a screen is clickable."
+    },
+    {
+      "start": "05:41.849",
+      "end": "05:47.395",
+      "text": "On this worksheet, leave the actual threshold marked for owner decision."
+    },
+    {
+      "start": "05:47.395",
+      "end": "05:49.412",
+      "text": "That blank is honest."
+    },
+    {
+      "start": "05:49.412",
+      "end": "06:00.000",
+      "text": "The team must fill it before running a real test; it must not choose a convenient number after looking at results."
+    },
+    {
+      "start": "06:00.000",
+      "end": "06:06.154",
+      "text": "The next five components keep the test from ending at a chart."
+    },
+    {
+      "start": "06:06.154",
+      "end": "06:08.718",
+      "text": "Six: timing and review strategy."
+    },
+    {
+      "start": "06:08.718",
+      "end": "06:18.974",
+      "text": "Decide when the team checks for setup problems, when it reads the observations, and when it makes the next decision."
+    },
+    {
+      "start": "06:18.974",
+      "end": "06:21.026",
+      "text": "Seven: triggers and tripwires."
+    },
+    {
+      "start": "06:21.026",
+      "end": "06:31.282",
+      "text": "State what pattern would support continuing, what would require revision, and what would make the team stop or investigate harm."
+    },
+    {
+      "start": "06:31.282",
+      "end": "06:40.000",
+      "text": "For our example, repeated confusion or unclear failure states would pause expansion even if some people begin."
+    },
+    {
+      "start": "06:40.000",
+      "end": "06:46.154",
+      "text": "The exact numerical threshold is still an owner decision before the test."
+    },
+    {
+      "start": "06:46.154",
+      "end": "06:47.692",
+      "text": "Eight: pivot options."
+    },
+    {
+      "start": "06:47.692",
+      "end": "06:53.846",
+      "text": "If members understand the card but never return, investigate the reminder path."
+    },
+    {
+      "start": "06:53.846",
+      "end": "07:01.026",
+      "text": "If they reach the card but cannot tell whether the action worked, test confirmation."
+    },
+    {
+      "start": "07:01.026",
+      "end": "07:04.103",
+      "text": "Those are possible branches, not findings."
+    },
+    {
+      "start": "07:04.103",
+      "end": "07:06.154",
+      "text": "Nine: future state path."
+    },
+    {
+      "start": "07:06.154",
+      "end": "07:17.436",
+      "text": "If the small test supports the hypothesis and passes its guardrail, name the next bounded question rather than announcing a full rollout."
+    },
+    {
+      "start": "07:17.436",
+      "end": "07:23.077",
+      "text": "Perhaps the team tests the same instruction with another eligible group."
+    },
+    {
+      "start": "07:23.077",
+      "end": "07:24.615",
+      "text": "Ten: hypothesis backlog."
+    },
+    {
+      "start": "07:24.615",
+      "end": "07:34.872",
+      "text": "Save the original belief, result, learning, owner, and date so the next team does not start from an empty page."
+    },
+    {
+      "start": "07:34.872",
+      "end": "07:37.436",
+      "text": "That is the book's order."
+    },
+    {
+      "start": "07:37.436",
+      "end": "07:45.128",
+      "text": "The plan carries both a decision and a memory of how the decision was made."
+    },
+    {
+      "start": "07:45.128",
+      "end": "07:49.231",
+      "text": "A result can be positive, negative, or inconclusive."
+    },
+    {
+      "start": "07:49.231",
+      "end": "08:00.000",
+      "text": "The point is that each route has a responsible next action already visible before the room gets attached to one answer."
+    },
+    {
+      "start": "08:00.000",
+      "end": "08:06.234",
+      "text": "Before there is any data, walk the plan through two possible results."
+    },
+    {
+      "start": "08:06.234",
+      "end": "08:14.545",
+      "text": "In the first, participants understand the action and begin, but several say the confirmation is unclear."
+    },
+    {
+      "start": "08:14.545",
+      "end": "08:17.662",
+      "text": "The successful-start measure may look promising."
+    },
+    {
+      "start": "08:17.662",
+      "end": "08:22.338",
+      "text": "The guardrail tells us the work is not finished."
+    },
+    {
+      "start": "08:22.338",
+      "end": "08:29.610",
+      "text": "We record the uncertainty and test feedback after the action before broadening the scope."
+    },
+    {
+      "start": "08:29.610",
+      "end": "08:34.805",
+      "text": "In the second, participants cannot explain why the task matters."
+    },
+    {
+      "start": "08:34.805",
+      "end": "08:37.922",
+      "text": "That result challenges the instruction itself."
+    },
+    {
+      "start": "08:37.922",
+      "end": "08:42.597",
+      "text": "The team revises the purpose statement and tests again."
+    },
+    {
+      "start": "08:42.597",
+      "end": "08:44.675",
+      "text": "These are imagined branches."
+    },
+    {
+      "start": "08:44.675",
+      "end": "08:47.792",
+      "text": "Both results are possibilities, not findings."
+    },
+    {
+      "start": "08:47.792",
+      "end": "08:51.948",
+      "text": "Notice how the metric definition changes the conversation."
+    },
+    {
+      "start": "08:51.948",
+      "end": "08:56.623",
+      "text": "\u201cMore opens\u201d would let both situations hide behind activity."
+    },
+    {
+      "start": "08:56.623",
+      "end": "09:02.338",
+      "text": "\u201cUnderstands and begins without translation\u201d brings the actual behavior into view."
+    },
+    {
+      "start": "09:02.338",
+      "end": "09:09.610",
+      "text": "The qualitative note explains why a count moved and what it cannot tell us."
+    },
+    {
+      "start": "09:09.610",
+      "end": "09:18.961",
+      "text": "If the sample is too small, unrepresentative, or interrupted, mark the outcome inconclusive and choose a better test."
+    },
+    {
+      "start": "09:18.961",
+      "end": "09:26.234",
+      "text": "Chapter Twelve asks us to tie measures to hypotheses and prepare to be wrong."
+    },
+    {
+      "start": "09:26.234",
+      "end": "09:31.429",
+      "text": "Chapter Thirteen gives us a place to record that preparation."
+    },
+    {
+      "start": "09:31.429",
+      "end": "09:39.740",
+      "text": "The worksheet is useful only if a team can follow it when the answer is inconvenient."
+    },
+    {
+      "start": "09:39.740",
+      "end": "09:45.455",
+      "text": "Keep the threshold, exclusions, and branch choices dated before the test."
+    },
+    {
+      "start": "09:45.455",
+      "end": "09:52.208",
+      "text": "Then, after a real review, record what happened and what the team decided."
+    },
+    {
+      "start": "09:52.208",
+      "end": "10:00.000",
+      "text": "Do not rewrite the original bet to make the result look inevitable afterward to anyone."
+    },
+    {
+      "start": "10:00.000",
+      "end": "10:05.195",
+      "text": "Pause and complete all ten fields for one small test."
+    },
+    {
+      "start": "10:05.195",
+      "end": "10:15.065",
+      "text": "Start with the business problem and customer outcome, then the target cohort, hypothesis, scope, and metrics with success criteria."
+    },
+    {
+      "start": "10:15.065",
+      "end": "10:27.532",
+      "text": "Add timing and review strategy, triggers and tripwires, pivot options, future state path, and the hypothesis backlog entry you will fill after the review."
+    },
+    {
+      "start": "10:27.532",
+      "end": "10:37.922",
+      "text": "Define one measure precisely: who counts, what event counts, the observation window, exclusions, and who will inspect the raw evidence."
+    },
+    {
+      "start": "10:37.922",
+      "end": "10:45.714",
+      "text": "Put a guardrail beside it so a rising number cannot hide a worse customer experience."
+    },
+    {
+      "start": "10:45.714",
+      "end": "10:52.468",
+      "text": "Resume when the stop or pivot condition is written before any result appears."
+    },
+    {
+      "start": "10:52.468",
+      "end": "11:03.377",
+      "text": "If this is your project, use information you have permission to share and keep participant notes in your team\u2019s research system."
+    },
+    {
+      "start": "11:03.377",
+      "end": "11:07.013",
+      "text": "Our example stays with the membership service."
+    },
+    {
+      "start": "11:07.013",
+      "end": "11:10.649",
+      "text": "The book's framework supplies its ten fields."
+    },
+    {
+      "start": "11:10.649",
+      "end": "11:17.922",
+      "text": "The loop at the end helps you follow the plan into the next decision."
+    },
+    {
+      "start": "11:17.922",
+      "end": "11:21.039",
+      "text": "Look back at the decision file."
+    },
+    {
+      "start": "11:21.039",
+      "end": "11:34.545",
+      "text": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results."
+    },
+    {
+      "start": "11:34.545",
+      "end": "11:38.182",
+      "text": "The work is still open to correction."
+    },
+    {
+      "start": "11:38.182",
+      "end": "11:41.299",
+      "text": "That is what makes it usable."
+    },
+    {
+      "start": "11:41.299",
+      "end": "11:50.130",
+      "text": "In the next module, the question moves into a decision room with other people's risks and authority."
+    },
+    {
+      "start": "11:50.130",
+      "end": "11:56.364",
+      "text": "Bring the evidence and the limits with you, clearly and honestly marked."
+    },
+    {
+      "start": "11:56.364",
+      "end": "12:00.000",
+      "text": "Let the unanswered question remain visible there."
+    }
+  ]
+}

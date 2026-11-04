@@ -54,7 +54,7 @@ describe('Accelerated learning plan', () => {
     expect(l01Media.duration).toBe('09:00')
   })
 
-  it('shows a learner brief, playable L01, locked later media, storyboard, and truthful preview progress', () => {
+  it('shows a learner brief, playable L01, L05 ready, later locks, storyboard, and truthful preview progress', () => {
     render(<AcceleratedLearningPlan />)
     expect(screen.getByRole('heading', { name: 'Sixteen lessons. One decision file.' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ })).toBeInTheDocument()
@@ -71,8 +71,8 @@ describe('Accelerated learning plan', () => {
     fireEvent.click(screen.getByRole('button', { name: /L05: From feedback to signal/ }))
     expect(screen.getByText('Code six synthetic comments, name one pattern, and flag what contradicts it.')).toBeInTheDocument()
     expect(screen.getByAltText('Representative storyboard frame for L05')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeDisabled()
-    for (const item of lessons.slice(3)) {
+    expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeEnabled()
+    for (const item of lessons.filter((lesson) => lesson.id === 'L04' || Number(lesson.id.slice(1)) >= 9)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
       expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
     }

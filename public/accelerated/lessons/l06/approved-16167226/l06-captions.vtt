@@ -1,0 +1,286 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.615
+There are three cards on the wall.
+
+00:00:03.615 --> 00:00:05.164
+Add a reminder.
+
+00:00:05.164 --> 00:00:07.230
+Rewrite the first task.
+
+00:00:07.230 --> 00:00:09.296
+Give staff a dashboard.
+
+00:00:09.296 --> 00:00:14.977
+Every card has someone who can make a case for it.
+
+00:00:14.977 --> 00:00:26.338
+The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little.
+
+00:00:26.338 --> 00:00:32.019
+Put the feedback ledger from the last lesson beside the cards.
+
+00:00:32.019 --> 00:00:42.864
+F zero three, F zero four, and F zero five suggest that the first task may need clearer direction and purpose.
+
+00:00:42.864 --> 00:00:48.545
+F zero one suggests another need: confirmation that an action worked.
+
+00:00:48.545 --> 00:00:52.676
+None of those six notes proves a solution.
+
+00:00:52.676 --> 00:00:58.873
+They do give us a reason to ask a better roadmap question.
+
+00:00:58.873 --> 00:01:05.587
+Chapter Eight says to turn features into bets about customer and business outcomes.
+
+00:01:05.587 --> 00:01:13.333
+A bet states what we believe will change, for whom, and how we will know.
+
+00:01:13.333 --> 00:01:31.925
+For the membership service, write: “If a clearer first-task card helps new members understand the next action, more of them should begin that task without staff translating the instruction.” That is a hypothesis, not a promise.
+
+00:01:31.925 --> 00:01:36.056
+The other two cards stay on the wall.
+
+00:01:36.056 --> 00:01:44.319
+We need a reason to choose now and a signal that would bring an alternative back.
+
+00:01:44.319 --> 00:01:50.000
+The roadmap should carry both, in words the team can remember.
+
+00:01:50.000 --> 00:01:53.128
+Place four questions under each card.
+
+00:01:53.128 --> 00:01:56.777
+Does the idea address the observed problem?
+
+00:01:56.777 --> 00:02:01.991
+Does it fit the outcome we are trying to improve?
+
+00:02:01.991 --> 00:02:06.161
+Can we test it at a responsible cost?
+
+00:02:06.161 --> 00:02:09.289
+What do we still not know?
+
+00:02:09.289 --> 00:02:17.109
+The first-task guide has a plausible connection to our ledger and a small test path.
+
+00:02:17.109 --> 00:02:27.536
+A reminder may help people return, but our six notes do not yet show that forgetting is the main barrier.
+
+00:02:27.536 --> 00:02:36.919
+A staff dashboard could improve support work; we would need staff evidence before making that the lead bet.
+
+00:02:36.919 --> 00:02:41.611
+These are judgments in the example, not measured rankings.
+
+00:02:41.611 --> 00:02:47.867
+We are not assigning made-up scores to make the choice look scientific.
+
+00:02:47.867 --> 00:02:54.645
+Chapter Eight's prioritization warning is that an ordered list can hide weak reasoning.
+
+00:02:54.645 --> 00:03:02.986
+It asks what we say no to and what signal would make us revisit that answer.
+
+00:03:02.986 --> 00:03:07.156
+Write the first-task guide as the current bet.
+
+00:03:07.156 --> 00:03:30.095
+Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.
+
+00:03:30.095 --> 00:03:33.223
+It does not prove this choice.
+
+00:03:33.223 --> 00:03:40.000
+The evidence ledger and the criteria carry that burden, and invite careful review.
+
+00:03:40.000 --> 00:03:44.171
+Now the bet enters a product requirements document.
+
+00:03:44.171 --> 00:03:50.427
+A blank template can make a team start with controls and screens.
+
+00:03:50.427 --> 00:04:05.545
+For this exercise, begin one line earlier: “A new member opens the first task and cannot tell what action matters or why.” Under that line, link the ledger IDs.
+
+00:04:05.545 --> 00:04:10.237
+Name the affected situation from the living persona card.
+
+00:04:10.237 --> 00:04:21.185
+State the desired behavior: the member can identify the next action and begin it without asking staff to translate the instruction.
+
+00:04:21.185 --> 00:04:25.877
+This is the comprehension layer Chapter Nine asks for.
+
+00:04:25.877 --> 00:04:33.697
+A developer should be able to explain why the work exists before describing the interface.
+
+00:04:33.697 --> 00:04:36.303
+Then add the proposed scope.
+
+00:04:36.303 --> 00:04:46.209
+We will test one first-task card with a clear action, a short reason, and a visible confirmation after beginning.
+
+00:04:46.209 --> 00:04:56.114
+We will not build a full reminder system, redesign the whole journey, or claim that this card increases retention.
+
+00:04:56.114 --> 00:04:59.242
+Those exclusions protect the learning question.
+
+00:04:59.242 --> 00:05:06.019
+They also leave room for engineering and design to find a better implementation.
+
+00:05:06.019 --> 00:05:13.318
+The document is a map of the problem, evidence, intended behavior, limits, and measure.
+
+00:05:13.318 --> 00:05:17.488
+It is not a script for every click.
+
+00:05:17.488 --> 00:05:30.000
+If the team spots a safer or simpler way to learn, the PRD should make that conversation possible before the build grows too large.
+
+00:05:30.000 --> 00:05:37.746
+Before anyone builds, ask a teammate to explain the bet back in their own words.
+
+00:05:37.746 --> 00:05:44.977
+“We want to see whether a clearer first task helps a new member begin.
+
+00:05:44.977 --> 00:05:51.690
+We are testing one card, and we will observe the starting moment.” Good.
+
+00:05:51.690 --> 00:05:57.887
+Then ask what happens if the member presses begin and loses connection.
+
+00:05:57.887 --> 00:06:01.502
+Does the interface say the action worked?
+
+00:06:01.502 --> 00:06:04.601
+Can the person safely try again?
+
+00:06:04.601 --> 00:06:09.765
+F zero one already warned us that confirmation may matter.
+
+00:06:09.765 --> 00:06:18.028
+A document that says “show success” without defining this case leaves a real decision to chance.
+
+00:06:18.028 --> 00:06:23.709
+Chapter Nine recommends pre-testing the handoff for ambiguity and edge cases.
+
+00:06:23.709 --> 00:06:33.521
+A model may suggest questions from material your team can safely use, but its answer is not engineering sign-off.
+
+00:06:33.521 --> 00:06:40.751
+A person who will build or support the change needs to review the meaning.
+
+00:06:40.751 --> 00:06:55.211
+Add an acceptance check: after a successful start, the member sees a clear state; after a failed attempt, the card says what happened and what to do next.
+
+00:06:55.211 --> 00:06:59.343
+The team may refine that check during design.
+
+00:06:59.343 --> 00:07:02.958
+Record who made the decision and why.
+
+00:07:02.958 --> 00:07:16.901
+This is a small handoff, yet it contains the same failure mode as a large program: the source question can disappear while the document becomes more detailed.
+
+00:07:16.901 --> 00:07:20.000
+Keep it visible at the top.
+
+00:07:20.000 --> 00:07:31.362
+Imagine the team tests the card and finds that people understand the action but still cannot tell whether they have finished it.
+
+00:07:31.362 --> 00:07:34.460
+Imagine that result for a moment.
+
+00:07:34.460 --> 00:07:40.657
+The next move may be better completion feedback rather than more instruction.
+
+00:07:40.657 --> 00:07:44.272
+Update the PRD and the trace card.
+
+00:07:44.272 --> 00:07:56.150
+Keep the original assumption, add the new observation with its source and method, and record the date, owner, and reason for the change.
+
+00:07:56.150 --> 00:08:08.545
+Chapter Nine's living document is how decisions made in review, design, and development remain visible to the people who were not in every conversation.
+
+00:08:08.545 --> 00:08:13.192
+The roadmap should change with that learning as well.
+
+00:08:13.192 --> 00:08:27.653
+It is a story about the outcome we are trying to move and the bets we are willing to test, not a schedule that erases its own history.
+
+00:08:27.653 --> 00:08:32.300
+Our trace card has a source: the L05 ledger.
+
+00:08:32.300 --> 00:08:36.948
+It has a current decision: test the first-task guide.
+
+00:08:36.948 --> 00:08:41.080
+It has an owner and a limited scope.
+
+00:08:41.080 --> 00:08:43.146
+It names the exclusions.
+
+00:08:43.146 --> 00:08:56.056
+The measure is whether a participant can identify and begin the intended action in a planned test, with the observation method stated before the result.
+
+00:08:56.056 --> 00:08:59.155
+We have not measured it yet.
+
+00:08:59.155 --> 00:09:10.000
+A clean trace lets a future teammate ask why this work entered the plan and see an answer they can challenge.
+
+00:09:10.000 --> 00:09:14.605
+Pause and draw one line across your decision file.
+
+00:09:14.605 --> 00:09:19.209
+Start with the source IDs that support the problem.
+
+00:09:19.209 --> 00:09:25.349
+State the roadmap bet in a sentence a teammate could disagree with.
+
+00:09:25.349 --> 00:09:34.558
+Name the person or team who owns the decision, the smallest useful scope, and what is outside it.
+
+00:09:34.558 --> 00:09:39.674
+Write one acceptance check that a builder can explain back.
+
+00:09:39.674 --> 00:09:49.907
+Then choose a measure that would tell you whether the customer behavior changed, and say how you will observe it.
+
+00:09:49.907 --> 00:09:58.093
+Resume when each item points to the next without requiring someone to guess what you meant.
+
+00:09:58.093 --> 00:10:05.767
+If you are using a real project, keep identifiable records in your team’s research system.
+
+00:10:05.767 --> 00:10:13.442
+The line helps us follow the handoff from the roadmap bet to the living PRD.
+
+00:10:13.442 --> 00:10:20.605
+If a review uncovers a different problem, change the card with a dated reason.
+
+00:10:20.605 --> 00:10:25.721
+Do not quietly swap the measure after seeing a result.
+
+00:10:25.721 --> 00:10:30.837
+The next lesson will put learning checkpoints beside delivery work.
+
+00:10:30.837 --> 00:10:34.419
+For now, the trace is the safeguard.
+
+00:10:34.419 --> 00:10:47.209
+It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review.
+
+00:10:47.209 --> 00:10:54.372
+Ask a teammate to point to the original feedback note and the success check.
+
+00:10:54.372 --> 00:11:00.000
+If they cannot, the line still has a gap to repair.
