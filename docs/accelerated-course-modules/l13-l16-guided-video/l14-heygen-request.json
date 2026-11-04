@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L14-01",
+      "start_seconds": 0,
+      "end_seconds": 30.75,
+      "duration_seconds": 30.75,
+      "narration_text": "The plan is ready. The evidence ledger is organized. Yet the first person hearing the recommendation asks about delivery cost, while the second asks who benefits. Chapter Twenty-Three calls this the last-mile problem and introduces Persuasive Business Case GPT. That is a book case, not a live demonstration here. Return to the membership-service alternative from Lesson Thirteen. Imagine asking for permission to test a shorter commitment.",
+      "handoff_visual": "approved Momentum plate and fictional proposal entering two meetings; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L14-03",
+      "start_seconds": 164,
+      "end_seconds": 193.586,
+      "duration_seconds": 29.586,
+      "narration_text": "A persuasive pitch must make the cost visible. The shorter-commitment test could require staff training, a clearer cancellation path, and a way to handle pauses. Those are possible operating requirements in our fictional exercise, not measured costs. Put them on the card before the recommendation. Add the option to keep the current model and the option to defer until the job is verified.",
+      "handoff_visual": "synthetic choice card with current model, bounded test, and defer option; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L14-05",
+      "start_seconds": 330,
+      "end_seconds": 359.374,
+      "duration_seconds": 29.374,
+      "narration_text": "Draft the first sixty-second version for the operations owner. Name the decision, the delivery change, the review date, and what would stop the test. Draft the second for the person accountable to members. Name the job, the proposed experience, the consent boundary, and what remains unverified. These are two ways into one decision. Do not write a promise that the evidence cannot carry.",
+      "handoff_visual": "two timed synthetic pitch cards; source annotations remain legible; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L14-06",
+      "start_seconds": 451.325,
+      "end_seconds": 470.288,
+      "duration_seconds": 18.963,
+      "narration_text": "We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
+      "handoff_visual": "completed two-audience pitch card beside the decision log and learning plan; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L14",
+  "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643"
+}

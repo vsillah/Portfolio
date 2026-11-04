@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L16-01",
+      "start_seconds": 0,
+      "end_seconds": 31.79,
+      "duration_seconds": 31.79,
+      "narration_text": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request: improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it. Chapter Twenty-Six calls for starting with one pain point.",
+      "handoff_visual": "full approved SAM infographic followed by the L01 cover sheet; full SAM infographic remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L16-03",
+      "start_seconds": 161,
+      "end_seconds": 191.333,
+      "duration_seconds": 30.333,
+      "narration_text": "Write the next action in a sentence that begins with a verb. Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small, eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it.",
+      "handoff_visual": "one-week commitment card with action, owner, evidence, and stop condition; full SAM infographic remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L16-05",
+      "start_seconds": 316,
+      "end_seconds": 347.543,
+      "duration_seconds": 31.543,
+      "narration_text": "Put a short review on the calendar with the owner and anyone whose work or access the test affects. Send the decision question and the source links in advance. At the meeting, open with what happened, including the observations that complicate your preferred story. Compare the result with the threshold you wrote before the test. Record one of four next states: continue, revise, stop, or gather a specific missing piece of evidence.",
+      "handoff_visual": "calendar card and a decision-log entry with blank outcome field; full SAM infographic remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L16-06",
+      "start_seconds": 449.455,
+      "end_seconds": 474.764,
+      "duration_seconds": 25.309,
+      "narration_text": "The final chapter says the system is unfinished. That is a useful ending because real work changes. People change. Conditions change. A decision file should make revision possible without erasing the path that brought you here. Next week, do the one move you wrote down. Then return to the record. What did you observe? What did it change?",
+      "handoff_visual": "one-week commitment atop complete decision file; full SAM infographic returns, then public book cover; full SAM infographic remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L16",
+  "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d"
+}
