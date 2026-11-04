@@ -1,0 +1,23 @@
+{
+  "status": "offline-review-only",
+  "lessons": [
+    {
+      "id": "L02",
+      "title": "Prioritize before generating",
+      "packet": "l02-packet.json",
+      "runtime_seconds": 600
+    },
+    {
+      "id": "L03",
+      "title": "Answer-driven discovery",
+      "packet": "l03-packet.json",
+      "runtime_seconds": 540
+    },
+    {
+      "id": "L04",
+      "title": "Build small; keep personas alive",
+      "packet": "l04-packet.json",
+      "runtime_seconds": 600
+    }
+  ]
+}

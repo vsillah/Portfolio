@@ -1,0 +1,29 @@
+{
+  "lesson_id": "L05",
+  "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c010.xhtml"
+  ],
+  "approved_assets": {
+    "signals": {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "status": "approved existing art; preserve aspect ratio"
+    },
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "synthetic_scenes": {
+    "L05-01": "synthetic-course-card:L05-01:48fdf9358e855fd4",
+    "L05-02": "synthetic-course-card:L05-02:48fdf9358e855fd4",
+    "L05-03": "synthetic-course-card:L05-03:48fdf9358e855fd4",
+    "L05-04": "synthetic-course-card:L05-04:48fdf9358e855fd4",
+    "L05-05": "synthetic-course-card:L05-05:48fdf9358e855fd4",
+    "L05-06": "synthetic-course-card:L05-06:48fdf9358e855fd4"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}

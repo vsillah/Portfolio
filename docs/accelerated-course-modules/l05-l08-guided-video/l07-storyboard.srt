@@ -1,0 +1,359 @@
+1
+00:00:00,000 --> 00:00:03,448
+The quarter is full before it starts.
+
+2
+00:00:03,448 --> 00:00:07,882
+A new first-task card is due in two weeks.
+
+3
+00:00:07,882 --> 00:00:11,823
+A reminder system is penciled in after that.
+
+4
+00:00:11,823 --> 00:00:17,241
+Someone has promised a dashboard by the end of the month.
+
+5
+00:00:17,241 --> 00:00:28,079
+The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task?
+
+6
+00:00:28,079 --> 00:00:32,020
+Our feedback ledger gave us a possible explanation.
+
+7
+00:00:32,020 --> 00:00:35,961
+The roadmap bet gave us a small test.
+
+8
+00:00:35,961 --> 00:00:41,379
+Chapter Ten asks us to put the learning beside the delivery.
+
+9
+00:00:41,379 --> 00:00:51,724
+Write the outcome we seek at the top: a member can understand and begin the first task without staff translating it.
+
+10
+00:00:51,724 --> 00:00:56,158
+Under that, write what we need to learn first.
+
+11
+00:00:56,158 --> 00:01:01,084
+Is the barrier unclear instruction, weak confirmation, or something else?
+
+12
+00:01:01,084 --> 00:01:06,010
+A feature date can tell us when work will ship.
+
+13
+00:01:06,010 --> 00:01:15,369
+A learning checkpoint tells us when we will inspect what the work taught us and decide whether to continue.
+
+14
+00:01:15,369 --> 00:01:21,773
+Let us build two checkpoints for the membership service we have been following.
+
+15
+00:01:21,773 --> 00:01:26,207
+We are planning the questions before any member responds.
+
+16
+00:01:26,207 --> 00:01:31,626
+Keep the dates visible, but make each date earn a question.
+
+17
+00:01:31,626 --> 00:01:40,000
+Otherwise a team can meet every deadline while its original uncertainty travels untouched into the next quarter.
+
+18
+00:01:40,000 --> 00:01:42,451
+Checkpoint one is a diagnosis.
+
+19
+00:01:42,451 --> 00:01:50,294
+The question is whether new members understand the first instruction and the purpose of the task.
+
+20
+00:01:50,294 --> 00:01:58,627
+The method could be a small observation of the starting moment, paired with the original feedback IDs.
+
+21
+00:01:58,627 --> 00:02:03,529
+The owner schedules the review before a larger build begins.
+
+22
+00:02:03,529 --> 00:02:12,843
+If participants can explain the action but cannot tell whether pressing begin worked, confirmation becomes the stronger next question.
+
+23
+00:02:12,843 --> 00:02:20,196
+If they cannot explain what the task is for, the instruction and purpose deserve attention.
+
+24
+00:02:20,196 --> 00:02:28,529
+If both are clear, we reopen the problem instead of forcing one of our planned features through.
+
+25
+00:02:28,529 --> 00:02:30,980
+Write those possible adjustments now.
+
+26
+00:02:30,980 --> 00:02:36,373
+This is what the book means by making learning a deliverable.
+
+27
+00:02:36,373 --> 00:02:44,216
+The team is accountable for running a sound test, reviewing the evidence, and recording a decision.
+
+28
+00:02:44,216 --> 00:02:49,608
+It cannot honestly guarantee the customer outcome before seeing what happens.
+
+29
+00:02:49,608 --> 00:02:53,039
+Keep the method proportionate to the question.
+
+30
+00:02:53,039 --> 00:02:58,922
+A team walkthrough can catch confusing copy before a participant sees it.
+
+31
+00:02:58,922 --> 00:03:02,353
+It cannot tell us how members behave.
+
+32
+00:03:02,353 --> 00:03:11,667
+For that, invite people through a consented research process and keep their notes where your team protects customer information.
+
+33
+00:03:11,667 --> 00:03:20,000
+It is a blueprint for the decision, with enough detail to let another person run the checkpoint.
+
+34
+00:03:20,000 --> 00:03:26,000
+Checkpoint two follows only if the first review supports the instruction hypothesis.
+
+35
+00:03:26,000 --> 00:03:33,500
+The team tests the smaller first-task card against the existing version in a planned study.
+
+36
+00:03:33,500 --> 00:03:37,500
+Before observing anyone, define what “clear enough” means.
+
+37
+00:03:37,500 --> 00:03:47,500
+In a moderated task, can the person identify the next action and say why it matters without a staff explanation?
+
+38
+00:03:47,500 --> 00:03:51,000
+What happens when the start action fails?
+
+39
+00:03:51,000 --> 00:04:02,000
+Record the observation method, the number and type of participants the study can responsibly support, and the date the team will decide.
+
+40
+00:04:02,000 --> 00:04:12,500
+The exact threshold is a local design choice for the real test; we will not invent one and call it evidence.
+
+41
+00:04:12,500 --> 00:04:39,000
+On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.
+
+42
+00:04:39,000 --> 00:04:44,500
+The roadmap now shows a delivery task and two learning reviews.
+
+43
+00:04:44,500 --> 00:04:47,500
+People can still plan engineering time.
+
+44
+00:04:47,500 --> 00:04:53,000
+They can also see where a result may change that plan.
+
+45
+00:04:53,000 --> 00:05:00,000
+That is more useful than a date that only asks whether the ticket closed.
+
+46
+00:05:00,000 --> 00:05:05,208
+Chapter Eleven tells a story about Sam and her team.
+
+47
+00:05:05,208 --> 00:05:11,458
+A junior product manager brings an unfinished idea into the team channel.
+
+48
+00:05:11,458 --> 00:05:15,625
+Sam expects to step in and shape it.
+
+49
+00:05:15,625 --> 00:05:27,604
+Instead, colleagues ask what customer outcome the idea addresses, whether the job has been validated, and what they would learn by testing it.
+
+50
+00:05:27,604 --> 00:05:33,854
+The point of that moment is not that every conversation became perfect.
+
+51
+00:05:33,854 --> 00:05:45,833
+It is that the team had a shared way to examine an idea without waiting for one leader to supply all the judgment.
+
+52
+00:05:45,833 --> 00:05:50,521
+I am using Sam as the book's narrative illustration.
+
+53
+00:05:50,521 --> 00:05:55,208
+That moment belongs to Sam’s story in the book.
+
+54
+00:05:55,208 --> 00:06:03,542
+In the story, the team also stops treating sunk cost as a reason to keep building.
+
+55
+00:06:03,542 --> 00:06:13,958
+That matters because a learning checkpoint only works if the people in the room can act on what they find.
+
+56
+00:06:13,958 --> 00:06:22,812
+If the review date arrives and everyone is afraid to change the plan, the checkpoint is decoration.
+
+57
+00:06:22,812 --> 00:06:31,146
+Put the owner, evidence, and possible adjustment on the roadmap where the team can see them.
+
+58
+00:06:31,146 --> 00:06:40,000
+Make the question normal enough for engineering, design, support, and leadership to use in their own words.
+
+59
+00:06:40,000 --> 00:06:47,614
+The book gives Sam's team a test that does not support the feature they built.
+
+60
+00:06:47,614 --> 00:06:53,706
+They try document previews, expecting people to find the right file faster.
+
+61
+00:06:53,706 --> 00:06:58,782
+The review points them toward a different need: better search.
+
+62
+00:06:58,782 --> 00:07:02,843
+The team records the learning and changes direction.
+
+63
+00:07:02,843 --> 00:07:10,964
+What matters for us is how the team responded when the test challenged its original bet.
+
+64
+00:07:10,964 --> 00:07:12,995
+Look at the sequence.
+
+65
+00:07:12,995 --> 00:07:15,025
+They stated a hypothesis.
+
+66
+00:07:15,025 --> 00:07:18,579
+They chose a signal and review point.
+
+67
+00:07:18,579 --> 00:07:20,609
+They inspected the result.
+
+68
+00:07:20,609 --> 00:07:26,193
+Then they asked what the result meant for the user's job.
+
+69
+00:07:26,193 --> 00:07:36,345
+A low number by itself would not tell them whether the feature was hidden, unwanted, or solving the wrong task.
+
+70
+00:07:36,345 --> 00:07:38,376
+The follow-up conversation mattered.
+
+71
+00:07:38,376 --> 00:07:41,929
+Apply that discipline to our membership example.
+
+72
+00:07:41,929 --> 00:07:52,589
+If the first-task card gets used but members still need staff help, do not declare success because the card was opened.
+
+73
+00:07:52,589 --> 00:07:59,188
+If people never reach it, check the entry path before judging its wording.
+
+74
+00:07:59,188 --> 00:08:05,279
+If the instruction helps but the next step fails, write that down.
+
+75
+00:08:05,279 --> 00:08:12,386
+The team can hold delivery accountable and still let evidence change the next bet.
+
+76
+00:08:12,386 --> 00:08:20,000
+That is a practical promise to the people who have to live with the roadmap.
+
+77
+00:08:20,000 --> 00:08:27,254
+Pause and choose one delivery milestone from your own plan or from our example.
+
+78
+00:08:27,254 --> 00:08:30,363
+Add two learning checkpoints beside it.
+
+79
+00:08:30,363 --> 00:08:41,762
+For each checkpoint, write the question, the evidence you will use, the owner, the review date, and the adjustment you could make.
+
+80
+00:08:41,762 --> 00:08:47,461
+The first should reduce uncertainty before the team commits too much.
+
+81
+00:08:47,461 --> 00:08:51,606
+The second should inspect the smallest useful test.
+
+82
+00:08:51,606 --> 00:09:00,933
+If a result would never change the plan, rewrite the question until the review has a real consequence.
+
+83
+00:09:00,933 --> 00:09:11,295
+Resume when you can tell a teammate what you will know at each date and what you may do differently.
+
+84
+00:09:11,295 --> 00:09:16,477
+Use information you have permission to share on this worksheet.
+
+85
+00:09:16,477 --> 00:09:20,622
+Keep participant notes in your team’s research system.
+
+86
+00:09:20,622 --> 00:09:29,948
+Your decision file now has a source trail, a living product handoff, and a roadmap that can learn.
+
+87
+00:09:29,948 --> 00:09:37,720
+The two checkpoint cards make the next decision visible to everyone who owns the work.
+
+88
+00:09:37,720 --> 00:09:47,047
+In the next lesson, we will define the measures and write the full learning plan before results arrive.
+
+89
+00:09:47,047 --> 00:09:53,264
+A plan becomes more trustworthy when it shows where it can change.
+
+90
+00:09:53,264 --> 00:10:00,000
+The date is useful because someone has agreed to look, listen, and decide.

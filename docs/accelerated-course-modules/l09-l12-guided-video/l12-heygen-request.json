@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L12-01",
+      "start_seconds": 0,
+      "end_seconds": 35.117,
+      "duration_seconds": 35.117,
+      "narration_text": "The feedback pile is growing again. One note says, “I could not tell where to start.” Another asks for a reminder. A third says the task looked complete but the page gave no confirmation. These are fictional member comments carried forward from our earlier exercise. If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked.",
+      "handoff_visual": "six fictional feedback cards F01–F06 from L05 ledger; approved Momentum plate opens briefly.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L12-03",
+      "start_seconds": 220,
+      "end_seconds": 245.024,
+      "duration_seconds": 25.024,
+      "narration_text": "The book calls ClientQ a translator for customer language. It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog. That is a case in the book. Our six-card exercise is separate. The cards in this exercise are imagined member notes, separate from observed research.",
+      "handoff_visual": "attributed ClientQ case title and synthetic comparison of raw note versus proposed job; no branded tool UI.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L12-05",
+      "start_seconds": 440,
+      "end_seconds": 469.163,
+      "duration_seconds": 29.163,
+      "narration_text": "The simulation points to two questions, not two answers. First: can an eligible new member explain the first action before beginning it? Second: after acting, can they tell whether it worked? Put each beside a real observation method. The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation.",
+      "handoff_visual": "two-column evidence card: simulated question and real observation required; no invented customer result.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L12-06",
+      "start_seconds": 622.661,
+      "end_seconds": 651.422,
+      "duration_seconds": 28.761,
+      "narration_text": "The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward. If the evidence is weak, say so.",
+      "handoff_visual": "jobs card and simulation-validation card beside earlier decision file; brief Momentum plate return.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L12",
+  "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36"
+}

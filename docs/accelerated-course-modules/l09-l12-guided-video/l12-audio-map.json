@@ -1,0 +1,47 @@
+{
+  "lesson_id": "L12",
+  "runtime_seconds": 660,
+  "segments": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 35.117,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 35.117,
+      "end_seconds": 220,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 220,
+      "end_seconds": 245.024,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 245.024,
+      "end_seconds": 440,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 440,
+      "end_seconds": 469.163,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 469.163,
+      "end_seconds": 622.661,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 622.661,
+      "end_seconds": 651.422,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 651.422,
+      "end_seconds": 660,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "rule": "One spoken owner at a time; native presenter replaces matching narration audio in final composite"
+}

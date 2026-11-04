@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L09-01",
+      "start_seconds": 0,
+      "end_seconds": 31.013,
+      "duration_seconds": 31.013,
+      "narration_text": "You bring a careful recommendation into the room. The research is sound. The test plan has a measure and a stop condition. Someone asks about a competing priority. Engineering asks whose work will move. A person who was not in the meeting raises a concern afterward. The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no.",
+      "handoff_visual": "synthetic proposal and meeting card; approved Alignment plate opens the module.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L09-03",
+      "start_seconds": 220,
+      "end_seconds": 244.809,
+      "duration_seconds": 24.809,
+      "narration_text": "Chapter Fifteen says an org chart is a start, but it will not show every decision path. Its first stakeholder lens is role type. A decision-maker can approve or stop the work. An influencer shapes that person's view. A gatekeeper controls access, capacity, or information. A champion advocates. A skeptic asks hard questions.",
+      "handoff_visual": "synthetic role cards, with book role labels.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L09-05",
+      "start_seconds": 440,
+      "end_seconds": 463.0,
+      "duration_seconds": 23.0,
+      "narration_text": "The book calls the pre-meeting work Shuttle Diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take and which staffing constraint would make it unsafe.",
+      "handoff_visual": "synthetic conversation schedule linked to objections.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L09-06",
+      "start_seconds": 630.73,
+      "end_seconds": 648.67,
+      "duration_seconds": 17.94,
+      "narration_text": "A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
+      "handoff_visual": "decision file page fills with grid, roles, questions, and conversation order; brief Alignment plate return.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L09",
+  "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8"
+}

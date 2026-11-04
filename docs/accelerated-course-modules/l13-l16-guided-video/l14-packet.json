@@ -1,0 +1,967 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L14",
+  "title": "The last mile of influence",
+  "runtime_seconds": 480,
+  "learner_artifact": "Two-audience pitch card with source annotations",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L14.md",
+  "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "f9cc259fa9416ec68b7c2413f0dc479ffbd259ae3049becf022f5767473c55b1",
+  "source_notes_sha256": "4a12a775a24d911979a9bf4d0cf49fcbafa6e3dd1592b8807d951012045a5336",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c026.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L14-01",
+      "title": "A good plan meets a skeptical room",
+      "start_seconds": 0,
+      "end_seconds": 82,
+      "narration": "The plan is ready. The evidence ledger is organized. Yet the first person hearing the recommendation asks about delivery cost, while the second asks who benefits. Chapter Twenty-Three calls this the last-mile problem and introduces Persuasive Business Case GPT. That is a book case, not a live demonstration here. Return to the membership-service alternative from Lesson Thirteen. Imagine asking for permission to test a shorter commitment. One decision owner manages operations. Another represents the people who use the service. They need different openings, but the underlying claim and source record must remain the same. Write the decision in one sentence before adjusting the pitch. Are we asking to run a bounded test, approve a permanent model, or fund a full rollout? A polished argument can blur those requests. State the smallest actual decision. Then check the evidence column. Which facts come from observed behavior? Which costs are estimates? Which reactions were only simulated? We can tailor the order in which we present them. We cannot promote an assumption into a fact because the room prefers certainty.",
+      "narration_sha256": "33a6fe76cae3fe7b34f31693ad26cf86ac5c4b39abde52194663e171ed17883d",
+      "on_screen_copy": "One proposal; two decision rooms",
+      "shot": "A good plan meets a skeptical room.",
+      "visual": "approved Momentum plate and fictional proposal entering two meetings; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L14-01",
+        "start_seconds": 0,
+        "end_seconds": 30.75,
+        "duration_seconds": 30.75,
+        "narration_text": "The plan is ready. The evidence ledger is organized. Yet the first person hearing the recommendation asks about delivery cost, while the second asks who benefits. Chapter Twenty-Three calls this the last-mile problem and introduces Persuasive Business Case GPT. That is a book case, not a live demonstration here. Return to the membership-service alternative from Lesson Thirteen. Imagine asking for permission to test a shorter commitment.",
+        "handoff_visual": "approved Momentum plate and fictional proposal entering two meetings; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c026.xhtml"
+        ],
+        "scene_source": "Ch23, “The Last-Mile Problem,” “The Solution: Persuasive Business Case GPT” (`c026.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L14-01:5ea7d162d96416f3",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L14-02",
+      "title": "Hold the source steady",
+      "start_seconds": 82,
+      "end_seconds": 164,
+      "narration": "The chapter's dashboard example shows how a business case changes with the audience. It is a story in the book; we will not repeat its outcome figures as current evidence. For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged. The member-facing pitch begins with the experience: how a person would understand the offer, enter it, and leave without a surprise. Both versions point to the same source note and the same unknown. Neither claims that conversion will rise. Put the common evidence strip under both cards. When you rewrite a sentence, compare it line by line against that strip. If the wording becomes stronger than the record, weaken it or seek evidence. This discipline protects trust. People will disagree about which risk matters most. They should not have to wonder whether they heard two versions of the truth. The question for the pitch is simple: what must this particular person decide, and what can the source actually support?",
+      "narration_sha256": "d1cf8bb714c17a20104f95c104f4a488b273956e57a346826fb2a8ef4f7132b2",
+      "on_screen_copy": "Emphasis changes; evidence stays",
+      "shot": "Hold the source steady.",
+      "visual": "side-by-side pitch cards with one common evidence strip; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c026.xhtml"
+        ],
+        "scene_source": "Ch23, “What It Actually Does,” “Real Example: A Dashboard Optimized for Impact” (`c026.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L14-02:5ea7d162d96416f3",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L14-03",
+      "title": "Name the cost and rejected option",
+      "start_seconds": 164,
+      "end_seconds": 249,
+      "narration": "A persuasive pitch must make the cost visible. The shorter-commitment test could require staff training, a clearer cancellation path, and a way to handle pauses. Those are possible operating requirements in our fictional exercise, not measured costs. Put them on the card before the recommendation. Add the option to keep the current model and the option to defer until the job is verified. Why test now? Because the evidence suggests a particular mismatch worth examining. Why a bounded test? Because the economics and user experience still have open questions. The book's pre-pitch workflow asks for objections before the meeting, when they can still improve the plan. It also identifies a common mistake: asking an assistant to make a weak case sound strong. Do the reverse. Ask which sentence needs a source, which cost is missing, and which stakeholder can block the test for a good reason. Then revise the proposal. If the answer is that the test cannot be run safely or fairly, say so. A decision brief is useful when it helps the group choose, including a decision to wait.",
+      "narration_sha256": "8ff805c98a62c4b95845a2ef8160de2efb9334f07e3cf6e147d44c5e84bfcba3",
+      "on_screen_copy": "Show the tradeoff before the ask",
+      "shot": "Name the cost and rejected option.",
+      "visual": "synthetic choice card with current model, bounded test, and defer option; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L14-03",
+        "start_seconds": 164,
+        "end_seconds": 193.586,
+        "duration_seconds": 29.586,
+        "narration_text": "A persuasive pitch must make the cost visible. The shorter-commitment test could require staff training, a clearer cancellation path, and a way to handle pauses. Those are possible operating requirements in our fictional exercise, not measured costs. Put them on the card before the recommendation. Add the option to keep the current model and the option to defer until the job is verified.",
+        "handoff_visual": "synthetic choice card with current model, bounded test, and defer option; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c026.xhtml"
+        ],
+        "scene_source": "Ch23, “A Complete Pre-Pitch Workflow,” “Common Mistakes” (`c026.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L14-03:5ea7d162d96416f3",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L14-04",
+      "title": "Rehearse objections as rehearsal",
+      "start_seconds": 249,
+      "end_seconds": 330,
+      "narration": "A pre-pitch exercise can surface objections before the room does. Give the proposed test and its evidence to a reviewer. Ask them to challenge the weakest assumption, the delivery burden, and the risk of confusing participants. If an AI assistant produces the challenge, label it Simulation on screen. It has not spoken for operations staff or members. Turn each objection into a check with a real owner. Can the team support a pause? Ask the operator who manages enrollment. Does the offer read clearly? Test the wording with an approved participant. Would a funding partner need a different measure? Ask that partner what decision they must make. The book warns that persuasion does not replace the underlying judgment. Keep the response specific. “We have it handled” tells the room nothing. “We will review support tickets after the first cohort and stop if unresolved access questions rise” is a proposed plan that can be inspected. The precise threshold belongs in the learning plan before exposure. Rehearsal is valuable because it sharpens the next human conversation.",
+      "narration_sha256": "f876df9bcfc8f1a1410582464eb89c73f40bf3caaed645bcbe31b6fe83629667",
+      "on_screen_copy": "Rehearse; then ask a person",
+      "shot": "Rehearse objections as rehearsal.",
+      "visual": "two fictional objection cards with explicit Simulation label and a response/evidence-needed row; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c026.xhtml"
+        ],
+        "scene_source": "Ch23, “Prompts That Work,” “A Complete Pre-Pitch Workflow,” “What It's NOT” (`c026.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L14-04:5ea7d162d96416f3",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L14-05",
+      "title": "Write two sixty-second versions",
+      "start_seconds": 330,
+      "end_seconds": 406,
+      "narration": "Draft the first sixty-second version for the operations owner. Name the decision, the delivery change, the review date, and what would stop the test. Draft the second for the person accountable to members. Name the job, the proposed experience, the consent boundary, and what remains unverified. These are two ways into one decision. Do not write a promise that the evidence cannot carry. Annotate each claim with the source ID or mark it assumption. Where a source is absent, change the sentence to a question. Read both versions aloud. The first should sound like someone who has considered the work of implementation. The second should sound like someone who respects the burden of trying a new service. Neither should hide a condition in fine print. If the two versions lead listeners to different decisions, the pitch has drifted. Bring them back to the same bounded request. A source-linked brief lets someone disagree with your recommendation while still trusting your account of the facts.",
+      "narration_sha256": "1428a97395ac3b8c13d4a191128b99a4eb7dcea71c0b63136993ed4f1a684e6e",
+      "on_screen_copy": "Ask clearly; cite precisely",
+      "shot": "Write two sixty-second versions.",
+      "visual": "two timed synthetic pitch cards; source annotations remain legible; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L14-05",
+        "start_seconds": 330,
+        "end_seconds": 359.374,
+        "duration_seconds": 29.374,
+        "narration_text": "Draft the first sixty-second version for the operations owner. Name the decision, the delivery change, the review date, and what would stop the test. Draft the second for the person accountable to members. Name the job, the proposed experience, the consent boundary, and what remains unverified. These are two ways into one decision. Do not write a promise that the evidence cannot carry.",
+        "handoff_visual": "two timed synthetic pitch cards; source annotations remain legible; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c026.xhtml"
+        ],
+        "scene_source": "Ch23, “A Complete Pre-Pitch Workflow,” “The Workflow I Wish I'd Had” (`c026.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L14-05:5ea7d162d96416f3",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L14-06",
+      "title": "Make the decision file usable",
+      "start_seconds": 406,
+      "end_seconds": 480,
+      "narration": "Pause here. Put both pitch versions into the decision file. Under each, list the claims, their exact source IDs, and one objection you still need a person to answer. Add the decision requested, the rejected alternative, the cost, the owner, and the review date. Resume when you can answer this question: what observation would make you change your recommendation? If you cannot answer, the argument is still a defense of a preferred story. Keep private deal terms, customer records, and internal conversations inside approved systems; this exercise uses a fictional proposal. Persuasive GPT remains a named book case. We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip. At scale, the same evidence will need to survive more meetings, more owners, and more chances for its meaning to drift.",
+      "narration_sha256": "bdca1348bccc67c8c80e34775b440b2f7c00f63ecabc90f026156d0f95da6fde",
+      "on_screen_copy": "Decision requested · source · objection",
+      "shot": "Make the decision file usable.",
+      "visual": "completed two-audience pitch card beside the decision log and learning plan; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L14-06",
+        "start_seconds": 451.325,
+        "end_seconds": 470.288,
+        "duration_seconds": 18.963,
+        "narration_text": "We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
+        "handoff_visual": "completed two-audience pitch card beside the decision log and learning plan; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c026.xhtml"
+        ],
+        "scene_source": "Ch23, “Integration with Your System,” “Bottom Line” (`c026.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L14-06:5ea7d162d96416f3",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 1.864,
+      "text": "The plan is ready.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 1.864,
+      "end": 4.193,
+      "text": "The evidence ledger is organized.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 4.193,
+      "end": 12.114,
+      "text": "Yet the first person hearing the recommendation asks about delivery cost, while the second asks who benefits.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 12.114,
+      "end": 18.17,
+      "text": "Chapter Twenty-Three calls this the last-mile problem and introduces Persuasive Business Case GPT.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 18.17,
+      "end": 22.83,
+      "text": "That is a book case, not a live demonstration here.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 22.83,
+      "end": 26.557,
+      "text": "Return to the membership-service alternative from Lesson Thirteen.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 26.557,
+      "end": 30.75,
+      "text": "Imagine asking for permission to test a shorter commitment.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 30.75,
+      "end": 33.08,
+      "text": "One decision owner manages operations.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 33.08,
+      "end": 36.807,
+      "text": "Another represents the people who use the service.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 36.807,
+      "end": 43.795,
+      "text": "They need different openings, but the underlying claim and source record must remain the same.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 43.795,
+      "end": 48.455,
+      "text": "Write the decision in one sentence before adjusting the pitch.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 48.455,
+      "end": 56.375,
+      "text": "Are we asking to run a bounded test, approve a permanent model, or fund a full rollout?",
+      "scene": "L14-01"
+    },
+    {
+      "start": 56.375,
+      "end": 59.636,
+      "text": "A polished argument can blur those requests.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 59.636,
+      "end": 61.966,
+      "text": "State the smallest actual decision.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 61.966,
+      "end": 64.295,
+      "text": "Then check the evidence column.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 64.295,
+      "end": 67.091,
+      "text": "Which facts come from observed behavior?",
+      "scene": "L14-01"
+    },
+    {
+      "start": 67.091,
+      "end": 68.955,
+      "text": "Which costs are estimates?",
+      "scene": "L14-01"
+    },
+    {
+      "start": 68.955,
+      "end": 71.284,
+      "text": "Which reactions were only simulated?",
+      "scene": "L14-01"
+    },
+    {
+      "start": 71.284,
+      "end": 75.943,
+      "text": "We can tailor the order in which we present them.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 75.943,
+      "end": 82,
+      "text": "We cannot promote an assumption into a fact because the room prefers certainty.",
+      "scene": "L14-01"
+    },
+    {
+      "start": 82,
+      "end": 88.023,
+      "text": "The chapter's dashboard example shows how a business case changes with the audience.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 88.023,
+      "end": 95.898,
+      "text": "It is a story in the book; we will not repeat its outcome figures as current evidence.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 95.898,
+      "end": 108.87,
+      "text": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 108.87,
+      "end": 118.599,
+      "text": "The member-facing pitch begins with the experience: how a person would understand the offer, enter it, and leave without a surprise.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 118.599,
+      "end": 124.158,
+      "text": "Both versions point to the same source note and the same unknown.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 124.158,
+      "end": 126.938,
+      "text": "Neither claims that conversion will rise.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 126.938,
+      "end": 130.644,
+      "text": "Put the common evidence strip under both cards.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 130.644,
+      "end": 136.667,
+      "text": "When you rewrite a sentence, compare it line by line against that strip.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 136.667,
+      "end": 142.689,
+      "text": "If the wording becomes stronger than the record, weaken it or seek evidence.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 142.689,
+      "end": 144.542,
+      "text": "This discipline protects trust.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 144.542,
+      "end": 148.249,
+      "text": "People will disagree about which risk matters most.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 148.249,
+      "end": 154.734,
+      "text": "They should not have to wonder whether they heard two versions of the truth.",
+      "scene": "L14-02"
+    },
+    {
+      "start": 154.734,
+      "end": 164,
+      "text": "The question for the pitch is simple: what must this particular person decide, and what can the source actually support?",
+      "scene": "L14-02"
+    },
+    {
+      "start": 164,
+      "end": 167.757,
+      "text": "A persuasive pitch must make the cost visible.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 167.757,
+      "end": 175.74,
+      "text": "The shorter-commitment test could require staff training, a clearer cancellation path, and a way to handle pauses.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 175.74,
+      "end": 181.376,
+      "text": "Those are possible operating requirements in our fictional exercise, not measured costs.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 181.376,
+      "end": 185.133,
+      "text": "Put them on the card before the recommendation.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 185.133,
+      "end": 193.586,
+      "text": "Add the option to keep the current model and the option to defer until the job is verified.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 193.586,
+      "end": 194.994,
+      "text": "Why test now?",
+      "scene": "L14-03"
+    },
+    {
+      "start": 194.994,
+      "end": 199.221,
+      "text": "Because the evidence suggests a particular mismatch worth examining.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 199.221,
+      "end": 201.099,
+      "text": "Why a bounded test?",
+      "scene": "L14-03"
+    },
+    {
+      "start": 201.099,
+      "end": 205.796,
+      "text": "Because the economics and user experience still have open questions.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 205.796,
+      "end": 213.779,
+      "text": "The book's pre-pitch workflow asks for objections before the meeting, when they can still improve the plan.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 213.779,
+      "end": 221.293,
+      "text": "It also identifies a common mistake: asking an assistant to make a weak case sound strong.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 221.293,
+      "end": 222.702,
+      "text": "Do the reverse.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 222.702,
+      "end": 232.564,
+      "text": "Ask which sentence needs a source, which cost is missing, and which stakeholder can block the test for a good reason.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 232.564,
+      "end": 234.442,
+      "text": "Then revise the proposal.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 234.442,
+      "end": 241.486,
+      "text": "If the answer is that the test cannot be run safely or fairly, say so.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 241.486,
+      "end": 249,
+      "text": "A decision brief is useful when it helps the group choose, including a decision to wait.",
+      "scene": "L14-03"
+    },
+    {
+      "start": 249,
+      "end": 253.655,
+      "text": "A pre-pitch exercise can surface objections before the room does.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 253.655,
+      "end": 258.31,
+      "text": "Give the proposed test and its evidence to a reviewer.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 258.31,
+      "end": 265.759,
+      "text": "Ask them to challenge the weakest assumption, the delivery burden, and the risk of confusing participants.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 265.759,
+      "end": 271.345,
+      "text": "If an AI assistant produces the challenge, label it Simulation on screen.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 271.345,
+      "end": 275.534,
+      "text": "It has not spoken for operations staff or members.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 275.534,
+      "end": 280.19,
+      "text": "Turn each objection into a check with a real owner.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 280.19,
+      "end": 282.983,
+      "text": "Can the team support a pause?",
+      "scene": "L14-04"
+    },
+    {
+      "start": 282.983,
+      "end": 285.776,
+      "text": "Ask the operator who manages enrollment.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 285.776,
+      "end": 288.103,
+      "text": "Does the offer read clearly?",
+      "scene": "L14-04"
+    },
+    {
+      "start": 288.103,
+      "end": 291.362,
+      "text": "Test the wording with an approved participant.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 291.362,
+      "end": 295.086,
+      "text": "Would a funding partner need a different measure?",
+      "scene": "L14-04"
+    },
+    {
+      "start": 295.086,
+      "end": 298.81,
+      "text": "Ask that partner what decision they must make.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 298.81,
+      "end": 303.931,
+      "text": "The book warns that persuasion does not replace the underlying judgment.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 303.931,
+      "end": 305.793,
+      "text": "Keep the response specific.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 305.793,
+      "end": 309.517,
+      "text": "“We have it handled” tells the room nothing.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 309.517,
+      "end": 320.69,
+      "text": "“We will review support tickets after the first cohort and stop if unresolved access questions rise” is a proposed plan that can be inspected.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 320.69,
+      "end": 325.345,
+      "text": "The precise threshold belongs in the learning plan before exposure.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 325.345,
+      "end": 330,
+      "text": "Rehearsal is valuable because it sharpens the next human conversation.",
+      "scene": "L14-04"
+    },
+    {
+      "start": 330,
+      "end": 334.196,
+      "text": "Draft the first sixty-second version for the operations owner.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 334.196,
+      "end": 341.19,
+      "text": "Name the decision, the delivery change, the review date, and what would stop the test.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 341.19,
+      "end": 345.387,
+      "text": "Draft the second for the person accountable to members.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 345.387,
+      "end": 351.448,
+      "text": "Name the job, the proposed experience, the consent boundary, and what remains unverified.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 351.448,
+      "end": 354.712,
+      "text": "These are two ways into one decision.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 354.712,
+      "end": 359.374,
+      "text": "Do not write a promise that the evidence cannot carry.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 359.374,
+      "end": 364.503,
+      "text": "Annotate each claim with the source ID or mark it assumption.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 364.503,
+      "end": 369.632,
+      "text": "Where a source is absent, change the sentence to a question.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 369.632,
+      "end": 371.497,
+      "text": "Read both versions aloud.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 371.497,
+      "end": 377.558,
+      "text": "The first should sound like someone who has considered the work of implementation.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 377.558,
+      "end": 384.552,
+      "text": "The second should sound like someone who respects the burden of trying a new service.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 384.552,
+      "end": 388.282,
+      "text": "Neither should hide a condition in fine print.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 388.282,
+      "end": 394.344,
+      "text": "If the two versions lead listeners to different decisions, the pitch has drifted.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 394.344,
+      "end": 398.074,
+      "text": "Bring them back to the same bounded request.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 398.074,
+      "end": 406,
+      "text": "A source-linked brief lets someone disagree with your recommendation while still trusting your account of the facts.",
+      "scene": "L14-05"
+    },
+    {
+      "start": 406,
+      "end": 406.925,
+      "text": "Pause here.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 406.925,
+      "end": 410.625,
+      "text": "Put both pitch versions into the decision file.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 410.625,
+      "end": 419.413,
+      "text": "Under each, list the claims, their exact source IDs, and one objection you still need a person to answer.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 419.413,
+      "end": 426.35,
+      "text": "Add the decision requested, the rejected alternative, the cost, the owner, and the review date.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 426.35,
+      "end": 433.288,
+      "text": "Resume when you can answer this question: what observation would make you change your recommendation?",
+      "scene": "L14-06"
+    },
+    {
+      "start": 433.288,
+      "end": 439.762,
+      "text": "If you cannot answer, the argument is still a defense of a preferred story.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 439.762,
+      "end": 448.087,
+      "text": "Keep private deal terms, customer records, and internal conversations inside approved systems; this exercise uses a fictional proposal.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 448.087,
+      "end": 451.325,
+      "text": "Persuasive GPT remains a named book case.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 451.325,
+      "end": 459.188,
+      "text": "We have created an editorial teaching card, not proof of a deployed tool or a successful pitch.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 459.188,
+      "end": 468.438,
+      "text": "The next lesson asks what happens after one team learns from a test and other teams want to repeat it.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 468.438,
+      "end": 470.288,
+      "text": "Save the source strip.",
+      "scene": "L14-06"
+    },
+    {
+      "start": 470.288,
+      "end": 480,
+      "text": "At scale, the same evidence will need to survive more meetings, more owners, and more chances for its meaning to drift.",
+      "scene": "L14-06"
+    }
+  ],
+  "assets": {
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause during Scene 6. Complete the two-audience pitch card with source annotations. Resume only after the source, owner, review date, evidence gap, and stop or revision condition are explicit. Use public, synthetic, or approved input. Private customer or company material stays in its authorized system.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 30.75,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 30.75,
+      "end_seconds": 164,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 164,
+      "end_seconds": 193.586,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 193.586,
+      "end_seconds": 330,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 330,
+      "end_seconds": 359.374,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 359.374,
+      "end_seconds": 451.325,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 451.325,
+      "end_seconds": 470.288,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 470.288,
+      "end_seconds": 480,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L14-01",
+        "start_seconds": 0,
+        "end_seconds": 30.75,
+        "duration_seconds": 30.75,
+        "narration_text": "The plan is ready. The evidence ledger is organized. Yet the first person hearing the recommendation asks about delivery cost, while the second asks who benefits. Chapter Twenty-Three calls this the last-mile problem and introduces Persuasive Business Case GPT. That is a book case, not a live demonstration here. Return to the membership-service alternative from Lesson Thirteen. Imagine asking for permission to test a shorter commitment.",
+        "handoff_visual": "approved Momentum plate and fictional proposal entering two meetings; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L14-03",
+        "start_seconds": 164,
+        "end_seconds": 193.586,
+        "duration_seconds": 29.586,
+        "narration_text": "A persuasive pitch must make the cost visible. The shorter-commitment test could require staff training, a clearer cancellation path, and a way to handle pauses. Those are possible operating requirements in our fictional exercise, not measured costs. Put them on the card before the recommendation. Add the option to keep the current model and the option to defer until the job is verified.",
+        "handoff_visual": "synthetic choice card with current model, bounded test, and defer option; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L14-05",
+        "start_seconds": 330,
+        "end_seconds": 359.374,
+        "duration_seconds": 29.374,
+        "narration_text": "Draft the first sixty-second version for the operations owner. Name the decision, the delivery change, the review date, and what would stop the test. Draft the second for the person accountable to members. Name the job, the proposed experience, the consent boundary, and what remains unverified. These are two ways into one decision. Do not write a promise that the evidence cannot carry.",
+        "handoff_visual": "two timed synthetic pitch cards; source annotations remain legible; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L14-06",
+        "start_seconds": 451.325,
+        "end_seconds": 470.288,
+        "duration_seconds": 18.963,
+        "narration_text": "We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
+        "handoff_visual": "completed two-audience pitch card beside the decision log and learning plan; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

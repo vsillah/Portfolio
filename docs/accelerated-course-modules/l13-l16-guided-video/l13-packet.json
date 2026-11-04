@@ -1,0 +1,1070 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L13",
+  "title": "Strategic shifts and future concepts",
+  "runtime_seconds": 660,
+  "learner_artifact": "Strategic alternatives sheet and concept-test card",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L13.md",
+  "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "f9cc259fa9416ec68b7c2413f0dc479ffbd259ae3049becf022f5767473c55b1",
+  "source_notes_sha256": "4a12a775a24d911979a9bf4d0cf49fcbafa6e3dd1592b8807d951012045a5336",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c024.xhtml",
+    "c025.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L13-01",
+      "title": "Flat is a question, not a verdict",
+      "start_seconds": 0,
+      "end_seconds": 117,
+      "narration": "Picture a Monday meeting. The dashboard is flat. Someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In Chapter Twenty-One, Sam faces that pressure and opens StratQuest. This is a book story. Our membership-service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise. Start with four possible constraints. Is the customer job poorly understood? Is the product hard to use? Does the way people pay conflict with when they receive value? Or is the offer reaching the wrong buyer? Each explanation points to a different test. A flat chart alone cannot distinguish them. Bring forward the job and evidence gap from the last lesson. If the job is unverified, price changes may only make an unclear service cheaper. If the job is clear and people use the service in bursts, the model deserves scrutiny. Write the assumption that would make a model change sensible. Put its source beside it. A strategic conversation gets better when the room can see which claim came from a person, which came from a record, and which is still a guess. We are diagnosing before we commit resources. A useful diagnosis can also rule out the most attractive explanation. Record the rejected explanation and the evidence that weakened it. That line may save the team from revisiting the same argument next month.",
+      "narration_sha256": "183067115bcd1d5ee20569b4d064ac8ae5aed56e8071bde11ed5306dab9935de",
+      "on_screen_copy": "Flat metrics ask for a diagnosis",
+      "shot": "Flat is a question, not a verdict.",
+      "visual": "approved Momentum plate, then a fictional membership-service metric card with no invented result; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L13-01",
+        "start_seconds": 0,
+        "end_seconds": 32.527,
+        "duration_seconds": 32.527,
+        "narration_text": "Picture a Monday meeting. The dashboard is flat. Someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In Chapter Twenty-One, Sam faces that pressure and opens StratQuest. This is a book story. Our membership-service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise.",
+        "handoff_visual": "approved Momentum plate, then a fictional membership-service metric card with no invented result; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c024.xhtml",
+          "c025.xhtml"
+        ],
+        "scene_source": "Ch21, “When Traction Stalls—And You Don't Know Why,” “The Solution: StratQuest” (`c024.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L13-01:3acceee930227d55",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L13-02",
+      "title": "Compare the book's alternatives",
+      "start_seconds": 117,
+      "end_seconds": 226,
+      "narration": "StratQuest is the name of the book's guided strategy case. The chapter compares usage-based pricing, a seasonal freemium upgrade, and a professional-services hybrid for a subscription problem. Those are its alternatives, not a recommendation for every business. Put the options side by side. Usage-based pricing can align payment with active use, but billing and cash flow become more variable. A free tier can lower the first commitment, but a generous free offer may never lead to the job people will pay to complete. Services can bring expert help close to the customer, but delivery capacity becomes part of the model. For our fictional membership service, borrow the comparison method, not the book's results. Ask who pays, when value arrives, what work staff must do, and what would make the change reversible. Keep a fourth column for the current model. The current choice is an alternative too; it carries costs and deserves a fair test. A model is a set of operating promises. It changes invoices, service rhythms, support, and the customer's expectations. If we cannot explain those consequences, we are not ready to announce a pivot. We are ready to ask a better question. Keep this comparison on one page. If the proposal requires a second system, a new contract, or more staff time, write that requirement in the same row as its promised benefit.",
+      "narration_sha256": "3965e3c3d52d0ca973bbbf8e4e03d268f058cf350f0f75416c4220ea2ea221c1",
+      "on_screen_copy": "Three models; three operating costs",
+      "shot": "Compare the book's alternatives.",
+      "visual": "book-attributed StratQuest card beside three synthetic business-model cards; no branded tool interface; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c024.xhtml",
+          "c025.xhtml"
+        ],
+        "scene_source": "Ch21, “Session 1: Diagnose the Real Problem,” “Session 2: Explore Model Alternatives,” “Session 3: Model the Tradeoffs” (`c024.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L13-02:3acceee930227d55",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L13-03",
+      "title": "Design the smallest strategic test",
+      "start_seconds": 226,
+      "end_seconds": 340,
+      "narration": "The fourth StratQuest session turns a preferred option into a test. In the book case, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin. A first test could be a concept interview with approved participants, followed by a small, consented offer test only if the organization can fulfill the new terms. Decide what evidence would support the idea and what would make you stop. Conversion alone is too narrow. Check whether people understand the offer, whether staff can deliver it, and whether the economics remain viable. Put the test in the ten-component learning plan from Lesson Eight. Name the owner and the date before seeing any result. If the test could affect billing or access, a responsible operator reviews the terms before any live exposure. For this workshop, the card remains fictional. The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course. The test should reduce uncertainty without making a promise the team cannot keep. Make the stop condition observable. A vague sense that the test is not working will be hard to use when the team has already invested effort and hopes the result improves.",
+      "narration_sha256": "5e2d182438285f5e875fe05c8b3fe811a2d45eba0491df39a90efefb8724c544",
+      "on_screen_copy": "One option · One falsifiable test",
+      "shot": "Design the smallest strategic test.",
+      "visual": "synthetic test card with hypothesis, cohort, measure, review date, and stop condition; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L13-03",
+        "start_seconds": 226,
+        "end_seconds": 252.308,
+        "duration_seconds": 26.308,
+        "narration_text": "The fourth StratQuest session turns a preferred option into a test. In the book case, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin.",
+        "handoff_visual": "synthetic test card with hypothesis, cohort, measure, review date, and stop condition; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c024.xhtml",
+          "c025.xhtml"
+        ],
+        "scene_source": "Ch21, “Session 4: Design the Test,” “What to Watch Out For,” “Integration with Your System” (`c024.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L13-03:3acceee930227d55",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L13-04",
+      "title": "Make the future concept explainable",
+      "start_seconds": 340,
+      "end_seconds": 446,
+      "narration": "A model choice can sound logical inside the team and confusing outside it. Chapter Twenty-Two brings in VisionScope and MarketCraft. The book presents VisionScope as a way to articulate an early concept, including a future-facing announcement and hard questions. MarketCraft pressures the positioning across audiences. These are named book cases; we are not demonstrating a live product. Write a one-hundred-word explanation of the proposed membership change. Begin with the person's situation. Say what they could do differently, when they would see value, and what the organization would need to provide. Leave out imaginary testimonials and performance figures. The book's collaboration-feature example is useful because different departments pictured different products under the same phrase. A clear narrative makes those disagreements visible early. If one reader imagines a self-service tool and another imagines a staffed program, the draft has revealed an unresolved operating choice. Put a question beside each contested sentence. The narrative is a test object, not a launch announcement. Its value is that a customer or colleague can point to the part they doubt. Now the team can learn whether the concept is understood before investing in the full build. Read the concept to someone outside the project. Ask them to explain it back in their own words. Their confusion may expose a decision your team has quietly postponed.",
+      "narration_sha256": "6f600d99d1c79c1971148da3c62b3fa22001729bf9862a327376bf126ca4693f",
+      "on_screen_copy": "Explain the future before building it",
+      "shot": "Make the future concept explainable.",
+      "visual": "book-attributed VisionScope and MarketCraft title cards; a synthetic one-page concept narrative; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c024.xhtml",
+          "c025.xhtml"
+        ],
+        "scene_source": "Ch22, “The Problem with Early-Stage Ideas,” “The Tools: VisionScope + MarketCraft” (`c025.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L13-04:3acceee930227d55",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L13-05",
+      "title": "Challenge the story across contexts",
+      "start_seconds": 446,
+      "end_seconds": 553,
+      "narration": "The book's collaboration example surfaces questions about differentiation, infrastructure, notifications, and data. We can use that discipline with our fictional concept. Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence. If a model generates their reactions, keep Simulation visible. These are possible objections, not interviews. A new member may ask whether the shorter commitment changes access. A staff operator may ask how pauses are handled. A funder may ask what outcome the team will measure. None of these imagined questions proves what any real person thinks. Each tells us what to check. The book warns against treating polished future copy as validation. It also warns that a convincing simulated response can hide a weak underlying idea. So mark every claim in the concept: sourced, assumed, or awaiting observation. Where a sentence promises a result, remove the promise until evidence supports it. Where the audience cannot tell what actually changes, rewrite the sentence. Then choose the first real conversation or approved observation that could challenge the concept. This is where the story becomes useful: it gives people something precise enough to question. An objection is strongest when it names the exact sentence and the experience behind the concern. Keep that link in the card so the next revision responds to a real question.",
+      "narration_sha256": "56f84ebf4a9f301f7f19fafa4be677bfbac76fbb513184b748630deaa2abb06e",
+      "on_screen_copy": "A reaction is a question to test",
+      "shot": "Challenge the story across contexts.",
+      "visual": "three clearly fictional audience cards and an evidence column; persistent Simulation label on imagined responses; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L13-05",
+        "start_seconds": 446,
+        "end_seconds": 477.471,
+        "duration_seconds": 31.471,
+        "narration_text": "The book's collaboration example surfaces questions about differentiation, infrastructure, notifications, and data. We can use that discipline with our fictional concept. Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence. If a model generates their reactions, keep Simulation visible. These are possible objections, not interviews. A new member may ask whether the shorter commitment changes access.",
+        "handoff_visual": "three clearly fictional audience cards and an evidence column; persistent Simulation label on imagined responses; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c024.xhtml",
+          "c025.xhtml"
+        ],
+        "scene_source": "Ch22, “A Real Example: The Collaboration Feature That Almost Wasn't,” “What These Tools Are NOT,” “Common Mistakes” (`c025.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L13-05:3acceee930227d55",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L13-06",
+      "title": "Hand off a strategic choice",
+      "start_seconds": 553,
+      "end_seconds": 660,
+      "narration": "Pause and complete two pages of the decision file. On the first, show the current model and at least two alternatives. For each, write the customer job it serves, the operating change it demands, the risk, and the evidence still missing. Choose one alternative to test; record why the others wait. On the second page, write the one-hundred-word future concept, one objection from each relevant audience, and the smallest real test that could disprove your favored story. Resume when you can name an owner, a review date, and a stop condition without appealing to a simulated vote. If you are using your own work, use public, synthetic, or approved material. Keep private customer and financial records in their authorized systems. The book's named tools have helped us frame the work, but this packet does not establish that those tools are live or that the book's results will recur. The next lesson asks how to carry the same evidence into two different decision rooms. Bring the chosen option and its unresolved question forward. A future story earns resources when the people who must live with it can understand and challenge it. The sheet can remain incomplete. An empty evidence cell is a request for work, not a failure of presentation. It tells the next reviewer where a decision is still exposed.",
+      "narration_sha256": "26c4f433184294c16209d87a6e5871268bc965588576691a3ab0aa7a024fc205",
+      "on_screen_copy": "Choice · cost · test · owner",
+      "shot": "Hand off a strategic choice.",
+      "visual": "completed alternatives sheet and concept-test card; Momentum plate returns; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L13-06",
+        "start_seconds": 632.277,
+        "end_seconds": 654.65,
+        "duration_seconds": 22.373,
+        "narration_text": "Bring the chosen option and its unresolved question forward. A future story earns resources when the people who must live with it can understand and challenge it. The sheet can remain incomplete. An empty evidence cell is a request for work, not a failure of presentation.",
+        "handoff_visual": "completed alternatives sheet and concept-test card; Momentum plate returns; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c024.xhtml",
+          "c025.xhtml"
+        ],
+        "scene_source": "Ch21, “Bottom Line” (`c024.xhtml`); Ch22, “A Complete Workflow Example,” “Bottom Line” (`c025.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L13-06:3acceee930227d55",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 1.942,
+      "text": "Picture a Monday meeting.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 1.942,
+      "end": 3.884,
+      "text": "The dashboard is flat.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 3.884,
+      "end": 14.079,
+      "text": "Someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 14.079,
+      "end": 18.934,
+      "text": "In Chapter Twenty-One, Sam faces that pressure and opens StratQuest.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 18.934,
+      "end": 21.361,
+      "text": "This is a book story.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 21.361,
+      "end": 25.245,
+      "text": "Our membership-service example is a separate teaching exercise.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 25.245,
+      "end": 32.527,
+      "text": "Its numbers are intentionally blank because we have observed no customer result for this exercise.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 32.527,
+      "end": 34.954,
+      "text": "Start with four possible constraints.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 34.954,
+      "end": 37.867,
+      "text": "Is the customer job poorly understood?",
+      "scene": "L13-01"
+    },
+    {
+      "start": 37.867,
+      "end": 40.78,
+      "text": "Is the product hard to use?",
+      "scene": "L13-01"
+    },
+    {
+      "start": 40.78,
+      "end": 46.12,
+      "text": "Does the way people pay conflict with when they receive value?",
+      "scene": "L13-01"
+    },
+    {
+      "start": 46.12,
+      "end": 50.004,
+      "text": "Or is the offer reaching the wrong buyer?",
+      "scene": "L13-01"
+    },
+    {
+      "start": 50.004,
+      "end": 53.402,
+      "text": "Each explanation points to a different test.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 53.402,
+      "end": 56.801,
+      "text": "A flat chart alone cannot distinguish them.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 56.801,
+      "end": 62.141,
+      "text": "Bring forward the job and evidence gap from the last lesson.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 62.141,
+      "end": 68.938,
+      "text": "If the job is unverified, price changes may only make an unclear service cheaper.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 68.938,
+      "end": 76.705,
+      "text": "If the job is clear and people use the service in bursts, the model deserves scrutiny.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 76.705,
+      "end": 81.56,
+      "text": "Write the assumption that would make a model change sensible.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 81.56,
+      "end": 83.988,
+      "text": "Put its source beside it.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 83.988,
+      "end": 97.095,
+      "text": "A strategic conversation gets better when the room can see which claim came from a person, which came from a record, and which is still a guess.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 97.095,
+      "end": 100.494,
+      "text": "We are diagnosing before we commit resources.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 100.494,
+      "end": 105.834,
+      "text": "A useful diagnosis can also rule out the most attractive explanation.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 105.834,
+      "end": 110.689,
+      "text": "Record the rejected explanation and the evidence that weakened it.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 110.689,
+      "end": 117,
+      "text": "That line may save the team from revisiting the same argument next month.",
+      "scene": "L13-01"
+    },
+    {
+      "start": 117,
+      "end": 121.844,
+      "text": "StratQuest is the name of the book's guided strategy case.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 121.844,
+      "end": 130.08,
+      "text": "The chapter compares usage-based pricing, a seasonal freemium upgrade, and a professional-services hybrid for a subscription problem.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 130.08,
+      "end": 134.924,
+      "text": "Those are its alternatives, not a recommendation for every business.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 134.924,
+      "end": 137.831,
+      "text": "Put the options side by side.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 137.831,
+      "end": 145.582,
+      "text": "Usage-based pricing can align payment with active use, but billing and cash flow become more variable.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 145.582,
+      "end": 157.209,
+      "text": "A free tier can lower the first commitment, but a generous free offer may never lead to the job people will pay to complete.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 157.209,
+      "end": 165.444,
+      "text": "Services can bring expert help close to the customer, but delivery capacity becomes part of the model.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 165.444,
+      "end": 171.742,
+      "text": "For our fictional membership service, borrow the comparison method, not the book's results.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 171.742,
+      "end": 180.462,
+      "text": "Ask who pays, when value arrives, what work staff must do, and what would make the change reversible.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 180.462,
+      "end": 184.338,
+      "text": "Keep a fourth column for the current model.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 184.338,
+      "end": 191.604,
+      "text": "The current choice is an alternative too; it carries costs and deserves a fair test.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 191.604,
+      "end": 195.48,
+      "text": "A model is a set of operating promises.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 195.48,
+      "end": 200.324,
+      "text": "It changes invoices, service rhythms, support, and the customer's expectations.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 200.324,
+      "end": 207.107,
+      "text": "If we cannot explain those consequences, we are not ready to announce a pivot.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 207.107,
+      "end": 210.982,
+      "text": "We are ready to ask a better question.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 210.982,
+      "end": 213.889,
+      "text": "Keep this comparison on one page.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 213.889,
+      "end": 226,
+      "text": "If the proposal requires a second system, a new contract, or more staff time, write that requirement in the same row as its promised benefit.",
+      "scene": "L13-02"
+    },
+    {
+      "start": 226,
+      "end": 231.359,
+      "text": "The fourth StratQuest session turns a preferred option into a test.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 231.359,
+      "end": 238.179,
+      "text": "In the book case, a cohort compares a flexible price with the existing subscription.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 238.179,
+      "end": 245.0,
+      "text": "We will not copy its percentages into our exercise or promise the same outcome.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 245.0,
+      "end": 252.308,
+      "text": "Suppose our fictional membership service wonders whether a shorter commitment would help new members begin.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 252.308,
+      "end": 265.462,
+      "text": "A first test could be a concept interview with approved participants, followed by a small, consented offer test only if the organization can fulfill the new terms.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 265.462,
+      "end": 271.795,
+      "text": "Decide what evidence would support the idea and what would make you stop.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 271.795,
+      "end": 274.231,
+      "text": "Conversion alone is too narrow.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 274.231,
+      "end": 282.513,
+      "text": "Check whether people understand the offer, whether staff can deliver it, and whether the economics remain viable.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 282.513,
+      "end": 287.872,
+      "text": "Put the test in the ten-component learning plan from Lesson Eight.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 287.872,
+      "end": 292.744,
+      "text": "Name the owner and the date before seeing any result.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 292.744,
+      "end": 301.513,
+      "text": "If the test could affect billing or access, a responsible operator reviews the terms before any live exposure.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 301.513,
+      "end": 304.923,
+      "text": "For this workshop, the card remains fictional.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 304.923,
+      "end": 318.564,
+      "text": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 318.564,
+      "end": 324.897,
+      "text": "The test should reduce uncertainty without making a promise the team cannot keep.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 324.897,
+      "end": 327.333,
+      "text": "Make the stop condition observable.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 327.333,
+      "end": 340,
+      "text": "A vague sense that the test is not working will be hard to use when the team has already invested effort and hopes the result improves.",
+      "scene": "L13-03"
+    },
+    {
+      "start": 340,
+      "end": 346.292,
+      "text": "A model choice can sound logical inside the team and confusing outside it.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 346.292,
+      "end": 349.68,
+      "text": "Chapter Twenty-Two brings in VisionScope and MarketCraft.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 349.68,
+      "end": 358.877,
+      "text": "The book presents VisionScope as a way to articulate an early concept, including a future-facing announcement and hard questions.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 358.877,
+      "end": 361.781,
+      "text": "MarketCraft pressures the positioning across audiences.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 361.781,
+      "end": 367.589,
+      "text": "These are named book cases; we are not demonstrating a live product.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 367.589,
+      "end": 371.945,
+      "text": "Write a one-hundred-word explanation of the proposed membership change.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 371.945,
+      "end": 374.365,
+      "text": "Begin with the person's situation.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 374.365,
+      "end": 383.562,
+      "text": "Say what they could do differently, when they would see value, and what the organization would need to provide.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 383.562,
+      "end": 386.95,
+      "text": "Leave out imaginary testimonials and performance figures.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 386.95,
+      "end": 394.694,
+      "text": "The book's collaboration-feature example is useful because different departments pictured different products under the same phrase.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 394.694,
+      "end": 398.566,
+      "text": "A clear narrative makes those disagreements visible early.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 398.566,
+      "end": 408.731,
+      "text": "If one reader imagines a self-service tool and another imagines a staffed program, the draft has revealed an unresolved operating choice.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 408.731,
+      "end": 412.119,
+      "text": "Put a question beside each contested sentence.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 412.119,
+      "end": 416.959,
+      "text": "The narrative is a test object, not a launch announcement.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 416.959,
+      "end": 424.219,
+      "text": "Its value is that a customer or colleague can point to the part they doubt.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 424.219,
+      "end": 431.963,
+      "text": "Now the team can learn whether the concept is understood before investing in the full build.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 431.963,
+      "end": 435.836,
+      "text": "Read the concept to someone outside the project.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 435.836,
+      "end": 440.676,
+      "text": "Ask them to explain it back in their own words.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 440.676,
+      "end": 446,
+      "text": "Their confusion may expose a decision your team has quietly postponed.",
+      "scene": "L13-04"
+    },
+    {
+      "start": 446,
+      "end": 451.81,
+      "text": "The book's collaboration example surfaces questions about differentiation, infrastructure, notifications, and data.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 451.81,
+      "end": 456.167,
+      "text": "We can use that discipline with our fictional concept.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 456.167,
+      "end": 464.882,
+      "text": "Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 464.882,
+      "end": 469.24,
+      "text": "If a model generates their reactions, keep Simulation visible.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 469.24,
+      "end": 472.145,
+      "text": "These are possible objections, not interviews.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 472.145,
+      "end": 477.471,
+      "text": "A new member may ask whether the shorter commitment changes access.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 477.471,
+      "end": 481.828,
+      "text": "A staff operator may ask how pauses are handled.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 481.828,
+      "end": 486.67,
+      "text": "A funder may ask what outcome the team will measure.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 486.67,
+      "end": 491.995,
+      "text": "None of these imagined questions proves what any real person thinks.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 491.995,
+      "end": 494.9,
+      "text": "Each tells us what to check.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 494.9,
+      "end": 499.742,
+      "text": "The book warns against treating polished future copy as validation.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 499.742,
+      "end": 506.52,
+      "text": "It also warns that a convincing simulated response can hide a weak underlying idea.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 506.52,
+      "end": 512.33,
+      "text": "So mark every claim in the concept: sourced, assumed, or awaiting observation.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 512.33,
+      "end": 518.624,
+      "text": "Where a sentence promises a result, remove the promise until evidence supports it.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 518.624,
+      "end": 523.95,
+      "text": "Where the audience cannot tell what actually changes, rewrite the sentence.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 523.95,
+      "end": 530.729,
+      "text": "Then choose the first real conversation or approved observation that could challenge the concept.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 530.729,
+      "end": 537.991,
+      "text": "This is where the story becomes useful: it gives people something precise enough to question.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 537.991,
+      "end": 545.738,
+      "text": "An objection is strongest when it names the exact sentence and the experience behind the concern.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 545.738,
+      "end": 553,
+      "text": "Keep that link in the card so the next revision responds to a real question.",
+      "scene": "L13-05"
+    },
+    {
+      "start": 553,
+      "end": 557.377,
+      "text": "Pause and complete two pages of the decision file.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 557.377,
+      "end": 563.214,
+      "text": "On the first, show the current model and at least two alternatives.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 563.214,
+      "end": 572.941,
+      "text": "For each, write the customer job it serves, the operating change it demands, the risk, and the evidence still missing.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 572.941,
+      "end": 577.805,
+      "text": "Choose one alternative to test; record why the others wait.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 577.805,
+      "end": 590.45,
+      "text": "On the second page, write the one-hundred-word future concept, one objection from each relevant audience, and the smallest real test that could disprove your favored story.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 590.45,
+      "end": 600.177,
+      "text": "Resume when you can name an owner, a review date, and a stop condition without appealing to a simulated vote.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 600.177,
+      "end": 606.5,
+      "text": "If you are using your own work, use public, synthetic, or approved material.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 606.5,
+      "end": 611.364,
+      "text": "Keep private customer and financial records in their authorized systems.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 611.364,
+      "end": 624.982,
+      "text": "The book's named tools have helped us frame the work, but this packet does not establish that those tools are live or that the book's results will recur.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 624.982,
+      "end": 632.277,
+      "text": "The next lesson asks how to carry the same evidence into two different decision rooms.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 632.277,
+      "end": 636.655,
+      "text": "Bring the chosen option and its unresolved question forward.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 636.655,
+      "end": 645.409,
+      "text": "A future story earns resources when the people who must live with it can understand and challenge it.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 645.409,
+      "end": 647.841,
+      "text": "The sheet can remain incomplete.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 647.841,
+      "end": 654.65,
+      "text": "An empty evidence cell is a request for work, not a failure of presentation.",
+      "scene": "L13-06"
+    },
+    {
+      "start": 654.65,
+      "end": 660,
+      "text": "It tells the next reviewer where a decision is still exposed.",
+      "scene": "L13-06"
+    }
+  ],
+  "assets": {
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause during Scene 6. Complete the strategic alternatives sheet and concept-test card. Resume only after the source, owner, review date, evidence gap, and stop or revision condition are explicit. Use public, synthetic, or approved input. Private customer or company material stays in its authorized system.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 32.527,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 32.527,
+      "end_seconds": 226,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 226,
+      "end_seconds": 252.308,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 252.308,
+      "end_seconds": 446,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 446,
+      "end_seconds": 477.471,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 477.471,
+      "end_seconds": 632.277,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 632.277,
+      "end_seconds": 654.65,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 654.65,
+      "end_seconds": 660,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L13-01",
+        "start_seconds": 0,
+        "end_seconds": 32.527,
+        "duration_seconds": 32.527,
+        "narration_text": "Picture a Monday meeting. The dashboard is flat. Someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In Chapter Twenty-One, Sam faces that pressure and opens StratQuest. This is a book story. Our membership-service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise.",
+        "handoff_visual": "approved Momentum plate, then a fictional membership-service metric card with no invented result; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L13-03",
+        "start_seconds": 226,
+        "end_seconds": 252.308,
+        "duration_seconds": 26.308,
+        "narration_text": "The fourth StratQuest session turns a preferred option into a test. In the book case, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin.",
+        "handoff_visual": "synthetic test card with hypothesis, cohort, measure, review date, and stop condition; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L13-05",
+        "start_seconds": 446,
+        "end_seconds": 477.471,
+        "duration_seconds": 31.471,
+        "narration_text": "The book's collaboration example surfaces questions about differentiation, infrastructure, notifications, and data. We can use that discipline with our fictional concept. Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence. If a model generates their reactions, keep Simulation visible. These are possible objections, not interviews. A new member may ask whether the shorter commitment changes access.",
+        "handoff_visual": "three clearly fictional audience cards and an evidence column; persistent Simulation label on imagined responses; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L13-06",
+        "start_seconds": 632.277,
+        "end_seconds": 654.65,
+        "duration_seconds": 22.373,
+        "narration_text": "Bring the chosen option and its unresolved question forward. A future story earns resources when the people who must live with it can understand and challenge it. The sheet can remain incomplete. An empty evidence cell is a request for work, not a failure of presentation.",
+        "handoff_visual": "completed alternatives sheet and concept-test card; Momentum plate returns; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

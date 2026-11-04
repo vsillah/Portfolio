@@ -1,0 +1,82 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "publication_authorization": null,
+  "external_send_authorization": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L05-01",
+      "start_seconds": 0,
+      "end_seconds": 25.743,
+      "duration_seconds": 25.743,
+      "narration_text": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full, and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change.",
+      "handoff_visual": "S notes; A2.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L05-03",
+      "start_seconds": 200,
+      "end_seconds": 223.256,
+      "duration_seconds": 23.256,
+      "narration_text": "The book has a useful warning here. In the “Just Make It Faster” case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views.",
+      "handoff_visual": "S cards sourced to Ch7; no book-case numbers.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L05-05",
+      "start_seconds": 400,
+      "end_seconds": 417.453,
+      "duration_seconds": 17.453,
+      "narration_text": "Our six notes support a question, not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation, and one suggests an entry point that helped.",
+      "handoff_visual": "S ledger and L04 card.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L05-06",
+      "start_seconds": 573.934,
+      "end_seconds": 588.626,
+      "duration_seconds": 14.692,
+      "narration_text": "You can make a decision under uncertainty as long as the uncertainty travels with it. In the next lesson, this proposed choice enters a roadmap and then a product requirements document.",
+      "handoff_visual": "S worksheet; A3.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L05",
+  "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab"
+}

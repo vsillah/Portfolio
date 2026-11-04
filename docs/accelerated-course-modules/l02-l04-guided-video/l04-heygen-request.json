@@ -1,0 +1,69 @@
+{
+  "provider": "HeyGen",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L04-01",
+      "start_seconds": 0,
+      "end_seconds": 28.235,
+      "duration_seconds": 28.235,
+      "narration_text": "We are back at the Q3 Innovation Plan. The page is no longer empty. You have chosen a priority and written down the evidence that could change your mind. But the broad idea is still sitting there: improve the member experience. Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything. Those ambitions can be useful.",
+      "handoff_visual": "S: same fictional document continuity.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L04-03",
+      "start_seconds": 165,
+      "end_seconds": 180.241,
+      "duration_seconds": 15.241,
+      "narration_text": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment.",
+      "handoff_visual": "S: text cards; no real Sarah image.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L04-05",
+      "start_seconds": 350,
+      "end_seconds": 369.213,
+      "duration_seconds": 19.213,
+      "narration_text": "A living persona needs a record of where it came from. On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question. Add a source and a review date.",
+      "handoff_visual": "S: card template.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L04-07",
+      "start_seconds": 572.908,
+      "end_seconds": 594.862,
+      "duration_seconds": 21.954,
+      "narration_text": "That is a real working file, even if much of it is still provisional. In the next lesson, the workshop will turn more raw feedback into traceable signal. For now, hold on to the small question. Build only enough to learn. Keep the card open to correction.",
+      "handoff_visual": "S: cover, priority, evidence-gap, persona.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio",
+    "quote absent or above cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L04",
+  "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f"
+}

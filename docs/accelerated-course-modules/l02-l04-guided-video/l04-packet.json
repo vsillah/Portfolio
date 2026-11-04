@@ -1,0 +1,967 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L04",
+  "title": "Build small; keep personas alive",
+  "runtime_seconds": 600,
+  "learner_artifact": "Living persona card with source and review date",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L04.md",
+  "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "d9b6a46def5756831e1788cdf97769347048cc9318e87061dbae7bbf962ca1b6",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c008.xhtml",
+    "c009.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L04-01",
+      "title": "The large idea returns",
+      "start_seconds": 0,
+      "end_seconds": 80,
+      "narration": "We are back at the Q3 Innovation Plan. The page is no longer empty. You have chosen a priority and written down the evidence that could change your mind. But the broad idea is still sitting there: improve the member experience. Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything. Those ambitions can be useful. They are hard to test as a single bet. Chapter Five of Accelerated opens with an empty planning document and asks us to think big while building small. The first move is to shrink the question. Instead of “What should we build for everyone?” ask, “What is one moment we can understand better this week?” In our fictional membership service, that moment is the first task after someone joins. A small prototype can show us whether the instruction helps a person begin. It cannot prove the whole program works. That is fine. The point of a small test is to let reality correct the plan before the plan becomes expensive.",
+      "narration_sha256": "4bc890aa3129056f34cb7a37fd7a1a2a4e9a98f3c0f3c56c7794413647cd9bce",
+      "on_screen_copy": "One moment. One test.",
+      "shot": "Avatar opens; Q3 plan has one highlighted decision; zoom to one moment.",
+      "visual": "S: same fictional document continuity.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A01",
+        "scene": "L04-01",
+        "start_seconds": 0,
+        "end_seconds": 28.235,
+        "duration_seconds": 28.235,
+        "narration_text": "We are back at the Q3 Innovation Plan. The page is no longer empty. You have chosen a priority and written down the evidence that could change your mind. But the broad idea is still sitting there: improve the member experience. Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything. Those ambitions can be useful.",
+        "handoff_visual": "S: same fictional document continuity.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration distinguishes broad aim from small test.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c008.xhtml",
+          "c009.xhtml"
+        ],
+        "scene_source": "Ch5, “T HINK BIG... BUILD Small,” “Step 1: Shrink the Question” (`c008.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L04-01:3b6a268fa8d19a62",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L04-02",
+      "title": "The persona deck",
+      "start_seconds": 80,
+      "end_seconds": 165,
+      "narration": "Now picture the persona deck beside that plan. It looks finished. There is a stock photo, a name, a city, a favorite app, and a line about wanting convenience. In Chapter Six, I describe a gorgeous deck that did not help my team make decisions. That is an uncomfortable confession because the work looked careful. The question was whether the details pointed to a real moment in the product. If we say our member is thirty-four and busy, what should the team do differently on the first task? We do not know. If we say the member needs to understand where to start without asking for help, we can observe a situation, compare a design, and notice what we missed. The first statement paints a person. The second names a job in context. Do not throw away demographic information when it is genuinely relevant and responsibly gathered. Just do not let a polished portrait stand in for evidence about behavior. The persona has to earn its place in the decision.",
+      "narration_sha256": "d6800f3939e1d6a900c124a132a917305c85212c2edc9cde968871ebc2f3ec5f",
+      "on_screen_copy": "Job + context",
+      "shot": "Gorgeous but unhelpful persona slide becomes blank job card.",
+      "visual": "S: fictional portrait-free slide; no generated face.",
+      "asset_refs": [],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration explains why attributes do not answer choice.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c008.xhtml",
+          "c009.xhtml"
+        ],
+        "scene_source": "Ch6, “T HE PERSONA TRAP,” “Why Your Personas Are Probably Lying to You” (`c009.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L04-02:3b6a268fa8d19a62",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L04-03",
+      "title": "From who to what",
+      "start_seconds": 165,
+      "end_seconds": 260,
+      "narration": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment. In the book example, she is preparing for a Monday meeting and needs progress updates without sending messages that make her feel like a micromanager. That gives a team something to work with. There is a time pressure, a current workaround, and a risk to trust. The same person can have a different job on Wednesday when a blocked project needs attention. That is why a living persona follows the situation, not only the person. For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis. We have not interviewed a member. We can still use it to decide what to test and what to ask. Put a question mark beside the part you are least sure about. The mark is a reminder to listen, not a flaw in the card.",
+      "narration_sha256": "896567e9a01a8db3bb741aab9537205197bfdebd577ef2adee17aabad65ff497",
+      "on_screen_copy": "Observed signal ≠ proposed signal",
+      "shot": "Avatar pivot; Sarah book situation, then fictional member job sentence.",
+      "visual": "S: text cards; no real Sarah image.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A02",
+        "scene": "L04-03",
+        "start_seconds": 165,
+        "end_seconds": 180.241,
+        "duration_seconds": 15.241,
+        "narration_text": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment.",
+        "handoff_visual": "S: text cards; no real Sarah image.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration marks Sarah as book case and member as hypothesis.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c008.xhtml",
+          "c009.xhtml"
+        ],
+        "scene_source": "Ch6, “The Shift: From \\\"Who Is Sarah?\\\" to \\\"What Is Sarah Trying to Do?\\\"”, “Building Personas from JTBD Clusters” (`c009.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L04-03:3b6a268fa8d19a62",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L04-04",
+      "title": "Build a smaller thing",
+      "start_seconds": 260,
+      "end_seconds": 350,
+      "narration": "Once the job is visible, the build can get smaller. We do not need a complete onboarding platform to learn whether the first action is clear. We can make three versions of a first-task card: one with a short instruction, one with a guided step, and one that points to a person for help. Then we can ask what each version asks of the member and of the staff. The book's sequence matters. Shrink the question. Generate possible approaches without falling in love with the first one. Anchor the choice to strategy. Let AI help with an early draft if the inputs are safe. A quick draft is useful because it gives us something to inspect. It is not a user test. In the synthetic demonstration, I choose the guided step as the first prototype because it addresses the starting-point question from our decision file. I keep the other versions visible. If research shows that the instruction was already clear, I will change course. The purpose of the prototype is to put the assumption where we can see it.",
+      "narration_sha256": "1c4ae726522a1a17c5e1683fe4a1136f5e9ed85392428144bc9eca519a1759a7",
+      "on_screen_copy": "Uncertainty",
+      "shot": "Three first-task prototype versions; guided path selected provisionally.",
+      "visual": "S: low-fidelity UI cards, no Portfolio product claim.",
+      "asset_refs": [],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration states prototype is not user test.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c008.xhtml",
+          "c009.xhtml"
+        ],
+        "scene_source": "Ch5, “Step 1: Shrink the Question,” “Step 2: Generate Without Attachment,” “Step 3: Anchor to Strategy,” “Step 4: Let AI Speed Up the First Draft” (`c008.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L04-04:3b6a268fa8d19a62",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L04-05",
+      "title": "Add evidence and uncertainty",
+      "start_seconds": 350,
+      "end_seconds": 440,
+      "narration": "A living persona needs a record of where it came from. On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question. Add a source and a review date. If this card is based on a real interview or a permitted product signal, cite the approved record without exposing the person in the course file. If it is a synthetic exercise, say so in the working evidence layer and leave “observed signal” blank. You can write a proposed signal to look for, but do not call it observed. Chapter Six is explicit that synthetic data can help generate hypotheses. It cannot replace real research or justify a high-stakes irreversible decision. This is especially easy to forget when a simulated person speaks in a convincing voice. A plausible quote is still invented. In our example, we do not know where actual members hesitate. The card should say that plainly. A useful persona can hold an unknown without collapsing. That is how it stays alive long enough to become more accurate.",
+      "narration_sha256": "25f5765c3a26788be96fad16aa31ef8aab363007c471c863384dc5a2af9d7912",
+      "on_screen_copy": "Next validation question",
+      "shot": "Avatar setup; living-persona fields fill, observed signal stays blank.",
+      "visual": "S: card template.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A03",
+        "scene": "L04-05",
+        "start_seconds": 350,
+        "end_seconds": 369.213,
+        "duration_seconds": 19.213,
+        "narration_text": "A living persona needs a record of where it came from. On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question. Add a source and a review date.",
+        "handoff_visual": "S: card template.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration says blank is honest and synthetic is hypothesis.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c008.xhtml",
+          "c009.xhtml"
+        ],
+        "scene_source": "Ch6, “Building Personas from JTBD Clusters,” “The Full Loop,” “A PSA About Synthetic Data” (`c009.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L04-05:3b6a268fa8d19a62",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L04-06",
+      "title": "Revisit the person, not the picture",
+      "start_seconds": 440,
+      "end_seconds": 529,
+      "narration": "Imagine the test happens and the team learns that members understand the first instruction but pause because they cannot tell how long the task will take. That would change the card. The job might be less about finding the next action and more about knowing whether there is enough time to begin. I am making up that result to show how revision works; it is not a claim about a product or a customer. The important move is to date the update and keep the old assumption visible in the decision file. A persona that changes with evidence is more useful than a deck that stays beautiful while the work moves on. This does not require collecting every click or building a profile of every person. It requires consent, an approved source, and the discipline to separate what you observed from what you inferred. Ask whether the card helps you make today's product choice. If it cannot, revise the job or the question. The person behind the work deserves that care.",
+      "narration_sha256": "b996e31c174e0ce23934e0c9123e5f380b868cf5f6002cec98ed37998d341904",
+      "on_screen_copy": "Source + review date",
+      "shot": "Before/after card demonstrates *imagined* revision; old assumption remains.",
+      "visual": "S: simulated revision, not customer proof.",
+      "asset_refs": [],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Spoken line itself states example is made up; no fake quote.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c008.xhtml",
+          "c009.xhtml"
+        ],
+        "scene_source": "Ch6, “Why Your Personas Are Probably Lying to You,” “Make Personas Useful Again,” “Bottom Line” (`c009.xhtml`); Ch5, “Step 1: Shrink the Question” (`c008.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L04-06:3b6a268fa8d19a62",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L04-07",
+      "title": "The first file is ready",
+      "start_seconds": 529,
+      "end_seconds": 600,
+      "narration": "Pause and finish one living persona card. Write the job in a specific moment, the current workaround if you know it, the observed signal or an honest blank, the biggest uncertainty, the next question, the source, and the date you will review it. Then look at all four pages of your decision file. The first page names the choice and the data boundary. The second shows the priority and the alternatives. The third names evidence that could change your mind. This page keeps the human situation in view while you design a small test. That is a real working file, even if much of it is still provisional. In the next lesson, the workshop will turn more raw feedback into traceable signal. For now, hold on to the small question. Build only enough to learn. Keep the card open to correction. That is how we move faster without leaving the person behind.",
+      "narration_sha256": "ce3545e48b72c2e384899343cda3121aa11af5dded745cf3884d8019f0d66be4",
+      "on_screen_copy": "Decision file: boundary → priority → evidence → persona",
+      "shot": "Four decision-file pages stack; avatar close.",
+      "visual": "S: cover, priority, evidence-gap, persona.",
+      "asset_refs": [],
+      "presenter": {
+        "id": "A04",
+        "scene": "L04-07",
+        "start_seconds": 572.908,
+        "end_seconds": 594.862,
+        "duration_seconds": 21.954,
+        "narration_text": "That is a real working file, even if much of it is still provisional. In the next lesson, the workshop will turn more raw feedback into traceable signal. For now, hold on to the small question. Build only enough to learn. Keep the card open to correction.",
+        "handoff_visual": "S: cover, priority, evidence-gap, persona.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names each page and next action.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c008.xhtml",
+          "c009.xhtml"
+        ],
+        "scene_source": "Ch5, “Step 1: Shrink the Question” (`c008.xhtml`); Ch6, “The Full Loop,” “Bottom Line” (`c009.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L04-07:3b6a268fa8d19a62",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 3.765,
+      "text": "We are back at the Q3 Innovation Plan.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 3.765,
+      "end": 6.588,
+      "text": "The page is no longer empty.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 6.588,
+      "end": 13.647,
+      "text": "You have chosen a priority and written down the evidence that could change your mind.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 13.647,
+      "end": 19.294,
+      "text": "But the broad idea is still sitting there: improve the member experience.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 19.294,
+      "end": 25.882,
+      "text": "Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 25.882,
+      "end": 28.235,
+      "text": "Those ambitions can be useful.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 28.235,
+      "end": 32.471,
+      "text": "They are hard to test as a single bet.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 32.471,
+      "end": 41.412,
+      "text": "Chapter Five of Accelerated opens with an empty planning document and asks us to think big while building small.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 41.412,
+      "end": 45.176,
+      "text": "The first move is to shrink the question.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 45.176,
+      "end": 60.706,
+      "text": "Instead of “What should we build for everyone?” ask, “What is one moment we can understand better this week?” In our fictional membership service, that moment is the first task after someone joins.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 60.706,
+      "end": 66.824,
+      "text": "A small prototype can show us whether the instruction helps a person begin.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 66.824,
+      "end": 70.118,
+      "text": "It cannot prove the whole program works.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 70.118,
+      "end": 71.529,
+      "text": "That is fine.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 71.529,
+      "end": 80,
+      "text": "The point of a small test is to let reality correct the plan before the plan becomes expensive.",
+      "scene": "L04-01"
+    },
+    {
+      "start": 80,
+      "end": 84.0,
+      "text": "Now picture the persona deck beside that plan.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 84.0,
+      "end": 85.5,
+      "text": "It looks finished.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 85.5,
+      "end": 94.5,
+      "text": "There is a stock photo, a name, a city, a favorite app, and a line about wanting convenience.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 94.5,
+      "end": 102.5,
+      "text": "In Chapter Six, I describe a gorgeous deck that did not help my team make decisions.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 102.5,
+      "end": 107.5,
+      "text": "That is an uncomfortable confession because the work looked careful.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 107.5,
+      "end": 114.5,
+      "text": "The question was whether the details pointed to a real moment in the product.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 114.5,
+      "end": 124.0,
+      "text": "If we say our member is thirty-four and busy, what should the team do differently on the first task?",
+      "scene": "L04-02"
+    },
+    {
+      "start": 124.0,
+      "end": 126.0,
+      "text": "We do not know.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 126.0,
+      "end": 140.0,
+      "text": "If we say the member needs to understand where to start without asking for help, we can observe a situation, compare a design, and notice what we missed.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 140.0,
+      "end": 143.0,
+      "text": "The first statement paints a person.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 143.0,
+      "end": 146.5,
+      "text": "The second names a job in context.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 146.5,
+      "end": 153.5,
+      "text": "Do not throw away demographic information when it is genuinely relevant and responsibly gathered.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 153.5,
+      "end": 160.0,
+      "text": "Just do not let a polished portrait stand in for evidence about behavior.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 160.0,
+      "end": 165,
+      "text": "The persona has to earn its place in the decision.",
+      "scene": "L04-02"
+    },
+    {
+      "start": 165,
+      "end": 168.556,
+      "text": "The book makes this shift with Sarah.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 168.556,
+      "end": 173.128,
+      "text": "A static description tells us who she supposedly is.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 173.128,
+      "end": 180.241,
+      "text": "A job description asks what she is trying to do in a particular moment.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 180.241,
+      "end": 192.941,
+      "text": "In the book example, she is preparing for a Monday meeting and needs progress updates without sending messages that make her feel like a micromanager.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 192.941,
+      "end": 197.005,
+      "text": "That gives a team something to work with.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 197.005,
+      "end": 203.61,
+      "text": "There is a time pressure, a current workaround, and a risk to trust.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 203.61,
+      "end": 211.738,
+      "text": "The same person can have a different job on Wednesday when a blocked project needs attention.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 211.738,
+      "end": 218.342,
+      "text": "That is why a living persona follows the situation, not only the person.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 218.342,
+      "end": 237.139,
+      "text": "For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 237.139,
+      "end": 240.187,
+      "text": "We have not interviewed a member.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 240.187,
+      "end": 247.299,
+      "text": "We can still use it to decide what to test and what to ask.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 247.299,
+      "end": 253.396,
+      "text": "Put a question mark beside the part you are least sure about.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 253.396,
+      "end": 260,
+      "text": "The mark is a reminder to listen, not a flaw in the card.",
+      "scene": "L04-03"
+    },
+    {
+      "start": 260,
+      "end": 265.028,
+      "text": "Once the job is visible, the build can get smaller.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 265.028,
+      "end": 273.073,
+      "text": "We do not need a complete onboarding platform to learn whether the first action is clear.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 273.073,
+      "end": 287.151,
+      "text": "We can make three versions of a first-task card: one with a short instruction, one with a guided step, and one that points to a person for help.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 287.151,
+      "end": 294.693,
+      "text": "Then we can ask what each version asks of the member and of the staff.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 294.693,
+      "end": 296.704,
+      "text": "The book's sequence matters.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 296.704,
+      "end": 298.212,
+      "text": "Shrink the question.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 298.212,
+      "end": 303.743,
+      "text": "Generate possible approaches without falling in love with the first one.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 303.743,
+      "end": 306.257,
+      "text": "Anchor the choice to strategy.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 306.257,
+      "end": 312.291,
+      "text": "Let AI help with an early draft if the inputs are safe.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 312.291,
+      "end": 318.324,
+      "text": "A quick draft is useful because it gives us something to inspect.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 318.324,
+      "end": 321.341,
+      "text": "It is not a user test.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 321.341,
+      "end": 332.905,
+      "text": "In the synthetic demonstration, I choose the guided step as the first prototype because it addresses the starting-point question from our decision file.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 332.905,
+      "end": 335.922,
+      "text": "I keep the other versions visible.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 335.922,
+      "end": 342.458,
+      "text": "If research shows that the instruction was already clear, I will change course.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 342.458,
+      "end": 350,
+      "text": "The purpose of the prototype is to put the assumption where we can see it.",
+      "scene": "L04-04"
+    },
+    {
+      "start": 350,
+      "end": 355.562,
+      "text": "A living persona needs a record of where it came from.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 355.562,
+      "end": 365.674,
+      "text": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 365.674,
+      "end": 369.213,
+      "text": "Add a source and a review date.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 369.213,
+      "end": 382.36,
+      "text": "If this card is based on a real interview or a permitted product signal, cite the approved record without exposing the person in the course file.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 382.36,
+      "end": 391.461,
+      "text": "If it is a synthetic exercise, say so in the working evidence layer and leave “observed signal” blank.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 391.461,
+      "end": 399.045,
+      "text": "You can write a proposed signal to look for, but do not call it observed.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 399.045,
+      "end": 404.607,
+      "text": "Chapter Six is explicit that synthetic data can help generate hypotheses.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 404.607,
+      "end": 410.169,
+      "text": "It cannot replace real research or justify a high-stakes irreversible decision.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 410.169,
+      "end": 417.753,
+      "text": "This is especially easy to forget when a simulated person speaks in a convincing voice.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 417.753,
+      "end": 420.787,
+      "text": "A plausible quote is still invented.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 420.787,
+      "end": 426.348,
+      "text": "In our example, we do not know where actual members hesitate.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 426.348,
+      "end": 429.382,
+      "text": "The card should say that plainly.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 429.382,
+      "end": 433.933,
+      "text": "A useful persona can hold an unknown without collapsing.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 433.933,
+      "end": 440,
+      "text": "That is how it stays alive long enough to become more accurate.",
+      "scene": "L04-05"
+    },
+    {
+      "start": 440,
+      "end": 453.532,
+      "text": "Imagine the test happens and the team learns that members understand the first instruction but pause because they cannot tell how long the task will take.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 453.532,
+      "end": 456.135,
+      "text": "That would change the card.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 456.135,
+      "end": 467.064,
+      "text": "The job might be less about finding the next action and more about knowing whether there is enough time to begin.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 467.064,
+      "end": 478.515,
+      "text": "I am making up that result to show how revision works; it is not a claim about a product or a customer.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 478.515,
+      "end": 487.883,
+      "text": "The important move is to date the update and keep the old assumption visible in the decision file.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 487.883,
+      "end": 498.292,
+      "text": "A persona that changes with evidence is more useful than a deck that stays beautiful while the work moves on.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 498.292,
+      "end": 505.579,
+      "text": "This does not require collecting every click or building a profile of every person.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 505.579,
+      "end": 514.947,
+      "text": "It requires consent, an approved source, and the discipline to separate what you observed from what you inferred.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 514.947,
+      "end": 520.152,
+      "text": "Ask whether the card helps you make today's product choice.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 520.152,
+      "end": 524.836,
+      "text": "If it cannot, revise the job or the question.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 524.836,
+      "end": 529,
+      "text": "The person behind the work deserves that care.",
+      "scene": "L04-06"
+    },
+    {
+      "start": 529,
+      "end": 532.27,
+      "text": "Pause and finish one living persona card.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 532.27,
+      "end": 549.086,
+      "text": "Write the job in a specific moment, the current workaround if you know it, the observed signal or an honest blank, the biggest uncertainty, the next question, the source, and the date you will review it.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 549.086,
+      "end": 553.757,
+      "text": "Then look at all four pages of your decision file.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 553.757,
+      "end": 558.428,
+      "text": "The first page names the choice and the data boundary.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 558.428,
+      "end": 562.164,
+      "text": "The second shows the priority and the alternatives.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 562.164,
+      "end": 566.368,
+      "text": "The third names evidence that could change your mind.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 566.368,
+      "end": 572.908,
+      "text": "This page keeps the human situation in view while you design a small test.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 572.908,
+      "end": 579.447,
+      "text": "That is a real working file, even if much of it is still provisional.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 579.447,
+      "end": 585.987,
+      "text": "In the next lesson, the workshop will turn more raw feedback into traceable signal.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 585.987,
+      "end": 589.724,
+      "text": "For now, hold on to the small question.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 589.724,
+      "end": 592.059,
+      "text": "Build only enough to learn.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 592.059,
+      "end": 594.862,
+      "text": "Keep the card open to correction.",
+      "scene": "L04-07"
+    },
+    {
+      "start": 594.862,
+      "end": 600,
+      "text": "That is how we move faster without leaving the person behind.",
+      "scene": "L04-07"
+    }
+  ],
+  "assets": {},
+  "exercise": "Pause at 08:55. Write a living persona card with job, context, current workaround if known, observed signal or blank, uncertainty, next question, source, and review date. Resume when it is attached to L03's evidence-gap card. Use only synthetic, public, or approved inputs. Private customer data, diagnostic responses, and client personas require a separate approved and redacted capture. A synthetic persona remains a hypothesis.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 28.235,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 28.235,
+      "end_seconds": 165,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 165,
+      "end_seconds": 180.241,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 180.241,
+      "end_seconds": 350,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 350,
+      "end_seconds": 369.213,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 369.213,
+      "end_seconds": 572.908,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 572.908,
+      "end_seconds": 594.862,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 594.862,
+      "end_seconds": 600,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L04-01",
+        "start_seconds": 0,
+        "end_seconds": 28.235,
+        "duration_seconds": 28.235,
+        "narration_text": "We are back at the Q3 Innovation Plan. The page is no longer empty. You have chosen a priority and written down the evidence that could change your mind. But the broad idea is still sitting there: improve the member experience. Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything. Those ambitions can be useful.",
+        "handoff_visual": "S: same fictional document continuity.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L04-03",
+        "start_seconds": 165,
+        "end_seconds": 180.241,
+        "duration_seconds": 15.241,
+        "narration_text": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment.",
+        "handoff_visual": "S: text cards; no real Sarah image.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L04-05",
+        "start_seconds": 350,
+        "end_seconds": 369.213,
+        "duration_seconds": 19.213,
+        "narration_text": "A living persona needs a record of where it came from. On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question. Add a source and a review date.",
+        "handoff_visual": "S: card template.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L04-07",
+        "start_seconds": 572.908,
+        "end_seconds": 594.862,
+        "duration_seconds": 21.954,
+        "narration_text": "That is a real working file, even if much of it is still provisional. In the next lesson, the workshop will turn more raw feedback into traceable signal. For now, hold on to the small question. Build only enough to learn. Keep the card open to correction.",
+        "handoff_visual": "S: cover, priority, evidence-gap, persona.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio",
+      "quote absent or above cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

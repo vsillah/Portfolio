@@ -1,0 +1,29 @@
+{
+  "status": "offline-review-only",
+  "lessons": [
+    {
+      "id": "L05",
+      "title": "From feedback to signal",
+      "packet": "l05-packet.json",
+      "runtime_seconds": 600
+    },
+    {
+      "id": "L06",
+      "title": "Roadmap to PRD, without drift",
+      "packet": "l06-packet.json",
+      "runtime_seconds": 660
+    },
+    {
+      "id": "L07",
+      "title": "Commit to learning",
+      "packet": "l07-packet.json",
+      "runtime_seconds": 600
+    },
+    {
+      "id": "L08",
+      "title": "Metrics and the ten-part learning plan",
+      "packet": "l08-packet.json",
+      "runtime_seconds": 720
+    }
+  ]
+}

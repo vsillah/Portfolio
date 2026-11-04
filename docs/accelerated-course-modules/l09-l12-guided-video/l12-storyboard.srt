@@ -1,0 +1,379 @@
+1
+00:00:00,000 --> 00:00:03,099
+The feedback pile is growing again.
+
+2
+00:00:03,099 --> 00:00:10,845
+One note says, “I could not tell where to start.” Another asks for a reminder.
+
+3
+00:00:10,845 --> 00:00:17,559
+A third says the task looked complete but the page gave no confirmation.
+
+4
+00:00:17,559 --> 00:00:23,239
+These are fictional member comments carried forward from our earlier exercise.
+
+5
+00:00:23,239 --> 00:00:35,117
+If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked.
+
+6
+00:00:35,117 --> 00:00:41,831
+Chapter Nineteen introduces ClientQ as a way to translate messy feedback into jobs.
+
+7
+00:00:41,831 --> 00:00:47,512
+The book case gives us a method for examining the notes.
+
+8
+00:00:47,512 --> 00:00:56,291
+The useful discipline is to keep every proposed job tied to the source note that suggested it.
+
+9
+00:00:56,291 --> 00:01:06,620
+Start with what the person was trying to do, the context in which it mattered, and the outcome they wanted.
+
+10
+00:01:06,620 --> 00:01:13,850
+Then ask whether another note points to the same job or a different one.
+
+11
+00:01:13,850 --> 00:01:18,498
+A cluster can be convenient and still be wrong.
+
+12
+00:01:18,498 --> 00:01:23,662
+We also need the contrary note that challenges the pattern.
+
+13
+00:01:23,662 --> 00:01:29,859
+In the decision file, F01 through F06 remain visible beside any synthesis.
+
+14
+00:01:29,859 --> 00:01:39,671
+If one sentence is ambiguous, mark it for a human follow-up rather than turn it into an invented certainty.
+
+15
+00:01:39,671 --> 00:01:47,418
+Today we will write a job card and then test its weak spots with simulation.
+
+16
+00:01:47,418 --> 00:01:50,000
+The source stays visible throughout.
+
+17
+00:01:50,000 --> 00:01:58,698
+Chapter Nineteen makes a crucial distinction: ClientQ processes data; it does not create the underlying customer experience.
+
+18
+00:01:58,698 --> 00:02:01,256
+Work through one fictional note.
+
+19
+00:02:01,256 --> 00:02:07,395
+F01 says the member does not know which action begins the service.
+
+20
+00:02:07,395 --> 00:02:11,488
+The context is the first visit after joining.
+
+21
+00:02:11,488 --> 00:02:30,930
+A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.
+
+22
+00:02:30,930 --> 00:02:32,977
+Write F01 beside it.
+
+23
+00:02:32,977 --> 00:02:39,628
+F03 may support the same job, but inspect its wording before adding it.
+
+24
+00:02:39,628 --> 00:02:58,558
+A note about missing confirmation may instead become a separate job: “Help me know whether the action succeeded so I can move on with confidence.” Do not combine them just because they occur on the same screen.
+
+25
+00:02:58,558 --> 00:03:07,767
+The book also shows an outcome-style formulation, such as reducing time spent searching when a task is urgent.
+
+26
+00:03:07,767 --> 00:03:14,419
+We can use that grammar without pretending to have measured importance or satisfaction.
+
+27
+00:03:14,419 --> 00:03:20,558
+If an AI assistant suggests a job, compare it against each source.
+
+28
+00:03:20,558 --> 00:03:27,209
+Ask what word in the original note supports the proposed context and outcome.
+
+29
+00:03:27,209 --> 00:03:31,302
+Where support is thin, label the job provisional.
+
+30
+00:03:31,302 --> 00:03:40,000
+The next step is a question for a person or an observation, not a confident backlog priority.
+
+31
+00:03:40,000 --> 00:03:44,692
+The book calls ClientQ a translator for customer language.
+
+32
+00:03:44,692 --> 00:03:51,991
+It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog.
+
+33
+00:03:51,991 --> 00:03:55,640
+That is a case in the book.
+
+34
+00:03:55,640 --> 00:03:58,246
+Our six-card exercise is separate.
+
+35
+00:03:58,246 --> 00:04:05,024
+The cards in this exercise are imagined member notes, separate from observed research.
+
+36
+00:04:05,024 --> 00:04:10,237
+A third category would be actual research collected with permission.
+
+37
+00:04:10,237 --> 00:04:15,972
+Keep these three categories apart when you present a job statement.
+
+38
+00:04:15,972 --> 00:04:26,398
+In a real project, preserve the original note, source date, consent and access rules, the interpretation, and who reviewed it.
+
+39
+00:04:26,398 --> 00:04:38,389
+If a team reports frequency, the count must come from the actual source set and its defined unit, such as people or comments.
+
+40
+00:04:38,389 --> 00:04:45,687
+Do not invent a percentage because several cards on a training slide look similar.
+
+41
+00:04:45,687 --> 00:04:51,422
+The book's warning is clear: synthesis cannot replace talking with people.
+
+42
+00:04:51,422 --> 00:04:58,199
+A pattern extracted from comments may help choose which conversation to have next.
+
+43
+00:04:58,199 --> 00:05:04,976
+It cannot tell us by itself whether a proposed screen solves the need.
+
+44
+00:05:04,976 --> 00:05:12,796
+For our decision file, put the job card beside the first-task hypothesis from earlier lessons.
+
+45
+00:05:12,796 --> 00:05:16,967
+Ask whether the hypothesis still matches the job.
+
+46
+00:05:16,967 --> 00:05:26,351
+If the problem is knowing whether an action worked, a clearer first-task invitation may be the wrong test.
+
+47
+00:05:26,351 --> 00:05:30,000
+Correcting the question before building is progress.
+
+48
+00:05:30,000 --> 00:05:35,735
+Chapter Twenty introduces SudoPoll, a book case for synthetic persona reactions.
+
+49
+00:05:35,735 --> 00:05:42,512
+It can suggest objections to a concept, but its output is a simulation.
+
+50
+00:05:42,512 --> 00:05:49,810
+It is not a customer interview, a survey, or a statistically valid preference count.
+
+51
+00:05:49,810 --> 00:05:57,630
+Imagine asking how a new member might respond to two versions of the first-task card.
+
+52
+00:05:57,630 --> 00:06:08,057
+One simulated response says the shorter card is easier to scan but does not explain what happens after the click.
+
+53
+00:06:08,057 --> 00:06:16,398
+Another says the detailed card feels safer but is too much to read at the doorway.
+
+54
+00:06:16,398 --> 00:06:20,569
+Both reactions are invented for this teaching example.
+
+55
+00:06:20,569 --> 00:06:30,474
+They are useful as questions: do real members need a clearer outcome promise, a stronger confirmation, or less text?
+
+56
+00:06:30,474 --> 00:06:34,123
+They are not votes for one design.
+
+57
+00:06:34,123 --> 00:06:40,900
+The book names three limits around emotional nuance, cultural context, and behavioral prediction.
+
+58
+00:06:40,900 --> 00:06:46,635
+Those limits matter especially when the service touches trust or access.
+
+59
+00:06:46,635 --> 00:06:56,540
+A model can draw on patterns it has seen; it cannot stand in for the people the organization serves.
+
+60
+00:06:56,540 --> 00:07:01,232
+Put a visible Simulation label on every generated reaction.
+
+61
+00:07:01,232 --> 00:07:07,488
+Keep the proposed objection beside the exact concept version that produced it.
+
+62
+00:07:07,488 --> 00:07:15,829
+If the model imagines a concern you had not considered, add it to a validation plan.
+
+63
+00:07:15,829 --> 00:07:20,000
+Do not claim that real customers raised it.
+
+64
+00:07:20,000 --> 00:07:24,605
+The simulation points to two questions, not two answers.
+
+65
+00:07:24,605 --> 00:07:31,256
+First: can an eligible new member explain the first action before beginning it?
+
+66
+00:07:31,256 --> 00:07:35,860
+Second: after acting, can they tell whether it worked?
+
+67
+00:07:35,860 --> 00:07:39,442
+Put each beside a real observation method.
+
+68
+00:07:39,442 --> 00:07:49,163
+The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation.
+
+69
+00:07:49,163 --> 00:08:00,930
+The team must decide in advance who is eligible, how the notes are protected, what the measure means, and what would stop expansion.
+
+70
+00:08:00,930 --> 00:08:08,093
+If the stakes rise toward a launch decision, simulated reactions are no longer enough.
+
+71
+00:08:08,093 --> 00:08:18,326
+Chapter Twenty says to graduate to real people when behavior matters or cultural and emotional context could change the interpretation.
+
+72
+00:08:18,326 --> 00:08:25,488
+In our fictional case, the launch choice stays blocked until actual evidence is reviewed.
+
+73
+00:08:25,488 --> 00:08:35,209
+Even if every simulated persona likes the card, the team has learned only that the card survived a rehearsal.
+
+74
+00:08:35,209 --> 00:08:40,326
+We can use that rehearsal to improve the research questions.
+
+75
+00:08:40,326 --> 00:08:46,977
+We cannot use it to fill the result field of the ten-component plan.
+
+76
+00:08:46,977 --> 00:08:53,116
+Keep the job statement and its original source notes in the file.
+
+77
+00:08:53,116 --> 00:08:58,233
+Keep the simulation output in a separate, clearly marked section.
+
+78
+00:08:58,233 --> 00:09:04,372
+At the review, compare both with what real people did and said.
+
+79
+00:09:04,372 --> 00:09:10,000
+If reality contradicts the simulation, the real observation changes the course.
+
+80
+00:09:10,000 --> 00:09:12,523
+Pause and make two cards.
+
+81
+00:09:12,523 --> 00:09:18,578
+On the first, write one job statement from the synthetic feedback bundle.
+
+82
+00:09:18,578 --> 00:09:28,165
+Add the source IDs, context, desired outcome, contrary note, and the uncertainty that still needs a person to resolve.
+
+83
+00:09:28,165 --> 00:09:35,734
+On the second, write two questions you might ask a simulation about the proposed change.
+
+84
+00:09:35,734 --> 00:09:43,807
+Label its possible answers as simulation, then state the real evidence required before a launch decision.
+
+85
+00:09:43,807 --> 00:09:54,404
+Resume when each question has an observation method, owner, review date, and a condition that would make you revise or stop.
+
+86
+00:09:54,404 --> 00:10:03,991
+You may use your own approved material in a real project; keep private records inside its authorized research system.
+
+87
+00:10:03,991 --> 00:10:06,514
+This course example stays fictional.
+
+88
+00:10:06,514 --> 00:10:10,046
+Look back at the full decision file.
+
+89
+00:10:10,046 --> 00:10:22,661
+It now holds the original problem, feedback ledger, persona, roadmap and PRD trace, learning plan, decision-room map, influence brief, operating loop, and these two cards.
+
+90
+00:10:22,661 --> 00:10:29,220
+The structure helps you see where a source ends and an inference begins.
+
+91
+00:10:29,220 --> 00:10:37,294
+It also helps you avoid asking a model to settle a question only people can answer.
+
+92
+00:10:37,294 --> 00:10:43,853
+The next module uses this discipline to examine strategic shifts and future concepts.
+
+93
+00:10:43,853 --> 00:10:47,890
+Bring the job and the unresolved question forward.
+
+94
+00:10:47,890 --> 00:10:51,422
+If the evidence is weak, say so.
+
+95
+00:10:51,422 --> 00:11:00,000
+A clear unknown is a better starting point than a polished claim that no one can trace.

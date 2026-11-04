@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "provider": "HeyGen",
+  "account": "AmaduTown Portfolio",
+  "purpose": "Accelerated L02 Avatar IV review-only source",
+  "video_id": "b4b8b4e83c18429feca3f4f4f45ae28b",
+  "status": "completed",
+  "created_at": "2026-11-04T15:27:37Z",
+  "completed_at": "2026-11-04T15:40:44Z",
+  "provider_duration_seconds": 67.6049,
+  "measured_duration_seconds": 67.607,
+  "request": {
+    "source_commit": "63103bac7bd2598988674d6f48fc9d70bdbabd2f",
+    "request_path": "docs/accelerated-course-modules/l02-l04-guided-video/l02-heygen-request.json",
+    "request_sha256": "89495d39f893e8312fcac2d07146919c597dbfdafa014318471f690a024debdc",
+    "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+    "passage_count": 4,
+    "payload_sha256": "cdceb5ec2b92f67ed2fb45b4fcf426a4a946e3f8c31b7e3e8dbed44d7c58aeec",
+    "avatar_look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "engine": "avatar_iv",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "output_format": "mp4",
+    "idempotency_key": "accelerated-l02-89495d39f893e8312fcac2d07146919c5"
+  },
+  "artifact": {
+    "path": "accelerated-l02-heygen-native.mp4",
+    "sha256": "2beae8254c76a6f8bf168afb8483e83e63c13b621ec3934c81397d3167cd1a3d",
+    "size_bytes": 35218370,
+    "video_codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "audio_path": "accelerated-l02-heygen-native-audio.m4a",
+    "audio_sha256": "70d03eeee297e4168a8ca9feaa188b04026ddddd25eea72391795698f7a965c3",
+    "audio_codec": "aac",
+    "audio_sample_rate_hz": 48000,
+    "audio_channels": 2
+  },
+  "cost": {
+    "wallet_before_usd": 50.47,
+    "wallet_after_usd": 45.07,
+    "job_wallet_cost_usd": 5.40,
+    "top_up_principal_reported_by_user_usd": 50.00,
+    "top_up_tax_and_fee_receipt": null
+  },
+  "wallet_policy_observed_after_job": {
+    "auto_reload_enabled": true,
+    "auto_reload_threshold_usd": 5.00,
+    "auto_reload_amount_usd": 10.00
+  },
+  "boundaries": {
+    "retry_count": 0,
+    "other_lessons_generated": false,
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "production_unlocked": false
+  }
+}

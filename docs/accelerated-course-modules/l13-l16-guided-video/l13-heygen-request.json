@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L13-01",
+      "start_seconds": 0,
+      "end_seconds": 32.527,
+      "duration_seconds": 32.527,
+      "narration_text": "Picture a Monday meeting. The dashboard is flat. Someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In Chapter Twenty-One, Sam faces that pressure and opens StratQuest. This is a book story. Our membership-service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise.",
+      "handoff_visual": "approved Momentum plate, then a fictional membership-service metric card with no invented result; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L13-03",
+      "start_seconds": 226,
+      "end_seconds": 252.308,
+      "duration_seconds": 26.308,
+      "narration_text": "The fourth StratQuest session turns a preferred option into a test. In the book case, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin.",
+      "handoff_visual": "synthetic test card with hypothesis, cohort, measure, review date, and stop condition; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L13-05",
+      "start_seconds": 446,
+      "end_seconds": 477.471,
+      "duration_seconds": 31.471,
+      "narration_text": "The book's collaboration example surfaces questions about differentiation, infrastructure, notifications, and data. We can use that discipline with our fictional concept. Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence. If a model generates their reactions, keep Simulation visible. These are possible objections, not interviews. A new member may ask whether the shorter commitment changes access.",
+      "handoff_visual": "three clearly fictional audience cards and an evidence column; persistent Simulation label on imagined responses; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L13-06",
+      "start_seconds": 632.277,
+      "end_seconds": 654.65,
+      "duration_seconds": 22.373,
+      "narration_text": "Bring the chosen option and its unresolved question forward. A future story earns resources when the people who must live with it can understand and challenge it. The sheet can remain incomplete. An empty evidence cell is a request for work, not a failure of presentation.",
+      "handoff_visual": "completed alternatives sheet and concept-test card; Momentum plate returns; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L13",
+  "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a"
+}

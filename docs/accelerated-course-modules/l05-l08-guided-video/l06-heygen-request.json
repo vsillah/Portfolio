@@ -1,0 +1,82 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "publication_authorization": null,
+  "external_send_authorization": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L06-01",
+      "start_seconds": 0,
+      "end_seconds": 32.019,
+      "duration_seconds": 32.019,
+      "narration_text": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards.",
+      "handoff_visual": "S cards and ledger.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L06-03",
+      "start_seconds": 220,
+      "end_seconds": 245.545,
+      "duration_seconds": 25.545,
+      "narration_text": "Now the bet enters a product requirements document. A blank template can make a team start with controls and screens. For this exercise, begin one line earlier: “A new member opens the first task and cannot tell what action matters or why.” Under that line, link the ledger IDs.",
+      "handoff_visual": "S PRD.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L06-05",
+      "start_seconds": 440,
+      "end_seconds": 460.657,
+      "duration_seconds": 20.657,
+      "narration_text": "Imagine the team tests the card and finds that people understand the action but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
+      "handoff_visual": "S trace, no real PRD.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L06-06",
+      "start_seconds": 630.837,
+      "end_seconds": 654.372,
+      "duration_seconds": 23.535,
+      "narration_text": "For now, the trace is the safeguard. It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review. Ask a teammate to point to the original feedback note and the success check.",
+      "handoff_visual": "S pipeline from course-kit brief.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L06",
+  "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6"
+}

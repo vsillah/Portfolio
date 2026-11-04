@@ -1,0 +1,24 @@
+{
+  "lesson_id": "L14",
+  "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c026.xhtml"
+  ],
+  "approved_assets": {
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "synthetic_scenes": {
+    "L14-01": "synthetic-course-card:L14-01:5ea7d162d96416f3",
+    "L14-02": "synthetic-course-card:L14-02:5ea7d162d96416f3",
+    "L14-03": "synthetic-course-card:L14-03:5ea7d162d96416f3",
+    "L14-04": "synthetic-course-card:L14-04:5ea7d162d96416f3",
+    "L14-05": "synthetic-course-card:L14-05:5ea7d162d96416f3",
+    "L14-06": "synthetic-course-card:L14-06:5ea7d162d96416f3"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}

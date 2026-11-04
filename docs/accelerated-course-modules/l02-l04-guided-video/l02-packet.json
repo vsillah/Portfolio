@@ -1,0 +1,987 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L02",
+  "title": "Prioritize before generating",
+  "runtime_seconds": 600,
+  "learner_artifact": "Priority decision and two alternatives",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L02.md",
+  "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "d9b6a46def5756831e1788cdf97769347048cc9318e87061dbae7bbf962ca1b6",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c005.xhtml",
+    "c006.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L02-01",
+      "title": "Fifteen priorities",
+      "start_seconds": 0,
+      "end_seconds": 90,
+      "narration": "The meeting has barely started and the board is full. Fifteen roadmap items. Fifteen top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck. In Chapter Two, I tell a version of this planning meeting and ask what the team cannot afford to get wrong. That question changes the shape of the conversation. The book's case lands on the first minutes of a new user's experience. We do not need to borrow that answer for every team. We need to borrow the move: step away from the list and name the consequence of a wrong choice. Open the decision file from Lesson One. Read the decision at the top. If it still sounds like “choose all the good ideas,” make it sharper. Whose experience or business result is at stake? What would a choice teach you before the next planning cycle?",
+      "narration_sha256": "0126d18d7b1992f2d87338959711b69e2886cd18dc28db93cd16e21db66335ee",
+      "on_screen_copy": "What can we not afford to get wrong?",
+      "shot": "Avatar opens; synthetic board of fifteen cards resolves to one question.",
+      "visual": "S: fictional planning board.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L02-01",
+        "start_seconds": 0,
+        "end_seconds": 29.483,
+        "duration_seconds": 29.483,
+        "narration_text": "The meeting has barely started and the board is full. Fifteen roadmap items. Fifteen top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck.",
+        "handoff_visual": "S: fictional planning board.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives meeting context and decision question.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c005.xhtml",
+          "c006.xhtml"
+        ],
+        "scene_source": "Ch2 opening and “The Trap That Catches Good Teams” (`c005.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L02-01:73119dd526db5221",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L02-02",
+      "title": "What the list hides",
+      "start_seconds": 90,
+      "end_seconds": 180,
+      "narration": "A long list can feel fair. Each person sees their concern represented. But the list does not tell you which problem to solve first, and it cannot tell you why. That is the trap in the chapter. More information may give every proposal a stronger defense while leaving the actual decision untouched. Think about airport signage. A terminal can offer plenty of services, yet the traveler needs to know where to go next. If the sign does not make that clear, more decoration will not help. The same thing happens in a product meeting. Before asking an AI tool for twenty feature ideas, ask what path the person is trying to find and what the team can change. Here is a synthetic case we will use on screen: a small membership service has three requests. Rewrite its welcome email. Add a guided first task. Build a dashboard for staff. They might all help. We do not know yet. Our job is to compare them against the same decision, rather than letting the loudest request become the plan.",
+      "narration_sha256": "75f54fecefac7ada737aff0a2ae6cc9677361030e53732e490914a602b810074",
+      "on_screen_copy": "Choose one. Keep two alternatives.",
+      "shot": "Signals plate then three membership options.",
+      "visual": "A2; S: welcome email/guided task/staff dashboard cards.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names all three options; plate has no outcome claim.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c005.xhtml",
+          "c006.xhtml"
+        ],
+        "scene_source": "Ch2, “The Trap That Catches Good Teams,” “Think of It Like Airport Signage” (`c005.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L02-02:73119dd526db5221",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L02-03",
+      "title": "Match the frame to the question",
+      "start_seconds": 180,
+      "end_seconds": 273,
+      "narration": "Chapter Three gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering. If you are asking whether a market is attractive, the book offers a market frame. If you are choosing a product or segment, it offers three C plus P: customer, company, competition, product. We are choosing a product move, so that second frame fits. Customer: which request responds to a real, urgent job? Company: what can this team actually deliver and maintain? Competition: how is the need handled now, even if the alternative is a spreadsheet or another person? Product: what is the smallest offer that could show value? Notice what this does to our synthetic options. The welcome email may be easy to ship, but we still need to know whether misunderstanding is the problem. The guided task might help people begin, but it could add burden. The staff dashboard may improve visibility for employees while leaving the member's first step untouched. We have turned three attractive artifacts into three questions that can be checked.",
+      "narration_sha256": "c6659b363f825e57102462ebff265a9afe06ebd0c2b1baff2253228018cb796c",
+      "on_screen_copy": "Customer / Company / Competition / Product",
+      "shot": "Avatar pivot to 3C + P; each question and case answer side by side.",
+      "visual": "S: book-label graphic; source Ch3.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L02-03",
+        "start_seconds": 180,
+        "end_seconds": 199.743,
+        "duration_seconds": 19.743,
+        "narration_text": "Chapter Three gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering. If you are asking whether a market is attractive, the book offers a market frame.",
+        "handoff_visual": "S: book-label graphic; source Ch3.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration expands Customer, Company, Competition, Product.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c005.xhtml",
+          "c006.xhtml"
+        ],
+        "scene_source": "Ch3, “From Brainstorming to Case Structuring,” “Match Your Framework to Your Question” (`c006.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L02-03:73119dd526db5221",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L02-04",
+      "title": "Compare without fake precision",
+      "start_seconds": 273,
+      "end_seconds": 366,
+      "narration": "Now put the three options side by side. For each one, write the customer pain it might address, the business reason to care, the learning value of trying it, the risk, and whether you can reverse the choice. We do not have to invent a perfect numerical score. In fact, a precise score would be dishonest when the evidence is thin. On our sample sheet, the welcome email is low effort and easy to undo. Its weak point is that it assumes words are the barrier. The guided first task could expose whether people need a clearer starting point. Its weak point is that we do not know if they want guidance or a faster path. The staff dashboard might help the team see where members pause, but it asks for more build work before we have agreed what we need to observe. This is a hypothetical exercise. It is not a report from customers. You can disagree with my provisional ranking if you can name what evidence changes it. That is what a useful priority conversation sounds like.",
+      "narration_sha256": "b56bb5a669712c13b4b021ba3f081b5fd3bcade77844fa14ce4dd9c1ef89d170",
+      "on_screen_copy": "Pain | value | learning | risk | reversibility",
+      "shot": "Qualitative comparison table; unknown cells remain visible.",
+      "visual": "S: invented option sheet; no numerical scores.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration states why each path remains uncertain.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c005.xhtml",
+          "c006.xhtml"
+        ],
+        "scene_source": "Ch3, “Match Your Framework to Your Question,” “Why This Matters for Innovation” (`c006.xhtml`); Ch2, “Simplicity Is About Better” (`c005.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L02-04:73119dd526db5221",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L02-05",
+      "title": "Economic fit belongs in the case",
+      "start_seconds": 366,
+      "end_seconds": 451,
+      "narration": "There is another question that can make a promising idea fail: how does the value reach a customer, and how does the work sustain itself? Chapter Three brings business model options into the case after the customer and product question is clear. It asks whether people need to experience value before paying, whether value accumulates over time, whether a free tier is affordable, and whether usage is predictable. Those are decision questions, not a menu that automatically picks your business. Our membership example may not need a new pricing model at all. But if the guided task changes who gets help and who pays for it, we should say so before we build. The book includes a B2B analytics case and names a tool called StratQuest. We are using neither as proof of a current product outcome here. What matters for this lesson is the discipline: first structure the case, then consider the economic fit. An AI brainstorm can offer possibilities. It cannot supply the missing customer and operating evidence by sounding certain.",
+      "narration_sha256": "e68e9d69a1e6fabf74b8e82f4c6cb9eee757e5f837bb3af35ec5ec4abaec8bba",
+      "on_screen_copy": "What can we not afford to get wrong?",
+      "shot": "Avatar pivot, then four business-model decision questions.",
+      "visual": "S: book-derived question cards; no StratQuest UI.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L02-05",
+        "start_seconds": 366,
+        "end_seconds": 386.636,
+        "duration_seconds": 20.636,
+        "narration_text": "There is another question that can make a promising idea fail: how does the value reach a customer, and how does the work sustain itself? Chapter Three brings business model options into the case after the customer and product question is clear.",
+        "handoff_visual": "S: book-derived question cards; no StratQuest UI.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration makes economic fit a question, never a product result.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c005.xhtml",
+          "c006.xhtml"
+        ],
+        "scene_source": "Ch3, “Layer in Business Model Options,” “The Business Model Decision Tree” (`c006.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L02-05:73119dd526db5221",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L02-06",
+      "title": "Make a reversible choice",
+      "start_seconds": 451,
+      "end_seconds": 546,
+      "narration": "For the sample case, I would choose a small test of the guided first task. I would not commit to a full guided onboarding product. I would show a simple first step to a few consenting participants through an approved research process, then ask whether it helped them begin. I would keep the welcome email as an alternative if the test shows the language is confusing. I would hold the staff dashboard until the team knows which question it needs the dashboard to answer. My reason is not that guided tasks always win. It is that this option can test the starting-point assumption while keeping the next commitment small. Your decision may go another way. Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside. Give each one a real reason, not a vague “lower priority.” A decision file that only celebrates the winner loses half the learning. When new evidence arrives, those alternatives tell you what you thought you were trading away.",
+      "narration_sha256": "5d47902db98ea6f9a18fecfba31aa8bf56175aa544b346d4cf1249ba0e2381be",
+      "on_screen_copy": "Choose one. Keep two alternatives.",
+      "shot": "One selected path and two retained alternatives; show assumption.",
+      "visual": "S: priority decision page.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives rationale and says sample is hypothetical.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c005.xhtml",
+          "c006.xhtml"
+        ],
+        "scene_source": "Ch2, “The Trap That Catches Good Teams” (`c005.xhtml`); Ch3, “I Rest My Case (for now)” (`c006.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L02-06:73119dd526db5221",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L02-07",
+      "title": "Handoff to discovery",
+      "start_seconds": 546,
+      "end_seconds": 600,
+      "narration": "Pause here and finish the page. You need the chosen option, two alternatives, the reason for each, and one assumption that could overturn your choice. If you are working with a real team, keep sensitive inputs in the approved place. You can do this exercise with a fictional case and still practice the decision. When you come back, read your assumption out loud. Is it something you know, or something you hope? In the next lesson we will work backward from that sentence. We will ask what answer the decision owner needs and what evidence would change the conversation. The board of fifteen priorities will still exist tomorrow. You have done the harder thing today: made one choice clear enough to challenge.",
+      "narration_sha256": "641f4fb2c7fb124cc6c4356c84c3a151482dd573a9b42bb5371b24c04f278e83",
+      "on_screen_copy": "What could overturn this choice?",
+      "shot": "Page folds into evidence-gap card; avatar handoff.",
+      "visual": "S: decision-file pages.",
+      "asset_refs": [
+        "signals"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L02-07",
+        "start_seconds": 573.885,
+        "end_seconds": 593.803,
+        "duration_seconds": 19.918,
+        "narration_text": "Is it something you know, or something you hope? In the next lesson we will work backward from that sentence. We will ask what answer the decision owner needs and what evidence would change the conversation. The board of fifteen priorities will still exist tomorrow.",
+        "handoff_visual": "S: decision-file pages.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration gives pause/resume and next lesson link.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c005.xhtml",
+          "c006.xhtml"
+        ],
+        "scene_source": "Ch3, “Match Your Framework to Your Question” (`c006.xhtml`); Ch2 opening (`c005.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L02-07:73119dd526db5221",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 5.172,
+      "text": "The meeting has barely started and the board is full.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 5.172,
+      "end": 6.724,
+      "text": "Fifteen roadmap items.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 6.724,
+      "end": 8.276,
+      "text": "Fifteen top priorities.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 8.276,
+      "end": 12.931,
+      "text": "The person asking for retention has a good reason.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 12.931,
+      "end": 16.552,
+      "text": "So does the person asking for revenue.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 16.552,
+      "end": 23.276,
+      "text": "The refactor matters to the engineers who will carry the system next quarter.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 23.276,
+      "end": 25.862,
+      "text": "Everybody can defend their note.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 25.862,
+      "end": 29.483,
+      "text": "That is why the room is stuck.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 29.483,
+      "end": 40.345,
+      "text": "In Chapter Two, I tell a version of this planning meeting and ask what the team cannot afford to get wrong.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 40.345,
+      "end": 44.483,
+      "text": "That question changes the shape of the conversation.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 44.483,
+      "end": 51.207,
+      "text": "The book's case lands on the first minutes of a new user's experience.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 51.207,
+      "end": 56.897,
+      "text": "We do not need to borrow that answer for every team.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 56.897,
+      "end": 66.724,
+      "text": "We need to borrow the move: step away from the list and name the consequence of a wrong choice.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 66.724,
+      "end": 70.345,
+      "text": "Open the decision file from Lesson One.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 70.345,
+      "end": 73.448,
+      "text": "Read the decision at the top.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 73.448,
+      "end": 80.172,
+      "text": "If it still sounds like “choose all the good ideas,” make it sharper.",
+      "scene": "L02-01"
+    },
+    {
+      "start": 80.172,
+      "end": 84.31,
+      "text": "Whose experience or business result is at stake?",
+      "scene": "L02-01"
+    },
+    {
+      "start": 84.31,
+      "end": 90,
+      "text": "What would a choice teach you before the next planning cycle?",
+      "scene": "L02-01"
+    },
+    {
+      "start": 90,
+      "end": 93.051,
+      "text": "A long list can feel fair.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 93.051,
+      "end": 96.102,
+      "text": "Each person sees their concern represented.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 96.102,
+      "end": 105.254,
+      "text": "But the list does not tell you which problem to solve first, and it cannot tell you why.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 105.254,
+      "end": 108.814,
+      "text": "That is the trap in the chapter.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 108.814,
+      "end": 116.441,
+      "text": "More information may give every proposal a stronger defense while leaving the actual decision untouched.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 116.441,
+      "end": 118.475,
+      "text": "Think about airport signage.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 118.475,
+      "end": 127.119,
+      "text": "A terminal can offer plenty of services, yet the traveler needs to know where to go next.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 127.119,
+      "end": 133.729,
+      "text": "If the sign does not make that clear, more decoration will not help.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 133.729,
+      "end": 137.797,
+      "text": "The same thing happens in a product meeting.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 137.797,
+      "end": 150.0,
+      "text": "Before asking an AI tool for twenty feature ideas, ask what path the person is trying to find and what the team can change.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 150.0,
+      "end": 158.644,
+      "text": "Here is a synthetic case we will use on screen: a small membership service has three requests.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 158.644,
+      "end": 160.678,
+      "text": "Rewrite its welcome email.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 160.678,
+      "end": 163.22,
+      "text": "Add a guided first task.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 163.22,
+      "end": 165.763,
+      "text": "Build a dashboard for staff.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 165.763,
+      "end": 167.797,
+      "text": "They might all help.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 167.797,
+      "end": 170.339,
+      "text": "We do not know yet.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 170.339,
+      "end": 180,
+      "text": "Our job is to compare them against the same decision, rather than letting the loudest request become the plan.",
+      "scene": "L02-02"
+    },
+    {
+      "start": 180,
+      "end": 185.715,
+      "text": "Chapter Three gives us a way to structure a messy opportunity.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 185.715,
+      "end": 191.95,
+      "text": "The first move is to decide what question the case is answering.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 191.95,
+      "end": 199.743,
+      "text": "If you are asking whether a market is attractive, the book offers a market frame.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 199.743,
+      "end": 209.095,
+      "text": "If you are choosing a product or segment, it offers three C plus P: customer, company, competition, product.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 209.095,
+      "end": 214.81,
+      "text": "We are choosing a product move, so that second frame fits.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 214.81,
+      "end": 219.486,
+      "text": "Customer: which request responds to a real, urgent job?",
+      "scene": "L02-03"
+    },
+    {
+      "start": 219.486,
+      "end": 224.162,
+      "text": "Company: what can this team actually deliver and maintain?",
+      "scene": "L02-03"
+    },
+    {
+      "start": 224.162,
+      "end": 232.994,
+      "text": "Competition: how is the need handled now, even if the alternative is a spreadsheet or another person?",
+      "scene": "L02-03"
+    },
+    {
+      "start": 232.994,
+      "end": 238.19,
+      "text": "Product: what is the smallest offer that could show value?",
+      "scene": "L02-03"
+    },
+    {
+      "start": 238.19,
+      "end": 242.346,
+      "text": "Notice what this does to our synthetic options.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 242.346,
+      "end": 252.218,
+      "text": "The welcome email may be easy to ship, but we still need to know whether misunderstanding is the problem.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 252.218,
+      "end": 258.453,
+      "text": "The guided task might help people begin, but it could add burden.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 258.453,
+      "end": 266.246,
+      "text": "The staff dashboard may improve visibility for employees while leaving the member's first step untouched.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 266.246,
+      "end": 273,
+      "text": "We have turned three attractive artifacts into three questions that can be checked.",
+      "scene": "L02-03"
+    },
+    {
+      "start": 273,
+      "end": 277.156,
+      "text": "Now put the three options side by side.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 277.156,
+      "end": 292.743,
+      "text": "For each one, write the customer pain it might address, the business reason to care, the learning value of trying it, the risk, and whether you can reverse the choice.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 292.743,
+      "end": 297.939,
+      "text": "We do not have to invent a perfect numerical score.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 297.939,
+      "end": 304.693,
+      "text": "In fact, a precise score would be dishonest when the evidence is thin.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 304.693,
+      "end": 311.966,
+      "text": "On our sample sheet, the welcome email is low effort and easy to undo.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 311.966,
+      "end": 317.682,
+      "text": "Its weak point is that it assumes words are the barrier.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 317.682,
+      "end": 324.436,
+      "text": "The guided first task could expose whether people need a clearer starting point.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 324.436,
+      "end": 333.268,
+      "text": "Its weak point is that we do not know if they want guidance or a faster path.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 333.268,
+      "end": 347.296,
+      "text": "The staff dashboard might help the team see where members pause, but it asks for more build work before we have agreed what we need to observe.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 347.296,
+      "end": 349.894,
+      "text": "This is a hypothetical exercise.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 349.894,
+      "end": 353.531,
+      "text": "It is not a report from customers.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 353.531,
+      "end": 361.324,
+      "text": "You can disagree with my provisional ranking if you can name what evidence changes it.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 361.324,
+      "end": 366,
+      "text": "That is what a useful priority conversation sounds like.",
+      "scene": "L02-04"
+    },
+    {
+      "start": 366,
+      "end": 378.283,
+      "text": "There is another question that can make a promising idea fail: how does the value reach a customer, and how does the work sustain itself?",
+      "scene": "L02-05"
+    },
+    {
+      "start": 378.283,
+      "end": 386.636,
+      "text": "Chapter Three brings business model options into the case after the customer and product question is clear.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 386.636,
+      "end": 399.41,
+      "text": "It asks whether people need to experience value before paying, whether value accumulates over time, whether a free tier is affordable, and whether usage is predictable.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 399.41,
+      "end": 405.306,
+      "text": "Those are decision questions, not a menu that automatically picks your business.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 405.306,
+      "end": 411.202,
+      "text": "Our membership example may not need a new pricing model at all.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 411.202,
+      "end": 421.52,
+      "text": "But if the guided task changes who gets help and who pays for it, we should say so before we build.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 421.52,
+      "end": 427.908,
+      "text": "The book includes a B2B analytics case and names a tool called StratQuest.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 427.908,
+      "end": 433.803,
+      "text": "We are using neither as proof of a current product outcome here.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 433.803,
+      "end": 442.156,
+      "text": "What matters for this lesson is the discipline: first structure the case, then consider the economic fit.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 442.156,
+      "end": 445.104,
+      "text": "An AI brainstorm can offer possibilities.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 445.104,
+      "end": 451,
+      "text": "It cannot supply the missing customer and operating evidence by sounding certain.",
+      "scene": "L02-05"
+    },
+    {
+      "start": 451,
+      "end": 458.787,
+      "text": "For the sample case, I would choose a small test of the guided first task.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 458.787,
+      "end": 463.978,
+      "text": "I would not commit to a full guided onboarding product.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 463.978,
+      "end": 476.437,
+      "text": "I would show a simple first step to a few consenting participants through an approved research process, then ask whether it helped them begin.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 476.437,
+      "end": 485.262,
+      "text": "I would keep the welcome email as an alternative if the test shows the language is confusing.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 485.262,
+      "end": 494.607,
+      "text": "I would hold the staff dashboard until the team knows which question it needs the dashboard to answer.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 494.607,
+      "end": 499.279,
+      "text": "My reason is not that guided tasks always win.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 499.279,
+      "end": 507.585,
+      "text": "It is that this option can test the starting-point assumption while keeping the next commitment small.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 507.585,
+      "end": 510.699,
+      "text": "Your decision may go another way.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 510.699,
+      "end": 526.273,
+      "text": "Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 526.273,
+      "end": 538.213,
+      "text": "Give each one a real reason, not a vague “lower priority.” A decision file that only celebrates the winner loses half the learning.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 538.213,
+      "end": 546,
+      "text": "When new evidence arrives, those alternatives tell you what you thought you were trading away.",
+      "scene": "L02-06"
+    },
+    {
+      "start": 546,
+      "end": 548.656,
+      "text": "Pause here and finish the page.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 548.656,
+      "end": 557.066,
+      "text": "You need the chosen option, two alternatives, the reason for each, and one assumption that could overturn your choice.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 557.066,
+      "end": 563.705,
+      "text": "If you are working with a real team, keep sensitive inputs in the approved place.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 563.705,
+      "end": 569.902,
+      "text": "You can do this exercise with a fictional case and still practice the decision.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 569.902,
+      "end": 573.885,
+      "text": "When you come back, read your assumption out loud.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 573.885,
+      "end": 577.869,
+      "text": "Is it something you know, or something you hope?",
+      "scene": "L02-07"
+    },
+    {
+      "start": 577.869,
+      "end": 582.738,
+      "text": "In the next lesson we will work backward from that sentence.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 582.738,
+      "end": 589.82,
+      "text": "We will ask what answer the decision owner needs and what evidence would change the conversation.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 589.82,
+      "end": 593.803,
+      "text": "The board of fifteen priorities will still exist tomorrow.",
+      "scene": "L02-07"
+    },
+    {
+      "start": 593.803,
+      "end": 600,
+      "text": "You have done the harder thing today: made one choice clear enough to challenge.",
+      "scene": "L02-07"
+    }
+  ],
+  "assets": {
+    "signals": {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 09:10. Compare three safe options against the five qualitative prompts. Choose one small test, record two rejected alternatives and why, and name one assumption that could reverse the choice. Resume when the one-page priority decision is in the decision file. Use fictional or approved inputs only; do not paste customer records or internal plans into an external model.\n\nPrivate customer records and restricted company plans stay outside the course example and any external AI tool.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 29.483,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 29.483,
+      "end_seconds": 180,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 180,
+      "end_seconds": 199.743,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 199.743,
+      "end_seconds": 366,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 366,
+      "end_seconds": 386.636,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 386.636,
+      "end_seconds": 573.885,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 573.885,
+      "end_seconds": 593.803,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 593.803,
+      "end_seconds": 600,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L02-01",
+        "start_seconds": 0,
+        "end_seconds": 29.483,
+        "duration_seconds": 29.483,
+        "narration_text": "The meeting has barely started and the board is full. Fifteen roadmap items. Fifteen top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck.",
+        "handoff_visual": "S: fictional planning board.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L02-03",
+        "start_seconds": 180,
+        "end_seconds": 199.743,
+        "duration_seconds": 19.743,
+        "narration_text": "Chapter Three gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering. If you are asking whether a market is attractive, the book offers a market frame.",
+        "handoff_visual": "S: book-label graphic; source Ch3.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L02-05",
+        "start_seconds": 366,
+        "end_seconds": 386.636,
+        "duration_seconds": 20.636,
+        "narration_text": "There is another question that can make a promising idea fail: how does the value reach a customer, and how does the work sustain itself? Chapter Three brings business model options into the case after the customer and product question is clear.",
+        "handoff_visual": "S: book-derived question cards; no StratQuest UI.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L02-07",
+        "start_seconds": 573.885,
+        "end_seconds": 593.803,
+        "duration_seconds": 19.918,
+        "narration_text": "Is it something you know, or something you hope? In the next lesson we will work backward from that sentence. We will ask what answer the decision owner needs and what evidence would change the conversation. The board of fifteen priorities will still exist tomorrow.",
+        "handoff_visual": "S: decision-file pages.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio",
+      "quote absent or above cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

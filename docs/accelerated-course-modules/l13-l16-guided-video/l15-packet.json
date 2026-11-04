@@ -1,0 +1,1172 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L15",
+  "title": "Governance and the system that learns",
+  "runtime_seconds": 720,
+  "learner_artifact": "Scale-readiness checklist and decision-memory record",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L15.md",
+  "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "f9cc259fa9416ec68b7c2413f0dc479ffbd259ae3049becf022f5767473c55b1",
+  "source_notes_sha256": "4a12a775a24d911979a9bf4d0cf49fcbafa6e3dd1592b8807d951012045a5336",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c027.xhtml",
+    "c028.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L15-01",
+      "title": "A local win creates a new problem",
+      "start_seconds": 0,
+      "end_seconds": 122,
+      "narration": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments. Chapter Twenty-Four asks what changes at scale: experiments can collide, metrics can mean different things, and a tool can spread faster than a review practice. Treat the original test from our fictional membership service as a candidate for reuse, not an approved model. What was the job? Which participants were in scope? What did the team observe? Which result is still pending? If the new team serves people with a different access need, the first team's conclusion may not travel. Put the source and exclusion beside the result. Scaling begins with a transfer of judgment. The useful question is whether another team can reproduce the decision boundary, not whether it can copy the screen. Start the scale-readiness checklist with the parts that must travel: definition, owner, evidence, stop condition, and a place to record the next result. At this point, speed can become a source of error. The first team may know that an apparent improvement came from a narrow group, or that a support burden rose after the measurement window. A copied summary loses both facts. Ask the original owner to mark what another team must verify again. Make that conversation part of the handoff, then record the answer so the next team does not rely on hallway memory.",
+      "narration_sha256": "652de05ceb030371c99496c81254e05adbcbcf7bdcbddd232834382243ac84fd",
+      "on_screen_copy": "A second team needs the record",
+      "shot": "A local win creates a new problem.",
+      "visual": "approved Momentum plate and fictional second-team reuse request; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L15-01",
+        "start_seconds": 0,
+        "end_seconds": 28.836,
+        "duration_seconds": 28.836,
+        "narration_text": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments.",
+        "handoff_visual": "approved Momentum plate and fictional second-team reuse request; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c027.xhtml",
+          "c028.xhtml"
+        ],
+        "scene_source": "Ch24, “What Changes at Scale,” “Lightweight Governance Principles” (`c027.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L15-01:64a2691ab3c66962",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L15-02",
+      "title": "Use a light common record",
+      "start_seconds": 122,
+      "end_seconds": 243,
+      "narration": "The book proposes shared infrastructure: an experiment template, a hypothesis backlog, and a decision log. These are not three new committees. They are ways to keep a test understandable after the original team moves on. Write a one-page record. It names the customer job, hypothesis, eligibility rule, measure, decision threshold, date, and reviewer. Add links to the source ledger and any observed result. Give the next team permission to say its context differs. A common format makes differences easier to see. Chapter Twenty-Four also warns that a central learning team can become a bottleneck. Assign a local owner who can run the test within an agreed boundary, and a cross-team reviewer for conflicts or shared risk. The governance should fit the consequence. A copy change might need a quick review. A change to pricing, access, privacy, or billing needs the people who own those obligations. This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises. The record should help work move, not make people prove that they filled every box. Use the template as a doorway into judgment. A reviewer should be able to spot a missing source or conflicting test without reading a novel. Show who has authority to pause work when an access or privacy problem appears. Write the escalation in ordinary language. If nobody can tell who owns the next decision, the process is too vague to protect the people involved. If every minor edit waits for a central committee, it is too heavy to help them.",
+      "narration_sha256": "c015eec45c58a274739216b229139faac4c0e39276c3cc2e60ae88103977b9dc",
+      "on_screen_copy": "Shared format · local judgment",
+      "shot": "Use a light common record.",
+      "visual": "shared experiment template, hypothesis backlog, and decision log as book-derived labels; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c027.xhtml",
+          "c028.xhtml"
+        ],
+        "scene_source": "Ch24, “Lightweight Governance Principles,” “What Good Looks Like” (`c027.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L15-02:64a2691ab3c66962",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L15-03",
+      "title": "Find the five failure modes",
+      "start_seconds": 243,
+      "end_seconds": 364,
+      "narration": "Chapter Twenty-Four names five scaling mistakes. A central team can become a bottleneck. Documentation can grow so heavy that people stop testing. The organization can fixate on one tool instead of shared learning. Teams can resist a process they did not help shape. And leaders can expand across the whole organization before the first handoff works. Put those five labels on the checklist and test your own proposal against them. Which one is most likely here? In the fictional membership case, tool fixation could be tempting: the first team has a spreadsheet, so everyone is told to use the same spreadsheet. What matters is whether the second team can understand the hypothesis, measure, and decision. Another tool could carry the same record if it preserves the contract. Resistance can also be information. Ask what work the new team already does and what burden the process would add. A five-minute decision note may fit; a fifty-page report will likely disappear into the backlog. The chapter's maturity question is powerful: can a new colleague explain why the organization passed on an obvious alternative, citing the decision record? If the answer lives only in one person's memory, the system has not yet traveled. Check the next-team burden before declaring the system ready. Have someone outside the first team fill out the record with a fictional case. Note which fields they cannot interpret and which handoffs require a conversation. Revise the form before a live rollout. Keep the five book labels attached to this check; they are a useful warning, not a score or maturity ranking. A low score invented for the slide would add confidence without evidence.",
+      "narration_sha256": "5639ef5d4c567ec17a60ecb9d1317404686ca4c45ddd592d52808ffdae1a340d",
+      "on_screen_copy": "Bottleneck · paperwork · tool fixation · resistance · haste",
+      "shot": "Find the five failure modes.",
+      "visual": "five book-attributed scaling-mistake labels as checklist rows; no invented maturity ladder; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L15-03",
+        "start_seconds": 243,
+        "end_seconds": 273.912,
+        "duration_seconds": 30.912,
+        "narration_text": "Chapter Twenty-Four names five scaling mistakes. A central team can become a bottleneck. Documentation can grow so heavy that people stop testing. The organization can fixate on one tool instead of shared learning. Teams can resist a process they did not help shape. And leaders can expand across the whole organization before the first handoff works. Put those five labels on the checklist and test your own proposal against them.",
+        "handoff_visual": "five book-attributed scaling-mistake labels as checklist rows; no invented maturity ladder; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c027.xhtml",
+          "c028.xhtml"
+        ],
+        "scene_source": "Ch24, “Common Scaling Mistakes,” “The Question That Tests Maturity” (`c027.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L15-03:64a2691ab3c66962",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L15-04",
+      "title": "Keep Sam's story in its lane",
+      "start_seconds": 364,
+      "end_seconds": 481,
+      "narration": "Chapter Twenty-Five returns to Sam. The book describes a calmer operating rhythm: fewer frantic searches for context, shorter decisions, and a record that people can find. This is the book's illustration. It is not evidence that our fictional membership service, AmaduTown, or this workshop has produced those outcomes. The story is useful because it shows what institutional memory feels like in daily work. Someone asks why a choice was made. Instead of rebuilding the argument from old messages, the team opens the decision log. Someone wants to repeat a test. Instead of copying a result without context, they can inspect the participants, measure, and revision. Notice how much of this depends on people. A record must be written well enough to be read; a reviewer must notice when evidence no longer fits; an owner must still decide. Automated routing can move a source to the right place. It cannot determine whether a past finding applies to a different community. In the storyboard, keep Sam's narrative label separate from any observed evidence card. We will not film a fabricated board meeting as if it happened in the present project. The before-and-after story can tempt us to promise relief too early. Ask what would have to be measured to make that claim in a real organization: time spent finding context, repeated decisions, missed handoffs, and the cost of maintaining the records. A calmer calendar alone would not explain why it changed. Keep the causal claim open until the evidence can support it. The lesson is a working rhythm that people can inspect, revise, and own.",
+      "narration_sha256": "8bc04d09768d9b00f74162c4408a86f9f0711550a1246ff208fd94667dcf38c4",
+      "on_screen_copy": "Book story · local evidence still needed",
+      "shot": "Keep Sam's story in its lane.",
+      "visual": "book-story Sam card followed by a separate blank observed-evidence card; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c027.xhtml",
+          "c028.xhtml"
+        ],
+        "scene_source": "Ch25, “Before and After,” “What Actually Changed” (`c028.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L15-04:64a2691ab3c66962",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L15-05",
+      "title": "Make the decision recoverable",
+      "start_seconds": 481,
+      "end_seconds": 603,
+      "narration": "The decision-memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why. If the result contradicted the hypothesis, keep it visible. A later team should be able to ask a narrow question: does this past decision still apply to our people and our operating constraints? The book's Sam story treats searchable decisions as part of a learning system. We can borrow that practice without borrowing its claimed numbers. For the membership exercise, a record might say the short-commitment offer remains a hypothesis until an approved test is reviewed. It should not say the model works. Link the two-audience pitch from Lesson Fourteen, the learning plan from Lesson Eight, and the job card from Lesson Twelve. Now the record shows the chain from input to interpretation to test to choice. If a source is missing, mark it. Recoverability depends on honest gaps as much as on good summaries. Imagine the original owner leaves. Can the next person find the most recent source, the decision threshold, and the reason an alternative was rejected? If not, add that missing link. If an AI summary is attached, preserve the original record beside it and name the human who checked the summary. The memory is only as reliable as the path back to its evidence. A confident paragraph without source links will age badly.",
+      "narration_sha256": "82142399a8a2666098e2ec466eb2804227fc63087357b2181cebb4a0da4a6df2",
+      "on_screen_copy": "What we knew · why we chose · when to revisit",
+      "shot": "Make the decision recoverable.",
+      "visual": "synthetic decision-memory record with evidence links, rationale, dissent, owner, and expiry; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L15-05",
+        "start_seconds": 481,
+        "end_seconds": 510.495,
+        "duration_seconds": 29.495,
+        "narration_text": "The decision-memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why.",
+        "handoff_visual": "synthetic decision-memory record with evidence links, rationale, dissent, owner, and expiry; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c027.xhtml",
+          "c028.xhtml"
+        ],
+        "scene_source": "Ch25, “The Question the Board Asked,” “The Momentum That Scales” (`c028.xhtml`); Ch24, “Lightweight Governance Principles” (`c027.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L15-05:64a2691ab3c66962",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L15-06",
+      "title": "Decide whether to spread",
+      "start_seconds": 603,
+      "end_seconds": 720,
+      "narration": "Pause and complete two pages. First, the scale-readiness checklist: common definition, participant boundary, measure, owner, review cadence, conflict check, privacy or billing escalation, and stop rule. Mark each field ready, missing, or context-dependent. Second, the decision-memory record: original question, evidence, test, outcome state, decision, rejected alternative, rationale, and revisit date. Resume when a second team could explain what it may reuse and what it must validate again. If your current evidence is only a synthetic workshop exercise, mark the scale decision blocked. Do not turn a hypothetical success into a rollout plan. In your own organization, keep private records inside approved systems and use only public, synthetic, or approved data here. The book gives us Sam's operating story and a set of governance problems to watch. The exercise asks for a smaller, inspectable answer: can another team find the evidence and know who can stop the test? The final lesson returns to the decision you named at the start. We will choose one move for the next week and give it a real review date. Learning becomes infrastructure when another person can pick up the record and act with the same care. End with a decision about readiness, even if the answer is wait. Choose one neighboring team for a future handoff only after the record survives a dry run. State which safeguards belong to the shared process and which must be set locally. This keeps a successful local experiment from becoming an organization-wide promise by accident. The aim is a repeatable learning practice that can carry disagreement and correction as well as success.",
+      "narration_sha256": "15fbc90ef712994fe769c20b2864a5a625e05ac328953e149fbc8c6b4bcb7dff",
+      "on_screen_copy": "Reuse only with an owner and a stop rule",
+      "shot": "Decide whether to spread.",
+      "visual": "completed scale-readiness checklist and decision-memory record; Momentum plate closes; Momentum plate remains source art.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L15-06",
+        "start_seconds": 688.091,
+        "end_seconds": 712.466,
+        "duration_seconds": 24.375,
+        "narration_text": "End with a decision about readiness, even if the answer is wait. Choose one neighboring team for a future handoff only after the record survives a dry run. State which safeguards belong to the shared process and which must be set locally. This keeps a successful local experiment from becoming an organization-wide promise by accident.",
+        "handoff_visual": "completed scale-readiness checklist and decision-memory record; Momentum plate closes; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c027.xhtml",
+          "c028.xhtml"
+        ],
+        "scene_source": "Ch24, “What Good Looks Like,” “The Question That Tests Maturity” (`c027.xhtml`); Ch25, “The Momentum That Scales” (`c028.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l13-l16.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L15-06:64a2691ab3c66962",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 2.218,
+      "text": "One small test was useful.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 2.218,
+      "end": 5.767,
+      "text": "A second team asks to run it too.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 5.767,
+      "end": 9.316,
+      "text": "That sounds like progress, and it may be.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 9.316,
+      "end": 12.865,
+      "text": "It also changes the shape of the work.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 12.865,
+      "end": 20.851,
+      "text": "The first team knew the people, the context, and the reason for every field in its learning plan.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 20.851,
+      "end": 25.731,
+      "text": "The second team receives a template and a sentence about success.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 25.731,
+      "end": 28.836,
+      "text": "Context can disappear between those two moments.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 28.836,
+      "end": 39.927,
+      "text": "Chapter Twenty-Four asks what changes at scale: experiments can collide, metrics can mean different things, and a tool can spread faster than a review practice.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 39.927,
+      "end": 47.913,
+      "text": "Treat the original test from our fictional membership service as a candidate for reuse, not an approved model.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 47.913,
+      "end": 49.687,
+      "text": "What was the job?",
+      "scene": "L15-01"
+    },
+    {
+      "start": 49.687,
+      "end": 51.905,
+      "text": "Which participants were in scope?",
+      "scene": "L15-01"
+    },
+    {
+      "start": 51.905,
+      "end": 54.124,
+      "text": "What did the team observe?",
+      "scene": "L15-01"
+    },
+    {
+      "start": 54.124,
+      "end": 56.342,
+      "text": "Which result is still pending?",
+      "scene": "L15-01"
+    },
+    {
+      "start": 56.342,
+      "end": 64.327,
+      "text": "If the new team serves people with a different access need, the first team's conclusion may not travel.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 64.327,
+      "end": 67.876,
+      "text": "Put the source and exclusion beside the result.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 67.876,
+      "end": 70.982,
+      "text": "Scaling begins with a transfer of judgment.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 70.982,
+      "end": 79.411,
+      "text": "The useful question is whether another team can reproduce the decision boundary, not whether it can copy the screen.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 79.411,
+      "end": 89.615,
+      "text": "Start the scale-readiness checklist with the parts that must travel: definition, owner, evidence, stop condition, and a place to record the next result.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 89.615,
+      "end": 94.051,
+      "text": "At this point, speed can become a source of error.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 94.051,
+      "end": 104.698,
+      "text": "The first team may know that an apparent improvement came from a narrow group, or that a support burden rose after the measurement window.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 104.698,
+      "end": 107.36,
+      "text": "A copied summary loses both facts.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 107.36,
+      "end": 112.684,
+      "text": "Ask the original owner to mark what another team must verify again.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 112.684,
+      "end": 122,
+      "text": "Make that conversation part of the handoff, then record the answer so the next team does not rely on hallway memory.",
+      "scene": "L15-01"
+    },
+    {
+      "start": 122,
+      "end": 128.697,
+      "text": "The book proposes shared infrastructure: an experiment template, a hypothesis backlog, and a decision log.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 128.697,
+      "end": 131.376,
+      "text": "These are not three new committees.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 131.376,
+      "end": 137.627,
+      "text": "They are ways to keep a test understandable after the original team moves on.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 137.627,
+      "end": 139.413,
+      "text": "Write a one-page record.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 139.413,
+      "end": 145.664,
+      "text": "It names the customer job, hypothesis, eligibility rule, measure, decision threshold, date, and reviewer.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 145.664,
+      "end": 150.129,
+      "text": "Add links to the source ledger and any observed result.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 150.129,
+      "end": 154.594,
+      "text": "Give the next team permission to say its context differs.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 154.594,
+      "end": 158.166,
+      "text": "A common format makes differences easier to see.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 158.166,
+      "end": 163.97,
+      "text": "Chapter Twenty-Four also warns that a central learning team can become a bottleneck.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 163.97,
+      "end": 173.793,
+      "text": "Assign a local owner who can run the test within an agreed boundary, and a cross-team reviewer for conflicts or shared risk.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 173.793,
+      "end": 176.472,
+      "text": "The governance should fit the consequence.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 176.472,
+      "end": 180.044,
+      "text": "A copy change might need a quick review.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 180.044,
+      "end": 186.742,
+      "text": "A change to pricing, access, privacy, or billing needs the people who own those obligations.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 186.742,
+      "end": 200.583,
+      "text": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 200.583,
+      "end": 207.28,
+      "text": "The record should help work move, not make people prove that they filled every box.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 207.28,
+      "end": 210.852,
+      "text": "Use the template as a doorway into judgment.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 210.852,
+      "end": 218.443,
+      "text": "A reviewer should be able to spot a missing source or conflicting test without reading a novel.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 218.443,
+      "end": 224.694,
+      "text": "Show who has authority to pause work when an access or privacy problem appears.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 224.694,
+      "end": 227.373,
+      "text": "Write the escalation in ordinary language.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 227.373,
+      "end": 235.856,
+      "text": "If nobody can tell who owns the next decision, the process is too vague to protect the people involved.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 235.856,
+      "end": 243,
+      "text": "If every minor edit waits for a central committee, it is too heavy to help them.",
+      "scene": "L15-02"
+    },
+    {
+      "start": 243,
+      "end": 245.65,
+      "text": "Chapter Twenty-Four names five scaling mistakes.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 245.65,
+      "end": 248.741,
+      "text": "A central team can become a bottleneck.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 248.741,
+      "end": 252.715,
+      "text": "Documentation can grow so heavy that people stop testing.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 252.715,
+      "end": 257.573,
+      "text": "The organization can fixate on one tool instead of shared learning.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 257.573,
+      "end": 261.989,
+      "text": "Teams can resist a process they did not help shape.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 261.989,
+      "end": 267.73,
+      "text": "And leaders can expand across the whole organization before the first handoff works.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 267.73,
+      "end": 273.912,
+      "text": "Put those five labels on the checklist and test your own proposal against them.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 273.912,
+      "end": 276.562,
+      "text": "Which one is most likely here?",
+      "scene": "L15-03"
+    },
+    {
+      "start": 276.562,
+      "end": 287.602,
+      "text": "In the fictional membership case, tool fixation could be tempting: the first team has a spreadsheet, so everyone is told to use the same spreadsheet.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 287.602,
+      "end": 293.785,
+      "text": "What matters is whether the second team can understand the hypothesis, measure, and decision.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 293.785,
+      "end": 299.084,
+      "text": "Another tool could carry the same record if it preserves the contract.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 299.084,
+      "end": 301.292,
+      "text": "Resistance can also be information.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 301.292,
+      "end": 307.916,
+      "text": "Ask what work the new team already does and what burden the process would add.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 307.916,
+      "end": 314.54,
+      "text": "A five-minute decision note may fit; a fifty-page report will likely disappear into the backlog.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 314.54,
+      "end": 324.697,
+      "text": "The chapter's maturity question is powerful: can a new colleague explain why the organization passed on an obvious alternative, citing the decision record?",
+      "scene": "L15-03"
+    },
+    {
+      "start": 324.697,
+      "end": 331.321,
+      "text": "If the answer lives only in one person's memory, the system has not yet traveled.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 331.321,
+      "end": 335.296,
+      "text": "Check the next-team burden before declaring the system ready.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 335.296,
+      "end": 341.478,
+      "text": "Have someone outside the first team fill out the record with a fictional case.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 341.478,
+      "end": 346.777,
+      "text": "Note which fields they cannot interpret and which handoffs require a conversation.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 346.777,
+      "end": 349.869,
+      "text": "Revise the form before a live rollout.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 349.869,
+      "end": 358.701,
+      "text": "Keep the five book labels attached to this check; they are a useful warning, not a score or maturity ranking.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 358.701,
+      "end": 364,
+      "text": "A low score invented for the slide would add confidence without evidence.",
+      "scene": "L15-03"
+    },
+    {
+      "start": 364,
+      "end": 366.224,
+      "text": "Chapter Twenty-Five returns to Sam.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 366.224,
+      "end": 375.567,
+      "text": "The book describes a calmer operating rhythm: fewer frantic searches for context, shorter decisions, and a record that people can find.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 375.567,
+      "end": 377.791,
+      "text": "This is the book's illustration.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 377.791,
+      "end": 385.354,
+      "text": "It is not evidence that our fictional membership service, AmaduTown, or this workshop has produced those outcomes.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 385.354,
+      "end": 392.027,
+      "text": "The story is useful because it shows what institutional memory feels like in daily work.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 392.027,
+      "end": 395.141,
+      "text": "Someone asks why a choice was made.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 395.141,
+      "end": 401.369,
+      "text": "Instead of rebuilding the argument from old messages, the team opens the decision log.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 401.369,
+      "end": 404.038,
+      "text": "Someone wants to repeat a test.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 404.038,
+      "end": 410.711,
+      "text": "Instead of copying a result without context, they can inspect the participants, measure, and revision.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 410.711,
+      "end": 414.27,
+      "text": "Notice how much of this depends on people.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 414.27,
+      "end": 424.947,
+      "text": "A record must be written well enough to be read; a reviewer must notice when evidence no longer fits; an owner must still decide.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 424.947,
+      "end": 429.395,
+      "text": "Automated routing can move a source to the right place.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 429.395,
+      "end": 434.734,
+      "text": "It cannot determine whether a past finding applies to a different community.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 434.734,
+      "end": 440.517,
+      "text": "In the storyboard, keep Sam's narrative label separate from any observed evidence card.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 440.517,
+      "end": 447.635,
+      "text": "We will not film a fabricated board meeting as if it happened in the present project.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 447.635,
+      "end": 452.529,
+      "text": "The before-and-after story can tempt us to promise relief too early.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 452.529,
+      "end": 465.875,
+      "text": "Ask what would have to be measured to make that claim in a real organization: time spent finding context, repeated decisions, missed handoffs, and the cost of maintaining the records.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 465.875,
+      "end": 470.323,
+      "text": "A calmer calendar alone would not explain why it changed.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 470.323,
+      "end": 475.217,
+      "text": "Keep the causal claim open until the evidence can support it.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 475.217,
+      "end": 481,
+      "text": "The lesson is a working rhythm that people can inspect, revise, and own.",
+      "scene": "L15-04"
+    },
+    {
+      "start": 481,
+      "end": 486.363,
+      "text": "The decision-memory record is where a useful test becomes a reusable asset.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 486.363,
+      "end": 489.938,
+      "text": "Write what the team believed before the test.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 489.938,
+      "end": 492.172,
+      "text": "Link to the source evidence.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 492.172,
+      "end": 495.747,
+      "text": "Record what happened, including contrary observations and limits.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 495.747,
+      "end": 502.451,
+      "text": "State the choice, the person accountable for it, and the condition that would reopen it.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 502.451,
+      "end": 506.919,
+      "text": "Add the date when its context should be checked again.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 506.919,
+      "end": 510.495,
+      "text": "If the decision was to defer, say why.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 510.495,
+      "end": 514.516,
+      "text": "If the result contradicted the hypothesis, keep it visible.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 514.516,
+      "end": 525.242,
+      "text": "A later team should be able to ask a narrow question: does this past decision still apply to our people and our operating constraints?",
+      "scene": "L15-05"
+    },
+    {
+      "start": 525.242,
+      "end": 531.051,
+      "text": "The book's Sam story treats searchable decisions as part of a learning system.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 531.051,
+      "end": 535.52,
+      "text": "We can borrow that practice without borrowing its claimed numbers.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 535.52,
+      "end": 544.458,
+      "text": "For the membership exercise, a record might say the short-commitment offer remains a hypothesis until an approved test is reviewed.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 544.458,
+      "end": 547.586,
+      "text": "It should not say the model works.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 547.586,
+      "end": 556.524,
+      "text": "Link the two-audience pitch from Lesson Fourteen, the learning plan from Lesson Eight, and the job card from Lesson Twelve.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 556.524,
+      "end": 562.78,
+      "text": "Now the record shows the chain from input to interpretation to test to choice.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 562.78,
+      "end": 565.908,
+      "text": "If a source is missing, mark it.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 565.908,
+      "end": 570.824,
+      "text": "Recoverability depends on honest gaps as much as on good summaries.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 570.824,
+      "end": 573.059,
+      "text": "Imagine the original owner leaves.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 573.059,
+      "end": 581.549,
+      "text": "Can the next person find the most recent source, the decision threshold, and the reason an alternative was rejected?",
+      "scene": "L15-05"
+    },
+    {
+      "start": 581.549,
+      "end": 584.231,
+      "text": "If not, add that missing link.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 584.231,
+      "end": 593.168,
+      "text": "If an AI summary is attached, preserve the original record beside it and name the human who checked the summary.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 593.168,
+      "end": 598.978,
+      "text": "The memory is only as reliable as the path back to its evidence.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 598.978,
+      "end": 603,
+      "text": "A confident paragraph without source links will age badly.",
+      "scene": "L15-05"
+    },
+    {
+      "start": 603,
+      "end": 605.216,
+      "text": "Pause and complete two pages.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 605.216,
+      "end": 614.523,
+      "text": "First, the scale-readiness checklist: common definition, participant boundary, measure, owner, review cadence, conflict check, privacy or billing escalation, and stop rule.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 614.523,
+      "end": 617.625,
+      "text": "Mark each field ready, missing, or context-dependent.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 617.625,
+      "end": 625.159,
+      "text": "Second, the decision-memory record: original question, evidence, test, outcome state, decision, rejected alternative, rationale, and revisit date.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 625.159,
+      "end": 632.693,
+      "text": "Resume when a second team could explain what it may reuse and what it must validate again.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 632.693,
+      "end": 639.341,
+      "text": "If your current evidence is only a synthetic workshop exercise, mark the scale decision blocked.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 639.341,
+      "end": 643.773,
+      "text": "Do not turn a hypothetical success into a rollout plan.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 643.773,
+      "end": 652.193,
+      "text": "In your own organization, keep private records inside approved systems and use only public, synthetic, or approved data here.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 652.193,
+      "end": 658.841,
+      "text": "The book gives us Sam's operating story and a set of governance problems to watch.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 658.841,
+      "end": 668.148,
+      "text": "The exercise asks for a smaller, inspectable answer: can another team find the evidence and know who can stop the test?",
+      "scene": "L15-06"
+    },
+    {
+      "start": 668.148,
+      "end": 673.466,
+      "text": "The final lesson returns to the decision you named at the start.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 673.466,
+      "end": 680.557,
+      "text": "We will choose one move for the next week and give it a real review date.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 680.557,
+      "end": 688.091,
+      "text": "Learning becomes infrastructure when another person can pick up the record and act with the same care.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 688.091,
+      "end": 693.409,
+      "text": "End with a decision about readiness, even if the answer is wait.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 693.409,
+      "end": 700.5,
+      "text": "Choose one neighboring team for a future handoff only after the record survives a dry run.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 700.5,
+      "end": 706.705,
+      "text": "State which safeguards belong to the shared process and which must be set locally.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 706.705,
+      "end": 712.466,
+      "text": "This keeps a successful local experiment from becoming an organization-wide promise by accident.",
+      "scene": "L15-06"
+    },
+    {
+      "start": 712.466,
+      "end": 720,
+      "text": "The aim is a repeatable learning practice that can carry disagreement and correction as well as success.",
+      "scene": "L15-06"
+    }
+  ],
+  "assets": {
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause during Scene 6. Complete the scale-readiness checklist and decision-memory record. Resume only after the source, owner, review date, evidence gap, and stop or revision condition are explicit. Use public, synthetic, or approved input. Private customer or company material stays in its authorized system.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 28.836,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 28.836,
+      "end_seconds": 243,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 243,
+      "end_seconds": 273.912,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 273.912,
+      "end_seconds": 481,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 481,
+      "end_seconds": 510.495,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 510.495,
+      "end_seconds": 688.091,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 688.091,
+      "end_seconds": 712.466,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 712.466,
+      "end_seconds": 720,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L15-01",
+        "start_seconds": 0,
+        "end_seconds": 28.836,
+        "duration_seconds": 28.836,
+        "narration_text": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments.",
+        "handoff_visual": "approved Momentum plate and fictional second-team reuse request; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L15-03",
+        "start_seconds": 243,
+        "end_seconds": 273.912,
+        "duration_seconds": 30.912,
+        "narration_text": "Chapter Twenty-Four names five scaling mistakes. A central team can become a bottleneck. Documentation can grow so heavy that people stop testing. The organization can fixate on one tool instead of shared learning. Teams can resist a process they did not help shape. And leaders can expand across the whole organization before the first handoff works. Put those five labels on the checklist and test your own proposal against them.",
+        "handoff_visual": "five book-attributed scaling-mistake labels as checklist rows; no invented maturity ladder; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L15-05",
+        "start_seconds": 481,
+        "end_seconds": 510.495,
+        "duration_seconds": 29.495,
+        "narration_text": "The decision-memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why.",
+        "handoff_visual": "synthetic decision-memory record with evidence links, rationale, dissent, owner, and expiry; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L15-06",
+        "start_seconds": 688.091,
+        "end_seconds": 712.466,
+        "duration_seconds": 24.375,
+        "narration_text": "End with a decision about readiness, even if the answer is wait. Choose one neighboring team for a future handoff only after the record survives a dry run. State which safeguards belong to the shared process and which must be set locally. This keeps a successful local experiment from becoming an organization-wide promise by accident.",
+        "handoff_visual": "completed scale-readiness checklist and decision-memory record; Momentum plate closes; Momentum plate remains source art.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

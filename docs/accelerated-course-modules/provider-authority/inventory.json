@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "status": "blocked_no_provider_authority",
+  "source_base_commit": "211ab30eaf537c1688828de6c5c0f5206e6c9535",
+  "batch_order": [
+    {
+      "batch_id": "L02-L04",
+      "lessons": [
+        "L02",
+        "L03",
+        "L04"
+      ],
+      "presenter_seconds": 258.468,
+      "execution_allowed": false
+    },
+    {
+      "batch_id": "L05-L08",
+      "lessons": [
+        "L05",
+        "L06",
+        "L07",
+        "L08"
+      ],
+      "presenter_seconds": 382.961,
+      "execution_allowed": false
+    },
+    {
+      "batch_id": "L09-L12",
+      "lessons": [
+        "L09",
+        "L10",
+        "L11",
+        "L12"
+      ],
+      "presenter_seconds": 425.943,
+      "execution_allowed": false
+    },
+    {
+      "batch_id": "L13-L16",
+      "lessons": [
+        "L13",
+        "L14",
+        "L15",
+        "L16"
+      ],
+      "presenter_seconds": 453.945,
+      "execution_allowed": false
+    }
+  ],
+  "total_presenter_seconds": 1521.317,
+  "safest_first_executable_batch": null,
+  "first_candidate_after_separate_authorization": "L02 only; one job, no retry",
+  "pre_job_missing_bindings_for_every_lesson": [
+    "authorized_provider_account",
+    "approved_avatar_id",
+    "avatar_rights_receipt",
+    "approved_voice_id",
+    "voice_rights_receipt",
+    "privacy_review_receipt",
+    "binding_all_in_quote",
+    "provider_billing_units_and_rounding",
+    "enforceable_credit_or_spend_cap",
+    "current_exact_batch_authorization"
+  ],
+  "post_job_required_outputs_for_every_lesson": [
+    "provider_job_receipt",
+    "native_source_clip_sha256",
+    "native_source_audio_sha256",
+    "exact_native_timing_receipt",
+    "actual_credit_cost_receipt"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "lesson_id": "L12",
+  "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c022.xhtml",
+    "c023.xhtml"
+  ],
+  "approved_assets": {
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "synthetic_scenes": {
+    "L12-01": "synthetic-course-card:L12-01:e8eaeb9628811002",
+    "L12-02": "synthetic-course-card:L12-02:e8eaeb9628811002",
+    "L12-03": "synthetic-course-card:L12-03:e8eaeb9628811002",
+    "L12-04": "synthetic-course-card:L12-04:e8eaeb9628811002",
+    "L12-05": "synthetic-course-card:L12-05:e8eaeb9628811002",
+    "L12-06": "synthetic-course-card:L12-06:e8eaeb9628811002"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}

@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L15-01",
+      "start_seconds": 0,
+      "end_seconds": 28.836,
+      "duration_seconds": 28.836,
+      "narration_text": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments.",
+      "handoff_visual": "approved Momentum plate and fictional second-team reuse request; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L15-03",
+      "start_seconds": 243,
+      "end_seconds": 273.912,
+      "duration_seconds": 30.912,
+      "narration_text": "Chapter Twenty-Four names five scaling mistakes. A central team can become a bottleneck. Documentation can grow so heavy that people stop testing. The organization can fixate on one tool instead of shared learning. Teams can resist a process they did not help shape. And leaders can expand across the whole organization before the first handoff works. Put those five labels on the checklist and test your own proposal against them.",
+      "handoff_visual": "five book-attributed scaling-mistake labels as checklist rows; no invented maturity ladder; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L15-05",
+      "start_seconds": 481,
+      "end_seconds": 510.495,
+      "duration_seconds": 29.495,
+      "narration_text": "The decision-memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why.",
+      "handoff_visual": "synthetic decision-memory record with evidence links, rationale, dissent, owner, and expiry; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L15-06",
+      "start_seconds": 688.091,
+      "end_seconds": 712.466,
+      "duration_seconds": 24.375,
+      "narration_text": "End with a decision about readiness, even if the answer is wait. Choose one neighboring team for a future handoff only after the record survives a dry run. State which safeguards belong to the shared process and which must be set locally. This keeps a successful local experiment from becoming an organization-wide promise by accident.",
+      "handoff_visual": "completed scale-readiness checklist and decision-memory record; Momentum plate closes; Momentum plate remains source art.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L15",
+  "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0"
+}

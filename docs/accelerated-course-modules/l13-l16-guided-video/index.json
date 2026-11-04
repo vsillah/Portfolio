@@ -1,0 +1,29 @@
+{
+  "status": "offline-review-only",
+  "lessons": [
+    {
+      "id": "L13",
+      "title": "Strategic shifts and future concepts",
+      "packet": "l13-packet.json",
+      "runtime_seconds": 660
+    },
+    {
+      "id": "L14",
+      "title": "The last mile of influence",
+      "packet": "l14-packet.json",
+      "runtime_seconds": 480
+    },
+    {
+      "id": "L15",
+      "title": "Governance and the system that learns",
+      "packet": "l15-packet.json",
+      "runtime_seconds": 720
+    },
+    {
+      "id": "L16",
+      "title": "What comes next",
+      "packet": "l16-packet.json",
+      "runtime_seconds": 480
+    }
+  ]
+}

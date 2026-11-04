@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "npm run build:knowledge && next build",
+    "dev": "node scripts/stage-accelerated-l02-media.mjs && next dev",
+    "build": "node scripts/stage-accelerated-l02-media.mjs && npm run build:knowledge && next build",
     "build:knowledge": "tsx scripts/build-chatbot-knowledge.ts",
     "start": "next start",
     "lint": "next lint",

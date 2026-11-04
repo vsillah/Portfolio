@@ -1,0 +1,25 @@
+{
+  "lesson_id": "L09",
+  "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c017.xhtml",
+    "c018.xhtml"
+  ],
+  "approved_assets": {
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "synthetic_scenes": {
+    "L09-01": "synthetic-course-card:L09-01:72f88ce4aa6cb4f1",
+    "L09-02": "synthetic-course-card:L09-02:72f88ce4aa6cb4f1",
+    "L09-03": "synthetic-course-card:L09-03:72f88ce4aa6cb4f1",
+    "L09-04": "synthetic-course-card:L09-04:72f88ce4aa6cb4f1",
+    "L09-05": "synthetic-course-card:L09-05:72f88ce4aa6cb4f1",
+    "L09-06": "synthetic-course-card:L09-06:72f88ce4aa6cb4f1"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}
