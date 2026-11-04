@@ -1,0 +1,24 @@
+{
+  "lesson_id": "L10",
+  "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c019.xhtml"
+  ],
+  "approved_assets": {
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "synthetic_scenes": {
+    "L10-01": "synthetic-course-card:L10-01:582238a183ab7171",
+    "L10-02": "synthetic-course-card:L10-02:582238a183ab7171",
+    "L10-03": "synthetic-course-card:L10-03:582238a183ab7171",
+    "L10-04": "synthetic-course-card:L10-04:582238a183ab7171",
+    "L10-05": "synthetic-course-card:L10-05:582238a183ab7171",
+    "L10-06": "synthetic-course-card:L10-06:582238a183ab7171"
+  },
+  "blocked": "No real customer, Portfolio UI, or provider capture without exact rights and privacy binding"
+}

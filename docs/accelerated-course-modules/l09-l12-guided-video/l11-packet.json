@@ -1,0 +1,981 @@
+{
+  "schema_version": 1,
+  "status": "offline-storyboard-only",
+  "lesson_id": "L11",
+  "title": "From the shift to a repeatable loop",
+  "runtime_seconds": 600,
+  "learner_artifact": "Signal-to-decision loop map with owner and review gate",
+  "source_script": "docs/accelerated-course-modules/curriculum/scripts/L11.md",
+  "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+  "source_visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "source_storyboard_brief_sha256": "bca05bc1f997a071e954f18f46d3905a19248db5214883dfec6f10541249fb4a",
+  "source_notes_sha256": "d1d6a1ba6ffbfdbd3cfd5b4bb1276b9d59624743c07a7f1f72001c9c1a79ee78",
+  "book_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+  "book_sections": [
+    "c020.xhtml",
+    "c021.xhtml"
+  ],
+  "scenes": [
+    {
+      "id": "L11-01",
+      "title": "A shorter meeting",
+      "start_seconds": 0,
+      "end_seconds": 100,
+      "narration": "In Chapter Seventeen, Sam arrives at a roadmap meeting that feels different. The team has already gathered feedback, translated it into a question, and prepared a learning choice. The meeting can spend its time on the decision. Sam is a character in the book's story, not a member of a team we are showing live. What changed was the work before the meeting. Evidence had a place to arrive. A plan had a review point. A failed test could be discussed without scrambling to explain it away. Think about your last meeting that started with everyone retelling the same customer problem. How much time went into finding the latest notes? How much into arguing over which number was current? Shorter meetings are not the goal by themselves. The useful change is that the team can see what it knows, what it tried, and what it will decide next. Your decision file already holds a source ledger, a learning plan, and a map of the decision room. Today we connect those pages. We will ask where a signal enters, who checks it, how a test is chosen, who decides, and where the result is kept for the next person. That is the quiet infrastructure behind the changed meeting.",
+      "narration_sha256": "710d2b0743cfc2bdfb7f77b52a8a7dc33f14eba22b7a1cd1cf3cd6a3d2d86881",
+      "on_screen_copy": "The meeting begins with the decision",
+      "shot": "A shorter meeting",
+      "visual": "Sam book-story title card; approved Momentum plate; no documentary reconstruction of a real team.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A01",
+        "scene": "L11-01",
+        "start_seconds": 0,
+        "end_seconds": 30.435,
+        "duration_seconds": 30.435,
+        "narration_text": "In Chapter Seventeen, Sam arrives at a roadmap meeting that feels different. The team has already gathered feedback, translated it into a question, and prepared a learning choice. The meeting can spend its time on the decision. Sam is a character in the book's story, not a member of a team we are showing live. What changed was the work before the meeting.",
+        "handoff_visual": "Sam book-story title card; approved Momentum plate; no documentary reconstruction of a real team.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c020.xhtml",
+          "c021.xhtml"
+        ],
+        "scene_source": "Ch17, “The Morning That Felt Different,” “The Meeting That Proved It” (`c020.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L11-01:705152fdd1f3654e",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L11-02",
+      "title": "Trace the failed test",
+      "start_seconds": 100,
+      "end_seconds": 200,
+      "narration": "The book gives Sam a test that fails. The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted. They could ask what the result meant and choose the next question. Notice what that requires. The original hypothesis must still be visible. The trigger cannot be rewritten after the result. Someone must inspect the evidence rather than accept a summary alone. The decision and its reason need to survive the meeting. In our membership exercise, imagine the new first-task card is tested and people still ask staff for help. That is a conditional branch, not a result. The team might learn that the instruction is unclear, or that the task itself is unfamiliar. The observation notes would need to distinguish those explanations. If participants understand the card but cannot tell whether the action worked, confirmation becomes the next test. If recruitment fails, the study is inconclusive. The file should preserve all three routes without pretending that one happened. Sam's story shows an operating habit: a team can be wrong about a solution and still be disciplined about learning. The record is what lets the next meeting start beyond the last one.",
+      "narration_sha256": "ce6e1a61af98222c2f43d0185eb8a3636c90ae208c0127a2af824cd2f3052b41",
+      "on_screen_copy": "A failed test can still answer a question",
+      "shot": "Trace the failed test",
+      "visual": "book-story test card with hypothesis, trigger, review, and revised question; no quoted success metrics.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c020.xhtml",
+          "c021.xhtml"
+        ],
+        "scene_source": "Ch17, “The Test That Failed (And Why That Was Fine),” “The Questions That Changed Everything” (`c020.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L11-02:705152fdd1f3654e",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L11-03",
+      "title": "Connect signal, insight, test, decision",
+      "start_seconds": 200,
+      "end_seconds": 300,
+      "narration": "Chapter Eighteen moves from scattered tools to a connected system. Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum. A signal is a traceable observation, such as a set of first-task notes with source IDs. An insight is an interpretation: perhaps members cannot tell which action starts the service. That interpretation still needs a counterexample and a person willing to challenge it. A test turns the interpretation into a question that can be answered. The learning plan specifies who participates, what counts, and when the result is reviewed. A decision says what the team will do in light of that evidence. Repeatable momentum means the next person can find the record and use it without rebuilding the whole argument. In our synthetic workflow, feedback note F04 reaches the ledger. The reviewer groups it with similar notes, preserves the contrary case, and writes a proposed job. The owner chooses a small card test. The result, when one exists, returns to the decision file with a date and next move. This path is still a proposal until a team names its owners and review gates. Draw each arrow only after naming its input, owner, and output. A line between boxes is not a handoff unless someone can tell when the work crosses it and what happens when it does not.",
+      "narration_sha256": "149674444fce43541bd422b4c2f9866c3d03d4d55e8081c62f35d65df5c2b1df",
+      "on_screen_copy": "1. Notice the signal\n2. Turn it into insight\n3. Run the test\n4. Make the decision\n5. Build repeatable momentum",
+      "shot": "Connect signal, insight, test, decision",
+      "visual": "book's exact arrow sequence as text labels, then a synthetic member-feedback ledger; no invented book figure.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A02",
+        "scene": "L11-03",
+        "start_seconds": 200,
+        "end_seconds": 223.874,
+        "duration_seconds": 23.874,
+        "narration_text": "Chapter Eighteen moves from scattered tools to a connected system. Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum. A signal is a traceable observation, such as a set of first-task notes with source IDs. An insight is an interpretation: perhaps members cannot tell which action starts the service.",
+        "handoff_visual": "book's exact arrow sequence as text labels, then a synthetic member-feedback ledger; no invented book figure.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c020.xhtml",
+          "c021.xhtml"
+        ],
+        "scene_source": "Ch18, “Rethink AI as Your Systems Architect,” “Connect AI Across the Build-Measure-Learn Loop” (`c021.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "visual_copy_revision": "Book concepts rendered as short action labels for human QA; narration and script source unchanged",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L11-03:705152fdd1f3654e",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L11-04",
+      "title": "Put a person at the review gate",
+      "start_seconds": 300,
+      "end_seconds": 400,
+      "narration": "The book names tools that can collect, translate, and route information. The trap is to connect them and call the system complete. If an AI summary misreads a member's sentence, faster routing only spreads the mistake. In this course, automation may move an approved note into a ledger, flag a possible pattern, or remind an owner that a review date has arrived. A person checks the raw source, contrary evidence, privacy boundary, and decision consequence before a proposed insight becomes a team commitment. That review gate needs a named owner and a visible way to reject or correct the suggestion. For the fictional membership service, a coordinator could review the source IDs before the pattern reaches the product owner. If the note contains private information, it stays in the protected research system and only an approved summary travels onward. The book's minimum viable stack is about connecting the work, not collecting every tool on a shelf. Choose the smallest path your team can actually maintain. Write what happens when the reviewer is unavailable. Does the item wait, move to another authorized owner, or expire? A silent automated approval would change the decision boundary. The loop should make that boundary plain enough for a new teammate to follow.",
+      "narration_sha256": "1d6d943188d135698a233018dbca9ccdc4027a1b388bae846385a4dbf7551c4f",
+      "on_screen_copy": "Automate movement; review meaning",
+      "shot": "Put a person at the review gate",
+      "visual": "synthetic workflow diagram with human review between suggested insight and decision; course-kit Learning System Loop identified in protected notes as a tactical aid.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": null,
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c020.xhtml",
+          "c021.xhtml"
+        ],
+        "scene_source": "Ch18, “Your Core AI Stack,” “How to Start: The Minimum Viable Stack,” “The Real Goal: Build a System That Remembers” (`c021.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L11-04:705152fdd1f3654e",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L11-05",
+      "title": "Give the next person the memory",
+      "start_seconds": 400,
+      "end_seconds": 500,
+      "narration": "Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner. If the evidence is inconclusive, write that plainly. If a later team repeats the test in a different setting, it should keep the earlier result rather than overwrite it. Chapter Eighteen calls the real goal a system that remembers. Memory here is operational: it keeps a small decision from becoming a rumor. Sam's changed meeting in Chapter Seventeen depends on this kind of continuity. In our exercise, a record might say the first-task card remains untested because observation capacity was unavailable. That is not a failure dressed up as success. It is a clear state and a next action. Another possible record could say the test ran but the result is awaiting human review. Neither should be described as an outcome. Keep source links in the authorized system, not on a public slide. The audience-facing card can show the shape of the record with fictional values.",
+      "narration_sha256": "840fd582364d4c93ecd2994d0a95b8d76c29409a2c332125d77320833e9822ab",
+      "on_screen_copy": "What we believed · What we saw · What we decided",
+      "shot": "Give the next person the memory",
+      "visual": "synthetic decision-memory record with original bet, evidence links, result state, and next owner.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A03",
+        "scene": "L11-05",
+        "start_seconds": 400,
+        "end_seconds": 428.78,
+        "duration_seconds": 28.78,
+        "narration_text": "Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner.",
+        "handoff_visual": "synthetic decision-memory record with original bet, evidence links, result state, and next owner.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c020.xhtml",
+          "c021.xhtml"
+        ],
+        "scene_source": "Ch18, “The Real Goal: Build a System That Remembers,” “How to Start: The Minimum Viable Stack” (`c021.xhtml`); Ch17, “What Changed (The Invisible Infrastructure)” (`c020.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L11-05:705152fdd1f3654e",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    },
+    {
+      "id": "L11-06",
+      "title": "Draw the loop you can run",
+      "start_seconds": 500,
+      "end_seconds": 600,
+      "narration": "Pause and draw one current workflow, using only information you can safely put in this course exercise. Mark where a signal arrives, who turns it into a proposed insight, which test could challenge it, who makes the decision, and where the record will live. Circle the weakest handoff. It may be source review, ownership of the test, a missing stop condition, or a decision that never reaches the backlog. Write the person responsible for that handoff and the condition that blocks it. Resume when your map has a human review gate, a place for the result, and a next owner. If you cannot name an owner, leave the arrow broken; the page should show the work that remains. The book's arrow sequence gives the stages. The Learning System Loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path. We will translate feedback into a job, then use synthetic reactions to find questions worth asking real people. The boundary between those two sources matters.",
+      "narration_sha256": "4cb1a8752d42f362420366e4bf1b6011257ae92d51dc97995e801c56e81a67b1",
+      "on_screen_copy": "Name the missing handoff",
+      "shot": "Draw the loop you can run",
+      "visual": "completed loop worksheet, then approved Momentum plate; no real n8n or admin capture.",
+      "asset_refs": [
+        "momentum"
+      ],
+      "presenter": {
+        "id": "A04",
+        "scene": "L11-06",
+        "start_seconds": 561.576,
+        "end_seconds": 587.685,
+        "duration_seconds": 26.109,
+        "narration_text": "The Learning System Loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
+        "handoff_visual": "completed loop worksheet, then approved Momentum plate; no real n8n or admin capture.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      "accessibility": {
+        "contrast": "At least 4.5:1 body text and 3:1 large text; verify on rendered frame",
+        "reading_order": "Title, decision or question, evidence/source, next action; align visual reveals with narration",
+        "caption_legibility": "Never place instructional text in caption band; check 16:9 and 9:16",
+        "meaningful_text_alternative": "Narration names the instructional relationship; add a text alternative for each worksheet and art panel.",
+        "reduced_motion": "Static labeled end state with equivalent hold time"
+      },
+      "lineage": {
+        "epub_files": [
+          "c020.xhtml",
+          "c021.xhtml"
+        ],
+        "scene_source": "Ch18, “Connect AI Across the Build-Measure-Learn Loop,” “The Real Goal: Build a System That Remembers” (`c021.xhtml`); Ch17, “The Questions That Changed Everything” (`c020.xhtml`).",
+        "storyboard_brief": "docs/accelerated-course-modules/curriculum/scripts/storyboard-brief-l09-l12.md",
+        "book_status": "Book case or argument, never current product/customer proof",
+        "artifact_status": "Synthetic instructional card or approved local art; no real customer/admin capture",
+        "new_synthetic_identity": "synthetic-course-card:L11-06:705152fdd1f3654e",
+        "claim_boundary": "No invented result, customer record, live tool status, or unsupported performance claim"
+      }
+    }
+  ],
+  "cues": [
+    {
+      "start": 0,
+      "end": 5.797,
+      "text": "In Chapter Seventeen, Sam arrives at a roadmap meeting that feels different.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 5.797,
+      "end": 13.527,
+      "text": "The team has already gathered feedback, translated it into a question, and prepared a learning choice.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 13.527,
+      "end": 17.874,
+      "text": "The meeting can spend its time on the decision.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 17.874,
+      "end": 26.57,
+      "text": "Sam is a character in the book's story, not a member of a team we are showing live.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 26.57,
+      "end": 30.435,
+      "text": "What changed was the work before the meeting.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 30.435,
+      "end": 33.333,
+      "text": "Evidence had a place to arrive.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 33.333,
+      "end": 36.232,
+      "text": "A plan had a review point.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 36.232,
+      "end": 42.029,
+      "text": "A failed test could be discussed without scrambling to explain it away.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 42.029,
+      "end": 48.792,
+      "text": "Think about your last meeting that started with everyone retelling the same customer problem.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 48.792,
+      "end": 53.14,
+      "text": "How much time went into finding the latest notes?",
+      "scene": "L11-01"
+    },
+    {
+      "start": 53.14,
+      "end": 57.488,
+      "text": "How much into arguing over which number was current?",
+      "scene": "L11-01"
+    },
+    {
+      "start": 57.488,
+      "end": 61.353,
+      "text": "Shorter meetings are not the goal by themselves.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 61.353,
+      "end": 71.498,
+      "text": "The useful change is that the team can see what it knows, what it tried, and what it will decide next.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 71.498,
+      "end": 80.193,
+      "text": "Your decision file already holds a source ledger, a learning plan, and a map of the decision room.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 80.193,
+      "end": 82.609,
+      "text": "Today we connect those pages.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 82.609,
+      "end": 95.652,
+      "text": "We will ask where a signal enters, who checks it, how a test is chosen, who decides, and where the result is kept for the next person.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 95.652,
+      "end": 100,
+      "text": "That is the quiet infrastructure behind the changed meeting.",
+      "scene": "L11-01"
+    },
+    {
+      "start": 100,
+      "end": 103.828,
+      "text": "The book gives Sam a test that fails.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 103.828,
+      "end": 117.703,
+      "text": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 117.703,
+      "end": 123.445,
+      "text": "They could ask what the result meant and choose the next question.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 123.445,
+      "end": 125.359,
+      "text": "Notice what that requires.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 125.359,
+      "end": 128.708,
+      "text": "The original hypothesis must still be visible.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 128.708,
+      "end": 132.536,
+      "text": "The trigger cannot be rewritten after the result.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 132.536,
+      "end": 137.799,
+      "text": "Someone must inspect the evidence rather than accept a summary alone.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 137.799,
+      "end": 142.584,
+      "text": "The decision and its reason need to survive the meeting.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 142.584,
+      "end": 151.196,
+      "text": "In our membership exercise, imagine the new first-task card is tested and people still ask staff for help.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 151.196,
+      "end": 155.024,
+      "text": "That is a conditional branch, not a result.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 155.024,
+      "end": 162.679,
+      "text": "The team might learn that the instruction is unclear, or that the task itself is unfamiliar.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 162.679,
+      "end": 166.986,
+      "text": "The observation notes would need to distinguish those explanations.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 166.986,
+      "end": 175.12,
+      "text": "If participants understand the card but cannot tell whether the action worked, confirmation becomes the next test.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 175.12,
+      "end": 178.469,
+      "text": "If recruitment fails, the study is inconclusive.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 178.469,
+      "end": 184.211,
+      "text": "The file should preserve all three routes without pretending that one happened.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 184.211,
+      "end": 193.78,
+      "text": "Sam's story shows an operating habit: a team can be wrong about a solution and still be disciplined about learning.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 193.78,
+      "end": 200,
+      "text": "The record is what lets the next meeting start beyond the last one.",
+      "scene": "L11-02"
+    },
+    {
+      "start": 200,
+      "end": 204.505,
+      "text": "Chapter Eighteen moves from scattered tools to a connected system.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 204.505,
+      "end": 210.36,
+      "text": "Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 210.36,
+      "end": 217.568,
+      "text": "A signal is a traceable observation, such as a set of first-task notes with source IDs.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 217.568,
+      "end": 223.874,
+      "text": "An insight is an interpretation: perhaps members cannot tell which action starts the service.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 223.874,
+      "end": 229.73,
+      "text": "That interpretation still needs a counterexample and a person willing to challenge it.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 229.73,
+      "end": 235.135,
+      "text": "A test turns the interpretation into a question that can be answered.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 235.135,
+      "end": 241.441,
+      "text": "The learning plan specifies who participates, what counts, and when the result is reviewed.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 241.441,
+      "end": 247.297,
+      "text": "A decision says what the team will do in light of that evidence.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 247.297,
+      "end": 255.405,
+      "text": "Repeatable momentum means the next person can find the record and use it without rebuilding the whole argument.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 255.405,
+      "end": 259.91,
+      "text": "In our synthetic workflow, feedback note F04 reaches the ledger.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 259.91,
+      "end": 267.117,
+      "text": "The reviewer groups it with similar notes, preserves the contrary case, and writes a proposed job.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 267.117,
+      "end": 270.27,
+      "text": "The owner chooses a small card test.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 270.27,
+      "end": 277.477,
+      "text": "The result, when one exists, returns to the decision file with a date and next move.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 277.477,
+      "end": 284.234,
+      "text": "This path is still a proposal until a team names its owners and review gates.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 284.234,
+      "end": 289.189,
+      "text": "Draw each arrow only after naming its input, owner, and output.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 289.189,
+      "end": 300,
+      "text": "A line between boxes is not a handoff unless someone can tell when the work crosses it and what happens when it does not.",
+      "scene": "L11-03"
+    },
+    {
+      "start": 300,
+      "end": 305.314,
+      "text": "The book names tools that can collect, translate, and route information.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 305.314,
+      "end": 310.628,
+      "text": "The trap is to connect them and call the system complete.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 310.628,
+      "end": 317.391,
+      "text": "If an AI summary misreads a member's sentence, faster routing only spreads the mistake.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 317.391,
+      "end": 329.952,
+      "text": "In this course, automation may move an approved note into a ledger, flag a possible pattern, or remind an owner that a review date has arrived.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 329.952,
+      "end": 340.097,
+      "text": "A person checks the raw source, contrary evidence, privacy boundary, and decision consequence before a proposed insight becomes a team commitment.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 340.097,
+      "end": 348.309,
+      "text": "That review gate needs a named owner and a visible way to reject or correct the suggestion.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 348.309,
+      "end": 357.488,
+      "text": "For the fictional membership service, a coordinator could review the source IDs before the pattern reaches the product owner.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 357.488,
+      "end": 367.15,
+      "text": "If the note contains private information, it stays in the protected research system and only an approved summary travels onward.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 367.15,
+      "end": 375.362,
+      "text": "The book's minimum viable stack is about connecting the work, not collecting every tool on a shelf.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 375.362,
+      "end": 379.71,
+      "text": "Choose the smallest path your team can actually maintain.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 379.71,
+      "end": 383.575,
+      "text": "Write what happens when the reviewer is unavailable.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 383.575,
+      "end": 388.889,
+      "text": "Does the item wait, move to another authorized owner, or expire?",
+      "scene": "L11-04"
+    },
+    {
+      "start": 388.889,
+      "end": 393.237,
+      "text": "A silent automated approval would change the decision boundary.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 393.237,
+      "end": 400,
+      "text": "The loop should make that boundary plain enough for a new teammate to follow.",
+      "scene": "L11-04"
+    },
+    {
+      "start": 400,
+      "end": 403.415,
+      "text": "Imagine joining this work six weeks later.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 403.415,
+      "end": 410.244,
+      "text": "You should be able to answer three questions without searching through a long chat.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 410.244,
+      "end": 412.683,
+      "text": "What did the team believe?",
+      "scene": "L11-05"
+    },
+    {
+      "start": 412.683,
+      "end": 414.634,
+      "text": "What did it observe?",
+      "scene": "L11-05"
+    },
+    {
+      "start": 414.634,
+      "end": 416.585,
+      "text": "What did it decide?",
+      "scene": "L11-05"
+    },
+    {
+      "start": 416.585,
+      "end": 428.78,
+      "text": "The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 428.78,
+      "end": 432.683,
+      "text": "If the evidence is inconclusive, write that plainly.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 432.683,
+      "end": 442.927,
+      "text": "If a later team repeats the test in a different setting, it should keep the earlier result rather than overwrite it.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 442.927,
+      "end": 447.805,
+      "text": "Chapter Eighteen calls the real goal a system that remembers.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 447.805,
+      "end": 454.146,
+      "text": "Memory here is operational: it keeps a small decision from becoming a rumor.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 454.146,
+      "end": 460.0,
+      "text": "Sam's changed meeting in Chapter Seventeen depends on this kind of continuity.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 460.0,
+      "end": 468.293,
+      "text": "In our exercise, a record might say the first-task card remains untested because observation capacity was unavailable.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 468.293,
+      "end": 472.683,
+      "text": "That is not a failure dressed up as success.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 472.683,
+      "end": 477.073,
+      "text": "It is a clear state and a next action.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 477.073,
+      "end": 484.39,
+      "text": "Another possible record could say the test ran but the result is awaiting human review.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 484.39,
+      "end": 487.805,
+      "text": "Neither should be described as an outcome.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 487.805,
+      "end": 493.659,
+      "text": "Keep source links in the authorized system, not on a public slide.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 493.659,
+      "end": 500,
+      "text": "The audience-facing card can show the shape of the record with fictional values.",
+      "scene": "L11-05"
+    },
+    {
+      "start": 500,
+      "end": 508.374,
+      "text": "Pause and draw one current workflow, using only information you can safely put in this course exercise.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 508.374,
+      "end": 521.675,
+      "text": "Mark where a signal arrives, who turns it into a proposed insight, which test could challenge it, who makes the decision, and where the record will live.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 521.675,
+      "end": 523.645,
+      "text": "Circle the weakest handoff.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 523.645,
+      "end": 533.99,
+      "text": "It may be source review, ownership of the test, a missing stop condition, or a decision that never reaches the backlog.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 533.99,
+      "end": 540.394,
+      "text": "Write the person responsible for that handoff and the condition that blocks it.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 540.394,
+      "end": 549.261,
+      "text": "Resume when your map has a human review gate, a place for the result, and a next owner.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 549.261,
+      "end": 558.128,
+      "text": "If you cannot name an owner, leave the arrow broken; the page should show the work that remains.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 558.128,
+      "end": 561.576,
+      "text": "The book's arrow sequence gives the stages.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 561.576,
+      "end": 575.369,
+      "text": "The Learning System Loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 575.369,
+      "end": 580.788,
+      "text": "You have now connected the decision file into a repeatable path.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 580.788,
+      "end": 587.685,
+      "text": "In the next lesson, we will look closely at one signal entering that path.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 587.685,
+      "end": 596.552,
+      "text": "We will translate feedback into a job, then use synthetic reactions to find questions worth asking real people.",
+      "scene": "L11-06"
+    },
+    {
+      "start": 596.552,
+      "end": 600,
+      "text": "The boundary between those two sources matters.",
+      "scene": "L11-06"
+    }
+  ],
+  "assets": {
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "status": "approved existing art; preserve aspect ratio"
+    }
+  },
+  "exercise": "Pause at 08:25. Draw the current signal-to-decision path with input, owner, output, review gate, blocked state, memory record, and next owner. Resume when one weak handoff has a concrete repair. Use synthetic/public/approved material only; private research and internal workflow captures remain protected.",
+  "accessibility_plan": {
+    "master": "16:9, 10% edge safety; captions bottom 18%",
+    "portrait": "reflow cards into vertical stack; never crop body text",
+    "reduced_motion": "static final labeled state for equal reading hold",
+    "caption_status": "draft estimated from source narration; retime against final audio",
+    "transcript": "exact approved script narration"
+  },
+  "audio_ownership": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 30.435,
+      "owner": "native presenter A01 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 30.435,
+      "end_seconds": 200,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 200,
+      "end_seconds": 223.874,
+      "owner": "native presenter A02 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 223.874,
+      "end_seconds": 400,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 400,
+      "end_seconds": 428.78,
+      "owner": "native presenter A03 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 428.78,
+      "end_seconds": 561.576,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    },
+    {
+      "start_seconds": 561.576,
+      "end_seconds": 587.685,
+      "owner": "native presenter A04 if separately authorized; mute matching narration; silent in storyboard"
+    },
+    {
+      "start_seconds": 587.685,
+      "end_seconds": 600,
+      "owner": "approved narration source in final composite; silent in storyboard"
+    }
+  ],
+  "provider_request": {
+    "provider": "HeyGen",
+    "request_type": "non-executable review manifest",
+    "execution_allowed": false,
+    "upload_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "external_send_allowed": false,
+    "voice_generation_allowed": false,
+    "avatar_generation_allowed": false,
+    "spend_cap_usd": 0,
+    "estimated_cost_usd": null,
+    "cost_status": "unquoted; obtain binding quote and enforceable cap",
+    "avatar_identity": null,
+    "voice_identity": null,
+    "likeness_rights_receipt": null,
+    "voice_rights_receipt": null,
+    "recorded_audio_sha256": null,
+    "provider_account": null,
+    "provider_job_mode": null,
+    "provider_terms_acceptance": null,
+    "binding_quote": null,
+    "enforceable_cap": null,
+    "privacy_review_receipt": null,
+    "upload_authorization": null,
+    "upload_destination": null,
+    "publication_authorization": null,
+    "publication_destination": null,
+    "distribution_authorization": null,
+    "distribution_destination": null,
+    "external_send_authorization": null,
+    "external_send_destination": null,
+    "segments": [
+      {
+        "id": "A01",
+        "scene": "L11-01",
+        "start_seconds": 0,
+        "end_seconds": 30.435,
+        "duration_seconds": 30.435,
+        "narration_text": "In Chapter Seventeen, Sam arrives at a roadmap meeting that feels different. The team has already gathered feedback, translated it into a question, and prepared a learning choice. The meeting can spend its time on the decision. Sam is a character in the book's story, not a member of a team we are showing live. What changed was the work before the meeting.",
+        "handoff_visual": "Sam book-story title card; approved Momentum plate; no documentary reconstruction of a real team.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A02",
+        "scene": "L11-03",
+        "start_seconds": 200,
+        "end_seconds": 223.874,
+        "duration_seconds": 23.874,
+        "narration_text": "Chapter Eighteen moves from scattered tools to a connected system. Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum. A signal is a traceable observation, such as a set of first-task notes with source IDs. An insight is an interpretation: perhaps members cannot tell which action starts the service.",
+        "handoff_visual": "book's exact arrow sequence as text labels, then a synthetic member-feedback ledger; no invented book figure.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A03",
+        "scene": "L11-05",
+        "start_seconds": 400,
+        "end_seconds": 428.78,
+        "duration_seconds": 28.78,
+        "narration_text": "Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner.",
+        "handoff_visual": "synthetic decision-memory record with original bet, evidence links, result state, and next owner.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      },
+      {
+        "id": "A04",
+        "scene": "L11-06",
+        "start_seconds": 561.576,
+        "end_seconds": 587.685,
+        "duration_seconds": 26.109,
+        "narration_text": "The Learning System Loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
+        "handoff_visual": "completed loop worksheet, then approved Momentum plate; no real n8n or admin capture.",
+        "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+      }
+    ],
+    "format": {
+      "master": "1920x1080",
+      "frame_rate": "match authorized native source"
+    },
+    "stop_no_retry": [
+      "missing or changed source hash",
+      "missing avatar/voice rights",
+      "unbound recorded audio or hash",
+      "quote absent or above enforceable cap",
+      "privacy concern",
+      "provider error or unexpected output; inspect before any retry"
+    ]
+  },
+  "production_lock": {
+    "app_locked": true,
+    "unlock_requires": "per-lesson final composite, captions, output hashes, privacy/accessibility QA, and separate Human QA approval"
+  }
+}

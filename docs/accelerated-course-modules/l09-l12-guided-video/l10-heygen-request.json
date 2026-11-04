@@ -1,0 +1,89 @@
+{
+  "provider": "HeyGen",
+  "request_type": "non-executable review manifest",
+  "execution_allowed": false,
+  "upload_allowed": false,
+  "publication_allowed": false,
+  "distribution_allowed": false,
+  "external_send_allowed": false,
+  "voice_generation_allowed": false,
+  "avatar_generation_allowed": false,
+  "spend_cap_usd": 0,
+  "estimated_cost_usd": null,
+  "cost_status": "unquoted; obtain binding quote and enforceable cap",
+  "avatar_identity": null,
+  "voice_identity": null,
+  "likeness_rights_receipt": null,
+  "voice_rights_receipt": null,
+  "recorded_audio_sha256": null,
+  "provider_account": null,
+  "provider_job_mode": null,
+  "provider_terms_acceptance": null,
+  "binding_quote": null,
+  "enforceable_cap": null,
+  "privacy_review_receipt": null,
+  "upload_authorization": null,
+  "upload_destination": null,
+  "publication_authorization": null,
+  "publication_destination": null,
+  "distribution_authorization": null,
+  "distribution_destination": null,
+  "external_send_authorization": null,
+  "external_send_destination": null,
+  "segments": [
+    {
+      "id": "A01",
+      "scene": "L10-01",
+      "start_seconds": 0,
+      "end_seconds": 28.615,
+      "duration_seconds": 28.615,
+      "narration_text": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research. Finance sees an unpriced commitment. Engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter Sixteen describes that kind of meeting.",
+      "handoff_visual": "synthetic proposal card beside the L09 map; approved Alignment plate opens briefly.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A02",
+      "scene": "L10-03",
+      "start_seconds": 180,
+      "end_seconds": 206.526,
+      "duration_seconds": 26.526,
+      "narration_text": "Chapter Sixteen uses a notification-settings case. An initial request for granular controls did not land. The revised case made the underlying problem, options, and tradeoffs easier to judge. We are borrowing that decision structure, not its reported results. In our exercise, option one is to rewrite the first-task card and observe whether members understand and begin.",
+      "handoff_visual": "book case title card, then synthetic option comparison; no book result figures.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A03",
+      "scene": "L10-05",
+      "start_seconds": 360,
+      "end_seconds": 384.059,
+      "duration_seconds": 24.059,
+      "narration_text": "Imagine operations says, “We cannot spare staff to watch a long session.” Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment? If none is feasible, stop and redesign the test.",
+      "handoff_visual": "two synthetic objection cards, each linked to a response and a question for a person.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    },
+    {
+      "id": "A04",
+      "scene": "L10-06",
+      "start_seconds": 511.602,
+      "end_seconds": 534.32,
+      "duration_seconds": 22.718,
+      "narration_text": "We will bring the observations back on the agreed date.” That brief does not claim success in advance. Write a second opening for the operations lead, using the same facts and their concern. Then answer one final question: what would change your mind? If the answer is “nothing,” revisit the learning plan.",
+      "handoff_visual": "completed stakeholder-specific brief and L09 map; worksheet hold.",
+      "timing_status": "sentence-bound storyboard estimate; exact recorded audio required"
+    }
+  ],
+  "format": {
+    "master": "1920x1080",
+    "frame_rate": "match authorized native source"
+  },
+  "stop_no_retry": [
+    "missing or changed source hash",
+    "missing avatar/voice rights",
+    "unbound recorded audio or hash",
+    "quote absent or above enforceable cap",
+    "privacy concern",
+    "provider error or unexpected output; inspect before any retry"
+  ],
+  "lesson_id": "L10",
+  "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5"
+}
