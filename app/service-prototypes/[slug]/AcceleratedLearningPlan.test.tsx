@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
-import { AcceleratedLearningPlan, l01Media, lessons } from './AcceleratedLearningPlan'
+import { AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
 
 vi.mock('next/image', () => ({
   default: ({ unoptimized: _unoptimized, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
@@ -119,11 +119,11 @@ describe('Accelerated learning plan', () => {
 
   it('keeps current on the first incomplete lesson and clears a filter when moving ahead', () => {
     render(<AcceleratedLearningPlan />)
-    fireEvent.click(screen.getByRole('button', { name: /L08: Metrics and the ten-part learning plan/ }))
+    fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'current')
-    expect(screen.getByRole('button', { name: /L08: Metrics and the ten-part learning plan/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'complete')
+    expect(screen.getByRole('button', { name: /L02: Prioritize before generating/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'complete')
     fireEvent.click(screen.getByRole('button', { name: 'Signals' }))
     fireEvent.click(screen.getByRole('button', { name: /L04: Build small; keep personas alive/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Next lesson · L05' }))
@@ -134,7 +134,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.queryByRole('button', { name: /Next lesson/ })).not.toBeInTheDocument()
   })
 
-  it('closes the L01 player when another lesson is selected and toggles a loaded caption track', () => {
+  it('closes the L01 player when L02 is selected, opens exact L02 media, and keeps L03 locked', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
     const video = screen.getByLabelText('L01 Build smarter, stay human guided video')
@@ -147,6 +147,11 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('button', { name: 'English captions off' })).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
     expect(screen.queryByLabelText('L01 Build smarter, stay human guided video')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Watch L02 guided video/ })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Watch L02 guided video/ }))
+    expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('controls')
+    expect(document.querySelector('video source')).toHaveAttribute('src', l02Media.video)
+    expect(document.querySelector('video track')).toHaveAttribute('src', l02Media.captions)
+    fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery, locked/ }))
+    expect(screen.getByRole('button', { name: /Watch L03 guided video/ })).toBeDisabled()
   })
 })
