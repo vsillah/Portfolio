@@ -18,7 +18,7 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(metadata.robots).toEqual({ index: false, follow: false });
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("first practice step");
     expect(screen.getByText(/This page sends nothing, stores no contacts/)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Parents or guardians" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Avery" })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Social carousel slide 1 of 7" })).toBeInTheDocument();
     expect(within(screen.getByRole("tablist", { name: "Choose a social slide" })).getAllByRole("tab")).toHaveLength(7);
     expect(within(screen.getByRole("tablist", { name: "Choose a message draft" })).getAllByRole("tab")).toHaveLength(6);
@@ -50,17 +50,17 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(audience).not.toBeNull();
     expect(within(audience!).getAllByRole("article")).toHaveLength(1);
     const copy = [
-      ["Parents or guardians", "Practice can start before the reminder turns into an argument.", "one clear next note"],
-      ["Private trumpet tutors", "Keep the lesson moving after the lesson ends.", "between sessions"],
-      ["Band educators", "Give first-year players one clear next note between rehearsals.", "fits your program"],
-      ["Community music programs", "Help more beginners practice without adding another complicated system.", "adult oversight"],
+      ["Parents or guardians", "Avery", "Make the next practice step obvious."],
+      ["Private trumpet tutors", "Morgan", "Let a beginner follow the path independently."],
+      ["Band educators", "Casey", "Clarify an individual step without adding management work."],
+      ["Community music programs", "Jordan", "Help without adding another complex system."],
     ];
-    for (const [role, headline, support] of copy) {
+    for (const [role, name, proof] of copy) {
       fireEvent.click(within(audience!).getByRole("button", { name: `Show ${role}` }));
       const card = within(audience!).getByRole("article");
-      expect(within(card).getByRole("heading", { name: role })).toBeInTheDocument();
-      expect(card).toHaveTextContent(headline);
-      expect(card).toHaveTextContent(support);
+      expect(within(card).getByRole("heading", { name })).toBeInTheDocument();
+      expect(card).toHaveTextContent(role);
+      expect(card).toHaveTextContent(proof);
       expect(within(card).getByText("Contact path")).toBeInTheDocument();
     }
   });

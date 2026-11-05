@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import styles from "./TrumpetRecruitmentPersonas.module.css";
 
-type Persona = { name: string; headline: string; support: string; channel: string; imageSrc?: string; imageAlt?: string };
+type Persona = { name: string; personName: string; quote: string; goal: string; friction: string; currentBehavior: string; proof: string; channel: string; imageSrc?: string; imageAlt?: string };
 type Gesture = { pointerId: number; x: number; y: number; vertical: boolean; captured: boolean };
 const SWIPE_THRESHOLD = 56;
 
@@ -53,8 +53,19 @@ export default function TrumpetRecruitmentPersonas({ personas }: { personas: Per
         const depth = order.indexOf(index);
         const isActive = depth === 0;
         return <article key={persona.name} data-testid={`persona-card-${index}`} data-depth={depth} aria-hidden={!isActive} className={`${styles.card} flex flex-col overflow-hidden rounded-3xl border border-radiant-gold/50`}>
-          <div data-testid={`persona-image-${index}`} className={`${styles.imageRegion} relative overflow-hidden bg-imperial-navy/60`}>{persona.imageSrc ? <Image src={persona.imageSrc} alt={persona.imageAlt ?? `Fictional adult scene for ${persona.name}`} fill draggable={false} sizes="(max-width: 640px) 90vw, (max-width: 900px) 62vw, 560px" className="object-cover object-center" priority={index === 0} /> : <div aria-hidden="true" className="h-full bg-gradient-to-br from-radiant-gold/20 via-imperial-navy to-background" />}<span className="absolute bottom-3 right-3 rounded-full bg-imperial-navy/90 px-3 py-1 text-xs text-platinum-white">Fictional scene</span></div>
-          <div data-testid={`persona-copy-${index}`} className={`${styles.copyRegion} flex min-h-0 flex-col p-5 sm:p-7`}><h3 className="font-heading text-xs uppercase tracking-[.15em] text-radiant-gold">{persona.name}</h3><p className="mt-4 font-premium text-2xl leading-snug sm:text-3xl">{persona.headline}</p><p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">{persona.support}</p><details className="mt-auto pt-5 text-sm text-muted-foreground"><summary tabIndex={isActive ? 0 : -1} className="cursor-pointer font-semibold text-foreground">Contact path</summary><p className="mt-2 leading-6">{persona.channel}</p></details></div>
+          <div data-testid={`persona-image-${index}`} className={`${styles.imageRegion} relative overflow-hidden bg-imperial-navy/60`}>{persona.imageSrc ? <Image src={persona.imageSrc} alt={persona.imageAlt ?? `Fictional adult scene for ${persona.name}`} fill draggable={false} sizes="(max-width: 640px) 90vw, (max-width: 900px) 62vw, 560px" className="object-cover object-center" priority={index === 0} /> : <div aria-hidden="true" className="h-full bg-gradient-to-br from-radiant-gold/20 via-imperial-navy to-background" />}<span className="absolute bottom-3 right-3 rounded-full bg-imperial-navy/90 px-3 py-1 text-xs text-platinum-white">Illustrative scene</span></div>
+          <div data-testid={`persona-copy-${index}`} className={`${styles.copyRegion} flex min-h-0 flex-col p-4 sm:p-5`}>
+            <p className={styles.provenance}>Fictional composite persona</p>
+            <div className={styles.identity}><h3 className={styles.personName}>{persona.personName}</h3><p className={styles.role}>{persona.name}</p></div>
+            <blockquote className={styles.quote}>“{persona.quote}”</blockquote>
+            <dl className={styles.profile}>
+              <div><dt>Goal</dt><dd>{persona.goal}</dd></div>
+              <div><dt>Friction</dt><dd>{persona.friction}</dd></div>
+              <div><dt>Current behavior</dt><dd>{persona.currentBehavior}</dd></div>
+              <div><dt>What the product must prove</dt><dd>{persona.proof}</dd></div>
+            </dl>
+            <details className={styles.contact}><summary tabIndex={isActive ? 0 : -1}>Contact path</summary><p>{persona.channel}</p></details>
+          </div>
         </article>;
       })}
     </div>
