@@ -26,6 +26,8 @@ export async function GET(request: NextRequest) {
       derivedFacts: context.derived.facts, questions: quoteQuestions.filter((q) => context.questions.includes(q.id)),
       offers: context.offers, answers, revision: context.latest?.revision ?? 0,
       refinementId: context.latest?.id ?? null, submitted: context.submitted,
+      requestedOfferId: (context.latest?.context_package as { requestedOffer?: { id?: string } } | null)?.requestedOffer?.id ?? context.rec.offer_id,
+      reviewedOfferId: context.rec.offer_id,
       projection: projectQuoteOffers(context.offers, context.derived, answers, context.questions) }, { headers })
   } catch (error) { return errorResponse(error) }
 }
@@ -46,7 +48,8 @@ export async function POST(request: NextRequest) {
   try {
     const context = await loadQuoteContext(auth.user.id, orderId)
     if (context.submitted) return fail('This quote request was already sent for operator review.', 409)
-    const { projection, packageData, payloadSha256 } = buildRefinement(context, body.answers as QuoteAnswers)
+    const { projection, packageData, payloadSha256 } = buildRefinement(context, body.answers as QuoteAnswers,
+      typeof body.requestedOfferId === 'string' ? body.requestedOfferId : null)
     const { data, error } = await supabaseAdmin.rpc('accelerated_save_quote_refinement', {
       p_user_id: auth.user.id, p_order_id: orderId, p_expected_revision: expectedRevision,
       p_idempotency_key: idempotencyKey, p_payload_sha256: payloadSha256, p_context_package: packageData,

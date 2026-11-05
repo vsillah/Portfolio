@@ -40,7 +40,7 @@ describe('member quote refinement API', () => {
     const response = await POST(request({ orderId: 1203, expectedRevision: 0, idempotencyKey: key,
       answers: { delivery: 'remote' }, context_package: { forged: true } }))
     expect(response.status).toBe(200)
-    expect(mocks.build).toHaveBeenCalledWith(expect.anything(), { delivery: 'remote' })
+    expect(mocks.build).toHaveBeenCalledWith(expect.anything(), { delivery: 'remote' }, null)
     expect(mocks.rpc).toHaveBeenCalledWith('accelerated_save_quote_refinement', expect.objectContaining({
       p_user_id: 'member-1', p_order_id: 1203, p_context_package: { trusted: true },
     }))
@@ -50,5 +50,13 @@ describe('member quote refinement API', () => {
     mocks.load.mockResolvedValue({ submitted: true })
     expect((await POST(request({ orderId: 1203, expectedRevision: 1, idempotencyKey: key, answers: {} }))).status).toBe(409)
     expect(mocks.rpc).not.toHaveBeenCalled()
+  })
+
+  it('passes a requested quote option to server-side validation before saving', async () => {
+    const offerId = '22222222-2222-4222-8222-222222222222'
+    const response = await POST(request({ orderId: 1203, expectedRevision: 0, idempotencyKey: key,
+      answers: {}, requestedOfferId: offerId }))
+    expect(response.status).toBe(200)
+    expect(mocks.build).toHaveBeenCalledWith(expect.anything(), {}, offerId)
   })
 })

@@ -33,8 +33,8 @@ export async function loadQuoteContext(userId: string, orderId: number) {
     supabaseAdmin.from('accelerated_decision_file_intakes').select('id,worksheet_id,content_version,payload_sha256,answers,review_status,linked_audit_id,learner_name').eq('id', rec.intake_id).maybeSingle(),
     supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,content_version,answers').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
     supabaseAdmin.from('diagnostic_audits').select('id,user_id,status').eq('id', rec.audit_id).eq('user_id', userId).maybeSingle(),
-    supabaseAdmin.from('services').select('id,title,price,is_quote_based,service_type,delivery_method,topics,updated_at').eq('is_active', true).order('id'),
-    supabaseAdmin.from('products').select('id,title,price,type,updated_at').eq('is_active', true).order('id'),
+    supabaseAdmin.from('services').select('id,title,description,price,is_quote_based,service_type,delivery_method,duration_hours,duration_description,min_participants,max_participants,image_url,image_variants,video_url,video_thumbnail_url,presentation_url,is_featured,topics,updated_at').eq('is_active', true).order('id'),
+    supabaseAdmin.from('products').select('id,title,description,price,type,image_url,image_variants,is_featured,updated_at').eq('is_active', true).order('id'),
     supabaseAdmin.from('accelerated_member_recommendations').select('id,offer_kind,offer_id,review_status').eq('user_id', userId).eq('intake_id', rec.intake_id).eq('review_status', 'approved').order('id'),
     supabaseAdmin.from('accelerated_quote_refinements').select('id,revision,answers,payload_sha256,context_package').eq('order_id', orderId).order('revision', { ascending: false }).limit(1).maybeSingle(),
     supabaseAdmin.from('accelerated_quote_contact_links').select('contact_submission_id,refinement_id').eq('order_id', orderId).maybeSingle(),
@@ -51,9 +51,20 @@ export async function loadQuoteContext(userId: string, orderId: number) {
     ...activeServices.map((s): QuoteOffer => ({ kind: 'service', id: String(s.id), title: String(s.title), price: s.price === null ? null : Number(s.price),
       quoteBased: s.is_quote_based === true || s.price === null, serviceType: String(s.service_type ?? ''),
       deliveryMethod: String(s.delivery_method ?? ''), topics: Array.isArray(s.topics) ? s.topics.filter((v): v is string => typeof v === 'string') : [],
-      reviewedRecommendationId: reviewed.get(`service:${s.id}`) ?? null })),
+      reviewedRecommendationId: reviewed.get(`service:${s.id}`) ?? null,
+      catalog: { id: String(s.id), title: String(s.title), description: typeof s.description === 'string' ? s.description : null,
+        service_type: String(s.service_type ?? ''), delivery_method: String(s.delivery_method ?? 'virtual'),
+        duration_hours: s.duration_hours === null ? null : Number(s.duration_hours), duration_description: typeof s.duration_description === 'string' ? s.duration_description : null,
+        price: s.price === null ? null : Number(s.price), is_quote_based: s.is_quote_based === true,
+        min_participants: Number(s.min_participants ?? 1), max_participants: s.max_participants === null ? null : Number(s.max_participants),
+        image_url: typeof s.image_url === 'string' ? s.image_url : null, image_variants: s.image_variants as Record<string, string | null> | null,
+        video_url: typeof s.video_url === 'string' ? s.video_url : null, video_thumbnail_url: typeof s.video_thumbnail_url === 'string' ? s.video_thumbnail_url : null,
+        presentation_url: typeof s.presentation_url === 'string' ? s.presentation_url : null, is_featured: s.is_featured === true } })),
     ...(products.data ?? []).map((p: Record<string, unknown>): QuoteOffer => ({ kind: 'product', id: String(p.id), title: String(p.title), price: p.price === null ? null : Number(p.price),
-      quoteBased: false, productType: String(p.type ?? ''), reviewedRecommendationId: reviewed.get(`product:${p.id}`) ?? null })),
+      quoteBased: false, productType: String(p.type ?? ''), reviewedRecommendationId: reviewed.get(`product:${p.id}`) ?? null,
+      catalog: { id: Number(p.id), title: String(p.title), description: typeof p.description === 'string' ? p.description : null,
+        type: String(p.type ?? ''), price: p.price === null ? null : Number(p.price), image_url: typeof p.image_url === 'string' ? p.image_url : null,
+        image_variants: p.image_variants as Record<string, string | null> | null, is_featured: p.is_featured === true } })),
   ]
   const reviewedOffer = activeServices.find((s) => String(s.id) === rec.offer_id)
   if (!reviewedOffer || reviewedOffer.updated_at !== rec.approved_offer_updated_at ||
@@ -73,7 +84,7 @@ export async function loadQuoteContext(userId: string, orderId: number) {
     questionSetVersion: QUOTE_QUESTION_SET_VERSION }
 }
 
-export function buildRefinement(context: Awaited<ReturnType<typeof loadQuoteContext>>, answers: QuoteAnswers) {
+export function buildRefinement(context: Awaited<ReturnType<typeof loadQuoteContext>>, answers: QuoteAnswers, requestedOfferId?: string | null) {
   const allowed = new Set(context.questions)
   for (const [key, value] of Object.entries(answers)) {
     if (!allowed.has(key as typeof context.questions[number]) || typeof value !== 'string' ||
@@ -81,6 +92,9 @@ export function buildRefinement(context: Awaited<ReturnType<typeof loadQuoteCont
       throw new QuoteContextError('A quote answer is invalid. Reload and try again.', 400)
   }
   const projection = projectQuoteOffers(context.offers, context.derived, answers, context.questions)
+  const requestedOffer = requestedOfferId ? context.offers.find((offer) => offer.kind === 'service' && offer.id === requestedOfferId && offer.quoteBased) : null
+  if (requestedOfferId && (!requestedOffer || (requestedOfferId !== context.rec.offer_id && projection.excluded.some((offer) => offer.kind === 'service' && offer.id === requestedOfferId))))
+    throw new QuoteContextError('That quote service no longer fits. Reload and choose an active option.', 409)
   const packageData = {
     intakeId: context.intake.id, intakePayloadSha256: context.intake.payload_sha256,
     worksheetId: context.intake.worksheet_id, worksheetSha256: context.worksheetSha,
@@ -88,6 +102,8 @@ export function buildRefinement(context: Awaited<ReturnType<typeof loadQuoteCont
     questionSetVersion: context.questionSetVersion, rulesVersion: context.rulesVersion,
     catalogSha256: context.catalogSha, sourceFields: context.derived.sourceFields,
     derivedFacts: context.derived.facts, questions: context.questions, answers,
+    requestedOffer: requestedOffer ? { kind: 'service', id: requestedOffer.id, title: requestedOffer.title } :
+      { kind: 'service', id: context.rec.offer_id, title: context.rec.title },
     projection: { status: projection.status, needsOperatorReview: projection.needsOperatorReview,
       remaining: projection.remaining.map((o) => ({ kind: o.kind, id: o.id, title: o.title, fit: o.fit, reasons: o.reasons, evidence: o.evidence })),
       excluded: projection.excluded.map((o) => ({ kind: o.kind, id: o.id, title: o.title, reasons: o.reasons, evidence: o.evidence })) },

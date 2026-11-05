@@ -38,6 +38,15 @@ describe('POST contextual member quote', () => {
     })
   })
 
+  it('rebuilds the requested quote option from the saved receipt', async () => {
+    const offerId = '22222222-2222-4222-8222-222222222222'
+    mocks.load.mockResolvedValue({ latest: { id: refinementId, answers: {}, payload_sha256: 'same',
+      context_package: { requestedOffer: { kind: 'service', id: offerId } } } })
+    mocks.rpc.mockResolvedValue({ data: [{ contact_id: 82, replay: false }], error: null })
+    expect((await POST(request({ orderId: 1203, refinementId }))).status).toBe(201)
+    expect(mocks.build).toHaveBeenCalledWith(expect.anything(), {}, offerId)
+  })
+
   it('rejects a stale projection before creating a contact', async () => {
     mocks.build.mockReturnValue({ payloadSha256: 'different', projection: { status: 'candidates' } })
     expect((await POST(request({ orderId: 1203, refinementId }))).status).toBe(409)

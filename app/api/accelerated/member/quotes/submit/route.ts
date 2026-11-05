@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
   try {
     const context = await loadQuoteContext(auth.user.id, orderId)
     if (context.latest?.id !== refinementId) return NextResponse.json({ error: 'Quote context changed. Reload before sending.' }, { status: 409, headers })
-    const rebuilt = buildRefinement(context, context.latest.answers as Record<string, string>)
+    const requestedOfferId = (context.latest.context_package as { requestedOffer?: { id?: string } } | null)?.requestedOffer?.id
+    const rebuilt = buildRefinement(context, context.latest.answers as Record<string, string>, requestedOfferId)
     if (rebuilt.payloadSha256 !== context.latest.payload_sha256 || rebuilt.projection.status === 'no_match')
       return NextResponse.json({ error: 'Quote context is stale or has no matching candidate. Reload before sending.' }, { status: 409, headers })
     const { data, error } = await supabaseAdmin.rpc('accelerated_submit_contextual_quote', {

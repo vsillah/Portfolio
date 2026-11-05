@@ -30,6 +30,7 @@ export type QuoteOffer = {
   kind: 'service' | 'product'; id: string; title: string; price: number | null
   quoteBased: boolean; serviceType?: string | null; deliveryMethod?: string | null
   productType?: string | null; topics?: string[]; reviewedRecommendationId?: string | null
+  catalog?: import('@/lib/types/store').Service | import('@/lib/types/store').Product
 }
 export type ProjectedOffer = QuoteOffer & {
   fit: 'fits' | 'needs_review' | 'excluded'; reasons: string[]; evidence: string[]

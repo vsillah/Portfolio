@@ -100,6 +100,7 @@ interface ContactData {
     context_package: {
       intakeId: string; worksheetId: string; questionSetVersion: string; rulesVersion: string
       answers: Record<string, string>; derivedFacts: Record<string, {value:string;sourceField:string}>
+      requestedOffer?: { kind: 'service'; id: string; title: string }
       projection: { status: string; needsOperatorReview: boolean; remaining: Array<{kind:string;id:string;title:string;fit:string;reasons:string[]}>;
         excluded: Array<{kind:string;id:string;title:string;reasons:string[]}> }
     }
@@ -814,6 +815,7 @@ function ContactDetailPage() {
               <span className="rounded-full border border-amber-700 px-3 py-1 text-xs text-amber-300">{data.acceleratedQuote.context_package.projection.status.replaceAll('_', ' ')}</span>
             </div>
             <p className="mt-2 text-sm text-gray-400">Reviewed recommendation {data.acceleratedQuote.recommendation_id}. Candidate fit is a review aid; no offer or project changes automatically.</p>
+            {data.acceleratedQuote.context_package.requestedOffer && <p className="mt-2 text-sm font-semibold text-amber-200">Member requests review of: {data.acceleratedQuote.context_package.requestedOffer.title}</p>}
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <div><h3 className="text-sm font-semibold text-white">Remaining candidates</h3>
                 <ul className="mt-2 space-y-2 text-sm">{data.acceleratedQuote.context_package.projection.remaining.map((offer) =>
