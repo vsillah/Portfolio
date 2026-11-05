@@ -1,214 +1,318 @@
 {
-  "ui_commit": "1897ab60ddc65490d9ce0972e6efca1924c92396",
-  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=1897ab60ddc65490d9ce0972e6efca1924c92396&qa=persona-arc-type",
+  "ui_commit": "5bd9e104034a05e76f8ea2d9a7c5326c3318d55f",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=5bd9e104034a05e76f8ea2d9a7c5326c3318d55f&qa=wide-social-slide",
+  "social_carousel": [
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 325,
+      "imageLeft": 45,
+      "imageRatio": 1.25,
+      "imageRight": 305,
+      "imageWidth": 260,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextDisabled": false,
+      "nextLeft": 305,
+      "pageOverflow": 0,
+      "prevRight": 45,
+      "previousDisabled": true,
+      "regionWidth": 310,
+      "rowWidth": 260,
+      "viewport": 360
+    },
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 655,
+      "imageLeft": 117,
+      "imageRatio": 1.25,
+      "imageRight": 641,
+      "imageWidth": 524,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextDisabled": false,
+      "nextLeft": 649,
+      "pageOverflow": 0,
+      "prevRight": 109,
+      "previousDisabled": true,
+      "regionWidth": 678,
+      "rowWidth": 524,
+      "viewport": 768
+    },
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 850,
+      "imageLeft": 186,
+      "imageRatio": 1.25,
+      "imageRight": 866,
+      "imageWidth": 680,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextDisabled": false,
+      "nextLeft": 874,
+      "pageOverflow": 0,
+      "prevRight": 178,
+      "previousDisabled": true,
+      "regionWidth": 956,
+      "rowWidth": 680,
+      "viewport": 1062
+    },
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 850,
+      "imageLeft": 295,
+      "imageRatio": 1.25,
+      "imageRight": 975,
+      "imageWidth": 680,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextDisabled": false,
+      "nextLeft": 983,
+      "pageOverflow": 0,
+      "prevRight": 287,
+      "previousDisabled": true,
+      "regionWidth": 1056,
+      "rowWidth": 680,
+      "viewport": 1280
+    }
+  ],
+  "social_endpoints": [
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "viewport": 1280
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "viewport": 1280
+    },
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "viewport": 1062
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "viewport": 1062
+    },
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "viewport": 768
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "viewport": 768
+    },
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "viewport": 360
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "viewport": 360
+    }
+  ],
   "persona_states": [
     {
       "cardBottom": 833.875,
-      "cardLeft": 277.234375,
-      "cardRight": 832.75,
       "cardTop": 113.875,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Avery",
-      "width": 1280
+      "viewport": 1280
     },
     {
       "cardBottom": 833.875,
-      "cardLeft": 277.234375,
-      "cardRight": 832.75,
       "cardTop": 113.875,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Morgan",
-      "width": 1280
+      "viewport": 1280
     },
     {
       "cardBottom": 833.875,
-      "cardLeft": 277.234375,
-      "cardRight": 832.75,
       "cardTop": 113.875,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Casey",
-      "width": 1280
+      "viewport": 1280
     },
     {
       "cardBottom": 833.875,
-      "cardLeft": 277.234375,
-      "cardRight": 832.75,
       "cardTop": 113.875,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Jordan",
-      "width": 1280
+      "viewport": 1280
     },
     {
       "cardBottom": 834.125,
-      "cardLeft": 218.234375,
-      "cardRight": 773.75,
       "cardTop": 114.125,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Avery",
-      "width": 1062
+      "viewport": 1062
     },
     {
       "cardBottom": 834.125,
-      "cardLeft": 218.234375,
-      "cardRight": 773.75,
       "cardTop": 114.125,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Morgan",
-      "width": 1062
+      "viewport": 1062
     },
     {
       "cardBottom": 834.125,
-      "cardLeft": 218.234375,
-      "cardRight": 773.75,
       "cardTop": 114.125,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Casey",
-      "width": 1062
+      "viewport": 1062
     },
     {
       "cardBottom": 834.125,
-      "cardLeft": 218.234375,
-      "cardRight": 773.75,
       "cardTop": 114.125,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Jordan",
-      "width": 1062
+      "viewport": 1062
     },
     {
       "cardBottom": 833.75,
-      "cardLeft": 168.8125,
-      "cardRight": 589.171875,
       "cardTop": 113.75,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Avery",
-      "width": 768
+      "viewport": 768
     },
     {
       "cardBottom": 833.75,
-      "cardLeft": 168.8125,
-      "cardRight": 589.171875,
       "cardTop": 113.75,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Morgan",
-      "width": 768
+      "viewport": 768
     },
     {
       "cardBottom": 833.75,
-      "cardLeft": 168.8125,
-      "cardRight": 589.171875,
       "cardTop": 113.75,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Casey",
-      "width": 768
+      "viewport": 768
     },
     {
       "cardBottom": 833.75,
-      "cardLeft": 168.8125,
-      "cardRight": 589.171875,
       "cardTop": 113.75,
       "contactOpen": true,
       "copyHeight": 359,
-      "copyScrollHeight": 359,
       "imageHeight": 359,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Jordan",
-      "width": 768
+      "viewport": 768
     },
     {
       "cardBottom": 1056.75,
-      "cardLeft": 47.8984375,
-      "cardRight": 302.09375,
       "cardTop": 234.75,
       "contactOpen": true,
       "copyHeight": 492,
-      "copyScrollHeight": 492,
       "imageHeight": 328,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Avery",
-      "width": 360
+      "viewport": 360
     },
     {
       "cardBottom": 1056.75,
-      "cardLeft": 47.8984375,
-      "cardRight": 302.09375,
       "cardTop": 234.75,
       "contactOpen": true,
       "copyHeight": 492,
-      "copyScrollHeight": 492,
       "imageHeight": 328,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Morgan",
-      "width": 360
+      "viewport": 360
     },
     {
       "cardBottom": 1056.75,
-      "cardLeft": 47.8984375,
-      "cardRight": 302.09375,
       "cardTop": 234.75,
       "contactOpen": true,
       "copyHeight": 492,
-      "copyScrollHeight": 492,
       "imageHeight": 328,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Casey",
-      "width": 360
+      "viewport": 360
     },
     {
       "cardBottom": 1056.75,
-      "cardLeft": 47.8984375,
-      "cardRight": 302.09375,
       "cardTop": 234.75,
       "contactOpen": true,
       "copyHeight": 492,
-      "copyScrollHeight": 492,
       "imageHeight": 328,
-      "overflow": 0,
+      "pageOverflow": 0,
       "selected": "Jordan",
-      "width": 360
+      "viewport": 360
     }
   ],
   "responsive_check": [
@@ -218,9 +322,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Avery",
-      "visibleCardMaxRight": 302,
-      "visibleCardMinLeft": 48,
-      "width": 360
+      "viewport": 360
     },
     {
       "contactBottomWithinCopy": 43,
@@ -228,9 +330,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Morgan",
-      "visibleCardMaxRight": 302,
-      "visibleCardMinLeft": 48,
-      "width": 360
+      "viewport": 360
     },
     {
       "contactBottomWithinCopy": 24,
@@ -238,9 +338,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Casey",
-      "visibleCardMaxRight": 302,
-      "visibleCardMinLeft": 48,
-      "width": 360
+      "viewport": 360
     },
     {
       "contactBottomWithinCopy": 28,
@@ -248,9 +346,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Jordan",
-      "visibleCardMaxRight": 302,
-      "visibleCardMinLeft": 48,
-      "width": 360
+      "viewport": 360
     },
     {
       "contactBottomWithinCopy": 35,
@@ -258,9 +354,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Avery",
-      "visibleCardMaxRight": 690,
-      "visibleCardMinLeft": 60,
-      "width": 768
+      "viewport": 768
     },
     {
       "contactBottomWithinCopy": 35,
@@ -268,9 +362,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Morgan",
-      "visibleCardMaxRight": 690,
-      "visibleCardMinLeft": 60,
-      "width": 768
+      "viewport": 768
     },
     {
       "contactBottomWithinCopy": 35,
@@ -278,9 +370,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Casey",
-      "visibleCardMaxRight": 690,
-      "visibleCardMinLeft": 60,
-      "width": 768
+      "viewport": 768
     },
     {
       "contactBottomWithinCopy": 30,
@@ -288,9 +378,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Jordan",
-      "visibleCardMaxRight": 690,
-      "visibleCardMinLeft": 60,
-      "width": 768
+      "viewport": 768
     },
     {
       "contactBottomWithinCopy": 73,
@@ -298,9 +386,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Avery",
-      "visibleCardMaxRight": 870,
-      "visibleCardMinLeft": 117,
-      "width": 1062
+      "viewport": 1062
     },
     {
       "contactBottomWithinCopy": 54,
@@ -308,9 +394,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Morgan",
-      "visibleCardMaxRight": 870,
-      "visibleCardMinLeft": 117,
-      "width": 1062
+      "viewport": 1062
     },
     {
       "contactBottomWithinCopy": 73,
@@ -318,9 +402,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Casey",
-      "visibleCardMaxRight": 870,
-      "visibleCardMinLeft": 117,
-      "width": 1062
+      "viewport": 1062
     },
     {
       "contactBottomWithinCopy": 54,
@@ -328,9 +410,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Jordan",
-      "visibleCardMaxRight": 870,
-      "visibleCardMinLeft": 117,
-      "width": 1062
+      "viewport": 1062
     },
     {
       "contactBottomWithinCopy": 73,
@@ -338,9 +418,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Avery",
-      "visibleCardMaxRight": 984,
-      "visibleCardMinLeft": 50,
-      "width": 1280
+      "viewport": 1280
     },
     {
       "contactBottomWithinCopy": 54,
@@ -348,9 +426,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Morgan",
-      "visibleCardMaxRight": 984,
-      "visibleCardMinLeft": 50,
-      "width": 1280
+      "viewport": 1280
     },
     {
       "contactBottomWithinCopy": 73,
@@ -358,9 +434,7 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Casey",
-      "visibleCardMaxRight": 984,
-      "visibleCardMinLeft": 50,
-      "width": 1280
+      "viewport": 1280
     },
     {
       "contactBottomWithinCopy": 54,
@@ -368,9 +442,47 @@
       "copyScrollOverflow": 0,
       "pageOverflow": 0,
       "selected": "Jordan",
-      "visibleCardMaxRight": 984,
-      "visibleCardMinLeft": 50,
-      "width": 1280
+      "viewport": 1280
     }
-  ]
+  ],
+  "motion_states": [
+    {
+      "direction": "forward",
+      "outgoing": "Avery",
+      "selected": "Morgan",
+      "transform": "matrix(0.945794, -0.165828, 0.165828, 0.945794, -109.392, -47.7345)",
+      "viewport": 1280
+    },
+    {
+      "direction": "reverse",
+      "outgoing": "Avery",
+      "selected": "Jordan",
+      "transform": "matrix(0.945795, 0.165825, -0.165825, 0.945795, 109.39, -47.7337)",
+      "viewport": 1280
+    },
+    {
+      "direction": "forward",
+      "outgoing": "Avery",
+      "selected": "Morgan",
+      "transform": "matrix(0.957908, -0.0666119, 0.0666119, 0.957908, -33.812, -15.9115)",
+      "viewport": 360
+    },
+    {
+      "direction": "reverse",
+      "outgoing": "Avery",
+      "selected": "Jordan",
+      "transform": "matrix(0.95782, 0.0667378, -0.0667378, 0.95782, 33.8788, -15.943)",
+      "viewport": 360
+    }
+  ],
+  "swipe_states": {
+    "forward": {
+      "motion": "forward",
+      "selected": "Morgan"
+    },
+    "reverse": {
+      "motion": "reverse",
+      "selected": "Avery"
+    }
+  }
 }
