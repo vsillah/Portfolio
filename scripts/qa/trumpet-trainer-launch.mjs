@@ -52,20 +52,34 @@ try {
     if (!page.url().endsWith("#interest"))
       throw new Error("Hero CTA did not reach form");
     await page.getByLabel("Your name").fill("Adult Tester");
-    await page.getByLabel("Your email").fill("adult@example.com");
-    await page.getByLabel("Your role").selectOption("Parent or guardian");
+    await page.getByLabel("Your email").fill("teacher@schools.org");
+    await page.getByLabel("Your role").selectOption("Band educator");
     await page
       .getByLabel("Approximate student experience")
       .selectOption("Just starting");
     await page
       .getByLabel("What interests you about testing?")
-      .fill("A short routine between lessons");
-    await page.getByLabel("Optional notes").fill("Child's name: Taylor");
+      .fill("I teach at a school and want to test short practice routines.");
     await page.getByRole("button", { name: "Prepare email draft" }).click();
-    await page.getByText(/Please remove child identifiers/i).waitFor();
-    if (width !== 768) await page.waitForTimeout(900);
     if (await page.getByRole("link", { name: /Open email draft/i }).count())
-      throw new Error("Child identifier was accepted");
+      throw new Error("Draft prepared without adult confirmation");
+    await page
+      .getByRole("checkbox", { name: /I confirm I am an adult/i })
+      .check();
+    for (const notes of [
+      "School: Lincoln Middle",
+      "Child's name: Example",
+      "Age: 10",
+    ]) {
+      await page.getByLabel("Optional notes").fill(notes);
+      await page.getByRole("button", { name: "Prepare email draft" }).click();
+      await page.getByText(/Please remove child identifiers/i).waitFor();
+      if (await page.getByRole("link", { name: /Open email draft/i }).count())
+        throw new Error(`Child detail was accepted: ${notes}`);
+      if (notes.startsWith("School:") && width !== 768)
+        await page.waitForTimeout(800);
+    }
+    if (width !== 768) await page.waitForTimeout(900);
     await page
       .getByLabel("Optional notes")
       .fill("I can offer usability feedback.");
@@ -77,6 +91,11 @@ try {
       .getAttribute("href");
     if (!draft?.startsWith("mailto:vambah@amadutown.com?"))
       throw new Error("Email draft missing");
+    if (
+      !draft.includes("teacher%40schools.org") ||
+      !draft.includes("I%20teach%20at%20a%20school")
+    )
+      throw new Error("Adult school context was not preserved in draft");
     if (width === 1280) {
       await page
         .getByRole("link", { name: "See the practice concept" })

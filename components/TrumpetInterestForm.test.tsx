@@ -18,6 +18,9 @@ function completeForm() {
   fireEvent.change(screen.getByLabelText("What interests you about testing?"), {
     target: { value: "A short routine between lessons" },
   });
+  fireEvent.click(
+    screen.getByRole("checkbox", { name: /I confirm I am an adult/i }),
+  );
 }
 
 describe("Trumpet Trainer interest review", () => {
@@ -29,8 +32,13 @@ describe("Trumpet Trainer interest review", () => {
       screen.getByLabelText("Approximate student experience"),
     ).toBeInTheDocument();
     expect(
-      screen.queryByLabelText(/child name|school|exact age|address|photo/i),
+      screen.queryByRole("textbox", {
+        name: /child name|school|exact age|address|photo/i,
+      }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /I confirm I am an adult/i }),
+    ).toBeRequired();
   });
 
   it("prepares a draft only after valid adult input and never claims submission", () => {
@@ -65,5 +73,89 @@ describe("Trumpet Trainer interest review", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       "Please remove child identifiers",
     );
+  });
+
+  it("allows an adult educator's school email and generic school context", () => {
+    render(<TrumpetInterestForm />);
+    completeForm();
+    fireEvent.change(screen.getByLabelText("Your email"), {
+      target: { value: "teacher@schools.org" },
+    });
+    fireEvent.change(
+      screen.getByLabelText("What interests you about testing?"),
+      {
+        target: {
+          value:
+            "I teach at a school and want to test short practice routines.",
+        },
+      },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Prepare email draft" }),
+    );
+    expect(
+      screen.getByRole("link", { name: /Open email draft/i }),
+    ).toHaveAttribute("href", expect.stringContaining("teacher%40schools.org"));
+  });
+
+  it.each([
+    "School: Lincoln Middle",
+    "School name: Lincoln Middle",
+    "My child's school is Lincoln Middle",
+    "Child's name: Taylor",
+    "Age: 10",
+    "Aged 10",
+    "Address: 10 Example Street",
+    "Photo attached",
+    "Recording of my child",
+  ])("rejects explicit child details in notes: %s", (notes) => {
+    render(<TrumpetInterestForm />);
+    completeForm();
+    fireEvent.change(screen.getByLabelText("Optional notes"), {
+      target: { value: notes },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Prepare email draft" }),
+    );
+    expect(
+      screen.queryByRole("link", { name: /Open email draft/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Please remove child identifiers",
+    );
+  });
+
+  it("checks the interest field for explicit child details too", () => {
+    render(<TrumpetInterestForm />);
+    completeForm();
+    fireEvent.change(
+      screen.getByLabelText("What interests you about testing?"),
+      {
+        target: { value: "My child's school is Lincoln Middle" },
+      },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Prepare email draft" }),
+    );
+    expect(
+      screen.queryByRole("link", { name: /Open email draft/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Please remove child identifiers",
+    );
+  });
+
+  it("does not prepare a draft without adult confirmation", () => {
+    render(<TrumpetInterestForm />);
+    completeForm();
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: /I confirm I am an adult/i }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Prepare email draft" }),
+    );
+    expect(
+      screen.queryByRole("link", { name: /Open email draft/i }),
+    ).not.toBeInTheDocument();
   });
 });

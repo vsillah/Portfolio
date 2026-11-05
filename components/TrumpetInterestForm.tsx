@@ -16,6 +16,17 @@ const levels = [
   "Supporting several levels",
 ];
 
+const prohibitedChildDetails = [
+  /\b(?:child(?:ren)?'?s?|student'?s?|kid'?s?)\s+name\s*(?::|=|is\b)/i,
+  /\b(?:child(?:ren)?'?s?|student'?s?|kid'?s?)\s+school\s*(?::|=|is\b)/i,
+  /\bschool\s*[:=]\s*\S/i,
+  /\bschool\s+name\s*(?::|=|is\b)/i,
+  /\b(?:exact\s+)?age\s*[:=]\s*\d+\b/i,
+  /\baged\s+\d+\b/i,
+  /\b(?:home\s+)?address\s*(?::|=|is\b)/i,
+  /\b(?:photo|picture|image|recording|audio clip|video)\s*(?:of\s+(?:my|the|a)\s+(?:child|student|kid)|attached\b|included\b|uploaded\b|:)/i,
+];
+
 export default function TrumpetInterestForm() {
   const [status, setStatus] = useState("");
   const [draft, setDraft] = useState("");
@@ -27,10 +38,8 @@ export default function TrumpetInterestForm() {
     if (!form.reportValidity()) return;
     const data = new FormData(form);
     const values = Object.fromEntries(data.entries()) as Record<string, string>;
-    const text = Object.values(values).join(" ");
-    if (
-      /\b(?:child(?:ren)?'s? name|school|address|photo|recording)\b/i.test(text)
-    ) {
+    const freeText = `${values.interest || ""} ${values.notes || ""}`;
+    if (prohibitedChildDetails.some((pattern) => pattern.test(freeText))) {
       setStatus(
         "Please remove child identifiers, school details, addresses, photos, or recordings before preparing your note.",
       );
@@ -146,6 +155,18 @@ export default function TrumpetInterestForm() {
             rows={2}
             className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-radiant-gold"
           />
+        </label>
+        <label className="flex items-start gap-3 text-sm leading-6 text-foreground">
+          <input
+            required
+            name="adultConfirmation"
+            type="checkbox"
+            className="mt-1 h-5 w-5 shrink-0 accent-radiant-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-radiant-gold"
+          />
+          <span>
+            I confirm I am an adult and have not included a child name, school
+            name, exact age, address, photo, or recording in this note.
+          </span>
         </label>
         <button
           type="submit"
