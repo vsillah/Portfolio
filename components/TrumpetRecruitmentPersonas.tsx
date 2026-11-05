@@ -62,7 +62,7 @@ export default function TrumpetRecruitmentPersonas({ personas }: { personas: Per
               <div><dt>Goal</dt><dd>{persona.goal}</dd></div>
               <div><dt>Friction</dt><dd>{persona.friction}</dd></div>
               <div><dt>Current behavior</dt><dd>{persona.currentBehavior}</dd></div>
-              <div><dt>What the product must prove</dt><dd>{persona.proof}</dd></div>
+              <div><dt>Product proof</dt><dd>{persona.proof}</dd></div>
             </dl>
             <details className={styles.contact}><summary tabIndex={isActive ? 0 : -1}>Contact path</summary><p>{persona.channel}</p></details>
           </div>

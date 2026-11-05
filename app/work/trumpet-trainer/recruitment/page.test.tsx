@@ -50,10 +50,10 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(audience).not.toBeNull();
     expect(within(audience!).getAllByRole("article")).toHaveLength(1);
     const copy = [
-      ["Parents or guardians", "Avery", "Make the next practice step obvious."],
-      ["Private trumpet tutors", "Morgan", "Let a beginner follow the path independently."],
-      ["Band educators", "Casey", "Clarify an individual step without adding management work."],
-      ["Community music programs", "Jordan", "Help without adding another complex system."],
+      ["Parents or guardians", "Avery", "Make the next note obvious."],
+      ["Private trumpet tutors", "Morgan", "A beginner can follow it alone."],
+      ["Band educators", "Casey", "Clarify one step without added admin."],
+      ["Community music programs", "Jordan", "Add practice time without complex setup."],
     ];
     for (const [role, name, proof] of copy) {
       fireEvent.click(within(audience!).getByRole("button", { name: `Show ${role}` }));

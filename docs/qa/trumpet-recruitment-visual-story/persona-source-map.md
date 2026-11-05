@@ -2,7 +2,7 @@
 
 These four synthetic, fictional scenes support an inactive adult-only recruitment review. They are contextual illustrations, not evidence of real families, teachers, students, programs, or outcomes. Only the optimized WebP derivatives are committed and served. The PNG sources remain in this development worktree at the paths below for local review; their SHA-256 hashes identify the exact source files used. Do not substitute the rejected v1 scenes or the tutor, band, and community v2 scenes.
 
-The first names, representative quotes, and Goal/Friction/Current behavior/Product proof fields are fictional UX composites built from the approved role hypotheses in `app/work/trumpet-trainer/recruitment/page.tsx`. They are prompts for adult feedback, not interview excerpts, observed behavior, demographic profiles, or validated customer findings.
+The first names, representative quotes, and Goal/Friction/Current behavior/Product proof fields are fictional UX composites built from the approved role hypotheses in `app/work/trumpet-trainer/recruitment/page.tsx`. They are prompts for adult feedback, not interview excerpts, observed behavior, demographic profiles, or validated customer findings. All desktop and tablet cards use a shared 50/50 image/profile split; phone cards use a shared 40/60 split to leave room for the four fields and expanded contact path.
 
 All derivatives were made with `cwebp -quiet -q 82 -resize 1200 0 <source>.png -o <name>.webp` and visually inspected. The adult-scene label is visible in the interface. No image is used as an outreach recipient or student-data source.
 

@@ -50,7 +50,7 @@ describe("adult perspective deck", () => {
       expect(within(card).getByRole("heading", { name: persona.personName })).toBeInTheDocument();
       expect(within(card).getByText(persona.name)).toBeInTheDocument();
       expect(within(card).getByText(`“${persona.quote}”`)).toBeInTheDocument();
-      expect([...card.querySelectorAll("dt")].map((field) => field.textContent)).toEqual(["Goal", "Friction", "Current behavior", "What the product must prove"]);
+      expect([...card.querySelectorAll("dt")].map((field) => field.textContent)).toEqual(["Goal", "Friction", "Current behavior", "Product proof"]);
       expect([...card.querySelectorAll("dd")].map((field) => field.textContent)).toEqual([persona.goal, persona.friction, persona.currentBehavior, persona.proof]);
       expect(within(card).getByText("Contact path")).toBeInTheDocument();
       expect(card).not.toHaveTextContent(/\b(age|income|address|ethnicity|race)\b/i);
