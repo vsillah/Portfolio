@@ -20,6 +20,7 @@ import l15Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-bin
 import l16Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l16-transcript.json'
 import styles from './learning-plan.module.css'
 import { lessons, DECISION_FILE_STORAGE_KEY, emptyDecisionFile, validateDecisionFile, type Act, type DecisionFileDraft } from '@/lib/accelerated-decision-file'
+import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 export { lessons } from '@/lib/accelerated-decision-file'
 
 export const l01Media = {
@@ -222,7 +223,7 @@ export function AcceleratedLearningPlan() {
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         {lesson.id === 'L01' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L01 guided video">
           <div className={styles.playerHeading}><div><strong>Guided video · L01</strong><p>Watch the nine-minute lesson, then use the exercise above to start your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={l01Media.video} type="video/mp4" />
             <track kind="captions" src={l01Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
@@ -231,7 +232,7 @@ export function AcceleratedLearningPlan() {
           <details className={styles.transcript}><summary>Read along with L01 transcript</summary><ol>{transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L01 guided video is ready</strong><p>Watch the approved nine-minute lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L01 guided video · 09:00</button></div> : lesson.id === 'L02' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L02 guided video">
           <div className={styles.playerHeading}><div><strong>Guided video · L02</strong><p>Watch the ten-minute lesson, then choose one priority to test in your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={l02Media.video} type="video/mp4" />
             <track kind="captions" src={l02Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
@@ -240,7 +241,7 @@ export function AcceleratedLearningPlan() {
           <details className={styles.transcript}><summary>Read along with L02 transcript</summary><ol>{l02Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L02 guided video is ready</strong><p>Watch the approved ten-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L02 guided video · 10:00</button></div> : lesson.id === 'L03' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L03 guided video">
           <div className={styles.playerHeading}><div><strong>Guided video · L03</strong><p>Watch the nine-minute lesson, then write the decision question and evidence gap for your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" aria-label="L03 Answer-driven discovery guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L03 Answer-driven discovery guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={l03Media.video} type="video/mp4" />
             <track kind="captions" src={l03Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
@@ -249,7 +250,7 @@ export function AcceleratedLearningPlan() {
           <details className={styles.transcript}><summary>Read along with L03 transcript</summary><ol>{l03Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L03 guided video is ready</strong><p>Watch the approved nine-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L03 guided video · 09:00</button></div> : approvedBatchMedia ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><div><strong>Guided video · {lesson.id}</strong><p>Watch the lesson, then use the exercise above to add to your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={approvedBatchMedia.video} type="video/mp4" />
             <track kind="captions" src={approvedBatchMedia.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.

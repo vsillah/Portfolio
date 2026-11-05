@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 1,
+  "posters": [
+    {
+      "lesson": "L01",
+      "title": "Build smarter, stay human",
+      "act": "SIGNALS",
+      "presenterSource": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+      "presenterSourceSha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "presenterStillSeconds": 11,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/accelerated_cover_ebook.webp",
+      "samOrBookAssetSha256": "4a3406389e73fb919ba2c005475a8c707060103cee8b589ac16c8e68e42ab78d",
+      "output": "public/accelerated/posters/l01-poster.webp",
+      "outputSha256": "4871c8b855355401f5b6e586096ac83b5e0f644832256cb49e639b7349b833cd",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L02",
+      "title": "Prioritize before generating",
+      "act": "SIGNALS",
+      "presenterSource": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+      "presenterSourceSha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "presenterStillSeconds": 8.9,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "samOrBookAssetSha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "output": "public/accelerated/posters/l02-poster.webp",
+      "outputSha256": "53faf4b91a1e409df8c2b6c829140fa3393db2970bd5f36d8559887baa26caeb",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L03",
+      "title": "Answer-driven discovery",
+      "act": "SIGNALS",
+      "presenterSource": "public/accelerated/lessons/l03/approved-02b9c3ea/accelerated-l03-native-composite.mp4",
+      "presenterSourceSha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "presenterStillSeconds": 17,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "samOrBookAssetSha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "output": "public/accelerated/posters/l03-poster.webp",
+      "outputSha256": "bd49b8f92d6569d5247996add17cc543d2b43ea5d38b536d028540cbd8ff62b3",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L04",
+      "title": "Build small; keep personas alive",
+      "act": "SIGNALS",
+      "presenterSource": "public/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+      "presenterSourceSha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "presenterStillSeconds": 14,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "samOrBookAssetSha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "output": "public/accelerated/posters/l04-poster.webp",
+      "outputSha256": "1253c88918ba0650ac417f8bafaec0d58c0879c283345f6d70b768c3bf242a9f",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L05",
+      "title": "From feedback to signal",
+      "act": "ALIGNMENT",
+      "presenterSource": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+      "presenterSourceSha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "presenterStillSeconds": 9,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l05.png",
+      "samOrBookAssetSha256": "57d14556d8dc975e39448b1aceeb2834fae0e6f94580187afa61897771d2a595",
+      "output": "public/accelerated/posters/l05-poster.webp",
+      "outputSha256": "25b498aed72bb04e52977b717e33f5c9eebb07e51c5f2a6b34bdbd024d417317",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L06",
+      "title": "Roadmap to PRD, without drift",
+      "act": "ALIGNMENT",
+      "presenterSource": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+      "presenterSourceSha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "presenterStillSeconds": 13,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l06-poster.webp",
+      "outputSha256": "c3108c1ddfb4909c76b09344aad97c019dbf7150d910b4a7307d8c68ab1643f0",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L07",
+      "title": "Commit to learning",
+      "act": "ALIGNMENT",
+      "presenterSource": "public/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4",
+      "presenterSourceSha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "presenterStillSeconds": 15,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l07-poster.webp",
+      "outputSha256": "890a792c9b8e33b5e93997a3da3442e9b77e57b1056e5f675866a44553626487",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L08",
+      "title": "Metrics and the ten-part learning plan",
+      "act": "ALIGNMENT",
+      "presenterSource": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+      "presenterSourceSha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "presenterStillSeconds": 24,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l08.png",
+      "samOrBookAssetSha256": "2c92c6a45ba59ccbe905f59f81f02f90908226f98740031e7bbf4a78d448395d",
+      "output": "public/accelerated/posters/l08-poster.webp",
+      "outputSha256": "b18c12055812f25d7dfc03d16717f5e8e31ad6897092cecd9ad3593719022783",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L09",
+      "title": "Map the decision theater",
+      "act": "ALIGNMENT",
+      "presenterSource": "public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+      "presenterSourceSha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "presenterStillSeconds": 9.8,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l09-poster.webp",
+      "outputSha256": "cdaf5df13a0041a35f56249fc4e7bae1588a12bc5f455c94e3aee8da228be55f",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L10",
+      "title": "Influence before impact",
+      "act": "ALIGNMENT",
+      "presenterSource": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+      "presenterSourceSha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "presenterStillSeconds": 17.5,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l10-poster.webp",
+      "outputSha256": "5bf00af51d2c34df7936c45a9b76b552b518e14e9b893d1288b81ecbdcf2d46b",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L11",
+      "title": "From the shift to a repeatable loop",
+      "act": "MOMENTUM",
+      "presenterSource": "public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+      "presenterSourceSha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "presenterStillSeconds": 20,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l11.png",
+      "samOrBookAssetSha256": "a7894b715c668a5b78058c5fd8012e8e43c71073a5719c2fe5f2687a202727b4",
+      "output": "public/accelerated/posters/l11-poster.webp",
+      "outputSha256": "cbc3f52b05ebacd3342b571709520aaa3e9b9aab1f8af6585ddac58f3c0b6416",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L12",
+      "title": "Jobs and synthetic signals",
+      "act": "MOMENTUM",
+      "presenterSource": "public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+      "presenterSourceSha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "presenterStillSeconds": 16,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "samOrBookAssetSha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "output": "public/accelerated/posters/l12-poster.webp",
+      "outputSha256": "5c9ad2c32baa9d834ef1622c5d36373921aa72e62bb90bd28d80285b98d4b1f4",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L13",
+      "title": "Strategic shifts and future concepts",
+      "act": "MOMENTUM",
+      "presenterSource": "public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+      "presenterSourceSha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "presenterStillSeconds": 22,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "samOrBookAssetSha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "output": "public/accelerated/posters/l13-poster.webp",
+      "outputSha256": "9c3006aa99f97ce79dcf93fafd162384e821f22d9c28d9708c08de0e63b5cc4e",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L14",
+      "title": "The last mile of influence",
+      "act": "MOMENTUM",
+      "presenterSource": "public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+      "presenterSourceSha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "presenterStillSeconds": 9.25,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "samOrBookAssetSha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "output": "public/accelerated/posters/l14-poster.webp",
+      "outputSha256": "29970c8d106c5ebc8aecd80bc307d48024c0a31f02a8f1541f9b2aa3a680ba5a",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L15",
+      "title": "Governance and the system that learns",
+      "act": "SYNTHESIS",
+      "presenterSource": "public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+      "presenterSourceSha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "presenterStillSeconds": 21,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "samOrBookAssetSha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "output": "public/accelerated/posters/l15-poster.webp",
+      "outputSha256": "e33d54fcb103c1af7a6593d2d8097c3204d6a3cdf9c72eeee0d59a46fb7fb3ee",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L16",
+      "title": "What comes next",
+      "act": "SYNTHESIS",
+      "presenterSource": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+      "presenterSourceSha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "presenterStillSeconds": 17.25,
+      "presenterSourceKind": "approved native learner composite",
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l16.png",
+      "samOrBookAssetSha256": "5a9062b7af5be2ac039d3590d1b760d9918df04696ab0decf6110f1c6e2bb40b",
+      "output": "public/accelerated/posters/l16-poster.webp",
+      "outputSha256": "2aa2f6c738fcd035d8f862ed9c50f5db31dce219358a3a15059c1b394b6cc0f5",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "First-party approved learner composite and first-party SAM or lesson artwork; no generated identity",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "composed or slight smile",
+        "motionBlur": false,
+        "duplicatePose": false
+      }
+    }
+  ]
+}

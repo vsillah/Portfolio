@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
 import { AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
 import { DECISION_FILE_STORAGE_KEY } from '@/lib/accelerated-decision-file'
+import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 
 vi.mock('next/image', () => ({
   default: ({ unoptimized: _unoptimized, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
@@ -96,6 +97,7 @@ describe('Accelerated learning plan', () => {
     fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')
     expect(document.querySelector('video source')).toHaveAttribute('src', l01Media.video)
+    expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('poster', lessonPosters.L01)
     expect(document.querySelector('video track')).toHaveAttribute('src', l01Media.captions)
     expect(screen.getByRole('button', { name: 'English captions on' })).toHaveAttribute('aria-pressed', 'true')
     fireEvent.click(screen.getByText('Read along with L01 transcript'))
@@ -111,6 +113,23 @@ describe('Accelerated learning plan', () => {
       expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeEnabled()
     }
     expect(screen.queryByText(/production packet|source hash|provider instruction/i)).not.toBeInTheDocument()
+  })
+
+  it('shows every lesson cover before play and after returning to the plan', () => {
+    render(<AcceleratedLearningPlan />)
+    for (const item of lessons) {
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) }))
+      const video = screen.getByLabelText(`${item.id} ${item.title} guided video`)
+      expect(video).toHaveAttribute('poster', lessonPosters[item.id as keyof typeof lessonPosters])
+      expect(video).toHaveAttribute('aria-description', expect.stringContaining(`${item.id} ${item.title} cover`))
+      expect(video).toHaveAttribute('preload', 'metadata')
+      expect(video).toHaveAttribute('controls')
+      expect(video.querySelector('source')).toHaveAttribute('src', expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
+      expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
+      fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
+      expect(screen.queryByLabelText(`${item.id} ${item.title} guided video`)).not.toBeInTheDocument()
+    }
   })
 
   it('handles filtering, empty results, completion, reversal, and next navigation', () => {
@@ -184,6 +203,7 @@ describe('Accelerated learning plan', () => {
     fireEvent.click(screen.getByRole('button', { name: /Watch L02 guided video/ }))
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('controls')
     expect(document.querySelector('video source')).toHaveAttribute('src', l02Media.video)
+    expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('poster', lessonPosters.L02)
     expect(document.querySelector('video track')).toHaveAttribute('src', l02Media.captions)
     fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery, ready/ }))
     expect(screen.getByRole('button', { name: /Watch L03 guided video/ })).toBeEnabled()
