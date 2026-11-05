@@ -28,8 +28,7 @@ await Promise.all([
 ])
 
 for (const [name, width, height] of [['desktop', 1280, 800], ['mobile', 390, 844]]) {
-  const context = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce',
-    recordVideo: { dir: raw, size: { width, height } } })
+  const context = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' })
   const page = await context.newPage()
   await page.addInitScript(() => localStorage.setItem('theme', 'dark'))
   await page.route('**/api/services/22222222-2222-4222-8222-222222222222/bundles', (route) =>
@@ -38,6 +37,26 @@ for (const [name, width, height] of [['desktop', 1280, 800], ['mobile', 390, 844
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(workshop) }))
   await page.goto(`${origin}/member/quote?qa=quote&rev=catalog-recording`, { waitUntil: 'domcontentloaded' })
   await page.getByRole('heading', { name: 'Active catalog' }).waitFor()
+  // Chrome's Playwright WebM leaves a gray strip below the page on some hosts.
+  // Capture the actual viewport at each step so the delivered MP4 has no crop.
+  const frames = path.join(raw, `accelerated-member-${name}-frames`)
+  await fs.rm(frames, { recursive: true, force: true })
+  await fs.mkdir(frames)
+  const captured = []
+  let recording = true
+  const capture = (async () => {
+    while (recording) {
+      const filename = `frame-${String(captured.length).padStart(5, '0')}.jpg`
+      try {
+        const screenshot = await page.screenshot({ type: 'jpeg', quality: 82, timeout: 10000 })
+        await fs.writeFile(path.join(frames, filename), screenshot)
+        captured.push({ filename, at: Date.now() })
+      } catch (error) {
+        if (recording) throw error
+      }
+      await new Promise((resolve) => setTimeout(resolve, 80))
+    }
+  })()
   await page.waitForTimeout(800)
   if (name === 'mobile') await page.getByText('Refine options · 5 questions').click()
   await page.getByRole('radio', { name: 'In person' }).check()
@@ -62,14 +81,25 @@ for (const [name, width, height] of [['desktop', 1280, 800], ['mobile', 390, 844
   await page.getByText('This alternative is a request for review. Your approved recommendation has not changed.').waitFor()
   assert.equal(await page.getByRole('button', { name: 'Send for operator review' }).isDisabled(), true)
   await page.waitForTimeout(1000)
-  const video = page.video()
+  recording = false
+  await capture
+  assert.ok(captured.length >= 20, `Too few ${name} viewport frames: ${captured.length}`)
+  const concat = ['ffconcat version 1.0']
+  for (let index = 0; index < captured.length; index++) {
+    concat.push(`file '${captured[index].filename}'`)
+    concat.push(`duration ${index + 1 < captured.length ? Math.max(0.04, (captured[index + 1].at - captured[index].at) / 1000).toFixed(3) : '0.100'}`)
+  }
+  concat.push(`file '${captured.at(-1).filename}'`)
+  const manifest = path.join(frames, 'frames.ffconcat')
+  await fs.writeFile(manifest, `${concat.join('\n')}\n`)
   await context.close()
-  const source = path.join(raw, `accelerated-member-${name}-walkthrough.webm`)
-  await video.saveAs(source)
-  await fs.unlink(await video.path())
+  await fs.rm(path.join(raw, `accelerated-member-${name}-walkthrough.webm`), { force: true })
   const final = path.join(output, `accelerated-member-${name}-walkthrough.mp4`)
-  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', source, '-vf', name === 'desktop' ? 'crop=1280:712:0:0' : 'crop=304:590:0:0',
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', manifest, '-vf', 'fps=25',
     '-c:v', 'libx264', '-crf', '20', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', final])
+  execFileSync('tar', ['-czf', path.join(raw, `accelerated-member-${name}-frames.tar.gz`), '-C', raw,
+    `accelerated-member-${name}-frames`])
+  await fs.rm(frames, { recursive: true, force: true })
   console.log(final)
 }
 await browser.close()
