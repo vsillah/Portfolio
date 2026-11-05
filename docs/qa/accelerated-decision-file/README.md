@@ -1,26 +1,24 @@
 # Accelerated Decision File QA
 
-Base: `ed73dee795dbcb067bf441451c49190228d7518d` on `codex/accelerated-worksheet-routing`.
+Branch: `codex/accelerated-worksheet-routing`. The exact correction commit is recorded in PR #1209.
 
 ## Local review
 
-- Learner: `http://localhost:3107/service-prototypes/accelerated-cohort?qa=worksheet-fixture-ed73dee7` → **Learning plan**.
-- Operator: `http://localhost:3107/admin/accelerated/decision-files?qa=ed73dee7` (admin sign-in required).
-- In-app browser QA confirmed L01 → L02 → L01 answer continuity, recovery after refresh, share preview, editable redaction, consent-disabled Send, dark/light desktop at 1270 px, tablet at 768 px, and dark mobile at 390 px without horizontal overflow.
-- For a safe local completion check only, enter `QA Fixture` and `qa-fixture@example.invalid` with explicit consent. The development-only route returns a synthetic success; it does not write to Supabase. The receipt states this clearly.
-- The protected operator route redirected to login as intended. Google OAuth recovery unexpectedly returned to the staging origin, so authenticated localhost operator review remains pending. No token or callback URL is included in these artifacts.
-- A real submission remains untested until the migration is applied to staging. The public POST fails closed if the table is unavailable; production application is outside this lane.
+- Learner: `http://localhost:3109/service-prototypes/accelerated-cohort?qa=worksheet-fixture-ed73dee7` → Learning plan.
+- Operator synthetic fixture: `http://localhost:3109/admin/accelerated/decision-files?qa_fixture=accelerated_decision_file_v1`. This fixture is available only in development and makes no API calls or writes. The normal operator route remains behind `ProtectedRoute`.
+- The continuous sampled capture in `worksheet-walkthrough.mp4` shows the learner worksheet across lessons, reload recovery, share review, consent, the development-only no-write receipt, and the synthetic operator queue on desktop and narrow mobile. It includes review state, a non-link example candidate, an empty queue, and a closed review. Capture frames are preserved separately in `continuous-frames/`; `render-walkthrough.sh` reproduces the MP4. The source was captured from one in-app browser tab without cuts. The 3 fps output is intentionally a sampled screen walkthrough; rapid pointer motion is not represented.
+- `ffprobe` reports a playable 17-second H.264 MP4. Frames were inspected for legibility and private information. The synthetic name and `.invalid` email are used only for the local no-write completion fixture.
+- Desktop and 390 px mobile screenshots document the revised operator hierarchy. The disabled assessment action explains that a verified existing audit ID is required. An invalid synthetic service ID appears as noninteractive example text.
+- A real submission and authenticated operator save remain untested until the migration is applied to staging. No migration, private contact, assessment, provider, or external action was performed in this lane.
 
-`worksheet-walkthrough.mp4` is an 18-second silent MP4 assembled from sequential in-app browser captures of the changed route and the protected operator gate. It is a visual walkthrough, not a continuous screen recording. `walkthrough-captions.srt` describes each three-second state. The operator gate is shown; an authenticated operator queue and a persisted fixture are not shown. The MP4 is playable (`ffprobe` reports 18.000 seconds) and the captured frames were visually inspected.
+## Validation and limits
 
-## Validation
-
-- `vitest run app/service-prototypes/[slug]/AcceleratedLearningPlan.test.tsx lib/accelerated-decision-file.test.ts app/api/accelerated/decision-file/route.test.ts app/api/admin/accelerated/decision-files/route.test.ts` — 22 passed.
-- `npm run build` — media binding checks and compile passed; Next build worker ran out of memory during repository-wide lint/type stage.
-- `tsc --noEmit --pretty false` — existing repo errors remain outside this lane; no errors in changed files after the final fix.
+- Focused Vitest tests cover worksheet behavior, canonical idempotency digest, catalog identity and route validation, protected API behavior, and the development-only fixture gate.
+- `NODE_OPTIONS=--max-old-space-size=8192 npm run build` passed, including media binding checks, compile, lint/type gate, static pages, and build traces. Existing non-blocking lint warnings remain outside this lane.
+- Preview deployments for both Portfolio Vercel contexts must be checked against the correction commit. The development fixture is intentionally absent from previews; it is not a staging data substitute.
 
 ## Next captain gates
 
 1. Review and apply `20261105120000_accelerated_decision_file_intake.sql` to staging only.
-2. Exercise a synthetic persisted submission and an authenticated operator review, including attaching an existing diagnostic audit. Confirm the linked audit is the intended learner's assessment before using it in the client dashboard flow.
-3. Run desktop/mobile rendered QA on the staging preview and produce a continuous screen recording of the full persisted handoff before Vambah's Human QA.
+2. Exercise a synthetic persisted submission and authenticated operator review, including a verified existing diagnostic audit match. Confirm the linked audit belongs to the same learner.
+3. Perform staging desktop and mobile QA on the persisted flow before any client-facing Human QA handoff. Production migration, external sends, merge, and deployment remain outside this development lane.

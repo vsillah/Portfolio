@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     content_version: draft.version,
     learner_name: name,
     learner_email: email,
-    answers: draft.answers,
+    answers: Object.fromEntries(Object.entries(draft.answers).sort(([left], [right]) => left.localeCompare(right))),
   };
   const digest = createHash("sha256")
     .update(JSON.stringify(evidence))

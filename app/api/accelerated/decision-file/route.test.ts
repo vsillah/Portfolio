@@ -97,6 +97,19 @@ describe("decision file submission", () => {
     });
     expect((await POST(request(payload()))).status).toBe(409);
   });
+  it("uses the same digest when valid answer keys arrive in a different order", async () => {
+    const first = { ...draft, answers: { L02: "Second", L01: "First" } };
+    const second = { ...draft, answers: { L01: "First", L02: "Second" } };
+    expect((await POST(request({ ...payload(), draft: first }))).status).toBe(201);
+    const inserted = mocks.insert.mock.calls[0][0];
+    expect(Object.keys(inserted.answers)).toEqual(["L01", "L02"]);
+    mocks.insert.mockReturnValue({
+      select: () => ({ single: async () => ({ data: null, error: { code: "23505" } }) }),
+    });
+    mocks.existing.mockResolvedValue({ data: { id: "receipt", payload_sha256: inserted.payload_sha256 } });
+    expect((await POST(request({ ...payload(), draft: second }))).status).toBe(200);
+    expect(mocks.insert.mock.calls[1][0].payload_sha256).toBe(inserted.payload_sha256);
+  });
   it("keeps the local synthetic completion fixture out of persistence", async () => {
     vi.stubEnv("NODE_ENV", "development");
     const response = await POST(

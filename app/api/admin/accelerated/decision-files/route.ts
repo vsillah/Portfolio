@@ -3,7 +3,7 @@ import { verifyAdmin, isAuthError } from "@/lib/auth-server";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
   reviewServiceCandidates,
-  type ReviewService,
+  parseReviewCatalogOffer,
 } from "@/lib/accelerated-service-review";
 
 export const dynamic = "force-dynamic";
@@ -36,15 +36,9 @@ export async function GET(request: NextRequest) {
       .limit(200),
   ]);
   const catalog = [
-    ...((services || []) as ReviewService[]).map((service) => ({
-      ...service,
-      kind: "service" as const,
-    })),
-    ...((products || []) as ReviewService[]).map((product) => ({
-      ...product,
-      kind: "product" as const,
-    })),
-  ];
+    ...((services || []) as unknown[]).map((service: unknown) => parseReviewCatalogOffer(service, "service")),
+    ...((products || []) as unknown[]).map((product: unknown) => parseReviewCatalogOffer(product, "product")),
+  ].filter((offer): offer is NonNullable<typeof offer> => offer !== null);
   return NextResponse.json(
     {
       items: (data || []).map((item: { answers: Record<string, string> }) => ({

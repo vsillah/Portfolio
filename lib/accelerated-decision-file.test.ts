@@ -5,7 +5,7 @@ import {
   lessons,
   validateDecisionFile,
 } from "./accelerated-decision-file";
-import { reviewServiceCandidates } from "./accelerated-service-review";
+import { reviewServiceCandidates, parseReviewCatalogOffer, catalogOfferHref } from "./accelerated-service-review";
 
 describe("Accelerated decision file", () => {
   it("keeps a single version-bound worksheet for every approved lesson artifact", () => {
@@ -53,21 +53,29 @@ describe("Accelerated decision file", () => {
       { L01: "Our team needs automation for intake." },
       [
         {
-          id: 1,
+          id: "12345678-1234-1234-1234-123456789abc", kind: "service",
           title: "Intake automation workshop",
           description: "Map intake workflow",
           is_active: true,
         },
         {
-          id: 2,
+          id: 2, kind: "product",
           title: "Executive coaching",
           description: "Leadership",
           is_active: true,
         },
-        { id: 3, title: "Automation sprint", is_active: false },
+        { id: 3, kind: "product", title: "Automation sprint", is_active: false },
       ],
     );
-    expect(matches.map((item) => item.id)).toEqual([1]);
+    expect(matches.map((item) => item.id)).toEqual(["12345678-1234-1234-1234-123456789abc"]);
+    expect(matches[0].href).toBe("/services/12345678-1234-1234-1234-123456789abc");
     expect(matches[0].reason).toContain("intake");
+  });
+  it("keeps service UUID and product bigint routes distinct and rejects malformed catalog ids", () => {
+    expect(catalogOfferHref({ id: 42, kind: "product", title: "Intake guide" })).toBe("/store/42");
+    expect(parseReviewCatalogOffer({ id: 42, title: "Bad service" }, "service")).toBeNull();
+    expect(parseReviewCatalogOffer({ id: "42", title: "Bad product" }, "product")).toBeNull();
+    expect(parseReviewCatalogOffer({ id: -1, title: "Bad product" }, "product")).toBeNull();
+    expect(catalogOfferHref({ id: "synthetic-service", kind: "service", title: "Example" })).toBeNull();
   });
 });

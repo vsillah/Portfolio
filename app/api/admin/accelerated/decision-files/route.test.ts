@@ -73,7 +73,7 @@ describe("protected review queue", () => {
       data: [{ id: "a", answers: { L01: "Need intake automation" } }],
     });
     mocks.services.mockResolvedValue({
-      data: [{ id: 1, title: "Intake automation workshop", is_active: true }],
+      data: [{ id: "12345678-1234-1234-1234-123456789abc", title: "Intake automation workshop", is_active: true }],
     });
     mocks.products.mockResolvedValue({
       data: [{ id: 2, title: "Music album", is_active: true }],
@@ -82,8 +82,9 @@ describe("protected review queue", () => {
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(
-      data.items[0].candidates.map((candidate: { id: number }) => candidate.id),
-    ).toEqual([1]);
+      data.items[0].candidates.map((candidate: { id: string | number }) => candidate.id),
+    ).toEqual(["12345678-1234-1234-1234-123456789abc"]);
+    expect(data.items[0].candidates[0].href).toBe("/services/12345678-1234-1234-1234-123456789abc");
   });
   it("requires an existing assessment audit before linking", async () => {
     mocks.intake.mockResolvedValue({

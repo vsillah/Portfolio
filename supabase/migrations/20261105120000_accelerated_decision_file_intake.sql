@@ -2,10 +2,10 @@
 CREATE TABLE public.accelerated_decision_file_intakes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   worksheet_id uuid NOT NULL UNIQUE,
-  content_version text NOT NULL,
-  payload_sha256 text NOT NULL,
-  learner_name text NOT NULL,
-  learner_email text NOT NULL,
+  content_version text NOT NULL CHECK (char_length(btrim(content_version)) BETWEEN 1 AND 120),
+  payload_sha256 text NOT NULL CHECK (payload_sha256 ~ '^[0-9a-f]{64}$'),
+  learner_name text NOT NULL CHECK (char_length(btrim(learner_name)) BETWEEN 1 AND 120),
+  learner_email text NOT NULL CHECK (char_length(btrim(learner_email)) BETWEEN 1 AND 254),
   answers jsonb NOT NULL,
   consented_at timestamptz NOT NULL,
   submitted_at timestamptz NOT NULL DEFAULT now(),
@@ -14,14 +14,14 @@ CREATE TABLE public.accelerated_decision_file_intakes (
   reviewed_by uuid,
   reviewed_at timestamptz,
   review_note text,
-  CONSTRAINT accelerated_answers_object CHECK (jsonb_typeof(answers) = 'object')
+  CONSTRAINT accelerated_answers_object CHECK (jsonb_typeof(answers) = 'object' AND octet_length(answers::text) <= 32000)
 );
 ALTER TABLE public.accelerated_decision_file_intakes ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.accelerated_decision_file_intakes FROM anon, authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.accelerated_decision_file_intakes TO service_role;
 CREATE INDEX accelerated_decision_file_intakes_review_idx ON public.accelerated_decision_file_intakes (review_status, submitted_at DESC);
 CREATE OR REPLACE FUNCTION public.guard_accelerated_decision_file_evidence()
-RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
+RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path = public AS $$
 BEGIN
   IF NEW.worksheet_id IS DISTINCT FROM OLD.worksheet_id OR
      NEW.content_version IS DISTINCT FROM OLD.content_version OR
@@ -35,6 +35,8 @@ BEGIN
   END IF;
   RETURN NEW;
 END $$;
+REVOKE ALL ON FUNCTION public.guard_accelerated_decision_file_evidence() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.guard_accelerated_decision_file_evidence() TO service_role;
 CREATE TRIGGER guard_accelerated_decision_file_evidence
 BEFORE UPDATE ON public.accelerated_decision_file_intakes
 FOR EACH ROW EXECUTE FUNCTION public.guard_accelerated_decision_file_evidence();
