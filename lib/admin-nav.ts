@@ -38,6 +38,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
       items: [
         { label: 'Sales Dashboard', href: '/admin/sales' },
         { label: 'Lead Dashboards', href: '/admin/lead-dashboards' },
+        { label: 'Accelerated Decision Files', href: '/admin/accelerated/decision-files' },
         { label: 'Attraction Campaigns', href: '/admin/campaigns' },
         { label: 'Products', href: '/admin/sales/products' },
         { label: 'Bundles', href: '/admin/sales/bundles' },
