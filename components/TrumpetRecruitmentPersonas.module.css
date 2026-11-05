@@ -1,7 +1,7 @@
 .stage {
   position: relative;
   isolation: isolate;
-  min-height: 760px;
+  min-height: 830px;
   overflow: visible;
   touch-action: pan-y;
 }
@@ -10,7 +10,7 @@
   top: 80px;
   left: 19%;
   width: 62%;
-  height: 600px;
+  height: 660px;
   background: var(--imperial-navy);
   transform-origin: 50% 85%;
   box-shadow: 0 24px 46px rgb(0 0 0 / 38%), 0 0 0 1px rgb(216 180 96 / 14%);
@@ -21,7 +21,7 @@
 .copyRegion { flex: 0 0 50%; }
 .arrow {
   position: absolute;
-  top: 358px;
+  top: 388px;
   z-index: 5;
   display: grid;
   place-items: center;
@@ -54,11 +54,11 @@
   .card[data-depth="3"] { transform: translate3d(-45px, -22px, 0) rotate(-11deg) scale(.91); }
 }
 @media (max-width: 639px) {
-  .stage { min-height: 690px; overflow: clip; }
+  .stage { min-height: 720px; overflow: clip; }
   .card { top: 18px; left: 9%; width: 82%; height: calc(100% - 38px); }
   .imageRegion { flex-basis: 40%; }
   .copyRegion { flex-basis: 60%; }
-  .arrow { top: 323px; }
+  .arrow { top: 337px; }
   .card[data-depth="1"] { transform: translate3d(-80px, 0, 0) rotate(-7deg) scale(.94); opacity: 0; }
   .card[data-depth="2"] { transform: translate3d(80px, 0, 0) rotate(7deg) scale(.94); opacity: 0; }
   .card[data-depth="3"] { transform: translate3d(-100px, 0, 0) rotate(-9deg) scale(.9); opacity: 0; }
