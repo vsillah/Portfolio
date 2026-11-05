@@ -1,10 +1,18 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { createRequire } from "node:module";
 import RecruitmentReviewPage, { metadata } from "./page";
 
 vi.mock("@/components/Navigation", () => ({ default: () => <nav aria-label="Site navigation" /> }));
+const require = createRequire(import.meta.url);
 
 describe("Trumpet Trainer recruitment review", () => {
+  it("keeps static persona media out of the unrelated admin function trace", () => {
+    const config = require("../../../../next.config.js");
+    const exclusions = config.experimental.outputFileTracingExcludes["/api/admin/social-content/*/bind-approved-master"];
+    expect(exclusions).toContain("./public/work/trumpet-trainer/personas/*");
+  });
+
   it("keeps the campaign inactive and makes all audiences, media, and drafts reviewable", () => {
     render(<RecruitmentReviewPage />);
     expect(metadata.robots).toEqual({ index: false, follow: false });
