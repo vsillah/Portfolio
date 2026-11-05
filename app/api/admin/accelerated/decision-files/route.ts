@@ -76,6 +76,7 @@ export async function PATCH(request: NextRequest) {
       { status: 400 },
     );
   let auditId: number | null = null;
+  let auditOwnerId: string | null = null;
   if (body.status === "linked") {
     auditId = Number(body.auditId);
     if (!Number.isSafeInteger(auditId) || auditId < 1)
@@ -95,7 +96,7 @@ export async function PATCH(request: NextRequest) {
       );
     const audit = await supabaseAdmin
       .from("diagnostic_audits")
-      .select("id,contact_submission_id")
+      .select("id,contact_submission_id,user_id")
       .eq("id", auditId)
       .single();
     if (!audit.data || audit.error)
@@ -108,6 +109,12 @@ export async function PATCH(request: NextRequest) {
         { error: "Assessment audit has no linked learner contact." },
         { status: 409 },
       );
+    auditOwnerId = audit.data.user_id ?? null;
+    if (auditOwnerId) {
+      const prior = await supabaseAdmin.from("accelerated_decision_file_owners").select("user_id").eq("intake_id", body.id).maybeSingle();
+      if (prior.error) return NextResponse.json({ error: "Could not verify Decision File ownership." }, { status: 503 });
+      if (prior.data && prior.data.user_id !== auditOwnerId) return NextResponse.json({ error: "This Decision File is already owned by another member." }, { status: 409 });
+    }
     const contact = await supabaseAdmin
       .from("contact_submissions")
       .select("email")
@@ -141,6 +148,15 @@ export async function PATCH(request: NextRequest) {
       { error: "Could not save review." },
       { status: 503 },
     );
+  if (body.status === "linked" && auditOwnerId) {
+      const ownership = await supabaseAdmin
+        .from("accelerated_decision_file_owners")
+        .insert({ intake_id: body.id, user_id: auditOwnerId, verified_by: auth.user.id });
+      if (ownership.error?.code === "23505") {
+        const prior = await supabaseAdmin.from("accelerated_decision_file_owners").select("user_id").eq("intake_id", body.id).single();
+        if (prior.error || prior.data?.user_id !== auditOwnerId) return NextResponse.json({ error: "This Decision File is already owned by another member." }, { status: 409 });
+      } else if (ownership.error) return NextResponse.json({ error: "The review saved, but member ownership could not be linked." }, { status: 503 });
+  }
   return NextResponse.json(
     { item: data },
     { headers: { "Cache-Control": "no-store" } },
