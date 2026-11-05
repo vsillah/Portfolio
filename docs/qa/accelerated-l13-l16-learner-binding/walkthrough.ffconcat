@@ -1,0 +1,26 @@
+ffconcat version 1.0
+file '01-l13-player-dark.png'
+duration 2.5
+file '02-l13-transcript-dark.png'
+duration 2.5
+file '03-l13-progress-dark.png'
+duration 2
+file 'l14-player-dark.png'
+duration 2.5
+file 'l14-transcript-dark.png'
+duration 2.5
+file 'l14-progress-dark.png'
+duration 2
+file 'l15-player-dark.png'
+duration 2.5
+file 'l15-transcript-dark.png'
+duration 2.5
+file 'l15-progress-dark.png'
+duration 2
+file 'l16-player-dark.png'
+duration 2.5
+file 'l16-transcript-dark.png'
+duration 2.5
+file 'l16-progress-dark.png'
+duration 2.5
+file 'l16-progress-dark.png'
