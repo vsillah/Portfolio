@@ -3,10 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import TrumpetRecruitmentPersonas from "./TrumpetRecruitmentPersonas";
 
 const personas = [
-  { name: "Parents or guardians", personName: "Avery", quote: "A clear next note.", goal: "Start practice.", friction: "Too many reminders.", currentBehavior: "Uses a timer.", proof: "Show the next note.", channel: "Adult opt-in." },
-  { name: "Private trumpet tutors", personName: "Morgan", quote: "Keep lessons moving.", goal: "Continue practice.", friction: "Lost continuity.", currentBehavior: "Writes notes.", proof: "Follow independently.", channel: "Known relationship." },
-  { name: "Band educators", personName: "Casey", quote: "One next step.", goal: "Help many beginners.", friction: "Limited time.", currentBehavior: "Teaches sections.", proof: "Avoid new management work.", channel: "Official staff path." },
-  { name: "Community music programs", personName: "Jordan", quote: "Time is limited.", goal: "Help more beginners.", friction: "Shared resources.", currentBehavior: "Coordinates adults.", proof: "Keep it simple.", channel: "Public program route." },
+  { name: "Parents or guardians", role: "Parent or guardian", personName: "Avery", quote: "A clear next note.", goal: "Start practice.", friction: "Too many reminders.", currentBehavior: "Uses a timer.", proof: "Show the next note.", channel: "Adult opt-in." },
+  { name: "Private trumpet tutors", role: "Private trumpet tutor", personName: "Morgan", quote: "Keep lessons moving.", goal: "Continue practice.", friction: "Lost continuity.", currentBehavior: "Writes notes.", proof: "Follow independently.", channel: "Known relationship." },
+  { name: "Band educators", role: "Band educator", personName: "Casey", quote: "One next step.", goal: "Help many beginners.", friction: "Limited time.", currentBehavior: "Teaches sections.", proof: "Avoid new management work.", channel: "Official staff path." },
+  { name: "Community music programs", role: "Community program lead", personName: "Jordan", quote: "Time is limited.", goal: "Help more beginners.", friction: "Shared resources.", currentBehavior: "Coordinates adults.", proof: "Keep it simple.", channel: "Public program route." },
 ];
 
 describe("adult perspective deck", () => {
@@ -48,7 +48,7 @@ describe("adult perspective deck", () => {
       const card = screen.getByRole("article");
       expect(within(card).getByText("Fictional composite persona")).toBeInTheDocument();
       expect(within(card).getByRole("heading", { name: persona.personName })).toBeInTheDocument();
-      expect(within(card).getByText(persona.name)).toBeInTheDocument();
+      expect(within(card).getByText(persona.role)).toBeInTheDocument();
       expect(within(card).getByText(`“${persona.quote}”`)).toBeInTheDocument();
       expect([...card.querySelectorAll("dt")].map((field) => field.textContent)).toEqual(["Goal", "Friction", "Current behavior", "Product proof"]);
       expect([...card.querySelectorAll("dd")].map((field) => field.textContent)).toEqual([persona.goal, persona.friction, persona.currentBehavior, persona.proof]);

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import styles from "./TrumpetRecruitmentPersonas.module.css";
 
-type Persona = { name: string; personName: string; quote: string; goal: string; friction: string; currentBehavior: string; proof: string; channel: string; imageSrc?: string; imageAlt?: string };
+type Persona = { name: string; role: string; personName: string; quote: string; goal: string; friction: string; currentBehavior: string; proof: string; channel: string; imageSrc?: string; imageAlt?: string };
 type Gesture = { pointerId: number; x: number; y: number; vertical: boolean; captured: boolean };
 const SWIPE_THRESHOLD = 56;
 
@@ -56,7 +56,7 @@ export default function TrumpetRecruitmentPersonas({ personas }: { personas: Per
           <div data-testid={`persona-image-${index}`} className={`${styles.imageRegion} relative overflow-hidden bg-imperial-navy/60`}>{persona.imageSrc ? <Image src={persona.imageSrc} alt={persona.imageAlt ?? `Fictional adult scene for ${persona.name}`} fill draggable={false} sizes="(max-width: 640px) 90vw, (max-width: 900px) 62vw, 560px" className="object-cover object-center" priority={index === 0} /> : <div aria-hidden="true" className="h-full bg-gradient-to-br from-radiant-gold/20 via-imperial-navy to-background" />}<span className="absolute bottom-3 right-3 rounded-full bg-imperial-navy/90 px-3 py-1 text-xs text-platinum-white">Illustrative scene</span></div>
           <div data-testid={`persona-copy-${index}`} className={`${styles.copyRegion} flex min-h-0 flex-col p-4 sm:p-5`}>
             <p className={styles.provenance}>Fictional composite persona</p>
-            <div className={styles.identity}><h3 className={styles.personName}>{persona.personName}</h3><p className={styles.role}>{persona.name}</p></div>
+            <div className={styles.identity}><h3 className={styles.personName}>{persona.personName}</h3><p className={styles.role}>{persona.role}</p></div>
             <blockquote className={styles.quote}>“{persona.quote}”</blockquote>
             <dl className={styles.profile}>
               <div><dt>Goal</dt><dd>{persona.goal}</dd></div>

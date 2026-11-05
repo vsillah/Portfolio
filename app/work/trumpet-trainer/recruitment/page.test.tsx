@@ -50,13 +50,13 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(audience).not.toBeNull();
     expect(within(audience!).getAllByRole("article")).toHaveLength(1);
     const copy = [
-      ["Parents or guardians", "Avery", "Make the next note obvious."],
-      ["Private trumpet tutors", "Morgan", "A beginner can follow it alone."],
-      ["Band educators", "Casey", "Clarify one step without added admin."],
-      ["Community music programs", "Jordan", "Add practice time without complex setup."],
+      ["Parents or guardians", "Parent or guardian", "Avery", "Make the next note obvious."],
+      ["Private trumpet tutors", "Private trumpet tutor", "Morgan", "A beginner can follow it alone."],
+      ["Band educators", "Band educator", "Casey", "Clarify one step without added admin."],
+      ["Community music programs", "Community program lead", "Jordan", "Add practice time without complex setup."],
     ];
-    for (const [role, name, proof] of copy) {
-      fireEvent.click(within(audience!).getByRole("button", { name: `Show ${role}` }));
+    for (const [audienceName, role, name, proof] of copy) {
+      fireEvent.click(within(audience!).getByRole("button", { name: `Show ${audienceName}` }));
       const card = within(audience!).getByRole("article");
       expect(within(card).getByRole("heading", { name })).toBeInTheDocument();
       expect(card).toHaveTextContent(role);
