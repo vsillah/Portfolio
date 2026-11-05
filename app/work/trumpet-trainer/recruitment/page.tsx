@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import TrumpetRecruitmentMessages from "@/components/TrumpetRecruitmentMessages";
+import TrumpetRecruitmentPersonas from "@/components/TrumpetRecruitmentPersonas";
+import TrumpetRecruitmentSocialCarousel from "@/components/TrumpetRecruitmentSocialCarousel";
 import { BookOpen, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -46,10 +48,10 @@ const messages = [
 ];
 
 const audiencePlan = [
-  { name: "Parents or guardians", headline: "Practice can start before the reminder turns into an argument.", support: "See whether one clear next note makes home practice easier to begin.", channel: "Opt-in through the public work page or a rules-permitted community post." },
-  { name: "Private trumpet tutors", headline: "Keep the lesson moving after the lesson ends.", support: "Test a short practice path beginners can follow between sessions.", channel: "Known relationship or individually reviewed public professional channel." },
-  { name: "Band educators", headline: "Give first-year players one clear next note between rehearsals.", support: "See whether guided, bite-sized practice fits your program.", channel: "Known relationship or official staff contact path, subject to institution rules." },
-  { name: "Community music programs", headline: "Help more beginners practice without adding another complicated system.", support: "Review a browser-based path for short sessions and adult oversight.", channel: "Public organization contact route after staff review." },
+  { name: "Parents or guardians", headline: "Practice can start before the reminder turns into an argument.", support: "See whether one clear next note makes home practice easier to begin.", channel: "Opt-in through the public work page or a rules-permitted community post.", imageSrc: "/work/trumpet-trainer/personas/parent-guardian-v2.webp", imageAlt: "Fictional adult guardian arranging a timer beside trumpet practice materials at home" },
+  { name: "Private trumpet tutors", headline: "Keep the lesson moving after the lesson ends.", support: "Test a short practice path beginners can follow between sessions.", channel: "Known relationship or individually reviewed public professional channel.", imageSrc: "/work/trumpet-trainer/personas/private-tutor-v3.webp", imageAlt: "Fictional tutor compares annotated music with an almost blank practice record beside an empty student chair" },
+  { name: "Band educators", headline: "Give first-year players one clear next note between rehearsals.", support: "See whether guided, bite-sized practice fits your program.", channel: "Known relationship or official staff contact path, subject to institution rules.", imageSrc: "/work/trumpet-trainer/personas/band-educator-v3.webp", imageAlt: "Fictional band educator holds several scores while responding to a crowded beginner rehearsal" },
+  { name: "Community music programs", headline: "Help more beginners practice without adding another complicated system.", support: "Review a browser-based path for short sessions and adult oversight.", channel: "Public organization contact route after staff review.", imageSrc: "/work/trumpet-trainer/personas/community-program-v3.webp", imageAlt: "Fictional community music organizers balance a thick request stack, limited loaner trumpets, and open cases" },
 ];
 
 const schedule = [
@@ -84,22 +86,15 @@ export default function RecruitmentReviewPage() {
             <div className="min-w-0 self-start rounded-2xl border border-border bg-card p-4"><video controls preload="none" playsInline poster="/showcases/trumpet-trainer/c19989a3/gameplay-poster.jpg" className="aspect-video w-full rounded-xl bg-imperial-navy" aria-label="Synthetic Trumpet Trainer gameplay"><source src="/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4" type="video/mp4" /></video><p className="mt-3 text-sm text-muted-foreground">Captioned gameplay. No child or customer recording.</p></div>
           </div>
           <details className="mt-3 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground"><summary className="cursor-pointer font-semibold text-foreground">Media source and claim limits</summary><p className="mt-3 leading-6">Screens and video come from Trumpet Trainer commit <code>c19989a3b156ce97326e35b335e169014ca076f3</code> with synthetic audio input. The displayed result is one deterministic test run, not a learning outcome claim. Publication remains gated.</p></details>
-          <div className="mt-8 flex flex-wrap items-baseline justify-between gap-2"><h3 className="font-premium text-2xl">Seven-slide social carousel</h3><span className="text-xs text-muted-foreground">Approved review assets · scroll to inspect</span></div>
-          <div className="mt-4 flex max-w-full snap-x gap-4 overflow-x-auto pb-4" aria-label="Trumpet Trainer social carousel slides">
-            {Array.from({ length: 7 }, (_, index) => {
-              const slide = String(index + 1).padStart(2, "0");
-              return <figure key={slide} className="w-60 shrink-0 snap-start rounded-2xl border border-border bg-card p-2 sm:w-72"><Image src={`/showcases/trumpet-trainer/c19989a3/social/slide-${slide}.png`} alt={`Social carousel slide ${index + 1} of 7`} width={1080} height={1350} className="w-full rounded-xl" /><figcaption className="px-2 py-2 text-sm text-muted-foreground">Slide {index + 1} of 7</figcaption></figure>;
-            })}
-          </div>
+          <h3 className="mt-8 font-premium text-2xl">Seven-slide social carousel</h3>
+          <TrumpetRecruitmentSocialCarousel />
           <details className="text-sm text-muted-foreground"><summary className="cursor-pointer">Carousel provenance</summary><p className="mt-2">These slides are the existing approved review assets, copied byte-for-byte from <code>docs/qa/trumpet-trainer-gameplay/social/</code>. No publication is active.</p></details>
         </section>
 
         <section aria-labelledby="audiences" className="mt-16">
           <h2 id="audiences" className="font-premium text-3xl">Four adult perspectives</h2>
           <p className="mt-2 text-sm text-muted-foreground">Each role sees a different part of the same practice moment.</p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {audiencePlan.map(({ name, headline, support, channel }) => <article key={name} className="flex min-w-0 flex-col rounded-2xl border border-border bg-card p-5"><h3 className="font-heading text-xs uppercase tracking-[.1em] text-radiant-gold">{name}</h3><p className="mt-5 font-premium text-xl leading-snug">{headline}</p><p className="mt-3 text-sm leading-6 text-muted-foreground">{support}</p><details className="mt-auto pt-5 text-xs leading-5 text-muted-foreground"><summary className="cursor-pointer">Contact path</summary><p className="mt-2">{channel}</p></details></article>)}
-          </div>
+          <TrumpetRecruitmentPersonas personas={audiencePlan} />
         </section>
 
         <section aria-labelledby="plan" className="mt-16">

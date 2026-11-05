@@ -10,14 +10,13 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(metadata.robots).toEqual({ index: false, follow: false });
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("first practice step");
     expect(screen.getByText(/This page sends nothing, stores no contacts/)).toBeInTheDocument();
-    for (const role of ["Parents or guardians", "Private trumpet tutors", "Band educators", "Community music programs"]) {
-      expect(screen.getByRole("heading", { name: role })).toBeInTheDocument();
-    }
-    expect(screen.getAllByRole("figure")).toHaveLength(7);
-    expect(screen.getAllByRole("tab")).toHaveLength(6);
+    expect(screen.getByRole("heading", { name: "Parents or guardians" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Social carousel slide 1 of 7" })).toBeInTheDocument();
+    expect(within(screen.getByRole("tablist", { name: "Choose a social slide" })).getAllByRole("tab")).toHaveLength(7);
+    expect(within(screen.getByRole("tablist", { name: "Choose a message draft" })).getAllByRole("tab")).toHaveLength(6);
     expect(screen.getAllByRole("button", { name: /^Copy / })).toHaveLength(1);
     fireEvent.click(screen.getByRole("tab", { name: "educator email" }));
-    const educatorEmail = screen.getByRole("tabpanel");
+    const educatorEmail = screen.getByRole("tabpanel", { name: "educator email" });
     expect(educatorEmail).toHaveTextContent("Vambah Sillah");
     expect(educatorEmail).toHaveTextContent("AmaduTown Advisory Solutions helps mission-driven teams turn scattered work into governed AI workflows, reviewable handoffs, and measurable next steps.");
     expect(educatorEmail).toHaveTextContent("https://amadutown.com");
@@ -37,24 +36,24 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
   });
 
-  it("uses adult-specific ad copy without decorative persona icons", () => {
+  it("keeps one adult-specific profile visible at a time", () => {
     render(<RecruitmentReviewPage />);
     const audience = screen.getByRole("heading", { name: "Four adult perspectives" }).closest("section");
     expect(audience).not.toBeNull();
-    const cards = within(audience!).getAllByRole("article");
-    expect(cards).toHaveLength(4);
+    expect(within(audience!).getAllByRole("article")).toHaveLength(1);
     const copy = [
       ["Parents or guardians", "Practice can start before the reminder turns into an argument.", "one clear next note"],
       ["Private trumpet tutors", "Keep the lesson moving after the lesson ends.", "between sessions"],
       ["Band educators", "Give first-year players one clear next note between rehearsals.", "fits your program"],
       ["Community music programs", "Help more beginners practice without adding another complicated system.", "adult oversight"],
     ];
-    for (const [index, [role, headline, support]] of copy.entries()) {
-      expect(within(cards[index]).getByRole("heading", { name: role })).toBeInTheDocument();
-      expect(cards[index]).toHaveTextContent(headline);
-      expect(cards[index]).toHaveTextContent(support);
-      expect(within(cards[index]).getByText("Contact path")).toBeInTheDocument();
-      expect(cards[index].querySelector("svg")).toBeNull();
+    for (const [role, headline, support] of copy) {
+      fireEvent.click(within(audience!).getByRole("button", { name: `Show ${role}` }));
+      const card = within(audience!).getByRole("article");
+      expect(within(card).getByRole("heading", { name: role })).toBeInTheDocument();
+      expect(card).toHaveTextContent(headline);
+      expect(card).toHaveTextContent(support);
+      expect(within(card).getByText("Contact path")).toBeInTheDocument();
     }
   });
 

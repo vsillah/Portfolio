@@ -1,0 +1,12 @@
+# Persona scene source map
+
+These four synthetic, fictional scenes support an inactive adult-only recruitment review. They are contextual illustrations, not evidence of real families, teachers, students, programs, or outcomes. Only the optimized WebP derivatives are committed and served. The PNG sources remain in this development worktree at the paths below for local review; their SHA-256 hashes identify the exact source files used. Do not substitute the rejected v1 scenes or the tutor, band, and community v2 scenes.
+
+All derivatives were made with `cwebp -quiet -q 82 -resize 1200 0 <source>.png -o <name>.webp` and visually inspected. The adult-scene label is visible in the interface. No image is used as an outreach recipient or student-data source.
+
+| Perspective | Approved source and SHA-256 | Served derivative and SHA-256 | Prompt intent / scene evidence |
+| --- | --- | --- | --- |
+| Parent or guardian | `public/work/trumpet-trainer/personas/parent-guardian-v2.png` · `029d2aa522868754263beeb34c72481fdbcc31bfaa34bb42192036b3b1ea128c` | `public/work/trumpet-trainer/personas/parent-guardian-v2.webp` · `958698347b8b1a90bc57d1d84c5496d9b0e71863d192bc08bace8cf6cdfb7415` | Home scheduling, timer, backpack, practice material, and case show the friction of starting at home. |
+| Private trumpet tutor | `public/work/trumpet-trainer/personas/private-tutor-v3.png` · `6a093da6d550d2657f4d8eadeb555ee3547c3e40be8de03fe9e6b32b557836df` | `public/work/trumpet-trainer/personas/private-tutor-v3.webp` · `5f3ba1365199ee695e333baf634a230436d5c2c690d70ab88af2a77c5f00191c` | Annotated lesson score, nearly blank practice record, empty student chair, and clock show the weekly reset between sessions. |
+| Band educator | `public/work/trumpet-trainer/personas/band-educator-v3.png` · `1ed56a261942ba2cdc16037de858dfcfcae5e8da4b67710fbe95e7d28741bc15` | `public/work/trumpet-trainer/personas/band-educator-v3.webp` · `52b42a35c8036042899c19bd1610f58fcd5474d9f457954b59237b4dba651f82` | One educator carries multiple parts while crowded beginner sections and raised hands compete for attention. |
+| Community music program | `public/work/trumpet-trainer/personas/community-program-v3.png` · `f05dc4dd452cb0be2d06f765ed46d480629215ae05734e36a89f2a36434f6141` | `public/work/trumpet-trainer/personas/community-program-v3.webp` · `2369cd64d68dbf1d431b544b1eb544499da4e57a9f0efaa82c2320fc71bda0e5` | A small adult team balances a large request folder stack, limited loaner trumpets, open cases, time, and space. |
