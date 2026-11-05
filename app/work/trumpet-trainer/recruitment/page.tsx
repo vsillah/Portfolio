@@ -30,7 +30,7 @@ const messages = [
   {
     label: "educator email",
     audience: "Private tutor or band educator email",
-    text: `Subject: A question about beginner trumpet practice between lessons\n\nHello [adult name],\n\nI am shaping Trumpet Trainer around a short practice path for beginning players. I would value your critique of the flow: where might it help a student start, and where might it conflict with the way you teach?\n\nThe current product study is here: ${workUrl}\n\nThis is an exploratory request for adult feedback. I am not asking for student data, a school endorsement, or a rollout. If it is relevant, would you be open to a brief conversation?\n\nVambah`,
+    text: `Subject: A question about beginner trumpet practice between lessons\n\nHello [adult name],\n\nI am shaping Trumpet Trainer around a short practice path for beginning players. I would value your critique of the flow: where might it help a student start, and where might it conflict with the way you teach?\n\nThe current product study is here: ${workUrl}\n\nThis is an exploratory request for adult feedback. I am not asking for student data, a school endorsement, or a rollout. If it is relevant, would you be open to a brief conversation?\n\nVambah Sillah\nAmaduTown Advisory Solutions\nAmaduTown Advisory Solutions helps mission-driven teams turn scattered work into governed AI workflows, reviewable handoffs, and measurable next steps.\nhttps://amadutown.com`,
   },
   {
     label: "direct message",

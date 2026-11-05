@@ -15,6 +15,11 @@ describe("Trumpet Trainer recruitment review", () => {
     }
     expect(screen.getAllByRole("figure")).toHaveLength(7);
     expect(screen.getAllByRole("button", { name: /^Copy / })).toHaveLength(6);
+    const educatorEmail = screen.getByRole("heading", { name: "Private tutor or band educator email" }).closest("article");
+    expect(educatorEmail).toHaveTextContent("Vambah Sillah");
+    expect(educatorEmail).toHaveTextContent("AmaduTown Advisory Solutions helps mission-driven teams turn scattered work into governed AI workflows, reviewable handoffs, and measurable next steps.");
+    expect(educatorEmail).toHaveTextContent("https://amadutown.com");
+    expect(educatorEmail).not.toHaveTextContent(/\+1\s*\(?\d{3}\)?|phone:/i);
     expect(screen.getByRole("link", { name: "Inspect adult interest form" })).toHaveAttribute("href", "/work/trumpet-trainer#interest");
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
   });
