@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import TrumpetRecruitmentPersonas from "./TrumpetRecruitmentPersonas";
 
@@ -74,18 +74,48 @@ describe("adult perspective deck", () => {
     fetchSpy.mockRestore();
   });
 
+  it("uses opposite outgoing arcs for arrow and dot navigation, then settles at the same depths", () => {
+    vi.useFakeTimers();
+    try {
+      render(<TrumpetRecruitmentPersonas personas={personas} />);
+      fireEvent.click(screen.getByRole("button", { name: "Next adult perspective" }));
+      expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-motion-direction", "forward");
+      expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "3");
+      expect(screen.getByRole("heading", { name: "Morgan" })).toBeInTheDocument();
+      act(() => vi.advanceTimersByTime(520));
+      expect(screen.getByTestId("persona-card-0")).not.toHaveAttribute("data-motion-direction");
+      fireEvent.click(screen.getByRole("button", { name: "Previous adult perspective" }));
+      expect(screen.getByTestId("persona-card-1")).toHaveAttribute("data-motion-direction", "reverse");
+      expect(screen.getByTestId("persona-card-1")).toHaveAttribute("data-depth", "1");
+      act(() => vi.advanceTimersByTime(520));
+      expect(screen.getByRole("heading", { name: "Avery" })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "Show Community music programs" }));
+      expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-motion-direction", "reverse");
+      expect(screen.getByRole("button", { name: "Show Community music programs" })).toHaveAttribute("aria-current", "true");
+      act(() => vi.advanceTimersByTime(520));
+      expect(screen.getByTestId("persona-card-3")).toHaveAttribute("data-depth", "0");
+      expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "1");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("advances and reverses with a deliberate horizontal touch swipe", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     render(<TrumpetRecruitmentPersonas personas={personas} />);
     const deck = screen.getByLabelText("Adult perspective card deck");
     fireEvent.pointerDown(deck, { pointerId: 1, pointerType: "touch", isPrimary: true, clientX: 250, clientY: 240 });
     fireEvent.pointerMove(deck, { pointerId: 1, pointerType: "touch", clientX: 180, clientY: 244 });
+    expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-dragging", "true");
+    expect(deck.getAttribute("style")).toContain("--drag-rotate: -4.9deg");
     fireEvent.pointerUp(deck, { pointerId: 1, pointerType: "touch", clientX: 150, clientY: 245 });
     expect(screen.getByRole("status")).toHaveTextContent("Persona 2 of 4: Private trumpet tutors");
     expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "3");
+    expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-motion-direction", "forward");
     fireEvent.pointerDown(deck, { pointerId: 2, pointerType: "touch", isPrimary: true, clientX: 80, clientY: 240 });
     fireEvent.pointerUp(deck, { pointerId: 2, pointerType: "touch", clientX: 170, clientY: 242 });
     expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4: Parents or guardians");
+    expect(screen.getByTestId("persona-card-1")).toHaveAttribute("data-motion-direction", "reverse");
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
@@ -105,6 +135,21 @@ describe("adult perspective deck", () => {
       fireEvent.pointerMove(deck, { pointerId: 3, pointerType: "touch", clientX: endX, clientY: endY });
       fireEvent.pointerUp(deck, { pointerId: 3, pointerType: "touch", clientX: endX, clientY: endY });
       expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4: Parents or guardians");
+      expect(screen.getByTestId("persona-card-0")).not.toHaveAttribute("data-motion-direction");
+      expect(deck.getAttribute("style")).toContain("--drag-x: 0px");
+    }
+  });
+
+  it("changes selection without an arc when reduced motion is requested", () => {
+    vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true })));
+    try {
+      render(<TrumpetRecruitmentPersonas personas={personas} />);
+      fireEvent.click(screen.getByRole("button", { name: "Next adult perspective" }));
+      expect(screen.getByRole("heading", { name: "Morgan" })).toBeInTheDocument();
+      expect(screen.getByTestId("persona-card-0")).not.toHaveAttribute("data-motion-direction");
+      expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "3");
+    } finally {
+      vi.unstubAllGlobals();
     }
   });
 });
