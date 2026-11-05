@@ -64,7 +64,11 @@
 .playerHeading{display:flex;align-items:start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
 .playerHeading>div{min-width:0;flex:1 1 220px}.playerHeading strong{font-size:15px}.playerHeading p{font-size:12px;line-height:1.5;color:var(--muted-foreground);margin:4px 0 0}
 .player .returnButton{font-size:12px;line-height:1.3;white-space:normal;min-height:38px;max-width:100%;background:transparent;color:var(--foreground);border:1px solid var(--border)}
+.videoStage{width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:7px;background-color:#0b1116;background-position:center;background-size:cover}
 .player video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#0b1116;border-radius:7px}
+.player .videoReveal{animation:posterToVideo 340ms ease-out both}
+@keyframes posterToVideo{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.player .videoReveal{animation:none}}
 .playerTools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:12px}
 .playerTools button{font-size:12px;min-height:38px;white-space:normal}
 .transcript{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}

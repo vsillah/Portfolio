@@ -1,0 +1,565 @@
+{
+  "schemaVersion": 2,
+  "posters": [
+    {
+      "lesson": "L01",
+      "title": "Build smarter, stay human",
+      "act": "SIGNALS",
+      "lessonBinding": "/accelerated/posters/l01-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+      "approvedLearnerVideoSha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l01-illustrated-avatar.png",
+      "avatarSourceSha256": "66cae56bdaf1288021194969579a2cba1dd86a7750e000ee2809108f7091704b",
+      "promptIdentity": "accelerated-l01-illustrated-avatar/v1",
+      "promptSha256": "b5427ecebd530ff9c20d18ecd8deb3b50777ad9e1ab6d57240458f11899790e9",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-eeefa0e4-3164-459a-bdd9-bbacb7bd1a20",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/accelerated_cover_ebook.webp",
+      "samOrBookAssetSha256": "4a3406389e73fb919ba2c005475a8c707060103cee8b589ac16c8e68e42ab78d",
+      "output": "public/accelerated/posters/l01-poster.webp",
+      "outputSha256": "bd83a117c1c80c7579b9b25b7da5f63c95e462a5a0808d58b1a66acb7e27d72d",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L02",
+      "title": "Prioritize before generating",
+      "act": "SIGNALS",
+      "lessonBinding": "/accelerated/posters/l02-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+      "approvedLearnerVideoSha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l02-illustrated-avatar.png",
+      "avatarSourceSha256": "b1595e421f559cba29fda38d64ef85dae05ddf56f0c83b1ca710095ddc9984d2",
+      "promptIdentity": "accelerated-l02-illustrated-avatar/v1",
+      "promptSha256": "db6db802b9b70cb69ce67da5672dd51d33410b7f458192103fb835bb9e76949d",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-9de895f4-871c-44ef-88cc-06b4a0adff64",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "samOrBookAssetSha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "output": "public/accelerated/posters/l02-poster.webp",
+      "outputSha256": "1497219fd502fe450e0fe9db04b821eaf3e5b9620e2f1b6652e1fa072bec0044",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L03",
+      "title": "Answer-driven discovery",
+      "act": "SIGNALS",
+      "lessonBinding": "/accelerated/posters/l03-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l03/approved-02b9c3ea/accelerated-l03-native-composite.mp4",
+      "approvedLearnerVideoSha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l03-illustrated-avatar.png",
+      "avatarSourceSha256": "a2b9b10b4429144f978e821fcd2eba9dc19fdedaff9c314e49e68f0a6f2cba28",
+      "promptIdentity": "accelerated-l03-illustrated-avatar/v1",
+      "promptSha256": "70e38fff89fc06318ca59d16a098b8fecdcd138b034af256d937385394c37ae3",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-5c16a17c-c844-4723-a119-af13f615b929",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "samOrBookAssetSha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "output": "public/accelerated/posters/l03-poster.webp",
+      "outputSha256": "6d94f3ef74cec70657cc24e4919ca0f6824933923f6635172f511f852b834f19",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L04",
+      "title": "Build small; keep personas alive",
+      "act": "SIGNALS",
+      "lessonBinding": "/accelerated/posters/l04-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+      "approvedLearnerVideoSha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l04-illustrated-avatar.png",
+      "avatarSourceSha256": "9c6f7bb25ffe63ca2f985822c2554f666a28b5c553063b6d0cbcc0914f91011b",
+      "promptIdentity": "accelerated-l04-illustrated-avatar/v1",
+      "promptSha256": "50c2ceb481942d2ebba0038b82ede55836c210459feffa1d2c10a36ad87ad2a2",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-4bb056cb-a7a8-452e-a2cb-36dd34457daa",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "samOrBookAssetSha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "output": "public/accelerated/posters/l04-poster.webp",
+      "outputSha256": "4219aa12a50507b0c42ce1a258adf0fbc25293f3f8cdb69154bf9fc9e0060058",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L05",
+      "title": "From feedback to signal",
+      "act": "ALIGNMENT",
+      "lessonBinding": "/accelerated/posters/l05-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+      "approvedLearnerVideoSha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l05-illustrated-avatar.png",
+      "avatarSourceSha256": "10364bf27d9879578958c92dc4e14dc4d8e2eda3f3205c7d5a247e7a2ea7e64b",
+      "promptIdentity": "accelerated-l05-illustrated-avatar/v1",
+      "promptSha256": "83f518b494c8ecb9226d82d03503ac3f89f9b7495d2636a2fe49e1e49d3dcc2c",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-08f32e37-a12c-461d-ba0f-49925c8064c7",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l05.png",
+      "samOrBookAssetSha256": "57d14556d8dc975e39448b1aceeb2834fae0e6f94580187afa61897771d2a595",
+      "output": "public/accelerated/posters/l05-poster.webp",
+      "outputSha256": "0122f6a4537bd778f2f889a40fca70a0d0355b8106bfd6eec3b207c674c92e1a",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L06",
+      "title": "Roadmap to PRD, without drift",
+      "act": "ALIGNMENT",
+      "lessonBinding": "/accelerated/posters/l06-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+      "approvedLearnerVideoSha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l06-illustrated-avatar.png",
+      "avatarSourceSha256": "f2359214b062d2dd5f6bda61ca4682881e2e93ffcdeeae6a5030ac5bb2ccdfd1",
+      "promptIdentity": "accelerated-l06-illustrated-avatar/v1",
+      "promptSha256": "683d2d8fe5be8cdf04b50cb510e0100cb7b8a54169d885e20a7d1aa2cb5ca5fa",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-7ffa86bb-01e0-4e52-af0b-5f1cf060b2e3",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l06-poster.webp",
+      "outputSha256": "a01f82298c89f8607c9dc70c2cd8f97f241481d33fa9ff702aabb9ab2fb64674",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L07",
+      "title": "Commit to learning",
+      "act": "ALIGNMENT",
+      "lessonBinding": "/accelerated/posters/l07-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4",
+      "approvedLearnerVideoSha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l07-illustrated-avatar.png",
+      "avatarSourceSha256": "5a9ef3f4c3dcbb823327921527a868874fca88d6ee1571dbe60212a85f4e4365",
+      "promptIdentity": "accelerated-l07-illustrated-avatar/v1",
+      "promptSha256": "012082d8efe410ba4df03874149a4630f1cd0789e6f2759a5928985b2fbefa85",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-dfb17464-d09e-40da-9ab0-f556a6e052aa",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l07-poster.webp",
+      "outputSha256": "5348c8ffbae40b6e1548b7e40d9d43ba16967d2ad1ece65fe6974c9cec7f7456",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L08",
+      "title": "Metrics and the ten-part learning plan",
+      "act": "ALIGNMENT",
+      "lessonBinding": "/accelerated/posters/l08-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+      "approvedLearnerVideoSha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l08-illustrated-avatar.png",
+      "avatarSourceSha256": "8b7f5d38f133f13937ec987b9ca5fef1d991a0d15bdc765917e0f40ddffa6062",
+      "promptIdentity": "accelerated-l08-illustrated-avatar/v1",
+      "promptSha256": "ef84080345726281e6961bd7d729f5564897486640cc562b6c4db56ee1d651df",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-62cf2e71-8353-4a32-980c-47cb0f50063b",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l08.png",
+      "samOrBookAssetSha256": "2c92c6a45ba59ccbe905f59f81f02f90908226f98740031e7bbf4a78d448395d",
+      "output": "public/accelerated/posters/l08-poster.webp",
+      "outputSha256": "89e9903ccbc1af3998f5e06f26ff70588d7f7f3f2a6f43affa5691d5970c0cdd",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L09",
+      "title": "Map the decision theater",
+      "act": "ALIGNMENT",
+      "lessonBinding": "/accelerated/posters/l09-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+      "approvedLearnerVideoSha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l09-illustrated-avatar.png",
+      "avatarSourceSha256": "28e8c5007ea69c2b77eb9067da01643c817f818ff1a661d0dba4c7bcb2ddfe65",
+      "promptIdentity": "accelerated-l09-illustrated-avatar/v1",
+      "promptSha256": "c9217e17cac47a8bc71de170562564703f2c9a3a1f9ec0b6de9126566a3f0608",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-7851f503-d64a-41f5-8312-4d5d86491fee",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l09-poster.webp",
+      "outputSha256": "05cc01c2512fef8b808ef2901ac51a666eb2d7ca58860f803e9d645e95584393",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L10",
+      "title": "Influence before impact",
+      "act": "ALIGNMENT",
+      "lessonBinding": "/accelerated/posters/l10-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+      "approvedLearnerVideoSha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l10-illustrated-avatar.png",
+      "avatarSourceSha256": "0cadf5733be1bf776349c4894859ee6e44eac1bd7af2e18461e5db1c985d68af",
+      "promptIdentity": "accelerated-l10-illustrated-avatar/v1",
+      "promptSha256": "8873740c9cfff4eb595faaa634bd1703d2f9460936b29c0be5b5401bbf61b07b",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-efa0ae86-4da0-4899-94dc-d503e6b91684",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "samOrBookAssetSha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+      "output": "public/accelerated/posters/l10-poster.webp",
+      "outputSha256": "23e00a160177c2a0fd1fe7e142f6fa79b312e85f3c457b4b16e551dedfe311e8",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L11",
+      "title": "From the shift to a repeatable loop",
+      "act": "MOMENTUM",
+      "lessonBinding": "/accelerated/posters/l11-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+      "approvedLearnerVideoSha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l11-illustrated-avatar.png",
+      "avatarSourceSha256": "314c008b51bd0e3b7832e1bdbe7ad776f153cd8570c3650713a1a14beaf7cf54",
+      "promptIdentity": "accelerated-l11-illustrated-avatar/v1",
+      "promptSha256": "28f8d1ba94f1621c971b3b52e4e2dbe5f338006e7f9e0d50b7802afa1d8dab70",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-24c070c2-6c1a-4be7-a572-c94766423448",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l11.png",
+      "samOrBookAssetSha256": "a7894b715c668a5b78058c5fd8012e8e43c71073a5719c2fe5f2687a202727b4",
+      "output": "public/accelerated/posters/l11-poster.webp",
+      "outputSha256": "40becd9de93aa0da2931cdb6542c0414abf80fa468073138ac10faccec5a8f43",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L12",
+      "title": "Jobs and synthetic signals",
+      "act": "MOMENTUM",
+      "lessonBinding": "/accelerated/posters/l12-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+      "approvedLearnerVideoSha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l12-illustrated-avatar.png",
+      "avatarSourceSha256": "dba4aac54fb6d74a7b713dfc30726ecec6909671e68bb09dab5c13b62cb0945e",
+      "promptIdentity": "accelerated-l12-illustrated-avatar/v1",
+      "promptSha256": "7ef4766df82df446de16824610d770af6e7172bb4b0636281b28a6c583518929",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-caf971d3-8012-4775-a63f-9002672f80c6",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "samOrBookAssetSha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "output": "public/accelerated/posters/l12-poster.webp",
+      "outputSha256": "efa6782801a66b0cbea9a1b09d274b6ea45edbdcae5c17b28fe8f54de274abe0",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L13",
+      "title": "Strategic shifts and future concepts",
+      "act": "MOMENTUM",
+      "lessonBinding": "/accelerated/posters/l13-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+      "approvedLearnerVideoSha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l13-illustrated-avatar.png",
+      "avatarSourceSha256": "0c07f0b45b55320407e77af0b0b7f49a151987b6c68b7ac9d6d9dd76e149ebbb",
+      "promptIdentity": "accelerated-l13-illustrated-avatar/v1",
+      "promptSha256": "956465410dca9627c6f1fe75c802d6d21d6a6fce8922e4e28025eae024954d57",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-1f704e2e-2522-454a-bfaa-a7c163c091d4",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "samOrBookAssetSha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "output": "public/accelerated/posters/l13-poster.webp",
+      "outputSha256": "dc952787d2bc803aad0cccab9e2701d9b4d297df28051b9fee30a6bab56754a2",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L14",
+      "title": "The last mile of influence",
+      "act": "MOMENTUM",
+      "lessonBinding": "/accelerated/posters/l14-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+      "approvedLearnerVideoSha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l14-illustrated-avatar.png",
+      "avatarSourceSha256": "263a707615dd134073b31073c561331f47c512eddc9cdadfa80c870f24480405",
+      "promptIdentity": "accelerated-l14-illustrated-avatar/v1",
+      "promptSha256": "1a44b40c8b58fdcca9e9814a7db10ee3741ac2839d604beddfa11d9400694203",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-8993da34-1b08-49d9-8507-aab17437ddcf",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "samOrBookAssetSha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+      "output": "public/accelerated/posters/l14-poster.webp",
+      "outputSha256": "e248769b547ad9528a1fb3138dd13e5292c0a2594db403a25a987b103c4c4375",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L15",
+      "title": "Governance and the system that learns",
+      "act": "SYNTHESIS",
+      "lessonBinding": "/accelerated/posters/l15-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+      "approvedLearnerVideoSha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l15-illustrated-avatar.png",
+      "avatarSourceSha256": "be93e1016fd94e457b2be260efd3403549390459245cfad37d041db1375b6b08",
+      "promptIdentity": "accelerated-l15-illustrated-avatar/v1",
+      "promptSha256": "56c990fbbe10360fe98ec222971a379cae04121df550f74778c6fc380fb2541b",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-945d901c-e8b9-48ce-8ffd-2e32ded23e29",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "samOrBookAssetSha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "output": "public/accelerated/posters/l15-poster.webp",
+      "outputSha256": "c8774e3e2829ab5c3850df5511bd8e475bcc3cf0b24db93261216b672cc2c6f0",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    },
+    {
+      "lesson": "L16",
+      "title": "What comes next",
+      "act": "SYNTHESIS",
+      "lessonBinding": "/accelerated/posters/l16-poster.webp",
+      "approvedLearnerVideo": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+      "approvedLearnerVideoSha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l16-illustrated-avatar.png",
+      "avatarSourceSha256": "f02802ffb9520ef90fe4e29da4bf1395ba7e5d74ec21486e4414e1e3f4e99c5b",
+      "promptIdentity": "accelerated-l16-illustrated-avatar/v1",
+      "promptSha256": "9e2b537a136a035020be9b527ff00f9a987b5ad01aaa6f963c12b01a52739710",
+      "generationProvenance": {
+        "tool": "openai.image_gen.imagegen",
+        "mode": "reference-guided new illustration",
+        "generatorJobId": "imagegen:exec-335f3199-ab9a-4762-92ea-eac9048d37ec",
+        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
+      },
+      "samOrBookAsset": "public/showcases/accelerated-learning-plan/storyboard-l16.png",
+      "samOrBookAssetSha256": "5a9062b7af5be2ac039d3590d1b760d9918df04696ab0decf6110f1c6e2bb40b",
+      "output": "public/accelerated/posters/l16-poster.webp",
+      "outputSha256": "6d4efe4618fdc920b47af6d65d1e0424845036cdd70d7e6cebbb67cf75f64cf6",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
+      "visualReview": {
+        "eyesOpen": true,
+        "mouthState": "intentional; no speech frame",
+        "anatomy": "intact hands and face",
+        "duplicatePose": false
+      }
+    }
+  ]
+}
