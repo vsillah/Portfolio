@@ -7,6 +7,8 @@ describe("approved social slide carousel", () => {
     render(<TrumpetRecruitmentSocialCarousel />);
     expect(screen.getAllByRole("img")).toHaveLength(1);
     expect(screen.getByRole("img", { name: "Social carousel slide 1 of 7" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Social carousel slide 1 of 7" })).toHaveAttribute("width", "1080");
+    expect(screen.getByRole("img", { name: "Social carousel slide 1 of 7" })).toHaveAttribute("height", "1350");
     expect(within(screen.getByRole("tablist", { name: "Choose a social slide" })).getAllByRole("tab")).toHaveLength(7);
     expect(screen.getByRole("button", { name: "Previous social slide" })).toBeDisabled();
     expect(screen.getByRole("tab", { name: "Show social slide 1" })).toHaveAttribute("aria-current", "true");

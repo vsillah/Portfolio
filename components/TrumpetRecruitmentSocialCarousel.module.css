@@ -1,4 +1,4 @@
-.mediaRow { position: relative; width: 100%; max-width: 360px; margin: 16px auto 0; }
+.mediaRow { position: relative; width: calc(100% - 104px); max-width: 680px; margin: 10px auto 0; }
 .slide { width: 100%; margin: 0; }
 .arrow {
   position: absolute;
@@ -22,11 +22,13 @@
 .arrow:disabled { opacity: .35; cursor: default; }
 .arrow:focus-visible, .dot:focus-visible { outline: 2px solid var(--radiant-gold); outline-offset: 2px; }
 .arrow span { pointer-events: none; }
-.dots { display: flex; justify-content: center; gap: 4px; margin-top: 12px; }
-.dot { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.dots { display: flex; justify-content: center; gap: 2px; margin-top: 12px; }
+.dot { display: grid; flex: 0 0 44px; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
 .dot span { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--radiant-gold); background: transparent; }
 .dot[aria-current="true"] span { width: 10px; height: 10px; background: var(--radiant-gold); }
 @media (max-width: 639px) {
+  .mediaRow { width: 100%; max-width: 360px; margin-top: 16px; }
   .previous { left: -36px; }
   .next { right: -36px; }
+  .dots { gap: 0; margin-right: -16px; margin-left: -16px; }
 }
