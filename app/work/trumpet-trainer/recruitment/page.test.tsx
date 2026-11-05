@@ -23,4 +23,13 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(screen.getByRole("link", { name: "Inspect adult interest form" })).toHaveAttribute("href", "/work/trumpet-trainer#interest");
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
   });
+
+  it("keeps the gameplay card top aligned at its natural content height", () => {
+    render(<RecruitmentReviewPage />);
+    const gameplay = screen.getByLabelText("Synthetic Trumpet Trainer gameplay");
+    const card = gameplay.parentElement;
+    expect(card).toHaveClass("self-start");
+    expect(card).toContainElement(screen.getByText("Captioned gameplay. No child or customer recording."));
+    expect(card?.parentElement).toHaveClass("lg:grid-cols-2");
+  });
 });
