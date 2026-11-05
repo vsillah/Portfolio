@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "status": "human_qa_pending",
+  "lessons": ["L13", "L14", "L15", "L16"],
+  "source_commit": "cdcb9adbfd109584ea5bcb4f6eb7e2c02d8a3ea2",
+  "provider_jobs": {
+    "L13": "159b8cc772d7e342cf8d0f3b1a1f56d6",
+    "L14": "3562b0f8d3aae0131e2e584b9167fa8f",
+    "L15": "f15fcdd131322a8443055b3a86990dd8",
+    "L16": "0f3f2b47b3a9662fcca4ea0c55a45ce6"
+  },
+  "composite_sha256": {
+    "L13": "4a2974b8a645ca5e7f8b18d91ea1a9e2da7cdc91ec201c8294411443950b87fe",
+    "L14": "cf675c5ed4e1aa69c6a2654b58b38614d040562403cc00bfac233e13ae3bc485",
+    "L15": "2db525fa4b63656d68d60556df294edda23dbb5d459891bc4ca6917c53fd1dd7",
+    "L16": "89c3c66873f6e32246d89ae7402c98d2d8a52b5a7a25fb4571914564ba0d63e5"
+  },
+  "walkthrough_sha256": "87731f2a81f54e13c17f817f4cc063f6fbce84bc80c4cf724cc7508dc2bfe932",
+  "billing": {
+    "cash_charge_usd": 29.75,
+    "aggregate_provider_cost_usd": 30.86,
+    "aggregate_provider_cap_usd": 36.56,
+    "auto_reload": "off"
+  },
+  "retry_count": 0,
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "current_gate": "batch_human_qa"
+}

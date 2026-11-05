@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "status": "completed",
+  "lessons": [
+    "L13",
+    "L14",
+    "L15",
+    "L16"
+  ],
+  "source_commit": "cdcb9adbfd109584ea5bcb4f6eb7e2c02d8a3ea2",
+  "quota_before": 2196,
+  "quota_after": 344,
+  "aggregate_cost_usd": 30.86,
+  "aggregate_cap_usd": 36.56,
+  "auto_reload": "off",
+  "retry_count": 0,
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  }
+}

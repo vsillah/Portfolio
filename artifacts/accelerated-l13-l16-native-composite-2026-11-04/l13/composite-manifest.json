@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "lesson": "L13",
+  "source_commit": "cdcb9adbfd109584ea5bcb4f6eb7e2c02d8a3ea2",
+  "provider_job_id": "159b8cc772d7e342cf8d0f3b1a1f56d6",
+  "source_sha256": "eca06fb0dc97add86d180190c7400dde42021d8a21df0624481962c21e4e5c34",
+  "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+  "packet_sha256": "cdd1168caa00ae43615268158bd2fa9c3e1b86092a4a2ce602880844e96a811e",
+  "captions_sha256": "3b2f78879d3b9ee9f79d60e7cecb8f42abc56b89e1e2b94a2df62ee74a462fe3",
+  "output_sha256": "4a2974b8a645ca5e7f8b18d91ea1a9e2da7cdc91ec201c8294411443950b87fe",
+  "output_frames": 16500,
+  "output_duration_seconds": 660,
+  "source_passage_ranges": [
+    [
+      0,
+      701
+    ],
+    [
+      701,
+      1208
+    ],
+    [
+      1208,
+      1850
+    ],
+    [
+      1850,
+      2290
+    ]
+  ],
+  "timeline": [
+    {
+      "kind": "presenter",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene1.png",
+      "frames": 701,
+      "scene": "L13-01",
+      "passage": "A01",
+      "source": [
+        0,
+        701
+      ]
+    },
+    {
+      "kind": "clean",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene1.png",
+      "frames": 2224,
+      "scene": "L13-01"
+    },
+    {
+      "kind": "clean",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene2.png",
+      "frames": 2725,
+      "scene": "L13-02"
+    },
+    {
+      "kind": "presenter",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene3.png",
+      "frames": 507,
+      "scene": "L13-03",
+      "passage": "A02",
+      "source": [
+        701,
+        1208
+      ]
+    },
+    {
+      "kind": "clean",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene3.png",
+      "frames": 2343,
+      "scene": "L13-03"
+    },
+    {
+      "kind": "clean",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene4.png",
+      "frames": 2650,
+      "scene": "L13-04"
+    },
+    {
+      "kind": "presenter",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene5.png",
+      "frames": 642,
+      "scene": "L13-05",
+      "passage": "A03",
+      "source": [
+        1208,
+        1850
+      ]
+    },
+    {
+      "kind": "clean",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene5.png",
+      "frames": 2033,
+      "scene": "L13-05"
+    },
+    {
+      "kind": "clean",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene6.png",
+      "frames": 1982,
+      "scene": "L13-06"
+    },
+    {
+      "kind": "presenter",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene6.png",
+      "frames": 440,
+      "scene": "L13-06",
+      "passage": "A04",
+      "source": [
+        1850,
+        2290
+      ]
+    },
+    {
+      "kind": "clean",
+      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l13-scene6.png",
+      "frames": 253,
+      "scene": "L13-06"
+    }
+  ],
+  "presenter_panel": {
+    "x": 936,
+    "y": 160,
+    "width": 976,
+    "height": 549,
+    "border": 8
+  },
+  "constraints": {
+    "source_speed": 1.0,
+    "source_crop": false,
+    "provider_calls": 0,
+    "incremental_cost_usd": 0
+  },
+  "probe": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "mime_codec_string": "avc1.640028",
+        "width": 1920,
+        "height": 1080,
+        "coded_width": 1920,
+        "coded_height": 1080,
+        "has_b_frames": 2,
+        "sample_aspect_ratio": "1:1",
+        "display_aspect_ratio": "16:9",
+        "pix_fmt": "yuv420p",
+        "level": 40,
+        "chroma_location": "left",
+        "field_order": "progressive",
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "id": "0x1",
+        "r_frame_rate": "25/1",
+        "avg_frame_rate": "25/1",
+        "time_base": "1/12800",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 8448000,
+        "duration": "660.000000",
+        "bit_rate": "198125",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "16500",
+        "extradata_size": 48,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "encoder": "Lavc62.28.101 libx264"
+        }
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "mime_codec_string": "mp4a.40.2",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "initial_padding": 0,
+        "id": "0x2",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 31680000,
+        "duration": "660.000000",
+        "bit_rate": "28854",
+        "nb_frames": "30954",
+        "extradata_size": 5,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "SoundHandler"
+        }
+      },
+      {
+        "index": 2,
+        "codec_name": "mov_text",
+        "codec_long_name": "MOV text",
+        "codec_type": "subtitle",
+        "codec_tag_string": "tx3g",
+        "codec_tag": "0x67337874",
+        "id": "0x3",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/1000000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 660000000,
+        "duration": "660.000000",
+        "bit_rate": "103",
+        "nb_frames": "111",
+        "extradata_size": 68,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "eng",
+          "handler_name": "SubtitleHandler"
+        }
+      }
+    ],
+    "format": {
+      "filename": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/l13/accelerated-l13-native-composite.mp4",
+      "nb_streams": 3,
+      "nb_programs": 0,
+      "nb_stream_groups": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "660.000000",
+      "size": "19242426",
+      "bit_rate": "233241",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf62.12.101"
+      }
+    }
+  }
+}
