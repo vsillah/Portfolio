@@ -1,5 +1,5 @@
 import { chromium } from 'playwright'
-import { mkdirSync, copyFileSync } from 'node:fs'
+import { mkdirSync, copyFileSync, unlinkSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 
@@ -47,6 +47,7 @@ try {
     const webm = await recording.path()
     copyFileSync(webm, path.join(out, `${name}-source.webm`))
     execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-i', webm, '-c:v', 'libx264', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-y', path.join(out, `${name}-poster-fade.mp4`)])
+    unlinkSync(webm)
     console.log(`${name}: ${lessonId} poster, 340ms fade, playback, pause/resume, return verified`)
   }
 } finally {
