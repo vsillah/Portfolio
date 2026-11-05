@@ -19,6 +19,8 @@ import l14Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-bin
 import l15Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l15-transcript.json'
 import l16Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l16-transcript.json'
 import styles from './learning-plan.module.css'
+import { lessons, DECISION_FILE_STORAGE_KEY, emptyDecisionFile, validateDecisionFile, type Act, type DecisionFileDraft } from '@/lib/accelerated-decision-file'
+export { lessons } from '@/lib/accelerated-decision-file'
 
 export const l01Media = {
   video: '/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4',
@@ -75,29 +77,6 @@ export const reviewL13L16Media = {
   L16: { video: '/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4', captions: '/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt', duration: '08:00', compositeSha256: '5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0', transcript: l16Transcript },
 } as const
 
-type Act = 'Signals' | 'Alignment' | 'Momentum' | 'Synthesis'
-type Lesson = { id: string; title: string; minutes: number; act: Act; summary: string; exercise: string; artifact: string }
-
-// Learner copy is derived from the approved 16-lesson outline. Production packets remain in docs.
-export const lessons: Lesson[] = [
-  { id: 'L01', title: 'Build smarter, stay human', minutes: 9, act: 'Signals', summary: 'Spot when faster output is outrunning your team’s ability to decide and learn.', exercise: 'Name one live decision. Sort its inputs into public, approved internal, and restricted.', artifact: 'Decision-file cover sheet and data-use boundary' },
-  { id: 'L02', title: 'Prioritize before generating', minutes: 10, act: 'Signals', summary: 'Choose one decision worth testing from a crowded list of requests.', exercise: 'Compare three options by customer pain, value, learning, risk, and reversibility.', artifact: 'Priority decision with two rejected alternatives' },
-  { id: 'L03', title: 'Answer-driven discovery', minutes: 9, act: 'Signals', summary: 'Ask for evidence that could change a named decision.', exercise: 'Write your current answer, the strongest objection, and one evidence gap.', artifact: 'Decision question and evidence-gap card' },
-  { id: 'L04', title: 'Build small; keep personas alive', minutes: 10, act: 'Signals', summary: 'Turn a static persona into a customer situation you can test and revisit.', exercise: 'Describe a job, context, observed signal, uncertainty, and validation question.', artifact: 'Living persona card' },
-  { id: 'L05', title: 'From feedback to signal', minutes: 10, act: 'Alignment', summary: 'Find a pattern in feedback without losing its source or the counterexample.', exercise: 'Code six synthetic comments, name one pattern, and flag what contradicts it.', artifact: 'Feedback-to-signal ledger' },
-  { id: 'L06', title: 'Roadmap to PRD, without drift', minutes: 11, act: 'Alignment', summary: 'Keep a roadmap choice connected to evidence through the build handoff.', exercise: 'Trace one bet into acceptance criteria and a measure of success.', artifact: 'Roadmap and PRD trace card' },
-  { id: 'L07', title: 'Commit to learning', minutes: 10, act: 'Alignment', summary: 'Put answerable questions beside delivery dates.', exercise: 'Turn one milestone into a learning question, review date, and possible adjustment.', artifact: 'Two-checkpoint learning roadmap' },
-  { id: 'L08', title: 'Metrics and the ten-part learning plan', minutes: 12, act: 'Alignment', summary: 'Set a measure and a stop or pivot threshold before results arrive.', exercise: 'Complete the ten book fields and define the measure tied to your decision.', artifact: 'Ten-component learning plan' },
-  { id: 'L09', title: 'Map the decision theater', minutes: 11, act: 'Alignment', summary: 'See who can move, slow, or stop a decision and what each person needs.', exercise: 'Map four fictional roles, their objections, and the evidence they need.', artifact: 'Decision theater map' },
-  { id: 'L10', title: 'Influence before impact', minutes: 9, act: 'Alignment', summary: 'Make a responsible case for a choice while showing its tradeoffs.', exercise: 'Draft a 90-second recommendation and say what would change your mind.', artifact: 'Stakeholder decision brief' },
-  { id: 'L11', title: 'From the shift to a repeatable loop', minutes: 10, act: 'Momentum', summary: 'Carry the learning from one decision into the next.', exercise: 'Draw your workflow and mark the missing review or memory handoff.', artifact: 'Signal-to-decision loop map' },
-  { id: 'L12', title: 'Jobs and synthetic signals', minutes: 11, act: 'Momentum', summary: 'Use synthesis and simulation as hypotheses that need checking with people.', exercise: 'Write a job statement, two simulation questions, and the real evidence needed.', artifact: 'Jobs and validation card' },
-  { id: 'L13', title: 'Strategic shifts and future concepts', minutes: 11, act: 'Momentum', summary: 'Explore a business-model change before committing resources.', exercise: 'Choose an alternative, its smallest falsifiable test, and a short concept story.', artifact: 'Strategic alternatives and concept-test card' },
-  { id: 'L14', title: 'The last mile of influence', minutes: 8, act: 'Momentum', summary: 'Adapt a proposal to its audience while keeping the evidence intact.', exercise: 'Write two short pitches and flag any sentence that outruns the source.', artifact: 'Two-audience pitch card' },
-  { id: 'L15', title: 'Governance and the system that learns', minutes: 12, act: 'Synthesis', summary: 'Help another team reuse a useful loop with its owner and stop condition intact.', exercise: 'Name one rule a second team needs before reusing your test.', artifact: 'Scale-readiness and decision-memory record' },
-  { id: 'L16', title: 'What comes next', minutes: 8, act: 'Synthesis', summary: 'Leave with one accountable learning move for the next seven days.', exercise: 'Choose an action, a review owner, and a condition that changes the plan.', artifact: 'One-week commitment and assembled decision file' },
-]
-
 const acts: { name: Act; line: string; image: string }[] = [
   { name: 'Signals', line: 'Find the decision and the evidence that matters.', image: '/showcases/service-prototypes/v2/sam-signals-plate.webp' },
   { name: 'Alignment', line: 'Carry evidence into a shared plan and a clear decision.', image: '/showcases/service-prototypes/v2/sam-alignment-plate.webp' },
@@ -123,6 +102,14 @@ export function AcceleratedLearningPlan() {
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
   const [completed, setCompleted] = useState<string[]>([])
+  const [draft, setDraft] = useState<DecisionFileDraft | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [shareName, setShareName] = useState('')
+  const [shareEmail, setShareEmail] = useState('')
+  const [consent, setConsent] = useState(false)
+  const [shareState, setShareState] = useState('')
+  const [sent, setSent] = useState(false)
+  const [fixtureReceived, setFixtureReceived] = useState(false)
   const lesson = lessons.find((item) => item.id === selected) ?? lessons[0]
   const act = acts.find((item) => item.name === lesson.act) ?? acts[0]
   const visible = lessons.filter((item) => (filter === 'All' || item.act === filter) && `${item.id} ${item.title} ${item.summary}`.toLowerCase().includes(query.toLowerCase().trim()))
@@ -131,6 +118,60 @@ export function AcceleratedLearningPlan() {
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
   const locked = (_id: string) => false
   const approvedBatchMedia = selected === 'L04' ? l04Media : selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : selected in approvedL09L12Media ? approvedL09L12Media[selected as keyof typeof approvedL09L12Media] : selected in reviewL13L16Media ? reviewL13L16Media[selected as keyof typeof reviewL13L16Media] : null
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DECISION_FILE_STORAGE_KEY)
+      const checked = saved ? validateDecisionFile(JSON.parse(saved)) : null
+      setDraft(checked?.ok ? checked.draft : emptyDecisionFile(crypto.randomUUID()))
+      if (saved && !checked?.ok) setShareState('A previous workshop draft could not be restored. Your exported copy remains available if you saved one.')
+    } catch {
+      setDraft(emptyDecisionFile(crypto.randomUUID()))
+      setShareState('Local storage is unavailable. Export a copy to keep your work.')
+    }
+  }, [])
+  useEffect(() => {
+    if (!draft) return
+    try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)) }
+    catch { setShareState('Local storage is full or unavailable. Export a copy to keep your work.') }
+  }, [draft])
+  const updateAnswer = (id: string, value: string) => {
+    setDraft((current) => current ? { ...current, answers: { ...current.answers, [id]: value }, updatedAt: new Date().toISOString() } : current)
+    setSent(false)
+    setConsent(false)
+  }
+  const exportDraft = () => {
+    if (!draft) return
+    const url = URL.createObjectURL(new Blob([JSON.stringify(draft, null, 2)], { type: 'application/json' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'accelerated-decision-file.json'
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+  const clearDraft = () => {
+    if (!window.confirm('Clear all sixteen worksheet answers on this device? Export a copy first if you want to keep them.')) return
+    setDraft(emptyDecisionFile(crypto.randomUUID()))
+    setSent(false)
+    setFixtureReceived(false)
+    setShareName('')
+    setShareEmail('')
+    setConsent(false)
+    setShareOpen(false)
+    setShareState('The local worksheet has been cleared.')
+  }
+  const submitDraft = async () => {
+    if (!draft || !consent || !shareName.trim() || !shareEmail.trim()) { setShareState('Enter your name and email, then agree to share this worksheet.'); return }
+    setShareState('Sending…')
+    try {
+      const response = await fetch('/api/accelerated/decision-file', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ draft, worksheetId: draft.worksheetId, name: shareName.trim(), email: shareEmail.trim(), consent: true }) })
+      const result = await response.json()
+      if (!response.ok) { setShareState(result.error || 'Could not send your worksheet. Your local copy is still here.'); return }
+      setSent(true)
+      setFixtureReceived(Boolean(result.fixture))
+      setShareOpen(false)
+      setShareState('')
+    } catch { setShareState('Could not connect. Your local copy is still here. Try again when you are online.') }
+  }
   useEffect(() => {
     if (videoOpen) {
       playerRef.current?.focus()
@@ -167,6 +208,16 @@ export function AcceleratedLearningPlan() {
       <article ref={detailRef} className={styles.detail} aria-live="polite">
         <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState} data-state={locked(lesson.id) ? 'locked' : completed.includes(lesson.id) ? 'complete' : current === lesson.id ? 'current' : 'ready'}>{locked(lesson.id) ? 'Video locked · brief preview' : completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
+        <section className={styles.worksheet} aria-label={`${lesson.id} decision file worksheet`}>
+          <div className={styles.worksheetHeading}><div><span>DECISION FILE · {lesson.act}</span><h4>{lesson.artifact}</h4></div><span>{Object.values(draft?.answers ?? {}).filter((answer) => answer.trim()).length} / 16 pages started</span></div>
+          <label htmlFor={`decision-file-${lesson.id}`}>Your response to this lesson</label>
+          <textarea id={`decision-file-${lesson.id}`} value={draft?.answers[lesson.id] ?? ''} onChange={(event) => updateAnswer(lesson.id, event.target.value)} maxLength={4000} rows={5} placeholder={lesson.exercise} />
+          <p>Saved on this device as you write. Review every page before sending anything to AmaduTown.</p>
+          <div className={styles.worksheetActions}><button type="button" onClick={() => { if (!draft) return; try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)); setShareState('Saved on this device.') } catch { setShareState('Local storage is unavailable. Download a copy to keep your work.') } }}>Save locally</button><button type="button" onClick={exportDraft}>Download copy</button><button type="button" onClick={clearDraft}>Clear worksheet</button><button type="button" onClick={() => { setShareOpen(true); setConsent(false); setShareState('') }}>Review and send</button></div>
+          {shareState && <p role="status">{shareState}</p>}
+          {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
+          {shareOpen && <div className={styles.sharePanel} role="region" aria-label="Review before sharing"><h4>Review what you will share</h4><p>AmaduTown will use these answers to understand your decision, consider existing services, and decide whether an assessment would help. A person reviews the work. Sending does not book a meeting or add you to a mailing list.</p><div className={styles.shareAnswers}>{lessons.map((item) => <label key={item.id} htmlFor={`share-${item.id}`}><strong>{item.id} · {item.artifact}</strong><textarea id={`share-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={3} aria-label={`Edit ${item.id} before sharing`} /></label>)}</div><div className={styles.shareContact}><label>Name<input value={shareName} onChange={(event) => setShareName(event.target.value)} maxLength={120} autoComplete="name" /></label><label>Email<input type="email" value={shareEmail} onChange={(event) => setShareEmail(event.target.value)} maxLength={254} autoComplete="email" /></label></div><label className={styles.consent}><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> I have reviewed these answers and agree to send them to AmaduTown for human review.</label><div className={styles.worksheetActions}><button type="button" disabled={!consent || !shareName.trim() || !shareEmail.trim() || !Object.values(draft?.answers ?? {}).some((answer) => answer.trim())} onClick={submitDraft}>Send to AmaduTown</button><button type="button" onClick={() => setShareOpen(false)}>Keep editing</button></div></div>}
+        </section>
         <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · {approvedBatchMedia ? 'lesson visual' : 'approved workshop visual'}</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>{approvedBatchMedia ? 'Lesson illustration' : 'Storyboard preview · representative frame'}</figcaption></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         {lesson.id === 'L01' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L01 guided video">
@@ -207,7 +258,7 @@ export function AcceleratedLearningPlan() {
           <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{approvedBatchMedia.transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>{lesson.id} guided video is ready</strong><p>Watch the lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch {lesson.id} guided video · {approvedBatchMedia.duration}</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
         <div className={styles.actions}><button type="button" disabled={locked(lesson.id)} title={locked(lesson.id) ? 'Completion opens after the guided video is approved' : undefined} onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{locked(lesson.id) ? 'Completion unavailable' : completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
-        <p className={styles.previewNote}>{approvedBatchMedia ? 'Progress is saved for this session. Use material you have permission to share in the exercises.' : 'Progress is for this preview only. Use public, synthetic, or approved material in the exercises.'}</p>
+        <p className={styles.previewNote}>Your worksheet stays on this device until you choose to send it. Use public, synthetic, or approved material in the exercises.</p>
       </article>
     </div>
   </section>

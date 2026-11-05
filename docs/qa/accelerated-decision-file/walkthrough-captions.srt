@@ -1,0 +1,23 @@
+1
+00:00:00,000 --> 00:00:03,000
+L01 and L02 share one locally saved Decision File.
+
+2
+00:00:03,000 --> 00:00:06,000
+Mobile worksheet at 390 px. Answers remain after refresh.
+
+3
+00:00:06,000 --> 00:00:09,000
+Learner previews and edits answers before sending.
+
+4
+00:00:09,000 --> 00:00:12,000
+Send stays blocked without contact details and consent.
+
+5
+00:00:12,000 --> 00:00:15,000
+Synthetic local completion. No data was sent or stored.
+
+6
+00:00:15,000 --> 00:00:18,000
+Operator review route remains behind admin sign-in.

@@ -84,6 +84,7 @@ export const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/mobile-app-foundry': Smartphone,
   '/admin/sales': BarChart3,
   '/admin/lead-dashboards': LayoutList,
+  '/admin/accelerated/decision-files': ClipboardList,
   '/admin/campaigns': Megaphone,
   '/admin/sales/products': Package,
   '/admin/sales/bundles': Layers,

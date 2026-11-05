@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
 import { AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
+import { DECISION_FILE_STORAGE_KEY } from '@/lib/accelerated-decision-file'
 
 vi.mock('next/image', () => ({
   default: ({ unoptimized: _unoptimized, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
@@ -12,6 +13,39 @@ vi.mock('next/image', () => ({
 }))
 
 describe('Accelerated learning plan', () => {
+  it('restores one local worksheet across lessons and requires review, redaction, and consent', async () => {
+    localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+    const view = render(<AcceleratedLearningPlan />)
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'Synthetic decision with private detail' } })
+    fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'Compare three safe options' } })
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(DECISION_FILE_STORAGE_KEY) || '{}').answers.L02).toBe('Compare three safe options'))
+    view.unmount()
+    render(<AcceleratedLearningPlan />)
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Synthetic decision with private detail'))
+    fireEvent.click(screen.getByRole('button', { name: 'Review and send' }))
+    const preview = screen.getByRole('region', { name: 'Review before sharing' })
+    expect(within(preview).getByRole('button', { name: 'Send to AmaduTown' })).toBeDisabled()
+    fireEvent.change(within(preview).getByRole('textbox', { name: 'Edit L01 before sharing' }), { target: { value: 'Synthetic decision; sensitive detail removed' } })
+    expect(within(preview).getByRole('textbox', { name: 'Edit L01 before sharing' })).toHaveValue('Synthetic decision; sensitive detail removed')
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Synthetic decision; sensitive detail removed')
+    localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+  })
+  it('requires confirmation before clearing every saved answer', async () => {
+    localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    render(<AcceleratedLearningPlan />)
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'Keep this decision' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Clear worksheet' }))
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Keep this decision')
+    confirm.mockReturnValue(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Clear worksheet' }))
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('')
+    expect(screen.getByRole('status')).toHaveTextContent('The local worksheet has been cleared.')
+    confirm.mockRestore()
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(DECISION_FILE_STORAGE_KEY) || '{}').answers).toEqual({}))
+    localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+  })
   it('keeps state and filter colors readable in both themes', () => {
     const css = readFileSync('app/service-prototypes/[slug]/learning-plan.module.css', 'utf8')
     const blocks = [...css.matchAll(/(?:^|\n)(:global\(html\.dark\) )?\.plan\{([^}]+)\}/g)]
