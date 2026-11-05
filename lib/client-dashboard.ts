@@ -481,6 +481,16 @@ export async function getDashboardByToken(
     return { data: null, stage: 'client', error: 'Invalid or expired dashboard link' }
   }
 
+  return getDashboardByProjectId(projectId)
+}
+
+/** Reuse the client projection after an independent authenticated membership check. */
+export async function getDashboardByProjectId(projectId: string): Promise<{
+  data: DashboardData | null
+  stage: DashboardStage
+  error?: string
+}> {
+
   // Fetch project with linked data (client stage)
   const { data: project, error: projectError } = await supabaseAdmin
     .from('client_projects')

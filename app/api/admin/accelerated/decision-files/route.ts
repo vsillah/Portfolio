@@ -39,11 +39,16 @@ export async function GET(request: NextRequest) {
     ...((services || []) as unknown[]).map((service: unknown) => parseReviewCatalogOffer(service, "service")),
     ...((products || []) as unknown[]).map((product: unknown) => parseReviewCatalogOffer(product, "product")),
   ].filter((offer): offer is NonNullable<typeof offer> => offer !== null);
+  const approved = data?.length ? await supabaseAdmin.from('accelerated_member_recommendations')
+    .select('intake_id,offer_kind,offer_id').eq('review_status', 'approved').in('intake_id', data.map((item: { id: string }) => item.id)) : { data: [], error: null };
+  if (approved.error) return NextResponse.json({ error: 'Could not load reviewed recommendations.' }, { status: 503 });
   return NextResponse.json(
     {
-      items: (data || []).map((item: { answers: Record<string, string> }) => ({
+      items: (data || []).map((item: { id: string; answers: Record<string, string> }) => ({
         ...item,
         candidates: reviewServiceCandidates(item.answers, catalog),
+        approvedOfferKeys: (approved.data ?? []).filter((offer: { intake_id: string; offer_kind: string; offer_id: string }) => offer.intake_id === item.id)
+          .map((offer: { offer_kind: string; offer_id: string }) => `${offer.offer_kind}:${offer.offer_id}`),
       })),
     },
     { headers: { "Cache-Control": "no-store" } },
@@ -75,90 +80,52 @@ export async function PATCH(request: NextRequest) {
       { error: "Add a short review note." },
       { status: 400 },
     );
-  let auditId: number | null = null;
-  let auditOwnerId: string | null = null;
-  if (body.status === "linked") {
-    auditId = Number(body.auditId);
-    if (!Number.isSafeInteger(auditId) || auditId < 1)
-      return NextResponse.json(
-        { error: "Choose an existing assessment audit." },
-        { status: 400 },
-      );
-    const intake = await supabaseAdmin
-      .from("accelerated_decision_file_intakes")
-      .select("learner_email")
-      .eq("id", body.id)
-      .single();
-    if (!intake.data || intake.error)
-      return NextResponse.json(
-        { error: "Decision file not found." },
-        { status: 404 },
-      );
-    const audit = await supabaseAdmin
-      .from("diagnostic_audits")
-      .select("id,contact_submission_id,user_id")
-      .eq("id", auditId)
-      .single();
-    if (!audit.data || audit.error)
-      return NextResponse.json(
-        { error: "Assessment audit not found." },
-        { status: 404 },
-      );
-    if (!audit.data.contact_submission_id)
-      return NextResponse.json(
-        { error: "Assessment audit has no linked learner contact." },
-        { status: 409 },
-      );
-    auditOwnerId = audit.data.user_id ?? null;
-    if (auditOwnerId) {
-      const prior = await supabaseAdmin.from("accelerated_decision_file_owners").select("user_id").eq("intake_id", body.id).maybeSingle();
-      if (prior.error) return NextResponse.json({ error: "Could not verify Decision File ownership." }, { status: 503 });
-      if (prior.data && prior.data.user_id !== auditOwnerId) return NextResponse.json({ error: "This Decision File is already owned by another member." }, { status: 409 });
-    }
-    const contact = await supabaseAdmin
-      .from("contact_submissions")
-      .select("email")
-      .eq("id", audit.data.contact_submission_id)
-      .single();
-    if (
-      !contact.data ||
-      contact.error ||
-      contact.data.email?.trim().toLowerCase() !==
-        intake.data.learner_email?.trim().toLowerCase()
-    )
-      return NextResponse.json(
-        { error: "Assessment contact does not match the worksheet learner." },
-        { status: 409 },
-      );
-  }
-  const { data, error } = await supabaseAdmin
-    .from("accelerated_decision_file_intakes")
-    .update({
-      review_status: body.status,
-      ...(body.status === "linked" ? { linked_audit_id: auditId } : {}),
-      review_note: body.note.trim(),
-      reviewed_by: auth.user.id,
-      reviewed_at: new Date().toISOString(),
-    })
-    .eq("id", body.id)
-    .select("id,review_status,linked_audit_id")
-    .single();
-  if (error || !data)
-    return NextResponse.json(
-      { error: "Could not save review." },
-      { status: 503 },
-    );
-  if (body.status === "linked" && auditOwnerId) {
-      const ownership = await supabaseAdmin
-        .from("accelerated_decision_file_owners")
-        .insert({ intake_id: body.id, user_id: auditOwnerId, verified_by: auth.user.id });
-      if (ownership.error?.code === "23505") {
-        const prior = await supabaseAdmin.from("accelerated_decision_file_owners").select("user_id").eq("intake_id", body.id).single();
-        if (prior.error || prior.data?.user_id !== auditOwnerId) return NextResponse.json({ error: "This Decision File is already owned by another member." }, { status: 409 });
-      } else if (ownership.error) return NextResponse.json({ error: "The review saved, but member ownership could not be linked." }, { status: 503 });
-  }
-  return NextResponse.json(
-    { item: data },
-    { headers: { "Cache-Control": "no-store" } },
-  );
+  const auditId = body.status === 'linked' ? Number(body.auditId) : null;
+  if (body.status === 'linked' && (!Number.isSafeInteger(auditId) || auditId! < 1))
+    return NextResponse.json({ error: 'Choose an existing assessment audit.' }, { status: 400 });
+  const { data, error } = await supabaseAdmin.rpc('accelerated_review_decision_file', {
+    p_intake_id: body.id,
+    p_status: body.status,
+    p_note: body.note.trim(),
+    p_audit_id: auditId,
+    p_reviewer: auth.user.id,
+  });
+  if (error) return NextResponse.json({ error: error.code === 'P0001' ? error.message : 'Could not save review.' }, { status: error.code === 'P0001' ? 409 : 503 });
+  if (!data?.[0]) return NextResponse.json({ error: 'Review receipt was not recorded.' }, { status: 503 });
+  return NextResponse.json({ item: data[0] }, { headers: { 'Cache-Control': 'no-store' } });
+}
+
+export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status });
+  let body: Record<string, unknown>;
+  try { body = await request.json(); } catch { return NextResponse.json({ error: 'Invalid request.' }, { status: 400 }); }
+  if (typeof body.id !== 'string' || !/^[0-9a-f-]{36}$/.test(body.id) ||
+      !['service', 'product'].includes(String(body.kind)) ||
+      (typeof body.offerId !== 'string' && typeof body.offerId !== 'number'))
+    return NextResponse.json({ error: 'Choose a reviewed catalog candidate.' }, { status: 400 });
+  const intake = await supabaseAdmin.from('accelerated_decision_file_intakes')
+    .select('answers,review_status,linked_audit_id').eq('id', body.id).maybeSingle();
+  if (intake.error || !intake.data) return NextResponse.json({ error: 'Decision File not found.' }, { status: 404 });
+  if (intake.data.review_status !== 'linked' || !intake.data.linked_audit_id)
+    return NextResponse.json({ error: 'Attach the reviewed assessment first.' }, { status: 409 });
+  const [services, products] = await Promise.all([
+    supabaseAdmin.from('services').select('id,title,description,topics,is_active').eq('is_active', true).limit(200),
+    supabaseAdmin.from('products').select('id,title,description,is_active').eq('is_active', true).limit(200),
+  ]);
+  if (services.error || products.error) return NextResponse.json({ error: 'Could not verify the catalog.' }, { status: 503 });
+  const catalog = [
+    ...(services.data ?? []).map((row: unknown) => parseReviewCatalogOffer(row, 'service')),
+    ...(products.data ?? []).map((row: unknown) => parseReviewCatalogOffer(row, 'product')),
+  ].filter((offer): offer is NonNullable<typeof offer> => offer !== null);
+  const candidate = reviewServiceCandidates(intake.data.answers ?? {}, catalog)
+    .find((item) => item.kind === body.kind && String(item.id) === String(body.offerId));
+  if (!candidate) return NextResponse.json({ error: 'This active offer is not supported by the submitted evidence.' }, { status: 409 });
+  const { data, error } = await supabaseAdmin.rpc('accelerated_approve_member_recommendation', {
+    p_intake_id: body.id, p_audit_id: intake.data.linked_audit_id,
+    p_offer_kind: candidate.kind, p_offer_id: String(candidate.id),
+    p_title: candidate.title, p_rationale: candidate.reason, p_reviewer: auth.user.id,
+  });
+  if (error) return NextResponse.json({ error: error.code === 'P0001' ? error.message : 'Could not approve recommendation.' }, { status: error.code === 'P0001' ? 409 : 503 });
+  return NextResponse.json({ recommendationId: data }, { headers: { 'Cache-Control': 'no-store' } });
 }

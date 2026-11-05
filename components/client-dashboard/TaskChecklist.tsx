@@ -19,8 +19,9 @@ import type { DashboardTask, DiyResource } from '@/lib/client-dashboard'
 
 interface TaskChecklistProps {
   tasks: DashboardTask[]
-  token: string
-  onTaskUpdate: (taskId: string, newStatus: string) => void
+  token?: string
+  onTaskUpdate?: (taskId: string, newStatus: string) => void
+  readOnly?: boolean
 }
 
 const PRIORITY_STYLES = {
@@ -38,7 +39,7 @@ const RESOURCE_ICONS: Record<DiyResource['type'], typeof Play> = {
   external_link: ExternalLink,
 }
 
-export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskChecklistProps) {
+export default function TaskChecklist({ tasks, token, onTaskUpdate, readOnly = false }: TaskChecklistProps) {
   const [expandedTask, setExpandedTask] = useState<string | null>(null)
   const [updatingTask, setUpdatingTask] = useState<string | null>(null)
 
@@ -50,6 +51,7 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
   }, {})
 
   const handleToggle = async (task: DashboardTask) => {
+    if (readOnly || !token || !onTaskUpdate) return
     const newStatus = task.status === 'complete' ? 'pending' : 'complete'
     setUpdatingTask(task.id)
 
@@ -101,7 +103,8 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
                     <div className="flex items-center gap-3 p-3">
                       <button
                         onClick={() => handleToggle(task)}
-                        disabled={isUpdating}
+                        disabled={isUpdating || readOnly}
+                        title={readOnly ? 'Task status is shown here. Use your client dashboard link to update it.' : undefined}
                         className="flex-shrink-0 transition-colors"
                       >
                         {isComplete ? (

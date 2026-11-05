@@ -7,6 +7,11 @@ import { DECISION_FILE_STORAGE_KEY } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 
+vi.mock('@/lib/supabase', () => ({ supabase: { auth: {
+  getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+  onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+} } }))
+
 vi.mock('next/image', () => ({
   default: ({ unoptimized: _unoptimized, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
     // eslint-disable-next-line @next/next/no-img-element

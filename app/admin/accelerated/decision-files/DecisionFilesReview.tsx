@@ -21,6 +21,7 @@ type Item = {
     title: string;
     reason: string;
   }[];
+  approvedOfferKeys?: string[];
 };
 const fixtureItems: Item[] = [
   { id: "11111111-1111-4111-8111-111111111111", learner_name: "Synthetic Learner A", learner_email: "learner-a@example.invalid", answers: { L01: "Our team needs an intake workflow.", L02: "Test the intake handoff." }, submitted_at: "2026-11-05T12:00:00Z", review_status: "pending", linked_audit_id: null, review_note: null, candidates: [{ id: "synthetic-service", kind: "service", title: "Intake workflow workshop", reason: "Shared topics: intake, workflow" }] },
@@ -76,6 +77,22 @@ export default function DecisionFilesReview({ fixture = false }: { fixture?: boo
     }
     await load();
     setBusy("");
+  };
+  const approveOffer = async (item: Item, candidate: Item['candidates'][number]) => {
+    if (fixture) {
+      setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, approvedOfferKeys: [...(entry.approvedOfferKeys ?? []), `${candidate.kind}:${candidate.id}`] } : entry));
+      return;
+    }
+    setBusy(item.id);
+    const response = await fetchWithSessionRecovery('/api/admin/accelerated/decision-files', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: item.id, kind: candidate.kind, offerId: candidate.id }),
+    });
+    if (!response?.ok) {
+      const result = await response?.json();
+      setError(result?.error || 'Could not approve recommendation.');
+    } else { setError(''); await load(); }
+    setBusy('');
   };
   const content = (
       <main className="mx-auto max-w-6xl px-4 py-8 text-foreground">
@@ -144,7 +161,7 @@ export default function DecisionFilesReview({ fixture = false }: { fixture?: boo
                 {item.candidates.length ? (
                   <ul className="mt-2 space-y-1 text-sm">
                     {item.candidates.map((candidate) => (
-                      <li key={`${candidate.kind}-${candidate.id}`}>
+                      <li key={`${candidate.kind}-${candidate.id}`} className="flex flex-wrap items-center gap-2">
                         {catalogOfferHref(candidate) ? <a
                           className="underline"
                           href={catalogOfferHref(candidate)!}
@@ -152,6 +169,12 @@ export default function DecisionFilesReview({ fixture = false }: { fixture?: boo
                           {candidate.title}
                         </a> : <span>{candidate.title} (example)</span>}{" "}
                         · {candidate.reason}
+                        <button type="button" className="admin-console-button-secondary min-h-9 disabled:opacity-50"
+                          disabled={busy === item.id || item.review_status !== 'linked' || !!item.approvedOfferKeys?.includes(`${candidate.kind}:${candidate.id}`)}
+                          title={item.review_status !== 'linked' ? 'Attach a verified assessment first' : undefined}
+                          onClick={() => void approveOffer(item, candidate)}>
+                          {item.approvedOfferKeys?.includes(`${candidate.kind}:${candidate.id}`) ? 'Approved for member' : 'Approve for member'}
+                        </button>
                       </li>
                     ))}
                   </ul>

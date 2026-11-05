@@ -12,7 +12,7 @@ import {
   Loader2,
 } from 'lucide-react'
 
-interface Meeting {
+export interface Meeting {
   id: string
   meeting_type: string
   meeting_date: string
@@ -25,18 +25,20 @@ interface Meeting {
 }
 
 interface MeetingHistoryProps {
-  token: string
+  token?: string
+  initialMeetings?: Meeting[]
 }
 
 const MEETINGS_PAGE_SIZE = 4
 
-export default function MeetingHistory({ token }: MeetingHistoryProps) {
-  const [meetings, setMeetings] = useState<Meeting[]>([])
-  const [loading, setLoading] = useState(true)
+export default function MeetingHistory({ token, initialMeetings }: MeetingHistoryProps) {
+  const [meetings, setMeetings] = useState<Meeting[]>(initialMeetings ?? [])
+  const [loading, setLoading] = useState(!initialMeetings)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
+    if (!token) return
     async function fetchMeetings() {
       try {
         const res = await fetch(`/api/client/dashboard/${token}/meetings`)

@@ -100,6 +100,8 @@ export function AcceleratedLearningPlan() {
   const watchRef = useRef<HTMLButtonElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const memberUserRef = useRef<string | null>(null)
+  const memberRevisionRef = useRef<number>(0)
+  const memberSaveQueueRef = useRef<Promise<void>>(Promise.resolve())
   const [selected, setSelected] = useState('L01')
   const [videoOpen, setVideoOpen] = useState(false)
   const [posterRevealed, setPosterRevealed] = useState(false)
@@ -172,6 +174,7 @@ export function AcceleratedLearningPlan() {
         if (!response.ok) { setMemberNotice('Member progress is unavailable. Your local work is still here.'); return }
         const result = await response.json()
         if (!active || !result.enrollment) return
+        memberRevisionRef.current = result.enrollment.revision
         setMemberClaimed(true)
         setSelected(result.enrollment.current_lesson_id)
         setCompleted(result.lessons.filter((item: { completed_at: string | null }) => item.completed_at).map((item: { lesson_id: string }) => item.lesson_id))
@@ -189,15 +192,27 @@ export function AcceleratedLearningPlan() {
   const learningState = (): LearningState | null => draft ? { version: DECISION_FILE_VERSION, worksheet: draft, completed, videoSeconds, currentLessonId: selected, updatedAt: new Date().toISOString() } : null
   const saveMember = async (action: 'claim' | 'save', state = learningState()) => {
     if (!state || !memberToken) return
-    const response = await fetch('/api/accelerated/member', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${memberToken}` }, body: JSON.stringify({ action, consent: action === 'claim', state }) })
-    const result = await response.json()
-    if (!response.ok) { setMemberNotice(result.error || 'Could not save member progress.'); return }
     if (action === 'claim') {
-      setMemberClaimed(true)
-      localStorage.removeItem(GUEST_PROGRESS_KEY)
-      localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+      try {
+        const stored = localStorage.getItem(GUEST_PROGRESS_KEY)
+        const checked = stored ? validateLearningState(JSON.parse(stored)) : null
+        if (checked?.ok) state = checked.state
+      } catch { /* The current validated state remains the claim source. */ }
     }
-    setMemberNotice(action === 'claim' ? 'Guest progress is now linked to your member account.' : 'Saved to your member account.')
+    const snapshot = state
+    memberSaveQueueRef.current = memberSaveQueueRef.current.then(async () => {
+      const response = await fetch('/api/accelerated/member', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${memberToken}` }, body: JSON.stringify({ action, consent: action === 'claim', expectedRevision: memberRevisionRef.current, state: snapshot }) })
+      const result = await response.json()
+      if (!response.ok) { setMemberNotice(result.error || 'Could not save member progress. Reload to reconcile your latest copy.'); return }
+      memberRevisionRef.current = result.revision
+      if (action === 'claim') {
+        setMemberClaimed(true)
+        localStorage.removeItem(GUEST_PROGRESS_KEY)
+        localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+      }
+      setMemberNotice(action === 'claim' ? 'Guest progress is now linked to your member account.' : 'Saved to your member account.')
+    }).catch(() => { setMemberNotice('Member progress could not be saved. Reload to reconcile your latest copy.') })
+    await memberSaveQueueRef.current
   }
   useEffect(() => {
     if (!ready || !memberClaimed || !draft) return
