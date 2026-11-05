@@ -57,3 +57,7 @@ Voice review used the Vambah personality pack, `docs/linkedin-voice.md`, and the
 ## Activation decision required later
 
 Captain must review exact media/copy, proposed recipients and relationship basis, specific community rules, permitted channel, adult consent wording, retention, suppression, intake destination, and pilot capacity. Publishing, sending, scheduling, provider activation, and any production data mutation are separate actions. This draft PR stops before those gates.
+
+## Demo-facing design rule
+
+Show the product before explaining the plan. Use a visual first scan for the practice path, adult roles, schedule, and learning signals. Keep dense governance and provenance in accessible progressive disclosure unless a boundary must be visible immediately. The inactive state, adult-only scope, local-copy behavior, and separate activation gate stay visible or one action away.
