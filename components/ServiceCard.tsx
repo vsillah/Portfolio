@@ -18,6 +18,7 @@ interface ServiceCardProps {
   onRequestQuote?: (serviceId: string) => void
   /** When set, shows a "View details" link to the service detail page */
   viewDetailsHref?: string
+  actionDisabledReason?: string
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -44,7 +45,7 @@ const DELIVERY_ICONS: Record<string, { icon: React.ReactNode; label: string }> =
 
 const SELF_PACED_COURSE_ID = 'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2'
 
-export default function ServiceCard({ service, onAddToCart, onRequestQuote, viewDetailsHref }: ServiceCardProps) {
+export default function ServiceCard({ service, onAddToCart, onRequestQuote, viewDetailsHref, actionDisabledReason }: ServiceCardProps) {
   const [showAdded, setShowAdded] = useState(false)
   const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
   const { resolvedTheme } = useTheme()
@@ -191,9 +192,11 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           </div>
           <motion.button
             onClick={handleAction}
+            disabled={!!actionDisabledReason}
+            title={actionDisabledReason}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="service-primary-action min-h-11 shrink-0 px-3 py-2 text-sm"
+            className="service-primary-action min-h-11 shrink-0 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
           >
             {quoteRequired ? (
               <>
@@ -212,6 +215,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
               </>
             )}
           </motion.button>
+          {actionDisabledReason && <p className="w-full text-xs text-muted-foreground">{actionDisabledReason}</p>}
         </div>
       </div>
     </motion.div>

@@ -40,6 +40,8 @@ interface Service {
 }
 
 interface CartItem {
+  recommendationId?: string
+  reviewedPrice?: number
   productId?: number
   serviceId?: string
   quantity: number
@@ -124,6 +126,7 @@ export default function OrderSummary({
   const activeCampaign = activeCampaignProp !== undefined ? activeCampaignProp : activeCampaignFetched
 
   const getItemPrice = (item: CartItem): number | null => {
+    if (item.recommendationId && Number.isFinite(item.reviewedPrice)) return item.reviewedPrice!
     if (item.itemType === 'service' && item.serviceId) {
       const service = services[item.serviceId]
       if (!service || service.is_quote_based) return null
@@ -152,6 +155,7 @@ export default function OrderSummary({
   }
 
   const getUniqueKey = (item: CartItem): string => {
+    if (item.recommendationId) return `reviewed-${item.recommendationId}`
     if (item.itemType === 'service' && item.serviceId) {
       return `service-${item.serviceId}`
     }
@@ -171,7 +175,8 @@ export default function OrderSummary({
             const service = services[item.serviceId]
             if (!service) return null
 
-            const price = service.is_quote_based ? null : service.price
+            const price = item.recommendationId && Number.isFinite(item.reviewedPrice)
+              ? item.reviewedPrice! : service.is_quote_based ? null : service.price
 
             return (
               <motion.div

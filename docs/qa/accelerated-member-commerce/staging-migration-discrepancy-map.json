@@ -1,0 +1,2009 @@
+{
+  "stagingProject": "xxissfhcdjivuhxwjyhv",
+  "baseCommit": "8922179808c27b01f0ce06b54c800110fb283655",
+  "generatedDate": "2026-11-05",
+  "method": "Compared Supabase staging schema_migrations statements MD5 to local SQL bytes and trim-only variant; matching names alone are not proof of identical SQL.",
+  "counts": {
+    "staging": 128,
+    "localSupabase": 60,
+    "exactVersion": 9,
+    "remoteOnly": 119,
+    "localOnly": 51
+  },
+  "exactVersion": [
+    {
+      "version": "20260506090332",
+      "remoteName": "secure_documents_local_rag_rls",
+      "localFile": "supabase/migrations/20260506090332_secure_documents_local_rag_rls.sql",
+      "sqlBytesMatch": false
+    },
+    {
+      "version": "20260806163011",
+      "remoteName": "social_comment_inbox_foundation",
+      "localFile": "supabase/migrations/20260806163011_social_comment_inbox_foundation.sql",
+      "sqlBytesMatch": true
+    },
+    {
+      "version": "20260814041054",
+      "remoteName": "govern_social_comment_external_submission",
+      "localFile": "supabase/migrations/20260814041054_govern_social_comment_external_submission.sql",
+      "sqlBytesMatch": true
+    },
+    {
+      "version": "20260830170000",
+      "remoteName": "allow_sms_outreach_queue_channels",
+      "localFile": "supabase/migrations/20260830170000_allow_sms_outreach_queue_channels.sql",
+      "sqlBytesMatch": false
+    },
+    {
+      "version": "20261105154239",
+      "remoteName": "accelerated_member_continuity",
+      "localFile": "supabase/migrations/20261105154239_accelerated_member_continuity.sql",
+      "sqlBytesMatch": true
+    },
+    {
+      "version": "20261105162607",
+      "remoteName": "accelerated_member_atomic_review",
+      "localFile": "supabase/migrations/20261105162607_accelerated_member_atomic_review.sql",
+      "sqlBytesMatch": true
+    },
+    {
+      "version": "20261105162841",
+      "remoteName": "qualify_accelerated_progress_revision",
+      "localFile": "supabase/migrations/20261105162841_qualify_accelerated_progress_revision.sql",
+      "sqlBytesMatch": true
+    },
+    {
+      "version": "20261105163155",
+      "remoteName": "qualify_accelerated_review_identity",
+      "localFile": "supabase/migrations/20261105163155_qualify_accelerated_review_identity.sql",
+      "sqlBytesMatch": true
+    },
+    {
+      "version": "20261105163217",
+      "remoteName": "qualify_accelerated_review_link",
+      "localFile": "supabase/migrations/20261105163217_qualify_accelerated_review_link.sql",
+      "sqlBytesMatch": true
+    }
+  ],
+  "remoteOnly": [
+    {
+      "version": "20260325154356",
+      "name": "contact_deliveries_and_video_jobs_contact_link",
+      "remoteSqlMd5": "c1c4ab2f246b3ceb41d91061d2ec12f0",
+      "remoteSqlBytes": 1174,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325162843",
+      "name": "saraev_email_templates_rename_delivery",
+      "remoteSqlMd5": "943822fccc960eb16a52e495d70ddf7e",
+      "remoteSqlBytes": 2140,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325162855",
+      "name": "saraev_email_cold_outreach",
+      "remoteSqlMd5": "e2105b7ebcf78780a46ee4f9d2c9baed",
+      "remoteSqlBytes": 2548,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325162911",
+      "name": "saraev_email_follow_up",
+      "remoteSqlMd5": "183fa8eb695ebcb1d242eec864d4b399",
+      "remoteSqlBytes": 1993,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325162923",
+      "name": "saraev_email_proposal_delivery",
+      "remoteSqlMd5": "8a407e3e6ff93c9392cabd2e42ad5752",
+      "remoteSqlBytes": 2130,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325162936",
+      "name": "saraev_email_onboarding_welcome",
+      "remoteSqlMd5": "cf4043aef7212305d9899465b64f1ca7",
+      "remoteSqlBytes": 2019,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325170424",
+      "name": "email_cta_cold_outreach_calendly",
+      "remoteSqlMd5": "1d7f9331f5dd72e4f08610b0bd3d6ae2",
+      "remoteSqlBytes": 2106,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325170506",
+      "name": "email_cta_asset_delivery_calendly",
+      "remoteSqlMd5": "854451364dfb6b0d0a80a4dfd5ca16d5",
+      "remoteSqlBytes": 1973,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325170531",
+      "name": "email_cta_follow_up_calendly",
+      "remoteSqlMd5": "7c7b69967797826664ffd56929b07fcb",
+      "remoteSqlBytes": 1745,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325170547",
+      "name": "email_cta_proposal_delivery_calendly",
+      "remoteSqlMd5": "e7327278f7d85e49a52dff446450377f",
+      "remoteSqlBytes": 1827,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325170615",
+      "name": "email_cta_onboarding_welcome_calendly",
+      "remoteSqlMd5": "5b20db0861aa5301e4a2da032716ba43",
+      "remoteSqlBytes": 1687,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325172310",
+      "name": "email_stage_calendly_asset_delivery",
+      "remoteSqlMd5": "5e88898905a8b2efa2f703c413550cc4",
+      "remoteSqlBytes": 255,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325172322",
+      "name": "email_stage_calendly_proposal",
+      "remoteSqlMd5": "0108e539cf39b50bd4ecaab25609124b",
+      "remoteSqlBytes": 228,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325172334",
+      "name": "email_stage_calendly_onboarding",
+      "remoteSqlMd5": "387c55787b6887afe3030fae7ebdea20",
+      "remoteSqlBytes": 197,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325185330",
+      "name": "contact_communications_unified_timeline",
+      "remoteSqlMd5": "98dd8d46c6b4eb9efa78858db26bd7bc",
+      "remoteSqlBytes": 2828,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260325195310",
+      "name": "social_content_prompts",
+      "remoteSqlMd5": "19ca129b27f818d0cd02b4346edbb974",
+      "remoteSqlBytes": 5354,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_25_social_content_prompts.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260327181808",
+      "name": "create_integration_tokens",
+      "remoteSqlMd5": "927d58cd6d37c6d7746bd89532524f7c",
+      "remoteSqlBytes": 627,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_27_create_integration_tokens.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328110729",
+      "name": "create_social_content_publishes",
+      "remoteSqlMd5": "569e5c3e8e029b7057199e5a2eecd877",
+      "remoteSqlBytes": 2188,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_28_create_social_content_publishes.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328110753",
+      "name": "alter_social_content_queue_multi_platform",
+      "remoteSqlMd5": "27fb74f9c85147566bbd339186ad72f0",
+      "remoteSqlBytes": 1050,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_28_alter_social_content_queue_multi_platform.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328110810",
+      "name": "alter_social_content_config_add_youtube",
+      "remoteSqlMd5": "8e13ba594962595ea15001cfd73a0b24",
+      "remoteSqlBytes": 557,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_28_alter_social_content_config_add_youtube.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328130829",
+      "name": "voice_aligned_prompts_and_carousel",
+      "remoteSqlMd5": "01b5318aabe6cc15d1e22981c08cb58f",
+      "remoteSqlBytes": 7202,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_28_voice_aligned_prompts_and_carousel.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328130836",
+      "name": "verify_voice_prompts",
+      "remoteSqlMd5": "3a30a0647ce31a9805c535e34590ec24",
+      "remoteSqlBytes": 215,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328131307",
+      "name": "carousel_support_columns",
+      "remoteSqlMd5": "1e13c42ed2c1323dbf791863cf125167",
+      "remoteSqlBytes": 1184,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_28_carousel_support_columns.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328155709",
+      "name": "2026_03_28_carousel_support_columns",
+      "remoteSqlMd5": "e35b362bf3f6d1e3868014f73509b184",
+      "remoteSqlBytes": 1236,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_28_carousel_support_columns.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260328155751",
+      "name": "2026_03_28_voice_aligned_prompts_and_carousel",
+      "remoteSqlMd5": "8c9af061b6ce300b4ac6bb483475b163",
+      "remoteSqlBytes": 3842,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_28_voice_aligned_prompts_and_carousel.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260330005108",
+      "name": "social_content_extraction_runs",
+      "remoteSqlMd5": "787e1851fc46be6d494139e7b8f05d8c",
+      "remoteSqlBytes": 1210,
+      "candidates": [
+        {
+          "file": "migrations/2026_03_29_social_content_extraction_runs.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260404110823",
+      "name": "diagnostic_audits_user_id",
+      "remoteSqlMd5": "a03b3a3babdab4a590d560a1a05277e2",
+      "remoteSqlBytes": 418,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_03_diagnostic_audits_user_id.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260406142510",
+      "name": "gamma_reports_audit_summary_unique",
+      "remoteSqlMd5": "df1443ac115f77a629afaf100b685872",
+      "remoteSqlBytes": 194,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_06_gamma_reports_audit_summary_unique.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260406142521",
+      "name": "diagnostic_audits_standalone_contact_required",
+      "remoteSqlMd5": "d33c918af54eb3bcb1a5795d35f07e91",
+      "remoteSqlBytes": 181,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_06_diagnostic_audits_standalone_contact_required.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260406202351",
+      "name": "add_printful_sync_variant_id",
+      "remoteSqlMd5": "df1fed2fe66e1571a1a0bd0182731b83",
+      "remoteSqlBytes": 86,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260407145740",
+      "name": "heygen_config",
+      "remoteSqlMd5": "53bef3cbb5e09d234c4b5cf2b80e6318",
+      "remoteSqlBytes": 911,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_07_heygen_config.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260407155551",
+      "name": "heygen_config_add_is_favorite",
+      "remoteSqlMd5": "dd50419f8bf00aaea8a0fcc1910aafd2",
+      "remoteSqlBytes": 218,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_07_heygen_config_add_is_favorite.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260407172202",
+      "name": "heygen_sync_state",
+      "remoteSqlMd5": "6c6842f62f9b8ae1dd7ffd177f49d1e5",
+      "remoteSqlBytes": 723,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_08_heygen_sync_state.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_08_heygen_sync_state.sql"
+      ]
+    },
+    {
+      "version": "20260407194921",
+      "name": "video_generation_workflow_runs",
+      "remoteSqlMd5": "38e4b6196623d16a11c257e30b093c72",
+      "remoteSqlBytes": 1478,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_07_video_generation_workflow_runs.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260408133206",
+      "name": "rls_public_tables_security_advisor",
+      "remoteSqlMd5": "6f1f1625c60d29ba3936747d215eba0c",
+      "remoteSqlBytes": 5409,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_08_rls_public_tables_security_advisor.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260408133349",
+      "name": "rls_contact_deliveries_policies",
+      "remoteSqlMd5": "f72f13e4f020639836c76dcd6425f384",
+      "remoteSqlBytes": 553,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_08_rls_contact_deliveries_policies.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260408145516",
+      "name": "meeting_search_function",
+      "remoteSqlMd5": "c3ddf9f282c4c44d9d10e963535c02d9",
+      "remoteSqlBytes": 1405,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_08_meeting_search_function.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260408164643",
+      "name": "add_video_share_url_to_video_generation_jobs",
+      "remoteSqlMd5": "7dd5712ff9b55f3ece0eb709d9cc4f23",
+      "remoteSqlBytes": 80,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260408200050",
+      "name": "chatbot_test_questions",
+      "remoteSqlMd5": "cab6ee4086886c0b43752c78ee83b430",
+      "remoteSqlBytes": 715,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_08_chatbot_test_questions.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260410150802",
+      "name": "add_contact_submission_id_to_market_intelligence",
+      "remoteSqlMd5": "2507ca07c2e6ed3e223b664773e2d461",
+      "remoteSqlBytes": 300,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_10_add_contact_submission_id_to_market_intelligence.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260410150909",
+      "name": "create_admin_notifications",
+      "remoteSqlMd5": "d8842f498c1ff10af4c7b14d9aa8c3d5",
+      "remoteSqlBytes": 349,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_10_create_admin_notifications.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260410162516",
+      "name": "2026_04_10_add_contact_submission_id_to_market_intelligence",
+      "remoteSqlMd5": "bdc1c73d6e8b66dd68dabb10a450ee44",
+      "remoteSqlBytes": 391,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_10_add_contact_submission_id_to_market_intelligence.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_10_add_contact_submission_id_to_market_intelligence.sql"
+      ]
+    },
+    {
+      "version": "20260410162517",
+      "name": "2026_04_10_create_admin_notifications",
+      "remoteSqlMd5": "d14cf7f3825604e6eeaa2074a93c8680",
+      "remoteSqlBytes": 431,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_10_create_admin_notifications.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_10_create_admin_notifications.sql"
+      ]
+    },
+    {
+      "version": "20260410175027",
+      "name": "meeting_records_read_ai_meeting_id",
+      "remoteSqlMd5": "c2b44e7cbfb4b0eb15d67a6ac3a1daf8",
+      "remoteSqlBytes": 1409,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_10_meeting_records_read_ai_meeting_id.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_10_meeting_records_read_ai_meeting_id.sql"
+      ]
+    },
+    {
+      "version": "20260413023321",
+      "name": "meeting_records_read_ai_meeting_id",
+      "remoteSqlMd5": "ffee114c3bd39c93c0beeb22100abbaf",
+      "remoteSqlBytes": 1411,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_10_meeting_records_read_ai_meeting_id.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260413160844",
+      "name": "vep_targeted_runs",
+      "remoteSqlMd5": "464c5c082fcf03d36ae6a93ee4136d48",
+      "remoteSqlBytes": 473,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_13_vep_targeted_runs.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260414110544",
+      "name": "2026_04_14_admin_gmail_user_credentials",
+      "remoteSqlMd5": "35de78e5ec2e3cb330d7ea20147068ba",
+      "remoteSqlBytes": 855,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_14_admin_gmail_user_credentials.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_14_admin_gmail_user_credentials.sql"
+      ]
+    },
+    {
+      "version": "20260415102400",
+      "name": "gamma_theme_config",
+      "remoteSqlMd5": "ffa6cb307ebbda683ae35548d17ea9d7",
+      "remoteSqlBytes": 2742,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_15_gamma_theme_config.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_15_gamma_theme_config.sql"
+      ]
+    },
+    {
+      "version": "20260416145356",
+      "name": "add_offer_presentation_report_type",
+      "remoteSqlMd5": "9a3d0ec548cd54b31b5be18c71d5892e",
+      "remoteSqlBytes": 294,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_16_add_offer_presentation_report_type.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260416181008",
+      "name": "2026_04_16_gamma_reports_citations_meta",
+      "remoteSqlMd5": "b8d0c6ab1bd8b19d4440cd69d8ec1ba7",
+      "remoteSqlBytes": 278,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_16_gamma_reports_citations_meta.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417034351",
+      "name": "meeting_action_tasks_contact_attribution_2026_04_17",
+      "remoteSqlMd5": "39a34dfe652dd5ba1ba52f9ba24902b5",
+      "remoteSqlBytes": 3107,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417040311",
+      "name": "2026_04_17_cold_outreach_meeting_action_items",
+      "remoteSqlMd5": "6b610f4de9f006aec3303a5a1f760365",
+      "remoteSqlBytes": 2758,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_17_cold_outreach_meeting_action_items.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417131012",
+      "name": "2026_04_17_gamma_reports_superseded_status",
+      "remoteSqlMd5": "55de6fe13a9cbd79b5b5a76e30b9422e",
+      "remoteSqlBytes": 434,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_17_gamma_reports_superseded_status.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417134431",
+      "name": "2026_04_17_feasibility_v1",
+      "remoteSqlMd5": "dfd0cb4685eb59b32e5612f46e09fc41",
+      "remoteSqlBytes": 1717,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_17_feasibility_v1.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417162206",
+      "name": "2026_04_17_source_validator_phase1",
+      "remoteSqlMd5": "027c90f597932f7f387b21aef8ec54e0",
+      "remoteSqlBytes": 3277,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_17_source_validator_phase1.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417175639",
+      "name": "source_validator_phase2a",
+      "remoteSqlMd5": "27b2f0544678edf2d46e177942208af5",
+      "remoteSqlBytes": 2595,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_17_source_validator_phase2a.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417183954",
+      "name": "email_messages_phase1",
+      "remoteSqlMd5": "d0fa25bb11665973b9a839a9f1c63c10",
+      "remoteSqlBytes": 2900,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_18_email_messages_phase1.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260417201445",
+      "name": "email_messages_resend_deliverability",
+      "remoteSqlMd5": "f1411b969ee49ca276caa230a4b5f13c",
+      "remoteSqlBytes": 687,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_19_email_messages_resend_deliverability.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_19_email_messages_resend_deliverability.sql"
+      ]
+    },
+    {
+      "version": "20260421003051",
+      "name": "drop_admin_notifications_2026_04_20",
+      "remoteSqlMd5": "163326f6db8f983ef0335e726f4646cb",
+      "remoteSqlBytes": 94,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260422161812",
+      "name": "email_templates_pinecone_chat_sentinels_20260422",
+      "remoteSqlMd5": "7ab186135c4def0e8deaa5a0bd9d16c7",
+      "remoteSqlBytes": 992,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260422164215",
+      "name": "2026_04_22_security_advisor_invoker_and_source_cache_rls",
+      "remoteSqlMd5": "7fa3211f57103ff32271b66767d00ea6",
+      "remoteSqlBytes": 4075,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_22_security_advisor_invoker_and_source_cache_rls.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_22_security_advisor_invoker_and_source_cache_rls.sql"
+      ]
+    },
+    {
+      "version": "20260422165205",
+      "name": "2026_04_22_security_advisor_warnings_search_path_and_rls",
+      "remoteSqlMd5": "d029f3436dc2894d4de294b627bd63f8",
+      "remoteSqlBytes": 3247,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_22_security_advisor_warnings_search_path_and_rls.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260422165656",
+      "name": "2026_04_22_admin_gmail_rls_social_storage_listing",
+      "remoteSqlMd5": "16c6ab5131f96766c2ccd7fa06c181cc",
+      "remoteSqlBytes": 1908,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_22_admin_gmail_rls_social_storage_listing.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_22_admin_gmail_rls_social_storage_listing.sql"
+      ]
+    },
+    {
+      "version": "20260422235438",
+      "name": "n8n_outreach_status_on_contact",
+      "remoteSqlMd5": "05488466605fe63062144b4b7cc1ccfa",
+      "remoteSqlBytes": 2086,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260423000045",
+      "name": "n8n_outreach_status_on_contact",
+      "remoteSqlMd5": "f2a67f81738c02d2933dc7310d12b0bd",
+      "remoteSqlBytes": 2355,
+      "candidates": [],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_22_n8n_outreach_status_contact.sql"
+      ]
+    },
+    {
+      "version": "20260423042257",
+      "name": "2026_04_23_outreach_queue_to_email_messages",
+      "remoteSqlMd5": "1ad07675d21fed0cd7ccd8fcac5c4c41",
+      "remoteSqlBytes": 1925,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_23_outreach_queue_to_email_messages.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260423042716",
+      "name": "2026_04_23_flag_refusal_drafts",
+      "remoteSqlMd5": "e48d0a62459e48faceb890f1a048c21b",
+      "remoteSqlBytes": 1224,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_23_flag_refusal_drafts.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260423042833",
+      "name": "2026_04_23_flag_refusal_drafts_v2",
+      "remoteSqlMd5": "9adf850a724c66e9a674749f1edf0b3a",
+      "remoteSqlBytes": 2055,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260423042857",
+      "name": "2026_04_23_flag_refusal_drafts_fix",
+      "remoteSqlMd5": "d8885f376dae45ec5f37fc016ca54e77",
+      "remoteSqlBytes": 979,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260423125839",
+      "name": "realtime_outreach_publication",
+      "remoteSqlMd5": "c197eb202643ed35bd333b477d2585fe",
+      "remoteSqlBytes": 1086,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_23_realtime_outreach_publication.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260427032929",
+      "name": "2026_04_26_seed_linkedin_cold_outreach_prompt",
+      "remoteSqlMd5": "bb7bc06d336f3d9179f4bdb010ec3da7",
+      "remoteSqlBytes": 3240,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_26_seed_linkedin_cold_outreach_prompt.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260427140928",
+      "name": "2026_04_27_outreach_queue_generation_inputs",
+      "remoteSqlMd5": "4130d6f77490ce368c79745bc78677cb",
+      "remoteSqlBytes": 475,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_27_outreach_queue_generation_inputs.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260427143510",
+      "name": "2026_04_27_email_templates_prior_outreach_history_sentinel",
+      "remoteSqlMd5": "7ec834bfb81835f474c25ac91c8c53a3",
+      "remoteSqlBytes": 934,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_27_email_templates_prior_outreach_history_sentinel.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260427170919",
+      "name": "outreach_queue_context_meeting_record",
+      "remoteSqlMd5": "18671d44e976ef85fa97138bb9b63a12",
+      "remoteSqlBytes": 751,
+      "candidates": [
+        {
+          "file": "migrations/2026_04_28_outreach_queue_context_meeting_record.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_28_outreach_queue_context_meeting_record.sql"
+      ]
+    },
+    {
+      "version": "20260430023426",
+      "name": "outreach_grounding_and_trace_fields_2026_04_29",
+      "remoteSqlMd5": "b6af6798a22d7e4bcc1e22fb842ef3a9",
+      "remoteSqlBytes": 1593,
+      "candidates": [],
+      "sameSqlElsewhere": [
+        "migrations/2026_04_29_outreach_grounding_and_trace_fields.sql"
+      ]
+    },
+    {
+      "version": "20260606112032",
+      "name": "model_usage_control_plane",
+      "remoteSqlMd5": "323e68ebb0ade04f147ef0692ebfaa6d",
+      "remoteSqlBytes": 5185,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260606113000_model_usage_control_plane.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260606113000_model_usage_control_plane.sql"
+      ]
+    },
+    {
+      "version": "20260615194936",
+      "name": "2026_06_15_client_project_build_evidence",
+      "remoteSqlMd5": "dc715575a36fb93a47dce8988a2b4662",
+      "remoteSqlBytes": 2506,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260615150000_client_project_build_evidence.sql",
+          "sqlBytesMatch": false
+        },
+        {
+          "file": "migrations/2026_06_15_client_project_build_evidence.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260622170415",
+      "name": "2026_06_22_social_topic_backlog",
+      "remoteSqlMd5": "e244ab0abcc890619bc2cbe8fece376c",
+      "remoteSqlBytes": 3778,
+      "candidates": [
+        {
+          "file": "migrations/2026_06_22_social_topic_backlog.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_06_22_social_topic_backlog.sql"
+      ]
+    },
+    {
+      "version": "20260622190700",
+      "name": "2026_06_22_social_content_intelligence",
+      "remoteSqlMd5": "b5617659cf8cd4989a56ae001756e066",
+      "remoteSqlBytes": 5703,
+      "candidates": [
+        {
+          "file": "migrations/2026_06_22_social_content_intelligence.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "migrations/2026_06_22_social_content_intelligence.sql"
+      ]
+    },
+    {
+      "version": "20260623204530",
+      "name": "20260623182842_social_content_calendar_items",
+      "remoteSqlMd5": "26140aa7f353d691105e099e9b740ff9",
+      "remoteSqlBytes": 5655,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260623182842_social_content_calendar_items.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260623182842_social_content_calendar_items.sql"
+      ]
+    },
+    {
+      "version": "20260628121614",
+      "name": "20260628143000_video_script_intelligence",
+      "remoteSqlMd5": "5e13775b8ded91d4e64a04956920cf35",
+      "remoteSqlBytes": 9668,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260628143000_video_script_intelligence.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260628143000_video_script_intelligence.sql"
+      ]
+    },
+    {
+      "version": "20260628150008",
+      "name": "20260628120000_visual_asset_candidates",
+      "remoteSqlMd5": "45cb783f302605ccfa38625af472713a",
+      "remoteSqlBytes": 3032,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260628120000_visual_asset_candidates.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20260628150302",
+      "name": "20260628150223_fix_visual_asset_candidate_function_search_path",
+      "remoteSqlMd5": "ca8158bf1e3f09b5eebcba935bb93eb7",
+      "remoteSqlBytes": 382,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260628150223_fix_visual_asset_candidate_function_search_path.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260628150223_fix_visual_asset_candidate_function_search_path.sql"
+      ]
+    },
+    {
+      "version": "20260706115837",
+      "name": "20260706013723_add_tiktok_calendar_channel",
+      "remoteSqlMd5": "548fd09f2cc584e2c08cddaff168a133",
+      "remoteSqlBytes": 557,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260706013723_add_tiktok_calendar_channel.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260706013723_add_tiktok_calendar_channel.sql"
+      ]
+    },
+    {
+      "version": "20260909175445",
+      "name": "capture_contact_sms_consent",
+      "remoteSqlMd5": "ee5961c35ceeed17b232cc9116a532f4",
+      "remoteSqlBytes": 1900,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260909154521_capture_contact_sms_consent.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260909154521_capture_contact_sms_consent.sql"
+      ]
+    },
+    {
+      "version": "20260910184522",
+      "name": "native_proposal_document_consistency",
+      "remoteSqlMd5": "0e12c0a4f44c9986c7cfcce087f556c3",
+      "remoteSqlBytes": 9968,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260910112415_native_proposal_document_consistency.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260910112415_native_proposal_document_consistency.sql"
+      ]
+    },
+    {
+      "version": "20260911032002",
+      "name": "native_proposal_milestones",
+      "remoteSqlMd5": "2438d228bb6c180e31d49f71abb56433",
+      "remoteSqlBytes": 12990,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260911011959_native_proposal_milestones.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260911011959_native_proposal_milestones.sql"
+      ]
+    },
+    {
+      "version": "20260911192424",
+      "name": "native_proposal_invoice_milestones",
+      "remoteSqlMd5": "e9737aec73ff9a94b88f9d8c453659af",
+      "remoteSqlBytes": 13165,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20260911134522_native_proposal_invoice_milestones.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20260911134522_native_proposal_invoice_milestones.sql"
+      ]
+    },
+    {
+      "version": "20261003125149",
+      "name": "campaign_execution_journal",
+      "remoteSqlMd5": "9391d6d2d9f27985dba60e6c74e354e2",
+      "remoteSqlBytes": 2730,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261003104423_campaign_execution_journal.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261003104423_campaign_execution_journal.sql"
+      ]
+    },
+    {
+      "version": "20261003125846",
+      "name": "campaign_execution_journal_service_role_grants",
+      "remoteSqlMd5": "53be8c638b04c7ff0d45cc78ffd52b73",
+      "remoteSqlBytes": 304,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261003130200_campaign_execution_journal_service_role_grants.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261003130200_campaign_execution_journal_service_role_grants.sql"
+      ]
+    },
+    {
+      "version": "20261004095442",
+      "name": "campaign_atomic_recovery",
+      "remoteSqlMd5": "4961e38f8bb7140c9727b5fcaa8a91a5",
+      "remoteSqlBytes": 22495,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261004001737_campaign_atomic_recovery.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261004001737_campaign_atomic_recovery.sql"
+      ]
+    },
+    {
+      "version": "20261004095453",
+      "name": "campaign_provider_certification",
+      "remoteSqlMd5": "e597658a4d30e2a487a9f739bd6d0fd7",
+      "remoteSqlBytes": 33728,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261004005627_campaign_provider_certification.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261004005627_campaign_provider_certification.sql"
+      ]
+    },
+    {
+      "version": "20261004095500",
+      "name": "campaign_provider_receipt_adoption",
+      "remoteSqlMd5": "e8f094aadce532fcd9603d67cd05fc38",
+      "remoteSqlBytes": 52684,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261004011705_campaign_provider_receipt_adoption.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261004011705_campaign_provider_receipt_adoption.sql"
+      ]
+    },
+    {
+      "version": "20261004095511",
+      "name": "campaign_provider_verifier_bridge",
+      "remoteSqlMd5": "ccb54445f835f115adb5569765d42bab",
+      "remoteSqlBytes": 16505,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261004021121_campaign_provider_verifier_bridge.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261004021121_campaign_provider_verifier_bridge.sql"
+      ]
+    },
+    {
+      "version": "20261004095520",
+      "name": "campaign_verifier_provisioning_events",
+      "remoteSqlMd5": "ff57292269799f4f842e60ceffcc90cb",
+      "remoteSqlBytes": 1577,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261004025253_campaign_verifier_provisioning_events.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261004025253_campaign_verifier_provisioning_events.sql"
+      ]
+    },
+    {
+      "version": "20261004101733",
+      "name": "campaign_authority_reconciliation",
+      "remoteSqlMd5": "6da4af3b34edd0ca7533694a363e7df0",
+      "remoteSqlBytes": 2868,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261004100212_campaign_authority_reconciliation.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20261007032740",
+      "name": "private_generated_video_archives",
+      "remoteSqlMd5": "65ebabaaae14e4b3fb854ffcd50ce6f0",
+      "remoteSqlBytes": 1773,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261007025138_private_generated_video_archives.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261007025138_private_generated_video_archives.sql"
+      ]
+    },
+    {
+      "version": "20261010102938",
+      "name": "social_topic_source_coverage",
+      "remoteSqlMd5": "fc5a3c8df8856a15525eb70e80e2d2c1",
+      "remoteSqlBytes": 2923,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261010153000_social_topic_source_coverage.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261010153000_social_topic_source_coverage.sql"
+      ]
+    },
+    {
+      "version": "20261013093415",
+      "name": "social_content_decision_receipts",
+      "remoteSqlMd5": "285b77542ab082c82d8db98eed535b13",
+      "remoteSqlBytes": 13656,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261013023106_social_content_decision_receipts.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261013023106_social_content_decision_receipts.sql"
+      ]
+    },
+    {
+      "version": "20261013144538",
+      "name": "social_content_canonical_decision_commands",
+      "remoteSqlMd5": "9b619853b3237c90dc785c27570e4d2b",
+      "remoteSqlBytes": 14911,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261013150000_social_content_canonical_decision_commands.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261013150000_social_content_canonical_decision_commands.sql"
+      ]
+    },
+    {
+      "version": "20261020234105",
+      "name": "official_social_signal_identity",
+      "remoteSqlMd5": "cbab17c4b762b967f4469b8157ce67ed",
+      "remoteSqlBytes": 308,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261020223906_official_social_signal_identity.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261020223906_official_social_signal_identity.sql"
+      ]
+    },
+    {
+      "version": "20261021003045",
+      "name": "public_signal_observation_identity",
+      "remoteSqlMd5": "86a37e350dec0e930a56672043d0e7b8",
+      "remoteSqlBytes": 291,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261021000000_public_signal_observation_identity.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20261025124508",
+      "name": "prepare_social_content_stage_review",
+      "remoteSqlMd5": "ea95a4ed3a00c90c06b1f7eaec7657df",
+      "remoteSqlBytes": 7248,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261025103000_prepare_social_content_stage_review.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261025103000_prepare_social_content_stage_review.sql"
+      ]
+    },
+    {
+      "version": "20261028215059",
+      "name": "prepare_social_content_copy_review_packet",
+      "remoteSqlMd5": "97e5adfb2e0ebe64cc098ae2cfc3dc9d",
+      "remoteSqlBytes": 9934,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20261028215159",
+      "name": "rollback_prepare_social_content_copy_review_packet_validation",
+      "remoteSqlMd5": "fed0d0517b82e24bf50c6b1d604962f7",
+      "remoteSqlBytes": 93,
+      "candidates": [],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20261028215600",
+      "name": "prepare_social_content_copy_review_packet_trigger_bound",
+      "remoteSqlMd5": "80bc79c1bfb310a669ae396145f874c6",
+      "remoteSqlBytes": 10945,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261028215442_prepare_social_content_copy_review_packet_trigger_bound.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261028215442_prepare_social_content_copy_review_packet_trigger_bound.sql"
+      ]
+    },
+    {
+      "version": "20261031120053",
+      "name": "decision_traceability_leads",
+      "remoteSqlMd5": "01f736cea379bef61e75359434d914db",
+      "remoteSqlBytes": 1850,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261031120000_decision_traceability_leads.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261031120000_decision_traceability_leads.sql"
+      ]
+    },
+    {
+      "version": "20261101001211",
+      "name": "prepare_visual_review_asset_packet",
+      "remoteSqlMd5": "e03c064d4284b8b1c992e08679859dee",
+      "remoteSqlBytes": 15371,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261031234703_prepare_visual_review_asset_packet.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261031234703_prepare_visual_review_asset_packet.sql"
+      ]
+    },
+    {
+      "version": "20261101002544",
+      "name": "bind_visual_packet_replay_approval_run",
+      "remoteSqlMd5": "13562c1a44f015a2f9a85bdfe0ebc370",
+      "remoteSqlBytes": 15734,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101001807_bind_visual_packet_replay_approval_run.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261101001807_bind_visual_packet_replay_approval_run.sql"
+      ]
+    },
+    {
+      "version": "20261101103731",
+      "name": "create_receipt_backed_linkedin_handoff",
+      "remoteSqlMd5": "837ff03dee59ac7c18d8091be8c6c523",
+      "remoteSqlBytes": 13290,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101101235_create_receipt_backed_linkedin_handoff.sql",
+          "sqlBytesMatch": false
+        }
+      ],
+      "sameSqlElsewhere": []
+    },
+    {
+      "version": "20261101104101",
+      "name": "repair_receipt_backed_linkedin_handoff_queue_shape",
+      "remoteSqlMd5": "c5b4ed82fe463734464b482bdcdf0154",
+      "remoteSqlBytes": 13493,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101103938_repair_receipt_backed_linkedin_handoff_queue_shape.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261101103938_repair_receipt_backed_linkedin_handoff_queue_shape.sql"
+      ]
+    },
+    {
+      "version": "20261101115007",
+      "name": "linkedin_handoff_internal_review",
+      "remoteSqlMd5": "433900a1c0d434aaa5ae5900959761e3",
+      "remoteSqlBytes": 11631,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101113227_linkedin_handoff_internal_review.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261101113227_linkedin_handoff_internal_review.sql"
+      ]
+    },
+    {
+      "version": "20261101122204",
+      "name": "repair_linkedin_handoff_review_timestamp_binding",
+      "remoteSqlMd5": "9e52aaa07b21b55c5c42b400f711eb52",
+      "remoteSqlBytes": 10151,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101121934_repair_linkedin_handoff_review_timestamp_binding.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261101121934_repair_linkedin_handoff_review_timestamp_binding.sql"
+      ]
+    },
+    {
+      "version": "20261101132504",
+      "name": "prepare_linkedin_platform_submission_review",
+      "remoteSqlMd5": "3b79c513c64055d42bed2af79f1dd5a4",
+      "remoteSqlBytes": 11587,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101132203_prepare_linkedin_platform_submission_review.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261101132203_prepare_linkedin_platform_submission_review.sql"
+      ]
+    },
+    {
+      "version": "20261101152616",
+      "name": "bind_dark_castle_youtube_copy_review",
+      "remoteSqlMd5": "3b3d06ff3641335254596ade8cb51044",
+      "remoteSqlBytes": 17553,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101145513_bind_dark_castle_youtube_copy_review.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261101145513_bind_dark_castle_youtube_copy_review.sql"
+      ]
+    },
+    {
+      "version": "20261101203625",
+      "name": "record_dark_castle_prerequisite_receipts",
+      "remoteSqlMd5": "5b60e3e0efc532e233968dd1c9cc67ae",
+      "remoteSqlBytes": 10628,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261101180000_record_dark_castle_prerequisite_receipts.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261101180000_record_dark_castle_prerequisite_receipts.sql"
+      ]
+    },
+    {
+      "version": "20261102011459",
+      "name": "prepare_youtube_platform_submission_review",
+      "remoteSqlMd5": "5c4aee433065a0965b0fc851614ff23c",
+      "remoteSqlBytes": 15754,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261102003655_prepare_youtube_platform_submission_review.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261102003655_prepare_youtube_platform_submission_review.sql"
+      ]
+    },
+    {
+      "version": "20261102025449",
+      "name": "reconcile_youtube_final_receipt_versions",
+      "remoteSqlMd5": "853a6c2ba53ed4aaf58affd8f2feac7c",
+      "remoteSqlBytes": 19591,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261102040000_reconcile_youtube_final_receipt_versions.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261102040000_reconcile_youtube_final_receipt_versions.sql"
+      ]
+    },
+    {
+      "version": "20261105122456",
+      "name": "accelerated_decision_file_intake",
+      "remoteSqlMd5": "d10260fe3d5592e499c9e17dc7bc7608",
+      "remoteSqlBytes": 2593,
+      "candidates": [
+        {
+          "file": "supabase/migrations/20261105120000_accelerated_decision_file_intake.sql",
+          "sqlBytesMatch": true
+        }
+      ],
+      "sameSqlElsewhere": [
+        "supabase/migrations/20261105120000_accelerated_decision_file_intake.sql"
+      ]
+    }
+  ],
+  "localOnly": [
+    {
+      "version": "20261025103000",
+      "name": "prepare_social_content_stage_review",
+      "file": "supabase/migrations/20261025103000_prepare_social_content_stage_review.sql",
+      "localSqlMd5": "ea95a4ed3a00c90c06b1f7eaec7657df",
+      "remoteSameSql": [
+        "20261025124508"
+      ]
+    },
+    {
+      "version": "20261105180647",
+      "name": "accelerated_member_commerce",
+      "file": "supabase/migrations/20261105180647_accelerated_member_commerce.sql",
+      "localSqlMd5": "a9c26259e530a51363a5082393cff9ea",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20260623182842",
+      "name": "social_content_calendar_items",
+      "file": "supabase/migrations/20260623182842_social_content_calendar_items.sql",
+      "localSqlMd5": "0c5863cbe7c6a070c34ce0db816adad2",
+      "remoteSameSql": [
+        "20260623204530"
+      ]
+    },
+    {
+      "version": "20260606113000",
+      "name": "model_usage_control_plane",
+      "file": "supabase/migrations/20260606113000_model_usage_control_plane.sql",
+      "localSqlMd5": "896c8c6187e18f041084e3bb7ed6737b",
+      "remoteSameSql": [
+        "20260606112032"
+      ]
+    },
+    {
+      "version": "20260805155528",
+      "name": "add_x_provider_publish",
+      "file": "supabase/migrations/20260805155528_add_x_provider_publish.sql",
+      "localSqlMd5": "06596784a255b8abf0352d9a5cc05482",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20260505132637",
+      "name": "agent_readiness_assessment",
+      "file": "supabase/migrations/20260505132637_agent_readiness_assessment.sql",
+      "localSqlMd5": "ee8655849a3c2bfc32d73b2f845dc4aa",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261102003655",
+      "name": "prepare_youtube_platform_submission_review",
+      "file": "supabase/migrations/20261102003655_prepare_youtube_platform_submission_review.sql",
+      "localSqlMd5": "5c4aee433065a0965b0fc851614ff23c",
+      "remoteSameSql": [
+        "20261102011459"
+      ]
+    },
+    {
+      "version": "20261010153000",
+      "name": "social_topic_source_coverage",
+      "file": "supabase/migrations/20261010153000_social_topic_source_coverage.sql",
+      "localSqlMd5": "fc5a3c8df8856a15525eb70e80e2d2c1",
+      "remoteSameSql": [
+        "20261010102938"
+      ]
+    },
+    {
+      "version": "20261003233618",
+      "name": "campaign_atomic_sandbox_authority",
+      "file": "supabase/migrations/20261003233618_campaign_atomic_sandbox_authority.sql",
+      "localSqlMd5": "83ab888e48d5325c99f1f07d0aace707",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20260911011959",
+      "name": "native_proposal_milestones",
+      "file": "supabase/migrations/20260911011959_native_proposal_milestones.sql",
+      "localSqlMd5": "2438d228bb6c180e31d49f71abb56433",
+      "remoteSameSql": [
+        "20260911032002"
+      ]
+    },
+    {
+      "version": "20260909154521",
+      "name": "capture_contact_sms_consent",
+      "file": "supabase/migrations/20260909154521_capture_contact_sms_consent.sql",
+      "localSqlMd5": "ee5961c35ceeed17b232cc9116a532f4",
+      "remoteSameSql": [
+        "20260909175445"
+      ]
+    },
+    {
+      "version": "20260504092130",
+      "name": "source_protocol_creator_portal",
+      "file": "supabase/migrations/20260504092130_source_protocol_creator_portal.sql",
+      "localSqlMd5": "f7135f6ecb0cb54724d62c535e6c07f9",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261004025253",
+      "name": "campaign_verifier_provisioning_events",
+      "file": "supabase/migrations/20261004025253_campaign_verifier_provisioning_events.sql",
+      "localSqlMd5": "ff57292269799f4f842e60ceffcc90cb",
+      "remoteSameSql": [
+        "20261004095520"
+      ]
+    },
+    {
+      "version": "20260706013723",
+      "name": "add_tiktok_calendar_channel",
+      "file": "supabase/migrations/20260706013723_add_tiktok_calendar_channel.sql",
+      "localSqlMd5": "548fd09f2cc584e2c08cddaff168a133",
+      "remoteSameSql": [
+        "20260706115837"
+      ]
+    },
+    {
+      "version": "20260502040509",
+      "name": "seed_client_ai_ops_technology_registry",
+      "file": "supabase/migrations/20260502040509_seed_client_ai_ops_technology_registry.sql",
+      "localSqlMd5": "145a794475647b1d88eb6135f492c445",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261101103938",
+      "name": "repair_receipt_backed_linkedin_handoff_queue_shape",
+      "file": "supabase/migrations/20261101103938_repair_receipt_backed_linkedin_handoff_queue_shape.sql",
+      "localSqlMd5": "c5b4ed82fe463734464b482bdcdf0154",
+      "remoteSameSql": [
+        "20261101104101"
+      ]
+    },
+    {
+      "version": "20261031120000",
+      "name": "decision_traceability_leads",
+      "file": "supabase/migrations/20261031120000_decision_traceability_leads.sql",
+      "localSqlMd5": "1c54a518ed77201ab2bc46ae5206be6b",
+      "remoteSameSql": [
+        "20261031120053"
+      ]
+    },
+    {
+      "version": "20260911134522",
+      "name": "native_proposal_invoice_milestones",
+      "file": "supabase/migrations/20260911134522_native_proposal_invoice_milestones.sql",
+      "localSqlMd5": "eefa5991266d5f6ba9f336080ed8563e",
+      "remoteSameSql": [
+        "20260911192424"
+      ]
+    },
+    {
+      "version": "20261003130200",
+      "name": "campaign_execution_journal_service_role_grants",
+      "file": "supabase/migrations/20261003130200_campaign_execution_journal_service_role_grants.sql",
+      "localSqlMd5": "53be8c638b04c7ff0d45cc78ffd52b73",
+      "remoteSameSql": [
+        "20261003125846"
+      ]
+    },
+    {
+      "version": "20261101132203",
+      "name": "prepare_linkedin_platform_submission_review",
+      "file": "supabase/migrations/20261101132203_prepare_linkedin_platform_submission_review.sql",
+      "localSqlMd5": "3b79c513c64055d42bed2af79f1dd5a4",
+      "remoteSameSql": [
+        "20261101132504"
+      ]
+    },
+    {
+      "version": "20261004011705",
+      "name": "campaign_provider_receipt_adoption",
+      "file": "supabase/migrations/20261004011705_campaign_provider_receipt_adoption.sql",
+      "localSqlMd5": "e8f094aadce532fcd9603d67cd05fc38",
+      "remoteSameSql": [
+        "20261004095500"
+      ]
+    },
+    {
+      "version": "20260510105350",
+      "name": "agent_eval_rubrics",
+      "file": "supabase/migrations/20260510105350_agent_eval_rubrics.sql",
+      "localSqlMd5": "cce802f2968d81976c83a713940d7f5f",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261101121934",
+      "name": "repair_linkedin_handoff_review_timestamp_binding",
+      "file": "supabase/migrations/20261101121934_repair_linkedin_handoff_review_timestamp_binding.sql",
+      "localSqlMd5": "9e52aaa07b21b55c5c42b400f711eb52",
+      "remoteSameSql": [
+        "20261101122204"
+      ]
+    },
+    {
+      "version": "20261007025138",
+      "name": "private_generated_video_archives",
+      "file": "supabase/migrations/20261007025138_private_generated_video_archives.sql",
+      "localSqlMd5": "65ebabaaae14e4b3fb854ffcd50ce6f0",
+      "remoteSameSql": [
+        "20261007032740"
+      ]
+    },
+    {
+      "version": "20261105120000",
+      "name": "accelerated_decision_file_intake",
+      "file": "supabase/migrations/20261105120000_accelerated_decision_file_intake.sql",
+      "localSqlMd5": "d10260fe3d5592e499c9e17dc7bc7608",
+      "remoteSameSql": [
+        "20261105122456"
+      ]
+    },
+    {
+      "version": "20261021000000",
+      "name": "public_signal_observation_identity",
+      "file": "supabase/migrations/20261021000000_public_signal_observation_identity.sql",
+      "localSqlMd5": "373b1c4964b3d9aaa316ee3c9e74651c",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20260805103057",
+      "name": "add_x_social_channel",
+      "file": "supabase/migrations/20260805103057_add_x_social_channel.sql",
+      "localSqlMd5": "c9ba1d3ac67a7b0c2a56fd6b80c8b9b4",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261004021121",
+      "name": "campaign_provider_verifier_bridge",
+      "file": "supabase/migrations/20261004021121_campaign_provider_verifier_bridge.sql",
+      "localSqlMd5": "ccb54445f835f115adb5569765d42bab",
+      "remoteSameSql": [
+        "20261004095511"
+      ]
+    },
+    {
+      "version": "20261004100212",
+      "name": "campaign_authority_reconciliation",
+      "file": "supabase/migrations/20261004100212_campaign_authority_reconciliation.sql",
+      "localSqlMd5": "a12503087ff873c0d5c1e4a7e450a6aa",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261102040000",
+      "name": "reconcile_youtube_final_receipt_versions",
+      "file": "supabase/migrations/20261102040000_reconcile_youtube_final_receipt_versions.sql",
+      "localSqlMd5": "853a6c2ba53ed4aaf58affd8f2feac7c",
+      "remoteSameSql": [
+        "20261102025449"
+      ]
+    },
+    {
+      "version": "20261004005627",
+      "name": "campaign_provider_certification",
+      "file": "supabase/migrations/20261004005627_campaign_provider_certification.sql",
+      "localSqlMd5": "e597658a4d30e2a487a9f739bd6d0fd7",
+      "remoteSameSql": [
+        "20261004095453"
+      ]
+    },
+    {
+      "version": "20261004001737",
+      "name": "campaign_atomic_recovery",
+      "file": "supabase/migrations/20261004001737_campaign_atomic_recovery.sql",
+      "localSqlMd5": "4961e38f8bb7140c9727b5fcaa8a91a5",
+      "remoteSameSql": [
+        "20261004095442"
+      ]
+    },
+    {
+      "version": "20260615150000",
+      "name": "client_project_build_evidence",
+      "file": "supabase/migrations/20260615150000_client_project_build_evidence.sql",
+      "localSqlMd5": "fc6c86c070ec5897c27b046abaabd4da",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261028215442",
+      "name": "prepare_social_content_copy_review_packet_trigger_bound",
+      "file": "supabase/migrations/20261028215442_prepare_social_content_copy_review_packet_trigger_bound.sql",
+      "localSqlMd5": "80bc79c1bfb310a669ae396145f874c6",
+      "remoteSameSql": [
+        "20261028215600"
+      ]
+    },
+    {
+      "version": "20261101180000",
+      "name": "record_dark_castle_prerequisite_receipts",
+      "file": "supabase/migrations/20261101180000_record_dark_castle_prerequisite_receipts.sql",
+      "localSqlMd5": "5b60e3e0efc532e233968dd1c9cc67ae",
+      "remoteSameSql": [
+        "20261101203625"
+      ]
+    },
+    {
+      "version": "20261031234703",
+      "name": "prepare_visual_review_asset_packet",
+      "file": "supabase/migrations/20261031234703_prepare_visual_review_asset_packet.sql",
+      "localSqlMd5": "e03c064d4284b8b1c992e08679859dee",
+      "remoteSameSql": [
+        "20261101001211"
+      ]
+    },
+    {
+      "version": "20261013150000",
+      "name": "social_content_canonical_decision_commands",
+      "file": "supabase/migrations/20261013150000_social_content_canonical_decision_commands.sql",
+      "localSqlMd5": "9b619853b3237c90dc785c27570e4d2b",
+      "remoteSameSql": [
+        "20261013144538"
+      ]
+    },
+    {
+      "version": "20261003104423",
+      "name": "campaign_execution_journal",
+      "file": "supabase/migrations/20261003104423_campaign_execution_journal.sql",
+      "localSqlMd5": "9391d6d2d9f27985dba60e6c74e354e2",
+      "remoteSameSql": [
+        "20261003125149"
+      ]
+    },
+    {
+      "version": "20260509191244",
+      "name": "agent_coordination_work_items",
+      "file": "supabase/migrations/20260509191244_agent_coordination_work_items.sql",
+      "localSqlMd5": "4c9fbcd312043357f3db4f83ee9bb408",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20260910112415",
+      "name": "native_proposal_document_consistency",
+      "file": "supabase/migrations/20260910112415_native_proposal_document_consistency.sql",
+      "localSqlMd5": "0e12c0a4f44c9986c7cfcce087f556c3",
+      "remoteSameSql": [
+        "20260910184522"
+      ]
+    },
+    {
+      "version": "20261101113227",
+      "name": "linkedin_handoff_internal_review",
+      "file": "supabase/migrations/20261101113227_linkedin_handoff_internal_review.sql",
+      "localSqlMd5": "433900a1c0d434aaa5ae5900959761e3",
+      "remoteSameSql": [
+        "20261101115007"
+      ]
+    },
+    {
+      "version": "20261020223906",
+      "name": "official_social_signal_identity",
+      "file": "supabase/migrations/20261020223906_official_social_signal_identity.sql",
+      "localSqlMd5": "900b5522e8724a902cdfdc243f61b50b",
+      "remoteSameSql": [
+        "20261020234105"
+      ]
+    },
+    {
+      "version": "20261101101235",
+      "name": "create_receipt_backed_linkedin_handoff",
+      "file": "supabase/migrations/20261101101235_create_receipt_backed_linkedin_handoff.sql",
+      "localSqlMd5": "11ce9da996a6b5de90e5533175356043",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20260628150223",
+      "name": "fix_visual_asset_candidate_function_search_path",
+      "file": "supabase/migrations/20260628150223_fix_visual_asset_candidate_function_search_path.sql",
+      "localSqlMd5": "527b385855816116e88bd12894595817",
+      "remoteSameSql": [
+        "20260628150302"
+      ]
+    },
+    {
+      "version": "20260806031346",
+      "name": "add_meta_calendar_channels",
+      "file": "supabase/migrations/20260806031346_add_meta_calendar_channels.sql",
+      "localSqlMd5": "8813224753e798bce3e7eda03f5bfb18",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20260628120000",
+      "name": "visual_asset_candidates",
+      "file": "supabase/migrations/20260628120000_visual_asset_candidates.sql",
+      "localSqlMd5": "abaf9099cda609cf5cbf3b5fe8ddba61",
+      "remoteSameSql": []
+    },
+    {
+      "version": "20261101001807",
+      "name": "bind_visual_packet_replay_approval_run",
+      "file": "supabase/migrations/20261101001807_bind_visual_packet_replay_approval_run.sql",
+      "localSqlMd5": "13562c1a44f015a2f9a85bdfe0ebc370",
+      "remoteSameSql": [
+        "20261101002544"
+      ]
+    },
+    {
+      "version": "20261013023106",
+      "name": "social_content_decision_receipts",
+      "file": "supabase/migrations/20261013023106_social_content_decision_receipts.sql",
+      "localSqlMd5": "285b77542ab082c82d8db98eed535b13",
+      "remoteSameSql": [
+        "20261013093415"
+      ]
+    },
+    {
+      "version": "20260628143000",
+      "name": "video_script_intelligence",
+      "file": "supabase/migrations/20260628143000_video_script_intelligence.sql",
+      "localSqlMd5": "1565311138389a604ea5bba99026bd31",
+      "remoteSameSql": [
+        "20260628121614"
+      ]
+    },
+    {
+      "version": "20261101145513",
+      "name": "bind_dark_castle_youtube_copy_review",
+      "file": "supabase/migrations/20261101145513_bind_dark_castle_youtube_copy_review.sql",
+      "localSqlMd5": "3b3d06ff3641335254596ade8cb51044",
+      "remoteSameSql": [
+        "20261101152616"
+      ]
+    },
+    {
+      "version": "20260804120000",
+      "name": "add_youtube_calendar_channel",
+      "file": "supabase/migrations/20260804120000_add_youtube_calendar_channel.sql",
+      "localSqlMd5": "55d59e7fc27a13b064263db4c9cb028b",
+      "remoteSameSql": []
+    }
+  ]
+}

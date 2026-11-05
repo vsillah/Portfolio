@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { checkoutAcceleratedMemberCart } from '@/lib/accelerated-member-checkout'
+import type { CartItem } from '@/lib/cart'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,6 +39,21 @@ export async function POST(request: NextRequest) {
         { error: 'Cart is empty' },
         { status: 400 }
       )
+    }
+
+    // The reviewed path is transactional and prices every item on the server.
+    // Existing store and proposal checkouts retain their current route behavior.
+    if (cartItems.some((item: CartItem) => item?.recommendationId)) {
+      const result = await checkoutAcceleratedMemberCart({
+        userId: user.id,
+        cartItems,
+        checkoutKey: body.checkoutKey,
+        discountCode,
+        shippingAddress,
+      })
+      if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
+      return NextResponse.json({ success: true, order: result.order, hasQuoteBasedItems: false, replay: result.replay },
+        { headers: { 'Cache-Control': 'private, no-store' } })
     }
 
     // Get discount code ID if provided

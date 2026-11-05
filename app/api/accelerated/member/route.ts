@@ -15,19 +15,35 @@ async function identity(request: NextRequest) {
   return isAuthError(result) ? null : result.user.id
 }
 
+async function loadRecommendations(userId: string) {
+  const current = await supabaseAdmin.from('accelerated_member_recommendations')
+    .select('id,offer_kind,offer_id,title,rationale,reviewed_at,approved_price,approved_is_quote_based,approved_is_print_on_demand,approved_variant_prices')
+    .eq('user_id', userId).eq('review_status', 'approved')
+  // Production may not yet have the staging-only commerce migration. Keep the
+  // read-only dashboard available and withhold purchase actions until rollout.
+  if (current.error?.code === '42703') {
+    return supabaseAdmin.from('accelerated_member_recommendations')
+      .select('id,offer_kind,offer_id,title,rationale,reviewed_at')
+      .eq('user_id', userId).eq('review_status', 'approved')
+  }
+  return current
+}
+
 export async function GET(request: NextRequest) {
   const userId = await identity(request)
   if (!userId) return fail('Sign in to view member progress.', 401)
-  const [enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles] = await Promise.all([
+  const [enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders] = await Promise.all([
     supabaseAdmin.from('accelerated_member_enrollments').select('current_lesson_id,revision,updated_at').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
     supabaseAdmin.from('accelerated_member_lessons').select('lesson_id,completed_at,video_seconds').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION),
     supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,answers,updated_at').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
     supabaseAdmin.from('diagnostic_audits').select('id,status,diagnostic_summary').eq('user_id', userId).eq('status', 'completed').order('id', { ascending: false }).limit(1),
     supabaseAdmin.from('verified_client_project_memberships').select('client_project_id').eq('user_id', userId),
-    supabaseAdmin.from('accelerated_member_recommendations').select('id,offer_kind,offer_id,title,rationale').eq('user_id', userId).eq('review_status', 'approved'),
+    loadRecommendations(userId),
     supabaseAdmin.from('accelerated_decision_file_owners').select('intake_id').eq('user_id', userId),
+    supabaseAdmin.from('orders').select('id,status,final_amount,created_at,order_items(id,quantity,price_at_purchase,products(title),services(title))')
+      .eq('user_id', userId).order('created_at', { ascending: false }).limit(30),
   ])
-  if ([enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles].some((item) => item.error)) return fail('Member data is temporarily unavailable.', 503)
+  if ([enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders].some((item) => item.error)) return fail('Member data is temporarily unavailable.', 503)
   // Existing token projection is reused server-side. The token is never sent to the member.
   let assessment = null
   const audit = audits.data?.[0]
@@ -60,6 +76,7 @@ export async function GET(request: NextRequest) {
     assessmentStatus: audit ? { status: audit.status, summary: audit.diagnostic_summary } : null,
     assessment,
     recommendations: recommendations.data ?? [],
+    orders: orders.data ?? [],
     projects,
     projectMeetings,
   }, { headers })

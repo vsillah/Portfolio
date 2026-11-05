@@ -59,6 +59,9 @@ export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const fromQuote = searchParams.get('fromQuote')
+  const quoteBackHref = fromQuote === 'qa' && process.env.NODE_ENV === 'development'
+    ? '/member/quote?qa=quote' : /^\d+$/.test(fromQuote || '') ? `/member/quote?orderId=${fromQuote}` : '/store'
   const productId = params.id as string
   const visualCapture = searchParams.get('visualCapture') === '1'
   const visualFocusCodes = (searchParams.get('visualFocus') || '')
@@ -168,11 +171,11 @@ export default function ProductDetailPage() {
           <div className="max-w-7xl mx-auto text-center">
             <p className="text-muted-foreground mb-4">Product not found</p>
             <Link
-              href="/store"
+              href={quoteBackHref}
               className="inline-flex items-center gap-2 text-radiant-gold hover:text-gold-light"
             >
               <ArrowLeft size={20} />
-              Back to Store
+              {quoteBackHref === '/store' ? 'Back to Store' : 'Back to quote catalog'}
             </Link>
           </div>
         </div>
@@ -350,11 +353,11 @@ export default function ProductDetailPage() {
           {/* Back link */}
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <Link
-              href="/store"
+              href={quoteBackHref}
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft size={20} />
-              Back to Store
+              {quoteBackHref === '/store' ? 'Back to Store' : 'Back to quote catalog'}
             </Link>
             <div className="flex items-center gap-3">
               <Link

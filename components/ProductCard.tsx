@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon, Check, Sparkles } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import type { Product } from '@/lib/types/store'
 import { formatDollarAmount } from '@/lib/pricing-model'
@@ -14,6 +15,7 @@ interface ProductCardProps {
   product: Product
   onAddToCart: (productId: number) => void
   campaignBadge?: string | null
+  viewDetailsHref?: string
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -25,7 +27,7 @@ const TYPE_LABELS: Record<string, string> = {
   merchandise: 'Merchandise',
 }
 
-export default function ProductCard({ product, onAddToCart, campaignBadge }: ProductCardProps) {
+export default function ProductCard({ product, onAddToCart, campaignBadge, viewDetailsHref }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
   const [showAdded, setShowAdded] = useState(false)
   const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -40,7 +42,7 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
   const handleAddToCart = () => {
     // For merchandise, redirect to product page for variant selection
     if (product.type === 'merchandise') {
-      router.push(`/store/${product.id}`)
+      router.push(viewDetailsHref || `/store/${product.id}`)
       return
     }
     onAddToCart(product.id)
@@ -51,7 +53,7 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
 
   const handleCardClick = () => {
     // Navigate to product detail page
-    router.push(`/store/${product.id}`)
+    router.push(viewDetailsHref || `/store/${product.id}`)
   }
 
   return (
@@ -100,6 +102,8 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
         {product.description && (
           <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{product.description}</p>
         )}
+        {viewDetailsHref && <Link href={viewDetailsHref} onClick={(event) => event.stopPropagation()}
+          className="mb-3 inline-flex min-h-11 items-center text-sm font-semibold text-radiant-gold underline underline-offset-4">View details</Link>}
 
         {/* Price and Add to Cart */}
         <div className="mt-auto flex items-center justify-between gap-3">

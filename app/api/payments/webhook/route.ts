@@ -570,22 +570,21 @@ export async function POST(request: NextRequest) {
         const orderId = paymentIntent.metadata?.orderId
 
         if (orderId) {
-          // Update order status to completed
+          // The signed event must name the PaymentIntent already attached to
+          // this order. Metadata alone cannot authorize a paid transition.
+          // Only the first matching transition performs fulfillment.
           const { data: order } = await supabaseAdmin
             .from('orders')
-            .update({
-              status: 'completed',
-              stripe_payment_intent_id: paymentIntent.id,
-            })
+            .update({ status: 'completed' })
             .eq('id', parseInt(orderId))
+            .eq('stripe_payment_intent_id', paymentIntent.id)
+            .in('status', ['pending', 'failed'])
             .select()
             .single()
 
-          // Log Stripe fee for cost tracking
-          logStripeFee(paymentIntent.id, parseInt(orderId)).catch(() => {})
-
           // Send order confirmation email with invoice PDF
           if (order) {
+            logStripeFee(paymentIntent.id, parseInt(orderId)).catch(() => {})
             try {
               const [{ data: emailItems }, { data: profile }] = await Promise.all([
                 supabaseAdmin
@@ -818,6 +817,7 @@ export async function POST(request: NextRequest) {
             .update({ status: 'failed' })
             .eq('id', parseInt(orderId))
             .eq('stripe_payment_intent_id', paymentIntent.id)
+            .eq('status', 'pending')
         }
         break
       }

@@ -72,6 +72,9 @@ export default function ServiceDetailPage() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const fromQuote = searchParams.get('fromQuote')
+  const quoteBackHref = fromQuote === 'qa' && process.env.NODE_ENV === 'development'
+    ? '/member/quote?qa=quote' : /^\d+$/.test(fromQuote || '') ? `/member/quote?orderId=${fromQuote}` : '/services'
   const serviceId = params.id as string
   const speakerBrief: SpeakerFitInput = {
     audience: searchParams.get('speakerAudience') || '',
@@ -169,11 +172,11 @@ export default function ServiceDetailPage() {
           <div className="max-w-7xl mx-auto text-center">
             <p className="mb-4 text-muted-foreground">Service not found</p>
             <Link
-              href="/services"
+              href={quoteBackHref}
               className="inline-flex items-center gap-2 font-semibold text-foreground underline decoration-accent underline-offset-4 focus-visible:outline-2 focus-visible:outline-accent"
             >
               <ArrowLeft size={20} />
-              Back to Services
+              {quoteBackHref === '/services' ? 'Back to Services' : 'Back to quote catalog'}
             </Link>
           </div>
         </div>
@@ -365,11 +368,11 @@ export default function ServiceDetailPage() {
           {/* Back link */}
           <div className="mb-8">
             <Link
-              href="/services"
+              href={quoteBackHref}
               className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent"
             >
               <ArrowLeft size={20} />
-              Back to Services
+              {quoteBackHref === '/services' ? 'Back to Services' : 'Back to quote catalog'}
             </Link>
           </div>
 

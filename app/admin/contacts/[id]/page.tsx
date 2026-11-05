@@ -95,6 +95,16 @@ interface ContactData {
   salesSessions: SalesSession[]
   timeline: TimelineEvent[]
   suggestedTemplate: EmailTemplateKey
+  acceleratedQuote?: {
+    order_id: number; refinement_id: string; recommendation_id: string; reviewed_at: string
+    context_package: {
+      intakeId: string; worksheetId: string; questionSetVersion: string; rulesVersion: string
+      answers: Record<string, string>; derivedFacts: Record<string, {value:string;sourceField:string}>
+      requestedOffer?: { kind: 'service'; id: string; title: string }
+      projection: { status: string; needsOperatorReview: boolean; remaining: Array<{kind:string;id:string;title:string;fit:string;reasons:string[]}>;
+        excluded: Array<{kind:string;id:string;title:string;reasons:string[]}> }
+    }
+  } | null
 }
 
 interface AssetRef { type: 'gamma_report' | 'video' | 'value_report'; id: string }
@@ -797,6 +807,34 @@ function ContactDetailPage() {
               </div>
             </div>
           </div>
+
+          {data.acceleratedQuote && <section className="rounded-xl border border-amber-700/50 bg-gray-900/70 p-5 text-gray-200">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div><p className="text-xs font-semibold uppercase tracking-wide text-amber-400">Accelerated quote · operator review</p>
+                <h2 className="mt-1 text-lg font-semibold text-white">Order #{data.acceleratedQuote.order_id}</h2></div>
+              <span className="rounded-full border border-amber-700 px-3 py-1 text-xs text-amber-300">{data.acceleratedQuote.context_package.projection.status.replaceAll('_', ' ')}</span>
+            </div>
+            <p className="mt-2 text-sm text-gray-400">Reviewed recommendation {data.acceleratedQuote.recommendation_id}. Candidate fit is a review aid; no offer or project changes automatically.</p>
+            {data.acceleratedQuote.context_package.requestedOffer && <p className="mt-2 text-sm font-semibold text-amber-200">Member requests review of: {data.acceleratedQuote.context_package.requestedOffer.title}</p>}
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div><h3 className="text-sm font-semibold text-white">Remaining candidates</h3>
+                <ul className="mt-2 space-y-2 text-sm">{data.acceleratedQuote.context_package.projection.remaining.map((offer) =>
+                  <li key={`${offer.kind}:${offer.id}`} className="rounded border border-gray-700 p-3">
+                    <p className="font-medium">{offer.title} <span className="text-gray-400">({offer.kind} {offer.id})</span></p>
+                    <p className="mt-1 text-gray-400">{offer.reasons.join('; ')}</p>
+                  </li>)}</ul></div>
+              <div><h3 className="text-sm font-semibold text-white">Member choices</h3>
+                <ul className="mt-2 space-y-1 text-sm">{Object.entries(data.acceleratedQuote.context_package.answers).map(([key, value]) =>
+                  <li key={key}>{key.replaceAll('_', ' ')}: {value.replaceAll('_', ' ')}</li>)}</ul>
+                <details className="mt-4 text-sm"><summary className="cursor-pointer text-amber-300">Lineage and fallaway</summary>
+                  <p className="mt-2 break-all text-gray-400">Decision File {data.acceleratedQuote.context_package.intakeId} · worksheet {data.acceleratedQuote.context_package.worksheetId}</p>
+                  <p className="text-gray-400">{data.acceleratedQuote.context_package.questionSetVersion} · {data.acceleratedQuote.context_package.rulesVersion}</p>
+                  <ul className="mt-2 space-y-1">{data.acceleratedQuote.context_package.projection.excluded.map((offer) =>
+                    <li key={`${offer.kind}:${offer.id}`}>{offer.title}: {offer.reasons.join('; ')}</li>)}</ul>
+                </details>
+              </div>
+            </div>
+          </section>}
 
           <RelationshipPacketPanel
             loading={relationshipPacketLoading}

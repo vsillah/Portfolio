@@ -170,6 +170,27 @@ export async function GET(
 
   const suggestedTemplate = suggestEmailTemplate(pageData)
 
+  const quoteRes = await supabaseAdmin.from('accelerated_quote_contact_links')
+    .select('order_id,refinement_id,recommendation_id,reviewed_at,context_package,created_at')
+    .eq('contact_submission_id', contactId).maybeSingle()
+  let acceleratedQuote = quoteRes.data ?? null
+  if (quoteRes.error) {
+    const missingTable = ['42P01', 'PGRST205'].includes(quoteRes.error.code)
+    const missingNewColumn = ['42703', 'PGRST204'].includes(quoteRes.error.code) &&
+      /\b(refinement_id|context_package)\b/.test(quoteRes.error.message)
+    if (missingNewColumn) {
+      // The contact-link table may predate the separately gated refinement migration.
+      // Probe its companion table so a broken post-migration schema still fails visibly.
+      const probe = await supabaseAdmin.from('accelerated_quote_refinements').select('id').limit(0)
+      if (!probe.error || !['42P01', 'PGRST205'].includes(probe.error.code)) {
+        return NextResponse.json({ error: 'Quote context is temporarily unavailable' }, { status: 503 })
+      }
+    } else if (!missingTable) {
+      return NextResponse.json({ error: 'Quote context is temporarily unavailable' }, { status: 503 })
+    }
+    acceleratedQuote = null
+  }
+
   return NextResponse.json({
     contact,
     ...pageData,
@@ -178,5 +199,6 @@ export async function GET(
     dashboardAccess: dashboardRes.data?.[0] ?? null,
     timeline,
     suggestedTemplate,
+    acceleratedQuote,
   })
 }

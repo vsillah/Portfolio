@@ -8,6 +8,7 @@ import {
   getCart, 
   removeFromCart, 
   removeServiceFromCart,
+  removeRecommendedFromCart,
   updateCartItemQuantity, 
   updateServiceQuantity,
   clearCart, 
@@ -128,6 +129,11 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
     }
   }
 
+  const handleRemoveRecommended = (recommendationId: string) => {
+    const updated = removeRecommendedFromCart(recommendationId)
+    setCartItems(updated)
+  }
+
   const handleProductQuantityChange = (productId: number, delta: number) => {
     const item = cartItems.find(i => isProductItem(i) && i.productId === productId)
     if (item) {
@@ -159,13 +165,15 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
     return cartItems.reduce((total, item) => {
       if (isProductItem(item)) {
         const product = products[item.productId]
-        if (product && product.price !== null) {
-          return total + (product.price * item.quantity)
+        const price = item.recommendationId ? item.reviewedPrice : product?.price
+        if (price !== null && price !== undefined) {
+          return total + (price * item.quantity)
         }
       } else if (isServiceItem(item)) {
         const service = services[item.serviceId]
-        if (service && service.price !== null && !service.is_quote_based) {
-          return total + (service.price * item.quantity)
+        const price = item.recommendationId ? item.reviewedPrice : service?.price
+        if (price !== null && price !== undefined && !(service?.is_quote_based && !item.recommendationId)) {
+          return total + (price * item.quantity)
         }
       }
       return total
@@ -258,7 +266,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
 
                       return (
                         <motion.div
-                          key={`product-${item.productId}`}
+                          key={item.recommendationId ? `reviewed-${item.recommendationId}` : `product-${item.productId}-${item.variantId ?? 'base'}`}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           className="agent-ops-card rounded-lg border p-4"
@@ -287,28 +295,29 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                 {product.title}
                               </h3>
                               <p className="text-sm text-muted-foreground mb-2">
-                                {product.price !== null ? formatCurrency(product.price) : 'Free'}
+                                {item.recommendationId && item.reviewedPrice !== undefined ? formatCurrency(item.reviewedPrice) : product.price !== null ? formatCurrency(product.price) : 'Free'}
                               </p>
+                              {item.recommendationId && <p className="mb-2 text-xs text-radiant-gold">Reviewed offer · quantity 1</p>}
 
                               {/* Quantity Controls */}
                               <div className="flex items-center gap-2">
-                                <button
+                                {!item.recommendationId && <button
                                   onClick={() => handleProductQuantityChange(item.productId, -1)}
                                   className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Minus size={14} />
-                                </button>
+                                </button>}
                                 <span className="text-sm text-white w-8 text-center">
                                   {item.quantity}
                                 </span>
-                                <button
+                                {!item.recommendationId && <button
                                   onClick={() => handleProductQuantityChange(item.productId, 1)}
                                   className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Plus size={14} />
-                                </button>
+                                </button>}
                                 <button
-                                  onClick={() => handleRemoveProduct(item.productId)}
+                                  onClick={() => item.recommendationId ? handleRemoveRecommended(item.recommendationId) : handleRemoveProduct(item.productId)}
                                   className="ml-auto p-1 text-red-400 hover:text-red-300"
                                   title="Remove"
                                 >
@@ -318,8 +327,8 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
 
                               {/* Subtotal */}
                               <p className="text-sm text-foreground mt-2">
-                                Subtotal: {product.price !== null
-                                  ? formatCurrency(product.price * item.quantity)
+                                Subtotal: {(item.recommendationId ? item.reviewedPrice : product.price) != null
+                                  ? formatCurrency((item.recommendationId ? item.reviewedPrice! : product.price!) * item.quantity)
                                   : 'Free'}
                               </p>
                             </div>
@@ -335,7 +344,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
 
                       return (
                         <motion.div
-                          key={`service-${item.serviceId}`}
+                          key={item.recommendationId ? `reviewed-${item.recommendationId}` : `service-${item.serviceId}`}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           className="agent-ops-card rounded-lg border p-4"
@@ -377,32 +386,33 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               )}
                               
                               <p className="text-sm text-muted-foreground mb-2">
-                                {service.is_quote_based 
+                                {item.recommendationId && item.reviewedPrice !== undefined ? formatCurrency(item.reviewedPrice) : service.is_quote_based
                                   ? 'Contact for Pricing'
                                   : service.price !== null 
                                     ? formatCurrency(service.price) 
                                     : 'Free'}
                               </p>
+                              {item.recommendationId && <p className="mb-2 text-xs text-radiant-gold">Reviewed offer · quantity 1</p>}
 
                               {/* Quantity Controls */}
                               <div className="flex items-center gap-2">
-                                <button
+                                {!item.recommendationId && <button
                                   onClick={() => handleServiceQuantityChange(item.serviceId, -1)}
                                   className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Minus size={14} />
-                                </button>
+                                </button>}
                                 <span className="text-sm text-white w-8 text-center">
                                   {item.quantity}
                                 </span>
-                                <button
+                                {!item.recommendationId && <button
                                   onClick={() => handleServiceQuantityChange(item.serviceId, 1)}
                                   className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Plus size={14} />
-                                </button>
+                                </button>}
                                 <button
-                                  onClick={() => handleRemoveService(item.serviceId)}
+                                  onClick={() => item.recommendationId ? handleRemoveRecommended(item.recommendationId) : handleRemoveService(item.serviceId)}
                                   className="ml-auto p-1 text-red-400 hover:text-red-300"
                                   title="Remove"
                                 >
@@ -412,7 +422,9 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
 
                               {/* Subtotal */}
                               <p className="text-sm text-foreground mt-2">
-                                Subtotal: {service.is_quote_based
+                                Subtotal: {item.recommendationId && item.reviewedPrice !== undefined
+                                  ? formatCurrency(item.reviewedPrice * item.quantity)
+                                  : service.is_quote_based
                                   ? 'Quote Required'
                                   : service.price !== null
                                     ? formatCurrency(service.price * item.quantity)
