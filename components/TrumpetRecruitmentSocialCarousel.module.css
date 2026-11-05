@@ -27,8 +27,8 @@
 .dot span { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--radiant-gold); background: transparent; }
 .dot[aria-current="true"] span { width: 10px; height: 10px; background: var(--radiant-gold); }
 @media (max-width: 639px) {
-  .mediaRow { width: 100%; max-width: 360px; margin-top: 16px; }
-  .previous { left: -36px; }
-  .next { right: -36px; }
+  .mediaRow { width: calc(100% - 16px); max-width: 360px; margin-top: 16px; }
+  .previous { left: -44px; }
+  .next { right: -44px; }
   .dots { gap: 0; margin-right: -16px; margin-left: -16px; }
 }
