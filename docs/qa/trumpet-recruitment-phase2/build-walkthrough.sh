@@ -38,4 +38,4 @@ EOF
 
 ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i frames.txt \
   -vf 'fps=24,format=yuv420p' -c:v libx264 -crf 21 -movflags +faststart \
-  trumpet-recruitment-review-a80f3f2d.mp4
+  trumpet-recruitment-review-285db941.mp4
