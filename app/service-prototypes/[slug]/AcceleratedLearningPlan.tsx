@@ -19,7 +19,9 @@ import l14Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-bin
 import l15Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l15-transcript.json'
 import l16Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l16-transcript.json'
 import styles from './learning-plan.module.css'
-import { lessons, DECISION_FILE_STORAGE_KEY, emptyDecisionFile, validateDecisionFile, type Act, type DecisionFileDraft } from '@/lib/accelerated-decision-file'
+import { lessons, DECISION_FILE_VERSION, DECISION_FILE_STORAGE_KEY, emptyDecisionFile, validateDecisionFile, type Act, type DecisionFileDraft } from '@/lib/accelerated-decision-file'
+import { GUEST_PROGRESS_KEY, validateLearningState, type LearningState } from '@/lib/accelerated-member-progress'
+import { supabase } from '@/lib/supabase'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 export { lessons } from '@/lib/accelerated-decision-file'
 
@@ -97,6 +99,7 @@ export function AcceleratedLearningPlan() {
   const playerRef = useRef<HTMLElement>(null)
   const watchRef = useRef<HTMLButtonElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const memberUserRef = useRef<string | null>(null)
   const [selected, setSelected] = useState('L01')
   const [videoOpen, setVideoOpen] = useState(false)
   const [posterRevealed, setPosterRevealed] = useState(false)
@@ -104,6 +107,11 @@ export function AcceleratedLearningPlan() {
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
   const [completed, setCompleted] = useState<string[]>([])
+  const [videoSeconds, setVideoSeconds] = useState<Record<string, number>>({})
+  const [memberToken, setMemberToken] = useState<string | null>(null)
+  const [memberClaimed, setMemberClaimed] = useState(false)
+  const [memberNotice, setMemberNotice] = useState('')
+  const [ready, setReady] = useState(false)
   const [draft, setDraft] = useState<DecisionFileDraft | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [shareName, setShareName] = useState('')
@@ -126,17 +134,78 @@ export function AcceleratedLearningPlan() {
       const saved = localStorage.getItem(DECISION_FILE_STORAGE_KEY)
       const checked = saved ? validateDecisionFile(JSON.parse(saved)) : null
       setDraft(checked?.ok ? checked.draft : emptyDecisionFile(crypto.randomUUID()))
+      const progress = localStorage.getItem(GUEST_PROGRESS_KEY)
+      if (progress) {
+        const savedProgress = validateLearningState(JSON.parse(progress))
+        if (savedProgress.ok) {
+          setCompleted(savedProgress.state.completed)
+          setVideoSeconds(savedProgress.state.videoSeconds)
+          setSelected(savedProgress.state.currentLessonId)
+        }
+      }
       if (saved && !checked?.ok) setShareState('A previous workshop draft could not be restored. Your exported copy remains available if you saved one.')
     } catch {
       setDraft(emptyDecisionFile(crypto.randomUUID()))
       setShareState('Local storage is unavailable. Export a copy to keep your work.')
     }
+    setReady(true)
   }, [])
   useEffect(() => {
-    if (!draft) return
+    if (!draft || !ready || memberClaimed) return
     try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)) }
     catch { setShareState('Local storage is full or unavailable. Export a copy to keep your work.') }
-  }, [draft])
+  }, [draft, ready, memberClaimed])
+  useEffect(() => {
+    if (!draft || !ready || memberClaimed) return
+    try { localStorage.setItem(GUEST_PROGRESS_KEY, JSON.stringify({ version: DECISION_FILE_VERSION, worksheet: draft, completed, videoSeconds, currentLessonId: selected, updatedAt: new Date().toISOString() })) }
+    catch { setMemberNotice('Local progress could not be saved. Download your worksheet as a backup.') }
+  }, [draft, completed, videoSeconds, selected, ready, memberClaimed])
+  useEffect(() => {
+    let active = true
+    async function loadMember() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!active || !session) return
+      memberUserRef.current = session.user.id
+      setMemberToken(session.access_token)
+      try {
+        const response = await fetch('/api/accelerated/member', { headers: { Authorization: `Bearer ${session.access_token}` }, cache: 'no-store' })
+        if (!response.ok) { setMemberNotice('Member progress is unavailable. Your local work is still here.'); return }
+        const result = await response.json()
+        if (!active || !result.enrollment) return
+        setMemberClaimed(true)
+        setSelected(result.enrollment.current_lesson_id)
+        setCompleted(result.lessons.filter((item: { completed_at: string | null }) => item.completed_at).map((item: { lesson_id: string }) => item.lesson_id))
+        setVideoSeconds(Object.fromEntries(result.lessons.map((item: { lesson_id: string; video_seconds: number }) => [item.lesson_id, item.video_seconds])))
+        if (result.worksheet) setDraft({ version: DECISION_FILE_VERSION, worksheetId: result.worksheet.worksheet_id, answers: result.worksheet.answers, updatedAt: result.worksheet.updated_at })
+      } catch { setMemberNotice('Member progress is unavailable. Your local work is still here.') }
+    }
+    void loadMember()
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (memberUserRef.current && session?.user.id !== memberUserRef.current) window.location.reload()
+      else setMemberToken(session?.access_token ?? null)
+    })
+    return () => { active = false; listener.subscription.unsubscribe() }
+  }, [])
+  const learningState = (): LearningState | null => draft ? { version: DECISION_FILE_VERSION, worksheet: draft, completed, videoSeconds, currentLessonId: selected, updatedAt: new Date().toISOString() } : null
+  const saveMember = async (action: 'claim' | 'save', state = learningState()) => {
+    if (!state || !memberToken) return
+    const response = await fetch('/api/accelerated/member', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${memberToken}` }, body: JSON.stringify({ action, consent: action === 'claim', state }) })
+    const result = await response.json()
+    if (!response.ok) { setMemberNotice(result.error || 'Could not save member progress.'); return }
+    if (action === 'claim') {
+      setMemberClaimed(true)
+      localStorage.removeItem(GUEST_PROGRESS_KEY)
+      localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+    }
+    setMemberNotice(action === 'claim' ? 'Guest progress is now linked to your member account.' : 'Saved to your member account.')
+  }
+  useEffect(() => {
+    if (!ready || !memberClaimed || !draft) return
+    const timer = window.setTimeout(() => { void saveMember('save') }, 1200)
+    return () => window.clearTimeout(timer)
+    // Saving is driven by the current lesson and worksheet changes, after claim.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, completed, videoSeconds, selected, ready, memberClaimed])
   const updateAnswer = (id: string, value: string) => {
     setDraft((current) => current ? { ...current, answers: { ...current.answers, [id]: value }, updatedAt: new Date().toISOString() } : current)
     setSent(false)
@@ -194,12 +263,21 @@ export function AcceleratedLearningPlan() {
     const track = videoRef.current?.textTracks[0]
     if (track) track.mode = enabled ? 'showing' : 'disabled'
   }
+  const restoreVideo = () => {
+    setCaptionMode(captionsOn)
+    if (videoRef.current && videoSeconds[selected] > 0) videoRef.current.currentTime = videoSeconds[selected]
+  }
+  const recordVideo = () => {
+    const seconds = Math.floor(videoRef.current?.currentTime ?? 0)
+    if (seconds > 0 && seconds % 5 === 0 && seconds !== videoSeconds[selected]) setVideoSeconds((positions) => ({ ...positions, [selected]: seconds }))
+  }
 
   return <section className={styles.plan} aria-label="Accelerated learning plan">
     <div className={styles.heading}>
       <div><p className={styles.kicker}>YOUR LEARNING PLAN</p><h2>Sixteen lessons. One decision file.</h2><p>Bring one safe, real decision through the course. Each lesson adds a page you can review with your team.</p></div>
-      <div className={styles.overview}><strong>{completed.length}<span> / 16</span></strong><span>lessons complete in this preview</span><progress value={completed.length} max={16} aria-label="Lessons complete"/><small>{totalMinutes} minutes of planned teaching · practice time is separate</small></div>
+      <div className={styles.overview}><strong>{completed.length}<span> / 16</span></strong><span>lessons complete</span><progress value={completed.length} max={16} aria-label="Lessons complete"/><small>{totalMinutes} minutes of planned teaching · practice time is separate</small></div>
     </div>
+    <div className={styles.mediaNotice} role="region" aria-label="Your learning continuity"><strong>{memberClaimed ? 'Member progress' : 'Continue at your own pace'}</strong><p>{memberClaimed ? 'Your lessons and worksheet save to your member account.' : 'Guest progress stays in this browser. Sign in if you want to continue on another device.'}</p>{memberToken ? memberClaimed ? <a href="/member/dashboard">Open member dashboard</a> : <button type="button" onClick={() => void saveMember('claim')}>I agree to claim this browser’s progress</button> : <a href="/auth/login?redirect=%2Fservice-prototypes%2Faccelerated-cohort%3Fview%3D3">Sign in for cross-device progress</a>}{memberNotice && <p role="status">{memberNotice}</p>}</div>
     <div className={styles.layout}>
       <div className={styles.catalog}>
         <div className={styles.catalogTools}><label htmlFor="lesson-search">Find a lesson</label><input id="lesson-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search titles or topics"/><div className={styles.filters} role="group" aria-label="Filter lessons by act">{(['All', 'Signals', 'Alignment', 'Momentum', 'Synthesis'] as const).map((name) => <button type="button" key={name} aria-pressed={filter === name} onClick={() => setFilter(name)}>{name}</button>)}</div></div>
@@ -226,7 +304,7 @@ export function AcceleratedLearningPlan() {
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         {lesson.id === 'L01' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L01 guided video">
           <div className={styles.playerHeading}><div><strong>Guided video · L01</strong><p>Watch the nine-minute lesson, then use the exercise above to start your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={l01Media.video} type="video/mp4" />
             <track kind="captions" src={l01Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
@@ -235,7 +313,7 @@ export function AcceleratedLearningPlan() {
           <details className={styles.transcript}><summary>Read along with L01 transcript</summary><ol>{transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L01 guided video is ready</strong><p>Watch the approved nine-minute lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L01 guided video · 09:00</button></div> : lesson.id === 'L02' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L02 guided video">
           <div className={styles.playerHeading}><div><strong>Guided video · L02</strong><p>Watch the ten-minute lesson, then choose one priority to test in your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={l02Media.video} type="video/mp4" />
             <track kind="captions" src={l02Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
@@ -244,7 +322,7 @@ export function AcceleratedLearningPlan() {
           <details className={styles.transcript}><summary>Read along with L02 transcript</summary><ol>{l02Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L02 guided video is ready</strong><p>Watch the approved ten-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L02 guided video · 10:00</button></div> : lesson.id === 'L03' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L03 guided video">
           <div className={styles.playerHeading}><div><strong>Guided video · L03</strong><p>Watch the nine-minute lesson, then write the decision question and evidence gap for your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L03 Answer-driven discovery guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L03 Answer-driven discovery guided video" onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={l03Media.video} type="video/mp4" />
             <track kind="captions" src={l03Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
@@ -253,7 +331,7 @@ export function AcceleratedLearningPlan() {
           <details className={styles.transcript}><summary>Read along with L03 transcript</summary><ol>{l03Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L03 guided video is ready</strong><p>Watch the approved nine-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L03 guided video · 09:00</button></div> : approvedBatchMedia ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><div><strong>Guided video · {lesson.id}</strong><p>Watch the lesson, then use the exercise above to add to your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={approvedBatchMedia.video} type="video/mp4" />
             <track kind="captions" src={approvedBatchMedia.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.

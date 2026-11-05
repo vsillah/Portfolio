@@ -1,9 +1,10 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
 import { DECISION_FILE_STORAGE_KEY } from '@/lib/accelerated-decision-file'
+import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 
 vi.mock('next/image', () => ({
@@ -14,6 +15,7 @@ vi.mock('next/image', () => ({
 }))
 
 describe('Accelerated learning plan', () => {
+  beforeEach(() => { localStorage.removeItem(DECISION_FILE_STORAGE_KEY); localStorage.removeItem(GUEST_PROGRESS_KEY) })
   it('restores one local worksheet across lessons and requires review, redaction, and consent', async () => {
     localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
     const view = render(<AcceleratedLearningPlan />)
@@ -23,7 +25,9 @@ describe('Accelerated learning plan', () => {
     await waitFor(() => expect(JSON.parse(localStorage.getItem(DECISION_FILE_STORAGE_KEY) || '{}').answers.L02).toBe('Compare three safe options'))
     view.unmount()
     render(<AcceleratedLearningPlan />)
-    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Synthetic decision with private detail'))
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Compare three safe options'))
+    fireEvent.click(screen.getByRole('button', { name: /L01: Build smarter, stay human/ }))
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Synthetic decision with private detail')
     fireEvent.click(screen.getByRole('button', { name: 'Review and send' }))
     const preview = screen.getByRole('region', { name: 'Review before sharing' })
     expect(within(preview).getByRole('button', { name: 'Send to AmaduTown' })).toBeDisabled()
