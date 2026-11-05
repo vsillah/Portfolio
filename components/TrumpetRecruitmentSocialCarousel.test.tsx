@@ -8,6 +8,8 @@ describe("approved social slide carousel", () => {
     expect(screen.getAllByRole("img")).toHaveLength(1);
     expect(screen.getByRole("img", { name: "Social carousel slide 1 of 7" })).toBeInTheDocument();
     expect(within(screen.getByRole("tablist", { name: "Choose a social slide" })).getAllByRole("tab")).toHaveLength(7);
+    expect(screen.getByRole("button", { name: "Previous social slide" })).toBeDisabled();
+    expect(screen.getByRole("tab", { name: "Show social slide 1" })).toHaveAttribute("aria-current", "true");
     fireEvent.click(screen.getByRole("button", { name: "Next social slide" }));
     expect(screen.getByRole("status")).toHaveTextContent("Slide 2 of 7");
     expect(screen.getByRole("img", { name: "Social carousel slide 2 of 7" })).toHaveAttribute("src", expect.stringContaining("slide-02.png"));
@@ -15,6 +17,8 @@ describe("approved social slide carousel", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Slide 1 of 7");
     fireEvent.click(screen.getByRole("tab", { name: "Show social slide 7" }));
     expect(screen.getByRole("status")).toHaveTextContent("Slide 7 of 7");
+    expect(screen.getByRole("button", { name: "Next social slide" })).toBeDisabled();
+    expect(screen.getByRole("tab", { name: "Show social slide 7" })).toHaveAttribute("aria-current", "true");
   });
 
   it("supports arrow, Home, and End keys without a network request", () => {
@@ -27,6 +31,8 @@ describe("approved social slide carousel", () => {
     expect(second).toHaveAttribute("aria-selected", "true");
     fireEvent.keyDown(second, { key: "End" });
     expect(screen.getByRole("tab", { name: "Show social slide 7" })).toHaveFocus();
+    fireEvent.keyDown(screen.getByRole("tab", { name: "Show social slide 7" }), { key: "ArrowRight" });
+    expect(screen.getByRole("status")).toHaveTextContent("Slide 7 of 7");
     fireEvent.keyDown(screen.getByRole("tab", { name: "Show social slide 7" }), { key: "Home" });
     expect(first).toHaveFocus();
     expect(screen.getByRole("status")).toHaveTextContent("Slide 1 of 7");

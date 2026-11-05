@@ -15,12 +15,29 @@ describe("adult perspective deck", () => {
     expect(screen.getAllByTestId(/^persona-card-/)).toHaveLength(4);
     expect(screen.getAllByRole("article")).toHaveLength(1);
     expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4");
+    expect(screen.getByRole("button", { name: "Previous adult perspective" })).toHaveTextContent("◀");
+    expect(screen.getByRole("button", { name: "Next adult perspective" })).toHaveTextContent("▶");
+    expect(screen.getAllByRole("button", { name: /^Show / })).toHaveLength(4);
+    expect(screen.getByRole("button", { name: "Show Parents or guardians" })).toHaveAttribute("aria-current", "true");
     expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "0");
     expect(screen.getByTestId("persona-card-3")).toHaveAttribute("data-depth", "3");
     expect(screen.getByTestId("persona-card-1")).toHaveAttribute("aria-hidden", "true");
     expect(screen.getByTestId("persona-card-1").querySelector("summary")).toHaveAttribute("tabindex", "-1");
     fireEvent.click(screen.getByRole("article").querySelector("summary")!);
     expect(screen.getByText("Adult opt-in.")).toBeVisible();
+  });
+
+  it("uses one image and copy region structure for every persona", () => {
+    render(<TrumpetRecruitmentPersonas personas={personas.map((persona, index) => ({ ...persona, imageSrc: `/persona-${index}.webp` }))} />);
+    const imageRegions = personas.map((_, index) => screen.getByTestId(`persona-image-${index}`));
+    const copyRegions = personas.map((_, index) => screen.getByTestId(`persona-copy-${index}`));
+    expect(new Set(imageRegions.map((region) => region.className))).toHaveProperty("size", 1);
+    expect(new Set(copyRegions.map((region) => region.className))).toHaveProperty("size", 1);
+    for (const [index, region] of imageRegions.entries()) {
+      expect(region.parentElement).toBe(screen.getByTestId(`persona-card-${index}`));
+      expect(region.querySelector("img")).toHaveClass("object-cover", "object-center");
+      expect(copyRegions[index].parentElement).toBe(region.parentElement);
+    }
   });
 
   it("sends the active card to the back and brings named personas forward without requests", () => {
@@ -34,7 +51,7 @@ describe("adult perspective deck", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4");
     fireEvent.click(screen.getByRole("button", { name: "Show Community music programs" }));
     expect(screen.getByRole("heading", { name: "Community music programs" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Show Community music programs" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Show Community music programs" })).toHaveAttribute("aria-current", "true");
     expect(screen.getAllByRole("article")).toHaveLength(1);
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();

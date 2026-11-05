@@ -17,6 +17,32 @@
   transition: transform 480ms cubic-bezier(.2,.8,.2,1), opacity 480ms ease, filter 480ms ease;
   will-change: transform;
 }
+.imageRegion { flex: 0 0 50%; }
+.copyRegion { flex: 0 0 50%; }
+.arrow {
+  position: absolute;
+  top: 358px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: rgb(17 28 48 / 72%);
+  color: var(--radiant-gold);
+  font-size: 14px;
+  cursor: pointer;
+}
+.arrow:hover { background: rgb(17 28 48 / 96%); }
+.arrow:focus-visible, .dot:focus-visible { outline: 2px solid var(--radiant-gold); outline-offset: 2px; }
+.arrow span { pointer-events: none; }
+.previous { left: 0; }
+.next { right: 0; }
+.dots { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
+.dot { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.dot span { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--radiant-gold); background: transparent; }
+.dot[aria-current="true"] span { width: 10px; height: 10px; background: var(--radiant-gold); }
 .card:not([data-depth="0"]) { pointer-events: none; }
 .card[data-depth="0"] { z-index: 4; transform: translate3d(var(--drag-x), 0, 0) rotate(0deg); opacity: 1; }
 .card[data-depth="1"] { z-index: 3; transform: translate3d(-80px, -16px, 0) rotate(-8deg) scale(.96); opacity: .96; filter: brightness(.79); }
@@ -28,8 +54,11 @@
   .card[data-depth="3"] { transform: translate3d(-45px, -22px, 0) rotate(-11deg) scale(.91); }
 }
 @media (max-width: 639px) {
-  .stage { min-height: 635px; overflow: clip; }
-  .card { top: 18px; left: 5%; width: 90%; height: calc(100% - 38px); }
+  .stage { min-height: 690px; overflow: clip; }
+  .card { top: 18px; left: 9%; width: 82%; height: calc(100% - 38px); }
+  .imageRegion { flex-basis: 40%; }
+  .copyRegion { flex-basis: 60%; }
+  .arrow { top: 323px; }
   .card[data-depth="1"] { transform: translate3d(-80px, 0, 0) rotate(-7deg) scale(.94); opacity: 0; }
   .card[data-depth="2"] { transform: translate3d(80px, 0, 0) rotate(7deg) scale(.94); opacity: 0; }
   .card[data-depth="3"] { transform: translate3d(-100px, 0, 0) rotate(-9deg) scale(.9); opacity: 0; }
