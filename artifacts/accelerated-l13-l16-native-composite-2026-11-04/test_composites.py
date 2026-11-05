@@ -34,6 +34,14 @@ def probe(path: Path) -> dict:
     ], text=True))
 
 
+def stream_hash(path: Path, stream: str) -> str:
+    output = subprocess.check_output([
+        "ffmpeg", "-v", "error", "-i", str(path), "-map", f"0:{stream}",
+        "-c", "copy", "-f", "hash", "-hash", "SHA256", "-",
+    ], text=True)
+    return output.strip().split("=", 1)[1]
+
+
 def check_lesson(lesson: str) -> dict:
     lower = lesson.lower()
     directory = ROOT / lower
@@ -76,6 +84,11 @@ def check_lesson(lesson: str) -> dict:
     assert manifest["constraints"]["source_speed"] == 1.0
     assert manifest["constraints"]["source_crop"] is False
     assert captions.exists() and captions.read_text().count("-->") >= 4
+    panel = manifest["presenter_panel"]
+    assert panel == {"x": 986, "y": 190, "width": 870, "height": 490, "border": 10}
+    assert panel["x"] - 950 >= 20 and 1892 - (panel["x"] + panel["width"]) >= 20
+    assert panel["y"] - 168 >= 20 and 709 - (panel["y"] + panel["height"]) >= 20
+    assert panel["x"] > 900  # The instructional copy remains unobscured.
 
     media = probe(composite)
     streams = media["streams"]
@@ -85,6 +98,10 @@ def check_lesson(lesson: str) -> dict:
     assert any(item["codec_type"] == "audio" for item in streams)
     assert any(item["codec_type"] == "subtitle" for item in streams)
     assert abs(float(media["format"]["duration"]) - manifest["output_duration_seconds"]) < 0.05
+    review = json.loads((REPO / "docs/accelerated-course-modules/l13-l16-learner-binding/correction-review-receipt.json").read_text())
+    identity = review["stream_identity_sha256"][lesson]
+    assert stream_hash(composite, "a:0") == identity["audio"]
+    assert stream_hash(composite, "s:0") == identity["subtitle"]
     return {"lesson": lesson, "source_sha256": sha256(source), "composite_sha256": sha256(composite)}
 
 
@@ -101,7 +118,7 @@ def main() -> None:
     assert aggregate_cost < authorization["billing"]["aggregate_provider_cap_usd"]
     assert all(item["status"] == "completed" and item["retry_count"] == 0 for item in receipts)
     learner_plan = (REPO / "app/service-prototypes/[slug]/AcceleratedLearningPlan.tsx").read_text()
-    assert "const locked = (id: string) => Number(id.slice(1)) >= 13" in learner_plan
+    assert "reviewL13L16Media" in learner_plan
     print(json.dumps({"status": "pass", "aggregate_cost_usd": 30.86, "lessons": results}, indent=2))
 
 

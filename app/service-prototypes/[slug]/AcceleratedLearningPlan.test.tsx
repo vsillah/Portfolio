@@ -54,11 +54,11 @@ describe('Accelerated learning plan', () => {
     expect(l01Media.duration).toBe('09:00')
   })
 
-  it('shows a learner brief, playable L01, L05 ready, later locks, storyboard, and truthful preview progress', () => {
+  it('shows a learner brief, playable lessons, storyboard, and truthful preview progress', () => {
     render(<AcceleratedLearningPlan />)
     expect(screen.getByRole('heading', { name: 'Sixteen lessons. One decision file.' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /L09: Map the decision theater/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'locked')
+    expect(screen.getByRole('button', { name: /L09: Map the decision theater/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'ready')
     fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')
     expect(document.querySelector('video source')).toHaveAttribute('src', l01Media.video)
@@ -74,7 +74,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('button', { name: /Watch L05 guided video/ })).toBeEnabled()
     for (const item of lessons.filter((lesson) => Number(lesson.id.slice(1)) >= 9)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
-      expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
+      expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeEnabled()
     }
     expect(screen.queryByText(/production packet|source hash|provider instruction/i)).not.toBeInTheDocument()
   })

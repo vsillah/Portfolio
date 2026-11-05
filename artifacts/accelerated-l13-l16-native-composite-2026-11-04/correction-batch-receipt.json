@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "human_qa_pending",
+  "scope": "local presenter inset correction on L13-L16 native composites",
+  "source_batch_receipt": "artifacts/accelerated-l13-l16-native-composite-2026-11-04/batch-receipt.json",
+  "prior_pr_head": "9f8c775fd63c5333e7dce1bc76a3b0501687233a",
+  "lessons": [
+    "L13",
+    "L14",
+    "L15",
+    "L16"
+  ],
+  "original_composite_sha256": {
+    "L13": "4a2974b8a645ca5e7f8b18d91ea1a9e2da7cdc91ec201c8294411443950b87fe",
+    "L14": "cf675c5ed4e1aa69c6a2654b58b38614d040562403cc00bfac233e13ae3bc485",
+    "L15": "2db525fa4b63656d68d60556df294edda23dbb5d459891bc4ca6917c53fd1dd7",
+    "L16": "89c3c66873f6e32246d89ae7402c98d2d8a52b5a7a25fb4571914564ba0d63e5"
+  },
+  "corrected_composite_sha256": {
+    "L13": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+    "L14": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+    "L15": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+    "L16": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0"
+  },
+  "walkthrough_sha256": "e1b66a6dc6b966af7feb5228a0716600da1d7295eb0d44a3fc91f5e227ecac9f",
+  "provider_calls": 0,
+  "external_actions_authorized": false
+}

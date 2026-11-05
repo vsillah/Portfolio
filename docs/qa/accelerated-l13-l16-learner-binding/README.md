@@ -1,10 +1,9 @@
-# Accelerated L13–L16 learner binding QA
+# Accelerated L13–L16 correction review
 
-Source implementation commit: `d212d31d68a89b665a4d78221dcd6207acad1627`.
-Exact local route: `http://127.0.0.1:3142/service-prototypes/accelerated-cohort?view=3&rev=d212d31d68a89b665a4d78221dcd6207acad1627`.
+Draft PR #1208 binds corrected L13–L16 composites in the local learner preview. The presenter is inset within the teal well, leaving visible space around the gold frame. The original Human QA approval receipt and original batch receipt remain historical records for the earlier media hashes. The new media hashes are in `docs/accelerated-course-modules/l13-l16-learner-binding/correction-review-receipt.json`; correction Human QA is pending.
 
-The privacy-safe MP4 is a sequence of screenshots captured from the rendered Learning plan in the integrated Codex browser at desktop width. It shows the L13–L16 player entries, caption controls, expanded transcripts, return state, and four-lesson progress. The composite footage is the exact approved local media; no provider job or external publication was triggered for this QA.
+Local review route: `http://127.0.0.1:3142/service-prototypes/accelerated-cohort?view=3`, with a `rev` query set to the reviewed PR head. Select each L13–L16 lesson and open its guided video. The corrected L13 player is the primary framing check. Captions, transcript, return to plan, and progress remain visible in the refreshed captures.
 
-Additional screenshots cover tablet (768 px) and mobile (390 px) in light and dark themes. On mobile, L16 ready, player, transcript, and return were checked. The browser reported document scroll widths of 758 px at a 768 px tablet viewport and 380 px at a 390 px mobile viewport. The desktop and mobile player screenshots visually show the approved native composite in the video element.
+`accelerated-l13-l16-learner-walkthrough.mp4` is a 31-second, privacy-safe captured-state walkthrough from the rendered Learning plan in the integrated Codex browser. Its desktop player, transcript, and progress frames were recaptured after the correction. L16 mobile player and transcript frames were also refreshed at 390 px. The separate composite review sheet screenshots in `artifacts/accelerated-l13-l16-native-composite-2026-11-04/` show all four corrected presenter frames together.
 
-Rebuild the MP4 with `docs/qa/accelerated-l13-l16-learner-binding/render-walkthrough.sh`. `ffprobe` reported 31.000 seconds and 1,462,961 bytes. This is a captured-state walkthrough, not a full-duration playback recording.
+Rebuild this MP4 with `docs/qa/accelerated-l13-l16-learner-binding/render-walkthrough.sh`. This walkthrough is a sequence of rendered states, not a full-duration playback recording. No provider job or publication was triggered for this correction.
