@@ -65,12 +65,16 @@ describe("Trumpet Trainer recruitment review", () => {
     }
   });
 
-  it("keeps the gameplay card top aligned at its natural content height", () => {
+  it("gives the playable gameplay video the full content width and retains its fallback", () => {
     render(<RecruitmentReviewPage />);
-    const gameplay = screen.getByLabelText("Synthetic Trumpet Trainer gameplay");
-    const card = gameplay.parentElement;
-    expect(card).toHaveClass("self-start");
-    expect(card).toContainElement(screen.getByText("Captioned gameplay. No child or customer recording."));
-    expect(card?.parentElement).toHaveClass("lg:grid-cols-2");
+    const gameplay = screen.getByLabelText("Synthetic Trumpet Trainer gameplay") as HTMLVideoElement;
+    expect(gameplay).toHaveAttribute("controls");
+    expect(gameplay).toHaveAttribute("preload", "metadata");
+    expect(gameplay).toHaveClass("aspect-video", "w-full");
+    expect(gameplay.querySelector("source")).toHaveAttribute("src", "/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4");
+    expect(gameplay).toHaveTextContent("The seven-slide social carousel below shows the reviewed product path.");
+    expect(gameplay.parentElement).toContainElement(screen.getByText("Captioned gameplay. No child or customer recording."));
+    expect(screen.queryByRole("img", { name: "Trumpet Trainer home screen from the synthetic gameplay capture" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Review the full carousel" })).not.toBeInTheDocument();
   });
 });

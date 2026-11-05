@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import TrumpetRecruitmentMessages from "@/components/TrumpetRecruitmentMessages";
 import TrumpetRecruitmentPersonas from "@/components/TrumpetRecruitmentPersonas";
@@ -81,10 +80,7 @@ export default function RecruitmentReviewPage() {
 
         <section aria-labelledby="media" className="mt-14">
           <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="font-heading text-xs uppercase tracking-[.2em] text-radiant-gold">See the practice path</p><h2 id="media" className="mt-2 font-premium text-3xl">Actual product screens</h2></div><span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">Synthetic test input · review only</span></div>
-          <div className="mt-5 grid gap-5 lg:grid-cols-2">
-            <div className="min-w-0 rounded-2xl border border-border bg-card p-4"><Image src="/showcases/trumpet-trainer/c19989a3/01-home.webp" alt="Trumpet Trainer home screen from the synthetic gameplay capture" width={824} height={1720} className="mx-auto max-h-96 w-auto rounded-xl" /><p className="mt-3 text-sm text-muted-foreground">First of seven captured screens. <Link href="/work/trumpet-trainer" className="text-radiant-gold underline">Review the full carousel</Link>.</p></div>
-            <div className="min-w-0 self-start rounded-2xl border border-border bg-card p-4"><video controls preload="none" playsInline poster="/showcases/trumpet-trainer/c19989a3/gameplay-poster.jpg" className="aspect-video w-full rounded-xl bg-imperial-navy" aria-label="Synthetic Trumpet Trainer gameplay"><source src="/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4" type="video/mp4" /></video><p className="mt-3 text-sm text-muted-foreground">Captioned gameplay. No child or customer recording.</p></div>
-          </div>
+          <div className="mt-5 rounded-2xl border border-border bg-card p-3 sm:p-5"><video controls preload="metadata" playsInline poster="/showcases/trumpet-trainer/c19989a3/gameplay-poster.jpg" className="aspect-video w-full rounded-xl bg-imperial-navy object-contain" aria-label="Synthetic Trumpet Trainer gameplay"><source src="/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4" type="video/mp4" />Your browser cannot play this video. The seven-slide social carousel below shows the reviewed product path.</video><p className="mt-3 text-sm text-muted-foreground">Captioned gameplay. No child or customer recording.</p></div>
           <details className="mt-3 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground"><summary className="cursor-pointer font-semibold text-foreground">Media source and claim limits</summary><p className="mt-3 leading-6">Screens and video come from Trumpet Trainer commit <code>c19989a3b156ce97326e35b335e169014ca076f3</code> with synthetic audio input. The displayed result is one deterministic test run, not a learning outcome claim. Publication remains gated.</p></details>
           <h3 className="mt-8 font-premium text-2xl">Seven-slide social carousel</h3>
           <TrumpetRecruitmentSocialCarousel />
