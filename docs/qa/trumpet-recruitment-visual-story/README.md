@@ -1,6 +1,6 @@
 # Trumpet recruitment visual-story review
 
-UI commit: `899b3621ba56d3bda7f2c9309630ee8b789cd635`. Exact local route: `http://localhost:3018/work/trumpet-trainer/recruitment?revision=899b3621ba56d3bda7f2c9309630ee8b789cd635`.
+UI commit: `899b3621ba56d3bda7f2c9309630ee8b789cd635`. Exact local capture route: `http://localhost:3018/work/trumpet-trainer/recruitment?revision=899b3621ba56d3bda7f2c9309630ee8b789cd635&qa=recapture`.
 
 The 17 screenshots were captured in the Codex in-app browser from that route, with an isolated localhost server using placeholder public Supabase values and outbound n8n disabled. No customer, child, recipient, or private reply data appears. `build-walkthrough.sh` assembles those screenshots into a 30.46-second, 1280 × 850, H.264 MP4. It shows desktop (1280 px), tablet (768 px), and mobile (360 px), including media, the clef timeline, expanded detail, scorecard, selected message, local copy confirmation, and the activation gate. The final MP4 decoded without errors. It is a stitched screen walkthrough; video playback itself was not recorded.
 
@@ -14,3 +14,7 @@ Validation:
 - Rendered document width stayed within the viewport at 360, 768, and 1280 px. The 360 and 768 timelines used one-sided cards; 1280 alternated cards. No separate light-theme control was present on this route.
 
 The recruitment route remains inactive, unlinked, and noindex. No send, schedule, provider call, or data write was exercised.
+
+## Evidence correction
+
+The first capture mislabeled the desktop and mobile hero frames. All 17 frames were recaptured from a fresh in-app browser tab at the exact UI commit URL in `capture-manifest.json`; desktop and mobile hero captures were visually checked at scroll position zero. The assembled MP4 was inspected as an ordered contact sheet and decoded fully. The manifest records each frame and video SHA-256. Its `qa_commit_locator` resolves the final evidence commit from Git history, avoiding a self-referential hash inside that same commit; PR #1215 records the resolved hash after push.

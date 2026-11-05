@@ -1,0 +1,103 @@
+{
+  "ui_commit": "899b3621ba56d3bda7f2c9309630ee8b789cd635",
+  "qa_commit_locator": "git log -1 --format=%H -- docs/qa/trumpet-recruitment-visual-story",
+  "pull_request": "https://github.com/vsillah/Portfolio/pull/1215",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=899b3621ba56d3bda7f2c9309630ee8b789cd635&qa=recapture",
+  "capture_method": "Codex in-app browser screenshots; scroll position checked at zero for desktop and mobile hero; no simultaneous production build",
+  "frames": [
+    {
+      "file": "frames/01-desktop-hero.png",
+      "label": "Desktop hero",
+      "sha256": "77f3d741659be7deaa1134bfadbb80ee4d233f07fe08490c6069b9fa7f98aafe"
+    },
+    {
+      "file": "frames/02-desktop-media.png",
+      "label": "Desktop gameplay media",
+      "sha256": "62aad77b19e2ec9a9fc0fc31758ecda249e06edfff22590478989932952c0df8"
+    },
+    {
+      "file": "frames/03-desktop-audience.png",
+      "label": "Desktop audience tiles",
+      "sha256": "aa10cf70175f319370404daba02d86d4dd4b59a1f514b416ec294e55986f7f8f"
+    },
+    {
+      "file": "frames/04-desktop-timeline.png",
+      "label": "Desktop alternating timeline",
+      "sha256": "81306fb75ea77dc3e1bcfd21a8cda4383eb499b4f4515a9fccf87bf1ebd711a2"
+    },
+    {
+      "file": "frames/05-desktop-detail.png",
+      "label": "Desktop expanded timeline detail",
+      "sha256": "00129b01eb4a57e93778e1d9b0031eb7bad00660ba814ad881944ad28e642681"
+    },
+    {
+      "file": "frames/06-desktop-scorecard.png",
+      "label": "Desktop scorecard",
+      "sha256": "0d1a4104fa5d68d1c68c4dadbc5dcdf86dbf37dd7b09ef5ed2a623912021d108"
+    },
+    {
+      "file": "frames/07-desktop-draft.png",
+      "label": "Desktop selected educator draft",
+      "sha256": "3d69fd911196b30a0b238de8b6264578b226b85e62d5e8ad1dd0f851735fc4cb"
+    },
+    {
+      "file": "frames/08-desktop-copy.png",
+      "label": "Desktop local copy confirmation",
+      "sha256": "e83c9125ec3275aa0ca078581c34f65aac2f2126471cb7a7be323d91765a9e01"
+    },
+    {
+      "file": "frames/09-desktop-gate.png",
+      "label": "Desktop activation gate",
+      "sha256": "c55d81b61e45407d63106f65716a8af0557e168dcfbc62283b24c6823d40ca20"
+    },
+    {
+      "file": "frames/10-tablet-timeline.png",
+      "label": "Tablet one-sided timeline",
+      "sha256": "fb49d28b9f22c49a2701b8ad4548cd07637564b7b625ae57c0e3567fd0dcc446"
+    },
+    {
+      "file": "frames/11-mobile-hero.png",
+      "label": "Mobile hero",
+      "sha256": "2ceba0004da48047149e8488cc479a0f30ad3fafe72de2b5afc42abffbc62b19"
+    },
+    {
+      "file": "frames/12-mobile-media.png",
+      "label": "Mobile gameplay media",
+      "sha256": "72a85ad3bb7cb259d9b33ba823ee541f8f838fcfde08730ccb190e9548164857"
+    },
+    {
+      "file": "frames/13-mobile-timeline.png",
+      "label": "Mobile one-sided timeline",
+      "sha256": "12b0894908a0eefd055f09b99587dd19d0dbd7cbbb60ac1c9bfb94aa79acc743"
+    },
+    {
+      "file": "frames/14-mobile-detail.png",
+      "label": "Mobile expanded detail",
+      "sha256": "e64b76ccb8192f636a60ef89f8876f69b35f64dbb3c936ff7163dbf869812230"
+    },
+    {
+      "file": "frames/15-mobile-draft.png",
+      "label": "Mobile selected educator draft",
+      "sha256": "31ffe04cddd4b3e6b464e1a78befcf408f76569ba54e58dcd4c2b411fc7401c3"
+    },
+    {
+      "file": "frames/16-mobile-copy.png",
+      "label": "Mobile local copy confirmation",
+      "sha256": "cf0147323e17fe025f468ac2f006a5437ac6d650022e77dab6c71cedcf78c351"
+    },
+    {
+      "file": "frames/17-mobile-gate.png",
+      "label": "Mobile activation gate",
+      "sha256": "cc29cd3dab2fa0d09980ca8ee7cfbc15561ce767b895cae118f9a2e61ead4962"
+    }
+  ],
+  "video": {
+    "file": "trumpet-recruitment-visual-story-899b3621.mp4",
+    "sha256": "fbf092ad0c6e3bd314accf86f4384592fee485738033c03cc1268d8030e9f2f4",
+    "codec": "H.264",
+    "width": 1280,
+    "height": 850,
+    "duration_seconds": 30.458333,
+    "frames": 731
+  }
+}
