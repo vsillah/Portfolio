@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "project": "Portfolio",
+  "batch": "Accelerated L09-L12 native composites",
+  "status": "human_qa_pending",
+  "source_commit": "8ffffb1f762f51d1dcce8529bf9f213d79e6f164",
+  "provider_execution": {
+    "jobs_submitted": 4,
+    "jobs_completed": 4,
+    "retry_count": 0,
+    "auto_reload": "off",
+    "wallet_top_up_usd": 23.0,
+    "cash_charge_usd": 24.44,
+    "aggregate_cost_usd": 27.0,
+    "aggregate_cap_usd": 34.32,
+    "wallet_after_batch_usd": 8.6
+  },
+  "lessons": [
+    {
+      "lesson": "L09",
+      "provider_job_id": "3e999cf3fdceaee7727283bc90f1546a",
+      "provider_cost_usd": 6.05,
+      "source_sha256": "28f238ec1314beb2960dd6fbbbce4a16c47a8ee67c1d876980da93611f1a16df",
+      "composite_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a"
+    },
+    {
+      "lesson": "L10",
+      "provider_job_id": "2d8460a0f0f6f0c94d03363d9506ae30",
+      "provider_cost_usd": 7.1,
+      "source_sha256": "53fec87cc20722ee626a7c50226cac4d41c1bc58dd0d2a3ee352c8395bf14b56",
+      "composite_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297"
+    },
+    {
+      "lesson": "L11",
+      "provider_job_id": "39480237b9ec263534ca428fb67f792e",
+      "provider_cost_usd": 6.68,
+      "source_sha256": "05470a545a8ab315548cc7c3496ec866b2a9a85428bc9e96430e88b42d651ecf",
+      "composite_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0"
+    },
+    {
+      "lesson": "L12",
+      "provider_job_id": "68ce3d4f2676158f91f1efd6c5a95b7e",
+      "provider_cost_usd": 7.17,
+      "source_sha256": "3c09fdae898908730777dd3965fc5b4178c01442427628615290cd10104324f4",
+      "composite_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c"
+    }
+  ],
+  "walkthrough": {
+    "filename": "accelerated-l09-l12-human-qa-walkthrough.mp4",
+    "sha256": "4d04378c895b63117e657bee45ee25e86d354d4af497b12a43aede5a16ae0f4c",
+    "duration_seconds": 94.88,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "full_decode": "pass"
+  },
+  "validation": {
+    "artifact_bindings": "pass",
+    "sentence_complete_passages": "pass",
+    "caption_tracks": "pass",
+    "timing_and_frame_counts": "pass",
+    "aspect_ratio": "pass",
+    "source_speed": 1.0,
+    "source_crop": false,
+    "learner_plan_l09_l16_locked": "pass"
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "production_unlocked": false,
+    "sent_externally": false
+  }
+}

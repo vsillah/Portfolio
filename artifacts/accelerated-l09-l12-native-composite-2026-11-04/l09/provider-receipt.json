@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L09",
+  "video_id": "3e999cf3fdceaee7727283bc90f1546a",
+  "title": "Accelerated L09 review-only source",
+  "status": "completed",
+  "submitted_once": true,
+  "retry_count": 0,
+  "request": {
+    "source_commit": "8ffffb1f762f51d1dcce8529bf9f213d79e6f164",
+    "script_source_commit": "66168a8c18f0e570df50d9a549f299db511b3524",
+    "request_source_commit": "4afab5daaa34c12d12682689bb9e02e962ea880d",
+    "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+    "request_sha256": "7b86aebc740067ab89fb1af2d58870529762e4fe2a17e4328bad055bb4341ce2",
+    "passages": [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+    ],
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "engine": "avatar_iv",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "output_format": "mp4"
+  },
+  "billing": {
+    "cost_usd": 6.05,
+    "per_job_cap_usd": 7.8,
+    "cap_result": "pass",
+    "auto_reload": "off",
+    "purchase_made_for_job": false
+  },
+  "artifact": {
+    "filename": "accelerated-l09-heygen-native.mp4",
+    "sha256": "28f238ec1314beb2960dd6fbbbce4a16c47a8ee67c1d876980da93611f1a16df",
+    "duration_seconds": 75.692,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "video_frames": 1892,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "audio_sample_rate_hz": 48000,
+    "audio_channels": 2
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "human_qa": "pending"
+}

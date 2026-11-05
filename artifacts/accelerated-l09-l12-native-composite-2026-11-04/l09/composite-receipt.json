@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "project": "Portfolio",
+  "lesson": "L09",
+  "provider_job_id": "3e999cf3fdceaee7727283bc90f1546a",
+  "approved_source_sha256": "28f238ec1314beb2960dd6fbbbce4a16c47a8ee67c1d876980da93611f1a16df",
+  "composite": {
+    "filename": "accelerated-l09-native-composite.mp4",
+    "sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+    "duration_seconds": 660,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": 25,
+    "video_frames": 16500
+  },
+  "verification": {
+    "full_decode": "pass",
+    "native_source_speed": 1.0,
+    "native_source_cropped": false,
+    "source_audio_only_in_presenter_windows": true,
+    "sentence_complete_passages": [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+    ],
+    "approved_captions_preserved": true
+  },
+  "external_actions": {
+    "provider_calls": 0,
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "human_qa": {
+    "source_status": "pending",
+    "composite_status": "pending"
+  },
+  "current_gate": "batch_human_qa"
+}

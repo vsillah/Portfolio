@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "recorded_at": "2026-11-04T20:24:00-05:00",
+  "reviewer": "Vambah Sillah",
+  "purpose": "Exactly one bounded Accelerated L09-L12 HeyGen Avatar IV review-only production batch",
+  "source_commits": {
+    "portfolio": "8ffffb1f762f51d1dcce8529bf9f213d79e6f164",
+    "scripts": "66168a8c18f0e570df50d9a549f299db511b3524",
+    "requests": "4afab5daaa34c12d12682689bb9e02e962ea880d",
+    "authority": "63103bac7bd2598988674d6f48fc9d70bdbabd2f"
+  },
+  "identity": {
+    "provider_account": "AmaduTown Portfolio",
+    "engine": "avatar_iv",
+    "avatar_look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "input_boundary": "approved public, synthetic, book, and SAM inputs"
+  },
+  "shared_bindings": {
+    "visual_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+    "canonical_epub_sha256": "1aa0ac5efb94f10e09c939cc8eb4ded7512473bee763e6f1eecdd747cb7db46e",
+    "passage_ids": ["A01", "A02", "A03", "A04"]
+  },
+  "lessons": [
+    {"lesson":"L09","script_sha256":"72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8","request_sha256":"7b86aebc740067ab89fb1af2d58870529762e4fe2a17e4328bad055bb4341ce2","packet_sha256":"34c8b3522d7a9b111c6a76ccf9e9c2ddf1e4ec8ca7757d7618d87d518d390f6c","asset_map_sha256":"8ed406a1c9c9253707175a955ef16260ad210d16b55c27a31a28fb3429603ce8","audio_map_sha256":"2d9e603d8688f4f104d0d85f9b35f56f4f7c844ac89f2385d910feac0976cebc","maximum_provider_cost_usd":7.80},
+    {"lesson":"L10","script_sha256":"582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5","request_sha256":"33a0922c7a08430260638869ad593494cab25c9d4502fb54a1fce56019cad179","packet_sha256":"91b87f1dd127bc1a36985c7ff6ef2e2a98c9bbc2ae9711734384651f1bee9a67","asset_map_sha256":"b75cd42fe3af11d3c95912a9138201627a8b8293ae103c684b2973a904118197","audio_map_sha256":"7769633beb19a495bc20c72f20b2cea219d8d77be8d14bb152ad2da021deac6c","maximum_provider_cost_usd":8.21},
+    {"lesson":"L11","script_sha256":"705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5","request_sha256":"04e48d46f8cab797a0db40d22e3666e69ee5f89f41a3c5e1d33223cd2a464092","packet_sha256":"27b799ec18952b2e570e21e973eca38831e25106a5cea4eb61d9774a97962bf6","asset_map_sha256":"6e08b1b813876ada813ea5e442e86e86e11224ea17497c1024d70559a13cf0dd","audio_map_sha256":"aaddd7493a791e22c469f8ce6b85cb29526e2e937da159ed409f7078e9b4612e","maximum_provider_cost_usd":8.80},
+    {"lesson":"L12","script_sha256":"e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36","request_sha256":"68b54ad3bd072dd51700f0d11b6b86029b0bc6da7f0f59c97f78499c6a0450a3","packet_sha256":"f2332ca0e4aa797c03ac93fe0ab9c35c7fe339df7ecf3cec2441fa23e0b67f0a","asset_map_sha256":"ad7f13c8c148af9d3724a0341acf1c1891bf2ac3cc74866e0a32e560be2aab81","audio_map_sha256":"25b6a874e65f1b6def56d8f37eab10edcfe1df6899d4ede625a4ba7066032eeb","maximum_provider_cost_usd":9.51}
+  ],
+  "billing": {
+    "wallet_before_top_up_usd": 12.60,
+    "wallet_top_up_usd": 23.00,
+    "cash_charge_usd": 24.44,
+    "wallet_after_top_up_usd": 35.60,
+    "auto_reload": "off",
+    "maximum_rate_usd_per_generated_second": 0.0805,
+    "aggregate_provider_cap_usd": 34.32
+  },
+  "boundaries": {
+    "submission_count_per_lesson": 1,
+    "retry_allowed": false,
+    "later_lessons_allowed": false,
+    "narration_or_asset_changes_allowed": false,
+    "upload_allowed": false,
+    "publish_allowed": false,
+    "distribution_allowed": false,
+    "production_unlock_allowed": false,
+    "credential_changes_allowed": false
+  }
+}

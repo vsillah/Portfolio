@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L11",
+  "video_id": "39480237b9ec263534ca428fb67f792e",
+  "title": "Accelerated L11 review-only source",
+  "status": "completed",
+  "submitted_once": true,
+  "retry_count": 0,
+  "request": {
+    "source_commit": "8ffffb1f762f51d1dcce8529bf9f213d79e6f164",
+    "script_source_commit": "66168a8c18f0e570df50d9a549f299db511b3524",
+    "request_source_commit": "4afab5daaa34c12d12682689bb9e02e962ea880d",
+    "script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+    "request_sha256": "04e48d46f8cab797a0db40d22e3666e69ee5f89f41a3c5e1d33223cd2a464092",
+    "passages": [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+    ],
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "engine": "avatar_iv",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "output_format": "mp4"
+  },
+  "billing": {
+    "cost_usd": 6.68,
+    "per_job_cap_usd": 8.8,
+    "cap_result": "pass",
+    "auto_reload": "off",
+    "purchase_made_for_job": false
+  },
+  "artifact": {
+    "filename": "accelerated-l11-heygen-native.mp4",
+    "sha256": "05470a545a8ab315548cc7c3496ec866b2a9a85428bc9e96430e88b42d651ecf",
+    "duration_seconds": 83.948,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "video_frames": 2098,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "audio_sample_rate_hz": 48000,
+    "audio_channels": 2
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "human_qa": "pending"
+}
