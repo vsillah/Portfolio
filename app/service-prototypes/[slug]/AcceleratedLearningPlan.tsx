@@ -14,6 +14,10 @@ import l09Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-bin
 import l10Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-binding/l10-transcript.json'
 import l11Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-binding/l11-transcript.json'
 import l12Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-binding/l12-transcript.json'
+import l13Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l13-transcript.json'
+import l14Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l14-transcript.json'
+import l15Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l15-transcript.json'
+import l16Transcript from '@/docs/accelerated-course-modules/l13-l16-learner-binding/l16-transcript.json'
 import styles from './learning-plan.module.css'
 
 export const l01Media = {
@@ -62,6 +66,13 @@ export const approvedL09L12Media = {
   L10: { video: '/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4', captions: '/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt', duration: '09:00', compositeSha256: '7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297', transcript: l10Transcript },
   L11: { video: '/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4', captions: '/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt', duration: '10:00', compositeSha256: '1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0', transcript: l11Transcript },
   L12: { video: '/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4', captions: '/accelerated/lessons/l12/approved-39294821/l12-captions.vtt', duration: '11:00', compositeSha256: '39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c', transcript: l12Transcript },
+} as const
+
+export const reviewL13L16Media = {
+  L13: { video: '/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4', captions: '/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt', duration: '11:00', compositeSha256: '0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1', transcript: l13Transcript },
+  L14: { video: '/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4', captions: '/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt', duration: '08:00', compositeSha256: '2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143', transcript: l14Transcript },
+  L15: { video: '/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4', captions: '/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt', duration: '12:00', compositeSha256: '67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3', transcript: l15Transcript },
+  L16: { video: '/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4', captions: '/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt', duration: '08:00', compositeSha256: '5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0', transcript: l16Transcript },
 } as const
 
 type Act = 'Signals' | 'Alignment' | 'Momentum' | 'Synthesis'
@@ -118,8 +129,8 @@ export function AcceleratedLearningPlan() {
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
-  const locked = (id: string) => Number(id.slice(1)) >= 13
-  const approvedBatchMedia = selected === 'L04' ? l04Media : selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : selected in approvedL09L12Media ? approvedL09L12Media[selected as keyof typeof approvedL09L12Media] : null
+  const locked = (_id: string) => false
+  const approvedBatchMedia = selected === 'L04' ? l04Media : selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : selected in approvedL09L12Media ? approvedL09L12Media[selected as keyof typeof approvedL09L12Media] : selected in reviewL13L16Media ? reviewL13L16Media[selected as keyof typeof reviewL13L16Media] : null
   useEffect(() => {
     if (videoOpen) {
       playerRef.current?.focus()

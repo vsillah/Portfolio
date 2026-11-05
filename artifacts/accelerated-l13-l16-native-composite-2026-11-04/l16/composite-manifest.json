@@ -7,7 +7,7 @@
   "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
   "packet_sha256": "2b603f8d02c77884c998c4698c5b610d1535b25621530de3e22a8be19349f6fc",
   "captions_sha256": "980e1360a3b2c825a836e759146070787ffbf65ef30f29da42795d3cc8277904",
-  "output_sha256": "89c3c66873f6e32246d89ae7402c98d2d8a52b5a7a25fb4571914564ba0d63e5",
+  "output_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
   "output_frames": 12000,
   "output_duration_seconds": 480,
   "source_passage_ranges": [
@@ -31,7 +31,7 @@
   "timeline": [
     {
       "kind": "presenter",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene1.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene1.png",
       "frames": 712,
       "scene": "L16-01",
       "passage": "A01",
@@ -42,19 +42,19 @@
     },
     {
       "kind": "clean",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene1.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene1.png",
       "frames": 1313,
       "scene": "L16-01"
     },
     {
       "kind": "clean",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene2.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene2.png",
       "frames": 2000,
       "scene": "L16-02"
     },
     {
       "kind": "presenter",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene3.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene3.png",
       "frames": 652,
       "scene": "L16-03",
       "passage": "A02",
@@ -65,19 +65,19 @@
     },
     {
       "kind": "clean",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene3.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene3.png",
       "frames": 1298,
       "scene": "L16-03"
     },
     {
       "kind": "clean",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene4.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene4.png",
       "frames": 1925,
       "scene": "L16-04"
     },
     {
       "kind": "presenter",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene5.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene5.png",
       "frames": 635,
       "scene": "L16-05",
       "passage": "A03",
@@ -88,19 +88,19 @@
     },
     {
       "kind": "clean",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene5.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene5.png",
       "frames": 1665,
       "scene": "L16-05"
     },
     {
       "kind": "clean",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene6.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene6.png",
       "frames": 1036,
       "scene": "L16-06"
     },
     {
       "kind": "presenter",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene6.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene6.png",
       "frames": 577,
       "scene": "L16-06",
       "passage": "A04",
@@ -111,17 +111,17 @@
     },
     {
       "kind": "clean",
-      "image": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene6.png",
+      "image": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/composite-assets/l16-scene6.png",
       "frames": 187,
       "scene": "L16-06"
     }
   ],
   "presenter_panel": {
-    "x": 936,
-    "y": 160,
-    "width": 976,
-    "height": 549,
-    "border": 8
+    "x": 986,
+    "y": 190,
+    "width": 870,
+    "height": 490,
+    "border": 10
   },
   "constraints": {
     "source_speed": 1.0,
@@ -161,7 +161,7 @@
         "start_time": "0.000000",
         "duration_ts": 6144000,
         "duration": "480.000000",
-        "bit_rate": "291883",
+        "bit_rate": "232507",
         "bits_per_raw_sample": "8",
         "nb_frames": "12000",
         "extradata_size": 48,
@@ -290,7 +290,7 @@
       }
     ],
     "format": {
-      "filename": "/Users/vambahsillah/.codex/worktrees/accelerated-l13-l16-native-composites/Portfolio/artifacts/accelerated-l13-l16-native-composite-2026-11-04/l16/accelerated-l16-native-composite.mp4",
+      "filename": "/Users/vambahsillah/Projects/Portfolio.worktrees/accelerated-l13-l16-learner-binding/artifacts/accelerated-l13-l16-native-composite-2026-11-04/l16/accelerated-l16-native-composite.mp4",
       "nb_streams": 3,
       "nb_programs": 0,
       "nb_stream_groups": 0,
@@ -298,8 +298,8 @@
       "format_long_name": "QuickTime / MOV",
       "start_time": "0.000000",
       "duration": "480.000000",
-      "size": "20486418",
-      "bit_rate": "341440",
+      "size": "16923898",
+      "bit_rate": "282064",
       "probe_score": 100,
       "tags": {
         "major_brand": "isom",

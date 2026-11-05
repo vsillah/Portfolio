@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "receipt_type": "accelerated_l13_l16_visual_correction_review",
+  "status": "human_qa_pending",
+  "project": "Portfolio",
+  "reviewed_pr": 1208,
+  "review_trigger": "Human QA observed presenter frame contact in the learner player on head 9f8c775fd63c5333e7dce1bc76a3b0501687233a",
+  "historical_human_qa_approval_receipt": "docs/accelerated-course-modules/l13-l16-learner-binding/human-qa-approval-receipt.json",
+  "correction_batch_receipt": "artifacts/accelerated-l13-l16-native-composite-2026-11-04/correction-batch-receipt.json",
+  "original_composite_sha256": {
+    "L13": "4a2974b8a645ca5e7f8b18d91ea1a9e2da7cdc91ec201c8294411443950b87fe",
+    "L14": "cf675c5ed4e1aa69c6a2654b58b38614d040562403cc00bfac233e13ae3bc485",
+    "L15": "2db525fa4b63656d68d60556df294edda23dbb5d459891bc4ca6917c53fd1dd7",
+    "L16": "89c3c66873f6e32246d89ae7402c98d2d8a52b5a7a25fb4571914564ba0d63e5"
+  },
+  "candidate_composite_sha256": {
+    "L13": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+    "L14": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+    "L15": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+    "L16": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0"
+  },
+  "presenter_panel": {
+    "x": 986,
+    "y": 190,
+    "width": 870,
+    "height": 490,
+    "border": 10
+  },
+  "source_speed": 1.0,
+  "source_crop": false,
+  "provider_calls": 0,
+  "external_actions_authorized": false,
+  "approval_message_id": null,
+  "stream_identity_sha256": {
+    "L13": {
+      "audio": "e79e3763402ee08744343c3b49454594e25df6a10167a95778189a0eb3d29858",
+      "subtitle": "c55574f810fc77a61100d0305dc0a0b3b08e3003b9c44dcdf665a3ee46ea9b5b"
+    },
+    "L14": {
+      "audio": "79d5f7130861c4db92dafb886be0cce139afcb94bb41c324d46f02bca9c25a08",
+      "subtitle": "de650cf602e1dd204e9151784324ddc33abcfa11fe1daaa69728fe6691016c61"
+    },
+    "L15": {
+      "audio": "84534850108c559110e05927e59499cce2fba4d1121e0c26d77b43040ed59fa9",
+      "subtitle": "63c792e4ed92cad9c18f02ecd3f45595caca36258d92c4388cb1584a3e4de438"
+    },
+    "L16": {
+      "audio": "6972e614e06f73ff0a790476c537b0af3e80a8deed006a4c5b76ebff87ccb78e",
+      "subtitle": "6b991acfeb9534dc8073451745426ec4231b30866fcaf6786f5f888e2ae23b2a"
+    }
+  },
+  "stream_identity_method": "ffmpeg stream-copy SHA-256 compared with original approved composite at PR #1208 head 9f8c775f"
+}

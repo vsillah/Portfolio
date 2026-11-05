@@ -1,0 +1,382 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:02.218
+One small test was useful.
+
+00:00:02.218 --> 00:00:05.767
+A second team asks to run it too.
+
+00:00:05.767 --> 00:00:09.316
+That sounds like progress, and it may be.
+
+00:00:09.316 --> 00:00:12.865
+It also changes the shape of the work.
+
+00:00:12.865 --> 00:00:20.851
+The first team knew the people, the context, and the reason for every field in its learning plan.
+
+00:00:20.851 --> 00:00:25.731
+The second team receives a template and a sentence about success.
+
+00:00:25.731 --> 00:00:28.836
+Context can disappear between those two moments.
+
+00:00:28.836 --> 00:00:39.927
+Chapter Twenty-Four asks what changes at scale: experiments can collide, metrics can mean different things, and a tool can spread faster than a review practice.
+
+00:00:39.927 --> 00:00:47.913
+Treat the original test from our fictional membership service as a candidate for reuse, not an approved model.
+
+00:00:47.913 --> 00:00:49.687
+What was the job?
+
+00:00:49.687 --> 00:00:51.905
+Which participants were in scope?
+
+00:00:51.905 --> 00:00:54.124
+What did the team observe?
+
+00:00:54.124 --> 00:00:56.342
+Which result is still pending?
+
+00:00:56.342 --> 00:01:04.327
+If the new team serves people with a different access need, the first team's conclusion may not travel.
+
+00:01:04.327 --> 00:01:07.876
+Put the source and exclusion beside the result.
+
+00:01:07.876 --> 00:01:10.982
+Scaling begins with a transfer of judgment.
+
+00:01:10.982 --> 00:01:19.411
+The useful question is whether another team can reproduce the decision boundary, not whether it can copy the screen.
+
+00:01:19.411 --> 00:01:29.615
+Start the scale-readiness checklist with the parts that must travel: definition, owner, evidence, stop condition, and a place to record the next result.
+
+00:01:29.615 --> 00:01:34.051
+At this point, speed can become a source of error.
+
+00:01:34.051 --> 00:01:44.698
+The first team may know that an apparent improvement came from a narrow group, or that a support burden rose after the measurement window.
+
+00:01:44.698 --> 00:01:47.360
+A copied summary loses both facts.
+
+00:01:47.360 --> 00:01:52.684
+Ask the original owner to mark what another team must verify again.
+
+00:01:52.684 --> 00:02:02.000
+Make that conversation part of the handoff, then record the answer so the next team does not rely on hallway memory.
+
+00:02:02.000 --> 00:02:08.697
+The book proposes shared infrastructure: an experiment template, a hypothesis backlog, and a decision log.
+
+00:02:08.697 --> 00:02:11.376
+These are not three new committees.
+
+00:02:11.376 --> 00:02:17.627
+They are ways to keep a test understandable after the original team moves on.
+
+00:02:17.627 --> 00:02:19.413
+Write a one-page record.
+
+00:02:19.413 --> 00:02:25.664
+It names the customer job, hypothesis, eligibility rule, measure, decision threshold, date, and reviewer.
+
+00:02:25.664 --> 00:02:30.129
+Add links to the source ledger and any observed result.
+
+00:02:30.129 --> 00:02:34.594
+Give the next team permission to say its context differs.
+
+00:02:34.594 --> 00:02:38.166
+A common format makes differences easier to see.
+
+00:02:38.166 --> 00:02:43.970
+Chapter Twenty-Four also warns that a central learning team can become a bottleneck.
+
+00:02:43.970 --> 00:02:53.793
+Assign a local owner who can run the test within an agreed boundary, and a cross-team reviewer for conflicts or shared risk.
+
+00:02:53.793 --> 00:02:56.472
+The governance should fit the consequence.
+
+00:02:56.472 --> 00:03:00.044
+A copy change might need a quick review.
+
+00:03:00.044 --> 00:03:06.742
+A change to pricing, access, privacy, or billing needs the people who own those obligations.
+
+00:03:06.742 --> 00:03:20.583
+This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.
+
+00:03:20.583 --> 00:03:27.280
+The record should help work move, not make people prove that they filled every box.
+
+00:03:27.280 --> 00:03:30.852
+Use the template as a doorway into judgment.
+
+00:03:30.852 --> 00:03:38.443
+A reviewer should be able to spot a missing source or conflicting test without reading a novel.
+
+00:03:38.443 --> 00:03:44.694
+Show who has authority to pause work when an access or privacy problem appears.
+
+00:03:44.694 --> 00:03:47.373
+Write the escalation in ordinary language.
+
+00:03:47.373 --> 00:03:55.856
+If nobody can tell who owns the next decision, the process is too vague to protect the people involved.
+
+00:03:55.856 --> 00:04:03.000
+If every minor edit waits for a central committee, it is too heavy to help them.
+
+00:04:03.000 --> 00:04:05.650
+Chapter Twenty-Four names five scaling mistakes.
+
+00:04:05.650 --> 00:04:08.741
+A central team can become a bottleneck.
+
+00:04:08.741 --> 00:04:12.715
+Documentation can grow so heavy that people stop testing.
+
+00:04:12.715 --> 00:04:17.573
+The organization can fixate on one tool instead of shared learning.
+
+00:04:17.573 --> 00:04:21.989
+Teams can resist a process they did not help shape.
+
+00:04:21.989 --> 00:04:27.730
+And leaders can expand across the whole organization before the first handoff works.
+
+00:04:27.730 --> 00:04:33.912
+Put those five labels on the checklist and test your own proposal against them.
+
+00:04:33.912 --> 00:04:36.562
+Which one is most likely here?
+
+00:04:36.562 --> 00:04:47.602
+In the fictional membership case, tool fixation could be tempting: the first team has a spreadsheet, so everyone is told to use the same spreadsheet.
+
+00:04:47.602 --> 00:04:53.785
+What matters is whether the second team can understand the hypothesis, measure, and decision.
+
+00:04:53.785 --> 00:04:59.084
+Another tool could carry the same record if it preserves the contract.
+
+00:04:59.084 --> 00:05:01.292
+Resistance can also be information.
+
+00:05:01.292 --> 00:05:07.916
+Ask what work the new team already does and what burden the process would add.
+
+00:05:07.916 --> 00:05:14.540
+A five-minute decision note may fit; a fifty-page report will likely disappear into the backlog.
+
+00:05:14.540 --> 00:05:24.697
+The chapter's maturity question is powerful: can a new colleague explain why the organization passed on an obvious alternative, citing the decision record?
+
+00:05:24.697 --> 00:05:31.321
+If the answer lives only in one person's memory, the system has not yet traveled.
+
+00:05:31.321 --> 00:05:35.296
+Check the next-team burden before declaring the system ready.
+
+00:05:35.296 --> 00:05:41.478
+Have someone outside the first team fill out the record with a fictional case.
+
+00:05:41.478 --> 00:05:46.777
+Note which fields they cannot interpret and which handoffs require a conversation.
+
+00:05:46.777 --> 00:05:49.869
+Revise the form before a live rollout.
+
+00:05:49.869 --> 00:05:58.701
+Keep the five book labels attached to this check; they are a useful warning, not a score or maturity ranking.
+
+00:05:58.701 --> 00:06:04.000
+A low score invented for the slide would add confidence without evidence.
+
+00:06:04.000 --> 00:06:06.224
+Chapter Twenty-Five returns to Sam.
+
+00:06:06.224 --> 00:06:15.567
+The book describes a calmer operating rhythm: fewer frantic searches for context, shorter decisions, and a record that people can find.
+
+00:06:15.567 --> 00:06:17.791
+This is the book's illustration.
+
+00:06:17.791 --> 00:06:25.354
+It is not evidence that our fictional membership service, AmaduTown, or this workshop has produced those outcomes.
+
+00:06:25.354 --> 00:06:32.027
+The story is useful because it shows what institutional memory feels like in daily work.
+
+00:06:32.027 --> 00:06:35.141
+Someone asks why a choice was made.
+
+00:06:35.141 --> 00:06:41.369
+Instead of rebuilding the argument from old messages, the team opens the decision log.
+
+00:06:41.369 --> 00:06:44.038
+Someone wants to repeat a test.
+
+00:06:44.038 --> 00:06:50.711
+Instead of copying a result without context, they can inspect the participants, measure, and revision.
+
+00:06:50.711 --> 00:06:54.270
+Notice how much of this depends on people.
+
+00:06:54.270 --> 00:07:04.947
+A record must be written well enough to be read; a reviewer must notice when evidence no longer fits; an owner must still decide.
+
+00:07:04.947 --> 00:07:09.395
+Automated routing can move a source to the right place.
+
+00:07:09.395 --> 00:07:14.734
+It cannot determine whether a past finding applies to a different community.
+
+00:07:14.734 --> 00:07:20.517
+In the storyboard, keep Sam's narrative label separate from any observed evidence card.
+
+00:07:20.517 --> 00:07:27.635
+We will not film a fabricated board meeting as if it happened in the present project.
+
+00:07:27.635 --> 00:07:32.529
+The before-and-after story can tempt us to promise relief too early.
+
+00:07:32.529 --> 00:07:45.875
+Ask what would have to be measured to make that claim in a real organization: time spent finding context, repeated decisions, missed handoffs, and the cost of maintaining the records.
+
+00:07:45.875 --> 00:07:50.323
+A calmer calendar alone would not explain why it changed.
+
+00:07:50.323 --> 00:07:55.217
+Keep the causal claim open until the evidence can support it.
+
+00:07:55.217 --> 00:08:01.000
+The lesson is a working rhythm that people can inspect, revise, and own.
+
+00:08:01.000 --> 00:08:06.363
+The decision-memory record is where a useful test becomes a reusable asset.
+
+00:08:06.363 --> 00:08:09.938
+Write what the team believed before the test.
+
+00:08:09.938 --> 00:08:12.172
+Link to the source evidence.
+
+00:08:12.172 --> 00:08:15.747
+Record what happened, including contrary observations and limits.
+
+00:08:15.747 --> 00:08:22.451
+State the choice, the person accountable for it, and the condition that would reopen it.
+
+00:08:22.451 --> 00:08:26.919
+Add the date when its context should be checked again.
+
+00:08:26.919 --> 00:08:30.495
+If the decision was to defer, say why.
+
+00:08:30.495 --> 00:08:34.516
+If the result contradicted the hypothesis, keep it visible.
+
+00:08:34.516 --> 00:08:45.242
+A later team should be able to ask a narrow question: does this past decision still apply to our people and our operating constraints?
+
+00:08:45.242 --> 00:08:51.051
+The book's Sam story treats searchable decisions as part of a learning system.
+
+00:08:51.051 --> 00:08:55.520
+We can borrow that practice without borrowing its claimed numbers.
+
+00:08:55.520 --> 00:09:04.458
+For the membership exercise, a record might say the short-commitment offer remains a hypothesis until an approved test is reviewed.
+
+00:09:04.458 --> 00:09:07.586
+It should not say the model works.
+
+00:09:07.586 --> 00:09:16.524
+Link the two-audience pitch from Lesson Fourteen, the learning plan from Lesson Eight, and the job card from Lesson Twelve.
+
+00:09:16.524 --> 00:09:22.780
+Now the record shows the chain from input to interpretation to test to choice.
+
+00:09:22.780 --> 00:09:25.908
+If a source is missing, mark it.
+
+00:09:25.908 --> 00:09:30.824
+Recoverability depends on honest gaps as much as on good summaries.
+
+00:09:30.824 --> 00:09:33.059
+Imagine the original owner leaves.
+
+00:09:33.059 --> 00:09:41.549
+Can the next person find the most recent source, the decision threshold, and the reason an alternative was rejected?
+
+00:09:41.549 --> 00:09:44.231
+If not, add that missing link.
+
+00:09:44.231 --> 00:09:53.168
+If an AI summary is attached, preserve the original record beside it and name the human who checked the summary.
+
+00:09:53.168 --> 00:09:58.978
+The memory is only as reliable as the path back to its evidence.
+
+00:09:58.978 --> 00:10:03.000
+A confident paragraph without source links will age badly.
+
+00:10:03.000 --> 00:10:05.216
+Pause and complete two pages.
+
+00:10:05.216 --> 00:10:14.523
+First, the scale-readiness checklist: common definition, participant boundary, measure, owner, review cadence, conflict check, privacy or billing escalation, and stop rule.
+
+00:10:14.523 --> 00:10:17.625
+Mark each field ready, missing, or context-dependent.
+
+00:10:17.625 --> 00:10:25.159
+Second, the decision-memory record: original question, evidence, test, outcome state, decision, rejected alternative, rationale, and revisit date.
+
+00:10:25.159 --> 00:10:32.693
+Resume when a second team could explain what it may reuse and what it must validate again.
+
+00:10:32.693 --> 00:10:39.341
+If your current evidence is only a synthetic workshop exercise, mark the scale decision blocked.
+
+00:10:39.341 --> 00:10:43.773
+Do not turn a hypothetical success into a rollout plan.
+
+00:10:43.773 --> 00:10:52.193
+In your own organization, keep private records inside approved systems and use only public, synthetic, or approved data here.
+
+00:10:52.193 --> 00:10:58.841
+The book gives us Sam's operating story and a set of governance problems to watch.
+
+00:10:58.841 --> 00:11:08.148
+The exercise asks for a smaller, inspectable answer: can another team find the evidence and know who can stop the test?
+
+00:11:08.148 --> 00:11:13.466
+The final lesson returns to the decision you named at the start.
+
+00:11:13.466 --> 00:11:20.557
+We will choose one move for the next week and give it a real review date.
+
+00:11:20.557 --> 00:11:28.091
+Learning becomes infrastructure when another person can pick up the record and act with the same care.
+
+00:11:28.091 --> 00:11:33.409
+End with a decision about readiness, even if the answer is wait.
+
+00:11:33.409 --> 00:11:40.500
+Choose one neighboring team for a future handoff only after the record survives a dry run.
+
+00:11:40.500 --> 00:11:46.705
+State which safeguards belong to the shared process and which must be set locally.
+
+00:11:46.705 --> 00:11:52.466
+This keeps a successful local experiment from becoming an organization-wide promise by accident.
+
+00:11:52.466 --> 00:12:00.000
+The aim is a repeatable learning practice that can carry disagreement and correction as well as success.

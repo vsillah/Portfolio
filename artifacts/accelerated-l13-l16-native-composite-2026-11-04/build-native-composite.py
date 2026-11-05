@@ -14,7 +14,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[1]
 FPS = 25
-PANEL = {"x": 936, "y": 160, "width": 976, "height": 549, "border": 8}
+# The teaching plate's teal well spans x=950..1892 and y=168..709. Keep the
+# gold video frame comfortably inside it so no presenter pixels touch either
+# the gold frame or the surrounding teal/gold teaching plate.
+PANEL = {"x": 986, "y": 190, "width": 870, "height": 490, "border": 10}
 
 
 def run(command: list[str], capture: bool = False) -> str:

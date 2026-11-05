@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "receipt_type": "accelerated_l13_l16_human_qa_approval",
+  "status": "approved",
+  "project": "Portfolio",
+  "scope": "Accelerated L13-L16 learner-plan binding",
+  "approval_source": {
+    "delegated_task_source_thread_id": "019ef636-39d4-7180-953c-660515b5604a",
+    "approval_message_id": "msg_0b99e4d3546af239016aec153875dc819c8eb1e036e4e399db",
+    "reviewed_pr": 1206,
+    "reviewed_pr_head": "59a1d13862553e517ea8a47e26d07afe53bf410f",
+    "merged_source_commit": "6814e6a5b01ab75555f5de46742a0a715bf9dfb5",
+    "reviewer": "Vambah Sillah"
+  },
+  "bindings": {
+    "L13": "4a2974b8a645ca5e7f8b18d91ea1a9e2da7cdc91ec201c8294411443950b87fe",
+    "L14": "cf675c5ed4e1aa69c6a2654b58b38614d040562403cc00bfac233e13ae3bc485",
+    "L15": "2db525fa4b63656d68d60556df294edda23dbb5d459891bc4ca6917c53fd1dd7",
+    "L16": "89c3c66873f6e32246d89ae7402c98d2d8a52b5a7a25fb4571914564ba0d63e5"
+  },
+  "pre_approval_batch_receipt": "artifacts/accelerated-l13-l16-native-composite-2026-11-04/batch-receipt.json",
+  "external_actions_authorized": false
+}

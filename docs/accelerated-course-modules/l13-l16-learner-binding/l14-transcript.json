@@ -1,0 +1,475 @@
+{
+  "source_srt_sha256": "331e86fedb5e670971d0aca3bb39ffbb7d0fba55110f606adf6c4c100aa10369",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:01.864",
+      "text": "The plan is ready."
+    },
+    {
+      "start": "00:01.864",
+      "end": "00:04.193",
+      "text": "The evidence ledger is organized."
+    },
+    {
+      "start": "00:04.193",
+      "end": "00:12.114",
+      "text": "Yet the first person hearing the recommendation asks about delivery cost, while the second asks who benefits."
+    },
+    {
+      "start": "00:12.114",
+      "end": "00:18.170",
+      "text": "Chapter Twenty-Three calls this the last-mile problem and introduces Persuasive Business Case GPT."
+    },
+    {
+      "start": "00:18.170",
+      "end": "00:22.830",
+      "text": "That is a book case, not a live demonstration here."
+    },
+    {
+      "start": "00:22.830",
+      "end": "00:26.557",
+      "text": "Return to the membership-service alternative from Lesson Thirteen."
+    },
+    {
+      "start": "00:26.557",
+      "end": "00:30.750",
+      "text": "Imagine asking for permission to test a shorter commitment."
+    },
+    {
+      "start": "00:30.750",
+      "end": "00:33.080",
+      "text": "One decision owner manages operations."
+    },
+    {
+      "start": "00:33.080",
+      "end": "00:36.807",
+      "text": "Another represents the people who use the service."
+    },
+    {
+      "start": "00:36.807",
+      "end": "00:43.795",
+      "text": "They need different openings, but the underlying claim and source record must remain the same."
+    },
+    {
+      "start": "00:43.795",
+      "end": "00:48.455",
+      "text": "Write the decision in one sentence before adjusting the pitch."
+    },
+    {
+      "start": "00:48.455",
+      "end": "00:56.375",
+      "text": "Are we asking to run a bounded test, approve a permanent model, or fund a full rollout?"
+    },
+    {
+      "start": "00:56.375",
+      "end": "00:59.636",
+      "text": "A polished argument can blur those requests."
+    },
+    {
+      "start": "00:59.636",
+      "end": "01:01.966",
+      "text": "State the smallest actual decision."
+    },
+    {
+      "start": "01:01.966",
+      "end": "01:04.295",
+      "text": "Then check the evidence column."
+    },
+    {
+      "start": "01:04.295",
+      "end": "01:07.091",
+      "text": "Which facts come from observed behavior?"
+    },
+    {
+      "start": "01:07.091",
+      "end": "01:08.955",
+      "text": "Which costs are estimates?"
+    },
+    {
+      "start": "01:08.955",
+      "end": "01:11.284",
+      "text": "Which reactions were only simulated?"
+    },
+    {
+      "start": "01:11.284",
+      "end": "01:15.943",
+      "text": "We can tailor the order in which we present them."
+    },
+    {
+      "start": "01:15.943",
+      "end": "01:22.000",
+      "text": "We cannot promote an assumption into a fact because the room prefers certainty."
+    },
+    {
+      "start": "01:22.000",
+      "end": "01:28.023",
+      "text": "The chapter's dashboard example shows how a business case changes with the audience."
+    },
+    {
+      "start": "01:28.023",
+      "end": "01:35.898",
+      "text": "It is a story in the book; we will not repeat its outcome figures as current evidence."
+    },
+    {
+      "start": "01:35.898",
+      "end": "01:48.870",
+      "text": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged."
+    },
+    {
+      "start": "01:48.870",
+      "end": "01:58.599",
+      "text": "The member-facing pitch begins with the experience: how a person would understand the offer, enter it, and leave without a surprise."
+    },
+    {
+      "start": "01:58.599",
+      "end": "02:04.158",
+      "text": "Both versions point to the same source note and the same unknown."
+    },
+    {
+      "start": "02:04.158",
+      "end": "02:06.938",
+      "text": "Neither claims that conversion will rise."
+    },
+    {
+      "start": "02:06.938",
+      "end": "02:10.644",
+      "text": "Put the common evidence strip under both cards."
+    },
+    {
+      "start": "02:10.644",
+      "end": "02:16.667",
+      "text": "When you rewrite a sentence, compare it line by line against that strip."
+    },
+    {
+      "start": "02:16.667",
+      "end": "02:22.689",
+      "text": "If the wording becomes stronger than the record, weaken it or seek evidence."
+    },
+    {
+      "start": "02:22.689",
+      "end": "02:24.542",
+      "text": "This discipline protects trust."
+    },
+    {
+      "start": "02:24.542",
+      "end": "02:28.249",
+      "text": "People will disagree about which risk matters most."
+    },
+    {
+      "start": "02:28.249",
+      "end": "02:34.734",
+      "text": "They should not have to wonder whether they heard two versions of the truth."
+    },
+    {
+      "start": "02:34.734",
+      "end": "02:44.000",
+      "text": "The question for the pitch is simple: what must this particular person decide, and what can the source actually support?"
+    },
+    {
+      "start": "02:44.000",
+      "end": "02:47.757",
+      "text": "A persuasive pitch must make the cost visible."
+    },
+    {
+      "start": "02:47.757",
+      "end": "02:55.740",
+      "text": "The shorter-commitment test could require staff training, a clearer cancellation path, and a way to handle pauses."
+    },
+    {
+      "start": "02:55.740",
+      "end": "03:01.376",
+      "text": "Those are possible operating requirements in our fictional exercise, not measured costs."
+    },
+    {
+      "start": "03:01.376",
+      "end": "03:05.133",
+      "text": "Put them on the card before the recommendation."
+    },
+    {
+      "start": "03:05.133",
+      "end": "03:13.586",
+      "text": "Add the option to keep the current model and the option to defer until the job is verified."
+    },
+    {
+      "start": "03:13.586",
+      "end": "03:14.994",
+      "text": "Why test now?"
+    },
+    {
+      "start": "03:14.994",
+      "end": "03:19.221",
+      "text": "Because the evidence suggests a particular mismatch worth examining."
+    },
+    {
+      "start": "03:19.221",
+      "end": "03:21.099",
+      "text": "Why a bounded test?"
+    },
+    {
+      "start": "03:21.099",
+      "end": "03:25.796",
+      "text": "Because the economics and user experience still have open questions."
+    },
+    {
+      "start": "03:25.796",
+      "end": "03:33.779",
+      "text": "The book's pre-pitch workflow asks for objections before the meeting, when they can still improve the plan."
+    },
+    {
+      "start": "03:33.779",
+      "end": "03:41.293",
+      "text": "It also identifies a common mistake: asking an assistant to make a weak case sound strong."
+    },
+    {
+      "start": "03:41.293",
+      "end": "03:42.702",
+      "text": "Do the reverse."
+    },
+    {
+      "start": "03:42.702",
+      "end": "03:52.564",
+      "text": "Ask which sentence needs a source, which cost is missing, and which stakeholder can block the test for a good reason."
+    },
+    {
+      "start": "03:52.564",
+      "end": "03:54.442",
+      "text": "Then revise the proposal."
+    },
+    {
+      "start": "03:54.442",
+      "end": "04:01.486",
+      "text": "If the answer is that the test cannot be run safely or fairly, say so."
+    },
+    {
+      "start": "04:01.486",
+      "end": "04:09.000",
+      "text": "A decision brief is useful when it helps the group choose, including a decision to wait."
+    },
+    {
+      "start": "04:09.000",
+      "end": "04:13.655",
+      "text": "A pre-pitch exercise can surface objections before the room does."
+    },
+    {
+      "start": "04:13.655",
+      "end": "04:18.310",
+      "text": "Give the proposed test and its evidence to a reviewer."
+    },
+    {
+      "start": "04:18.310",
+      "end": "04:25.759",
+      "text": "Ask them to challenge the weakest assumption, the delivery burden, and the risk of confusing participants."
+    },
+    {
+      "start": "04:25.759",
+      "end": "04:31.345",
+      "text": "If an AI assistant produces the challenge, label it Simulation on screen."
+    },
+    {
+      "start": "04:31.345",
+      "end": "04:35.534",
+      "text": "It has not spoken for operations staff or members."
+    },
+    {
+      "start": "04:35.534",
+      "end": "04:40.190",
+      "text": "Turn each objection into a check with a real owner."
+    },
+    {
+      "start": "04:40.190",
+      "end": "04:42.983",
+      "text": "Can the team support a pause?"
+    },
+    {
+      "start": "04:42.983",
+      "end": "04:45.776",
+      "text": "Ask the operator who manages enrollment."
+    },
+    {
+      "start": "04:45.776",
+      "end": "04:48.103",
+      "text": "Does the offer read clearly?"
+    },
+    {
+      "start": "04:48.103",
+      "end": "04:51.362",
+      "text": "Test the wording with an approved participant."
+    },
+    {
+      "start": "04:51.362",
+      "end": "04:55.086",
+      "text": "Would a funding partner need a different measure?"
+    },
+    {
+      "start": "04:55.086",
+      "end": "04:58.810",
+      "text": "Ask that partner what decision they must make."
+    },
+    {
+      "start": "04:58.810",
+      "end": "05:03.931",
+      "text": "The book warns that persuasion does not replace the underlying judgment."
+    },
+    {
+      "start": "05:03.931",
+      "end": "05:05.793",
+      "text": "Keep the response specific."
+    },
+    {
+      "start": "05:05.793",
+      "end": "05:09.517",
+      "text": "“We have it handled” tells the room nothing."
+    },
+    {
+      "start": "05:09.517",
+      "end": "05:20.690",
+      "text": "“We will review support tickets after the first cohort and stop if unresolved access questions rise” is a proposed plan that can be inspected."
+    },
+    {
+      "start": "05:20.690",
+      "end": "05:25.345",
+      "text": "The precise threshold belongs in the learning plan before exposure."
+    },
+    {
+      "start": "05:25.345",
+      "end": "05:30.000",
+      "text": "Rehearsal is valuable because it sharpens the next human conversation."
+    },
+    {
+      "start": "05:30.000",
+      "end": "05:34.196",
+      "text": "Draft the first sixty-second version for the operations owner."
+    },
+    {
+      "start": "05:34.196",
+      "end": "05:41.190",
+      "text": "Name the decision, the delivery change, the review date, and what would stop the test."
+    },
+    {
+      "start": "05:41.190",
+      "end": "05:45.387",
+      "text": "Draft the second for the person accountable to members."
+    },
+    {
+      "start": "05:45.387",
+      "end": "05:51.448",
+      "text": "Name the job, the proposed experience, the consent boundary, and what remains unverified."
+    },
+    {
+      "start": "05:51.448",
+      "end": "05:54.712",
+      "text": "These are two ways into one decision."
+    },
+    {
+      "start": "05:54.712",
+      "end": "05:59.374",
+      "text": "Do not write a promise that the evidence cannot carry."
+    },
+    {
+      "start": "05:59.374",
+      "end": "06:04.503",
+      "text": "Annotate each claim with the source ID or mark it assumption."
+    },
+    {
+      "start": "06:04.503",
+      "end": "06:09.632",
+      "text": "Where a source is absent, change the sentence to a question."
+    },
+    {
+      "start": "06:09.632",
+      "end": "06:11.497",
+      "text": "Read both versions aloud."
+    },
+    {
+      "start": "06:11.497",
+      "end": "06:17.558",
+      "text": "The first should sound like someone who has considered the work of implementation."
+    },
+    {
+      "start": "06:17.558",
+      "end": "06:24.552",
+      "text": "The second should sound like someone who respects the burden of trying a new service."
+    },
+    {
+      "start": "06:24.552",
+      "end": "06:28.282",
+      "text": "Neither should hide a condition in fine print."
+    },
+    {
+      "start": "06:28.282",
+      "end": "06:34.344",
+      "text": "If the two versions lead listeners to different decisions, the pitch has drifted."
+    },
+    {
+      "start": "06:34.344",
+      "end": "06:38.074",
+      "text": "Bring them back to the same bounded request."
+    },
+    {
+      "start": "06:38.074",
+      "end": "06:46.000",
+      "text": "A source-linked brief lets someone disagree with your recommendation while still trusting your account of the facts."
+    },
+    {
+      "start": "06:46.000",
+      "end": "06:46.925",
+      "text": "Pause here."
+    },
+    {
+      "start": "06:46.925",
+      "end": "06:50.625",
+      "text": "Put both pitch versions into the decision file."
+    },
+    {
+      "start": "06:50.625",
+      "end": "06:59.413",
+      "text": "Under each, list the claims, their exact source IDs, and one objection you still need a person to answer."
+    },
+    {
+      "start": "06:59.413",
+      "end": "07:06.350",
+      "text": "Add the decision requested, the rejected alternative, the cost, the owner, and the review date."
+    },
+    {
+      "start": "07:06.350",
+      "end": "07:13.288",
+      "text": "Resume when you can answer this question: what observation would make you change your recommendation?"
+    },
+    {
+      "start": "07:13.288",
+      "end": "07:19.762",
+      "text": "If you cannot answer, the argument is still a defense of a preferred story."
+    },
+    {
+      "start": "07:19.762",
+      "end": "07:28.087",
+      "text": "Keep private deal terms, customer records, and internal conversations inside approved systems; this exercise uses a fictional proposal."
+    },
+    {
+      "start": "07:28.087",
+      "end": "07:31.325",
+      "text": "Persuasive GPT remains a named book case."
+    },
+    {
+      "start": "07:31.325",
+      "end": "07:39.188",
+      "text": "We have created an editorial teaching card, not proof of a deployed tool or a successful pitch."
+    },
+    {
+      "start": "07:39.188",
+      "end": "07:48.438",
+      "text": "The next lesson asks what happens after one team learns from a test and other teams want to repeat it."
+    },
+    {
+      "start": "07:48.438",
+      "end": "07:50.288",
+      "text": "Save the source strip."
+    },
+    {
+      "start": "07:50.288",
+      "end": "08:00.000",
+      "text": "At scale, the same evidence will need to survive more meetings, more owners, and more chances for its meaning to drift."
+    }
+  ]
+}
