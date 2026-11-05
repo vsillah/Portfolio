@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/stage-accelerated-l02-media.mjs && node scripts/stage-accelerated-l03-media.mjs && node scripts/verify-accelerated-l04-binding.mjs && next dev",
-    "build": "node scripts/stage-accelerated-l02-media.mjs && node scripts/stage-accelerated-l03-media.mjs && node scripts/verify-accelerated-l04-binding.mjs && npm run build:knowledge && next build",
+    "dev": "node scripts/stage-accelerated-l02-media.mjs && node scripts/stage-accelerated-l03-media.mjs && node scripts/verify-accelerated-l04-binding.mjs && node scripts/verify-accelerated-l09-l12-binding.mjs && next dev",
+    "build": "node scripts/stage-accelerated-l02-media.mjs && node scripts/stage-accelerated-l03-media.mjs && node scripts/verify-accelerated-l04-binding.mjs && node scripts/verify-accelerated-l09-l12-binding.mjs && npm run build:knowledge && next build",
     "build:knowledge": "tsx scripts/build-chatbot-knowledge.ts",
     "start": "next start",
     "lint": "next lint",

@@ -1,0 +1,480 @@
+{
+  "source_srt_sha256": "f1baa367fb8d6711ab4f069deeca3ecdaa51393772d1627e4f76ef32d6c07757",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:03.099",
+      "text": "The feedback pile is growing again."
+    },
+    {
+      "start": "00:03.099",
+      "end": "00:10.845",
+      "text": "One note says, “I could not tell where to start.” Another asks for a reminder."
+    },
+    {
+      "start": "00:10.845",
+      "end": "00:17.559",
+      "text": "A third says the task looked complete but the page gave no confirmation."
+    },
+    {
+      "start": "00:17.559",
+      "end": "00:23.239",
+      "text": "These are fictional member comments carried forward from our earlier exercise."
+    },
+    {
+      "start": "00:23.239",
+      "end": "00:35.117",
+      "text": "If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked."
+    },
+    {
+      "start": "00:35.117",
+      "end": "00:41.831",
+      "text": "Chapter Nineteen introduces ClientQ as a way to translate messy feedback into jobs."
+    },
+    {
+      "start": "00:41.831",
+      "end": "00:47.512",
+      "text": "The book case gives us a method for examining the notes."
+    },
+    {
+      "start": "00:47.512",
+      "end": "00:56.291",
+      "text": "The useful discipline is to keep every proposed job tied to the source note that suggested it."
+    },
+    {
+      "start": "00:56.291",
+      "end": "01:06.620",
+      "text": "Start with what the person was trying to do, the context in which it mattered, and the outcome they wanted."
+    },
+    {
+      "start": "01:06.620",
+      "end": "01:13.850",
+      "text": "Then ask whether another note points to the same job or a different one."
+    },
+    {
+      "start": "01:13.850",
+      "end": "01:18.498",
+      "text": "A cluster can be convenient and still be wrong."
+    },
+    {
+      "start": "01:18.498",
+      "end": "01:23.662",
+      "text": "We also need the contrary note that challenges the pattern."
+    },
+    {
+      "start": "01:23.662",
+      "end": "01:29.859",
+      "text": "In the decision file, F01 through F06 remain visible beside any synthesis."
+    },
+    {
+      "start": "01:29.859",
+      "end": "01:39.671",
+      "text": "If one sentence is ambiguous, mark it for a human follow-up rather than turn it into an invented certainty."
+    },
+    {
+      "start": "01:39.671",
+      "end": "01:47.418",
+      "text": "Today we will write a job card and then test its weak spots with simulation."
+    },
+    {
+      "start": "01:47.418",
+      "end": "01:50.000",
+      "text": "The source stays visible throughout."
+    },
+    {
+      "start": "01:50.000",
+      "end": "01:58.698",
+      "text": "Chapter Nineteen makes a crucial distinction: ClientQ processes data; it does not create the underlying customer experience."
+    },
+    {
+      "start": "01:58.698",
+      "end": "02:01.256",
+      "text": "Work through one fictional note."
+    },
+    {
+      "start": "02:01.256",
+      "end": "02:07.395",
+      "text": "F01 says the member does not know which action begins the service."
+    },
+    {
+      "start": "02:07.395",
+      "end": "02:11.488",
+      "text": "The context is the first visit after joining."
+    },
+    {
+      "start": "02:11.488",
+      "end": "02:30.930",
+      "text": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote."
+    },
+    {
+      "start": "02:30.930",
+      "end": "02:32.977",
+      "text": "Write F01 beside it."
+    },
+    {
+      "start": "02:32.977",
+      "end": "02:39.628",
+      "text": "F03 may support the same job, but inspect its wording before adding it."
+    },
+    {
+      "start": "02:39.628",
+      "end": "02:58.558",
+      "text": "A note about missing confirmation may instead become a separate job: “Help me know whether the action succeeded so I can move on with confidence.” Do not combine them just because they occur on the same screen."
+    },
+    {
+      "start": "02:58.558",
+      "end": "03:07.767",
+      "text": "The book also shows an outcome-style formulation, such as reducing time spent searching when a task is urgent."
+    },
+    {
+      "start": "03:07.767",
+      "end": "03:14.419",
+      "text": "We can use that grammar without pretending to have measured importance or satisfaction."
+    },
+    {
+      "start": "03:14.419",
+      "end": "03:20.558",
+      "text": "If an AI assistant suggests a job, compare it against each source."
+    },
+    {
+      "start": "03:20.558",
+      "end": "03:27.209",
+      "text": "Ask what word in the original note supports the proposed context and outcome."
+    },
+    {
+      "start": "03:27.209",
+      "end": "03:31.302",
+      "text": "Where support is thin, label the job provisional."
+    },
+    {
+      "start": "03:31.302",
+      "end": "03:40.000",
+      "text": "The next step is a question for a person or an observation, not a confident backlog priority."
+    },
+    {
+      "start": "03:40.000",
+      "end": "03:44.692",
+      "text": "The book calls ClientQ a translator for customer language."
+    },
+    {
+      "start": "03:44.692",
+      "end": "03:51.991",
+      "text": "It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog."
+    },
+    {
+      "start": "03:51.991",
+      "end": "03:55.640",
+      "text": "That is a case in the book."
+    },
+    {
+      "start": "03:55.640",
+      "end": "03:58.246",
+      "text": "Our six-card exercise is separate."
+    },
+    {
+      "start": "03:58.246",
+      "end": "04:05.024",
+      "text": "The cards in this exercise are imagined member notes, separate from observed research."
+    },
+    {
+      "start": "04:05.024",
+      "end": "04:10.237",
+      "text": "A third category would be actual research collected with permission."
+    },
+    {
+      "start": "04:10.237",
+      "end": "04:15.972",
+      "text": "Keep these three categories apart when you present a job statement."
+    },
+    {
+      "start": "04:15.972",
+      "end": "04:26.398",
+      "text": "In a real project, preserve the original note, source date, consent and access rules, the interpretation, and who reviewed it."
+    },
+    {
+      "start": "04:26.398",
+      "end": "04:38.389",
+      "text": "If a team reports frequency, the count must come from the actual source set and its defined unit, such as people or comments."
+    },
+    {
+      "start": "04:38.389",
+      "end": "04:45.687",
+      "text": "Do not invent a percentage because several cards on a training slide look similar."
+    },
+    {
+      "start": "04:45.687",
+      "end": "04:51.422",
+      "text": "The book's warning is clear: synthesis cannot replace talking with people."
+    },
+    {
+      "start": "04:51.422",
+      "end": "04:58.199",
+      "text": "A pattern extracted from comments may help choose which conversation to have next."
+    },
+    {
+      "start": "04:58.199",
+      "end": "05:04.976",
+      "text": "It cannot tell us by itself whether a proposed screen solves the need."
+    },
+    {
+      "start": "05:04.976",
+      "end": "05:12.796",
+      "text": "For our decision file, put the job card beside the first-task hypothesis from earlier lessons."
+    },
+    {
+      "start": "05:12.796",
+      "end": "05:16.967",
+      "text": "Ask whether the hypothesis still matches the job."
+    },
+    {
+      "start": "05:16.967",
+      "end": "05:26.351",
+      "text": "If the problem is knowing whether an action worked, a clearer first-task invitation may be the wrong test."
+    },
+    {
+      "start": "05:26.351",
+      "end": "05:30.000",
+      "text": "Correcting the question before building is progress."
+    },
+    {
+      "start": "05:30.000",
+      "end": "05:35.735",
+      "text": "Chapter Twenty introduces SudoPoll, a book case for synthetic persona reactions."
+    },
+    {
+      "start": "05:35.735",
+      "end": "05:42.512",
+      "text": "It can suggest objections to a concept, but its output is a simulation."
+    },
+    {
+      "start": "05:42.512",
+      "end": "05:49.810",
+      "text": "It is not a customer interview, a survey, or a statistically valid preference count."
+    },
+    {
+      "start": "05:49.810",
+      "end": "05:57.630",
+      "text": "Imagine asking how a new member might respond to two versions of the first-task card."
+    },
+    {
+      "start": "05:57.630",
+      "end": "06:08.057",
+      "text": "One simulated response says the shorter card is easier to scan but does not explain what happens after the click."
+    },
+    {
+      "start": "06:08.057",
+      "end": "06:16.398",
+      "text": "Another says the detailed card feels safer but is too much to read at the doorway."
+    },
+    {
+      "start": "06:16.398",
+      "end": "06:20.569",
+      "text": "Both reactions are invented for this teaching example."
+    },
+    {
+      "start": "06:20.569",
+      "end": "06:30.474",
+      "text": "They are useful as questions: do real members need a clearer outcome promise, a stronger confirmation, or less text?"
+    },
+    {
+      "start": "06:30.474",
+      "end": "06:34.123",
+      "text": "They are not votes for one design."
+    },
+    {
+      "start": "06:34.123",
+      "end": "06:40.900",
+      "text": "The book names three limits around emotional nuance, cultural context, and behavioral prediction."
+    },
+    {
+      "start": "06:40.900",
+      "end": "06:46.635",
+      "text": "Those limits matter especially when the service touches trust or access."
+    },
+    {
+      "start": "06:46.635",
+      "end": "06:56.540",
+      "text": "A model can draw on patterns it has seen; it cannot stand in for the people the organization serves."
+    },
+    {
+      "start": "06:56.540",
+      "end": "07:01.232",
+      "text": "Put a visible Simulation label on every generated reaction."
+    },
+    {
+      "start": "07:01.232",
+      "end": "07:07.488",
+      "text": "Keep the proposed objection beside the exact concept version that produced it."
+    },
+    {
+      "start": "07:07.488",
+      "end": "07:15.829",
+      "text": "If the model imagines a concern you had not considered, add it to a validation plan."
+    },
+    {
+      "start": "07:15.829",
+      "end": "07:20.000",
+      "text": "Do not claim that real customers raised it."
+    },
+    {
+      "start": "07:20.000",
+      "end": "07:24.605",
+      "text": "The simulation points to two questions, not two answers."
+    },
+    {
+      "start": "07:24.605",
+      "end": "07:31.256",
+      "text": "First: can an eligible new member explain the first action before beginning it?"
+    },
+    {
+      "start": "07:31.256",
+      "end": "07:35.860",
+      "text": "Second: after acting, can they tell whether it worked?"
+    },
+    {
+      "start": "07:35.860",
+      "end": "07:39.442",
+      "text": "Put each beside a real observation method."
+    },
+    {
+      "start": "07:39.442",
+      "end": "07:49.163",
+      "text": "The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation."
+    },
+    {
+      "start": "07:49.163",
+      "end": "08:00.930",
+      "text": "The team must decide in advance who is eligible, how the notes are protected, what the measure means, and what would stop expansion."
+    },
+    {
+      "start": "08:00.930",
+      "end": "08:08.093",
+      "text": "If the stakes rise toward a launch decision, simulated reactions are no longer enough."
+    },
+    {
+      "start": "08:08.093",
+      "end": "08:18.326",
+      "text": "Chapter Twenty says to graduate to real people when behavior matters or cultural and emotional context could change the interpretation."
+    },
+    {
+      "start": "08:18.326",
+      "end": "08:25.488",
+      "text": "In our fictional case, the launch choice stays blocked until actual evidence is reviewed."
+    },
+    {
+      "start": "08:25.488",
+      "end": "08:35.209",
+      "text": "Even if every simulated persona likes the card, the team has learned only that the card survived a rehearsal."
+    },
+    {
+      "start": "08:35.209",
+      "end": "08:40.326",
+      "text": "We can use that rehearsal to improve the research questions."
+    },
+    {
+      "start": "08:40.326",
+      "end": "08:46.977",
+      "text": "We cannot use it to fill the result field of the ten-component plan."
+    },
+    {
+      "start": "08:46.977",
+      "end": "08:53.116",
+      "text": "Keep the job statement and its original source notes in the file."
+    },
+    {
+      "start": "08:53.116",
+      "end": "08:58.233",
+      "text": "Keep the simulation output in a separate, clearly marked section."
+    },
+    {
+      "start": "08:58.233",
+      "end": "09:04.372",
+      "text": "At the review, compare both with what real people did and said."
+    },
+    {
+      "start": "09:04.372",
+      "end": "09:10.000",
+      "text": "If reality contradicts the simulation, the real observation changes the course."
+    },
+    {
+      "start": "09:10.000",
+      "end": "09:12.523",
+      "text": "Pause and make two cards."
+    },
+    {
+      "start": "09:12.523",
+      "end": "09:18.578",
+      "text": "On the first, write one job statement from the synthetic feedback bundle."
+    },
+    {
+      "start": "09:18.578",
+      "end": "09:28.165",
+      "text": "Add the source IDs, context, desired outcome, contrary note, and the uncertainty that still needs a person to resolve."
+    },
+    {
+      "start": "09:28.165",
+      "end": "09:35.734",
+      "text": "On the second, write two questions you might ask a simulation about the proposed change."
+    },
+    {
+      "start": "09:35.734",
+      "end": "09:43.807",
+      "text": "Label its possible answers as simulation, then state the real evidence required before a launch decision."
+    },
+    {
+      "start": "09:43.807",
+      "end": "09:54.404",
+      "text": "Resume when each question has an observation method, owner, review date, and a condition that would make you revise or stop."
+    },
+    {
+      "start": "09:54.404",
+      "end": "10:03.991",
+      "text": "You may use your own approved material in a real project; keep private records inside its authorized research system."
+    },
+    {
+      "start": "10:03.991",
+      "end": "10:06.514",
+      "text": "This course example stays fictional."
+    },
+    {
+      "start": "10:06.514",
+      "end": "10:10.046",
+      "text": "Look back at the full decision file."
+    },
+    {
+      "start": "10:10.046",
+      "end": "10:22.661",
+      "text": "It now holds the original problem, feedback ledger, persona, roadmap and PRD trace, learning plan, decision-room map, influence brief, operating loop, and these two cards."
+    },
+    {
+      "start": "10:22.661",
+      "end": "10:29.220",
+      "text": "The structure helps you see where a source ends and an inference begins."
+    },
+    {
+      "start": "10:29.220",
+      "end": "10:37.294",
+      "text": "It also helps you avoid asking a model to settle a question only people can answer."
+    },
+    {
+      "start": "10:37.294",
+      "end": "10:43.853",
+      "text": "The next module uses this discipline to examine strategic shifts and future concepts."
+    },
+    {
+      "start": "10:43.853",
+      "end": "10:47.890",
+      "text": "Bring the job and the unresolved question forward."
+    },
+    {
+      "start": "10:47.890",
+      "end": "10:51.422",
+      "text": "If the evidence is weak, say so."
+    },
+    {
+      "start": "10:51.422",
+      "end": "11:00.000",
+      "text": "A clear unknown is a better starting point than a polished claim that no one can trace."
+    }
+  ]
+}

@@ -47,12 +47,12 @@ describe('Accelerated L05–L08 learner binding', () => {
     }
   })
 
-  it('preserves L01–L03 and keeps L09–L16 locked', () => {
+  it('preserves L01–L03 and keeps L13–L16 locked', () => {
     expect(l01Media.video).toBe('/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4')
     expect(l02Media.video).toBe('/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4')
     expect(l03Media.video).toBe('/accelerated/lessons/l03/approved-02b9c3ea/accelerated-l03-native-composite.mp4')
     render(<AcceleratedLearningPlan />)
-    for (const item of lessons.filter((lesson) => Number(lesson.id.slice(1)) >= 9)) {
+    for (const item of lessons.filter((lesson) => Number(lesson.id.slice(1)) >= 13)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:.*locked`) }))
       expect(screen.getByRole('button', { name: `Completion unavailable` })).toBeDisabled()
       expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
