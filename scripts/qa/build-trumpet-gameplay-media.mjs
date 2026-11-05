@@ -69,19 +69,23 @@ await writeFile(path.join(slidesDir, 'trumpet-trainer-carousel.pdf'), await pdf.
 const nativeWebm = path.join(source, 'native-gameplay.webm')
 const nativeMp4 = path.join(source, 'native-gameplay.mp4')
 run('ffmpeg', ['-loglevel', 'error', '-y', '-i', nativeWebm, '-r', '25', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', nativeMp4])
-const metadata = JSON.parse(run('ffprobe', ['-v', 'error', '-count_frames', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,r_frame_rate,nb_read_frames:format=duration', '-of', 'json', nativeMp4]))
+const rawMetadata = JSON.parse(run('ffprobe', ['-v', 'error', '-count_frames', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,r_frame_rate,nb_read_frames:format=duration', '-of', 'json', nativeMp4]))
+const trimStartFrame = 100
+const trimmedMp4 = path.join(source, 'native-gameplay-trimmed.mp4')
+run('ffmpeg', ['-loglevel', 'error', '-y', '-i', nativeMp4, '-vf', `trim=start_frame=${trimStartFrame},setpts=PTS-STARTPTS`, '-r', '25', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', trimmedMp4])
+const metadata = JSON.parse(run('ffprobe', ['-v', 'error', '-count_frames', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,r_frame_rate,nb_read_frames:format=duration', '-of', 'json', trimmedMp4]))
 const duration = Number(metadata.format.duration)
-if (duration < 20 || duration > 30) throw new Error(`Native capture duration ${duration}s is outside 20–30s`)
-if (Number(metadata.streams[0].nb_read_frames) !== Math.round(duration * 25)) throw new Error('Source capture frame count does not match 25 fps')
+if (duration < 20 || duration > 25) throw new Error(`Trimmed capture duration ${duration}s is outside 20–25s`)
+if (metadata.streams[0].r_frame_rate !== '25/1' || Number(metadata.streams[0].nb_read_frames) !== Number(rawMetadata.streams[0].nb_read_frames) - trimStartFrame) throw new Error('Trimmed capture lost source frames or frame rate')
 
 const videoScenes = [
-  { start: 0, end: 5.5, lines: ['A clear place to begin'] },
-  { start: 5.5, end: 8.5, lines: ['A 28-step journey'] },
-  { start: 8.5, end: 11, lines: ['Meet the first note'] },
-  { start: 11, end: 15, lines: ['No Rush waits', 'for the learner'] },
-  { start: 15, end: 18, lines: ['Toot and fingering', 'stay in view'] },
-  { start: 18, end: 20, lines: ['Results show', 'the next step'] },
-  { start: 20, end: duration + 0.1, lines: ['Build a tune', 'note by note'] },
+  { start: 0, end: 2.25, lines: ['A clear place to begin'] },
+  { start: 2.25, end: 4.55, lines: ['A 28-step journey'] },
+  { start: 4.55, end: 8, lines: ['Meet the first note'] },
+  { start: 8, end: 9.5, lines: ['No Rush waits', 'for the learner'] },
+  { start: 9.5, end: 14.75, lines: ['Toot and fingering', 'stay in view'] },
+  { start: 14.75, end: 17.8, lines: ['Results show', 'the next step'] },
+  { start: 17.8, end: duration + 0.1, lines: ['Build a tune', 'note by note'] },
 ]
 
 async function makeVideo(format) {
@@ -99,7 +103,7 @@ async function makeVideo(format) {
     await sharp(Buffer.from(svg)).png().toFile(file)
     captionFiles.push(file)
   }
-  const args = ['-loglevel', 'error', '-y', '-loop', '1', '-i', bg, '-i', nativeMp4]
+  const args = ['-loglevel', 'error', '-y', '-loop', '1', '-i', bg, '-i', trimmedMp4]
   for (const file of captionFiles) args.push('-loop', '1', '-i', file)
   const gameWidth = landscape ? 474 : 738
   const gameHeight = landscape ? 990 : 1540
@@ -121,6 +125,16 @@ async function makeVideo(format) {
 }
 
 const videos = [await makeVideo('landscape'), await makeVideo('portrait')]
-run('ffmpeg', ['-loglevel', 'error', '-y', '-ss', '16', '-i', path.join(publicDir, 'gameplay-landscape.mp4'), '-frames:v', '1', '-q:v', '3', path.join(publicDir, 'gameplay-poster.jpg')])
-await writeFile(path.join(source, 'capture-manifest.json'), JSON.stringify({ sourceCommit: commit, sourceUrl: 'local build from git archive', audioFixture: 'e2e/make-step-wav.ts synthetic fixture', capturedOn: '2026-11-05', sourceVideo: { path: path.relative(process.cwd(), nativeMp4), duration, frameRate: '25/1', frames: metadata.streams[0].nb_read_frames, sha256: await sha(nativeMp4) }, screenshots: imageHashes, videos }, null, 2))
+const poster = path.join(publicDir, 'gameplay-poster.jpg')
+run('ffmpeg', ['-loglevel', 'error', '-y', '-ss', '12', '-i', path.join(publicDir, 'gameplay-landscape.mp4'), '-frames:v', '1', '-q:v', '3', poster])
+const sampledFrames = [0, 60, 115, 205, 242, 369, 452, 508]
+const frameAudits = []
+for (const format of ['landscape', 'portrait']) {
+  const output = path.join(source, `frame-audit-${format}.png`)
+  const selection = sampledFrames.map(frame => `eq(n,${frame})`).join('+')
+  const size = format === 'landscape' ? '480:270' : '270:480'
+  run('ffmpeg', ['-loglevel', 'error', '-y', '-i', path.join(publicDir, `gameplay-${format}.mp4`), '-vf', `select='${selection}',scale=${size},tile=4x2`, '-frames:v', '1', output])
+  frameAudits.push({ path: path.relative(process.cwd(), output), sampledFrames, sha256: await sha(output) })
+}
+await writeFile(path.join(source, 'capture-manifest.json'), JSON.stringify({ sourceCommit: commit, sourceUrl: 'local build from git archive', audioFixture: 'e2e/make-step-wav.ts synthetic fixture', capturedOn: '2026-11-05', sourceVideo: { path: path.relative(process.cwd(), nativeMp4), duration: Number(rawMetadata.format.duration), frameRate: rawMetadata.streams[0].r_frame_rate, frames: rawMetadata.streams[0].nb_read_frames, sha256: await sha(nativeMp4) }, trimmedVideo: { path: path.relative(process.cwd(), trimmedMp4), startFrame: trimStartFrame, duration, frameRate: metadata.streams[0].r_frame_rate, frames: metadata.streams[0].nb_read_frames, sha256: await sha(trimmedMp4) }, screenshots: imageHashes, videos, poster: { path: path.relative(process.cwd(), poster), sha256: await sha(poster) }, frameAudits }, null, 2))
 console.log(JSON.stringify({ sourceCommit: commit, sourceDuration: duration, videos: videos.map(({ path, duration, width, height }) => ({ path, duration, width, height })) }))

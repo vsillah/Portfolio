@@ -10,6 +10,14 @@
     "frames": "609",
     "sha256": "542149c85473ceccdd2c4b9f01ac11ec8cb8f714acdac91b5228266be28ae2a1"
   },
+  "trimmedVideo": {
+    "path": "docs/qa/trumpet-trainer-gameplay/source/native-gameplay-trimmed.mp4",
+    "startFrame": 100,
+    "duration": 20.36,
+    "frameRate": "25/1",
+    "frames": "509",
+    "sha256": "8369f7ac19a8b1e05b7942438d6eac1193fd919efa289a0f2b2791688c89535d"
+  },
   "screenshots": {
     "01-home": "b7de98c62d685e64e275b6c0ff731d4d4a0ac02b30237d1b1ec4be6c89499b65",
     "02-journey-map": "6db08fd799268f7119dc2d3585df2b5d843d074b19109aa866ae5ee12f6aaf70",
@@ -26,9 +34,9 @@
       "width": 1920,
       "height": 1080,
       "r_frame_rate": "25/1",
-      "nb_read_frames": "609",
-      "duration": "24.360000",
-      "sha256": "319cb3206d8921f9a7a4b58fd0c5794f769bf0e4c3c8363e0d0b1447b619fe08"
+      "nb_read_frames": "509",
+      "duration": "20.360000",
+      "sha256": "0f4b9717ed650b04f68e6643397001c059032bde9133d21f7e9a66f53e7bcaf1"
     },
     {
       "path": "public/showcases/trumpet-trainer/c19989a3/gameplay-portrait.mp4",
@@ -36,9 +44,43 @@
       "width": 1080,
       "height": 1920,
       "r_frame_rate": "25/1",
-      "nb_read_frames": "609",
-      "duration": "24.360000",
-      "sha256": "5a8d3807873c239853971bb533e98c0b724d9f071c392e6c17f5023c25f0ea6f"
+      "nb_read_frames": "509",
+      "duration": "20.360000",
+      "sha256": "531c665a0bec339b9cb029b4c7ca18250da9e28c5b610dbea12b92833bde2759"
+    }
+  ],
+  "poster": {
+    "path": "public/showcases/trumpet-trainer/c19989a3/gameplay-poster.jpg",
+    "sha256": "5b82b6a7ae4bea0c2661f4cf80e35cef9caa6b1b53d955b62014764952014abb"
+  },
+  "frameAudits": [
+    {
+      "path": "docs/qa/trumpet-trainer-gameplay/source/frame-audit-landscape.png",
+      "sampledFrames": [
+        0,
+        60,
+        115,
+        205,
+        242,
+        369,
+        452,
+        508
+      ],
+      "sha256": "789d58ead0babde669308eededad35ea2f74b4aad4e0c98c8521e3b44989706f"
+    },
+    {
+      "path": "docs/qa/trumpet-trainer-gameplay/source/frame-audit-portrait.png",
+      "sampledFrames": [
+        0,
+        60,
+        115,
+        205,
+        242,
+        369,
+        452,
+        508
+      ],
+      "sha256": "eb628092c887609b934898c59c0790e1868f81b9fe79b755a844bc411ff4cac2"
     }
   ]
 }

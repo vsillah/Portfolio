@@ -61,6 +61,12 @@ try {
       fullPage: true,
     });
     if (width !== 768) {
+      await media.scrollIntoViewIfNeeded();
+      await media.evaluate((element) => element.play());
+      await page.waitForTimeout(2100);
+      const playbackPosition = await media.evaluate((element) => element.currentTime);
+      if (playbackPosition < 1) throw new Error(`Gameplay video did not advance at ${width}px`);
+      await media.evaluate((element) => element.pause());
       await page.waitForTimeout(900);
       for (const anchor of ["#how-it-works", "#interest"]) {
         await page.locator(anchor).scrollIntoViewIfNeeded();
