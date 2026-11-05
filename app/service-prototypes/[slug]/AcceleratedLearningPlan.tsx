@@ -5,6 +5,7 @@ import Image from 'next/image'
 import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
 import l02Transcript from '@/docs/accelerated-course-modules/l02-native-composite/l02-learner-transcript.json'
 import l03Transcript from '@/docs/accelerated-course-modules/l03-native-composite/l03-learner-transcript.json'
+import l04Transcript from '@/docs/accelerated-course-modules/l04-learner-binding/l04-learner-transcript.json'
 import l05Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l05-transcript.json'
 import l06Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l06-transcript.json'
 import l07Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l07-transcript.json'
@@ -33,6 +34,16 @@ export const l03Media = {
   compositeSha256: '02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a',
   sourceSha256: '064e049bfaee6d60d5d811d516dbcdf9c14466602afef9a34e07cbf31c551198',
   captionsSourceSha256: 'ee59adb3cd88e195c25bebaeb04ca0f9b78cc42c7291b1300b205f5958a917de',
+} as const
+
+export const l04Media = {
+  video: '/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4',
+  captions: '/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt',
+  duration: '10:00',
+  compositeSha256: 'b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613',
+  sourceSha256: 'cf8f8e78c48a8f4471e0a4bb53b57b4f71f3ad52d30f92cf356482b4d1be9c3e',
+  captionsSourceSha256: 'a183b1c2b5e100f449eb12481b314d09bd65d11aa0b81321c8499ac5bd03474c',
+  transcript: l04Transcript,
 } as const
 
 export const approvedL05L08Media = {
@@ -96,8 +107,8 @@ export function AcceleratedLearningPlan() {
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
-  const locked = (id: string) => id === 'L04' || Number(id.slice(1)) >= 9
-  const approvedBatchMedia = selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : null
+  const locked = (id: string) => Number(id.slice(1)) >= 9
+  const approvedBatchMedia = selected === 'L04' ? l04Media : selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : null
   useEffect(() => {
     if (videoOpen) {
       playerRef.current?.focus()

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "lesson": "Accelerated L04",
+  "gate": "native_composite_human_qa",
+  "source_commit": "30289b59511c661ccf38e3a4279248cb4dc1de0d",
+  "provider_job_id": "a3a093ed37a031e8f439f6b055ae7880",
+  "provider_source_sha256": "cf8f8e78c48a8f4471e0a4bb53b57b4f71f3ad52d30f92cf356482b4d1be9c3e",
+  "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+  "captions_sha256": "a183b1c2b5e100f449eb12481b314d09bd65d11aa0b81321c8499ac5bd03474c",
+  "composite_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+  "walkthrough_sha256": "2daa007e1686143c7ec15b0c65a499124f1aea79e978af4486a68e09e3131fe5",
+  "media": {
+    "duration_seconds": 600,
+    "resolution": "1920x1080",
+    "frame_rate": 25,
+    "video_frames": 15000,
+    "caption_cues": 95
+  },
+  "verification": {
+    "full_decode": "pass",
+    "artifact_tests": "pass",
+    "sentence_complete_passages": ["A01", "A02", "A03", "A04"],
+    "presenter_aspect_ratio": "16:9",
+    "meaningful_content_obscured": false,
+    "source_audio_only_in_presenter_windows": true,
+    "visual_spot_checks": [5, 26, 168, 180, 354, 367, 575, 588]
+  },
+  "external_actions": {
+    "provider_calls": 0,
+    "provider_cost_usd": 0,
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "provider": "HeyGen",
+  "account": "AmaduTown Portfolio",
+  "purpose": "Accelerated L04 Avatar IV review-only source",
+  "video_id": "a3a093ed37a031e8f439f6b055ae7880",
+  "provider_title": "Accelerated L04 review-only source",
+  "status": "completed",
+  "activity_ledger_time": "2026-11-04T15:03:00-05:00",
+  "downloaded_at": "2026-11-04T15:16:28-05:00",
+  "provider_duration_seconds": 67,
+  "measured_duration_seconds": 67.33,
+  "request": {
+    "request_path": "docs/accelerated-course-modules/l02-l04-guided-video/l04-heygen-request.json",
+    "source_commit": "30289b59511c661ccf38e3a4279248cb4dc1de0d",
+    "request_sha256": "51c722b502e7d7e0749c7ec68530f0f4e01b0b2605f57468722389c1048921d1",
+    "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+    "passage_count": 4,
+    "avatar_look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "engine": "avatar_iv",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "fit": "contain",
+    "output_format": "mp4"
+  },
+  "artifact": {
+    "path": "accelerated-l04-heygen-native.mp4",
+    "sha256": "cf8f8e78c48a8f4471e0a4bb53b57b4f71f3ad52d30f92cf356482b4d1be9c3e",
+    "size_bytes": 50715210,
+    "video_codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "frame_count": 1683,
+    "audio_path": "accelerated-l04-heygen-native-audio.m4a",
+    "audio_sha256": "549859f7560fbd2425d0261f129fe047d104c79fbb6752c935ad26c9f43a4cb5",
+    "audio_codec": "aac",
+    "audio_sample_rate_hz": 48000,
+    "audio_channels": 2
+  },
+  "cost": {
+    "wallet_before_usd": 40.07,
+    "wallet_after_usd": 34.67,
+    "job_wallet_cost_usd": 5.4,
+    "authorized_max_usd": 6.8,
+    "cash_purchase_usd": 0,
+    "auto_reload_triggered": false,
+    "auto_reload_relied_upon": false
+  },
+  "provider_evidence": {
+    "completed_video_url": "https://app.heygen.com/videos/accelerated-l04-review-only-source-a3a093ed37a031e8f439f6b055ae7880",
+    "activity_row": "Nov 4, 2026, 3:03 PM | Videos | Accelerated L04 review-only source | vsillah@gmail.com | API balance",
+    "duplicate_l04_jobs_observed": 0,
+    "provider_errors_observed": 0
+  },
+  "boundaries": {
+    "submission_count": 1,
+    "retry_count": 0,
+    "other_lessons_generated": false,
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "production_unlocked": false
+  }
+}
