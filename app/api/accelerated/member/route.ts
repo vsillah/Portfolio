@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
   if (worksheet.error) return fail(worksheet.error.code === '23505' ? 'A different worksheet is already linked to this member.' : 'Could not save worksheet.', worksheet.error.code === '23505' ? 409 : 503)
   const priorLessons = await supabaseAdmin.from('accelerated_member_lessons').select('lesson_id').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION)
   if (priorLessons.error) return fail('Could not check prior lesson progress.', 503)
-  const rows = new Set([...state.completed, ...Object.keys(state.videoSeconds), ...(priorLessons.data ?? []).map((item) => item.lesson_id)])
+  const rows = new Set([...state.completed, ...Object.keys(state.videoSeconds), ...(priorLessons.data ?? []).map((item: { lesson_id: string }) => item.lesson_id)])
   if (rows.size) {
     const result = await supabaseAdmin.from('accelerated_member_lessons').upsert([...rows].map((id) => ({ user_id: userId, content_version: DECISION_FILE_VERSION, lesson_id: id, completed_at: state.completed.includes(id) ? new Date().toISOString() : null, video_seconds: state.videoSeconds[id] ?? 0, updated_at: new Date().toISOString() })), { onConflict: 'user_id,content_version,lesson_id' })
     if (result.error) return fail('Could not save lesson progress.', 503)
