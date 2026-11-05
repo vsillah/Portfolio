@@ -6,6 +6,7 @@ import { AcceleratedLearningPlan, approvedL13L16Media, lessons } from './Acceler
 const require = createRequire(import.meta.url)
 const receipt = require('../../../docs/accelerated-course-modules/l13-l16-learner-binding/human-qa-approval-receipt.json')
 const { verifyAcceleratedL13L16Binding } = require('../../../scripts/verify-accelerated-l13-l16-binding.mjs')
+const nextConfig = require('../../../next.config.js')
 
 describe('Accelerated L13–L16 final learner binding', () => {
   it('accepts only the approved receipt, exact composites, captions, transcripts and scripts', () => {
@@ -18,6 +19,14 @@ describe('Accelerated L13–L16 final learner binding', () => {
     expect(() => verifyAcceleratedL13L16Binding({ receipt: { ...receipt, status: 'pending' } })).toThrow(/approval missing or stale/)
     expect(() => verifyAcceleratedL13L16Binding({ receipt: { ...receipt, approval_source: { ...receipt.approval_source, approval_message_id: 'stale' } } })).toThrow(/approval source mismatch/)
     expect(() => verifyAcceleratedL13L16Binding({ receipt: { ...receipt, bindings: { ...receipt.bindings, L15: '0'.repeat(64) } } })).toThrow(/L15 receipt or composite mismatch/)
+  })
+
+  it('keeps exact approved media out of the unrelated admin function trace', () => {
+    const excludes = nextConfig.experimental.outputFileTracingExcludes['/api/admin/social-content/*/bind-approved-master']
+    for (const [id, media] of Object.entries(approvedL13L16Media)) {
+      const low = id.toLowerCase()
+      expect(excludes).toContain(`./public/accelerated/lessons/${low}/approved-${media.compositeSha256.slice(0, 8)}/*`)
+    }
   })
 
   it.each(['L13', 'L14', 'L15', 'L16'] as const)('opens %s with captions and transcript, returns and records progress', (id) => {
