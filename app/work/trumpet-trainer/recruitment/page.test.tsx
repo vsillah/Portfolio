@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import RecruitmentReviewPage, { metadata } from "./page";
 
@@ -35,6 +35,27 @@ describe("Trumpet Trainer recruitment review", () => {
     const boundaries = screen.getByText("Operating boundaries and stop signals").closest("details");
     expect(boundaries).toHaveTextContent("No scraped lists, student rosters, contact import, or paid ads");
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
+  });
+
+  it("uses adult-specific ad copy without decorative persona icons", () => {
+    render(<RecruitmentReviewPage />);
+    const audience = screen.getByRole("heading", { name: "Four adult perspectives" }).closest("section");
+    expect(audience).not.toBeNull();
+    const cards = within(audience!).getAllByRole("article");
+    expect(cards).toHaveLength(4);
+    const copy = [
+      ["Parents or guardians", "Practice can start before the reminder turns into an argument.", "one clear next note"],
+      ["Private trumpet tutors", "Keep the lesson moving after the lesson ends.", "between sessions"],
+      ["Band educators", "Give first-year players one clear next note between rehearsals.", "fits your program"],
+      ["Community music programs", "Help more beginners practice without adding another complicated system.", "adult oversight"],
+    ];
+    for (const [index, [role, headline, support]] of copy.entries()) {
+      expect(within(cards[index]).getByRole("heading", { name: role })).toBeInTheDocument();
+      expect(cards[index]).toHaveTextContent(headline);
+      expect(cards[index]).toHaveTextContent(support);
+      expect(within(cards[index]).getByText("Contact path")).toBeInTheDocument();
+      expect(cards[index].querySelector("svg")).toBeNull();
+    }
   });
 
   it("keeps the gameplay card top aligned at its natural content height", () => {

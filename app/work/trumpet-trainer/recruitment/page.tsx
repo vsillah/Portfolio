@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import TrumpetRecruitmentMessages from "@/components/TrumpetRecruitmentMessages";
-import { BookOpen, GraduationCap, HeartHandshake, Music2, ShieldCheck, UsersRound } from "lucide-react";
+import { BookOpen, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Trumpet Trainer | Recruitment review packet",
@@ -46,10 +46,10 @@ const messages = [
 ];
 
 const audiencePlan = [
-  { name: "Parents or guardians", question: "Where does home practice stall?", channel: "Opt-in through the public work page or a rules-permitted community post.", Icon: UsersRound },
-  { name: "Private trumpet tutors", question: "Does this fit your teaching?", channel: "Known relationship or individually reviewed public professional channel.", Icon: Music2 },
-  { name: "Band educators", question: "What would work between classes?", channel: "Known relationship or official staff contact path, subject to institution rules.", Icon: GraduationCap },
-  { name: "Community music programs", question: "What could your team support?", channel: "Public organization contact route after staff review.", Icon: HeartHandshake },
+  { name: "Parents or guardians", headline: "Practice can start before the reminder turns into an argument.", support: "See whether one clear next note makes home practice easier to begin.", channel: "Opt-in through the public work page or a rules-permitted community post." },
+  { name: "Private trumpet tutors", headline: "Keep the lesson moving after the lesson ends.", support: "Test a short practice path beginners can follow between sessions.", channel: "Known relationship or individually reviewed public professional channel." },
+  { name: "Band educators", headline: "Give first-year players one clear next note between rehearsals.", support: "See whether guided, bite-sized practice fits your program.", channel: "Known relationship or official staff contact path, subject to institution rules." },
+  { name: "Community music programs", headline: "Help more beginners practice without adding another complicated system.", support: "Review a browser-based path for short sessions and adult oversight.", channel: "Public organization contact route after staff review." },
 ];
 
 const schedule = [
@@ -98,7 +98,7 @@ export default function RecruitmentReviewPage() {
           <h2 id="audiences" className="font-premium text-3xl">Four adult perspectives</h2>
           <p className="mt-2 text-sm text-muted-foreground">Each role sees a different part of the same practice moment.</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {audiencePlan.map(({ name, question, channel, Icon }) => <article key={name} className="min-w-0 rounded-2xl border border-border bg-card p-5"><div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-radiant-gold/15 text-radiant-gold"><Icon size={32} strokeWidth={1.5} aria-hidden="true" /></div><h3 className="mt-5 font-premium text-xl">{name}</h3><p className="mt-2 text-sm leading-6">{question}</p><details className="mt-3 text-xs leading-5 text-muted-foreground"><summary className="cursor-pointer">Contact path</summary><p className="mt-2">{channel}</p></details></article>)}
+            {audiencePlan.map(({ name, headline, support, channel }) => <article key={name} className="flex min-w-0 flex-col rounded-2xl border border-border bg-card p-5"><h3 className="font-heading text-xs uppercase tracking-[.1em] text-radiant-gold">{name}</h3><p className="mt-5 font-premium text-xl leading-snug">{headline}</p><p className="mt-3 text-sm leading-6 text-muted-foreground">{support}</p><details className="mt-auto pt-5 text-xs leading-5 text-muted-foreground"><summary className="cursor-pointer">Contact path</summary><p className="mt-2">{channel}</p></details></article>)}
           </div>
         </section>
 
