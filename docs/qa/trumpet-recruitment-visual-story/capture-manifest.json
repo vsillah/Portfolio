@@ -1,103 +1,119 @@
 {
-  "ui_commit": "899b3621ba56d3bda7f2c9309630ee8b789cd635",
+  "ui_commit": "5edd5e091476a42423b434292ee06379b540f7ec",
   "qa_commit_locator": "git log -1 --format=%H -- docs/qa/trumpet-recruitment-visual-story",
   "pull_request": "https://github.com/vsillah/Portfolio/pull/1215",
-  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=899b3621ba56d3bda7f2c9309630ee8b789cd635&qa=recapture",
-  "capture_method": "Codex in-app browser screenshots; scroll position checked at zero for desktop and mobile hero; no simultaneous production build",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=5edd5e091476a42423b434292ee06379b540f7ec&qa=adult-card-copy",
+  "capture_method": "Codex in-app browser screenshots; desktop and mobile hero verified at scroll position zero; production build completed before localhost capture",
   "frames": [
     {
       "file": "frames/01-desktop-hero.png",
       "label": "Desktop hero",
-      "sha256": "77f3d741659be7deaa1134bfadbb80ee4d233f07fe08490c6069b9fa7f98aafe"
+      "sha256": "8eddadbe3bafa74730bac56d0650407bca02d50d3c0b8fd6867386762a8ccead"
     },
     {
       "file": "frames/02-desktop-media.png",
       "label": "Desktop gameplay media",
-      "sha256": "62aad77b19e2ec9a9fc0fc31758ecda249e06edfff22590478989932952c0df8"
+      "sha256": "ee8a23cc456d53c6974a2ee541712a56379d3918d3af4551355d43a19735a296"
     },
     {
       "file": "frames/03-desktop-audience.png",
-      "label": "Desktop audience tiles",
-      "sha256": "aa10cf70175f319370404daba02d86d4dd4b59a1f514b416ec294e55986f7f8f"
+      "label": "Desktop four adult audience cards",
+      "sha256": "1e7be63f7bf1fff90443d78ee13b5667b4bbaaf4b0ba9790207d48a8899b3592"
     },
     {
       "file": "frames/04-desktop-timeline.png",
       "label": "Desktop alternating timeline",
-      "sha256": "81306fb75ea77dc3e1bcfd21a8cda4383eb499b4f4515a9fccf87bf1ebd711a2"
+      "sha256": "eaa8ad86767ae66b8e0f59f9987033cf8d0d03c0001a82a2927aff65af033ff8"
     },
     {
       "file": "frames/05-desktop-detail.png",
       "label": "Desktop expanded timeline detail",
-      "sha256": "00129b01eb4a57e93778e1d9b0031eb7bad00660ba814ad881944ad28e642681"
+      "sha256": "e6c0ef6f45eb2b8ee1d93867d55855ef465af44af8cf012443a903ae111cde88"
     },
     {
       "file": "frames/06-desktop-scorecard.png",
       "label": "Desktop scorecard",
-      "sha256": "0d1a4104fa5d68d1c68c4dadbc5dcdf86dbf37dd7b09ef5ed2a623912021d108"
+      "sha256": "0ff3fc5a0d94d583f2e76e7a6821a78e0b7d7101d59ebf7fb8af67ceddc48fb7"
     },
     {
       "file": "frames/07-desktop-draft.png",
       "label": "Desktop selected educator draft",
-      "sha256": "3d69fd911196b30a0b238de8b6264578b226b85e62d5e8ad1dd0f851735fc4cb"
+      "sha256": "7584d4202a65bd8c3bb06563a73bf6510e87959bd513856f36825dd2d279e967"
     },
     {
       "file": "frames/08-desktop-copy.png",
       "label": "Desktop local copy confirmation",
-      "sha256": "e83c9125ec3275aa0ca078581c34f65aac2f2126471cb7a7be323d91765a9e01"
+      "sha256": "0a045891abae491db4d05c7e479ae4cc0eb887df83ef46ad1bb5f51c227a131c"
     },
     {
       "file": "frames/09-desktop-gate.png",
       "label": "Desktop activation gate",
-      "sha256": "c55d81b61e45407d63106f65716a8af0557e168dcfbc62283b24c6823d40ca20"
+      "sha256": "e2e7d0188a4a5cbe6bbdda73b9c36677dd144e0da4426418b34de6880f885d97"
+    },
+    {
+      "file": "frames/10-tablet-audience.png",
+      "label": "Tablet four adult audience cards",
+      "sha256": "183b0755377be61667843af74d7fcac815f60bcc640189eb80f2747ae91d167a"
     },
     {
       "file": "frames/10-tablet-timeline.png",
       "label": "Tablet one-sided timeline",
-      "sha256": "fb49d28b9f22c49a2701b8ad4548cd07637564b7b625ae57c0e3567fd0dcc446"
+      "sha256": "8cdf78356128545b24bcadb014ff2d2fdf78ade65a5f969e5c4edfb083f563e7"
     },
     {
       "file": "frames/11-mobile-hero.png",
       "label": "Mobile hero",
-      "sha256": "2ceba0004da48047149e8488cc479a0f30ad3fafe72de2b5afc42abffbc62b19"
+      "sha256": "9c8f2eedb6aabaee7186ed197272f79330ae01d24801262f4c04ca181bb9fb2f"
     },
     {
       "file": "frames/12-mobile-media.png",
       "label": "Mobile gameplay media",
-      "sha256": "72a85ad3bb7cb259d9b33ba823ee541f8f838fcfde08730ccb190e9548164857"
+      "sha256": "d304bc8914b9826f877f1cc30e4ea31aeef0b7d31f3df4b28f11b60b6ce2abb7"
+    },
+    {
+      "file": "frames/12a-mobile-audience-parents-tutors.png",
+      "label": "Mobile parents and tutors cards",
+      "sha256": "89b8048901715e353ae0b26d291612a8b34b564ee3e2c5c60cd9907b02871cc1"
+    },
+    {
+      "file": "frames/12b-mobile-audience-band-programs.png",
+      "label": "Mobile band educator and program cards",
+      "sha256": "3f4a4428098ff7ea815235b71e4a6412c4b044ff6d6fcf24f039ed641131aee7"
     },
     {
       "file": "frames/13-mobile-timeline.png",
       "label": "Mobile one-sided timeline",
-      "sha256": "12b0894908a0eefd055f09b99587dd19d0dbd7cbbb60ac1c9bfb94aa79acc743"
+      "sha256": "de30cd33add9d2e09c7fc6f712c08a3f1b9d581250e74212c5dca91a3508281f"
     },
     {
       "file": "frames/14-mobile-detail.png",
       "label": "Mobile expanded detail",
-      "sha256": "e64b76ccb8192f636a60ef89f8876f69b35f64dbb3c936ff7163dbf869812230"
+      "sha256": "13fc9d77337d3dab884581ce3dfc479feb46ebc38c051173cb09df39190ef7c6"
     },
     {
       "file": "frames/15-mobile-draft.png",
       "label": "Mobile selected educator draft",
-      "sha256": "31ffe04cddd4b3e6b464e1a78befcf408f76569ba54e58dcd4c2b411fc7401c3"
+      "sha256": "af608c2697ec98d248e1ba583e2d033d4c76acce45db91d9a1ff573e02221c97"
     },
     {
       "file": "frames/16-mobile-copy.png",
       "label": "Mobile local copy confirmation",
-      "sha256": "cf0147323e17fe025f468ac2f006a5437ac6d650022e77dab6c71cedcf78c351"
+      "sha256": "b73ff9fdea173f6995f5992c6e16a9a555e1c67dce6218530709a19c9b131185"
     },
     {
       "file": "frames/17-mobile-gate.png",
       "label": "Mobile activation gate",
-      "sha256": "cc29cd3dab2fa0d09980ca8ee7cfbc15561ce767b895cae118f9a2e61ead4962"
+      "sha256": "60ef9b8fd4f46d3a32d6910d6ec69d78e65f8fe9997493bd9f656f0a1e317243"
     }
   ],
   "video": {
-    "file": "trumpet-recruitment-visual-story-899b3621.mp4",
-    "sha256": "fbf092ad0c6e3bd314accf86f4384592fee485738033c03cc1268d8030e9f2f4",
+    "file": "trumpet-recruitment-adult-cards-5edd5e09.mp4",
+    "sha256": "fb58de5b4ce790f92931b2bcbc52328ddf75d8d874381bdaee70805ccaa6edb1",
     "codec": "H.264",
     "width": 1280,
     "height": 850,
-    "duration_seconds": 30.458333,
-    "frames": 731
+    "duration_seconds": 35.833333,
+    "fps": 24,
+    "frames": 860
   }
 }
