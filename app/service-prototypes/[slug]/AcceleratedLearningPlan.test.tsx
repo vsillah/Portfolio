@@ -69,9 +69,15 @@ describe('Accelerated learning plan', () => {
         expect(contrast(token(block, name), surface), `${name} on ${surface}`).toBeGreaterThanOrEqual(4.5)
       }
       expect(contrast(token(block, 'filter-selected-text'), token(block, 'filter-selected'))).toBeGreaterThanOrEqual(4.5)
+      expect(contrast(token(block, 'primary-action-text'), token(block, 'primary-action'))).toBeGreaterThanOrEqual(4.5)
     }
     expect(css).toContain('.plan .catalogTools .filters button:focus-visible')
     expect(css).toContain('.plan .catalogTools .filters button:hover:not(:disabled)')
+    expect(css).toContain('.plan .mediaNotice button:not(:disabled)')
+    expect(css).toContain('.plan .actions button:not(.secondary):not(:disabled)')
+    expect(css).toContain('background:var(--lp-primary-action);')
+    expect(css).toContain('background-image:none;')
+    expect(css).toContain('box-shadow:none;')
     expect(css).toContain('.state[data-state=complete],.detailState[data-state=complete]')
   })
 
