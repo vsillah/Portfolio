@@ -4,7 +4,10 @@ import { NextRequest } from 'next/server'
 const mocks = vi.hoisted(() => ({
   constructEvent: vi.fn(),
   from: vi.fn(),
+  notifyOrderConfirmation: vi.fn(),
 }))
+
+vi.mock('@/lib/proposal-milestones', () => ({ handleMilestoneEvent: vi.fn().mockResolvedValue(false) }))
 
 vi.mock('@/lib/stripe', () => ({
   stripe: {
@@ -30,7 +33,7 @@ vi.mock('@/lib/cost-calculator', () => ({
 }))
 
 vi.mock('@/lib/notifications', () => ({
-  notifyOrderConfirmation: vi.fn(),
+  notifyOrderConfirmation: mocks.notifyOrderConfirmation,
 }))
 
 vi.mock('@/lib/invoice-pdf', () => ({
@@ -83,5 +86,23 @@ describe('POST /api/payments/webhook', () => {
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ error: 'Webhook Error: invalid signature' })
     expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('does not repeat fulfillment or notification after the order has left a payable state', async () => {
+    mocks.constructEvent.mockReturnValue({
+      type: 'payment_intent.succeeded',
+      data: { object: { id: 'pi_123', metadata: { orderId: '91' } } },
+    })
+    const statusFilter = vi.fn().mockReturnValue({ select: () => ({ single: async () => ({ data: null, error: null }) }) })
+    const eq = vi.fn().mockReturnValue({ in: statusFilter })
+    const update = vi.fn().mockReturnValue({ eq })
+    mocks.from.mockReturnValue({ update })
+
+    const response = await POST(request())
+    expect(response.status).toBe(200)
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ status: 'completed', stripe_payment_intent_id: 'pi_123' }))
+    expect(statusFilter).toHaveBeenCalledWith('status', ['pending', 'failed'])
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.notifyOrderConfirmation).not.toHaveBeenCalled()
   })
 })

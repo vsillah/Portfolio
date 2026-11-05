@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   verifyAuth: vi.fn(),
   from: vi.fn(),
   createPaymentIntent: vi.fn(),
+  retrievePaymentIntent: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -22,6 +23,7 @@ vi.mock('@/lib/stripe', () => ({
   stripe: {
     paymentIntents: {
       create: mocks.createPaymentIntent,
+      retrieve: mocks.retrievePaymentIntent,
     },
   },
   formatAmountForStripe: (amount: number) => Math.round(amount * 100),
@@ -168,12 +170,24 @@ describe('POST /api/payments/create-intent', () => {
     expect(mocks.createPaymentIntent).toHaveBeenCalledWith(expect.objectContaining({
       amount: 15000, currency: 'usd', receipt_email: kind === 'owner' ? 'owner@example.com' : 'buyer@example.com',
       metadata: { orderId: '12', userId: kind === 'owner' ? 'user-1' : 'guest', guestEmail: kind === 'owner' ? '' : 'buyer@example.com' },
-    }))
-    expect(lookup.select).toHaveBeenCalledWith('id, user_id, guest_email, status, final_amount')
+    }), { idempotencyKey: 'portfolio-order-12' })
+    expect(lookup.select).toHaveBeenCalledWith('id, user_id, guest_email, status, final_amount, stripe_payment_intent_id')
     expect(update).toHaveBeenCalledWith({ stripe_payment_intent_id: 'pi_authorized' })
     expect(updateEq).toHaveBeenCalledWith('id', 12)
     if (kind === 'owner') expect(mocks.verifyAuth).toHaveBeenCalledWith(req)
     else expect(mocks.verifyAuth).not.toHaveBeenCalled()
+  })
+
+  it('reuses a pending order\'s existing PaymentIntent on retry', async () => {
+    mocks.retrievePaymentIntent.mockResolvedValue({ id: 'pi_existing', status: 'requires_payment_method', client_secret: 'same_secret' })
+    mocks.from.mockReturnValue(orderLookup({
+      id: 12, user_id: 'user-1', guest_email: null, status: 'pending', final_amount: 150,
+      stripe_payment_intent_id: 'pi_existing',
+    }))
+    const response = await POST(request({ orderId: 12 }))
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({ clientSecret: 'same_secret', paymentIntentId: 'pi_existing' })
+    expect(mocks.createPaymentIntent).not.toHaveBeenCalled()
   })
 
   it.each(['12junk', -1, 1.5, '12'])('rejects invalid order id %j without querying or paying', async (orderId) => {

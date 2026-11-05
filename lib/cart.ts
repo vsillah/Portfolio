@@ -7,6 +7,9 @@ export interface CartItem {
   variantId?: number          // For merchandise variants
   printfulVariantId?: number  // Printful variant ID for fulfillment
   itemType: 'product' | 'service' // Discriminator field
+  recommendationId?: string
+  reviewedAt?: string
+  reviewedPrice?: number
 }
 
 const CART_STORAGE_KEY = 'cart'
@@ -91,6 +94,7 @@ export function addToCart(
   const existingItem = cart.find(
     item =>
       item.itemType === 'product' &&
+      !item.recommendationId &&
       item.productId === productId &&
       (variantId ? item.variantId === variantId : !item.variantId)
   )
@@ -118,7 +122,7 @@ export function addServiceToCart(
 ): CartItem[] {
   const cart = getCart()
   const existingItem = cart.find(
-    item => item.itemType === 'service' && item.serviceId === serviceId
+    item => item.itemType === 'service' && item.serviceId === serviceId && !item.recommendationId
   )
 
   if (existingItem) {
@@ -135,12 +139,41 @@ export function addServiceToCart(
   return cart
 }
 
+// Keep the reviewed offer separate from a matching item added through the store.
+export function addRecommendedToCart(input: {
+  itemType: 'product' | 'service'
+  offerId: string
+  recommendationId: string
+  reviewedAt: string
+  variantId?: number
+  reviewedPrice: number
+}): CartItem[] {
+  const cart = getCart().filter((item) => item.recommendationId !== input.recommendationId)
+  cart.push({
+    itemType: input.itemType,
+    quantity: 1,
+    recommendationId: input.recommendationId,
+    reviewedAt: input.reviewedAt,
+    reviewedPrice: input.reviewedPrice,
+    ...(input.itemType === 'product' ? { productId: Number(input.offerId) } : { serviceId: input.offerId }),
+    ...(input.variantId ? { variantId: input.variantId } : {}),
+  })
+  saveCart(cart)
+  return cart
+}
+
+export function removeRecommendedFromCart(recommendationId: string): CartItem[] {
+  const cart = getCart().filter((item) => item.recommendationId !== recommendationId)
+  saveCart(cart)
+  return cart
+}
+
 // Remove product from cart
 export function removeFromCart(productId: number, variantId?: number): CartItem[] {
   const cart = getCart()
   const filtered = cart.filter(
     item =>
-      !(item.itemType === 'product' && item.productId === productId && (variantId ? item.variantId === variantId : !item.variantId))
+      !(!item.recommendationId && item.itemType === 'product' && item.productId === productId && (variantId ? item.variantId === variantId : !item.variantId))
   )
   saveCart(filtered)
   return filtered
@@ -150,7 +183,7 @@ export function removeFromCart(productId: number, variantId?: number): CartItem[
 export function removeServiceFromCart(serviceId: string): CartItem[] {
   const cart = getCart()
   const filtered = cart.filter(
-    item => !(item.itemType === 'service' && item.serviceId === serviceId)
+    item => !(!item.recommendationId && item.itemType === 'service' && item.serviceId === serviceId)
   )
   saveCart(filtered)
   return filtered
@@ -170,6 +203,7 @@ export function updateCartItemQuantity(
   const item = cart.find(
     item =>
       item.itemType === 'product' &&
+      !item.recommendationId &&
       item.productId === productId &&
       (variantId ? item.variantId === variantId : !item.variantId)
   )
@@ -193,7 +227,7 @@ export function updateServiceQuantity(
 
   const cart = getCart()
   const item = cart.find(
-    item => item.itemType === 'service' && item.serviceId === serviceId
+    item => item.itemType === 'service' && item.serviceId === serviceId && !item.recommendationId
   )
 
   if (item) {

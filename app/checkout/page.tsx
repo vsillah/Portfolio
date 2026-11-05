@@ -204,6 +204,7 @@ export default function CheckoutPage() {
   }, [user, step])
 
   const getItemPrice = (item: CartItem): number | null => {
+    if (item.recommendationId && Number.isFinite(item.reviewedPrice)) return item.reviewedPrice!
     if (isServiceItem(item)) {
       const service = services[item.serviceId]
       if (!service || service.is_quote_based) return null
@@ -229,6 +230,14 @@ export default function CheckoutPage() {
     }
     return false
   })
+  const hasReviewedItems = cartItems.some(item => Boolean(item.recommendationId))
+
+  useEffect(() => {
+    if (!hasReviewedItems) return
+    setAppliedDiscountCode(null)
+    setDiscountAmount(0)
+    setDiscountCodeData(null)
+  }, [hasReviewedItems])
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
@@ -538,6 +547,14 @@ export default function CheckoutPage() {
         finalTotal: effectiveFinalTotal,
         hasQuoteBasedItems,
       }
+      if (hasReviewedItems) {
+        const cartFingerprint = JSON.stringify({ cartItems, shippingAddress: hasMerchandise ? shippingAddress : null })
+        const stored = JSON.parse(localStorage.getItem('accelerated_checkout_key') || 'null') as { fingerprint?: string; key?: string } | null
+        const checkoutKey = stored?.fingerprint === cartFingerprint && stored.key
+          ? stored.key : window.crypto.randomUUID()
+        localStorage.setItem('accelerated_checkout_key', JSON.stringify({ fingerprint: cartFingerprint, key: checkoutKey }))
+        orderData.checkoutKey = checkoutKey
+      }
       if (hasMerchandise) {
         orderData.shippingAddress = {
           address1: shippingAddress.address1.trim(),
@@ -573,11 +590,12 @@ export default function CheckoutPage() {
       }
 
       const { order } = await response.json()
+      if (hasReviewedItems) localStorage.removeItem('accelerated_checkout_key')
 
       // Clear cart
       clearCart()
 
-      if (hasPaidItems && storePaymentMode === 'installments') {
+      if (hasPaidItems && storePaymentMode === 'installments' && !hasReviewedItems) {
         const userEmail = user?.email || ''
         const installmentRes = await fetch('/api/installments/create', {
           method: 'POST',
@@ -601,7 +619,7 @@ export default function CheckoutPage() {
           }
         }
         router.push(`/checkout/payment?orderId=${order.id}`)
-      } else if (hasPaidItems) {
+      } else if (hasReviewedItems ? order.status === 'pending' : hasPaidItems) {
         router.push(`/checkout/payment?orderId=${order.id}`)
       } else {
         router.push(`/purchases?orderId=${order.id}`)
@@ -886,7 +904,7 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Discount Code */}
-                <div className="agent-ops-card rounded-xl border p-5 sm:p-6">
+                {!hasReviewedItems ? <div className="agent-ops-card rounded-xl border p-5 sm:p-6">
                   <p className="agent-ops-eyebrow mb-2">Adjustment</p>
                   <h2 className="text-xl font-bold mb-4">Discount code</h2>
                   <DiscountCodeForm
@@ -895,10 +913,10 @@ export default function CheckoutPage() {
                     discountAmount={discountAmount}
                     onRemove={handleDiscountRemove}
                   />
-                </div>
+                </div> : <p className="text-sm text-muted-foreground">Reviewed offers use the approved price; discounts and installments are unavailable for this cart.</p>}
 
                 {/* Payment Options */}
-                {hasPaidItems && effectiveFinalTotal > 0 && (
+                {hasPaidItems && effectiveFinalTotal > 0 && !hasReviewedItems && (
                   <div className="agent-ops-card rounded-xl border p-5 sm:p-6">
                     <p className="agent-ops-eyebrow mb-2">Payment path</p>
                     <h2 className="text-xl font-bold mb-4">Payment options</h2>
@@ -948,7 +966,7 @@ export default function CheckoutPage() {
               finalTotal={effectiveFinalTotal}
               shippingCost={hasMerchandise ? shippingCost : undefined}
               hasQuoteBasedItems={hasQuoteBasedItems}
-              editable={true}
+              editable={!hasReviewedItems}
               onQuantityChange={handleQuantityChange}
               onServiceQuantityChange={handleServiceQuantityChange}
               onRemoveItem={handleRemoveItem}

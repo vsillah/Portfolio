@@ -570,7 +570,8 @@ export async function POST(request: NextRequest) {
         const orderId = paymentIntent.metadata?.orderId
 
         if (orderId) {
-          // Update order status to completed
+          // Only the first successful transition performs fulfillment and
+          // notifications. Stripe may deliver the same event more than once.
           const { data: order } = await supabaseAdmin
             .from('orders')
             .update({
@@ -578,14 +579,13 @@ export async function POST(request: NextRequest) {
               stripe_payment_intent_id: paymentIntent.id,
             })
             .eq('id', parseInt(orderId))
+            .in('status', ['pending', 'failed'])
             .select()
             .single()
 
-          // Log Stripe fee for cost tracking
-          logStripeFee(paymentIntent.id, parseInt(orderId)).catch(() => {})
-
           // Send order confirmation email with invoice PDF
           if (order) {
+            logStripeFee(paymentIntent.id, parseInt(orderId)).catch(() => {})
             try {
               const [{ data: emailItems }, { data: profile }] = await Promise.all([
                 supabaseAdmin
@@ -818,6 +818,7 @@ export async function POST(request: NextRequest) {
             .update({ status: 'failed' })
             .eq('id', parseInt(orderId))
             .eq('stripe_payment_intent_id', paymentIntent.id)
+            .eq('status', 'pending')
         }
         break
       }

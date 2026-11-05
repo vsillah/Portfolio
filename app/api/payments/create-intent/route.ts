@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Fetch order
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
-      .select('id, user_id, guest_email, status, final_amount')
+      .select('id, user_id, guest_email, status, final_amount, stripe_payment_intent_id')
       .eq('id', orderId)
       .single()
 
@@ -76,6 +76,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // An order keeps one PaymentIntent. A browser retry receives the same
+    // client secret, and concurrent retries use Stripe's order-bound key.
+    if (order.stripe_payment_intent_id) {
+      const existing = await stripe.paymentIntents.retrieve(order.stripe_payment_intent_id)
+      if (existing.status !== 'canceled' && existing.client_secret) {
+        const secretKeyPrefix = process.env.STRIPE_SECRET_KEY?.slice(0, 7) || ''
+        const keyMode = secretKeyPrefix === 'sk_live' ? 'live' : secretKeyPrefix === 'sk_test' ? 'test' : 'unknown'
+        return NextResponse.json({ clientSecret: existing.client_secret, paymentIntentId: existing.id, keyMode })
+      }
+      return NextResponse.json({ error: 'This payment attempt needs review before retrying.' }, { status: 409 })
+    }
+
     // Get customer email for receipt
     let receiptEmail = order.guest_email
     if (!receiptEmail && user) {
@@ -101,7 +113,7 @@ export async function POST(request: NextRequest) {
       automatic_payment_methods: {
         enabled: true,
       },
-    })
+    }, { idempotencyKey: `portfolio-order-${order.id}` })
 
     // Update order with payment intent ID
     await supabaseAdmin

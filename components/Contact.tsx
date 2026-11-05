@@ -86,6 +86,22 @@ export default function Contact() {
     analytics.contactFormView()
   }, [])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('contact') !== 'true') return
+    const service = params.get('service')
+    const recommendation = params.get('acceleratedRecommendation')
+    if (!service || !recommendation) return
+    const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+    if (!isUuid(service) || !isUuid(recommendation)) return
+    setActiveTab('form')
+    setFormData((current) => ({
+      ...current,
+      message: current.message || `I would like a quote for my Accelerated recommendation. Service: ${service}. Recommendation: ${recommendation}.`,
+    }))
+    requestAnimationFrame(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }))
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitStatus('idle')
