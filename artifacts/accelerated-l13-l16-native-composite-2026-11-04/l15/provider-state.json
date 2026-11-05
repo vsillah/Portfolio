@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L15",
+  "idempotency_key": "caec7246fa62f889a935c3c05832b93b50f7c5d6b7668e26b48ce374abb4294f",
+  "status": "completed",
+  "reserved_at": "2026-11-05T04:22:14.958Z",
+  "submitted_once": true,
+  "retry_count": 0,
+  "quota_before": 1321,
+  "request": {
+    "source_commit": "cdcb9adbfd109584ea5bcb4f6eb7e2c02d8a3ea2",
+    "script_source_commit": "932870eccabd393fa7401145b2e38db142891133",
+    "request_source_commit": "211ab30eaf537c1688828de6c5c0f5206e6c9535",
+    "authority_source_commit": "63103bac7bd2598988674d6f48fc9d70bdbabd2f",
+    "scriptSha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+    "requestSha256": "e8b72fc0535603209ab8c1fa6fa7e060942104199737a10a2b4aac2876aec79f",
+    "packetSha256": "39c9fe61885dea3535308efe1a8ba52087d6fc753c395eef35badf91ffc5ec0f",
+    "assetMapSha256": "faba0261ba58b48236bb4ffa7a8d93f5823223302a9364db2041d4266500fb5b",
+    "audioMapSha256": "7e2c7e91aa94883ff674ff15b2590274ba1f754376f8ff31c5fe6cba78ad9570",
+    "passages": [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+    ],
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "engine": "avatar_iv",
+    "aspect_ratio": "16:9",
+    "resolution": "1080p",
+    "output_format": "mp4"
+  },
+  "caps": {
+    "lesson_usd": 9.15,
+    "aggregate_usd": 36.56
+  },
+  "provider_job_id": "f15fcdd131322a8443055b3a86990dd8",
+  "submitted_at": "2026-11-05T04:22:16.321Z",
+  "completed_at": "2026-11-05T04:46:05.751Z",
+  "quota_after": 842,
+  "provider_receipt": {
+    "schema_version": "1.0",
+    "lesson": "L15",
+    "video_id": "f15fcdd131322a8443055b3a86990dd8",
+    "title": "Accelerated L15 review-only source",
+    "status": "completed",
+    "submitted_once": true,
+    "retry_count": 0,
+    "idempotency_key": "caec7246fa62f889a935c3c05832b93b50f7c5d6b7668e26b48ce374abb4294f",
+    "request": {
+      "source_commit": "cdcb9adbfd109584ea5bcb4f6eb7e2c02d8a3ea2",
+      "script_source_commit": "932870eccabd393fa7401145b2e38db142891133",
+      "request_source_commit": "211ab30eaf537c1688828de6c5c0f5206e6c9535",
+      "authority_source_commit": "63103bac7bd2598988674d6f48fc9d70bdbabd2f",
+      "scriptSha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "requestSha256": "e8b72fc0535603209ab8c1fa6fa7e060942104199737a10a2b4aac2876aec79f",
+      "packetSha256": "39c9fe61885dea3535308efe1a8ba52087d6fc753c395eef35badf91ffc5ec0f",
+      "assetMapSha256": "faba0261ba58b48236bb4ffa7a8d93f5823223302a9364db2041d4266500fb5b",
+      "audioMapSha256": "7e2c7e91aa94883ff674ff15b2590274ba1f754376f8ff31c5fe6cba78ad9570",
+      "passages": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "look_id": "329ae68b92d342f6a4362cc656d486a0",
+      "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+      "engine": "avatar_iv",
+      "aspect_ratio": "16:9",
+      "resolution": "1080p",
+      "output_format": "mp4"
+    },
+    "billing": {
+      "quota_before": 1321,
+      "quota_after": 842,
+      "quota_delta": 479,
+      "cost_usd": 7.98,
+      "per_job_cap_usd": 9.15,
+      "aggregate_cost_usd": 22.56,
+      "aggregate_cap_usd": 36.56,
+      "cap_result": "pass",
+      "auto_reload": "off",
+      "purchase_made_for_job": false
+    },
+    "artifact": {
+      "filename": "accelerated-l15-heygen-native.mp4",
+      "sha256": "b9e56a2ab6de4065621039c0ac2880327bb98caf027d57560160ef2718ad387c",
+      "duration_seconds": 99.095,
+      "width": 1920,
+      "height": 1080,
+      "frame_rate": "25/1",
+      "video_frames": 2477,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_sample_rate_hz": 48000,
+      "audio_channels": 2
+    },
+    "external_actions": {
+      "uploaded": false,
+      "published": false,
+      "distributed": false,
+      "sent_externally": false
+    },
+    "human_qa": "pending"
+  }
+}
