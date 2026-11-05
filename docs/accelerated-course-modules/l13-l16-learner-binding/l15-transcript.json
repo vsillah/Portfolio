@@ -1,0 +1,640 @@
+{
+  "source_srt_sha256": "7d7e952135dc7b11c4617d2e4387d6f53d5275f24905b50ebe8d5121813798e0",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:02.218",
+      "text": "One small test was useful."
+    },
+    {
+      "start": "00:02.218",
+      "end": "00:05.767",
+      "text": "A second team asks to run it too."
+    },
+    {
+      "start": "00:05.767",
+      "end": "00:09.316",
+      "text": "That sounds like progress, and it may be."
+    },
+    {
+      "start": "00:09.316",
+      "end": "00:12.865",
+      "text": "It also changes the shape of the work."
+    },
+    {
+      "start": "00:12.865",
+      "end": "00:20.851",
+      "text": "The first team knew the people, the context, and the reason for every field in its learning plan."
+    },
+    {
+      "start": "00:20.851",
+      "end": "00:25.731",
+      "text": "The second team receives a template and a sentence about success."
+    },
+    {
+      "start": "00:25.731",
+      "end": "00:28.836",
+      "text": "Context can disappear between those two moments."
+    },
+    {
+      "start": "00:28.836",
+      "end": "00:39.927",
+      "text": "Chapter Twenty-Four asks what changes at scale: experiments can collide, metrics can mean different things, and a tool can spread faster than a review practice."
+    },
+    {
+      "start": "00:39.927",
+      "end": "00:47.913",
+      "text": "Treat the original test from our fictional membership service as a candidate for reuse, not an approved model."
+    },
+    {
+      "start": "00:47.913",
+      "end": "00:49.687",
+      "text": "What was the job?"
+    },
+    {
+      "start": "00:49.687",
+      "end": "00:51.905",
+      "text": "Which participants were in scope?"
+    },
+    {
+      "start": "00:51.905",
+      "end": "00:54.124",
+      "text": "What did the team observe?"
+    },
+    {
+      "start": "00:54.124",
+      "end": "00:56.342",
+      "text": "Which result is still pending?"
+    },
+    {
+      "start": "00:56.342",
+      "end": "01:04.327",
+      "text": "If the new team serves people with a different access need, the first team's conclusion may not travel."
+    },
+    {
+      "start": "01:04.327",
+      "end": "01:07.876",
+      "text": "Put the source and exclusion beside the result."
+    },
+    {
+      "start": "01:07.876",
+      "end": "01:10.982",
+      "text": "Scaling begins with a transfer of judgment."
+    },
+    {
+      "start": "01:10.982",
+      "end": "01:19.411",
+      "text": "The useful question is whether another team can reproduce the decision boundary, not whether it can copy the screen."
+    },
+    {
+      "start": "01:19.411",
+      "end": "01:29.615",
+      "text": "Start the scale-readiness checklist with the parts that must travel: definition, owner, evidence, stop condition, and a place to record the next result."
+    },
+    {
+      "start": "01:29.615",
+      "end": "01:34.051",
+      "text": "At this point, speed can become a source of error."
+    },
+    {
+      "start": "01:34.051",
+      "end": "01:44.698",
+      "text": "The first team may know that an apparent improvement came from a narrow group, or that a support burden rose after the measurement window."
+    },
+    {
+      "start": "01:44.698",
+      "end": "01:47.360",
+      "text": "A copied summary loses both facts."
+    },
+    {
+      "start": "01:47.360",
+      "end": "01:52.684",
+      "text": "Ask the original owner to mark what another team must verify again."
+    },
+    {
+      "start": "01:52.684",
+      "end": "02:02.000",
+      "text": "Make that conversation part of the handoff, then record the answer so the next team does not rely on hallway memory."
+    },
+    {
+      "start": "02:02.000",
+      "end": "02:08.697",
+      "text": "The book proposes shared infrastructure: an experiment template, a hypothesis backlog, and a decision log."
+    },
+    {
+      "start": "02:08.697",
+      "end": "02:11.376",
+      "text": "These are not three new committees."
+    },
+    {
+      "start": "02:11.376",
+      "end": "02:17.627",
+      "text": "They are ways to keep a test understandable after the original team moves on."
+    },
+    {
+      "start": "02:17.627",
+      "end": "02:19.413",
+      "text": "Write a one-page record."
+    },
+    {
+      "start": "02:19.413",
+      "end": "02:25.664",
+      "text": "It names the customer job, hypothesis, eligibility rule, measure, decision threshold, date, and reviewer."
+    },
+    {
+      "start": "02:25.664",
+      "end": "02:30.129",
+      "text": "Add links to the source ledger and any observed result."
+    },
+    {
+      "start": "02:30.129",
+      "end": "02:34.594",
+      "text": "Give the next team permission to say its context differs."
+    },
+    {
+      "start": "02:34.594",
+      "end": "02:38.166",
+      "text": "A common format makes differences easier to see."
+    },
+    {
+      "start": "02:38.166",
+      "end": "02:43.970",
+      "text": "Chapter Twenty-Four also warns that a central learning team can become a bottleneck."
+    },
+    {
+      "start": "02:43.970",
+      "end": "02:53.793",
+      "text": "Assign a local owner who can run the test within an agreed boundary, and a cross-team reviewer for conflicts or shared risk."
+    },
+    {
+      "start": "02:53.793",
+      "end": "02:56.472",
+      "text": "The governance should fit the consequence."
+    },
+    {
+      "start": "02:56.472",
+      "end": "03:00.044",
+      "text": "A copy change might need a quick review."
+    },
+    {
+      "start": "03:00.044",
+      "end": "03:06.742",
+      "text": "A change to pricing, access, privacy, or billing needs the people who own those obligations."
+    },
+    {
+      "start": "03:06.742",
+      "end": "03:20.583",
+      "text": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises."
+    },
+    {
+      "start": "03:20.583",
+      "end": "03:27.280",
+      "text": "The record should help work move, not make people prove that they filled every box."
+    },
+    {
+      "start": "03:27.280",
+      "end": "03:30.852",
+      "text": "Use the template as a doorway into judgment."
+    },
+    {
+      "start": "03:30.852",
+      "end": "03:38.443",
+      "text": "A reviewer should be able to spot a missing source or conflicting test without reading a novel."
+    },
+    {
+      "start": "03:38.443",
+      "end": "03:44.694",
+      "text": "Show who has authority to pause work when an access or privacy problem appears."
+    },
+    {
+      "start": "03:44.694",
+      "end": "03:47.373",
+      "text": "Write the escalation in ordinary language."
+    },
+    {
+      "start": "03:47.373",
+      "end": "03:55.856",
+      "text": "If nobody can tell who owns the next decision, the process is too vague to protect the people involved."
+    },
+    {
+      "start": "03:55.856",
+      "end": "04:03.000",
+      "text": "If every minor edit waits for a central committee, it is too heavy to help them."
+    },
+    {
+      "start": "04:03.000",
+      "end": "04:05.650",
+      "text": "Chapter Twenty-Four names five scaling mistakes."
+    },
+    {
+      "start": "04:05.650",
+      "end": "04:08.741",
+      "text": "A central team can become a bottleneck."
+    },
+    {
+      "start": "04:08.741",
+      "end": "04:12.715",
+      "text": "Documentation can grow so heavy that people stop testing."
+    },
+    {
+      "start": "04:12.715",
+      "end": "04:17.573",
+      "text": "The organization can fixate on one tool instead of shared learning."
+    },
+    {
+      "start": "04:17.573",
+      "end": "04:21.989",
+      "text": "Teams can resist a process they did not help shape."
+    },
+    {
+      "start": "04:21.989",
+      "end": "04:27.730",
+      "text": "And leaders can expand across the whole organization before the first handoff works."
+    },
+    {
+      "start": "04:27.730",
+      "end": "04:33.912",
+      "text": "Put those five labels on the checklist and test your own proposal against them."
+    },
+    {
+      "start": "04:33.912",
+      "end": "04:36.562",
+      "text": "Which one is most likely here?"
+    },
+    {
+      "start": "04:36.562",
+      "end": "04:47.602",
+      "text": "In the fictional membership case, tool fixation could be tempting: the first team has a spreadsheet, so everyone is told to use the same spreadsheet."
+    },
+    {
+      "start": "04:47.602",
+      "end": "04:53.785",
+      "text": "What matters is whether the second team can understand the hypothesis, measure, and decision."
+    },
+    {
+      "start": "04:53.785",
+      "end": "04:59.084",
+      "text": "Another tool could carry the same record if it preserves the contract."
+    },
+    {
+      "start": "04:59.084",
+      "end": "05:01.292",
+      "text": "Resistance can also be information."
+    },
+    {
+      "start": "05:01.292",
+      "end": "05:07.916",
+      "text": "Ask what work the new team already does and what burden the process would add."
+    },
+    {
+      "start": "05:07.916",
+      "end": "05:14.540",
+      "text": "A five-minute decision note may fit; a fifty-page report will likely disappear into the backlog."
+    },
+    {
+      "start": "05:14.540",
+      "end": "05:24.697",
+      "text": "The chapter's maturity question is powerful: can a new colleague explain why the organization passed on an obvious alternative, citing the decision record?"
+    },
+    {
+      "start": "05:24.697",
+      "end": "05:31.321",
+      "text": "If the answer lives only in one person's memory, the system has not yet traveled."
+    },
+    {
+      "start": "05:31.321",
+      "end": "05:35.296",
+      "text": "Check the next-team burden before declaring the system ready."
+    },
+    {
+      "start": "05:35.296",
+      "end": "05:41.478",
+      "text": "Have someone outside the first team fill out the record with a fictional case."
+    },
+    {
+      "start": "05:41.478",
+      "end": "05:46.777",
+      "text": "Note which fields they cannot interpret and which handoffs require a conversation."
+    },
+    {
+      "start": "05:46.777",
+      "end": "05:49.869",
+      "text": "Revise the form before a live rollout."
+    },
+    {
+      "start": "05:49.869",
+      "end": "05:58.701",
+      "text": "Keep the five book labels attached to this check; they are a useful warning, not a score or maturity ranking."
+    },
+    {
+      "start": "05:58.701",
+      "end": "06:04.000",
+      "text": "A low score invented for the slide would add confidence without evidence."
+    },
+    {
+      "start": "06:04.000",
+      "end": "06:06.224",
+      "text": "Chapter Twenty-Five returns to Sam."
+    },
+    {
+      "start": "06:06.224",
+      "end": "06:15.567",
+      "text": "The book describes a calmer operating rhythm: fewer frantic searches for context, shorter decisions, and a record that people can find."
+    },
+    {
+      "start": "06:15.567",
+      "end": "06:17.791",
+      "text": "This is the book's illustration."
+    },
+    {
+      "start": "06:17.791",
+      "end": "06:25.354",
+      "text": "It is not evidence that our fictional membership service, AmaduTown, or this workshop has produced those outcomes."
+    },
+    {
+      "start": "06:25.354",
+      "end": "06:32.027",
+      "text": "The story is useful because it shows what institutional memory feels like in daily work."
+    },
+    {
+      "start": "06:32.027",
+      "end": "06:35.141",
+      "text": "Someone asks why a choice was made."
+    },
+    {
+      "start": "06:35.141",
+      "end": "06:41.369",
+      "text": "Instead of rebuilding the argument from old messages, the team opens the decision log."
+    },
+    {
+      "start": "06:41.369",
+      "end": "06:44.038",
+      "text": "Someone wants to repeat a test."
+    },
+    {
+      "start": "06:44.038",
+      "end": "06:50.711",
+      "text": "Instead of copying a result without context, they can inspect the participants, measure, and revision."
+    },
+    {
+      "start": "06:50.711",
+      "end": "06:54.270",
+      "text": "Notice how much of this depends on people."
+    },
+    {
+      "start": "06:54.270",
+      "end": "07:04.947",
+      "text": "A record must be written well enough to be read; a reviewer must notice when evidence no longer fits; an owner must still decide."
+    },
+    {
+      "start": "07:04.947",
+      "end": "07:09.395",
+      "text": "Automated routing can move a source to the right place."
+    },
+    {
+      "start": "07:09.395",
+      "end": "07:14.734",
+      "text": "It cannot determine whether a past finding applies to a different community."
+    },
+    {
+      "start": "07:14.734",
+      "end": "07:20.517",
+      "text": "In the storyboard, keep Sam's narrative label separate from any observed evidence card."
+    },
+    {
+      "start": "07:20.517",
+      "end": "07:27.635",
+      "text": "We will not film a fabricated board meeting as if it happened in the present project."
+    },
+    {
+      "start": "07:27.635",
+      "end": "07:32.529",
+      "text": "The before-and-after story can tempt us to promise relief too early."
+    },
+    {
+      "start": "07:32.529",
+      "end": "07:45.875",
+      "text": "Ask what would have to be measured to make that claim in a real organization: time spent finding context, repeated decisions, missed handoffs, and the cost of maintaining the records."
+    },
+    {
+      "start": "07:45.875",
+      "end": "07:50.323",
+      "text": "A calmer calendar alone would not explain why it changed."
+    },
+    {
+      "start": "07:50.323",
+      "end": "07:55.217",
+      "text": "Keep the causal claim open until the evidence can support it."
+    },
+    {
+      "start": "07:55.217",
+      "end": "08:01.000",
+      "text": "The lesson is a working rhythm that people can inspect, revise, and own."
+    },
+    {
+      "start": "08:01.000",
+      "end": "08:06.363",
+      "text": "The decision-memory record is where a useful test becomes a reusable asset."
+    },
+    {
+      "start": "08:06.363",
+      "end": "08:09.938",
+      "text": "Write what the team believed before the test."
+    },
+    {
+      "start": "08:09.938",
+      "end": "08:12.172",
+      "text": "Link to the source evidence."
+    },
+    {
+      "start": "08:12.172",
+      "end": "08:15.747",
+      "text": "Record what happened, including contrary observations and limits."
+    },
+    {
+      "start": "08:15.747",
+      "end": "08:22.451",
+      "text": "State the choice, the person accountable for it, and the condition that would reopen it."
+    },
+    {
+      "start": "08:22.451",
+      "end": "08:26.919",
+      "text": "Add the date when its context should be checked again."
+    },
+    {
+      "start": "08:26.919",
+      "end": "08:30.495",
+      "text": "If the decision was to defer, say why."
+    },
+    {
+      "start": "08:30.495",
+      "end": "08:34.516",
+      "text": "If the result contradicted the hypothesis, keep it visible."
+    },
+    {
+      "start": "08:34.516",
+      "end": "08:45.242",
+      "text": "A later team should be able to ask a narrow question: does this past decision still apply to our people and our operating constraints?"
+    },
+    {
+      "start": "08:45.242",
+      "end": "08:51.051",
+      "text": "The book's Sam story treats searchable decisions as part of a learning system."
+    },
+    {
+      "start": "08:51.051",
+      "end": "08:55.520",
+      "text": "We can borrow that practice without borrowing its claimed numbers."
+    },
+    {
+      "start": "08:55.520",
+      "end": "09:04.458",
+      "text": "For the membership exercise, a record might say the short-commitment offer remains a hypothesis until an approved test is reviewed."
+    },
+    {
+      "start": "09:04.458",
+      "end": "09:07.586",
+      "text": "It should not say the model works."
+    },
+    {
+      "start": "09:07.586",
+      "end": "09:16.524",
+      "text": "Link the two-audience pitch from Lesson Fourteen, the learning plan from Lesson Eight, and the job card from Lesson Twelve."
+    },
+    {
+      "start": "09:16.524",
+      "end": "09:22.780",
+      "text": "Now the record shows the chain from input to interpretation to test to choice."
+    },
+    {
+      "start": "09:22.780",
+      "end": "09:25.908",
+      "text": "If a source is missing, mark it."
+    },
+    {
+      "start": "09:25.908",
+      "end": "09:30.824",
+      "text": "Recoverability depends on honest gaps as much as on good summaries."
+    },
+    {
+      "start": "09:30.824",
+      "end": "09:33.059",
+      "text": "Imagine the original owner leaves."
+    },
+    {
+      "start": "09:33.059",
+      "end": "09:41.549",
+      "text": "Can the next person find the most recent source, the decision threshold, and the reason an alternative was rejected?"
+    },
+    {
+      "start": "09:41.549",
+      "end": "09:44.231",
+      "text": "If not, add that missing link."
+    },
+    {
+      "start": "09:44.231",
+      "end": "09:53.168",
+      "text": "If an AI summary is attached, preserve the original record beside it and name the human who checked the summary."
+    },
+    {
+      "start": "09:53.168",
+      "end": "09:58.978",
+      "text": "The memory is only as reliable as the path back to its evidence."
+    },
+    {
+      "start": "09:58.978",
+      "end": "10:03.000",
+      "text": "A confident paragraph without source links will age badly."
+    },
+    {
+      "start": "10:03.000",
+      "end": "10:05.216",
+      "text": "Pause and complete two pages."
+    },
+    {
+      "start": "10:05.216",
+      "end": "10:14.523",
+      "text": "First, the scale-readiness checklist: common definition, participant boundary, measure, owner, review cadence, conflict check, privacy or billing escalation, and stop rule."
+    },
+    {
+      "start": "10:14.523",
+      "end": "10:17.625",
+      "text": "Mark each field ready, missing, or context-dependent."
+    },
+    {
+      "start": "10:17.625",
+      "end": "10:25.159",
+      "text": "Second, the decision-memory record: original question, evidence, test, outcome state, decision, rejected alternative, rationale, and revisit date."
+    },
+    {
+      "start": "10:25.159",
+      "end": "10:32.693",
+      "text": "Resume when a second team could explain what it may reuse and what it must validate again."
+    },
+    {
+      "start": "10:32.693",
+      "end": "10:39.341",
+      "text": "If your current evidence is only a synthetic workshop exercise, mark the scale decision blocked."
+    },
+    {
+      "start": "10:39.341",
+      "end": "10:43.773",
+      "text": "Do not turn a hypothetical success into a rollout plan."
+    },
+    {
+      "start": "10:43.773",
+      "end": "10:52.193",
+      "text": "In your own organization, keep private records inside approved systems and use only public, synthetic, or approved data here."
+    },
+    {
+      "start": "10:52.193",
+      "end": "10:58.841",
+      "text": "The book gives us Sam's operating story and a set of governance problems to watch."
+    },
+    {
+      "start": "10:58.841",
+      "end": "11:08.148",
+      "text": "The exercise asks for a smaller, inspectable answer: can another team find the evidence and know who can stop the test?"
+    },
+    {
+      "start": "11:08.148",
+      "end": "11:13.466",
+      "text": "The final lesson returns to the decision you named at the start."
+    },
+    {
+      "start": "11:13.466",
+      "end": "11:20.557",
+      "text": "We will choose one move for the next week and give it a real review date."
+    },
+    {
+      "start": "11:20.557",
+      "end": "11:28.091",
+      "text": "Learning becomes infrastructure when another person can pick up the record and act with the same care."
+    },
+    {
+      "start": "11:28.091",
+      "end": "11:33.409",
+      "text": "End with a decision about readiness, even if the answer is wait."
+    },
+    {
+      "start": "11:33.409",
+      "end": "11:40.500",
+      "text": "Choose one neighboring team for a future handoff only after the record survives a dry run."
+    },
+    {
+      "start": "11:40.500",
+      "end": "11:46.705",
+      "text": "State which safeguards belong to the shared process and which must be set locally."
+    },
+    {
+      "start": "11:46.705",
+      "end": "11:52.466",
+      "text": "This keeps a successful local experiment from becoming an organization-wide promise by accident."
+    },
+    {
+      "start": "11:52.466",
+      "end": "12:00.000",
+      "text": "The aim is a repeatable learning practice that can carry disagreement and correction as well as success."
+    }
+  ]
+}

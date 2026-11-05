@@ -42,7 +42,7 @@ describe('Accelerated L04 approved learner binding', () => {
     expect(() => validateReconciliation({ ...reconciliation, bindings: { ...reconciliation.bindings, approved_srt_sha256: 'wrong' } }, packet)).toThrow(/mismatched/)
   })
 
-  it('plays L04 with captions and transcript, returns to progress, preserves L01–L03 and L05–L08, and locks L09–L16', () => {
+  it('plays L04 with captions and transcript, returns to progress, preserves L01–L03 and L05–L08, and preserves L09–L16 readiness', () => {
     expect(l01Media.video).toContain('/l01/')
     expect(l02Media.video).toContain('/l02/')
     expect(l03Media.video).toContain('/l03/')
@@ -68,9 +68,7 @@ describe('Accelerated L04 approved learner binding', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
     for (const lesson of lessons.slice(8)) {
-      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${lesson.id}:.*locked`) }))
-      expect(screen.getByRole('button', { name: `Watch ${lesson.id} guided video, unavailable until production review` })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'Completion unavailable' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: new RegExp(`^${lesson.id}:`) })).toBeEnabled()
     }
   })
 })

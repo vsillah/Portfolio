@@ -43,7 +43,7 @@ describe('Accelerated L02 learner binding', () => {
     expect(hash(`public${l01Media.video}`)).toBe('ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a')
   })
 
-  it('plays L02 with captions and transcript, returns to plan, and keeps L09–L16 locked', () => {
+  it('plays L02 with captions and transcript, returns to plan, and preserves L09–L16 readiness', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
     expect(screen.getByText('L02 guided video is ready')).toBeInTheDocument()
@@ -61,11 +61,8 @@ describe('Accelerated L02 learner binding', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
     for (const item of lessons.slice(8)) {
-      const row = screen.getByRole('button', { name: new RegExp(`^${item.id}:.*locked`) })
-      expect(row.querySelector('[data-state]')).toHaveAttribute('data-state', 'locked')
-      fireEvent.click(row)
-      expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'Completion unavailable' })).toBeDisabled()
+      const row = screen.getByRole('button', { name: new RegExp(`^${item.id}:`) })
+      expect(row.querySelector('[data-state]')).not.toHaveAttribute('data-state', 'locked')
     }
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
   })

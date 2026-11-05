@@ -1,0 +1,450 @@
+{
+  "source_srt_sha256": "980e1360a3b2c825a836e759146070787ffbf65ef30f29da42795d3cc8277904",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:04.790",
+      "text": "Go back to the decision you wrote on the first page."
+    },
+    {
+      "start": "00:04.790",
+      "end": "00:13.500",
+      "text": "At the time, it may have been a broad request: improve onboarding, grow revenue, or use AI to move faster."
+    },
+    {
+      "start": "00:13.500",
+      "end": "00:16.548",
+      "text": "The file now gives that request edges."
+    },
+    {
+      "start": "00:16.548",
+      "end": "00:27.871",
+      "text": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it."
+    },
+    {
+      "start": "00:27.871",
+      "end": "00:31.790",
+      "text": "Chapter Twenty-Six calls for starting with one pain point."
+    },
+    {
+      "start": "00:31.790",
+      "end": "00:35.710",
+      "text": "That is the right size for the next week."
+    },
+    {
+      "start": "00:35.710",
+      "end": "00:41.806",
+      "text": "Look at the Signals, Alignment, and Momentum labels on the approved Accelerated SAM infographic."
+    },
+    {
+      "start": "00:41.806",
+      "end": "00:51.387",
+      "text": "They describe the path we have practiced: notice a signal, align a choice, and keep the learning available for the next decision."
+    },
+    {
+      "start": "00:51.387",
+      "end": "00:57.919",
+      "text": "The art is a map, not a claim that your organization has finished the journey."
+    },
+    {
+      "start": "00:57.919",
+      "end": "01:03.581",
+      "text": "Which question in your file is both important and answerable in seven days?"
+    },
+    {
+      "start": "01:03.581",
+      "end": "01:04.452",
+      "text": "Choose one."
+    },
+    {
+      "start": "01:04.452",
+      "end": "01:14.468",
+      "text": "If the evidence is too weak for a launch, the next move may be an interview, a source audit, or a prototype test."
+    },
+    {
+      "start": "01:14.468",
+      "end": "01:21.000",
+      "text": "A smaller honest move is more valuable than a large promise that cannot be checked."
+    },
+    {
+      "start": "01:21.000",
+      "end": "01:24.094",
+      "text": "Sam appears again in the final chapter."
+    },
+    {
+      "start": "01:24.094",
+      "end": "01:32.492",
+      "text": "A junior colleague can find a past decision and use it without asking her to reconstruct the whole story."
+    },
+    {
+      "start": "01:32.492",
+      "end": "01:37.796",
+      "text": "That is a book illustration, not a verified outcome in this course."
+    },
+    {
+      "start": "01:37.796",
+      "end": "01:43.541",
+      "text": "The learner's file should make a similar handoff possible on a smaller scale."
+    },
+    {
+      "start": "01:43.541",
+      "end": "01:46.193",
+      "text": "Read it from front to back."
+    },
+    {
+      "start": "01:46.193",
+      "end": "01:49.287",
+      "text": "The cover sheet states the data boundary."
+    },
+    {
+      "start": "01:49.287",
+      "end": "01:53.265",
+      "text": "The priority page records the alternatives you passed over."
+    },
+    {
+      "start": "01:53.265",
+      "end": "02:00.779",
+      "text": "The evidence ledger and living persona show what you know about the job and what remains uncertain."
+    },
+    {
+      "start": "02:00.779",
+      "end": "02:05.641",
+      "text": "The roadmap and PRD trace keep the test connected to implementation."
+    },
+    {
+      "start": "02:05.641",
+      "end": "02:09.619",
+      "text": "The ten-component learning plan names the measure and tripwire."
+    },
+    {
+      "start": "02:09.619",
+      "end": "02:13.155",
+      "text": "The influence map shows who needs which evidence."
+    },
+    {
+      "start": "02:13.155",
+      "end": "02:19.343",
+      "text": "The strategy and concept cards show a possible future without treating it as fact."
+    },
+    {
+      "start": "02:19.343",
+      "end": "02:23.762",
+      "text": "The governance pages tell a second team what can travel."
+    },
+    {
+      "start": "02:23.762",
+      "end": "02:27.740",
+      "text": "If one page contradicts another, fix the record now."
+    },
+    {
+      "start": "02:27.740",
+      "end": "02:30.834",
+      "text": "The goal is not a beautiful binder."
+    },
+    {
+      "start": "02:30.834",
+      "end": "02:35.696",
+      "text": "It is a decision another person can understand, challenge, and revisit."
+    },
+    {
+      "start": "02:35.696",
+      "end": "02:41.000",
+      "text": "Pick the one unresolved question that matters most to the next move."
+    },
+    {
+      "start": "02:41.000",
+      "end": "02:46.200",
+      "text": "Write the next action in a sentence that begins with a verb."
+    },
+    {
+      "start": "02:46.200",
+      "end": "02:49.667",
+      "text": "Interview three approved participants about the first task."
+    },
+    {
+      "start": "02:49.667",
+      "end": "02:53.133",
+      "text": "Review six source notes with the service owner."
+    },
+    {
+      "start": "02:53.133",
+      "end": "02:57.900",
+      "text": "Test two versions of a concept with a small, eligible group."
+    },
+    {
+      "start": "02:57.900",
+      "end": "03:04.400",
+      "text": "The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes."
+    },
+    {
+      "start": "03:04.400",
+      "end": "03:08.733",
+      "text": "Choose the move that fits your actual permission and capacity."
+    },
+    {
+      "start": "03:08.733",
+      "end": "03:11.333",
+      "text": "Add a person who owns it."
+    },
+    {
+      "start": "03:11.333",
+      "end": "03:15.233",
+      "text": "Add a review date within the next seven days."
+    },
+    {
+      "start": "03:15.233",
+      "end": "03:21.300",
+      "text": "Decide in advance what evidence you will collect and where it will be stored."
+    },
+    {
+      "start": "03:21.300",
+      "end": "03:29.100",
+      "text": "Name one observation that would make you revise the idea and one condition that would stop the test."
+    },
+    {
+      "start": "03:29.100",
+      "end": "03:39.067",
+      "text": "If the work touches sensitive data, pricing, access, or a promise to a customer, bring the authorized owner into the design before acting."
+    },
+    {
+      "start": "03:39.067",
+      "end": "03:43.833",
+      "text": "A model can help organize the question or draft a card."
+    },
+    {
+      "start": "03:43.833",
+      "end": "03:49.467",
+      "text": "It cannot grant consent, approve a change, or absorb responsibility for a result."
+    },
+    {
+      "start": "03:49.467",
+      "end": "03:59.000",
+      "text": "The final chapter's call to start small becomes practical when the small step has a date and a person attached to it."
+    },
+    {
+      "start": "03:59.000",
+      "end": "04:02.960",
+      "text": "Before you schedule the review, inspect the source labels."
+    },
+    {
+      "start": "04:02.960",
+      "end": "04:09.560",
+      "text": "An observed note records what a person actually said or did under an approved process."
+    },
+    {
+      "start": "04:09.560",
+      "end": "04:13.080",
+      "text": "An interpretation states what you think it means."
+    },
+    {
+      "start": "04:13.080",
+      "end": "04:16.160",
+      "text": "A simulation suggests a question to ask."
+    },
+    {
+      "start": "04:16.160",
+      "end": "04:23.200",
+      "text": "These three can sit in one decision file, but they cannot be merged into one claim."
+    },
+    {
+      "start": "04:23.200",
+      "end": "04:26.280",
+      "text": "The same applies to the book's cases."
+    },
+    {
+      "start": "04:26.280",
+      "end": "04:31.560",
+      "text": "StratQuest, VisionScope, MarketCraft, Persuasive GPT, and Sam's story belong to the book."
+    },
+    {
+      "start": "04:31.560",
+      "end": "04:41.240",
+      "text": "They offered teaching frames; they do not establish that a tool is deployed here or that a result happened in your organization."
+    },
+    {
+      "start": "04:41.240",
+      "end": "04:49.160",
+      "text": "If your next action depends on a result you have only imagined, move the action back to validation."
+    },
+    {
+      "start": "04:49.160",
+      "end": "04:57.080",
+      "text": "If it depends on private records, keep those records in the system that is authorized to hold them."
+    },
+    {
+      "start": "04:57.080",
+      "end": "05:01.040",
+      "text": "Use public, synthetic, or approved material for this workshop."
+    },
+    {
+      "start": "05:01.040",
+      "end": "05:12.040",
+      "text": "Good boundaries make learning possible because the team can tell what it is allowed to use, what still needs consent, and what remains a hypothesis."
+    },
+    {
+      "start": "05:12.040",
+      "end": "05:16.000",
+      "text": "That clarity makes the next decision easier to trust."
+    },
+    {
+      "start": "05:16.000",
+      "end": "05:24.324",
+      "text": "Put a short review on the calendar with the owner and anyone whose work or access the test affects."
+    },
+    {
+      "start": "05:24.324",
+      "end": "05:28.705",
+      "text": "Send the decision question and the source links in advance."
+    },
+    {
+      "start": "05:28.705",
+      "end": "05:35.276",
+      "text": "At the meeting, open with what happened, including the observations that complicate your preferred story."
+    },
+    {
+      "start": "05:35.276",
+      "end": "05:40.095",
+      "text": "Compare the result with the threshold you wrote before the test."
+    },
+    {
+      "start": "05:40.095",
+      "end": "05:47.543",
+      "text": "Record one of four next states: continue, revise, stop, or gather a specific missing piece of evidence."
+    },
+    {
+      "start": "05:47.543",
+      "end": "05:51.048",
+      "text": "Leave the outcome field blank until the review."
+    },
+    {
+      "start": "05:51.048",
+      "end": "06:00.248",
+      "text": "The book's closing image is a system that grows through repeated choices, not a final piece of software to install once."
+    },
+    {
+      "start": "06:00.248",
+      "end": "06:05.067",
+      "text": "Your first loop may be a page and a calendar reminder."
+    },
+    {
+      "start": "06:05.067",
+      "end": "06:12.952",
+      "text": "That is enough if the page is honest and the reminder brings people back to a real decision."
+    },
+    {
+      "start": "06:12.952",
+      "end": "06:16.019",
+      "text": "If the test fails, keep the learning."
+    },
+    {
+      "start": "06:16.019",
+      "end": "06:21.276",
+      "text": "If it succeeds in one context, state that context before sharing it."
+    },
+    {
+      "start": "06:21.276",
+      "end": "06:25.657",
+      "text": "A result becomes reusable when its limits travel with it."
+    },
+    {
+      "start": "06:25.657",
+      "end": "06:31.790",
+      "text": "Give the next owner a record they can read without guessing what you meant."
+    },
+    {
+      "start": "06:31.790",
+      "end": "06:38.800",
+      "text": "The chapter's One Year From Now passage imagines a large body of feedback, experiments, and decisions."
+    },
+    {
+      "start": "06:38.800",
+      "end": "06:48.000",
+      "text": "Treat those figures as a possible future in the book, never as a forecast or a result promised by this course."
+    },
+    {
+      "start": "06:48.000",
+      "end": "06:50.182",
+      "text": "Pause and assemble the file."
+    },
+    {
+      "start": "06:50.182",
+      "end": "06:59.345",
+      "text": "Put the one-week commitment on top: the decision, next action, owner, evidence to collect, review date, and stop or revision condition."
+    },
+    {
+      "start": "06:59.345",
+      "end": "07:05.018",
+      "text": "Check that every claim below it carries a source or an uncertainty label."
+    },
+    {
+      "start": "07:05.018",
+      "end": "07:13.309",
+      "text": "Resume when you can say the action aloud to another person and they can tell what will happen next."
+    },
+    {
+      "start": "07:13.309",
+      "end": "07:18.545",
+      "text": "You do not need to run every tool named in the book."
+    },
+    {
+      "start": "07:18.545",
+      "end": "07:29.455",
+      "text": "You do need a way to notice a problem, test a response, preserve the result, and let someone make the next choice with that knowledge."
+    },
+    {
+      "start": "07:29.455",
+      "end": "07:32.945",
+      "text": "The final chapter says the system is unfinished."
+    },
+    {
+      "start": "07:32.945",
+      "end": "07:36.873",
+      "text": "That is a useful ending because real work changes."
+    },
+    {
+      "start": "07:36.873",
+      "end": "07:37.745",
+      "text": "People change."
+    },
+    {
+      "start": "07:37.745",
+      "end": "07:38.618",
+      "text": "Conditions change."
+    },
+    {
+      "start": "07:38.618",
+      "end": "07:45.164",
+      "text": "A decision file should make revision possible without erasing the path that brought you here."
+    },
+    {
+      "start": "07:45.164",
+      "end": "07:49.091",
+      "text": "Next week, do the one move you wrote down."
+    },
+    {
+      "start": "07:49.091",
+      "end": "07:51.273",
+      "text": "Then return to the record."
+    },
+    {
+      "start": "07:51.273",
+      "end": "07:53.018",
+      "text": "What did you observe?"
+    },
+    {
+      "start": "07:53.018",
+      "end": "07:54.764",
+      "text": "What did it change?"
+    },
+    {
+      "start": "07:54.764",
+      "end": "07:56.509",
+      "text": "Who needs to know?"
+    },
+    {
+      "start": "07:56.509",
+      "end": "08:00.000",
+      "text": "Write the answer, and the next loop begins."
+    }
+  ]
+}

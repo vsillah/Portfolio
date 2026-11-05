@@ -1,0 +1,555 @@
+{
+  "source_srt_sha256": "3b2f78879d3b9ee9f79d60e7cecb8f42abc56b89e1e2b94a2df62ee74a462fe3",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:01.942",
+      "text": "Picture a Monday meeting."
+    },
+    {
+      "start": "00:01.942",
+      "end": "00:03.884",
+      "text": "The dashboard is flat."
+    },
+    {
+      "start": "00:03.884",
+      "end": "00:14.079",
+      "text": "Someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck."
+    },
+    {
+      "start": "00:14.079",
+      "end": "00:18.934",
+      "text": "In Chapter Twenty-One, Sam faces that pressure and opens StratQuest."
+    },
+    {
+      "start": "00:18.934",
+      "end": "00:21.361",
+      "text": "This is a book story."
+    },
+    {
+      "start": "00:21.361",
+      "end": "00:25.245",
+      "text": "Our membership-service example is a separate teaching exercise."
+    },
+    {
+      "start": "00:25.245",
+      "end": "00:32.527",
+      "text": "Its numbers are intentionally blank because we have observed no customer result for this exercise."
+    },
+    {
+      "start": "00:32.527",
+      "end": "00:34.954",
+      "text": "Start with four possible constraints."
+    },
+    {
+      "start": "00:34.954",
+      "end": "00:37.867",
+      "text": "Is the customer job poorly understood?"
+    },
+    {
+      "start": "00:37.867",
+      "end": "00:40.780",
+      "text": "Is the product hard to use?"
+    },
+    {
+      "start": "00:40.780",
+      "end": "00:46.120",
+      "text": "Does the way people pay conflict with when they receive value?"
+    },
+    {
+      "start": "00:46.120",
+      "end": "00:50.004",
+      "text": "Or is the offer reaching the wrong buyer?"
+    },
+    {
+      "start": "00:50.004",
+      "end": "00:53.402",
+      "text": "Each explanation points to a different test."
+    },
+    {
+      "start": "00:53.402",
+      "end": "00:56.801",
+      "text": "A flat chart alone cannot distinguish them."
+    },
+    {
+      "start": "00:56.801",
+      "end": "01:02.141",
+      "text": "Bring forward the job and evidence gap from the last lesson."
+    },
+    {
+      "start": "01:02.141",
+      "end": "01:08.938",
+      "text": "If the job is unverified, price changes may only make an unclear service cheaper."
+    },
+    {
+      "start": "01:08.938",
+      "end": "01:16.705",
+      "text": "If the job is clear and people use the service in bursts, the model deserves scrutiny."
+    },
+    {
+      "start": "01:16.705",
+      "end": "01:21.560",
+      "text": "Write the assumption that would make a model change sensible."
+    },
+    {
+      "start": "01:21.560",
+      "end": "01:23.988",
+      "text": "Put its source beside it."
+    },
+    {
+      "start": "01:23.988",
+      "end": "01:37.095",
+      "text": "A strategic conversation gets better when the room can see which claim came from a person, which came from a record, and which is still a guess."
+    },
+    {
+      "start": "01:37.095",
+      "end": "01:40.494",
+      "text": "We are diagnosing before we commit resources."
+    },
+    {
+      "start": "01:40.494",
+      "end": "01:45.834",
+      "text": "A useful diagnosis can also rule out the most attractive explanation."
+    },
+    {
+      "start": "01:45.834",
+      "end": "01:50.689",
+      "text": "Record the rejected explanation and the evidence that weakened it."
+    },
+    {
+      "start": "01:50.689",
+      "end": "01:57.000",
+      "text": "That line may save the team from revisiting the same argument next month."
+    },
+    {
+      "start": "01:57.000",
+      "end": "02:01.844",
+      "text": "StratQuest is the name of the book's guided strategy case."
+    },
+    {
+      "start": "02:01.844",
+      "end": "02:10.080",
+      "text": "The chapter compares usage-based pricing, a seasonal freemium upgrade, and a professional-services hybrid for a subscription problem."
+    },
+    {
+      "start": "02:10.080",
+      "end": "02:14.924",
+      "text": "Those are its alternatives, not a recommendation for every business."
+    },
+    {
+      "start": "02:14.924",
+      "end": "02:17.831",
+      "text": "Put the options side by side."
+    },
+    {
+      "start": "02:17.831",
+      "end": "02:25.582",
+      "text": "Usage-based pricing can align payment with active use, but billing and cash flow become more variable."
+    },
+    {
+      "start": "02:25.582",
+      "end": "02:37.209",
+      "text": "A free tier can lower the first commitment, but a generous free offer may never lead to the job people will pay to complete."
+    },
+    {
+      "start": "02:37.209",
+      "end": "02:45.444",
+      "text": "Services can bring expert help close to the customer, but delivery capacity becomes part of the model."
+    },
+    {
+      "start": "02:45.444",
+      "end": "02:51.742",
+      "text": "For our fictional membership service, borrow the comparison method, not the book's results."
+    },
+    {
+      "start": "02:51.742",
+      "end": "03:00.462",
+      "text": "Ask who pays, when value arrives, what work staff must do, and what would make the change reversible."
+    },
+    {
+      "start": "03:00.462",
+      "end": "03:04.338",
+      "text": "Keep a fourth column for the current model."
+    },
+    {
+      "start": "03:04.338",
+      "end": "03:11.604",
+      "text": "The current choice is an alternative too; it carries costs and deserves a fair test."
+    },
+    {
+      "start": "03:11.604",
+      "end": "03:15.480",
+      "text": "A model is a set of operating promises."
+    },
+    {
+      "start": "03:15.480",
+      "end": "03:20.324",
+      "text": "It changes invoices, service rhythms, support, and the customer's expectations."
+    },
+    {
+      "start": "03:20.324",
+      "end": "03:27.107",
+      "text": "If we cannot explain those consequences, we are not ready to announce a pivot."
+    },
+    {
+      "start": "03:27.107",
+      "end": "03:30.982",
+      "text": "We are ready to ask a better question."
+    },
+    {
+      "start": "03:30.982",
+      "end": "03:33.889",
+      "text": "Keep this comparison on one page."
+    },
+    {
+      "start": "03:33.889",
+      "end": "03:46.000",
+      "text": "If the proposal requires a second system, a new contract, or more staff time, write that requirement in the same row as its promised benefit."
+    },
+    {
+      "start": "03:46.000",
+      "end": "03:51.359",
+      "text": "The fourth StratQuest session turns a preferred option into a test."
+    },
+    {
+      "start": "03:51.359",
+      "end": "03:58.179",
+      "text": "In the book case, a cohort compares a flexible price with the existing subscription."
+    },
+    {
+      "start": "03:58.179",
+      "end": "04:05.000",
+      "text": "We will not copy its percentages into our exercise or promise the same outcome."
+    },
+    {
+      "start": "04:05.000",
+      "end": "04:12.308",
+      "text": "Suppose our fictional membership service wonders whether a shorter commitment would help new members begin."
+    },
+    {
+      "start": "04:12.308",
+      "end": "04:25.462",
+      "text": "A first test could be a concept interview with approved participants, followed by a small, consented offer test only if the organization can fulfill the new terms."
+    },
+    {
+      "start": "04:25.462",
+      "end": "04:31.795",
+      "text": "Decide what evidence would support the idea and what would make you stop."
+    },
+    {
+      "start": "04:31.795",
+      "end": "04:34.231",
+      "text": "Conversion alone is too narrow."
+    },
+    {
+      "start": "04:34.231",
+      "end": "04:42.513",
+      "text": "Check whether people understand the offer, whether staff can deliver it, and whether the economics remain viable."
+    },
+    {
+      "start": "04:42.513",
+      "end": "04:47.872",
+      "text": "Put the test in the ten-component learning plan from Lesson Eight."
+    },
+    {
+      "start": "04:47.872",
+      "end": "04:52.744",
+      "text": "Name the owner and the date before seeing any result."
+    },
+    {
+      "start": "04:52.744",
+      "end": "05:01.513",
+      "text": "If the test could affect billing or access, a responsible operator reviews the terms before any live exposure."
+    },
+    {
+      "start": "05:01.513",
+      "end": "05:04.923",
+      "text": "For this workshop, the card remains fictional."
+    },
+    {
+      "start": "05:04.923",
+      "end": "05:18.564",
+      "text": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course."
+    },
+    {
+      "start": "05:18.564",
+      "end": "05:24.897",
+      "text": "The test should reduce uncertainty without making a promise the team cannot keep."
+    },
+    {
+      "start": "05:24.897",
+      "end": "05:27.333",
+      "text": "Make the stop condition observable."
+    },
+    {
+      "start": "05:27.333",
+      "end": "05:40.000",
+      "text": "A vague sense that the test is not working will be hard to use when the team has already invested effort and hopes the result improves."
+    },
+    {
+      "start": "05:40.000",
+      "end": "05:46.292",
+      "text": "A model choice can sound logical inside the team and confusing outside it."
+    },
+    {
+      "start": "05:46.292",
+      "end": "05:49.680",
+      "text": "Chapter Twenty-Two brings in VisionScope and MarketCraft."
+    },
+    {
+      "start": "05:49.680",
+      "end": "05:58.877",
+      "text": "The book presents VisionScope as a way to articulate an early concept, including a future-facing announcement and hard questions."
+    },
+    {
+      "start": "05:58.877",
+      "end": "06:01.781",
+      "text": "MarketCraft pressures the positioning across audiences."
+    },
+    {
+      "start": "06:01.781",
+      "end": "06:07.589",
+      "text": "These are named book cases; we are not demonstrating a live product."
+    },
+    {
+      "start": "06:07.589",
+      "end": "06:11.945",
+      "text": "Write a one-hundred-word explanation of the proposed membership change."
+    },
+    {
+      "start": "06:11.945",
+      "end": "06:14.365",
+      "text": "Begin with the person's situation."
+    },
+    {
+      "start": "06:14.365",
+      "end": "06:23.562",
+      "text": "Say what they could do differently, when they would see value, and what the organization would need to provide."
+    },
+    {
+      "start": "06:23.562",
+      "end": "06:26.950",
+      "text": "Leave out imaginary testimonials and performance figures."
+    },
+    {
+      "start": "06:26.950",
+      "end": "06:34.694",
+      "text": "The book's collaboration-feature example is useful because different departments pictured different products under the same phrase."
+    },
+    {
+      "start": "06:34.694",
+      "end": "06:38.566",
+      "text": "A clear narrative makes those disagreements visible early."
+    },
+    {
+      "start": "06:38.566",
+      "end": "06:48.731",
+      "text": "If one reader imagines a self-service tool and another imagines a staffed program, the draft has revealed an unresolved operating choice."
+    },
+    {
+      "start": "06:48.731",
+      "end": "06:52.119",
+      "text": "Put a question beside each contested sentence."
+    },
+    {
+      "start": "06:52.119",
+      "end": "06:56.959",
+      "text": "The narrative is a test object, not a launch announcement."
+    },
+    {
+      "start": "06:56.959",
+      "end": "07:04.219",
+      "text": "Its value is that a customer or colleague can point to the part they doubt."
+    },
+    {
+      "start": "07:04.219",
+      "end": "07:11.963",
+      "text": "Now the team can learn whether the concept is understood before investing in the full build."
+    },
+    {
+      "start": "07:11.963",
+      "end": "07:15.836",
+      "text": "Read the concept to someone outside the project."
+    },
+    {
+      "start": "07:15.836",
+      "end": "07:20.676",
+      "text": "Ask them to explain it back in their own words."
+    },
+    {
+      "start": "07:20.676",
+      "end": "07:26.000",
+      "text": "Their confusion may expose a decision your team has quietly postponed."
+    },
+    {
+      "start": "07:26.000",
+      "end": "07:31.810",
+      "text": "The book's collaboration example surfaces questions about differentiation, infrastructure, notifications, and data."
+    },
+    {
+      "start": "07:31.810",
+      "end": "07:36.167",
+      "text": "We can use that discipline with our fictional concept."
+    },
+    {
+      "start": "07:36.167",
+      "end": "07:44.882",
+      "text": "Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence."
+    },
+    {
+      "start": "07:44.882",
+      "end": "07:49.240",
+      "text": "If a model generates their reactions, keep Simulation visible."
+    },
+    {
+      "start": "07:49.240",
+      "end": "07:52.145",
+      "text": "These are possible objections, not interviews."
+    },
+    {
+      "start": "07:52.145",
+      "end": "07:57.471",
+      "text": "A new member may ask whether the shorter commitment changes access."
+    },
+    {
+      "start": "07:57.471",
+      "end": "08:01.828",
+      "text": "A staff operator may ask how pauses are handled."
+    },
+    {
+      "start": "08:01.828",
+      "end": "08:06.670",
+      "text": "A funder may ask what outcome the team will measure."
+    },
+    {
+      "start": "08:06.670",
+      "end": "08:11.995",
+      "text": "None of these imagined questions proves what any real person thinks."
+    },
+    {
+      "start": "08:11.995",
+      "end": "08:14.900",
+      "text": "Each tells us what to check."
+    },
+    {
+      "start": "08:14.900",
+      "end": "08:19.742",
+      "text": "The book warns against treating polished future copy as validation."
+    },
+    {
+      "start": "08:19.742",
+      "end": "08:26.520",
+      "text": "It also warns that a convincing simulated response can hide a weak underlying idea."
+    },
+    {
+      "start": "08:26.520",
+      "end": "08:32.330",
+      "text": "So mark every claim in the concept: sourced, assumed, or awaiting observation."
+    },
+    {
+      "start": "08:32.330",
+      "end": "08:38.624",
+      "text": "Where a sentence promises a result, remove the promise until evidence supports it."
+    },
+    {
+      "start": "08:38.624",
+      "end": "08:43.950",
+      "text": "Where the audience cannot tell what actually changes, rewrite the sentence."
+    },
+    {
+      "start": "08:43.950",
+      "end": "08:50.729",
+      "text": "Then choose the first real conversation or approved observation that could challenge the concept."
+    },
+    {
+      "start": "08:50.729",
+      "end": "08:57.991",
+      "text": "This is where the story becomes useful: it gives people something precise enough to question."
+    },
+    {
+      "start": "08:57.991",
+      "end": "09:05.738",
+      "text": "An objection is strongest when it names the exact sentence and the experience behind the concern."
+    },
+    {
+      "start": "09:05.738",
+      "end": "09:13.000",
+      "text": "Keep that link in the card so the next revision responds to a real question."
+    },
+    {
+      "start": "09:13.000",
+      "end": "09:17.377",
+      "text": "Pause and complete two pages of the decision file."
+    },
+    {
+      "start": "09:17.377",
+      "end": "09:23.214",
+      "text": "On the first, show the current model and at least two alternatives."
+    },
+    {
+      "start": "09:23.214",
+      "end": "09:32.941",
+      "text": "For each, write the customer job it serves, the operating change it demands, the risk, and the evidence still missing."
+    },
+    {
+      "start": "09:32.941",
+      "end": "09:37.805",
+      "text": "Choose one alternative to test; record why the others wait."
+    },
+    {
+      "start": "09:37.805",
+      "end": "09:50.450",
+      "text": "On the second page, write the one-hundred-word future concept, one objection from each relevant audience, and the smallest real test that could disprove your favored story."
+    },
+    {
+      "start": "09:50.450",
+      "end": "10:00.177",
+      "text": "Resume when you can name an owner, a review date, and a stop condition without appealing to a simulated vote."
+    },
+    {
+      "start": "10:00.177",
+      "end": "10:06.500",
+      "text": "If you are using your own work, use public, synthetic, or approved material."
+    },
+    {
+      "start": "10:06.500",
+      "end": "10:11.364",
+      "text": "Keep private customer and financial records in their authorized systems."
+    },
+    {
+      "start": "10:11.364",
+      "end": "10:24.982",
+      "text": "The book's named tools have helped us frame the work, but this packet does not establish that those tools are live or that the book's results will recur."
+    },
+    {
+      "start": "10:24.982",
+      "end": "10:32.277",
+      "text": "The next lesson asks how to carry the same evidence into two different decision rooms."
+    },
+    {
+      "start": "10:32.277",
+      "end": "10:36.655",
+      "text": "Bring the chosen option and its unresolved question forward."
+    },
+    {
+      "start": "10:36.655",
+      "end": "10:45.409",
+      "text": "A future story earns resources when the people who must live with it can understand and challenge it."
+    },
+    {
+      "start": "10:45.409",
+      "end": "10:47.841",
+      "text": "The sheet can remain incomplete."
+    },
+    {
+      "start": "10:47.841",
+      "end": "10:54.650",
+      "text": "An empty evidence cell is a request for work, not a failure of presentation."
+    },
+    {
+      "start": "10:54.650",
+      "end": "11:00.000",
+      "text": "It tells the next reviewer where a decision is still exposed."
+    }
+  ]
+}
