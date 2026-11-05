@@ -160,4 +160,16 @@ describe("protected review queue", () => {
     });
     expect(mocks.from).not.toHaveBeenCalledWith("assessment_score_snapshots");
   });
+  it("keeps an existing audit link when closing a review", async () => {
+    mocks.update.mockReturnValue({
+      eq: () => ({ select: () => ({ single: async () => ({ data: { id: "worksheet", review_status: "closed", linked_audit_id: 42 } }) }) }),
+    });
+    const response = await PATCH(request({
+      id: "12345678-1234-1234-1234-123456789abc",
+      status: "closed",
+      note: "Review complete",
+    }));
+    expect(response.status).toBe(200);
+    expect(mocks.update.mock.calls[0][0]).not.toHaveProperty("linked_audit_id");
+  });
 });

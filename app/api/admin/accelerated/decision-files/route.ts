@@ -128,7 +128,7 @@ export async function PATCH(request: NextRequest) {
     .from("accelerated_decision_file_intakes")
     .update({
       review_status: body.status,
-      linked_audit_id: auditId,
+      ...(body.status === "linked" ? { linked_audit_id: auditId } : {}),
       review_note: body.note.trim(),
       reviewed_by: auth.user.id,
       reviewed_at: new Date().toISOString(),
