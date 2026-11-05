@@ -3,6 +3,7 @@ import { mkdir, rename } from "node:fs/promises";
 import path from "node:path";
 
 const origin = process.env.QA_ORIGIN || "http://localhost:3217";
+const revision = process.env.QA_REV || "uncommitted";
 const output = path.resolve("docs/qa/trumpet-trainer-launch");
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({
@@ -23,7 +24,7 @@ try {
     });
     const page = await context.newPage();
     const response = await page.goto(
-      `${origin}/work/trumpet-trainer?qa=portfolio-launch`,
+      `${origin}/work/trumpet-trainer?qa=portfolio-launch&rev=${encodeURIComponent(revision)}`,
       { waitUntil: "networkidle" },
     );
     if (response?.status() !== 200)
@@ -31,6 +32,24 @@ try {
     await page
       .getByRole("heading", { name: /Make the first few minutes/i })
       .waitFor();
+    const carousel = page.getByRole("region", { name: "Trumpet Trainer product screens" });
+    await carousel.getByRole("group", { name: /1 of 7/ }).waitFor();
+    for (let position = 2; position <= 7; position++) {
+      await carousel.getByRole("button", { name: "Next product screen" }).click();
+      await carousel.getByRole("group", { name: new RegExp(`${position} of 7`) }).waitFor();
+      if (width !== 768) await page.waitForTimeout(450);
+    }
+    await carousel.focus();
+    await page.keyboard.press("ArrowLeft");
+    await carousel.getByRole("group", { name: /6 of 7/ }).waitFor();
+    await carousel.getByRole("button", { name: /Show screen 5/ }).click();
+    await carousel.getByRole("group", { name: /5 of 7/ }).waitFor();
+    const media = page.getByLabel("Trumpet Trainer gameplay walkthrough with captions");
+    if (!(await media.getAttribute("controls")) && !(await media.evaluate((element) => element.hasAttribute("controls")))) throw new Error("Gameplay video has no controls");
+    const mediaResponse = await page.request.get(`${origin}/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4`);
+    if (mediaResponse.status() !== 200) throw new Error("Gameplay video unavailable");
+    await page.getByText(/Tonestro emphasizes a broad lesson/).waitFor();
+    await page.evaluate(() => window.scrollTo(0, 0));
     if (
       await page.evaluate(
         () => document.documentElement.scrollWidth > window.innerWidth + 1,

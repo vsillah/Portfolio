@@ -1,0 +1,44 @@
+{
+  "sourceCommit": "c19989a3b156ce97326e35b335e169014ca076f3",
+  "sourceUrl": "local build from git archive",
+  "audioFixture": "e2e/make-step-wav.ts synthetic fixture",
+  "capturedOn": "2026-11-05",
+  "sourceVideo": {
+    "path": "docs/qa/trumpet-trainer-gameplay/source/native-gameplay.mp4",
+    "duration": 24.36,
+    "frameRate": "25/1",
+    "frames": "609",
+    "sha256": "542149c85473ceccdd2c4b9f01ac11ec8cb8f714acdac91b5228266be28ae2a1"
+  },
+  "screenshots": {
+    "01-home": "b7de98c62d685e64e275b6c0ff731d4d4a0ac02b30237d1b1ec4be6c89499b65",
+    "02-journey-map": "6db08fd799268f7119dc2d3585df2b5d843d074b19109aa866ae5ee12f6aaf70",
+    "03-first-lesson": "727bcfc9852398dcdda2398e31c913be13383ae7d2a0b6d7b0f24aae4805e5f2",
+    "04-no-rush-wait": "e3dfceee97d75f72fd5ad15fc2e86ce1da3a9044a5c5f8f74f3d20bc3f775518",
+    "05-gameplay-guidance": "dc9340faaf5a7e6418d35be430c2258e01824e2a325bd5e00f9f64d2829781ab",
+    "06-results": "48f187d919924c5b5768d3a348589238ce431e207beb0750c95000df526bb965",
+    "07-song-builder": "e9728c9a9673ede52cfa832aa33067447c0c9ca45a544bc9ea699b17482d40da"
+  },
+  "videos": [
+    {
+      "path": "public/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4",
+      "codec_name": "h264",
+      "width": 1920,
+      "height": 1080,
+      "r_frame_rate": "25/1",
+      "nb_read_frames": "609",
+      "duration": "24.360000",
+      "sha256": "319cb3206d8921f9a7a4b58fd0c5794f769bf0e4c3c8363e0d0b1447b619fe08"
+    },
+    {
+      "path": "public/showcases/trumpet-trainer/c19989a3/gameplay-portrait.mp4",
+      "codec_name": "h264",
+      "width": 1080,
+      "height": 1920,
+      "r_frame_rate": "25/1",
+      "nb_read_frames": "609",
+      "duration": "24.360000",
+      "sha256": "5a8d3807873c239853971bb533e98c0b724d9f071c392e6c17f5023c25f0ea6f"
+    }
+  ]
+}

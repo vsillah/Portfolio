@@ -27,5 +27,9 @@ describe("Trumpet Trainer public page", () => {
     expect(
       screen.getByText(/There is no checkout, paid entitlement/),
     ).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Trumpet Trainer product screens" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Trumpet Trainer gameplay walkthrough with captions")).toHaveAttribute("poster", "/showcases/trumpet-trainer/c19989a3/gameplay-poster.jpg");
+    expect(screen.getByText(/Tonestro emphasizes a broad lesson/)).toBeInTheDocument();
+    expect(screen.getByText(/differences in focus, not a claim/)).toBeInTheDocument();
   });
 });
