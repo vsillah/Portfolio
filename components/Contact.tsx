@@ -179,7 +179,7 @@ export default function Contact({ quoteMode = false }: { quoteMode?: boolean }) 
             <span className="italic text-radiant-gold">{quoteMode ? 'Request a quote' : 'Contact'}</span>
           </h2>
           <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto leading-relaxed">
-            {quoteMode ? 'Tell us what you need. Your reviewed service and recommendation references are already in the message below.' : <>Whether you have a specific inquiry or just want to explore possibilities,
+            {quoteMode ? 'Tell us what you need. Your message includes the service and recommendation references; we will verify them before preparing a quote.' : <>Whether you have a specific inquiry or just want to explore possibilities,
             I&apos;m here to bridge the gap between your vision and reality.</>}
           </p>
         </div>

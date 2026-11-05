@@ -10,7 +10,7 @@ Branch: `codex/accelerated-member-commerce`. Staging project: `xxissfhcdjivuhxwj
 - Staging migration SQL executed inside `BEGIN; ... ROLLBACK;` — pass. Follow-up read-only checks found zero persisted commerce columns and functions.
 - Staging history mirror `supabase db push --dry-run --linked --workdir /tmp/portfolio-accelerated-migration-audit.iTJFJM` — exactly `20261105180647_accelerated_member_commerce.sql` pending. No history repair or schema push occurred.
 - Rendered browser QA of the synthetic `?qa=orders` state at 390, 768, and 1280 px; the `?qa=assessed` empty-order/no-project state at 1280 px; fixed and quote preview actions; and the dedicated `/member/quote` form at 390 and 1280 px. No live contact submission, checkout, or provider call was made.
-- Privacy-safe synthetic frame-capture MP4s: `accelerated-member-desktop-1f2b1ebe.mp4` (14 seconds) and `accelerated-member-mobile-1f2b1ebe.mp4` (12 seconds). Both decode cleanly as H.264 at 24 fps; source frames are in `walkthrough-frames/`. These are UI walkthroughs, not proof of a live payment or submitted quote.
+- Privacy-safe synthetic frame-capture MP4s: `accelerated-member-desktop-walkthrough.mp4` (14 seconds) and `accelerated-member-mobile-walkthrough.mp4` (12 seconds). Both decode cleanly as H.264 at 24 fps; source frames are in `walkthrough-frames/`. These are UI walkthroughs, not proof of a live payment or submitted quote.
 
 ## Remaining gates
 
