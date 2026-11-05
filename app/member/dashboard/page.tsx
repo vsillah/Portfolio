@@ -27,10 +27,11 @@ const orderLabels: Record<string, string> = {
   failed: 'Payment failed', cancelled: 'Cancelled', refunded: 'Refunded',
 }
 
-function orderAction(status: string, id: number) {
+function orderAction(status: string, id: number, preview = false) {
   if (status === 'pending') return { href: `/checkout/payment?orderId=${id}`, label: 'Continue payment' }
   if (status === 'completed') return { href: `/purchases?orderId=${id}`, label: 'View receipt and details' }
-  return { href: `/purchases?orderId=${id}`, label: status === 'quote_pending' ? 'View quote request' : 'Review order' }
+  if (status === 'quote_pending') return { href: preview ? '/member/quote?qa=quote' : `/member/quote?orderId=${id}`, label: 'Continue quote request' }
+  return { href: `/purchases?orderId=${id}`, label: 'Review order' }
 }
 
 type MemberData = {
@@ -106,9 +107,9 @@ export default function MemberDashboardPage() {
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Assessment"><h2 className="text-xl font-semibold">Assessment</h2>{data.assessment ? <><p className="my-3 text-platinum-white/75">{data.assessment.assessment?.diagnostic_summary ?? 'Your completed assessment is linked to this account.'}</p><AssessmentScoreBreakdown scores={data.assessment.scores.categoryScores} hasFormalAssessment /></> : data.assessmentStatus ? <p className="mt-2 text-platinum-white/65">Completed assessment linked. {data.assessmentStatus.summary ?? 'The report is not available in this dashboard yet.'}</p> : <p className="mt-2 text-platinum-white/65">No completed assessment has been linked to this account. An operator reviews identity before it appears here.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Reviewed recommendations"><h2 className="text-xl font-semibold">Recommended next steps</h2>{data.recommendations.length ? <ul className="mt-3 space-y-4">{data.recommendations.map((item) => <li key={item.id} className="border-t border-radiant-gold/15 pt-4 first:border-0 first:pt-0"><strong>{item.title}</strong><p className="text-sm text-platinum-white/65">{item.rationale}</p><RecommendationAction item={item} preview={previewMode} /></li>)}</ul> : <p className="mt-2 text-platinum-white/65">No operator-reviewed recommendation yet.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Orders"><h2 className="text-xl font-semibold">Your orders</h2>{data.orders?.length ? <ul className="mt-3 space-y-3">{data.orders.map((order) => {
-          const action = orderAction(order.status, order.id)
+          const action = orderAction(order.status, order.id, previewMode)
           return <li key={order.id} className="flex flex-col gap-3 border-t border-radiant-gold/15 pt-3 first:border-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
-            <div><strong>Order #{order.id}</strong><p className="text-sm text-platinum-white/70">{order.order_items?.map((line) => line.products?.title || line.services?.title || 'Item').join(', ') || 'Order details'}</p><p className="text-xs text-platinum-white/60">{new Date(order.created_at).toLocaleDateString()} · ${Number(order.final_amount).toFixed(2)}</p></div>
+            <div><strong>Order #{order.id}</strong><p className="text-sm text-platinum-white/70">{order.order_items?.map((line) => line.products?.title || line.services?.title || 'Item').join(', ') || 'Order details'}</p><p className="text-xs text-platinum-white/60">{new Date(order.created_at).toLocaleDateString()} · {order.status === 'quote_pending' ? 'Price pending review' : `$${Number(order.final_amount).toFixed(2)}`}</p></div>
             <div className="flex flex-wrap items-center gap-3"><span className="rounded-full border border-radiant-gold/30 px-3 py-1 text-xs">{orderLabels[order.status] ?? 'Order update'}</span><Link className="min-h-11 inline-flex items-center text-radiant-gold underline" href={action.href}>{action.label}</Link></div>
           </li>
         })}</ul> : <p className="mt-2 text-platinum-white/65">No orders yet. Reviewed offers appear above when an operator approves them.</p>}</section>

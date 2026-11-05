@@ -46,7 +46,8 @@ export default function RecommendationAction({ item, preview = false }: { item: 
       const result = await response.json()
       if (!response.ok) { setMessage(result.error || 'This offer changed. Ask for a new review.'); return }
       if (result.quoteBased) {
-        router.push(`/member/quote?contact=true&service=${encodeURIComponent(result.offerId)}&acceleratedRecommendation=${encodeURIComponent(item.id)}`)
+        if (!result.quoteOrderId) { setMessage('Quote order was not recorded. Try again from this dashboard.'); return }
+        router.push(`/member/quote?orderId=${encodeURIComponent(result.quoteOrderId)}`)
         return
       }
       addRecommendedToCart({

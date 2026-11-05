@@ -570,15 +570,14 @@ export async function POST(request: NextRequest) {
         const orderId = paymentIntent.metadata?.orderId
 
         if (orderId) {
-          // Only the first successful transition performs fulfillment and
-          // notifications. Stripe may deliver the same event more than once.
+          // The signed event must name the PaymentIntent already attached to
+          // this order. Metadata alone cannot authorize a paid transition.
+          // Only the first matching transition performs fulfillment.
           const { data: order } = await supabaseAdmin
             .from('orders')
-            .update({
-              status: 'completed',
-              stripe_payment_intent_id: paymentIntent.id,
-            })
+            .update({ status: 'completed' })
             .eq('id', parseInt(orderId))
+            .eq('stripe_payment_intent_id', paymentIntent.id)
             .in('status', ['pending', 'failed'])
             .select()
             .single()

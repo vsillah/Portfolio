@@ -88,20 +88,34 @@ describe('POST /api/payments/webhook', () => {
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
-  it('does not repeat fulfillment or notification after the order has left a payable state', async () => {
+  it.each([
+    ['a mismatched PaymentIntent', 'pi_other', 'pending'],
+    ['an exact replay after completion', 'pi_123', 'completed'],
+  ])('does not complete or fulfill for %s', async (_case, recordedIntent, status) => {
     mocks.constructEvent.mockReturnValue({
       type: 'payment_intent.succeeded',
       data: { object: { id: 'pi_123', metadata: { orderId: '91' } } },
     })
-    const statusFilter = vi.fn().mockReturnValue({ select: () => ({ single: async () => ({ data: null, error: null }) }) })
-    const eq = vi.fn().mockReturnValue({ in: statusFilter })
-    const update = vi.fn().mockReturnValue({ eq })
+    const filters: Record<string, unknown> = {}
+    const chain = {
+      eq: vi.fn((column: string, value: unknown) => { filters[column] = value; return chain }),
+      in: vi.fn((column: string, values: unknown) => { filters[column] = values; return chain }),
+      select: vi.fn(() => chain),
+      single: vi.fn(async () => ({
+        data: filters.stripe_payment_intent_id === recordedIntent &&
+          (filters.status as string[] | undefined)?.includes(status)
+          ? { id: 91, status, stripe_payment_intent_id: recordedIntent } : null,
+        error: null,
+      })),
+    }
+    const update = vi.fn().mockReturnValue(chain)
     mocks.from.mockReturnValue({ update })
 
     const response = await POST(request())
     expect(response.status).toBe(200)
-    expect(update).toHaveBeenCalledWith(expect.objectContaining({ status: 'completed', stripe_payment_intent_id: 'pi_123' }))
-    expect(statusFilter).toHaveBeenCalledWith('status', ['pending', 'failed'])
+    expect(update).toHaveBeenCalledWith({ status: 'completed' })
+    expect(chain.eq).toHaveBeenCalledWith('stripe_payment_intent_id', 'pi_123')
+    expect(chain.in).toHaveBeenCalledWith('status', ['pending', 'failed'])
     expect(mocks.from).toHaveBeenCalledTimes(1)
     expect(mocks.notifyOrderConfirmation).not.toHaveBeenCalled()
   })

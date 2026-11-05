@@ -33,6 +33,23 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   if (!offer || !['product', 'service'].includes(offer.offer_kind)) {
     return NextResponse.json({ error: 'Selection was not recorded.' }, { status: 503, headers })
   }
+  let quoteOrderId: number | null = null
+  if (offer.quote_based) {
+    const created = await supabaseAdmin.rpc('accelerated_create_member_quote_order', {
+      p_user_id: auth.user.id,
+      p_recommendation_id: params.id,
+      p_reviewed_at: reviewedAt,
+    })
+    if (created.error) {
+      const stale = created.error.code === 'P0001' || created.error.code === '23505'
+      return NextResponse.json({ error: stale ? created.error.message : 'Quote request is temporarily unavailable.' },
+        { status: stale ? 409 : 503, headers })
+    }
+    quoteOrderId = created.data?.[0]?.order_id ?? null
+    if (!Number.isSafeInteger(quoteOrderId) || !quoteOrderId || quoteOrderId <= 0) {
+      return NextResponse.json({ error: 'Quote order was not recorded.' }, { status: 503, headers })
+    }
+  }
   return NextResponse.json({
     kind: offer.offer_kind,
     offerId: offer.offer_id,
@@ -41,5 +58,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     recommendationId: params.id,
     reviewedAt,
     variantId,
+    quoteOrderId,
   }, { headers })
 }

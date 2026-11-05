@@ -57,8 +57,8 @@ const normalizeUrl = (url: string): string => {
   return `https://${trimmed}`
 }
 
-export default function Contact({ quoteMode = false }: { quoteMode?: boolean }) {
-  const [activeTab, setActiveTab] = useState<ContactTab>(quoteMode ? 'form' : 'chat')
+export default function Contact() {
+  const [activeTab, setActiveTab] = useState<ContactTab>('chat')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -85,22 +85,6 @@ export default function Contact({ quoteMode = false }: { quoteMode?: boolean }) 
   useEffect(() => {
     analytics.contactFormView()
   }, [])
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('contact') !== 'true') return
-    const service = params.get('service')
-    const recommendation = params.get('acceleratedRecommendation')
-    if (!service || !recommendation) return
-    const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
-    if (!isUuid(service) || !isUuid(recommendation)) return
-    setActiveTab('form')
-    setFormData((current) => ({
-      ...current,
-      message: current.message || `I would like a quote for my Accelerated recommendation. Service: ${service}. Recommendation: ${recommendation}.`,
-    }))
-    if (!quoteMode) requestAnimationFrame(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'auto' }))
-  }, [quoteMode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -163,30 +147,30 @@ export default function Contact({ quoteMode = false }: { quoteMode?: boolean }) 
   }
 
   return (
-    <section id="contact" className={`${quoteMode ? 'py-12 sm:py-16' : 'py-32'} px-6 sm:px-10 lg:px-12 bg-background relative overflow-hidden`}>
+    <section id="contact" className="py-32 px-6 sm:px-10 lg:px-12 bg-background relative overflow-hidden">
       {/* Aurora */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-radiant-gold/5 blur-[150px] rounded-full pointer-events-none" />
 
       <div className="max-w-5xl mx-auto relative z-10 text-center">
-        <div className={`${quoteMode ? 'mb-8' : 'mb-20'} animate-fade-in-up`}
+        <div className="mb-20 animate-fade-in-up"
         >
           <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6">
             <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
-              {quoteMode ? 'Accelerated recommendation' : 'Inquiry'}
+              Inquiry
             </span>
           </div>
           <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
-            <span className="italic text-radiant-gold">{quoteMode ? 'Request a quote' : 'Contact'}</span>
+            <span className="italic text-radiant-gold">Contact</span>
           </h2>
           <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto leading-relaxed">
-            {quoteMode ? 'Tell us what you need. Your message includes the service and recommendation references; we will verify them before preparing a quote.' : <>Whether you have a specific inquiry or just want to explore possibilities,
-            I&apos;m here to bridge the gap between your vision and reality.</>}
+            Whether you have a specific inquiry or just want to explore possibilities,
+            I&apos;m here to bridge the gap between your vision and reality.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 text-left items-start">
           {/* Contact Details */}
-          {!quoteMode && <div
+          <div
             className="lg:col-span-2 space-y-12 animate-fade-in-up"
           >
             {/* Profile Photo */}
@@ -237,15 +221,15 @@ export default function Contact({ quoteMode = false }: { quoteMode?: boolean }) 
                 ))}
               </div>
             </div>
-          </div>}
+          </div>
 
           {/* Contact Form / Chat */}
           <div
-            className={`${quoteMode ? 'lg:col-span-5' : 'lg:col-span-3'} animate-fade-in-up`}
+            className="lg:col-span-3 animate-fade-in-up"
             style={{ animationDelay: '0.1s' }}
           >
             {/* Tabs */}
-            {!quoteMode && <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-6">
               <button
                 onClick={() => setActiveTab('chat')}
                 className={`${contactTabBaseClass} ${
@@ -264,7 +248,7 @@ export default function Contact({ quoteMode = false }: { quoteMode?: boolean }) 
                 <FileText size={14} />
                 Send Message
               </button>
-            </div>}
+            </div>
 
             {/* Tab Content */}
             <AnimatePresence mode="wait">

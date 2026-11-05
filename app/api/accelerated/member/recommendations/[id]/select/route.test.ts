@@ -40,10 +40,24 @@ describe('POST member recommendation selection', () => {
   })
 
   it('returns a quote handoff without a price when the reviewed service is quote based', async () => {
-    mocks.rpc.mockResolvedValue({ data: [{ offer_kind: 'service', offer_id: offerId, unit_price: null, quote_based: true }], error: null })
+    mocks.rpc
+      .mockResolvedValueOnce({ data: [{ offer_kind: 'service', offer_id: offerId, unit_price: null, quote_based: true }], error: null })
+      .mockResolvedValueOnce({ data: [{ order_id: 1203, replay: false }], error: null })
     const response = await POST(request({ reviewedAt }), params)
     expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({ quoteBased: true, offerId, price: null })
+    expect(mocks.rpc).toHaveBeenNthCalledWith(2, 'accelerated_create_member_quote_order', {
+      p_user_id: 'member-1', p_recommendation_id: id, p_reviewed_at: reviewedAt,
+    })
+    expect(await response.json()).toMatchObject({ quoteBased: true, offerId, price: null, quoteOrderId: 1203 })
+  })
+
+  it('withholds quote navigation when the order creation fails', async () => {
+    mocks.rpc
+      .mockResolvedValueOnce({ data: [{ offer_kind: 'service', offer_id: offerId, unit_price: null, quote_based: true }], error: null })
+      .mockResolvedValueOnce({ data: null, error: { code: 'P0001', message: 'Reviewed service changed' } })
+    const response = await POST(request({ reviewedAt }), params)
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({ error: 'Reviewed service changed' })
   })
 
   it('fails closed when approval or catalog revision has changed', async () => {
