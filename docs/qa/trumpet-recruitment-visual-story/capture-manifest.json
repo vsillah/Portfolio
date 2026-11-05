@@ -1,6 +1,6 @@
 {
-  "ui_commit": "feb3076886faabc26737a851bbcc8721d2621c89",
-  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=feb3076886faabc26737a851bbcc8721d2621c89&qa=interactive-deck",
+  "ui_commit": "85f3ae98f24ca3bc378d9aa276bb8d01113c7aab",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=85f3ae98f24ca3bc378d9aa276bb8d01113c7aab&qa=fan-swipe-video",
   "viewports": [
     [
       1280,
@@ -19,123 +19,133 @@
   "files": [
     {
       "path": "docs/qa/trumpet-recruitment-visual-story/frames/01-desktop-hero.png",
-      "sha256": "355df3525b7a697bd15ed67ae6f5f1a7361de3389a9037919241f265a5079622",
-      "bytes": 77995
+      "sha256": "6adad85a2f22ea91e17db129d5dfecbdeb22037e022c67a71570ec0e8aee9a44",
+      "bytes": 69850
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/02-desktop-social-1.png",
-      "sha256": "5df8729839d5b4031836ace4c63e6293bdc2d3a2388746685125f7858b54ac77",
-      "bytes": 75430
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/02-desktop-video.png",
+      "sha256": "41f85be82b142e979a081001ef114d27ba363fb5a507493f3f6d25d2b9af6f8c",
+      "bytes": 77340
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/03-desktop-social-2.png",
-      "sha256": "b25c41856547624984446ccfd2e3f3964ed7eb1e117feca39c4d199045dc80db",
-      "bytes": 72691
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/03-desktop-video-playing.png",
+      "sha256": "23cd6ccca9fc271e813e376399639c989f3330249bb592502f2a5de7a325b04a",
+      "bytes": 76712
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/04-desktop-social-7.png",
-      "sha256": "ce13ac1adf237f2ffef58d4b909183f721fedc38c1bc1101c5decec1a1b8bbe3",
-      "bytes": 75510
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/04-desktop-social.png",
+      "sha256": "3e8b2eea40078f6c66b8b7e2e67518d363d64b0f2ba003261dcaa6ffb82eff3a",
+      "bytes": 73771
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/05-desktop-parent-top.png",
-      "sha256": "f826de43bbffed60cd7d721ae050ff6fcc301fb6f61b95956f8a7d25cfbbd1cd",
-      "bytes": 81773
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/05-desktop-social-next.png",
+      "sha256": "7b4f589d2fb6b8fe2b6ebc96be42ead06bc949f9517d3ef45e78c50e7b3f9db6",
+      "bytes": 74493
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/06-desktop-private-trumpet-tutors.png",
-      "sha256": "cd8c8f3eaade3989a5b3040bef770185c2c1f1445f4838978484443b59cdf5c3",
-      "bytes": 77992
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/06-desktop-fan-parent.png",
+      "sha256": "4fb1c6d7d80a76455cf1e1fd09b3353f21ad76359798ffc9a4b7dcbdd11ee557",
+      "bytes": 90136
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/07-desktop-band-educators.png",
-      "sha256": "7209cd1ef8dffaf5418b39da74f2ff7efe070169754300bc4c8e51fc73a32463",
-      "bytes": 88568
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/07-desktop-fan-copy.png",
+      "sha256": "d0683d96d57bfecbe0f28477f6f0869dbb37ff5519ac82fa12d8192bc01df40f",
+      "bytes": 100753
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/08-desktop-community-music-programs.png",
-      "sha256": "3515985932907dfa1aee2e30bd5cbe2374c39de6df44da4b35706f34699e7394",
-      "bytes": 88162
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/08-desktop-private-trumpet-tutors.png",
+      "sha256": "080e69cd9132c1fc7b36ecad74e3a8d38747251687002f325a548a3250d2a95a",
+      "bytes": 86463
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/09-desktop-deck-controls.png",
-      "sha256": "61de5c03ac962bdaec5220705ae1aee514beb7b2c2933e34c16ebab4a87f8d34",
-      "bytes": 62018
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/09-desktop-band-educators.png",
+      "sha256": "269809ffcc71e35a7bbbb5c88f06636e2e4e512a5ffcd4bf678a859bbc85eeaa",
+      "bytes": 92579
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/10-tablet-hero.png",
-      "sha256": "da2d1618e766aee4ee596c0cfc72fca70e89f530bfa29f50afbc750f700ed7e1",
-      "bytes": 54699
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/10-desktop-community-music-programs.png",
+      "sha256": "a05409d614c037a954c5f2328e15c4c6a9cc3fe74f0217783cff9a8728aa3719",
+      "bytes": 92914
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/11-tablet-parent.png",
-      "sha256": "06430a2a026015106cd3259e9b49fee863e386a27983205b477b5ef44c5ce946",
-      "bytes": 65771
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/11-tablet-video.png",
+      "sha256": "6adbd765dfd74072ee0146b3dd9a3b96f6976116ab406cf0841296392d227a98",
+      "bytes": 57256
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/12-tablet-community.png",
-      "sha256": "af12ea7bafc45d89f77fa591e51eb5386f097bb141604649ee3e068d46f9f4e8",
-      "bytes": 70405
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/12-tablet-fan-parent.png",
+      "sha256": "6a3a303f1986ef7c795d63dc2e50ac0c6f74bf5cab53228b6dcc90a19c4da976",
+      "bytes": 72469
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/13-mobile-hero.png",
-      "sha256": "0576168c3ec03a3c0f432a73ed815a7ad713c2fdf0ca38bfff011e27c26d2213",
-      "bytes": 28495
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/13-tablet-fan-community.png",
+      "sha256": "dbf147c411189e11f15079f757d39bfc33e926e3b8319abce998f93bbdd783dc",
+      "bytes": 71129
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/14-mobile-social-1.png",
-      "sha256": "a827c9dd7b85ec95f9e74aeca2a62f1ab4b6196ddde63d1a374149a746edb4a3",
-      "bytes": 36703
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/14-mobile-hero.png",
+      "sha256": "befecca37ae65261a343450e7675d5a4ea67345fa36b0154cb72b59f59e6dd87",
+      "bytes": 28617
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/15-mobile-social-2-controls.png",
-      "sha256": "3166d2cff5be3243a9d7fe8591aaff81ab679d4ef58fe7b68692eed8ab11b705",
-      "bytes": 35823
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/15-mobile-video.png",
+      "sha256": "3cc21e3639d7c3535abac6ad17fdb57b1f9c63d99b8a4df0eca8fcdcf95005f2",
+      "bytes": 29223
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/16-mobile-social-7-keyboard.png",
-      "sha256": "9071e3e9960e452807544e0cefd5598eb6a61013bc09a64610c6e9ae623f367b",
-      "bytes": 36372
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/16-mobile-social.png",
+      "sha256": "54eccd5b374993ac062dc835ee68353ffb8bfeb7fc40dca0514e58bd4b20d4db",
+      "bytes": 37336
     },
     {
       "path": "docs/qa/trumpet-recruitment-visual-story/frames/17-mobile-parent.png",
-      "sha256": "ea72faca5e4719c902d1c3676883c314ede36e5b54a17f988a8fec443ab0dd3a",
-      "bytes": 36857
+      "sha256": "3cb0eaf2870c0dfa16fafb1070c271ea5c4ffe7f9c5a9385e6001ade3fdde7af",
+      "bytes": 36318
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/18-mobile-tutor.png",
-      "sha256": "737916299af61032fa6d1859c900107507dfeb759330df1fd6c4215e20adbd19",
-      "bytes": 35056
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/18-mobile-swipe-next.png",
+      "sha256": "58642c074c169d68dd19f17cfbd880436a71b10bc293209b88564be48d0fdb0a",
+      "bytes": 30618
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/19-mobile-band.png",
-      "sha256": "5a3832db77fbf205e8ffe3f676bdf9c13def7f1c2ecc5cc410ea0ebbab8c2eb6",
-      "bytes": 37434
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/18a-mobile-tutor-settled.png",
+      "sha256": "d9ff37386c51fbeab353fd83336b5ab1d97bc23b540f39b0e64b8ae963183d83",
+      "bytes": 34565
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/20-mobile-community.png",
-      "sha256": "184e464c488d57f2eb5828fd7ed8e516b4bede2f9601e9f09f6ffc2e219c29af",
-      "bytes": 37650
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/19-mobile-swipe-previous.png",
+      "sha256": "f822122c7347199ccfde3d292162a9b952bcd951adca3af30068814cc0b394cd",
+      "bytes": 31396
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/21-mobile-deck-controls.png",
-      "sha256": "3ce6363a692895662f10af888fd440ea63c3cda25c263725b65387342b1eb226",
-      "bytes": 29947
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/19a-mobile-parent-settled.png",
+      "sha256": "3cb0eaf2870c0dfa16fafb1070c271ea5c4ffe7f9c5a9385e6001ade3fdde7af",
+      "bytes": 36318
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/frames/22-mobile-parent-copy.png",
-      "sha256": "600ce416ba7f692a7acb6b0dd46c25408e647c679511351d3bd45ba7b9a157b9",
-      "bytes": 39555
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/20-mobile-gesture-guard.png",
+      "sha256": "b5cd259b7270379db1e1cad012227719f98c45eebff6aedb58eb8891e0a049f0",
+      "bytes": 35170
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/21-mobile-band.png",
+      "sha256": "2eac6629840dbb850ab5450bddf87bcae5d509ad006efedb10775ca1e5a1b0a3",
+      "bytes": 36751
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/frames/22-mobile-community-copy.png",
+      "sha256": "67c0760d98614b0a449a9f595155a6a87043dda11ecc68415033f58e384c28df",
+      "bytes": 36824
     },
     {
       "path": "docs/qa/trumpet-recruitment-visual-story/frames/23-mobile-contact-path.png",
-      "sha256": "34213e5361eab8cb71e21aef972c250c9437d71786f1432dce7c6d94b3010060",
-      "bytes": 36632
+      "sha256": "c257639426a8a0a4b39794e725e45979697ce658a399fbf49f261944a514d951",
+      "bytes": 31145
     },
     {
-      "path": "docs/qa/trumpet-recruitment-visual-story/trumpet-recruitment-interactive-deck-feb30768.mp4",
-      "sha256": "ddca9b5b446f7f20648b7cdb6cc8f4cf0072eb530d258731414e1c5506b8c781",
-      "bytes": 2027388
+      "path": "docs/qa/trumpet-recruitment-visual-story/trumpet-recruitment-fan-swipe-85f3ae98.mp4",
+      "sha256": "9e5b8427df581e779bbce2822648de2b45a4c74d727001a0bf8ec6c7ec9e4f86",
+      "bytes": 2289900
     }
   ]
 }
