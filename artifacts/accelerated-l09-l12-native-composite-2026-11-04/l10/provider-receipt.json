@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "lesson": "L10",
+  "video_id": "2d8460a0f0f6f0c94d03363d9506ae30",
+  "title": "Accelerated L10 review-only source",
+  "status": "completed",
+  "submitted_once": true,
+  "retry_count": 0,
+  "request": {
+    "source_commit": "8ffffb1f762f51d1dcce8529bf9f213d79e6f164",
+    "script_source_commit": "66168a8c18f0e570df50d9a549f299db511b3524",
+    "request_source_commit": "4afab5daaa34c12d12682689bb9e02e962ea880d",
+    "script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+    "request_sha256": "33a0922c7a08430260638869ad593494cab25c9d4502fb54a1fce56019cad179",
+    "passages": [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+    ],
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "engine": "avatar_iv",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "output_format": "mp4"
+  },
+  "billing": {
+    "cost_usd": 7.1,
+    "per_job_cap_usd": 8.21,
+    "cap_result": "pass",
+    "auto_reload": "off",
+    "purchase_made_for_job": false
+  },
+  "artifact": {
+    "filename": "accelerated-l10-heygen-native.mp4",
+    "sha256": "53fec87cc20722ee626a7c50226cac4d41c1bc58dd0d2a3ee352c8395bf14b56",
+    "duration_seconds": 88.464,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "video_frames": 2211,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "audio_sample_rate_hz": 48000,
+    "audio_channels": 2
+  },
+  "external_actions": {
+    "uploaded": false,
+    "published": false,
+    "distributed": false,
+    "sent_externally": false
+  },
+  "human_qa": "pending"
+}
