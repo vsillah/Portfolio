@@ -6,6 +6,7 @@ import { ExternalLink, Code2, Download } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { analytics } from '@/lib/analytics'
 import ExpandableText from '@/components/ui/ExpandableText'
+import Link from 'next/link'
 import { resolveShowcasePreview } from '@/lib/showcase-preview'
 
 interface Project {
@@ -188,6 +189,13 @@ export default function Projects() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <Link href="/work/trumpet-trainer" className="group flex min-h-[400px] flex-col rounded-2xl border border-radiant-gold/25 bg-imperial-navy p-8 text-platinum-white shadow-2xl transition-all hover:-translate-y-1 hover:border-radiant-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold">
+              <span className="font-heading text-xs uppercase tracking-[.2em] text-radiant-gold">Product study · pilot interest</span>
+              <div aria-hidden className="my-10 flex h-24 items-end gap-2 border-b border-radiant-gold/30 pb-3"><span className="h-10 w-3 rounded-full bg-radiant-gold/40"/><span className="h-16 w-3 rounded-full bg-radiant-gold/70"/><span className="h-20 w-3 rounded-full bg-radiant-gold"/><span className="h-12 w-3 rounded-full bg-radiant-gold/60"/></div>
+              <h3 className="font-premium text-3xl">Trumpet Trainer</h3>
+              <p className="mt-3 flex-1 leading-7 text-platinum-white/75">A clearer way to begin the next practice session. Explore the concept and a small founding-family tester pilot.</p>
+              <span className="mt-8 border-t border-radiant-gold/20 pt-5 font-heading text-xs uppercase tracking-widest text-radiant-gold">Explore the project →</span>
+            </Link>
             {projects.map((project, index) => (
               <ProjectCard key={project.id} project={project} index={index} />
             ))}
