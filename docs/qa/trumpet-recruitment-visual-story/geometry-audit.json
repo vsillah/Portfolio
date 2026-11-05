@@ -1,0 +1,305 @@
+{
+  "ui_commit": "77a8a660e163c0d36b2d89c5897360177f40eeb3",
+  "route": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=77a8a660e163c0d36b2d89c5897360177f40eeb3&qa=fan-clearance",
+  "desktop_and_tablet": [
+    {
+      "active": "Parents or guardians",
+      "cards": [
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 277.234375,
+          "right": 832.75,
+          "top": 80
+        },
+        {
+          "bottom": 696.6692924499512,
+          "depth": 1,
+          "left": 142.800537109375,
+          "right": 751.0692138671875,
+          "top": 52.05460739135742
+        },
+        {
+          "bottom": 698.1137008666992,
+          "depth": 2,
+          "left": 374.666748046875,
+          "right": 970.26318359375,
+          "top": 66.92845916748047
+        },
+        {
+          "bottom": 705.615291595459,
+          "depth": 3,
+          "left": 72.46466064453125,
+          "right": 695.0571899414062,
+          "top": 53.537654876708984
+        }
+      ],
+      "scrollWidth": 1270,
+      "stageHeight": 760,
+      "viewport": 1270
+    },
+    {
+      "active": "Private trumpet tutors",
+      "cards": [
+        {
+          "bottom": 696.6692924499512,
+          "depth": 1,
+          "left": 142.800537109375,
+          "right": 751.0692138671875,
+          "top": 52.05460739135742
+        },
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 277.234375,
+          "right": 832.75,
+          "top": 80
+        },
+        {
+          "bottom": 698.1137008666992,
+          "depth": 2,
+          "left": 374.666748046875,
+          "right": 970.26318359375,
+          "top": 66.92845916748047
+        },
+        {
+          "bottom": 705.615291595459,
+          "depth": 3,
+          "left": 72.46466064453125,
+          "right": 695.0571899414062,
+          "top": 53.537654876708984
+        }
+      ],
+      "scrollWidth": 1270,
+      "stageHeight": 760,
+      "viewport": 1270
+    },
+    {
+      "active": "Band educators",
+      "cards": [
+        {
+          "bottom": 698.1137008666992,
+          "depth": 2,
+          "left": 374.666748046875,
+          "right": 970.26318359375,
+          "top": 66.92845916748047
+        },
+        {
+          "bottom": 696.6692924499512,
+          "depth": 1,
+          "left": 142.800537109375,
+          "right": 751.0692138671875,
+          "top": 52.05460739135742
+        },
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 277.234375,
+          "right": 832.75,
+          "top": 80
+        },
+        {
+          "bottom": 705.615291595459,
+          "depth": 3,
+          "left": 72.46466064453125,
+          "right": 695.0571899414062,
+          "top": 53.537654876708984
+        }
+      ],
+      "scrollWidth": 1270,
+      "stageHeight": 760,
+      "viewport": 1270
+    },
+    {
+      "active": "Community music programs",
+      "cards": [
+        {
+          "bottom": 705.615291595459,
+          "depth": 3,
+          "left": 72.46466064453125,
+          "right": 695.0571899414062,
+          "top": 53.537654876708984
+        },
+        {
+          "bottom": 698.1137008666992,
+          "depth": 2,
+          "left": 374.666748046875,
+          "right": 970.26318359375,
+          "top": 66.92845916748047
+        },
+        {
+          "bottom": 696.6692924499512,
+          "depth": 1,
+          "left": 142.800537109375,
+          "right": 751.0692138671875,
+          "top": 52.05460739135742
+        },
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 277.234375,
+          "right": 832.75,
+          "top": 80
+        }
+      ],
+      "scrollWidth": 1270,
+      "stageHeight": 760,
+      "viewport": 1270
+    },
+    {
+      "active": "Parents or guardians",
+      "cards": [
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 168.8125,
+          "right": 589.171875,
+          "top": 80
+        },
+        {
+          "bottom": 684.8900833129883,
+          "depth": 3,
+          "left": 57.68825912475586,
+          "right": 537.3688926696777,
+          "top": 75.93201446533203
+        },
+        {
+          "bottom": 686.0470199584961,
+          "depth": 2,
+          "left": 217.58578491210935,
+          "right": 678.5126342773438,
+          "top": 78.09578704833984
+        },
+        {
+          "bottom": 686.3458862304688,
+          "depth": 1,
+          "left": 109.0564422607422,
+          "right": 579.7902069091797,
+          "top": 65.45953369140625
+        }
+      ],
+      "scrollWidth": 758,
+      "stageHeight": 760,
+      "viewport": 758
+    },
+    {
+      "active": "Private trumpet tutors",
+      "cards": [
+        {
+          "bottom": 686.3458862304688,
+          "depth": 1,
+          "left": 109.0564422607422,
+          "right": 579.7902069091797,
+          "top": 65.45953369140625
+        },
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 168.8125,
+          "right": 589.171875,
+          "top": 80
+        },
+        {
+          "bottom": 684.8900833129883,
+          "depth": 3,
+          "left": 57.68825912475586,
+          "right": 537.3688926696777,
+          "top": 75.93201446533203
+        },
+        {
+          "bottom": 686.0470199584961,
+          "depth": 2,
+          "left": 217.58578491210935,
+          "right": 678.5126342773438,
+          "top": 78.09578704833984
+        }
+      ],
+      "scrollWidth": 758,
+      "stageHeight": 760,
+      "viewport": 758
+    },
+    {
+      "active": "Band educators",
+      "cards": [
+        {
+          "bottom": 686.0470199584961,
+          "depth": 2,
+          "left": 217.58578491210935,
+          "right": 678.5126342773438,
+          "top": 78.09578704833984
+        },
+        {
+          "bottom": 686.3458862304688,
+          "depth": 1,
+          "left": 109.0564422607422,
+          "right": 579.7902069091797,
+          "top": 65.45953369140625
+        },
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 168.8125,
+          "right": 589.171875,
+          "top": 80
+        },
+        {
+          "bottom": 684.8900833129883,
+          "depth": 3,
+          "left": 57.68825912475586,
+          "right": 537.3688926696777,
+          "top": 75.93201446533203
+        }
+      ],
+      "scrollWidth": 758,
+      "stageHeight": 760,
+      "viewport": 758
+    },
+    {
+      "active": "Community music programs",
+      "cards": [
+        {
+          "bottom": 684.8900833129883,
+          "depth": 3,
+          "left": 57.68825912475586,
+          "right": 537.3688926696777,
+          "top": 75.93201446533203
+        },
+        {
+          "bottom": 686.0470199584961,
+          "depth": 2,
+          "left": 217.58578491210935,
+          "right": 678.5126342773438,
+          "top": 78.09578704833984
+        },
+        {
+          "bottom": 686.3458862304688,
+          "depth": 1,
+          "left": 109.0564422607422,
+          "right": 579.7902069091797,
+          "top": 65.45953369140625
+        },
+        {
+          "bottom": 680,
+          "depth": 0,
+          "left": 168.8125,
+          "right": 589.171875,
+          "top": 80
+        }
+      ],
+      "scrollWidth": 758,
+      "stageHeight": 760,
+      "viewport": 758
+    }
+  ],
+  "mobile": {
+    "activeLeft": 35.5,
+    "activeRight": 314.5,
+    "cardBottom": 430.75,
+    "detailsBottom": 414.75,
+    "disclosureOpen": true,
+    "scrollWidth": 350,
+    "stageHeight": 635,
+    "viewport": 350,
+    "visibleCards": 1
+  }
+}

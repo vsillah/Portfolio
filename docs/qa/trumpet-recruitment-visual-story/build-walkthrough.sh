@@ -12,4 +12,4 @@ for frame in "$root"/frames/*.png; do
     -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 "$clip"
   printf "file '%s'\n" "$clip" >> "$tmp/list.txt"
 done
-ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$tmp/list.txt" -c copy -movflags +faststart "$root/trumpet-recruitment-fan-swipe-85f3ae98.mp4"
+ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$tmp/list.txt" -c copy -movflags +faststart "$root/trumpet-recruitment-fan-clearance-77a8a660.mp4"
