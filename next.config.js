@@ -41,6 +41,10 @@ const nextConfig = {
         './public/accelerated/lessons/l10/approved-7beb8af5/*',
         './public/accelerated/lessons/l11/approved-1dcb3b03/*',
         './public/accelerated/lessons/l12/approved-39294821/*',
+        './public/accelerated/lessons/l13/approved-4a2974b8/*',
+        './public/accelerated/lessons/l14/approved-cf675c5e/*',
+        './public/accelerated/lessons/l15/approved-2db525fa/*',
+        './public/accelerated/lessons/l16/approved-89c3c668/*',
       ],
     },
     serverActions: {
