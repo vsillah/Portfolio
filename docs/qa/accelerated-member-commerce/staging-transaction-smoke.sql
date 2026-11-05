@@ -56,6 +56,8 @@ DECLARE
   v_quote_order record;
   v_quote_replay record;
   v_quote_contact record;
+  v_refinement record;
+  v_package jsonb;
   v_order record;
   v_items jsonb;
   v_count integer;
@@ -104,13 +106,28 @@ BEGIN
       AND oi.service_id=v_quote_service AND oi.accelerated_recommendation_id=v_quote
       AND oi.accelerated_reviewed_at=v_quote_reviewed;
   IF v_count <> 1 THEN RAISE EXCEPTION 'quote order lineage mismatch' USING ERRCODE='XX000'; END IF;
-  SELECT * INTO v_quote_contact FROM public.accelerated_submit_member_quote(
-    v_member,v_quote_order.order_id,'Synthetic QA','qa-accelerated-a@example.invalid','A synthetic scoped request');
+  v_package := jsonb_build_object('intakeId',v_intake::text,
+    'intakePayloadSha256',repeat('a',64),'worksheetId','c0000000-0000-4000-8000-000000000007',
+    'worksheetSha256',repeat('a',64),'catalogSha256',repeat('c',64),
+    'recommendationId',v_quote::text,'reviewedAt',v_quote_reviewed,
+    'questionSetVersion','accelerated-quote-questions-v1','rulesVersion','accelerated-quote-rules-v1',
+    'answers','{}'::jsonb,'projection',jsonb_build_object('status','candidates',
+      'remaining',jsonb_build_array(jsonb_build_object('kind','service','id',v_quote_service::text))));
+  SELECT * INTO v_refinement FROM public.accelerated_save_quote_refinement(
+    v_member,v_quote_order.order_id,0,v_key,repeat('b',64),v_package);
+  IF v_refinement.replay OR v_refinement.revision <> 1 THEN
+    RAISE EXCEPTION 'refinement receipt mismatch' USING ERRCODE='XX000'; END IF;
+  SELECT * INTO v_quote_replay FROM public.accelerated_save_quote_refinement(
+    v_member,v_quote_order.order_id,0,v_key,repeat('b',64),v_package);
+  IF NOT v_quote_replay.replay OR v_quote_replay.refinement_id <> v_refinement.refinement_id THEN
+    RAISE EXCEPTION 'refinement replay mismatch' USING ERRCODE='XX000'; END IF;
+  SELECT * INTO v_quote_contact FROM public.accelerated_submit_contextual_quote(
+    v_member,v_quote_order.order_id,v_refinement.refinement_id,'qa-accelerated-a@example.invalid');
   IF v_quote_contact.replay OR v_quote_contact.contact_id IS NULL THEN
     RAISE EXCEPTION 'quote contact was not created' USING ERRCODE='XX000';
   END IF;
-  SELECT * INTO v_quote_replay FROM public.accelerated_submit_member_quote(
-    v_member,v_quote_order.order_id,'Synthetic QA','qa-accelerated-a@example.invalid','A synthetic scoped request');
+  SELECT * INTO v_quote_replay FROM public.accelerated_submit_contextual_quote(
+    v_member,v_quote_order.order_id,v_refinement.refinement_id,'qa-accelerated-a@example.invalid');
   IF NOT v_quote_replay.replay OR v_quote_replay.contact_id <> v_quote_contact.contact_id THEN
     RAISE EXCEPTION 'quote contact replay mismatch' USING ERRCODE='XX000';
   END IF;
@@ -118,8 +135,16 @@ BEGIN
     JOIN public.contact_submissions c ON c.id=l.contact_submission_id
     WHERE l.order_id=v_quote_order.order_id AND l.user_id=v_member
       AND l.recommendation_id=v_quote AND l.reviewed_at=v_quote_reviewed
-      AND c.email='qa-accelerated-a@example.invalid';
+      AND c.email='qa-accelerated-a@example.invalid' AND l.refinement_id=v_refinement.refinement_id
+      AND l.context_package=v_package;
   IF v_count <> 1 THEN RAISE EXCEPTION 'quote contact binding mismatch' USING ERRCODE='XX000'; END IF;
+  v_rejected := false;
+  BEGIN
+    PERFORM public.accelerated_save_quote_refinement(v_member,v_quote_order.order_id,1,
+      'c0000000-0000-4000-8000-000000000008',repeat('d',64),v_package);
+  EXCEPTION WHEN SQLSTATE 'P0001' THEN v_rejected := true;
+  END;
+  IF NOT v_rejected THEN RAISE EXCEPTION 'submitted quote accepted another refinement' USING ERRCODE='XX000'; END IF;
   v_rejected := false;
   BEGIN
     PERFORM public.accelerated_create_member_quote_order(v_other,v_quote,v_quote_reviewed);
@@ -135,15 +160,15 @@ BEGIN
   IF NOT v_rejected THEN RAISE EXCEPTION 'stale quote review accepted' USING ERRCODE='XX000'; END IF;
   v_rejected := false;
   BEGIN
-    PERFORM public.accelerated_submit_member_quote(v_other,v_quote_order.order_id,
-      'Synthetic QA','qa-accelerated-b@example.invalid','Another member');
+    PERFORM public.accelerated_submit_contextual_quote(v_other,v_quote_order.order_id,
+      v_refinement.refinement_id,'qa-accelerated-b@example.invalid');
   EXCEPTION WHEN SQLSTATE 'P0001' THEN v_rejected := true;
   END;
   IF NOT v_rejected THEN RAISE EXCEPTION 'wrong-user quote contact accepted' USING ERRCODE='XX000'; END IF;
   v_rejected := false;
   BEGIN
-    PERFORM public.accelerated_submit_member_quote(v_member,v_quote_order.order_id,
-      'Synthetic QA','wrong@example.invalid','Tampered email');
+    PERFORM public.accelerated_submit_contextual_quote(v_member,v_quote_order.order_id,
+      v_refinement.refinement_id,'wrong@example.invalid');
   EXCEPTION WHEN SQLSTATE 'P0001' THEN v_rejected := true;
   END;
   IF NOT v_rejected THEN RAISE EXCEPTION 'tampered quote email accepted' USING ERRCODE='XX000'; END IF;

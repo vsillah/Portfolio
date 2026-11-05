@@ -2,12 +2,21 @@
 
 Branch: `codex/accelerated-member-commerce`. Staging project: `xxissfhcdjivuhxwjyhv`. Production schema, provider APIs, and live records were not changed.
 
-## Captain review corrections
+## Contextual quote refinement update (2026-11-05)
+
+- The generic name/message quote form is replaced by a member-owned, version-bound refinement. It loads the immutable linked Decision File, owned worksheet, completed assessment, current reviewed service, quote order, and active catalog. It fails closed on ownership, review, worksheet, or catalog drift. Only source field IDs and conservative derived categories reach the member screen; raw worksheet text and assessment notes stay server-side.
+- The member sees only unanswered delivery, timing, team, implementation, budget, and support questions relevant to the reviewed quote. A deterministic rules version projects live fit and fallaway reasons over the active catalog. An unreviewed candidate is labeled for operator review; no recommendation or purchase is changed.
+- A save creates an append-only refinement receipt on the quote order with separate Decision File, worksheet, assessment, rules, question, answer, catalog, and projection lineage. Submission binds the latest verified receipt to a protected contact record and operator detail panel. A submitted quote cannot accept another refinement. No email, payment, provider action, project creation, or learner rewrite occurs.
+- Forward-only staging migrations `20261105210000`, `20261105211000`, and `20261105212000` applied once. The second moves account-email validation before replay; the third locks refinement after submission. Staging migration history is now 134 entries. The synthetic commerce transaction passed in `BEGIN`/`ROLLBACK` after the third migration, including contextual save, replay, submit, wrong-user/email rejection, and submission lock. Post-smoke synthetic refinement/link/contact counts were all zero.
+- Focused API and projection tests: 11 passed in 3 files. Final Accelerated, cart, checkout, and contact-detail regression: 62 passed in 14 files. The payment webhook regression passed 4 tests. The inert-key production build passed with `NODE_OPTIONS=--max-old-space-size=8192`; the first build attempt hit Node's default 4 GB heap ceiling and a second attempt lacked the inert Supabase variables. Preview deployment status is reported in the PR.
+- Desktop and mobile MP4s were replaced with synthetic walkthroughs of the exact quote route, live narrowing, fallaway evidence, no-match recovery, and disabled preview submission. H.264, 24 fps, 7.33 seconds each; source capture script is `scripts/qa/record-accelerated-contextual-quote.mjs`. The integrated browser was also inspected at 390 and 768 px with no horizontal overflow; the 1280 px video shows desktop layout.
+
+## Earlier captain review corrections (superseded quote presentation)
 
 - A signed `payment_intent.succeeded` event now transitions an order only when its PaymentIntent id matches the id already recorded on that order. The conditional update remains replay-safe; a mismatched event cannot reach the email, guarantee, campaign, or Printful paths.
 - Selecting a reviewed quote service now atomically creates one member-owned `quote_pending` order and one immutable, recommendation-bound order item. Repeated selection returns the same order. The member opens `/member/quote?orderId=…`, where the submitted order reference is authenticated and validated server-side. A quote contact link binds the submitted contact record to that order. No price, payment, or client-project membership is inferred.
 
-## Completed checks
+## Earlier completed checks (before contextual refinement)
 
 - Focused Vitest command across Accelerated, cart, checkout, payment intent, webhook, contact, admin Decision File, and proposal route tests: **79 passed in 12 files**. The webhook tests cover mismatched PaymentIntent and exact replay. Quote API tests cover authentication, account email binding, replay, and wrong-member/stale order rejection.
 - `NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=inert-public-key SUPABASE_SERVICE_ROLE_KEY=inert-service-key NODE_OPTIONS=--max-old-space-size=8192 npm run build` — passed. Real provider keys were not used.
@@ -18,4 +27,4 @@ Branch: `codex/accelerated-member-commerce`. Staging project: `xxissfhcdjivuhxwj
 
 ## Remaining gates
 
-Draft PR #1216 needs captain review. The MP4s prove the synthetic presentation path; the rolled-back SQL proves the staging transaction. An authenticated browser session against staging, client-facing Human QA, merge/deployment, and any production migration remain separate gates.
+Draft PR #1216 needs fresh captain review of the contextual update. The MP4s prove the synthetic presentation path; the rolled-back SQL proves the staging transaction. An authenticated browser session against staging, client-facing Human QA, merge/deployment, and any production migration remain separate gates.

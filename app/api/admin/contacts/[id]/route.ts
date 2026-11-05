@@ -170,6 +170,14 @@ export async function GET(
 
   const suggestedTemplate = suggestEmailTemplate(pageData)
 
+  const quoteRes = await supabaseAdmin.from('accelerated_quote_contact_links')
+    .select('order_id,refinement_id,recommendation_id,reviewed_at,context_package,created_at')
+    .eq('contact_submission_id', contactId).maybeSingle()
+  // The quote schema is staging-only until its reviewed production migration.
+  if (quoteRes.error && !['42P01', 'PGRST205'].includes(quoteRes.error.code)) {
+    return NextResponse.json({ error: 'Quote context is temporarily unavailable' }, { status: 503 })
+  }
+
   return NextResponse.json({
     contact,
     ...pageData,
@@ -178,5 +186,6 @@ export async function GET(
     dashboardAccess: dashboardRes.data?.[0] ?? null,
     timeline,
     suggestedTemplate,
+    acceleratedQuote: quoteRes.data ?? null,
   })
 }
