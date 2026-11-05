@@ -132,6 +132,24 @@ describe('Accelerated learning plan', () => {
     }
   })
 
+  it('reveals video once during playback and restores the poster after the player resets', () => {
+    render(<AcceleratedLearningPlan />)
+    fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
+    const video = screen.getByLabelText('L01 Build smarter, stay human guided video')
+    expect(video.className).not.toContain('videoReveal')
+    expect(video.parentElement).toHaveStyle({ backgroundImage: `url(${lessonPosters.L01})` })
+    fireEvent.playing(video)
+    expect(video.className).toContain('videoReveal')
+    fireEvent.pause(video)
+    fireEvent.playing(video)
+    expect(video.className).toContain('videoReveal')
+    fireEvent.emptied(video)
+    expect(video.className).not.toContain('videoReveal')
+    fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Watch L01 guided video/ }))
+    expect(screen.getByLabelText('L01 Build smarter, stay human guided video').className).not.toContain('videoReveal')
+  })
+
   it('handles filtering, empty results, completion, reversal, and next navigation', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: 'Synthesis' }))

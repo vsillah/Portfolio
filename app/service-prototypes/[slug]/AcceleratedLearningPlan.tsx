@@ -99,6 +99,7 @@ export function AcceleratedLearningPlan() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [selected, setSelected] = useState('L01')
   const [videoOpen, setVideoOpen] = useState(false)
+  const [posterRevealed, setPosterRevealed] = useState(false)
   const [captionsOn, setCaptionsOn] = useState(true)
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
@@ -113,6 +114,7 @@ export function AcceleratedLearningPlan() {
   const [fixtureReceived, setFixtureReceived] = useState(false)
   const lesson = lessons.find((item) => item.id === selected) ?? lessons[0]
   const act = acts.find((item) => item.name === lesson.act) ?? acts[0]
+  const posterUrl = lessonPosters[lesson.id as keyof typeof lessonPosters]
   const visible = lessons.filter((item) => (filter === 'All' || item.act === filter) && `${item.id} ${item.title} ${item.summary}`.toLowerCase().includes(query.toLowerCase().trim()))
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
@@ -182,6 +184,7 @@ export function AcceleratedLearningPlan() {
   const selectLesson = (id: string) => {
     setSelected(id)
     setVideoOpen(false)
+    setPosterRevealed(false)
     if (window.matchMedia?.('(max-width: 1050px)').matches) {
       detailRef.current?.scrollIntoView({ block: 'start' })
     }
@@ -222,39 +225,39 @@ export function AcceleratedLearningPlan() {
         <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · {approvedBatchMedia ? 'lesson visual' : 'approved workshop visual'}</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>{approvedBatchMedia ? 'Lesson illustration' : 'Storyboard preview · representative frame'}</figcaption></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         {lesson.id === 'L01' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L01 guided video">
-          <div className={styles.playerHeading}><div><strong>Guided video · L01</strong><p>Watch the nine-minute lesson, then use the exercise above to start your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.playerHeading}><div><strong>Guided video · L01</strong><p>Watch the nine-minute lesson, then use the exercise above to start your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={l01Media.video} type="video/mp4" />
             <track kind="captions" src={l01Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
-          </video>
+          </video></div>
           <div className={styles.playerTools}><span>Duration {l01Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
           <details className={styles.transcript}><summary>Read along with L01 transcript</summary><ol>{transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L01 guided video is ready</strong><p>Watch the approved nine-minute lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L01 guided video · 09:00</button></div> : lesson.id === 'L02' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L02 guided video">
-          <div className={styles.playerHeading}><div><strong>Guided video · L02</strong><p>Watch the ten-minute lesson, then choose one priority to test in your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.playerHeading}><div><strong>Guided video · L02</strong><p>Watch the ten-minute lesson, then choose one priority to test in your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={l02Media.video} type="video/mp4" />
             <track kind="captions" src={l02Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
-          </video>
+          </video></div>
           <div className={styles.playerTools}><span>Duration {l02Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
           <details className={styles.transcript}><summary>Read along with L02 transcript</summary><ol>{l02Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L02 guided video is ready</strong><p>Watch the approved ten-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L02 guided video · 10:00</button></div> : lesson.id === 'L03' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L03 guided video">
-          <div className={styles.playerHeading}><div><strong>Guided video · L03</strong><p>Watch the nine-minute lesson, then write the decision question and evidence gap for your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L03 Answer-driven discovery guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.playerHeading}><div><strong>Guided video · L03</strong><p>Watch the nine-minute lesson, then write the decision question and evidence gap for your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L03 Answer-driven discovery guided video" onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={l03Media.video} type="video/mp4" />
             <track kind="captions" src={l03Media.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
-          </video>
+          </video></div>
           <div className={styles.playerTools}><span>Duration {l03Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
           <details className={styles.transcript}><summary>Read along with L03 transcript</summary><ol>{l03Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>L03 guided video is ready</strong><p>Watch the approved nine-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L03 guided video · 09:00</button></div> : approvedBatchMedia ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label={`${lesson.id} guided video`}>
-          <div className={styles.playerHeading}><div><strong>Guided video · {lesson.id}</strong><p>Watch the lesson, then use the exercise above to add to your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <video ref={videoRef} controls playsInline preload="metadata" poster={lessonPosters[lesson.id as keyof typeof lessonPosters]} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={() => setCaptionMode(captionsOn)}>
+          <div className={styles.playerHeading}><div><strong>Guided video · {lesson.id}</strong><p>Watch the lesson, then use the exercise above to add to your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={() => setCaptionMode(captionsOn)}>
             <source src={approvedBatchMedia.video} type="video/mp4" />
             <track kind="captions" src={approvedBatchMedia.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
-          </video>
+          </video></div>
           <div className={styles.playerTools}><span>Duration {approvedBatchMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
           <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{approvedBatchMedia.transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>{lesson.id} guided video is ready</strong><p>Watch the lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch {lesson.id} guided video · {approvedBatchMedia.duration}</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
