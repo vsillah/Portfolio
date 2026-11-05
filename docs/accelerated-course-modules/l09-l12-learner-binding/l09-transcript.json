@@ -1,0 +1,595 @@
+{
+  "source_srt_sha256": "d1acd3ea298d63922bad83cd0eb3a0043db5d86c5af0a4f5940d995faa158e8b",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:03.877",
+      "text": "You bring a careful recommendation into the room."
+    },
+    {
+      "start": "00:03.877",
+      "end": "00:05.815",
+      "text": "The research is sound."
+    },
+    {
+      "start": "00:05.815",
+      "end": "00:10.661",
+      "text": "The test plan has a measure and a stop condition."
+    },
+    {
+      "start": "00:10.661",
+      "end": "00:13.568",
+      "text": "Someone asks about a competing priority."
+    },
+    {
+      "start": "00:13.568",
+      "end": "00:16.476",
+      "text": "Engineering asks whose work will move."
+    },
+    {
+      "start": "00:16.476",
+      "end": "00:22.291",
+      "text": "A person who was not in the meeting raises a concern afterward."
+    },
+    {
+      "start": "00:22.291",
+      "end": "00:31.013",
+      "text": "The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no."
+    },
+    {
+      "start": "00:31.013",
+      "end": "00:39.251",
+      "text": "Its lesson is practical: the evidence may be strong while the path to a decision is weak."
+    },
+    {
+      "start": "00:39.251",
+      "end": "00:46.520",
+      "text": "People in the room have different information, responsibilities, and memories of the last failed bet."
+    },
+    {
+      "start": "00:46.520",
+      "end": "00:49.427",
+      "text": "A leader may see budget risk."
+    },
+    {
+      "start": "00:49.427",
+      "end": "00:53.304",
+      "text": "An engineer may see a promised platform change."
+    },
+    {
+      "start": "00:53.304",
+      "end": "00:59.119",
+      "text": "A support lead may see another workflow they will have to explain."
+    },
+    {
+      "start": "00:59.119",
+      "end": "01:06.388",
+      "text": "Before you call those reactions resistance, find out what each person is trying to protect."
+    },
+    {
+      "start": "01:06.388",
+      "end": "01:11.233",
+      "text": "Return to the learning plan you wrote in lesson eight."
+    },
+    {
+      "start": "01:11.233",
+      "end": "01:19.956",
+      "text": "You know the customer behavior you hope to change, the test you propose, and what would stop it."
+    },
+    {
+      "start": "01:19.956",
+      "end": "01:24.802",
+      "text": "Now write the actual decision you need from this room."
+    },
+    {
+      "start": "01:24.802",
+      "end": "01:34.009",
+      "text": "Is it permission to run the small test, funding for a larger build, or agreement to stop something else?"
+    },
+    {
+      "start": "01:34.009",
+      "end": "01:35.947",
+      "text": "Those are different asks."
+    },
+    {
+      "start": "01:35.947",
+      "end": "01:43.700",
+      "text": "For our fictional membership service, the ask is a bounded test of a clearer first-task card."
+    },
+    {
+      "start": "01:43.700",
+      "end": "01:50.000",
+      "text": "We will map the people and conversations that would make that test responsible."
+    },
+    {
+      "start": "01:50.000",
+      "end": "01:53.598",
+      "text": "Chapter Fourteen names a Strategic Argument Blueprint."
+    },
+    {
+      "start": "01:53.598",
+      "end": "01:57.710",
+      "text": "It has six parts, and the order matters."
+    },
+    {
+      "start": "01:57.710",
+      "end": "02:04.907",
+      "text": "First, the problem: new members struggle to identify the first action without staff translation."
+    },
+    {
+      "start": "02:04.907",
+      "end": "02:11.075",
+      "text": "That is a hypothesis for this exercise, not a measured customer finding."
+    },
+    {
+      "start": "02:11.075",
+      "end": "02:18.271",
+      "text": "Second, the opportunity: a clearer entry might reduce that burden and help members begin."
+    },
+    {
+      "start": "02:18.271",
+      "end": "02:23.411",
+      "text": "We do not assign a revenue figure to that possibility."
+    },
+    {
+      "start": "02:23.411",
+      "end": "02:32.664",
+      "text": "Third, options: clarify the card, test a guided introduction, or hold the current flow until we learn more."
+    },
+    {
+      "start": "02:32.664",
+      "end": "02:41.916",
+      "text": "Fourth, the recommendation: test the smallest card change because it gives us an answer with limited build effort."
+    },
+    {
+      "start": "02:41.916",
+      "end": "02:49.112",
+      "text": "Fifth, tradeoffs: somebody must prepare the card, observe sessions, and delay another small task."
+    },
+    {
+      "start": "02:49.112",
+      "end": "02:52.196",
+      "text": "Put that cost in the open."
+    },
+    {
+      "start": "02:52.196",
+      "end": "03:01.449",
+      "text": "Sixth, outcome: the learning plan defines what a successful start looks like and what confusion would stop expansion."
+    },
+    {
+      "start": "03:01.449",
+      "end": "03:07.617",
+      "text": "This is an argument for a decision, not a list of features."
+    },
+    {
+      "start": "03:07.617",
+      "end": "03:12.243",
+      "text": "The same six fields can fit a short brief."
+    },
+    {
+      "start": "03:12.243",
+      "end": "03:16.355",
+      "text": "In an email, lead with the decision requested."
+    },
+    {
+      "start": "03:16.355",
+      "end": "03:23.037",
+      "text": "In a live meeting, let people see the problem and then the options."
+    },
+    {
+      "start": "03:23.037",
+      "end": "03:29.720",
+      "text": "In a one-to-one conversation, listen for a missing criterion before polishing the deck."
+    },
+    {
+      "start": "03:29.720",
+      "end": "03:32.804",
+      "text": "The blueprint does not guarantee agreement."
+    },
+    {
+      "start": "03:32.804",
+      "end": "03:40.000",
+      "text": "It makes the choice and its cost visible enough for people to challenge honestly."
+    },
+    {
+      "start": "03:40.000",
+      "end": "03:47.957",
+      "text": "Chapter Fifteen says an org chart is a start, but it will not show every decision path."
+    },
+    {
+      "start": "03:47.957",
+      "end": "03:51.234",
+      "text": "Its first stakeholder lens is role type."
+    },
+    {
+      "start": "03:51.234",
+      "end": "03:54.979",
+      "text": "A decision-maker can approve or stop the work."
+    },
+    {
+      "start": "03:54.979",
+      "end": "03:57.787",
+      "text": "An influencer shapes that person's view."
+    },
+    {
+      "start": "03:57.787",
+      "end": "04:01.064",
+      "text": "A gatekeeper controls access, capacity, or information."
+    },
+    {
+      "start": "04:01.064",
+      "end": "04:02.468",
+      "text": "A champion advocates."
+    },
+    {
+      "start": "04:02.468",
+      "end": "04:04.809",
+      "text": "A skeptic asks hard questions."
+    },
+    {
+      "start": "04:04.809",
+      "end": "04:08.085",
+      "text": "A blocker may actively oppose the idea."
+    },
+    {
+      "start": "04:08.085",
+      "end": "04:17.447",
+      "text": "One person can occupy more than one role, and the label is a working hypothesis, not a verdict on character."
+    },
+    {
+      "start": "04:17.447",
+      "end": "04:22.596",
+      "text": "On the synthetic card, a service director can authorize the test."
+    },
+    {
+      "start": "04:22.596",
+      "end": "04:27.745",
+      "text": "An operations lead controls the staff time needed to observe it."
+    },
+    {
+      "start": "04:27.745",
+      "end": "04:31.957",
+      "text": "A front-line worker knows where members lose the thread."
+    },
+    {
+      "start": "04:31.957",
+      "end": "04:36.638",
+      "text": "A finance partner wants to know what the test displaces."
+    },
+    {
+      "start": "04:36.638",
+      "end": "04:43.660",
+      "text": "We use fictional roles because this exercise needs a map, not anyone's private contact history."
+    },
+    {
+      "start": "04:43.660",
+      "end": "04:45.064",
+      "text": "Add behavior next."
+    },
+    {
+      "start": "04:45.064",
+      "end": "04:48.340",
+      "text": "Who tends to ask for customer evidence?"
+    },
+    {
+      "start": "04:48.340",
+      "end": "04:52.553",
+      "text": "Who trusts the team that must build the change?"
+    },
+    {
+      "start": "04:52.553",
+      "end": "04:56.766",
+      "text": "Who remembers an earlier rollout that increased support work?"
+    },
+    {
+      "start": "04:56.766",
+      "end": "05:00.979",
+      "text": "The answer changes what you bring into a conversation."
+    },
+    {
+      "start": "05:00.979",
+      "end": "05:04.255",
+      "text": "It should not change the underlying evidence."
+    },
+    {
+      "start": "05:04.255",
+      "end": "05:08.468",
+      "text": "Give the operations lead the observation burden and exclusions."
+    },
+    {
+      "start": "05:08.468",
+      "end": "05:12.681",
+      "text": "Give the service director the decision and stop condition."
+    },
+    {
+      "start": "05:12.681",
+      "end": "05:18.766",
+      "text": "Ask the front-line worker whether our assumed friction even matches what they see."
+    },
+    {
+      "start": "05:18.766",
+      "end": "05:23.447",
+      "text": "If they say no, revise the hypothesis before the meeting."
+    },
+    {
+      "start": "05:23.447",
+      "end": "05:30.000",
+      "text": "Mapping makes you more accurate about the work and the people who carry it."
+    },
+    {
+      "start": "05:30.000",
+      "end": "05:33.729",
+      "text": "The book's third lens is a power-interest grid."
+    },
+    {
+      "start": "05:33.729",
+      "end": "05:37.458",
+      "text": "High power and high interest means manage closely."
+    },
+    {
+      "start": "05:37.458",
+      "end": "05:41.186",
+      "text": "High power and low interest means keep satisfied."
+    },
+    {
+      "start": "05:41.186",
+      "end": "05:44.915",
+      "text": "Low power and high interest means keep informed."
+    },
+    {
+      "start": "05:44.915",
+      "end": "05:48.178",
+      "text": "Low power and low interest means monitor."
+    },
+    {
+      "start": "05:48.178",
+      "end": "05:50.975",
+      "text": "Those are the book's four labels."
+    },
+    {
+      "start": "05:50.975",
+      "end": "05:57.500",
+      "text": "Draw the two axes and place our four fictional roles for this one decision."
+    },
+    {
+      "start": "05:57.500",
+      "end": "06:04.025",
+      "text": "The service director has authority and cares about the member experience, so manage closely."
+    },
+    {
+      "start": "06:04.025",
+      "end": "06:12.881",
+      "text": "The operations lead can withhold observation time and has a strong interest in the workflow, so manage closely too."
+    },
+    {
+      "start": "06:12.881",
+      "end": "06:22.669",
+      "text": "The front-line worker may have little formal power but deep interest and useful evidence: keep informed and invite their challenge early."
+    },
+    {
+      "start": "06:22.669",
+      "end": "06:31.992",
+      "text": "The finance partner may have approval influence but only intermittent interest: keep satisfied with a clear cost and review point."
+    },
+    {
+      "start": "06:31.992",
+      "end": "06:33.856",
+      "text": "This placement is provisional."
+    },
+    {
+      "start": "06:33.856",
+      "end": "06:38.051",
+      "text": "A policy change could move finance into the center."
+    },
+    {
+      "start": "06:38.051",
+      "end": "06:45.975",
+      "text": "A staff member who has the director's trust may carry more informal influence than their title suggests."
+    },
+    {
+      "start": "06:45.975",
+      "end": "06:49.703",
+      "text": "Ask the people involved, then update the map."
+    },
+    {
+      "start": "06:49.703",
+      "end": "06:55.297",
+      "text": "Do not use the grid to silence people with less formal power."
+    },
+    {
+      "start": "06:55.297",
+      "end": "06:58.559",
+      "text": "They may know the customer burden first."
+    },
+    {
+      "start": "06:58.559",
+      "end": "07:04.153",
+      "text": "The visual helps plan communication; it does not decide whose knowledge counts."
+    },
+    {
+      "start": "07:04.153",
+      "end": "07:11.610",
+      "text": "Put an objection beside each role and one piece of evidence or question that would help."
+    },
+    {
+      "start": "07:11.610",
+      "end": "07:20.000",
+      "text": "If you cannot name what would change a person's mind, have a conversation before sending a finished pitch."
+    },
+    {
+      "start": "07:20.000",
+      "end": "07:24.000",
+      "text": "The book calls the pre-meeting work Shuttle Diplomacy."
+    },
+    {
+      "start": "07:24.000",
+      "end": "07:29.500",
+      "text": "Learn the decision criteria before a deck hardens around one answer."
+    },
+    {
+      "start": "07:29.500",
+      "end": "07:34.000",
+      "text": "Start with the person who will do the observation."
+    },
+    {
+      "start": "07:34.000",
+      "end": "07:43.000",
+      "text": "Ask the operations lead what time the test would take and which staffing constraint would make it unsafe."
+    },
+    {
+      "start": "07:43.000",
+      "end": "07:51.000",
+      "text": "Next, ask the front-line worker whether the proposed card addresses the moment they see members hesitate."
+    },
+    {
+      "start": "07:51.000",
+      "end": "07:55.500",
+      "text": "If the answer is another problem entirely, record it."
+    },
+    {
+      "start": "07:55.500",
+      "end": "08:04.500",
+      "text": "Then ask the finance partner what cost or displaced work they would expect to see in the brief."
+    },
+    {
+      "start": "08:04.500",
+      "end": "08:11.000",
+      "text": "Finally, give the service director the revised options and the specific decision requested."
+    },
+    {
+      "start": "08:11.000",
+      "end": "08:16.000",
+      "text": "These are conversations with real stakes in a real project."
+    },
+    {
+      "start": "08:16.000",
+      "end": "08:23.000",
+      "text": "Here they are a fictional sequence for practice, not a report that outreach happened."
+    },
+    {
+      "start": "08:23.000",
+      "end": "08:27.000",
+      "text": "Keep confidential notes out of a rehearsal tool."
+    },
+    {
+      "start": "08:27.000",
+      "end": "08:38.500",
+      "text": "If you rehearse objections with AI, use a synthetic brief and treat the output as questions to examine, never as that person's opinion."
+    },
+    {
+      "start": "08:38.500",
+      "end": "08:41.000",
+      "text": "Chapter Fourteen recommends rehearsing pushback."
+    },
+    {
+      "start": "08:41.000",
+      "end": "08:50.500",
+      "text": "The stronger version of that advice is to let people correct your understanding when you can speak with them."
+    },
+    {
+      "start": "08:50.500",
+      "end": "09:00.500",
+      "text": "Update the decision file after each conversation: concern raised, evidence supporting it, what remains unknown, and whether the proposal changed."
+    },
+    {
+      "start": "09:00.500",
+      "end": "09:10.000",
+      "text": "A meeting can focus on the live choice instead of surprising people with costs that were visible all week."
+    },
+    {
+      "start": "09:10.000",
+      "end": "09:18.026",
+      "text": "Pause here and use four fictional role names for the decision you have carried through this course."
+    },
+    {
+      "start": "09:18.026",
+      "end": "09:26.524",
+      "text": "Mark who can decide, who controls resources, who knows the customer situation, and who may challenge the proposal."
+    },
+    {
+      "start": "09:26.524",
+      "end": "09:29.828",
+      "text": "Put each on the book's power-interest grid."
+    },
+    {
+      "start": "09:29.828",
+      "end": "09:37.854",
+      "text": "Write their likely interest and objection as a question, because you have not heard their answer yet."
+    },
+    {
+      "start": "09:37.854",
+      "end": "09:43.991",
+      "text": "Choose one source of evidence or one conversation that could answer each question."
+    },
+    {
+      "start": "09:43.991",
+      "end": "09:45.880",
+      "text": "Then order the conversations."
+    },
+    {
+      "start": "09:45.880",
+      "end": "09:50.129",
+      "text": "Who must be heard before the brief is final?"
+    },
+    {
+      "start": "09:50.129",
+      "end": "09:53.433",
+      "text": "Who needs the options and tradeoffs early?"
+    },
+    {
+      "start": "09:53.433",
+      "end": "09:56.266",
+      "text": "Who will make the formal decision?"
+    },
+    {
+      "start": "09:56.266",
+      "end": "10:06.652",
+      "text": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
+    },
+    {
+      "start": "10:06.652",
+      "end": "10:10.901",
+      "text": "Keep private names and messages in your authorized workspace."
+    },
+    {
+      "start": "10:10.901",
+      "end": "10:13.734",
+      "text": "Use fictional roles for this exercise."
+    },
+    {
+      "start": "10:13.734",
+      "end": "10:19.871",
+      "text": "Look at the six fields of the Strategic Argument Blueprint beside your map."
+    },
+    {
+      "start": "10:19.871",
+      "end": "10:28.841",
+      "text": "The problem and recommendation may stay the same, but a real objection can change the options, timing, or tradeoff."
+    },
+    {
+      "start": "10:28.841",
+      "end": "10:30.730",
+      "text": "That is useful learning."
+    },
+    {
+      "start": "10:30.730",
+      "end": "10:34.979",
+      "text": "A map is not a way to manufacture agreement."
+    },
+    {
+      "start": "10:34.979",
+      "end": "10:41.588",
+      "text": "It helps you find missing information and name the people who bear the cost."
+    },
+    {
+      "start": "10:41.588",
+      "end": "10:48.670",
+      "text": "In the next lesson, we will take the same choice into a short, responsible pitch."
+    },
+    {
+      "start": "10:48.670",
+      "end": "11:00.000",
+      "text": "It must tell the truth about what we know, what we hope to learn, and what we would give up to run the test."
+    }
+  ]
+}

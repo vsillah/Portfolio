@@ -10,6 +10,10 @@ import l05Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-bin
 import l06Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l06-transcript.json'
 import l07Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l07-transcript.json'
 import l08Transcript from '@/docs/accelerated-course-modules/l05-l08-learner-binding/l08-transcript.json'
+import l09Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-binding/l09-transcript.json'
+import l10Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-binding/l10-transcript.json'
+import l11Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-binding/l11-transcript.json'
+import l12Transcript from '@/docs/accelerated-course-modules/l09-l12-learner-binding/l12-transcript.json'
 import styles from './learning-plan.module.css'
 
 export const l01Media = {
@@ -51,6 +55,13 @@ export const approvedL05L08Media = {
   L06: { video: '/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4', captions: '/accelerated/lessons/l06/approved-16167226/l06-captions.vtt', duration: '11:00', compositeSha256: '161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729', transcript: l06Transcript },
   L07: { video: '/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4', captions: '/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt', duration: '10:00', compositeSha256: '6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f', transcript: l07Transcript },
   L08: { video: '/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4', captions: '/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt', duration: '12:00', compositeSha256: '1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b', transcript: l08Transcript },
+} as const
+
+export const approvedL09L12Media = {
+  L09: { video: '/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4', captions: '/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt', duration: '11:00', compositeSha256: '0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a', transcript: l09Transcript },
+  L10: { video: '/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4', captions: '/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt', duration: '09:00', compositeSha256: '7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297', transcript: l10Transcript },
+  L11: { video: '/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4', captions: '/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt', duration: '10:00', compositeSha256: '1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0', transcript: l11Transcript },
+  L12: { video: '/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4', captions: '/accelerated/lessons/l12/approved-39294821/l12-captions.vtt', duration: '11:00', compositeSha256: '39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c', transcript: l12Transcript },
 } as const
 
 type Act = 'Signals' | 'Alignment' | 'Momentum' | 'Synthesis'
@@ -107,8 +118,8 @@ export function AcceleratedLearningPlan() {
   const current = lessons.find((item) => !completed.includes(item.id))?.id
   const next = lessons[lessons.findIndex((item) => item.id === lesson.id) + 1]
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
-  const locked = (id: string) => Number(id.slice(1)) >= 9
-  const approvedBatchMedia = selected === 'L04' ? l04Media : selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : null
+  const locked = (id: string) => Number(id.slice(1)) >= 13
+  const approvedBatchMedia = selected === 'L04' ? l04Media : selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : selected in approvedL09L12Media ? approvedL09L12Media[selected as keyof typeof approvedL09L12Media] : null
   useEffect(() => {
     if (videoOpen) {
       playerRef.current?.focus()

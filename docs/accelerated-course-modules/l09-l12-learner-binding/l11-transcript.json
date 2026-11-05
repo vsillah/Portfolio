@@ -1,0 +1,480 @@
+{
+  "source_srt_sha256": "f395fc32b0562a3c6cb5e3cbc61fdc2b4d8b7bd4d692557c9553edbb93da0fe9",
+  "cues": [
+    {
+      "start": "00:00.000",
+      "end": "00:05.797",
+      "text": "In Chapter Seventeen, Sam arrives at a roadmap meeting that feels different."
+    },
+    {
+      "start": "00:05.797",
+      "end": "00:13.527",
+      "text": "The team has already gathered feedback, translated it into a question, and prepared a learning choice."
+    },
+    {
+      "start": "00:13.527",
+      "end": "00:17.874",
+      "text": "The meeting can spend its time on the decision."
+    },
+    {
+      "start": "00:17.874",
+      "end": "00:26.570",
+      "text": "Sam is a character in the book's story, not a member of a team we are showing live."
+    },
+    {
+      "start": "00:26.570",
+      "end": "00:30.435",
+      "text": "What changed was the work before the meeting."
+    },
+    {
+      "start": "00:30.435",
+      "end": "00:33.333",
+      "text": "Evidence had a place to arrive."
+    },
+    {
+      "start": "00:33.333",
+      "end": "00:36.232",
+      "text": "A plan had a review point."
+    },
+    {
+      "start": "00:36.232",
+      "end": "00:42.029",
+      "text": "A failed test could be discussed without scrambling to explain it away."
+    },
+    {
+      "start": "00:42.029",
+      "end": "00:48.792",
+      "text": "Think about your last meeting that started with everyone retelling the same customer problem."
+    },
+    {
+      "start": "00:48.792",
+      "end": "00:53.140",
+      "text": "How much time went into finding the latest notes?"
+    },
+    {
+      "start": "00:53.140",
+      "end": "00:57.488",
+      "text": "How much into arguing over which number was current?"
+    },
+    {
+      "start": "00:57.488",
+      "end": "01:01.353",
+      "text": "Shorter meetings are not the goal by themselves."
+    },
+    {
+      "start": "01:01.353",
+      "end": "01:11.498",
+      "text": "The useful change is that the team can see what it knows, what it tried, and what it will decide next."
+    },
+    {
+      "start": "01:11.498",
+      "end": "01:20.193",
+      "text": "Your decision file already holds a source ledger, a learning plan, and a map of the decision room."
+    },
+    {
+      "start": "01:20.193",
+      "end": "01:22.609",
+      "text": "Today we connect those pages."
+    },
+    {
+      "start": "01:22.609",
+      "end": "01:35.652",
+      "text": "We will ask where a signal enters, who checks it, how a test is chosen, who decides, and where the result is kept for the next person."
+    },
+    {
+      "start": "01:35.652",
+      "end": "01:40.000",
+      "text": "That is the quiet infrastructure behind the changed meeting."
+    },
+    {
+      "start": "01:40.000",
+      "end": "01:43.828",
+      "text": "The book gives Sam a test that fails."
+    },
+    {
+      "start": "01:43.828",
+      "end": "01:57.703",
+      "text": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted."
+    },
+    {
+      "start": "01:57.703",
+      "end": "02:03.445",
+      "text": "They could ask what the result meant and choose the next question."
+    },
+    {
+      "start": "02:03.445",
+      "end": "02:05.359",
+      "text": "Notice what that requires."
+    },
+    {
+      "start": "02:05.359",
+      "end": "02:08.708",
+      "text": "The original hypothesis must still be visible."
+    },
+    {
+      "start": "02:08.708",
+      "end": "02:12.536",
+      "text": "The trigger cannot be rewritten after the result."
+    },
+    {
+      "start": "02:12.536",
+      "end": "02:17.799",
+      "text": "Someone must inspect the evidence rather than accept a summary alone."
+    },
+    {
+      "start": "02:17.799",
+      "end": "02:22.584",
+      "text": "The decision and its reason need to survive the meeting."
+    },
+    {
+      "start": "02:22.584",
+      "end": "02:31.196",
+      "text": "In our membership exercise, imagine the new first-task card is tested and people still ask staff for help."
+    },
+    {
+      "start": "02:31.196",
+      "end": "02:35.024",
+      "text": "That is a conditional branch, not a result."
+    },
+    {
+      "start": "02:35.024",
+      "end": "02:42.679",
+      "text": "The team might learn that the instruction is unclear, or that the task itself is unfamiliar."
+    },
+    {
+      "start": "02:42.679",
+      "end": "02:46.986",
+      "text": "The observation notes would need to distinguish those explanations."
+    },
+    {
+      "start": "02:46.986",
+      "end": "02:55.120",
+      "text": "If participants understand the card but cannot tell whether the action worked, confirmation becomes the next test."
+    },
+    {
+      "start": "02:55.120",
+      "end": "02:58.469",
+      "text": "If recruitment fails, the study is inconclusive."
+    },
+    {
+      "start": "02:58.469",
+      "end": "03:04.211",
+      "text": "The file should preserve all three routes without pretending that one happened."
+    },
+    {
+      "start": "03:04.211",
+      "end": "03:13.780",
+      "text": "Sam's story shows an operating habit: a team can be wrong about a solution and still be disciplined about learning."
+    },
+    {
+      "start": "03:13.780",
+      "end": "03:20.000",
+      "text": "The record is what lets the next meeting start beyond the last one."
+    },
+    {
+      "start": "03:20.000",
+      "end": "03:24.505",
+      "text": "Chapter Eighteen moves from scattered tools to a connected system."
+    },
+    {
+      "start": "03:24.505",
+      "end": "03:30.360",
+      "text": "Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum."
+    },
+    {
+      "start": "03:30.360",
+      "end": "03:37.568",
+      "text": "A signal is a traceable observation, such as a set of first-task notes with source IDs."
+    },
+    {
+      "start": "03:37.568",
+      "end": "03:43.874",
+      "text": "An insight is an interpretation: perhaps members cannot tell which action starts the service."
+    },
+    {
+      "start": "03:43.874",
+      "end": "03:49.730",
+      "text": "That interpretation still needs a counterexample and a person willing to challenge it."
+    },
+    {
+      "start": "03:49.730",
+      "end": "03:55.135",
+      "text": "A test turns the interpretation into a question that can be answered."
+    },
+    {
+      "start": "03:55.135",
+      "end": "04:01.441",
+      "text": "The learning plan specifies who participates, what counts, and when the result is reviewed."
+    },
+    {
+      "start": "04:01.441",
+      "end": "04:07.297",
+      "text": "A decision says what the team will do in light of that evidence."
+    },
+    {
+      "start": "04:07.297",
+      "end": "04:15.405",
+      "text": "Repeatable momentum means the next person can find the record and use it without rebuilding the whole argument."
+    },
+    {
+      "start": "04:15.405",
+      "end": "04:19.910",
+      "text": "In our synthetic workflow, feedback note F04 reaches the ledger."
+    },
+    {
+      "start": "04:19.910",
+      "end": "04:27.117",
+      "text": "The reviewer groups it with similar notes, preserves the contrary case, and writes a proposed job."
+    },
+    {
+      "start": "04:27.117",
+      "end": "04:30.270",
+      "text": "The owner chooses a small card test."
+    },
+    {
+      "start": "04:30.270",
+      "end": "04:37.477",
+      "text": "The result, when one exists, returns to the decision file with a date and next move."
+    },
+    {
+      "start": "04:37.477",
+      "end": "04:44.234",
+      "text": "This path is still a proposal until a team names its owners and review gates."
+    },
+    {
+      "start": "04:44.234",
+      "end": "04:49.189",
+      "text": "Draw each arrow only after naming its input, owner, and output."
+    },
+    {
+      "start": "04:49.189",
+      "end": "05:00.000",
+      "text": "A line between boxes is not a handoff unless someone can tell when the work crosses it and what happens when it does not."
+    },
+    {
+      "start": "05:00.000",
+      "end": "05:05.314",
+      "text": "The book names tools that can collect, translate, and route information."
+    },
+    {
+      "start": "05:05.314",
+      "end": "05:10.628",
+      "text": "The trap is to connect them and call the system complete."
+    },
+    {
+      "start": "05:10.628",
+      "end": "05:17.391",
+      "text": "If an AI summary misreads a member's sentence, faster routing only spreads the mistake."
+    },
+    {
+      "start": "05:17.391",
+      "end": "05:29.952",
+      "text": "In this course, automation may move an approved note into a ledger, flag a possible pattern, or remind an owner that a review date has arrived."
+    },
+    {
+      "start": "05:29.952",
+      "end": "05:40.097",
+      "text": "A person checks the raw source, contrary evidence, privacy boundary, and decision consequence before a proposed insight becomes a team commitment."
+    },
+    {
+      "start": "05:40.097",
+      "end": "05:48.309",
+      "text": "That review gate needs a named owner and a visible way to reject or correct the suggestion."
+    },
+    {
+      "start": "05:48.309",
+      "end": "05:57.488",
+      "text": "For the fictional membership service, a coordinator could review the source IDs before the pattern reaches the product owner."
+    },
+    {
+      "start": "05:57.488",
+      "end": "06:07.150",
+      "text": "If the note contains private information, it stays in the protected research system and only an approved summary travels onward."
+    },
+    {
+      "start": "06:07.150",
+      "end": "06:15.362",
+      "text": "The book's minimum viable stack is about connecting the work, not collecting every tool on a shelf."
+    },
+    {
+      "start": "06:15.362",
+      "end": "06:19.710",
+      "text": "Choose the smallest path your team can actually maintain."
+    },
+    {
+      "start": "06:19.710",
+      "end": "06:23.575",
+      "text": "Write what happens when the reviewer is unavailable."
+    },
+    {
+      "start": "06:23.575",
+      "end": "06:28.889",
+      "text": "Does the item wait, move to another authorized owner, or expire?"
+    },
+    {
+      "start": "06:28.889",
+      "end": "06:33.237",
+      "text": "A silent automated approval would change the decision boundary."
+    },
+    {
+      "start": "06:33.237",
+      "end": "06:40.000",
+      "text": "The loop should make that boundary plain enough for a new teammate to follow."
+    },
+    {
+      "start": "06:40.000",
+      "end": "06:43.415",
+      "text": "Imagine joining this work six weeks later."
+    },
+    {
+      "start": "06:43.415",
+      "end": "06:50.244",
+      "text": "You should be able to answer three questions without searching through a long chat."
+    },
+    {
+      "start": "06:50.244",
+      "end": "06:52.683",
+      "text": "What did the team believe?"
+    },
+    {
+      "start": "06:52.683",
+      "end": "06:54.634",
+      "text": "What did it observe?"
+    },
+    {
+      "start": "06:54.634",
+      "end": "06:56.585",
+      "text": "What did it decide?"
+    },
+    {
+      "start": "06:56.585",
+      "end": "07:08.780",
+      "text": "The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner."
+    },
+    {
+      "start": "07:08.780",
+      "end": "07:12.683",
+      "text": "If the evidence is inconclusive, write that plainly."
+    },
+    {
+      "start": "07:12.683",
+      "end": "07:22.927",
+      "text": "If a later team repeats the test in a different setting, it should keep the earlier result rather than overwrite it."
+    },
+    {
+      "start": "07:22.927",
+      "end": "07:27.805",
+      "text": "Chapter Eighteen calls the real goal a system that remembers."
+    },
+    {
+      "start": "07:27.805",
+      "end": "07:34.146",
+      "text": "Memory here is operational: it keeps a small decision from becoming a rumor."
+    },
+    {
+      "start": "07:34.146",
+      "end": "07:40.000",
+      "text": "Sam's changed meeting in Chapter Seventeen depends on this kind of continuity."
+    },
+    {
+      "start": "07:40.000",
+      "end": "07:48.293",
+      "text": "In our exercise, a record might say the first-task card remains untested because observation capacity was unavailable."
+    },
+    {
+      "start": "07:48.293",
+      "end": "07:52.683",
+      "text": "That is not a failure dressed up as success."
+    },
+    {
+      "start": "07:52.683",
+      "end": "07:57.073",
+      "text": "It is a clear state and a next action."
+    },
+    {
+      "start": "07:57.073",
+      "end": "08:04.390",
+      "text": "Another possible record could say the test ran but the result is awaiting human review."
+    },
+    {
+      "start": "08:04.390",
+      "end": "08:07.805",
+      "text": "Neither should be described as an outcome."
+    },
+    {
+      "start": "08:07.805",
+      "end": "08:13.659",
+      "text": "Keep source links in the authorized system, not on a public slide."
+    },
+    {
+      "start": "08:13.659",
+      "end": "08:20.000",
+      "text": "The audience-facing card can show the shape of the record with fictional values."
+    },
+    {
+      "start": "08:20.000",
+      "end": "08:28.374",
+      "text": "Pause and draw one current workflow, using only information you can safely put in this course exercise."
+    },
+    {
+      "start": "08:28.374",
+      "end": "08:41.675",
+      "text": "Mark where a signal arrives, who turns it into a proposed insight, which test could challenge it, who makes the decision, and where the record will live."
+    },
+    {
+      "start": "08:41.675",
+      "end": "08:43.645",
+      "text": "Circle the weakest handoff."
+    },
+    {
+      "start": "08:43.645",
+      "end": "08:53.990",
+      "text": "It may be source review, ownership of the test, a missing stop condition, or a decision that never reaches the backlog."
+    },
+    {
+      "start": "08:53.990",
+      "end": "09:00.394",
+      "text": "Write the person responsible for that handoff and the condition that blocks it."
+    },
+    {
+      "start": "09:00.394",
+      "end": "09:09.261",
+      "text": "Resume when your map has a human review gate, a place for the result, and a next owner."
+    },
+    {
+      "start": "09:09.261",
+      "end": "09:18.128",
+      "text": "If you cannot name an owner, leave the arrow broken; the page should show the work that remains."
+    },
+    {
+      "start": "09:18.128",
+      "end": "09:21.576",
+      "text": "The book's arrow sequence gives the stages."
+    },
+    {
+      "start": "09:21.576",
+      "end": "09:35.369",
+      "text": "The Learning System Loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure."
+    },
+    {
+      "start": "09:35.369",
+      "end": "09:40.788",
+      "text": "You have now connected the decision file into a repeatable path."
+    },
+    {
+      "start": "09:40.788",
+      "end": "09:47.685",
+      "text": "In the next lesson, we will look closely at one signal entering that path."
+    },
+    {
+      "start": "09:47.685",
+      "end": "09:56.552",
+      "text": "We will translate feedback into a job, then use synthetic reactions to find questions worth asking real people."
+    },
+    {
+      "start": "09:56.552",
+      "end": "10:00.000",
+      "text": "The boundary between those two sources matters."
+    }
+  ]
+}
