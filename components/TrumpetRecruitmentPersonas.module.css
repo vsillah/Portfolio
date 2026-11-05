@@ -60,7 +60,7 @@
 .card[data-depth="1"] { z-index: 3; transform: translate3d(-80px, -16px, 0) rotate(-8deg) scale(.96); opacity: .96; filter: brightness(.79); }
 .card[data-depth="2"] { z-index: 2; transform: translate3d(90px, -12px, 0) rotate(8deg) scale(.94); opacity: .9; filter: brightness(.68); }
 .card[data-depth="3"] { z-index: 1; transform: translate3d(-125px, -25px, 0) rotate(-14deg) scale(.91); opacity: .86; filter: brightness(.6); }
-@media (max-width: 900px) and (min-width: 640px) {
+@media (max-width: 1240px) and (min-width: 640px) {
   .card[data-depth="1"] { transform: translate3d(-10px, -14px, 0) rotate(-7deg) scale(.96); }
   .card[data-depth="2"] { transform: translate3d(45px, -12px, 0) rotate(7deg) scale(.94); }
   .card[data-depth="3"] { transform: translate3d(-45px, -22px, 0) rotate(-11deg) scale(.91); }
