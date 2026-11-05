@@ -1,1184 +1,376 @@
 {
-  "ui_commit": "94caae6b0a159eb7aa68a5dbbcdb87debb896029",
-  "route": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=94caae6b0a159eb7aa68a5dbbcdb87debb896029&qa=persona-sheets-controls",
-  "persona": [
+  "ui_commit": "1897ab60ddc65490d9ce0972e6efca1924c92396",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=1897ab60ddc65490d9ce0972e6efca1924c92396&qa=persona-arc-type",
+  "persona_states": [
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 107,
-          "right": 151,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 959,
-          "right": 1003,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 277.234375,
-          "opacity": "1",
-          "right": 832.75,
-          "top": 80
-        },
-        {
-          "bottom": 696.6692962646484,
-          "depth": "1",
-          "left": 142.800537109375,
-          "opacity": "0.96",
-          "right": 751.0692138671875,
-          "top": 52.05461120605469
-        },
-        {
-          "bottom": 698.1137084960938,
-          "depth": "2",
-          "left": 374.666748046875,
-          "opacity": "0.9",
-          "right": 970.26318359375,
-          "top": 66.928466796875
-        },
-        {
-          "bottom": 705.6152954101562,
-          "depth": "3",
-          "left": 72.46466064453125,
-          "opacity": "0.86",
-          "right": 695.0571899414062,
-          "top": 53.53765869140625
-        }
-      ],
-      "clientWidth": 1270,
-      "copy": {
-        "height": 299,
-        "need": 258.828125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Avery",
-      "role": "Parent or guardian",
-      "scrollWidth": 1270,
-      "stageHeight": 760,
-      "viewport": 1280
+      "cardBottom": 833.875,
+      "cardLeft": 277.234375,
+      "cardRight": 832.75,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Avery",
+      "width": 1280
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 107,
-          "right": 151,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 959,
-          "right": 1003,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 696.6692962646484,
-          "depth": "1",
-          "left": 142.800537109375,
-          "opacity": "0.96",
-          "right": 751.0692138671875,
-          "top": 52.05461120605469
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 277.234375,
-          "opacity": "1",
-          "right": 832.75,
-          "top": 80
-        },
-        {
-          "bottom": 698.1137084960938,
-          "depth": "2",
-          "left": 374.666748046875,
-          "opacity": "0.9",
-          "right": 970.26318359375,
-          "top": 66.928466796875
-        },
-        {
-          "bottom": 705.6152954101562,
-          "depth": "3",
-          "left": 72.46466064453125,
-          "opacity": "0.86",
-          "right": 695.0571899414062,
-          "top": 53.53765869140625
-        }
-      ],
-      "clientWidth": 1270,
-      "copy": {
-        "height": 299,
-        "need": 242.6328125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Morgan",
-      "role": "Private trumpet tutor",
-      "scrollWidth": 1270,
-      "stageHeight": 760,
-      "viewport": 1280
+      "cardBottom": 833.875,
+      "cardLeft": 277.234375,
+      "cardRight": 832.75,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Morgan",
+      "width": 1280
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 107,
-          "right": 151,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 959,
-          "right": 1003,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 698.1137084960938,
-          "depth": "2",
-          "left": 374.666748046875,
-          "opacity": "0.9",
-          "right": 970.26318359375,
-          "top": 66.928466796875
-        },
-        {
-          "bottom": 696.6692962646484,
-          "depth": "1",
-          "left": 142.800537109375,
-          "opacity": "0.96",
-          "right": 751.0692138671875,
-          "top": 52.05461120605469
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 277.234375,
-          "opacity": "1",
-          "right": 832.75,
-          "top": 80
-        },
-        {
-          "bottom": 705.6152954101562,
-          "depth": "3",
-          "left": 72.46466064453125,
-          "opacity": "0.86",
-          "right": 695.0571899414062,
-          "top": 53.53765869140625
-        }
-      ],
-      "clientWidth": 1270,
-      "copy": {
-        "height": 299,
-        "need": 242.6328125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Casey",
-      "role": "Band educator",
-      "scrollWidth": 1270,
-      "stageHeight": 760,
-      "viewport": 1280
+      "cardBottom": 833.875,
+      "cardLeft": 277.234375,
+      "cardRight": 832.75,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Casey",
+      "width": 1280
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 107,
-          "right": 151,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 959,
-          "right": 1003,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 705.6152954101562,
-          "depth": "3",
-          "left": 72.46466064453125,
-          "opacity": "0.86",
-          "right": 695.0571899414062,
-          "top": 53.53765869140625
-        },
-        {
-          "bottom": 698.1137084960938,
-          "depth": "2",
-          "left": 374.666748046875,
-          "opacity": "0.9",
-          "right": 970.26318359375,
-          "top": 66.928466796875
-        },
-        {
-          "bottom": 696.6692962646484,
-          "depth": "1",
-          "left": 142.800537109375,
-          "opacity": "0.96",
-          "right": 751.0692138671875,
-          "top": 52.05461120605469
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 277.234375,
-          "opacity": "1",
-          "right": 832.75,
-          "top": 80
-        }
-      ],
-      "clientWidth": 1270,
-      "copy": {
-        "height": 299,
-        "need": 242.6328125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Jordan",
-      "role": "Community program lead",
-      "scrollWidth": 1270,
-      "stageHeight": 760,
-      "viewport": 1280
+      "cardBottom": 833.875,
+      "cardLeft": 277.234375,
+      "cardRight": 832.75,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Jordan",
+      "width": 1280
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 48,
-          "right": 92,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 900,
-          "right": 944,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 218.234375,
-          "opacity": "1",
-          "right": 773.75,
-          "top": 80
-        },
-        {
-          "bottom": 696.6240844726562,
-          "depth": "3",
-          "left": 114.322021484375,
-          "opacity": "0.86",
-          "right": 714.7351684570312,
-          "top": 64.197998046875
-        },
-        {
-          "bottom": 693.7885437011719,
-          "depth": "2",
-          "left": 271.53582763671875,
-          "opacity": "0.9",
-          "right": 858.5625610351562,
-          "top": 70.35421752929688
-        },
-        {
-          "bottom": 694.2521133422852,
-          "depth": "1",
-          "left": 161.66500854492188,
-          "opacity": "0.96",
-          "right": 761.1816101074219,
-          "top": 57.553260803222656
-        }
-      ],
-      "clientWidth": 1052,
-      "copy": {
-        "height": 299,
-        "need": 258.828125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Avery",
-      "role": "Parent or guardian",
-      "scrollWidth": 1052,
-      "stageHeight": 760,
-      "viewport": 1062
+      "cardBottom": 834.125,
+      "cardLeft": 218.234375,
+      "cardRight": 773.75,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Avery",
+      "width": 1062
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 48,
-          "right": 92,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 900,
-          "right": 944,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 694.2521133422852,
-          "depth": "1",
-          "left": 161.66500854492188,
-          "opacity": "0.96",
-          "right": 761.1816101074219,
-          "top": 57.553260803222656
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 218.234375,
-          "opacity": "1",
-          "right": 773.75,
-          "top": 80
-        },
-        {
-          "bottom": 696.6240844726562,
-          "depth": "3",
-          "left": 114.322021484375,
-          "opacity": "0.86",
-          "right": 714.7351684570312,
-          "top": 64.197998046875
-        },
-        {
-          "bottom": 693.7885437011719,
-          "depth": "2",
-          "left": 271.53582763671875,
-          "opacity": "0.9",
-          "right": 858.5625610351562,
-          "top": 70.35421752929688
-        }
-      ],
-      "clientWidth": 1052,
-      "copy": {
-        "height": 299,
-        "need": 242.6328125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Morgan",
-      "role": "Private trumpet tutor",
-      "scrollWidth": 1052,
-      "stageHeight": 760,
-      "viewport": 1062
+      "cardBottom": 834.125,
+      "cardLeft": 218.234375,
+      "cardRight": 773.75,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Morgan",
+      "width": 1062
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 48,
-          "right": 92,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 900,
-          "right": 944,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 693.7885437011719,
-          "depth": "2",
-          "left": 271.53582763671875,
-          "opacity": "0.9",
-          "right": 858.5625610351562,
-          "top": 70.35421752929688
-        },
-        {
-          "bottom": 694.2521133422852,
-          "depth": "1",
-          "left": 161.66500854492188,
-          "opacity": "0.96",
-          "right": 761.1816101074219,
-          "top": 57.553260803222656
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 218.234375,
-          "opacity": "1",
-          "right": 773.75,
-          "top": 80
-        },
-        {
-          "bottom": 696.6240844726562,
-          "depth": "3",
-          "left": 114.322021484375,
-          "opacity": "0.86",
-          "right": 714.7351684570312,
-          "top": 64.197998046875
-        }
-      ],
-      "clientWidth": 1052,
-      "copy": {
-        "height": 299,
-        "need": 242.6328125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Casey",
-      "role": "Band educator",
-      "scrollWidth": 1052,
-      "stageHeight": 760,
-      "viewport": 1062
+      "cardBottom": 834.125,
+      "cardLeft": 218.234375,
+      "cardRight": 773.75,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Casey",
+      "width": 1062
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 48,
-          "right": 92,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 900,
-          "right": 944,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 696.6240844726562,
-          "depth": "3",
-          "left": 114.322021484375,
-          "opacity": "0.86",
-          "right": 714.7351684570312,
-          "top": 64.197998046875
-        },
-        {
-          "bottom": 693.7885437011719,
-          "depth": "2",
-          "left": 271.53582763671875,
-          "opacity": "0.9",
-          "right": 858.5625610351562,
-          "top": 70.35421752929688
-        },
-        {
-          "bottom": 694.2521133422852,
-          "depth": "1",
-          "left": 161.66500854492188,
-          "opacity": "0.96",
-          "right": 761.1816101074219,
-          "top": 57.553260803222656
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 218.234375,
-          "opacity": "1",
-          "right": 773.75,
-          "top": 80
-        }
-      ],
-      "clientWidth": 1052,
-      "copy": {
-        "height": 299,
-        "need": 242.6328125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Jordan",
-      "role": "Community program lead",
-      "scrollWidth": 1052,
-      "stageHeight": 760,
-      "viewport": 1062
+      "cardBottom": 834.125,
+      "cardLeft": 218.234375,
+      "cardRight": 773.75,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Jordan",
+      "width": 1062
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 40,
-          "right": 84,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 674,
-          "right": 718,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 168.8125,
-          "opacity": "1",
-          "right": 589.171875,
-          "top": 80
-        },
-        {
-          "bottom": 684.8900756835938,
-          "depth": "3",
-          "left": 57.68825912475586,
-          "opacity": "0.86",
-          "right": 537.3688926696777,
-          "top": 75.9320068359375
-        },
-        {
-          "bottom": 686.0469665527344,
-          "depth": "2",
-          "left": 217.58578491210935,
-          "opacity": "0.9",
-          "right": 678.5126342773438,
-          "top": 78.09579467773438
-        },
-        {
-          "bottom": 686.3458862304688,
-          "depth": "1",
-          "left": 109.0564422607422,
-          "opacity": "0.96",
-          "right": 579.7902069091797,
-          "top": 65.45953369140625
-        }
-      ],
-      "clientWidth": 758,
-      "copy": {
-        "height": 299,
-        "need": 275.625
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Avery",
-      "role": "Parent or guardian",
-      "scrollWidth": 758,
-      "stageHeight": 760,
-      "viewport": 768
+      "cardBottom": 833.75,
+      "cardLeft": 168.8125,
+      "cardRight": 589.171875,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Avery",
+      "width": 768
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 40,
-          "right": 84,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 674,
-          "right": 718,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 686.3458862304688,
-          "depth": "1",
-          "left": 109.0564422607422,
-          "opacity": "0.96",
-          "right": 579.7902069091797,
-          "top": 65.45953369140625
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 168.8125,
-          "opacity": "1",
-          "right": 589.171875,
-          "top": 80
-        },
-        {
-          "bottom": 684.8900756835938,
-          "depth": "3",
-          "left": 57.68825912475586,
-          "opacity": "0.86",
-          "right": 537.3688926696777,
-          "top": 75.9320068359375
-        },
-        {
-          "bottom": 686.0469665527344,
-          "depth": "2",
-          "left": 217.58578491210935,
-          "opacity": "0.9",
-          "right": 678.5126342773438,
-          "top": 78.09579467773438
-        }
-      ],
-      "clientWidth": 758,
-      "copy": {
-        "height": 299,
-        "need": 291.8203125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Morgan",
-      "role": "Private trumpet tutor",
-      "scrollWidth": 758,
-      "stageHeight": 760,
-      "viewport": 768
+      "cardBottom": 833.75,
+      "cardLeft": 168.8125,
+      "cardRight": 589.171875,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Morgan",
+      "width": 768
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 40,
-          "right": 84,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 674,
-          "right": 718,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 686.0469665527344,
-          "depth": "2",
-          "left": 217.58578491210935,
-          "opacity": "0.9",
-          "right": 678.5126342773438,
-          "top": 78.09579467773438
-        },
-        {
-          "bottom": 686.3458862304688,
-          "depth": "1",
-          "left": 109.0564422607422,
-          "opacity": "0.96",
-          "right": 579.7902069091797,
-          "top": 65.45953369140625
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 168.8125,
-          "opacity": "1",
-          "right": 589.171875,
-          "top": 80
-        },
-        {
-          "bottom": 684.8900756835938,
-          "depth": "3",
-          "left": 57.68825912475586,
-          "opacity": "0.86",
-          "right": 537.3688926696777,
-          "top": 75.9320068359375
-        }
-      ],
-      "clientWidth": 758,
-      "copy": {
-        "height": 299,
-        "need": 291.8203125
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Casey",
-      "role": "Band educator",
-      "scrollWidth": 758,
-      "stageHeight": 760,
-      "viewport": 768
+      "cardBottom": 833.75,
+      "cardLeft": 168.8125,
+      "cardRight": 589.171875,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Casey",
+      "width": 768
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 40,
-          "right": 84,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 674,
-          "right": 718,
-          "width": 44
-        }
-      ],
-      "cardHeight": 600,
-      "cards": [
-        {
-          "bottom": 684.8900756835938,
-          "depth": "3",
-          "left": 57.68825912475586,
-          "opacity": "0.86",
-          "right": 537.3688926696777,
-          "top": 75.9320068359375
-        },
-        {
-          "bottom": 686.0469665527344,
-          "depth": "2",
-          "left": 217.58578491210935,
-          "opacity": "0.9",
-          "right": 678.5126342773438,
-          "top": 78.09579467773438
-        },
-        {
-          "bottom": 686.3458862304688,
-          "depth": "1",
-          "left": 109.0564422607422,
-          "opacity": "0.96",
-          "right": 579.7902069091797,
-          "top": 65.45953369140625
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 168.8125,
-          "opacity": "1",
-          "right": 589.171875,
-          "top": 80
-        }
-      ],
-      "clientWidth": 758,
-      "copy": {
-        "height": 299,
-        "need": 275.0234375
-      },
-      "image": {
-        "fit": "cover",
-        "height": 299,
-        "loaded": true
-      },
-      "name": "Jordan",
-      "role": "Community program lead",
-      "scrollWidth": 758,
-      "stageHeight": 760,
-      "viewport": 768
+      "cardBottom": 833.75,
+      "cardLeft": 168.8125,
+      "cardRight": 589.171875,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "copyScrollHeight": 359,
+      "imageHeight": 359,
+      "overflow": 0,
+      "selected": "Jordan",
+      "width": 768
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 20,
-          "right": 64,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 286,
-          "right": 330,
-          "width": 44
-        }
-      ],
-      "cardHeight": 662,
-      "cards": [
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 47.8984375,
-          "opacity": "1",
-          "right": 302.09375,
-          "top": 18
-        },
-        {
-          "bottom": 686.8638610839844,
-          "depth": "3",
-          "left": -117.2065887451172,
-          "opacity": "0",
-          "right": 201.9562225341797,
-          "top": 62.610809326171875
-        },
-        {
-          "bottom": 687.9061584472656,
-          "depth": "2",
-          "left": 125.03929138183594,
-          "opacity": "0",
-          "right": 438.03868103027344,
-          "top": 41.144683837890625
-        },
-        {
-          "bottom": 687.9061584472656,
-          "depth": "1",
-          "left": -88.0465087890625,
-          "opacity": "0",
-          "right": 224.952880859375,
-          "top": 41.144683837890625
-        }
-      ],
-      "clientWidth": 350,
-      "copy": {
-        "height": 396,
-        "need": 355.359375
-      },
-      "image": {
-        "fit": "cover",
-        "height": 264,
-        "loaded": true
-      },
-      "name": "Avery",
-      "role": "Parent or guardian",
-      "scrollWidth": 350,
-      "stageHeight": 700,
-      "viewport": 360
+      "cardBottom": 1056.75,
+      "cardLeft": 47.8984375,
+      "cardRight": 302.09375,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "copyScrollHeight": 492,
+      "imageHeight": 328,
+      "overflow": 0,
+      "selected": "Avery",
+      "width": 360
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 20,
-          "right": 64,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 286,
-          "right": 330,
-          "width": 44
-        }
-      ],
-      "cardHeight": 662,
-      "cards": [
-        {
-          "bottom": 687.9061584472656,
-          "depth": "1",
-          "left": -88.0465087890625,
-          "opacity": "0",
-          "right": 224.952880859375,
-          "top": 41.144683837890625
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 47.8984375,
-          "opacity": "1",
-          "right": 302.09375,
-          "top": 18
-        },
-        {
-          "bottom": 686.8638610839844,
-          "depth": "3",
-          "left": -117.2065887451172,
-          "opacity": "0",
-          "right": 201.9562225341797,
-          "top": 62.610809326171875
-        },
-        {
-          "bottom": 687.9061584472656,
-          "depth": "2",
-          "left": 125.03929138183594,
-          "opacity": "0",
-          "right": 438.03868103027344,
-          "top": 41.144683837890625
-        }
-      ],
-      "clientWidth": 350,
-      "copy": {
-        "height": 396,
-        "need": 339.1640625
-      },
-      "image": {
-        "fit": "cover",
-        "height": 264,
-        "loaded": true
-      },
-      "name": "Morgan",
-      "role": "Private trumpet tutor",
-      "scrollWidth": 350,
-      "stageHeight": 700,
-      "viewport": 360
+      "cardBottom": 1056.75,
+      "cardLeft": 47.8984375,
+      "cardRight": 302.09375,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "copyScrollHeight": 492,
+      "imageHeight": 328,
+      "overflow": 0,
+      "selected": "Morgan",
+      "width": 360
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 20,
-          "right": 64,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 286,
-          "right": 330,
-          "width": 44
-        }
-      ],
-      "cardHeight": 662,
-      "cards": [
-        {
-          "bottom": 687.9061584472656,
-          "depth": "2",
-          "left": 125.03929138183594,
-          "opacity": "0",
-          "right": 438.03868103027344,
-          "top": 41.144683837890625
-        },
-        {
-          "bottom": 687.9061584472656,
-          "depth": "1",
-          "left": -88.0465087890625,
-          "opacity": "0",
-          "right": 224.952880859375,
-          "top": 41.144683837890625
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 47.8984375,
-          "opacity": "1",
-          "right": 302.09375,
-          "top": 18
-        },
-        {
-          "bottom": 686.8638610839844,
-          "depth": "3",
-          "left": -117.2065887451172,
-          "opacity": "0",
-          "right": 201.9562225341797,
-          "top": 62.610809326171875
-        }
-      ],
-      "clientWidth": 350,
-      "copy": {
-        "height": 396,
-        "need": 372.15625
-      },
-      "image": {
-        "fit": "cover",
-        "height": 264,
-        "loaded": true
-      },
-      "name": "Casey",
-      "role": "Band educator",
-      "scrollWidth": 350,
-      "stageHeight": 700,
-      "viewport": 360
+      "cardBottom": 1056.75,
+      "cardLeft": 47.8984375,
+      "cardRight": 302.09375,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "copyScrollHeight": 492,
+      "imageHeight": 328,
+      "overflow": 0,
+      "selected": "Casey",
+      "width": 360
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 20,
-          "right": 64,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 286,
-          "right": 330,
-          "width": 44
-        }
-      ],
-      "cardHeight": 662,
-      "cards": [
-        {
-          "bottom": 686.8638610839844,
-          "depth": "3",
-          "left": -117.2065887451172,
-          "opacity": "0",
-          "right": 201.9562225341797,
-          "top": 62.610809326171875
-        },
-        {
-          "bottom": 687.9061584472656,
-          "depth": "2",
-          "left": 125.03929138183594,
-          "opacity": "0",
-          "right": 438.03868103027344,
-          "top": 41.144683837890625
-        },
-        {
-          "bottom": 687.9061584472656,
-          "depth": "1",
-          "left": -88.0465087890625,
-          "opacity": "0",
-          "right": 224.952880859375,
-          "top": 41.144683837890625
-        },
-        {
-          "bottom": 680,
-          "depth": "0",
-          "left": 47.8984375,
-          "opacity": "1",
-          "right": 302.09375,
-          "top": 18
-        }
-      ],
-      "clientWidth": 350,
-      "copy": {
-        "height": 396,
-        "need": 371.5546875
-      },
-      "image": {
-        "fit": "cover",
-        "height": 264,
-        "loaded": true
-      },
-      "name": "Jordan",
-      "role": "Community program lead",
-      "scrollWidth": 350,
-      "stageHeight": 700,
-      "viewport": 360
+      "cardBottom": 1056.75,
+      "cardLeft": 47.8984375,
+      "cardRight": 302.09375,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "copyScrollHeight": 492,
+      "imageHeight": 328,
+      "overflow": 0,
+      "selected": "Jordan",
+      "width": 360
     }
   ],
-  "social": [
+  "responsive_check": [
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 403,
-          "right": 447,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 823,
-          "right": 867,
-          "width": 44
-        }
-      ],
-      "clientWidth": 1270,
-      "frame": {
-        "left": 455,
-        "right": 815,
-        "width": 360
-      },
-      "scrollWidth": 1270,
-      "viewport": 1280
+      "contactBottomWithinCopy": 63,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "visibleCardMaxRight": 302,
+      "visibleCardMinLeft": 48,
+      "width": 360
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 294,
-          "right": 338,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 714,
-          "right": 758,
-          "width": 44
-        }
-      ],
-      "clientWidth": 1052,
-      "frame": {
-        "left": 346,
-        "right": 706,
-        "width": 360
-      },
-      "scrollWidth": 1052,
-      "viewport": 1062
+      "contactBottomWithinCopy": 43,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "visibleCardMaxRight": 302,
+      "visibleCardMinLeft": 48,
+      "width": 360
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 147,
-          "right": 191,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 567,
-          "right": 611,
-          "width": 44
-        }
-      ],
-      "clientWidth": 758,
-      "frame": {
-        "left": 199,
-        "right": 559,
-        "width": 360
-      },
-      "scrollWidth": 758,
-      "viewport": 768
+      "contactBottomWithinCopy": 24,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "visibleCardMaxRight": 302,
+      "visibleCardMinLeft": 48,
+      "width": 360
     },
     {
-      "activeDots": 1,
-      "arrows": [
-        {
-          "height": 44,
-          "left": 1,
-          "right": 45,
-          "width": 44
-        },
-        {
-          "height": 44,
-          "left": 305,
-          "right": 349,
-          "width": 44
-        }
-      ],
-      "clientWidth": 350,
-      "frame": {
-        "left": 37,
-        "right": 313,
-        "width": 276
-      },
-      "scrollWidth": 350,
-      "viewport": 360
+      "contactBottomWithinCopy": 28,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "visibleCardMaxRight": 302,
+      "visibleCardMinLeft": 48,
+      "width": 360
+    },
+    {
+      "contactBottomWithinCopy": 35,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "visibleCardMaxRight": 690,
+      "visibleCardMinLeft": 60,
+      "width": 768
+    },
+    {
+      "contactBottomWithinCopy": 35,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "visibleCardMaxRight": 690,
+      "visibleCardMinLeft": 60,
+      "width": 768
+    },
+    {
+      "contactBottomWithinCopy": 35,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "visibleCardMaxRight": 690,
+      "visibleCardMinLeft": 60,
+      "width": 768
+    },
+    {
+      "contactBottomWithinCopy": 30,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "visibleCardMaxRight": 690,
+      "visibleCardMinLeft": 60,
+      "width": 768
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "visibleCardMaxRight": 870,
+      "visibleCardMinLeft": 117,
+      "width": 1062
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "visibleCardMaxRight": 870,
+      "visibleCardMinLeft": 117,
+      "width": 1062
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "visibleCardMaxRight": 870,
+      "visibleCardMinLeft": 117,
+      "width": 1062
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "visibleCardMaxRight": 870,
+      "visibleCardMinLeft": 117,
+      "width": 1062
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "visibleCardMaxRight": 984,
+      "visibleCardMinLeft": 50,
+      "width": 1280
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "visibleCardMaxRight": 984,
+      "visibleCardMinLeft": 50,
+      "width": 1280
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "visibleCardMaxRight": 984,
+      "visibleCardMinLeft": 50,
+      "width": 1280
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "visibleCardMaxRight": 984,
+      "visibleCardMinLeft": 50,
+      "width": 1280
     }
-  ],
-  "phone_swipe": {
-    "forward": "Parents or guardians to Community music programs in current deck order",
-    "reverse": "Community music programs to Parents or guardians"
-  }
+  ]
 }
