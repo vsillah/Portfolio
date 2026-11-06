@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight, ArrowUpRight, Music2 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import TrumpetRecruitmentPersonas from "@/components/TrumpetRecruitmentPersonas";
 import TrumpetRecruitmentSocialCarousel from "@/components/TrumpetRecruitmentSocialCarousel";
@@ -31,7 +32,7 @@ export default function TrumpetRecruitmentPage() {
   return (
     <main className="min-h-screen overflow-x-clip bg-background text-foreground">
       <Navigation />
-      <div className="mx-auto max-w-6xl px-5 pb-20 pt-28 sm:px-10 lg:px-12">
+      <div className="mx-auto max-w-6xl px-5 pt-28 sm:px-10 lg:px-12">
         <Link href="/work/trumpet-trainer" className="text-sm font-semibold text-bronze dark:text-radiant-gold underline underline-offset-4">← Back to Trumpet Trainer</Link>
         <header className="mt-10">
           <p className="font-heading text-xs uppercase tracking-[.2em] text-bronze dark:text-radiant-gold">Trumpet Trainer</p>
@@ -56,11 +57,27 @@ export default function TrumpetRecruitmentPage() {
           <p className="font-heading text-xs uppercase tracking-[.2em] text-bronze dark:text-radiant-gold">One possible practice rhythm</p><h2 id="plan" className="mt-2 font-premium text-3xl">Six small steps over two weeks</h2>
           <div className="mt-6 sm:mt-7"><TrumpetRecruitmentTimeline steps={practicePath} /></div>
         </section>
-
-        <footer className="mt-16 border-t border-border pt-8">
-          <Link href="/work/trumpet-trainer" className="text-sm font-semibold text-bronze dark:text-radiant-gold underline underline-offset-4">Back to Trumpet Trainer →</Link>
-        </footer>
       </div>
+      <section aria-labelledby="cta-heading" className="relative isolate mt-20 overflow-hidden border-t border-radiant-gold/35 bg-imperial-navy text-white sm:mt-24">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(229,185,90,0.16),transparent_45%)]" />
+        <svg aria-hidden="true" viewBox="0 0 520 240" fill="none" className="pointer-events-none absolute right-0 top-0 hidden h-full w-[520px] max-w-none text-radiant-gold opacity-20 sm:block" preserveAspectRatio="xMidYMid slice">
+          {[84, 102, 120, 138, 156].map((y) => <path key={y} d={`M0 ${y}h520`} stroke="currentColor" strokeWidth="1" />)}
+          <path d="M363 114V45l56-13v75" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+          <ellipse cx="348" cy="119" rx="17" ry="11" transform="rotate(-18 348 119)" fill="currentColor" />
+          <ellipse cx="404" cy="112" rx="17" ry="11" transform="rotate(-18 404 112)" fill="currentColor" />
+        </svg>
+        <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-5 py-14 sm:px-10 sm:py-20 lg:flex-row lg:items-end lg:justify-between lg:px-12">
+          <div className="max-w-2xl">
+            <p className="flex items-center gap-2 font-heading text-xs uppercase tracking-[.2em] text-radiant-gold">Your next note <Music2 aria-hidden="true" className="h-4 w-4 sm:hidden" /></p>
+            <h2 id="cta-heading" className="mt-4 font-premium text-4xl leading-tight sm:text-5xl">Ready to hear the next note?</h2>
+            <p className="mt-4 text-lg leading-7 text-white/80">Open Trumpet Trainer and try one short practice step.</p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-stretch">
+            <a href="https://trumpet-trainer-zeta.vercel.app/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-radiant-gold px-6 py-3 text-base font-semibold text-imperial-navy shadow-[0_8px_28px_rgba(0,0,0,0.18)] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold" aria-label="Try Trumpet Trainer (opens the practice app in a new tab)">Try Trumpet Trainer <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></a>
+            <Link href="/work/trumpet-trainer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-radiant-gold/70 bg-[#f7f2e8] px-6 py-3 text-base font-semibold text-imperial-navy transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold dark:border-white/45 dark:bg-imperial-navy dark:text-white dark:hover:border-radiant-gold dark:hover:text-radiant-gold">See the product story <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

@@ -2,7 +2,8 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import TrumpetRecruitmentTimeline, { type TimelineStep } from "./TrumpetRecruitmentTimeline";
+import sharp from "sharp";
+import TrumpetRecruitmentTimeline, { spineBounds, visibleTrumpetBounds, type TimelineStep } from "./TrumpetRecruitmentTimeline";
 
 const steps: TimelineStep[] = [
   { days: "1–2", title: "Check the score", detail: "Check the source." },
@@ -26,6 +27,50 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("Trumpet recruitment milestones", () => {
+  it("bounds the rail to the visible pixels of the approved trumpet poster", async () => {
+    const { data, info } = await sharp(join(process.cwd(), "public/work/trumpet-trainer/recruitment-motion/poster.png"))
+      .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    let first = info.height;
+    let last = -1;
+    for (let y = 0; y < info.height; y += 1) {
+      for (let x = 0; x < info.width; x += 1) {
+        if (data[(y * info.width + x) * info.channels + 3] === 0) continue;
+        first = Math.min(first, y);
+        last = Math.max(last, y);
+      }
+    }
+    expect(visibleTrumpetBounds).toEqual({ top: first / info.height, bottom: (last + 1) / info.height });
+    const stage = { top: 12, height: 510 };
+    const rail = spineBounds(stage.top, stage.height);
+    expect(rail.top).toBeGreaterThan(stage.top + stage.height * visibleTrumpetBounds.top);
+    expect(rail.bottom).toBeLessThan(stage.top + stage.height * visibleTrumpetBounds.bottom);
+  });
+
+  it("uses poster bounds for the rendered rail and keeps its arrow inside them", () => {
+    const rect = (left: number, top: number, width: number, height: number) => ({
+      x: left, y: top, left, top, width, height, right: left + width, bottom: top + height, toJSON: () => ({}),
+    } as DOMRect);
+    const original = HTMLElement.prototype.getBoundingClientRect;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
+      if (this.hasAttribute("data-timeline-layout")) return rect(0, 0, 900, 510);
+      if (this.hasAttribute("data-timeline-stage")) return rect(365, 0, 170, 510);
+      if (this.matches("button[data-side]")) {
+        const cards = [...this.parentElement!.querySelectorAll("button[data-side]")];
+        const index = cards.indexOf(this);
+        return rect(index % 2 ? 600 : 0, index * 85, 300, 70);
+      }
+      return original.call(this);
+    });
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    const bounds = spineBounds(0, 510);
+    const base = container.querySelector('[data-timeline-spine="base"]')?.getAttribute("d");
+    expect(base).toBe(`M 428.75 ${bounds.top} V ${bounds.bottom}`);
+    const arrow = container.querySelector('[data-timeline-direction="down"]')?.getAttribute("d") ?? "";
+    const arrowYs = [...arrow.matchAll(/[ML] [\d.-]+ ([\d.-]+)/g)].map((match) => Number(match[1]));
+    expect(Math.max(...arrowYs)).toBeLessThan(bounds.bottom);
+    expect([...container.querySelectorAll("[data-branch-step]")]).toHaveLength(6);
+  });
+
   it("keeps light card text, labels, numbers, and progress above AA contrast thresholds", () => {
     const css = readFileSync(join(process.cwd(), "components/TrumpetRecruitmentTimeline.module.css"), "utf8");
     const light = css.split(":global(html.dark)")[0];

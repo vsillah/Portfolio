@@ -25,11 +25,29 @@ describe("Trumpet Trainer concept preview", () => {
     expect(screen.getByRole("heading", { name: "Inside Trumpet Trainer" })).toBeInTheDocument();
     expect(screen.queryByText(/An example path, not a fixed schedule or a promise of progress/)).not.toBeInTheDocument();
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ })).toHaveLength(2);
-    expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ }).every((link) => link.getAttribute("href") === "/work/trumpet-trainer")).toBe(true);
+    expect(screen.getByRole("link", { name: /Back to Trumpet Trainer/ })).toHaveAttribute("href", "/work/trumpet-trainer");
     const text = screen.getByRole("main").textContent ?? "";
     expect(text).not.toMatch(/internal review|review only|approved review slides|pending approval|media source and claim limits|operating boundaries|decision before activation|review details|message drafts|contact path|pilot-fit signals|qualified conversations|full activation boundary|captain must approve|tester sign-ups|tester interest|recruitment/i);
     expect(screen.queryByRole("link", { name: /interest form|enroll|sign up/i })).not.toBeInTheDocument();
+  });
+
+  it("closes with a clear product action while keeping recruitment off", () => {
+    render(<TrumpetRecruitmentPage />);
+    const endcap = screen.getByRole("region", { name: "Ready to hear the next note?" });
+    expect(within(endcap).getByRole("heading", { name: "Ready to hear the next note?" })).toBeInTheDocument();
+    expect(within(endcap).getByText("Open Trumpet Trainer and try one short practice step.")).toBeInTheDocument();
+    const primary = within(endcap).getByRole("link", { name: "Try Trumpet Trainer (opens the practice app in a new tab)" });
+    expect(primary).toHaveAttribute("href", "https://trumpet-trainer-zeta.vercel.app/");
+    expect(primary).toHaveAttribute("target", "_blank");
+    expect(primary.getAttribute("rel")?.split(" ")).toEqual(expect.arrayContaining(["noopener", "noreferrer"]));
+    expect(primary.className).toContain("focus-visible:outline");
+    const secondary = within(endcap).getByRole("link", { name: "See the product story" });
+    expect(secondary).toHaveAttribute("href", "/work/trumpet-trainer");
+    expect(secondary).not.toHaveAttribute("target");
+    expect(secondary.className).toContain("focus-visible:outline");
+    expect(metadata.robots).toEqual({ index: false, follow: false });
+    expect(screen.queryByRole("form")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /interest|enroll|sign up|checkout/i })).not.toBeInTheDocument();
   });
 
   it("keeps the exact gameplay and seven-screen flow with a plain demonstration disclosure", () => {
