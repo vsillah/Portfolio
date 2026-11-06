@@ -2,7 +2,7 @@
 
 Draft PR: #1220, branch `codex/accelerated-completion-workspace`.
 
-Review fixture: `http://localhost:3158/member/dashboard?qa=completion-ready&rev=profile-name-prefill`. The fixture uses a fictional signed-in member profile and does not create a database credential.
+Review fixture: `http://localhost:3158/member/dashboard?qa=completion-ready&rev=credential-signature`. The fixture uses a fictional signed-in member profile and does not create a database credential.
 
 ## Approved treatment
 
@@ -10,7 +10,9 @@ Review fixture: `http://localhost:3158/member/dashboard?qa=completion-ready&rev=
 - The AmaduTown shield preserves its portrait aspect ratio. Formal Roman serif typography keeps the credential legible; no cursive display text is used.
 - Learner name, issue date, credential record ID, verification reference, title, and course details remain dynamic. The frame is stable artwork rather than a text-bearing certificate image.
 - The unclaimed credential prefills the member profile name and keeps it editable until the member claims the immutable credential.
+- The owner block uses Vambah Sillah's approved signature with its scan background removed, above the typed owner and author attribution.
 - The central title and recipient block is intentionally lowered, while the issue, owner, and verification band remains clear of the lower frame.
+- The issue-date and credential-record blocks use matching left and right frame insets.
 - The responsive browser certificate and downloadable SVG use the same approved frame and hierarchy.
 
 ## Evidence
@@ -25,7 +27,7 @@ Review fixture: `http://localhost:3158/member/dashboard?qa=completion-ready&rev=
 
 ## Validation and boundaries
 
-- Focused credential, API, and verification-route tests: 9/9 passed.
+- Focused credential, API, and verification-route tests: 10/10 passed.
 - `NODE_OPTIONS=--max-old-space-size=8192 npm run build`: passed, including 140/140 static pages. The default 4GB Node heap reached its limit during page-data collection.
 - The downloaded SVG passed `xmllint --noout`; its verification reference was checked for frame overflow.
 - Certificate frame SHA-256: `37bf0de6734e2c3c238a0f28afb8dc96f61247449972af8a15d5f5e4421ca44c`.

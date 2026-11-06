@@ -148,8 +148,8 @@ export default function CompletionCredential({ token, completedCount, profileNam
       <image href="${signatureData}" x="517" y="785" width="390" height="112" preserveAspectRatio="xMidYMid meet"/>
       <line x1="518" y1="886" x2="906" y2="886" stroke="${ink}" stroke-width="1.3"/>
       <text x="712" y="919" fill="${ink}" font-family="Georgia,serif" font-size="25" font-weight="700" text-anchor="middle">Vambah Sillah</text><text x="712" y="950" fill="${ink}" font-family="Georgia,serif" font-size="18" text-anchor="middle">Owner, AmaduTown · Author, Accelerated</text>
-      <text x="1040" y="828" fill="${gold}" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2">CREDENTIAL RECORD ID</text><text x="1040" y="861" fill="${ink}" font-family="Georgia,serif" font-size="18">${escapeXml(recordLabel(credential))}</text>
-      <text x="1040" y="897" fill="${gold}" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2">VERIFICATION REFERENCE</text><text x="1040" y="928" fill="${ink}" font-family="Georgia,serif" font-size="14">${escapeXml(verifyLabel)}</text>
+      <text x="1240" y="828" fill="${gold}" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2" text-anchor="end">CREDENTIAL RECORD ID</text><text x="1240" y="861" fill="${ink}" font-family="Georgia,serif" font-size="18" text-anchor="end">${escapeXml(recordLabel(credential))}</text>
+      <text x="1240" y="897" fill="${gold}" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2" text-anchor="end">VERIFICATION REFERENCE</text><text x="1240" y="928" fill="${ink}" font-family="Georgia,serif" font-size="14" text-anchor="end">${escapeXml(verifyLabel)}</text>
     </svg>`
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }))
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'accelerated-certificate-of-completion.svg'; anchor.click(); URL.revokeObjectURL(url)
