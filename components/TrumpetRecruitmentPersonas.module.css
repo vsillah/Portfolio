@@ -1,17 +1,18 @@
 .stage {
   position: relative;
   isolation: isolate;
-  min-height: 870px;
+  min-height: 760px;
   overflow: visible;
   touch-action: pan-y;
 }
 .card {
   position: absolute;
-  top: 80px;
+  top: 55px;
   left: 19%;
   width: 62%;
-  height: 720px;
+  height: 640px;
   background: var(--imperial-navy);
+  color: var(--platinum-white);
   transform-origin: 50% 85%;
   box-shadow: 0 24px 46px rgb(0 0 0 / 38%), 0 0 0 1px rgb(216 180 96 / 14%);
   transition: transform 480ms cubic-bezier(.2,.8,.2,1), opacity 480ms ease, filter 480ms ease;
@@ -22,18 +23,15 @@
 .provenance { margin: 0; color: var(--radiant-gold); font-size: 11px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
 .identity { display: flex; align-items: baseline; gap: 12px; margin-top: 5px; }
 .personName { margin: 0; font-family: Georgia, serif; font-size: 28px; line-height: 1.12; }
-.role { margin: 0; color: var(--muted-foreground); font-size: 14px; font-weight: 600; line-height: 1.35; }
+.role { margin: 0; color: #d1d9e6; font-size: 14px; font-weight: 600; line-height: 1.35; }
 .quote { margin: 12px 0 14px; padding-left: 12px; border-left: 2px solid var(--radiant-gold); font-family: Georgia, serif; font-size: 17px; font-style: italic; line-height: 1.4; }
 .profile { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; margin: 0; }
 .profile div { min-width: 0; }
 .profile dt { color: var(--radiant-gold); font-size: 11px; font-weight: 700; letter-spacing: .07em; line-height: 1.35; text-transform: uppercase; }
 .profile dd { margin: 4px 0 0; color: var(--platinum-white); font-size: 14px; line-height: 1.4; }
-.contact { margin-top: 12px; color: var(--muted-foreground); font-size: 13px; line-height: 1.45; }
-.contact summary { width: max-content; color: var(--platinum-white); cursor: pointer; font-weight: 600; }
-.contact p { margin: 5px 0 0; }
 .arrow {
   position: absolute;
-  top: 418px;
+  top: 353px;
   z-index: 5;
   display: grid;
   place-items: center;
@@ -75,7 +73,7 @@
   .card[data-depth="3"] { --rest-transform: translate3d(-25px, -22px, 0) rotate(-11deg) scale(.91); }
 }
 @media (max-width: 639px) {
-  .stage { min-height: 860px; overflow: clip; }
+  .stage { min-height: 790px; overflow: clip; }
   .card { top: 18px; left: 9%; width: 82%; height: calc(100% - 38px); }
   .imageRegion { flex-basis: 40%; }
   .copyRegion { flex-basis: 60%; }
@@ -84,7 +82,7 @@
   .personName { font-size: 25px; }
   .role { font-size: 12px; }
   .quote { font-size: 16px; }
-  .arrow { top: 407px; }
+  .arrow { top: 374px; }
   .card[data-depth="1"] { --rest-transform: translate3d(-80px, 0, 0) rotate(-7deg) scale(.94); --rest-opacity: 0; }
   .card[data-depth="2"] { --rest-transform: translate3d(80px, 0, 0) rotate(7deg) scale(.94); --rest-opacity: 0; }
   .card[data-depth="3"] { --rest-transform: translate3d(-100px, 0, 0) rotate(-9deg) scale(.9); --rest-opacity: 0; }
