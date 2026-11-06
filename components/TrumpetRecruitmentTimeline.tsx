@@ -89,14 +89,16 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
   };
 
   return <div ref={root} className={styles.timeline} data-beat={beat}>
-    <span aria-hidden="true" className={styles.spine} />
+    <div className={styles.stage}>
     <div aria-hidden="true" className={styles.instrument}>
-      {!playing && <Image src={`${asset}-poster.png`} width={512} height={768} alt="" draggable={false} priority className={styles.trumpet} />}
-      {!staticPoster && safariMedia && safariAnimated && <img src={`${asset}.webp`} width={512} height={768} alt="" draggable={false} onLoad={startSafariBeats} onError={failMedia} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} />}
+      {!playing && <Image src={`${asset}-poster.png`} width={960} height={540} alt="" draggable={false} priority className={styles.trumpet} />}
+      {!staticPoster && safariMedia && safariAnimated && <img src={`${asset}.webp`} width={960} height={540} alt="" draggable={false} onLoad={startSafariBeats} onError={failMedia} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} />}
       {!staticPoster && safariMedia === false && <video ref={video} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} poster={`${asset}-poster.png`} preload="auto" muted playsInline onPlaying={() => setPlaying(true)} onTimeUpdate={updateBeat} onEnded={() => setBeat(steps.length)} onError={failMedia}>
           <source src={`${asset}.webm`} type="video/webm" />
           <source src={`${asset}.mp4`} type="video/mp4" />
         </video>}
+    </div>
+    <div aria-hidden="true" data-testid="timeline-cue" className={styles.cue}><span className={styles.cueNumber}>{Math.max(beat, 1)}</span><span>{steps[Math.max(beat - 1, 0)]?.title}</span></div>
     </div>
     <ol className={styles.list}>
       {steps.map(({ days, title, detail }, index) => <li key={days} className={styles.step} data-active={beat === index + 1}>

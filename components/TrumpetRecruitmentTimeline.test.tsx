@@ -1,4 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import TrumpetRecruitmentTimeline, { type TimelineStep } from "./TrumpetRecruitmentTimeline";
 
@@ -18,6 +20,11 @@ afterEach(() => {
 });
 
 describe("Trumpet recruitment timeline media", () => {
+  it("keeps milestone numbers in the UI without a false marker tremor", () => {
+    const css = readFileSync(resolve(process.cwd(), "components/TrumpetRecruitmentTimeline.module.css"), "utf8");
+    expect(css).not.toContain("markerTremor");
+  });
+
   it("plays Safari's transparent animated WebP once and advances the six beats", () => {
     vi.useFakeTimers();
     vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15");
@@ -98,6 +105,7 @@ describe("Trumpet recruitment timeline media", () => {
       Object.defineProperty(player, "currentTime", { configurable: true, value: time });
       fireEvent.timeUpdate(player);
       expect(timeline).toHaveAttribute("data-beat", String(beat));
+      expect(screen.getByTestId("timeline-cue")).toHaveTextContent(`${beat}${steps[beat - 1].title}`);
     }
     act(() => { trigger(false); trigger(true); });
     expect(play).toHaveBeenCalledOnce();
