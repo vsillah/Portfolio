@@ -1,6 +1,7 @@
 {
-  "ui_commit": "5bd9e104034a05e76f8ea2d9a7c5326c3318d55f",
-  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=5bd9e104034a05e76f8ea2d9a7c5326c3318d55f&qa=wide-social-slide",
+  "ui_commit": "e7e7ae1dc695a347e52f7f543f7f3d11925fd7f7",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=e7e7ae1dc695a347e52f7f543f7f3d11925fd7f7&qa=song-builder-rebind",
+  "source_commit": "a558583a7b4a16919a9dae0a82718ff7ec4c4891",
   "social_carousel": [
     {
       "arrowSizes": [
@@ -9,48 +10,19 @@
         44,
         44
       ],
-      "imageHeight": 325,
-      "imageLeft": 45,
+      "imageHeight": 850,
       "imageRatio": 1.25,
-      "imageRight": 305,
-      "imageWidth": 260,
+      "imageWidth": 680,
       "minDotHeight": 44,
       "minDotWidth": 44,
       "naturalHeight": 1350,
       "naturalWidth": 1080,
-      "nextDisabled": false,
-      "nextLeft": 305,
+      "nextGap": 8,
       "pageOverflow": 0,
-      "prevRight": 45,
-      "previousDisabled": true,
-      "regionWidth": 310,
-      "rowWidth": 260,
-      "viewport": 360
-    },
-    {
-      "arrowSizes": [
-        44,
-        44,
-        44,
-        44
-      ],
-      "imageHeight": 655,
-      "imageLeft": 117,
-      "imageRatio": 1.25,
-      "imageRight": 641,
-      "imageWidth": 524,
-      "minDotHeight": 44,
-      "minDotWidth": 44,
-      "naturalHeight": 1350,
-      "naturalWidth": 1080,
-      "nextDisabled": false,
-      "nextLeft": 649,
-      "pageOverflow": 0,
-      "prevRight": 109,
-      "previousDisabled": true,
-      "regionWidth": 678,
-      "rowWidth": 524,
-      "viewport": 768
+      "prevGap": 8,
+      "regionWidth": 1056,
+      "rowWidth": 680,
+      "viewport": 1280
     },
     {
       "arrowSizes": [
@@ -60,19 +32,15 @@
         44
       ],
       "imageHeight": 850,
-      "imageLeft": 186,
       "imageRatio": 1.25,
-      "imageRight": 866,
       "imageWidth": 680,
       "minDotHeight": 44,
       "minDotWidth": 44,
       "naturalHeight": 1350,
       "naturalWidth": 1080,
-      "nextDisabled": false,
-      "nextLeft": 874,
+      "nextGap": 8,
       "pageOverflow": 0,
-      "prevRight": 178,
-      "previousDisabled": true,
+      "prevGap": 8,
       "regionWidth": 956,
       "rowWidth": 680,
       "viewport": 1062
@@ -84,23 +52,40 @@
         44,
         44
       ],
-      "imageHeight": 850,
-      "imageLeft": 295,
+      "imageHeight": 655,
       "imageRatio": 1.25,
-      "imageRight": 975,
-      "imageWidth": 680,
+      "imageWidth": 524,
       "minDotHeight": 44,
       "minDotWidth": 44,
       "naturalHeight": 1350,
       "naturalWidth": 1080,
-      "nextDisabled": false,
-      "nextLeft": 983,
+      "nextGap": 8,
       "pageOverflow": 0,
-      "prevRight": 287,
-      "previousDisabled": true,
-      "regionWidth": 1056,
-      "rowWidth": 680,
-      "viewport": 1280
+      "prevGap": 8,
+      "regionWidth": 678,
+      "rowWidth": 524,
+      "viewport": 768
+    },
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 325,
+      "imageRatio": 1.25,
+      "imageWidth": 260,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextGap": 0,
+      "pageOverflow": 0,
+      "prevGap": 0,
+      "regionWidth": 310,
+      "rowWidth": 260,
+      "viewport": 360
     }
   ],
   "social_endpoints": [
@@ -108,48 +93,56 @@
       "nextDisabled": false,
       "previousDisabled": true,
       "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
       "viewport": 1280
     },
     {
       "nextDisabled": true,
       "previousDisabled": false,
       "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
       "viewport": 1280
     },
     {
       "nextDisabled": false,
       "previousDisabled": true,
       "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
       "viewport": 1062
     },
     {
       "nextDisabled": true,
       "previousDisabled": false,
       "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
       "viewport": 1062
     },
     {
       "nextDisabled": false,
       "previousDisabled": true,
       "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
       "viewport": 768
     },
     {
       "nextDisabled": true,
       "previousDisabled": false,
       "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
       "viewport": 768
     },
     {
       "nextDisabled": false,
       "previousDisabled": true,
       "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
       "viewport": 360
     },
     {
       "nextDisabled": true,
       "previousDisabled": false,
       "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
       "viewport": 360
     }
   ],
@@ -450,28 +443,28 @@
       "direction": "forward",
       "outgoing": "Avery",
       "selected": "Morgan",
-      "transform": "matrix(0.945794, -0.165828, 0.165828, 0.945794, -109.392, -47.7345)",
+      "transform": "matrix(0.945792, -0.165832, 0.165832, 0.945792, -109.395, -47.7358)",
       "viewport": 1280
     },
     {
       "direction": "reverse",
       "outgoing": "Avery",
       "selected": "Jordan",
-      "transform": "matrix(0.945795, 0.165825, -0.165825, 0.945795, 109.39, -47.7337)",
+      "transform": "matrix(0.95357, 0.11092, -0.11092, 0.95357, 74.4793, -42.0176)",
       "viewport": 1280
     },
     {
       "direction": "forward",
       "outgoing": "Avery",
       "selected": "Morgan",
-      "transform": "matrix(0.957908, -0.0666119, 0.0666119, 0.957908, -33.812, -15.9115)",
+      "transform": "matrix(0.957919, -0.0665962, 0.0665962, 0.957919, -33.8037, -15.9076)",
       "viewport": 360
     },
     {
       "direction": "reverse",
       "outgoing": "Avery",
       "selected": "Jordan",
-      "transform": "matrix(0.95782, 0.0667378, -0.0667378, 0.95782, 33.8788, -15.943)",
+      "transform": "matrix(0.957908, 0.0666114, -0.0666114, 0.957908, 33.8117, -15.9114)",
       "viewport": 360
     }
   ],

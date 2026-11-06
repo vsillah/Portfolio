@@ -12,7 +12,7 @@ for frame in "$root"/frames/*.png; do
     -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 "$clip"
   printf "file '%s'\n" "$clip" >> "$tmp/list.txt"
 done
-ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$tmp/list.txt" -c copy -movflags +faststart "$root/trumpet-recruitment-persona-sheets-5bd9e104.mp4"
+ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$tmp/list.txt" -c copy -movflags +faststart "$root/trumpet-recruitment-visual-story-e7e7ae1d.mp4"
 mobile_index=0
 for frame in "$root"/frames/{15..22}-*.png "$root"/frames/{25..26}-*.png; do
   mobile_index=$((mobile_index + 1))
@@ -22,4 +22,4 @@ for frame in "$root"/frames/{15..22}-*.png "$root"/frames/{25..26}-*.png; do
     -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 "$clip"
   printf "file '%s'\n" "$clip" >> "$tmp/mobile-list.txt"
 done
-ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$tmp/mobile-list.txt" -c copy -movflags +faststart "$root/trumpet-recruitment-persona-sheets-mobile-5bd9e104.mp4"
+ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$tmp/mobile-list.txt" -c copy -movflags +faststart "$root/trumpet-recruitment-visual-story-mobile-e7e7ae1d.mp4"
