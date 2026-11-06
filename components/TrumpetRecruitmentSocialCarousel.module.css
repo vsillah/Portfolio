@@ -1,4 +1,4 @@
-.mediaRow { position: relative; width: calc(100% - 104px); max-width: 680px; margin: 10px auto 0; }
+.mediaRow { position: relative; width: calc(100% - 104px); max-width: 640px; margin: 10px auto 0; }
 .slide { width: 100%; margin: 0; }
 .arrow {
   position: absolute;
