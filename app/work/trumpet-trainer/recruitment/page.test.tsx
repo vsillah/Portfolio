@@ -1,103 +1,67 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import RecruitmentReviewPage, { metadata } from "./page";
+import TrumpetRecruitmentPage, { metadata } from "./page";
 
 vi.mock("@/components/Navigation", () => ({ default: () => <nav aria-label="Site navigation" /> }));
 const require = createRequire(import.meta.url);
 
-describe("Trumpet Trainer recruitment review", () => {
-  it("keeps static persona media out of the unrelated admin function trace", () => {
+describe("Trumpet Trainer concept preview", () => {
+  it("keeps persona media out of the unrelated admin function trace", () => {
     const config = require("../../../../next.config.js");
     const exclusions = config.experimental.outputFileTracingExcludes["/api/admin/social-content/*/bind-approved-master"];
     expect(exclusions).toContain("./public/work/trumpet-trainer/personas/*");
   });
 
-  it("keeps the campaign inactive and makes all audiences, media, and drafts reviewable", () => {
-    render(<RecruitmentReviewPage />);
+  it("presents a closed, noindex concept without operator copy or an action form", () => {
+    render(<TrumpetRecruitmentPage />);
     expect(metadata.robots).toEqual({ index: false, follow: false });
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("first practice step");
-    expect(screen.getByText(/This page sends nothing, stores no contacts/)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Avery" })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Social carousel slide 1 of 7" })).toBeInTheDocument();
-    expect(within(screen.getByRole("tablist", { name: "Choose a social slide" })).getAllByRole("tab")).toHaveLength(7);
-    expect(within(screen.getByRole("tablist", { name: "Choose a message draft" })).getAllByRole("tab")).toHaveLength(6);
-    expect(screen.getAllByRole("button", { name: /^Copy / })).toHaveLength(1);
-    fireEvent.click(screen.getByRole("tab", { name: "educator email" }));
-    const educatorEmail = screen.getByRole("tabpanel", { name: "educator email" });
-    expect(educatorEmail).toHaveTextContent("Vambah Sillah");
-    expect(educatorEmail).toHaveTextContent("AmaduTown Advisory Solutions helps mission-driven teams turn scattered work into governed AI workflows, reviewable handoffs, and measurable next steps.");
-    expect(educatorEmail).toHaveTextContent("https://amadutown.com");
-    expect(educatorEmail).not.toHaveTextContent(/\+1\s*\(?\d{3}\)?|phone:/i);
-    expect(screen.getByRole("link", { name: "Inspect adult interest form" })).toHaveAttribute("href", "/work/trumpet-trainer#interest");
+    expect(metadata.title).toBe("Trumpet Trainer | The first practice step");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("first step for beginner trumpet practice");
+    expect(screen.getByText(/Tester sign-ups are not open/)).toBeInTheDocument();
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ }).every((link) => link.getAttribute("href") === "/work/trumpet-trainer")).toBe(true);
+    const text = screen.getByRole("main").textContent ?? "";
+    expect(text).not.toMatch(/internal review|review only|approved review slides|pending approval|media source and claim limits|operating boundaries|decision before activation|review details|message drafts|contact path|pilot-fit signals|qualified conversations|full activation boundary|captain must approve/i);
+    expect(screen.queryByRole("link", { name: /interest form|enroll|sign up/i })).not.toBeInTheDocument();
   });
 
-  it("shows six directly selectable milestones and learning thresholds", () => {
-    const load = vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
-    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
-    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
-    render(<RecruitmentReviewPage />);
-    const sequence = screen.getByRole("heading", { name: "14 days, six steps" }).nextElementSibling;
-    expect(sequence?.querySelectorAll('button[aria-label^="Step "]')).toHaveLength(6);
-    const trumpet = sequence?.querySelector("img");
-    expect(trumpet).toHaveAttribute("alt", "Vertically framed brass trumpet");
-    expect(trumpet).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/poster.png");
-    expect(readFileSync(join(process.cwd(), "public/work/trumpet-trainer/recruitment-motion/poster.png")).length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
-    expect(screen.getByRole("heading", { name: "Try one more channel" })).toBeInTheDocument();
-    expect(sequence?.textContent).not.toContain("𝄞");
-    expect(screen.getByText("20")).toBeInTheDocument();
-    expect(screen.getByText("pilot-fit signals")).toBeInTheDocument();
-    const boundaries = screen.getByText("Operating boundaries and stop signals").closest("details");
-    expect(boundaries).toHaveTextContent("No scraped lists, student rosters, contact import, or paid ads");
-    expect(screen.queryByRole("form")).not.toBeInTheDocument();
-    cleanup();
-    load.mockRestore();
-    play.mockRestore();
-    pause.mockRestore();
-  });
-
-  it("keeps one adult-specific profile visible at a time", () => {
-    render(<RecruitmentReviewPage />);
-    const audience = screen.getByRole("heading", { name: "Four adult perspectives" }).closest("section");
-    expect(audience).not.toBeNull();
-    expect(within(audience!).getAllByRole("article")).toHaveLength(1);
-    const copy = [
-      ["Parents or guardians", "Parent or guardian", "Avery", "Make the next note obvious."],
-      ["Private trumpet tutors", "Private trumpet tutor", "Morgan", "A beginner can follow it alone."],
-      ["Band educators", "Band educator", "Casey", "Clarify one step without added admin."],
-      ["Community music programs", "Community program lead", "Jordan", "Add practice time without complex setup."],
-    ];
-    for (const [audienceName, role, name, proof] of copy) {
-      fireEvent.click(within(audience!).getByRole("button", { name: `Show ${audienceName}` }));
-      const card = within(audience!).getByRole("article");
-      expect(within(card).getByRole("heading", { name })).toBeInTheDocument();
-      expect(card).toHaveTextContent(role);
-      expect(card).toHaveTextContent(proof);
-      expect(within(card).getByText("Contact path")).toBeInTheDocument();
-    }
-  });
-
-  it("gives the playable gameplay video the full content width and retains its fallback", () => {
-    render(<RecruitmentReviewPage />);
-    const gameplay = screen.getByLabelText("Synthetic Trumpet Trainer gameplay") as HTMLVideoElement;
+  it("keeps the exact gameplay and seven-image flow with a plain synthetic disclosure", () => {
+    render(<TrumpetRecruitmentPage />);
+    const gameplay = screen.getByLabelText("Illustrative Trumpet Trainer gameplay") as HTMLVideoElement;
     expect(gameplay).toHaveAttribute("controls");
     expect(gameplay).toHaveAttribute("preload", "metadata");
-    expect(gameplay).toHaveClass("aspect-video", "w-full");
     expect(gameplay.querySelector("source")).toHaveAttribute("src", "/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4");
-    expect(gameplay).toHaveTextContent("The seven-slide social carousel below shows the reviewed product path.");
-    expect(gameplay.parentElement).toContainElement(screen.getByText("Captioned gameplay. No child or customer recording."));
-    const mediaSource = screen.getByText("Media source and claim limits").closest("details");
-    expect(mediaSource).toHaveTextContent("c19989a3b156ce97326e35b335e169014ca076f3");
-    expect(mediaSource).toHaveTextContent("The corrected Song Builder social slide has a separate source below.");
-    const carouselSource = screen.getByText("Carousel provenance").closest("details");
-    expect(carouselSource).toHaveTextContent("Slides 1–6 are the historical review assets");
-    expect(carouselSource).toHaveTextContent("a558583a7b4a16919a9dae0a82718ff7ec4c4891");
-    expect(carouselSource).toHaveTextContent("The earlier slides and gameplay video were not recaptured.");
-    expect(screen.queryByRole("img", { name: "Trumpet Trainer home screen from the synthetic gameplay capture" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Review the full carousel" })).not.toBeInTheDocument();
+    expect(gameplay).toHaveTextContent("The images below show the practice flow.");
+    expect(screen.getByText(/synthetic audio.*No student or customer was recorded/)).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Trumpet Trainer screen 1 of 7" })).toBeInTheDocument();
+    expect(within(screen.getByRole("tablist", { name: "Choose a screen" })).getAllByRole("tab")).toHaveLength(7);
+    expect(screen.queryByText("Carousel provenance")).not.toBeInTheDocument();
+  });
+
+  it("keeps four adult examples and a selectable six-step practice path", () => {
+    vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    render(<TrumpetRecruitmentPage />);
+    const audience = screen.getByRole("heading", { name: "The adults around a new player" }).closest("section")!;
+    expect(within(audience).getAllByRole("article")).toHaveLength(1);
+    for (const [name, person] of [["Parents or guardians", "Avery"], ["Private trumpet tutors", "Morgan"], ["Band educators", "Casey"], ["Community music programs", "Jordan"]]) {
+      fireEvent.click(within(audience).getByRole("button", { name: `Show ${name}` }));
+      expect(within(audience).getByRole("heading", { name: person })).toBeInTheDocument();
+      expect(within(within(audience).getByRole("article")).getByText("Illustrative example")).toBeInTheDocument();
+    }
+    const path = screen.getByRole("region", { name: "Example practice path" });
+    expect(within(path).getAllByRole("button", { name: /^Step \d, days/ })).toHaveLength(6);
+    expect(within(path).getByRole("img", { name: "Upright brass trumpet" })).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/poster.png");
+    expect(readFileSync(join(process.cwd(), "public/work/trumpet-trainer/recruitment-motion/poster.png")).length).toBeGreaterThan(0);
+    fireEvent.click(within(path).getByRole("button", { name: /Step 4, days/ }));
+    expect(path).toHaveAttribute("data-active", "4");
+    expect(within(path).getByRole("heading", { name: "Listen and adjust" })).toBeInTheDocument();
+    expect(within(path).getByText(/teacher's ear/)).toBeInTheDocument();
+    expect(screen.getByText(/not a fixed schedule or a promise of progress/)).toBeInTheDocument();
   });
 });

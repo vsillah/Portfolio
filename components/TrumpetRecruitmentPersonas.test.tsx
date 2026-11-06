@@ -14,17 +14,15 @@ describe("adult perspective deck", () => {
     render(<TrumpetRecruitmentPersonas personas={personas} />);
     expect(screen.getAllByTestId(/^persona-card-/)).toHaveLength(4);
     expect(screen.getAllByRole("article")).toHaveLength(1);
-    expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4");
-    expect(screen.getByRole("button", { name: "Previous adult perspective" })).toHaveTextContent("◀");
-    expect(screen.getByRole("button", { name: "Next adult perspective" })).toHaveTextContent("▶");
+    expect(screen.getByRole("status")).toHaveTextContent("Example 1 of 4");
+    expect(screen.getByRole("button", { name: "Previous example" })).toHaveTextContent("◀");
+    expect(screen.getByRole("button", { name: "Next example" })).toHaveTextContent("▶");
     expect(screen.getAllByRole("button", { name: /^Show / })).toHaveLength(4);
     expect(screen.getByRole("button", { name: "Show Parents or guardians" })).toHaveAttribute("aria-current", "true");
     expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "0");
     expect(screen.getByTestId("persona-card-3")).toHaveAttribute("data-depth", "3");
     expect(screen.getByTestId("persona-card-1")).toHaveAttribute("aria-hidden", "true");
-    expect(screen.getByTestId("persona-card-1").querySelector("summary")).toHaveAttribute("tabindex", "-1");
-    fireEvent.click(screen.getByRole("article").querySelector("summary")!);
-    expect(screen.getByText("Adult opt-in.")).toBeVisible();
+    expect(screen.queryByText("Contact path")).not.toBeInTheDocument();
   });
 
   it("uses one image and copy region structure for every persona", () => {
@@ -46,13 +44,13 @@ describe("adult perspective deck", () => {
     for (const persona of personas) {
       fireEvent.click(screen.getByRole("button", { name: `Show ${persona.name}` }));
       const card = screen.getByRole("article");
-      expect(within(card).getByText("Fictional composite persona")).toBeInTheDocument();
+      expect(within(card).getByText("Illustrative example")).toBeInTheDocument();
       expect(within(card).getByRole("heading", { name: persona.personName })).toBeInTheDocument();
       expect(within(card).getByText(persona.role)).toBeInTheDocument();
       expect(within(card).getByText(`“${persona.quote}”`)).toBeInTheDocument();
-      expect([...card.querySelectorAll("dt")].map((field) => field.textContent)).toEqual(["Goal", "Friction", "Current behavior", "Product proof"]);
+      expect([...card.querySelectorAll("dt")].map((field) => field.textContent)).toEqual(["Trying to", "Gets in the way", "What they do now", "What could help"]);
       expect([...card.querySelectorAll("dd")].map((field) => field.textContent)).toEqual([persona.goal, persona.friction, persona.currentBehavior, persona.proof]);
-      expect(within(card).getByText("Contact path")).toBeInTheDocument();
+      expect(within(card).queryByText("Contact path")).not.toBeInTheDocument();
       expect(card).not.toHaveTextContent(/\b(age|income|address|ethnicity|race)\b/i);
     }
   });
@@ -60,12 +58,12 @@ describe("adult perspective deck", () => {
   it("sends the active card to the back and brings named personas forward without requests", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     render(<TrumpetRecruitmentPersonas personas={personas} />);
-    fireEvent.click(screen.getByRole("button", { name: "Next adult perspective" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Persona 2 of 4");
+    fireEvent.click(screen.getByRole("button", { name: "Next example" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Example 2 of 4");
     expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "3");
     expect(screen.getByRole("heading", { name: "Morgan" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Previous adult perspective" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4");
+    fireEvent.click(screen.getByRole("button", { name: "Previous example" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Example 1 of 4");
     fireEvent.click(screen.getByRole("button", { name: "Show Community music programs" }));
     expect(screen.getByRole("heading", { name: "Jordan" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Show Community music programs" })).toHaveAttribute("aria-current", "true");
@@ -78,13 +76,13 @@ describe("adult perspective deck", () => {
     vi.useFakeTimers();
     try {
       render(<TrumpetRecruitmentPersonas personas={personas} />);
-      fireEvent.click(screen.getByRole("button", { name: "Next adult perspective" }));
+      fireEvent.click(screen.getByRole("button", { name: "Next example" }));
       expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-motion-direction", "forward");
       expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "3");
       expect(screen.getByRole("heading", { name: "Morgan" })).toBeInTheDocument();
       act(() => vi.advanceTimersByTime(520));
       expect(screen.getByTestId("persona-card-0")).not.toHaveAttribute("data-motion-direction");
-      fireEvent.click(screen.getByRole("button", { name: "Previous adult perspective" }));
+      fireEvent.click(screen.getByRole("button", { name: "Previous example" }));
       expect(screen.getByTestId("persona-card-1")).toHaveAttribute("data-motion-direction", "reverse");
       expect(screen.getByTestId("persona-card-1")).toHaveAttribute("data-depth", "1");
       act(() => vi.advanceTimersByTime(520));
@@ -103,18 +101,18 @@ describe("adult perspective deck", () => {
   it("advances and reverses with a deliberate horizontal touch swipe", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     render(<TrumpetRecruitmentPersonas personas={personas} />);
-    const deck = screen.getByLabelText("Adult perspective card deck");
+    const deck = screen.getByLabelText("Adults who support beginner players");
     fireEvent.pointerDown(deck, { pointerId: 1, pointerType: "touch", isPrimary: true, clientX: 250, clientY: 240 });
     fireEvent.pointerMove(deck, { pointerId: 1, pointerType: "touch", clientX: 180, clientY: 244 });
     expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-dragging", "true");
     expect(deck.getAttribute("style")).toContain("--drag-rotate: -4.9deg");
     fireEvent.pointerUp(deck, { pointerId: 1, pointerType: "touch", clientX: 150, clientY: 245 });
-    expect(screen.getByRole("status")).toHaveTextContent("Persona 2 of 4: Private trumpet tutors");
+    expect(screen.getByRole("status")).toHaveTextContent("Example 2 of 4: Private trumpet tutors");
     expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "3");
     expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-motion-direction", "forward");
     fireEvent.pointerDown(deck, { pointerId: 2, pointerType: "touch", isPrimary: true, clientX: 80, clientY: 240 });
     fireEvent.pointerUp(deck, { pointerId: 2, pointerType: "touch", clientX: 170, clientY: 242 });
-    expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4: Parents or guardians");
+    expect(screen.getByRole("status")).toHaveTextContent("Example 1 of 4: Parents or guardians");
     expect(screen.getByTestId("persona-card-1")).toHaveAttribute("data-motion-direction", "reverse");
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
@@ -122,19 +120,17 @@ describe("adult perspective deck", () => {
 
   it("ignores short taps, sub-threshold drags, and mostly vertical scrolling", () => {
     render(<TrumpetRecruitmentPersonas personas={personas} />);
-    const deck = screen.getByLabelText("Adult perspective card deck");
+    const deck = screen.getByLabelText("Adults who support beginner players");
     const capture = vi.fn();
     Object.defineProperty(deck, "setPointerCapture", { value: capture, configurable: true });
     fireEvent.pointerDown(deck, { pointerId: 3, pointerType: "touch", isPrimary: true, clientX: 220, clientY: 220 });
     fireEvent.pointerUp(deck, { pointerId: 3, pointerType: "touch", clientX: 220, clientY: 220 });
     expect(capture).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("article").querySelector("summary")!);
-    expect(screen.getByText("Adult opt-in.")).toBeVisible();
     for (const [startX, startY, endX, endY] of [[220, 220, 220, 220], [220, 220, 185, 222], [220, 220, 160, 330]]) {
       fireEvent.pointerDown(deck, { pointerId: 3, pointerType: "touch", isPrimary: true, clientX: startX, clientY: startY });
       fireEvent.pointerMove(deck, { pointerId: 3, pointerType: "touch", clientX: endX, clientY: endY });
       fireEvent.pointerUp(deck, { pointerId: 3, pointerType: "touch", clientX: endX, clientY: endY });
-      expect(screen.getByRole("status")).toHaveTextContent("Persona 1 of 4: Parents or guardians");
+      expect(screen.getByRole("status")).toHaveTextContent("Example 1 of 4: Parents or guardians");
       expect(screen.getByTestId("persona-card-0")).not.toHaveAttribute("data-motion-direction");
       expect(deck.getAttribute("style")).toContain("--drag-x: 0px");
     }
@@ -144,7 +140,7 @@ describe("adult perspective deck", () => {
     vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true })));
     try {
       render(<TrumpetRecruitmentPersonas personas={personas} />);
-      fireEvent.click(screen.getByRole("button", { name: "Next adult perspective" }));
+      fireEvent.click(screen.getByRole("button", { name: "Next example" }));
       expect(screen.getByRole("heading", { name: "Morgan" })).toBeInTheDocument();
       expect(screen.getByTestId("persona-card-0")).not.toHaveAttribute("data-motion-direction");
       expect(screen.getByTestId("persona-card-0")).toHaveAttribute("data-depth", "3");

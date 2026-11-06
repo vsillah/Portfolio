@@ -1,5 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import TrumpetRecruitmentTimeline, { type TimelineStep } from "./TrumpetRecruitmentTimeline";
 
 const steps: TimelineStep[] = [
@@ -24,6 +26,34 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("Trumpet recruitment milestones", () => {
+  it("keeps light card text, labels, numbers, and progress above AA contrast thresholds", () => {
+    const css = readFileSync(join(process.cwd(), "components/TrumpetRecruitmentTimeline.module.css"), "utf8");
+    const light = css.split(":global(html.dark)")[0];
+    const color = (name: string) => {
+      const value = light.match(new RegExp(`--${name}: (#[0-9a-f]{6})`, "i"))?.[1];
+      if (!value) throw new Error(`Missing light token: ${name}`);
+      return value;
+    };
+    const luminance = (hex: string) => {
+      const rgb = [1, 3, 5].map((offset) => parseInt(hex.slice(offset, offset + 2), 16) / 255);
+      const linear = rgb.map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+      return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+    };
+    const contrast = (first: string, second: string) => {
+      const [lightest, darkest] = [luminance(first), luminance(second)].sort((a, b) => b - a);
+      return (lightest + 0.05) / (darkest + 0.05);
+    };
+    for (const state of ["step-bg", "step-bg-reached", "step-bg-selected"]) {
+      for (const foreground of ["step-text", "step-muted", "step-number"]) {
+        expect(contrast(color(state), color(foreground))).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+    expect(contrast("#f4f6fa", color("step-progress"))).toBeGreaterThanOrEqual(3);
+    expect(contrast(color("step-node"), "#f7f0df")).toBeGreaterThanOrEqual(4.5);
+    expect(css).toMatch(/:global\(html\.dark\) \.timeline/);
+    expect(css).toMatch(/\.step\[data-reached="true"\]/);
+    expect(css).toMatch(/\.step\[data-selected="true"\]/);
+  });
   it("anchors six chronological alternating branches to the trumpet and advances completed stems", () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
     const branches = container.querySelector('svg[data-branch-order="1-2-3-4-5-6"]');
@@ -62,7 +92,7 @@ describe("Trumpet recruitment milestones", () => {
 
   it("starts on a static poster and maps direct selections to one distinct clip and card", async () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
-    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
     expect(container.querySelector("video")).toBeNull();
     expect(screen.getAllByRole("button", { name: /^Step \d, days/ })).toHaveLength(6);
     fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
@@ -83,15 +113,15 @@ describe("Trumpet recruitment milestones", () => {
     fireEvent.keyDown(first, { key: "ArrowRight" });
     expect(screen.getByRole("button", { name: /Step 2, days/ })).toHaveFocus();
     expect(container.firstElementChild).toHaveAttribute("data-active", "2");
-    fireEvent.click(screen.getByRole("button", { name: "Next milestone" }));
+    fireEvent.click(screen.getByRole("button", { name: "Next step" }));
     expect(container.firstElementChild).toHaveAttribute("data-active", "3");
-    fireEvent.click(screen.getByRole("button", { name: "Previous milestone" }));
+    fireEvent.click(screen.getByRole("button", { name: "Previous step" }));
     expect(container.firstElementChild).toHaveAttribute("data-active", "2");
-    const dot = screen.getByRole("button", { name: /Show milestone 2/ });
+    const dot = screen.getByRole("button", { name: /Show step 2/ });
     fireEvent.keyDown(dot, { key: "End" });
-    expect(screen.getByRole("button", { name: /Show milestone 6/ })).toHaveFocus();
-    expect(screen.getByRole("button", { name: "Next milestone" })).toBeDisabled();
-    fireEvent.keyDown(screen.getByRole("button", { name: /Show milestone 6/ }), { key: "Home" });
+    expect(screen.getByRole("button", { name: /Show step 6/ })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Next step" })).toBeDisabled();
+    fireEvent.keyDown(screen.getByRole("button", { name: /Show step 6/ }), { key: "Home" });
     expect(container.firstElementChild).toHaveAttribute("data-active", "1");
   });
 
@@ -105,7 +135,7 @@ describe("Trumpet recruitment milestones", () => {
     await act(async () => {});
     expect(container.querySelectorAll("video")).toHaveLength(1);
     expect(container.querySelector("video source")).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/step-05.webm");
-    fireEvent.click(screen.getByRole("button", { name: "Replay milestone 5 gesture" }));
+    fireEvent.click(screen.getByRole("button", { name: "Replay step 5 motion" }));
     await act(async () => {});
     expect(play).toHaveBeenCalledTimes(3);
     expect(pause).toHaveBeenCalled();
@@ -118,7 +148,7 @@ describe("Trumpet recruitment milestones", () => {
     fireEvent.click(screen.getByRole("button", { name: /Step 3, days/ }));
     expect(container.firstElementChild).toHaveAttribute("data-motion", "reduced");
     expect(container.querySelector("video")).toBeNull();
-    expect(screen.queryByRole("button", { name: /Replay milestone/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Replay step/ })).toBeNull();
     expect(screen.getByText("Listen to adults.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("data-tremor", "false");
     expect(container.querySelector('svg[data-branch-order="1-2-3-4-5-6"]')).toHaveAttribute("data-progress", "3");
@@ -130,8 +160,8 @@ describe("Trumpet recruitment milestones", () => {
     fireEvent.click(screen.getByRole("button", { name: /Step 6, days/ }));
     await act(async () => {});
     expect(container.querySelector("video")).toBeNull();
-    expect(screen.getByRole("status")).toHaveTextContent("Motion unavailable");
-    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Animation is unavailable");
+    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
     expect(container.firstElementChild).toHaveAttribute("data-active", "6");
   });
 
@@ -141,8 +171,8 @@ describe("Trumpet recruitment milestones", () => {
     fireEvent.click(screen.getByRole("button", { name: /Step 3, days/ }));
     expect(container.firstElementChild).toHaveAttribute("data-alpha-motion", "poster");
     expect(container.querySelector("video")).toBeNull();
-    expect(screen.queryByRole("button", { name: /Replay milestone/ })).toBeNull();
-    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toHaveAttribute("data-hidden", "false");
+    expect(screen.queryByRole("button", { name: /Replay step/ })).toBeNull();
+    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toHaveAttribute("data-hidden", "false");
   });
 
   it("rejects opaque video decoding before revealing it", async () => {
@@ -154,8 +184,8 @@ describe("Trumpet recruitment milestones", () => {
     await act(async () => {});
     fireEvent.loadedData(container.querySelector("video")!);
     expect(container.querySelector("video")).toBeNull();
-    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toHaveAttribute("data-hidden", "false");
-    expect(screen.getByRole("status")).toHaveTextContent("Motion unavailable");
+    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toHaveAttribute("data-hidden", "false");
+    expect(screen.getByRole("status")).toHaveTextContent("Animation is unavailable");
   });
 
   it("reveals alpha video only after the transparent corner probe passes", async () => {
@@ -170,12 +200,12 @@ describe("Trumpet recruitment milestones", () => {
     expect(video).toHaveAttribute("data-visible", "false");
     fireEvent.loadedData(video);
     expect(video).toHaveAttribute("data-visible", "true");
-    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toHaveAttribute("data-hidden", "true");
+    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toHaveAttribute("data-hidden", "true");
   });
 
   it("shows a readable fallback if the poster image cannot load", () => {
     render(<TrumpetRecruitmentTimeline steps={steps} />);
-    fireEvent.error(screen.getByRole("img", { name: "Vertically framed brass trumpet" }));
+    fireEvent.error(screen.getByRole("img", { name: "Upright brass trumpet" }));
     expect(screen.getByRole("img", { name: "Trumpet visual unavailable" })).toHaveTextContent("Trumpet visual unavailable");
     expect(screen.getByRole("button", { name: /Step 1, days/ })).toBeEnabled();
   });

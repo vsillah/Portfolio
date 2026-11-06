@@ -2,6 +2,10 @@
 
 Status: **draft for captain review, inactive**. Review route: `/work/trumpet-trainer/recruitment`. This package creates no recipient list, outreach queue, form endpoint, provider connection, send, schedule, publication, enrollment, checkout, or customer-data write. Budget: **$0**. Estimated human effort: 5–7 hours across 14 days after a separate activation decision.
 
+## Public demo copy boundary
+
+The `/work/trumpet-trainer/recruitment` page is a visitor-facing concept preview. Keep its visible copy short and useful to parents, tutors, educators, and community program leads. Do not expose internal review, approval, operator, provenance, or launch-process language on that page. Keep campaign thresholds, message drafts, source hashes, activation gates, and contact rules in this internal plan, code/tests, or private QA evidence. If a boundary matters to a visitor, say it plainly: the gameplay is illustrative and uses synthetic input, no student or customer was recorded, and tester sign-ups are closed. Keep the route inactive, unlinked, and `noindex` until separately authorized.
+
 ## Source and claim register
 
 | Source | Observed use | Limit |

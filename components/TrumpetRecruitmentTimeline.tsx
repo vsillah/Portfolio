@@ -137,7 +137,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
     controls[next]?.focus();
   };
 
-  return <section className={styles.timeline} aria-label="Proposed 14-day milestone plan" data-active={safeActive + 1} data-motion={reducedMotion ? "reduced" : "standard"} data-alpha-motion={alphaMotionSupported ? "supported" : "poster"}>
+  return <section className={styles.timeline} aria-label="Example practice path" data-active={safeActive + 1} data-motion={reducedMotion ? "reduced" : "standard"} data-alpha-motion={alphaMotionSupported ? "supported" : "poster"}>
     <div className={styles.layout} ref={layoutRef}>
       {branches && <svg className={styles.branches} viewBox={`0 0 ${branches.width} ${branches.height}`} preserveAspectRatio="none" aria-hidden="true" focusable="false" data-branch-order="1-2-3-4-5-6" data-progress={safeActive + 1} data-layout={branches.mobile ? "stacked" : "alternating"}>
         <path className={styles.spineBase} data-timeline-spine="base" d={`M ${branches.spineX} ${branches.nodes[0].y - 20} V ${branches.nodes[5].y + 18}`} />
@@ -151,7 +151,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
       </svg>}
       <div className={styles.stage} data-timeline-stage>
         <div className={styles.visual}>
-          {posterFailed ? <div className={styles.posterFallback} role="img" aria-label="Trumpet visual unavailable">Trumpet visual unavailable</div> : <img src={`${mediaRoot}/poster.png`} width={800} height={800} alt="Vertically framed brass trumpet" className={styles.poster} data-hidden={playing && alphaReady} draggable={false} onError={() => setPosterFailed(true)} />}
+          {posterFailed ? <div className={styles.posterFallback} role="img" aria-label="Trumpet visual unavailable">Trumpet visual unavailable</div> : <img src={`${mediaRoot}/poster.png`} width={800} height={800} alt="Upright brass trumpet" className={styles.poster} data-hidden={playing && alphaReady} draggable={false} onError={() => setPosterFailed(true)} />}
           {clip !== null && !reducedMotion && alphaMotionSupported && !mediaFailed && <video key={`${clip}-${playToken}`} ref={videoRef} className={styles.video} data-visible={playing && alphaReady} muted playsInline preload="auto" aria-hidden="true" onLoadedData={(event) => {
             try {
               const canvas = document.createElement("canvas");
@@ -171,13 +171,13 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
       {steps.map((step, index) => <button key={step.days} ref={(element) => { cardRefs.current[index] = element; }} type="button" className={styles.step} data-side={index % 2 === 0 ? "left" : "right"} style={{ gridRow: index + 1 }} data-selected={safeActive === index} data-reached={index <= safeActive} data-tremor={index === 2 && tremor} aria-pressed={safeActive === index} aria-current={safeActive === index ? "step" : undefined} aria-label={`Step ${index + 1}, days ${step.days}: ${step.title}`} onClick={() => choose(index)} onKeyDown={(event) => keyboardSelect(event, index, cardRefs.current)}><span className={styles.number}>{String(index + 1).padStart(2, "0")}</span><span className={styles.stepCopy}><small>Days {step.days}</small><strong>{step.title}</strong></span></button>)}
     </div>
     <div className={styles.controls} aria-label="Milestone navigation">
-      <button type="button" className={styles.arrow} aria-label="Previous milestone" onClick={() => choose(safeActive - 1)} disabled={safeActive === 0}><ChevronLeft size={18} aria-hidden="true" /></button>
-      <div className={styles.dots} role="group" aria-label="Choose a milestone">{steps.map((step, index) => <button key={step.days} ref={(element) => { dotRefs.current[index] = element; }} type="button" className={styles.dot} aria-label={`Show milestone ${index + 1}: ${step.title}`} aria-current={safeActive === index ? "step" : undefined} onClick={() => choose(index)} onKeyDown={(event) => keyboardSelect(event, index, dotRefs.current)}><span /></button>)}</div>
-      <button type="button" className={styles.arrow} aria-label="Next milestone" onClick={() => choose(safeActive + 1)} disabled={safeActive === steps.length - 1}><ChevronRight size={18} aria-hidden="true" /></button>
-      {!reducedMotion && alphaMotionSupported && <button type="button" className={styles.replay} aria-label={`Replay milestone ${safeActive + 1} gesture`} onClick={() => choose(safeActive)}><RotateCcw size={15} aria-hidden="true" /><span>Replay</span></button>}
+      <button type="button" className={styles.arrow} aria-label="Previous step" onClick={() => choose(safeActive - 1)} disabled={safeActive === 0}><ChevronLeft size={18} aria-hidden="true" /></button>
+      <div className={styles.dots} role="group" aria-label="Choose a practice step">{steps.map((step, index) => <button key={step.days} ref={(element) => { dotRefs.current[index] = element; }} type="button" className={styles.dot} aria-label={`Show step ${index + 1}: ${step.title}`} aria-current={safeActive === index ? "step" : undefined} onClick={() => choose(index)} onKeyDown={(event) => keyboardSelect(event, index, dotRefs.current)}><span /></button>)}</div>
+      <button type="button" className={styles.arrow} aria-label="Next step" onClick={() => choose(safeActive + 1)} disabled={safeActive === steps.length - 1}><ChevronRight size={18} aria-hidden="true" /></button>
+      {!reducedMotion && alphaMotionSupported && <button type="button" className={styles.replay} aria-label={`Replay step ${safeActive + 1} motion`} onClick={() => choose(safeActive)}><RotateCcw size={15} aria-hidden="true" /><span>Replay</span></button>}
     </div>
     <div className={styles.detail} aria-live="polite"><div><span>Days {steps[safeActive]?.days}</span><h3>{steps[safeActive]?.title}</h3></div><p>{steps[safeActive]?.detail}</p></div>
-    {mediaFailed && <p className={styles.notice} role="status">Motion unavailable. The plan remains selectable.</p>}
-    {reducedMotion && <p className={styles.notice}>Motion is off. Select any milestone to read its plan.</p>}
+    {mediaFailed && <p className={styles.notice} role="status">Animation is unavailable. You can still explore each step.</p>}
+    {reducedMotion && <p className={styles.notice}>Animation is off. Select a step to read more.</p>}
   </section>;
 }
