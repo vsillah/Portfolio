@@ -40,7 +40,7 @@ scene.world.use_nodes = True
 scene.world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.14, 0.16, 0.19, 1)
 scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.35
 scene.view_settings.view_transform = "AgX"
-scene.view_settings.exposure = -0.45
+scene.view_settings.exposure = -0.70
 
 
 def material(name, color, metallic, roughness):
@@ -54,11 +54,14 @@ def material(name, color, metallic, roughness):
     return mat
 
 
-brass = material("Lacquered yellow brass", (0.64, 0.39, 0.105), 0.85, 0.19)
-gold = material("Gold brass bell", (0.68, 0.36, 0.11), 0.84, 0.22)
-nickel = material("Nickel silver slide inner tubes", (0.60, 0.65, 0.66), 0.85, 0.19)
+brass = material("Lacquered yellow brass", (0.48, 0.235, 0.036), 0.78, 0.31)
+gold = material("Gold brass bell", (0.53, 0.265, 0.052), 0.79, 0.30)
+nickel = material("Nickel silver slide inner tubes", (0.45, 0.49, 0.52), 0.87, 0.26)
 dark = material("Valve felt and water-key cork", (0.045, 0.044, 0.038), 0.12, 0.55)
-floor_mat = material("Neutral slate studio", (0.105, 0.12, 0.13), 0.05, 0.68)
+for lacquer in (brass, gold):
+    shader = lacquer.node_tree.nodes.get("Principled BSDF")
+    shader.inputs["Coat Weight"].default_value = 0.28
+    shader.inputs["Coat Roughness"].default_value = 0.18
 
 
 def empty(name, parent=None, loc=(0, 0, 0)):
@@ -179,108 +182,118 @@ for n in range(85):
     flare = 0.0478 * max(0, (t - 0.72) / 0.28) ** 2.5
     profile.append((x, base + flare))
 lathe_x("One-piece tapered bell body, 123 mm rim", profile, 0.022, 0.067, gold, bell_group)
-torus("Rolled bell rim", (0.245, 0.022, 0.067), 0.0615, 0.0025, gold, bell_group, axis="X")
+torus("Rolled bell rim", (0.245, 0.022, 0.067), 0.0615, 0.0016, gold, bell_group, axis="X")
 cylinder("Bell ferrule at return bow", (-0.185, 0.022, 0.067), 0.008, 0.011,
          brass, bell_group, axis="X")
 
 # Mouthpiece and leadpipe remain physically separate removable parts. The
 # leadpipe flows through the main tuning U and returns into the third valve.
-lathe_x("Removable mouthpiece cup and shank", [(-0.329, 0.010), (-0.325, 0.012),
-        (-0.318, 0.012), (-0.314, 0.009), (-0.306, 0.0075), (-0.290, 0.0045),
-        (-0.274, 0.004)], -0.024, 0.018, nickel, lead_group)
-torus("Mouthpiece rolled cup lip", (-0.329, -0.024, 0.018), 0.010, 0.0016,
+lathe_x("Removable mouthpiece cup and shank", [(-0.329, 0.0055), (-0.327, 0.0070),
+        (-0.322, 0.0070), (-0.318, 0.0055), (-0.313, 0.0045), (-0.303, 0.0045),
+        (-0.300, 0.0051), (-0.295, 0.0042), (-0.274, 0.0033)],
+        -0.024, 0.018, nickel, lead_group)
+torus("Mouthpiece rolled cup lip", (-0.329, -0.024, 0.018), 0.0058, 0.0010,
       nickel, lead_group, axis="X")
-cylinder("Mouthpiece receiver", (-0.270, -0.024, 0.018), 0.0082, 0.030,
-         nickel, lead_group, axis="X")
+lathe_x("Mouthpiece receiver", [(-0.282, 0.0062), (-0.279, 0.0073),
+        (-0.267, 0.0073), (-0.262, 0.0064), (-0.249, 0.0064)],
+        -0.024, 0.018, brass, lead_group)
 tube("Leadpipe to main tuning receiver", [(-0.255, -0.024, 0.018), (-0.12, -0.024, 0.018),
                                           (0.088, -0.024, 0.018)], 0.0063, brass, lead_group)
 cylinder("Main tuning upper female sleeve", (0.075, -0.024, 0.018), 0.0072,
          0.044, brass, lead_group, axis="X")
-cylinder("Main tuning lower female sleeve", (0.075, -0.024, -0.058), 0.0072,
+cylinder("Main tuning lower female sleeve", (0.075, -0.024, -0.034), 0.0072,
          0.044, brass, lead_group, axis="X")
-tube("Main tuning connected U", u_path(0.073, 0.112, -0.024, 0.018, -0.058, 1),
-     0.0061, nickel, lead_group)
-tube("Main tuning return to third valve", [(0.053, -0.024, -0.058),
-     (-0.008, -0.024, -0.058), (-0.027, -0.004, -0.034)], 0.0063,
+tube("Main tuning connected U", u_path(0.073, 0.112, -0.024, 0.018, -0.034, 1),
+     0.0061, brass, lead_group)
+tube("Main tuning return to third valve", [(0.053, -0.024, -0.034),
+     (-0.008, -0.024, -0.034), (-0.027, -0.004, -0.034)], 0.0063,
      brass, lead_group)
 
 # Each casing and each independently controlled piston has its own hierarchy.
 valve_x = [-0.087, -0.058, -0.029]
 for number, x in enumerate(valve_x, start=1):
-    cylinder(f"Valve {number} casing", (x, 0.0, -0.018), 0.0115, 0.086,
+    cylinder(f"Valve {number} casing", (x, 0.0, -0.018), 0.0100, 0.086,
              brass, valves_group)
-    cylinder(f"Valve {number} top cap", (x, 0, 0.029), 0.0138, 0.006,
+    cylinder(f"Valve {number} top cap", (x, 0, 0.028), 0.0114, 0.004,
              nickel, valves_group)
-    torus(f"Valve {number} top cap knurl", (x, 0, 0.030), 0.013, 0.0015,
+    torus(f"Valve {number} top cap knurl", (x, 0, 0.028), 0.0110, 0.0010,
           nickel, valves_group)
-    cylinder(f"Valve {number} bottom cap", (x, 0, -0.066), 0.0133, 0.007,
+    cylinder(f"Valve {number} bottom cap", (x, 0, -0.064), 0.0115, 0.005,
              nickel, valves_group)
-    torus(f"Valve {number} lower knurl", (x, 0, -0.066), 0.013, 0.0013,
+    torus(f"Valve {number} lower knurl", (x, 0, -0.064), 0.0110, 0.0010,
           nickel, valves_group)
     root = piston_roots[number - 1]
-    cylinder(f"PISTON_{number}__body", (x, 0, -0.026), 0.0092, 0.044,
+    cylinder(f"PISTON_{number}__body", (x, 0, -0.026), 0.0084, 0.044,
              nickel, root)
-    cylinder(f"PISTON_{number}__stem", (x, 0, 0.050), 0.0032, 0.044,
+    cylinder(f"PISTON_{number}__stem", (x, 0, 0.036), 0.0019, 0.012,
              nickel, root)
-    cylinder(f"PISTON_{number}__button", (x, 0, 0.076), 0.011, 0.004,
+    cylinder(f"PISTON_{number}__button", (x, 0, 0.043), 0.0057, 0.0020,
              nickel, root)
-    torus(f"PISTON_{number}__button_rim", (x, 0, 0.078), 0.010, 0.001,
+    torus(f"PISTON_{number}__button_rim", (x, 0, 0.044), 0.0055, 0.0006,
           nickel, root)
-    cylinder(f"PISTON_{number}__felt", (x, 0, 0.032), 0.008, 0.0015,
+    cylinder(f"PISTON_{number}__felt", (x, 0, 0.032), 0.0062, 0.0012,
              dark, root)
 
 # First slide: the two inner shanks and their crook share a moving parent. They
 # overlap the fixed female sleeves by >=20 mm at the 18 mm outward stop.
-first_top, first_bottom, first_y = -0.018, -0.052, -0.031
+first_top, first_bottom, first_y = -0.028, -0.047, -0.031
 for label, z in (("upper", first_top), ("lower", first_bottom)):
     tube(f"First valve {label} port elbow", [(-0.087, 0, z), (-0.101, -0.018, z),
-         (-0.121, first_y, z)], 0.0062, brass, first_fixed)
-    cylinder(f"First slide {label} female sleeve", (-0.134, first_y, z),
-             0.0074, 0.052, brass, first_fixed, axis="X")
+         (-0.115, first_y, z)], 0.0058, brass, first_fixed)
+    cylinder(f"First slide {label} female sleeve", (-0.120, first_y, z),
+             0.0067, 0.030, brass, first_fixed, axis="X")
 tube("FIRST_SLIDE__paired_inner_shanks_and_crook",
-     u_path(-0.130, -0.182, first_y, first_top, first_bottom, -1),
-     0.0058, nickel, first_move)
-torus("FIRST_SLIDE__thumb_saddle", (-0.145, first_y - 0.011, -0.035),
-      0.013, 0.0026, brass, first_move, axis="Y")
+     u_path(-0.085, -0.150, first_y, first_top, first_bottom, -1),
+     0.0055, brass, first_move)
+for label, z in (("upper", first_top), ("lower", first_bottom)):
+    cylinder(f"FIRST_SLIDE__{label}_nickel_inner", (-0.141, first_y, z),
+             0.0057, 0.012, nickel, first_move, axis="X")
+tube("FIRST_SLIDE__thumb_hook", [(-0.121, first_y - 0.003, first_top),
+     (-0.126, first_y - 0.011, -0.023), (-0.128, first_y - 0.016, -0.014),
+     (-0.125, first_y - 0.017, -0.009), (-0.119, first_y - 0.014, -0.012)],
+     0.0015, brass, first_move)
 
 # The small second-valve U is fixed in this checkpoint, but its own real tubing
 # remains visible and separate from the first and third moving assemblies.
-tube("Second valve fixed branch", u_path(-0.058, -0.101, 0.027,
-     -0.027, -0.054, -1), 0.0058, brass, second_fixed)
-tube("Second valve port returns", [(-0.058, 0, -0.027), (-0.058, 0.027, -0.027)],
+tube("Second valve fixed branch", u_path(-0.058, -0.088, 0.027,
+     -0.035, -0.052, -1), 0.0053, brass, second_fixed)
+tube("Second valve port returns", [(-0.058, 0, -0.035), (-0.058, 0.027, -0.035)],
      0.0058, brass, second_fixed)
-tube("Second valve lower return", [(-0.058, 0.027, -0.054), (-0.058, 0, -0.054)],
+tube("Second valve lower return", [(-0.058, 0.027, -0.052), (-0.058, 0, -0.052)],
      0.0058, brass, second_fixed)
 
 # Third slide is on a separate depth plane below the main tuning loop. Its
 # inner shanks remain inserted in both fixed sleeves throughout 25 mm travel.
-third_top, third_bottom, third_y = -0.023, -0.060, -0.042
+third_top, third_bottom, third_y = -0.031, -0.050, -0.042
 for label, z in (("upper", third_top), ("lower", third_bottom)):
     tube(f"Third valve {label} port elbow", [(-0.029, 0, z), (-0.012, -0.020, z),
          (0.020, third_y, z)], 0.0062, brass, third_fixed)
-    cylinder(f"Third slide {label} female sleeve", (0.026, third_y, z),
-             0.0074, 0.064, brass, third_fixed, axis="X")
+    cylinder(f"Third slide {label} female sleeve", (0.038, third_y, z),
+             0.0067, 0.040, brass, third_fixed, axis="X")
 tube("THIRD_SLIDE__paired_inner_shanks_and_crook",
-     u_path(-0.008, 0.111, third_y, third_top, third_bottom, 1),
-     0.0058, nickel, third_move)
-torus("THIRD_SLIDE__finger_ring", (0.028, third_y - 0.014, -0.041),
-      0.0145, 0.0024, brass, third_move, axis="Y")
+     u_path(-0.008, 0.118, third_y, third_top, third_bottom, 1),
+     0.0055, brass, third_move)
+for label, z in (("upper", third_top), ("lower", third_bottom)):
+    cylinder(f"THIRD_SLIDE__{label}_nickel_inner", (0.063, third_y, z),
+             0.0057, 0.018, nickel, third_move, axis="X")
+torus("THIRD_SLIDE__finger_ring", (0.028, third_y - 0.012, -0.039),
+      0.0090, 0.0016, brass, third_move, axis="Y")
 cylinder("THIRD_SLIDE__stopper_collar", (0.065, third_y, third_top),
-         0.0076, 0.006, brass, third_move, axis="X")
+         0.0065, 0.004, brass, third_move, axis="X")
 
 # Braces, finger hook, and two spring water keys belong to the fixed body.
 for name, path in [
     ("Leadpipe to bell brace", [(-0.152, -0.024, 0.018), (-0.152, 0.022, 0.067)]),
     ("Front bell to leadpipe brace", [(0.019, -0.024, 0.018), (0.019, 0.022, 0.067)]),
-    ("Main tuning brace", [(0.057, -0.024, -0.058), (0.057, -0.024, 0.018)]),
+    ("Main tuning brace", [(0.057, -0.024, -0.034), (0.057, -0.024, 0.018)]),
 ]:
     tube(name, path, 0.0033, brass, hardware)
-torus("Right hand finger hook", (-0.002, -0.029, 0.006), 0.015,
-      0.0026, brass, hardware, axis="Y")
+torus("Right hand finger hook", (-0.002, -0.029, 0.006), 0.010,
+      0.0018, brass, hardware, axis="Y")
 tube("Finger hook welded stem", [(-0.002, -0.024, 0.018),
      (-0.002, -0.029, 0.006)], 0.003, brass, hardware)
-for name, x, y, z in [("Main tuning water key", 0.140, -0.024, -0.050),
-                      ("Third slide water key", 0.115, third_y, -0.058)]:
+for name, x, y, z in [("Main tuning water key", 0.133, -0.024, -0.027),
+                      ("Third slide water key", 0.122, third_y, -0.048)]:
     cylinder(f"{name} hinge", (x, y - 0.004, z), 0.0035, 0.007,
              brass, hardware, axis="Y")
     tube(f"{name} spring lever", [(x, y - 0.008, z), (x - 0.018, y - 0.008, z - 0.005)],
@@ -389,8 +402,11 @@ expected = {
 for root_name, child_name in expected.items():
     assert bpy.data.objects[child_name].parent == bpy.data.objects[root_name]
 assert len({bpy.data.objects[name].as_pointer() for name in expected}) == 5
-assert 0.052 - 0.018 > 0.02  # first inner shank overlap at max travel
-assert 0.064 - 0.025 > 0.02  # third inner shank overlap at max travel
+def overlap(a0, a1, b0, b1):
+    return max(0, min(a1, b1) - max(a0, b0))
+
+assert overlap(-0.150 - 0.018, -0.085 - 0.018, -0.135, -0.105) > 0.02
+assert overlap(-0.008 + 0.025, 0.118 + 0.025, 0.018, 0.058) > 0.02
 
 # Keep render-only cameras, lights and floor out of the web-suitable candidate.
 bpy.ops.object.select_all(action="DESELECT")
