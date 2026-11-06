@@ -13,6 +13,7 @@ import DocumentsSection from '@/components/client-dashboard/DocumentsSection'
 import ReportsSection from '@/components/client-dashboard/ReportsSection'
 import MeetingHistory, { type Meeting } from '@/components/client-dashboard/MeetingHistory'
 import RecommendationAction, { type ReviewedRecommendation } from '@/components/member/RecommendationAction'
+import CompletionCredential from '@/components/member/CompletionCredential'
 
 type MemberOrder = {
   id: number
@@ -35,6 +36,7 @@ function orderAction(status: string, id: number, preview = false) {
 }
 
 type MemberData = {
+  profileName: string | null
   enrollment: { current_lesson_id: string } | null
   lessons: { lesson_id: string; completed_at: string | null; video_seconds: number }[]
   worksheet: { answers: Record<string, string> } | null
@@ -49,9 +51,11 @@ type MemberData = {
 
 function syntheticMember(state: string): MemberData {
   const assessed = state === 'assessed' || state === 'paid' || state === 'orders'
+  const completionCount = state === 'completion-ready' ? 16 : state === 'completion-blocked' ? 15 : 5
   return {
-    enrollment: { current_lesson_id: 'L06' },
-    lessons: lessons.slice(0, 5).map((lesson) => ({ lesson_id: lesson.id, completed_at: '2026-11-05T12:00:00Z', video_seconds: 90 })),
+    profileName: 'Course Learner',
+    enrollment: { current_lesson_id: completionCount >= 15 ? 'L16' : 'L06' },
+    lessons: lessons.slice(0, completionCount).map((lesson) => ({ lesson_id: lesson.id, completed_at: '2026-11-05T12:00:00Z', video_seconds: 90 })),
     worksheet: { answers: { L01: 'A synthetic team decision', L02: 'Three safe options' } },
     decisionFileCount: assessed ? 1 : 0,
     assessmentStatus: assessed ? { status: 'completed', summary: 'Synthetic assessment: the team has a clear decision but needs a stronger evidence handoff.' } : null,
@@ -80,7 +84,7 @@ export default function MemberDashboardPage() {
     let active = true
     async function load() {
       const preview = process.env.NODE_ENV === 'development' ? new URLSearchParams(window.location.search).get('qa') : null
-      if (preview && ['member', 'assessed', 'paid', 'orders'].includes(preview)) { setPreviewMode(true); setData(syntheticMember(preview)); return }
+      if (preview && ['member', 'assessed', 'paid', 'orders', 'completion-ready', 'completion-blocked'].includes(preview)) { setPreviewMode(true); setData(syntheticMember(preview)); return }
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setError('Sign in to see your member dashboard.'); return }
       try {
@@ -101,9 +105,10 @@ export default function MemberDashboardPage() {
       {error ? <section className="rounded-lg border border-radiant-gold/25 p-6"><p role="alert">{error}</p><Link className="text-radiant-gold underline" href="/auth/login?redirect=%2Fmember%2Fdashboard">Sign in</Link></section> : !data ? <p role="status">Loading your dashboard…</p> : <>
         <section className="grid gap-4 sm:grid-cols-3" aria-label="Course progress">
           <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Lessons</span><strong className="mt-2 block text-3xl">{complete} / {lessons.length}</strong><progress className="mt-3 w-full" value={complete} max={lessons.length} aria-label="Lessons complete" /></div>
-          <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Decision File pages started</span><strong className="mt-2 block text-3xl">{pages} / {lessons.length}</strong><p className="mt-2 text-xs text-platinum-white/60">{data.decisionFileCount ? `${data.decisionFileCount} submitted file linked by review` : 'Your worksheet is private until you choose to send it.'}</p></div>
+          <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Decision File pages started</span><strong className="mt-2 block text-3xl">{pages} / {lessons.length}</strong><p className="mt-2 text-xs text-platinum-white/60">{data.decisionFileCount ? `${data.decisionFileCount} submitted file linked by review` : 'Your worksheet is private until you choose to send it.'}</p><Link className="mt-3 inline-block text-radiant-gold underline" href="/accelerated/decision-file">Open complete Decision File</Link></div>
           <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Continue</span><strong className="mt-2 block text-2xl">{data.enrollment?.current_lesson_id ?? 'L01'}</strong><Link className="mt-3 inline-block text-radiant-gold underline" href="/service-prototypes/accelerated-cohort?view=3">Open learning plan</Link></div>
         </section>
+        <CompletionCredential completedCount={complete} profileName={data.profileName} />
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Assessment"><h2 className="text-xl font-semibold">Assessment</h2>{data.assessment ? <><p className="my-3 text-platinum-white/75">{data.assessment.assessment?.diagnostic_summary ?? 'Your completed assessment is linked to this account.'}</p><AssessmentScoreBreakdown scores={data.assessment.scores.categoryScores} hasFormalAssessment /></> : data.assessmentStatus ? <p className="mt-2 text-platinum-white/65">Completed assessment linked. {data.assessmentStatus.summary ?? 'The report is not available in this dashboard yet.'}</p> : <p className="mt-2 text-platinum-white/65">No completed assessment has been linked to this account. An operator reviews identity before it appears here.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Reviewed recommendations"><h2 className="text-xl font-semibold">Recommended next steps</h2>{data.recommendations.length ? <ul className="mt-3 space-y-4">{data.recommendations.map((item) => <li key={item.id} className="border-t border-radiant-gold/15 pt-4 first:border-0 first:pt-0"><strong>{item.title}</strong><p className="text-sm text-platinum-white/65">{item.rationale}</p><RecommendationAction item={item} preview={previewMode} /></li>)}</ul> : <p className="mt-2 text-platinum-white/65">No operator-reviewed recommendation yet.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Orders"><h2 className="text-xl font-semibold">Your orders</h2>{data.orders?.length ? <ul className="mt-3 space-y-3">{data.orders.map((order) => {
