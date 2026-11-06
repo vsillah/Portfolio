@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Copy, Download, ExternalLink, Link2, RotateCcw, Share2, ShieldOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import Image from 'next/image'
 import styles from './CompletionCredential.module.css'
 
 type Credential = { learner_name: string; completed_at: string; verification_token: string | null; revision: number }
@@ -65,10 +66,20 @@ export default function CompletionCredential({ token, completedCount }: { token?
     } catch { setNotice('Could not connect. Try again shortly.') }
     finally { setBusy(false) }
   }
-  function download() {
+  async function download() {
     if (!credential) return
     const date = new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850"><rect width="1200" height="850" fill="#112a3a"/><rect x="35" y="35" width="1130" height="780" rx="24" fill="none" stroke="#d6ad4d" stroke-width="3"/><text x="600" y="170" fill="#d6ad4d" font-family="Arial" font-size="28" text-anchor="middle" letter-spacing="6">AMADUTOWN · ACCELERATED</text><text x="600" y="285" fill="#fff" font-family="Georgia" font-size="66" text-anchor="middle">Certificate of Completion</text><text x="600" y="390" fill="#dce6e9" font-family="Arial" font-size="28" text-anchor="middle">Presented to</text><text x="600" y="485" fill="#fff" font-family="Georgia" font-size="58" text-anchor="middle">${escapeXml(credential.learner_name)}</text><text x="600" y="555" fill="#dce6e9" font-family="Arial" font-size="25" text-anchor="middle">For completing all sixteen Accelerated lessons</text><text x="600" y="630" fill="#d6ad4d" font-family="Arial" font-size="24" text-anchor="middle">${escapeXml(date)}</text><text x="600" y="735" fill="#aebec5" font-family="Arial" font-size="19" text-anchor="middle">Course completion credential · No professional accreditation or certification</text></svg>`
+    const dark = document.documentElement.classList.contains('dark')
+    const canvas = dark ? '#112a3a' : '#f8f5e9'
+    const ink = dark ? '#f7f7f0' : '#172d35'
+    const muted = dark ? '#c8d8d6' : '#4c6468'
+    let logo = ''
+    try {
+      const blob = await (await fetch('/amadutown-logo-upscaled.png')).blob()
+      const dataUrl = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(blob) })
+      logo = `<image href="${dataUrl}" x="560" y="74" width="80" height="100"/>`
+    } catch { setNotice('The certificate logo could not be loaded. Try downloading again.'); return }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850"><rect width="1200" height="850" fill="${canvas}"/><rect x="35" y="35" width="1130" height="780" rx="24" fill="none" stroke="#bd9135" stroke-width="3"/>${logo}<text x="600" y="225" fill="#ad7c21" font-family="Arial" font-size="24" text-anchor="middle" letter-spacing="5">AMADUTOWN · ACCELERATED</text><text x="600" y="325" fill="${ink}" font-family="Georgia" font-size="64" text-anchor="middle">Certificate of Completion</text><text x="600" y="420" fill="${muted}" font-family="Arial" font-size="26" text-anchor="middle">Presented to</text><text x="600" y="505" fill="${ink}" font-family="Georgia" font-size="57" text-anchor="middle">${escapeXml(credential.learner_name)}</text><text x="600" y="575" fill="${muted}" font-family="Arial" font-size="25" text-anchor="middle">For completing all sixteen Accelerated lessons</text><text x="600" y="648" fill="#ad7c21" font-family="Arial" font-size="24" text-anchor="middle">${escapeXml(date)}</text><text x="600" y="747" fill="${muted}" font-family="Arial" font-size="18" text-anchor="middle">Course completion · No professional accreditation or certification</text></svg>`
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }))
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'accelerated-certificate-of-completion.svg'; anchor.click(); URL.revokeObjectURL(url)
   }
@@ -85,6 +96,17 @@ export default function CompletionCredential({ token, completedCount }: { token?
   }
   return <section className={styles.card} aria-label="Accelerated Certificate of Completion">
     <div className={styles.top}><div><p className={styles.eyebrow}>ACCELERATED · COMPLETION</p><h3>Certificate of Completion</h3></div><span className={styles.count}>{status?.completedCount ?? completedCount ?? 0} / 16 lessons</span></div>
+    {(credential || status?.eligible) && <div className={styles.certificate} aria-label={credential ? 'Claimed Accelerated completion certificate' : 'Unclaimed Accelerated completion certificate preview'}>
+      <span className={styles.certificateState}>{credential ? 'Claimed certificate' : 'Preview · unclaimed'}</span>
+      <Image className={styles.logo} src="/amadutown-logo-upscaled.png" alt="AmaduTown shield" width={48} height={60} />
+      <span className={styles.certificateBrand}>AMADUTOWN · ACCELERATED</span>
+      <strong className={styles.certificateTitle}>Certificate of Completion</strong>
+      <span className={styles.presented}>Presented to</span>
+      <strong className={styles.learner}>{credential?.learner_name || name.trim() || 'Your name'}</strong>
+      <span className={styles.certificateCourse}>For completing all sixteen Accelerated lessons</span>
+      <span className={styles.certificateDate}>{credential ? new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }) : 'Completion date added when claimed'}</span>
+      <small>Course completion · No professional accreditation or certification</small>
+    </div>}
     {!authToken && !preview ? <p>Sign in and save your completed lessons to claim a certificate. <Link href="/auth/login?redirect=%2Faccelerated%2Fdecision-file">Sign in</Link></p> : credential ? <>
       <p><strong>{credential.learner_name}</strong> completed all sixteen lessons on {new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}.</p>
       <p className={styles.detail}>This records course completion. It does not require sharing your Decision File and is not a professional accreditation or certification.</p>
