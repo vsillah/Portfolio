@@ -6,13 +6,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./TrumpetRecruitmentTimeline.module.css";
 
 export type TimelineStep = { days: string; title: string; detail: string };
-type RailPoint = { x: number; y: number };
-type RailGeometry = { width: number; height: number; points: RailPoint[]; bridgeY: number; mobile: boolean };
+type BranchPoint = { x: number; y: number };
+type BranchGeometry = { width: number; height: number; anchors: BranchPoint[]; ends: BranchPoint[]; mobile: boolean };
 const mediaRoot = "/work/trumpet-trainer/recruitment-motion";
 const clipFor = (index: number) => `${mediaRoot}/step-${String(index + 1).padStart(2, "0")}.mp4`;
-const railPath = (points: RailPoint[]) => points.length
-  ? `M ${points[0].x} ${points[0].y} ${points.slice(1).map(({ x, y }) => `L ${x} ${y}`).join(" ")}`
-  : "";
+const desktopAnchorX = [0.36, 0.69, 0.18, 0.82, 0.27, 0.72];
+const mobileAnchorX = [0.63, 0.72, 0.95, 0.95, 0.76, 0.73];
 
 export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineStep[] }) {
   const [active, setActive] = useState(0);
@@ -23,12 +22,11 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
   const [mediaFailed, setMediaFailed] = useState(false);
   const [posterFailed, setPosterFailed] = useState(false);
   const [tremor, setTremor] = useState(false);
-  const [rail, setRail] = useState<RailGeometry | null>(null);
+  const [branches, setBranches] = useState<BranchGeometry | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const layoutRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const dotRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const markerRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const safeActive = Math.min(active, Math.max(steps.length - 1, 0));
 
   useEffect(() => {
@@ -36,16 +34,21 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
     if (!layout || steps.length !== 6) return;
     const measure = () => {
       const bounds = layout.getBoundingClientRect();
-      const markers = markerRefs.current.slice(0, 6);
-      if (markers.some((marker) => !marker)) return;
-      const points = markers.map((marker) => {
-        const rect = marker!.getBoundingClientRect();
-        return { x: rect.left + rect.width / 2 - bounds.left, y: rect.top + rect.height / 2 - bounds.top };
+      const stage = layout.querySelector('[data-timeline-stage]')?.getBoundingClientRect();
+      const cards = cardRefs.current.slice(0, 6);
+      if (!stage || cards.some((card) => !card)) return;
+      const mobile = window.matchMedia?.("(max-width: 767px)").matches ?? window.innerWidth <= 767;
+      const anchors = cards.map((card, index) => {
+        const cardRect = card!.getBoundingClientRect();
+        return { x: stage.left - bounds.left + stage.width * (mobile ? mobileAnchorX[index] : desktopAnchorX[index]),
+          y: cardRect.top + cardRect.height / 2 - bounds.top };
       });
-      const stageBottom = layout.querySelector('[data-timeline-stage]')?.getBoundingClientRect().bottom ?? bounds.bottom;
-      setRail({ width: bounds.width, height: bounds.height, points,
-        bridgeY: Math.min(bounds.height - 4, stageBottom - bounds.top + 14),
-        mobile: window.matchMedia?.("(max-width: 767px)").matches ?? window.innerWidth <= 767 });
+      const ends = cards.map((card, index) => {
+        const rect = card!.getBoundingClientRect();
+        return { x: (mobile || index % 2 === 1 ? rect.left : rect.right) - bounds.left,
+          y: rect.top + rect.height / 2 - bounds.top };
+      });
+      setBranches({ width: bounds.width, height: bounds.height, anchors, ends, mobile });
     };
     measure();
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
@@ -53,14 +56,6 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
     window.addEventListener("resize", measure);
     return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
   }, [steps.length]);
-
-  const railPoints = rail?.mobile ? rail.points : rail ? [
-    rail.points[0], rail.points[1], rail.points[2],
-    { x: rail.points[2].x, y: rail.bridgeY },
-    { x: rail.points[3].x, y: rail.bridgeY },
-    rail.points[3], rail.points[4], rail.points[5],
-  ] : [];
-  const activeRailEnd = rail?.mobile ? safeActive : [0, 1, 2, 5, 6, 7][safeActive] ?? 0;
 
   useEffect(() => {
     const query = window.matchMedia?.("(prefers-reduced-motion: reduce)");
@@ -131,9 +126,11 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
 
   return <section className={styles.timeline} aria-label="Proposed 14-day milestone plan" data-active={safeActive + 1} data-motion={reducedMotion ? "reduced" : "standard"}>
     <div className={styles.layout} ref={layoutRef}>
-      {rail && <svg className={styles.rail} viewBox={`0 0 ${rail.width} ${rail.height}`} preserveAspectRatio="none" aria-hidden="true" focusable="false" data-path-order="1-2-3-4-5-6" data-progress={safeActive + 1}>
-        <path className={styles.railBase} d={railPath(railPoints)} />
-        <path className={styles.railActive} d={railPath(railPoints.slice(0, activeRailEnd + 1))} />
+      {branches && <svg className={styles.branches} viewBox={`0 0 ${branches.width} ${branches.height}`} preserveAspectRatio="none" aria-hidden="true" focusable="false" data-branch-order="1-2-3-4-5-6" data-progress={safeActive + 1} data-layout={branches.mobile ? "stacked" : "alternating"}>
+        {branches.anchors.map((anchor, index) => <g key={index} data-branch-step={index + 1} data-reached={index <= safeActive} data-anchor-side={branches.mobile || index % 2 === 1 ? "right" : "left"}>
+          <path d={`M ${anchor.x} ${anchor.y} H ${branches.ends[index].x}`} />
+          <circle cx={anchor.x} cy={anchor.y} r={index === safeActive ? 8 : 6} />
+        </g>)}
       </svg>}
       <div className={styles.stage} data-timeline-stage>
         <div className={styles.visual}>
@@ -142,7 +139,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
         </div>
         <span className={styles.stageLabel} aria-hidden="true">{String(safeActive + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}</span>
       </div>
-      {steps.map((step, index) => <button key={step.days} ref={(element) => { cardRefs.current[index] = element; }} type="button" className={styles.step} data-selected={safeActive === index} data-reached={index <= safeActive} data-tremor={index === 2 && tremor} aria-pressed={safeActive === index} aria-current={safeActive === index ? "step" : undefined} aria-label={`Step ${index + 1}, days ${step.days}: ${step.title}`} onClick={() => choose(index)} onKeyDown={(event) => keyboardSelect(event, index, cardRefs.current)}><span className={styles.number}>{String(index + 1).padStart(2, "0")}</span><span className={styles.stepCopy}><small>Days {step.days}</small><strong>{step.title}</strong></span><span ref={(element) => { markerRefs.current[index] = element; }} className={styles.marker} data-marker-index={index + 1} aria-hidden="true" /></button>)}
+      {steps.map((step, index) => <button key={step.days} ref={(element) => { cardRefs.current[index] = element; }} type="button" className={styles.step} data-selected={safeActive === index} data-reached={index <= safeActive} data-tremor={index === 2 && tremor} aria-pressed={safeActive === index} aria-current={safeActive === index ? "step" : undefined} aria-label={`Step ${index + 1}, days ${step.days}: ${step.title}`} onClick={() => choose(index)} onKeyDown={(event) => keyboardSelect(event, index, cardRefs.current)}><span className={styles.number}>{String(index + 1).padStart(2, "0")}</span><span className={styles.stepCopy}><small>Days {step.days}</small><strong>{step.title}</strong></span></button>)}
     </div>
     <div className={styles.controls} aria-label="Milestone navigation">
       <button type="button" className={styles.arrow} aria-label="Previous milestone" onClick={() => choose(safeActive - 1)} disabled={safeActive === 0}><ChevronLeft size={18} aria-hidden="true" /></button>

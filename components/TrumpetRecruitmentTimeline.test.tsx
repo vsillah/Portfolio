@@ -22,33 +22,31 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("Trumpet recruitment milestones", () => {
-  it("connects six numbered nodes and advances one continuous desktop rail in milestone order", () => {
+  it("anchors six chronological alternating branches to the trumpet and advances completed stems", () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
-    const rail = container.querySelector('svg[data-path-order="1-2-3-4-5-6"]');
-    const progress = rail?.querySelectorAll("path")[1];
-    expect(rail).toHaveAttribute("data-progress", "1");
-    expect(rail?.querySelectorAll("path")[0].getAttribute("d")?.match(/\bL\b/g)).toHaveLength(7);
-    expect(container.querySelectorAll("[data-marker-index]")).toHaveLength(6);
-    fireEvent.click(screen.getByRole("button", { name: /Step 3, days/ }));
-    expect(rail).toHaveAttribute("data-progress", "3");
-    expect(progress?.getAttribute("d")?.match(/\bL\b/g)).toHaveLength(2);
-    expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("aria-current", "step");
-    expect(screen.getByRole("button", { name: /Step 4, days/ })).toHaveAttribute("data-reached", "false");
+    const branches = container.querySelector('svg[data-branch-order="1-2-3-4-5-6"]');
+    const nodes = [...container.querySelectorAll("[data-branch-step]")];
+    expect(branches).toHaveAttribute("data-layout", "alternating");
+    expect(nodes.map((node) => node.getAttribute("data-branch-step"))).toEqual(["1", "2", "3", "4", "5", "6"]);
+    expect(nodes.map((node) => node.getAttribute("data-anchor-side"))).toEqual(["left", "right", "left", "right", "left", "right"]);
+    expect(nodes.every((node) => node.querySelector("path") && node.querySelector("circle"))).toBe(true);
+    expect(container.querySelector("[data-path-order]")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
-    expect(progress?.getAttribute("d")?.match(/\bL\b/g)).toHaveLength(5);
-    fireEvent.click(screen.getByRole("button", { name: /Step 6, days/ }));
-    expect(progress?.getAttribute("d")?.match(/\bL\b/g)).toHaveLength(7);
+    expect(branches).toHaveAttribute("data-progress", "4");
+    expect(nodes.map((node) => node.getAttribute("data-reached"))).toEqual(["true", "true", "true", "true", "false", "false"]);
+    expect(screen.getByRole("button", { name: /Step 4, days/ })).toHaveAttribute("aria-current", "step");
   });
 
-  it("keeps a single ordered left rail and semantic active step on mobile", () => {
+  it("keeps six ordered trumpet connections and a semantic active step on mobile", () => {
     vi.stubGlobal("matchMedia", vi.fn((query: string) => ({ matches: query.includes("max-width: 767px"), addEventListener: vi.fn(), removeEventListener: vi.fn() })));
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
-    const rail = container.querySelector('svg[data-path-order="1-2-3-4-5-6"]');
-    expect(rail?.querySelectorAll("path")[0].getAttribute("d")?.match(/\bL\b/g)).toHaveLength(5);
-    expect([...container.querySelectorAll("[data-marker-index]")].map((node) => node.getAttribute("data-marker-index"))).toEqual(["1", "2", "3", "4", "5", "6"]);
+    const branches = container.querySelector('svg[data-branch-order="1-2-3-4-5-6"]');
+    expect(branches).toHaveAttribute("data-layout", "stacked");
+    expect([...container.querySelectorAll("[data-branch-step]")].map((node) => node.getAttribute("data-anchor-side"))).toEqual(Array(6).fill("right"));
+    expect(screen.getAllByRole("button", { name: /^Step \d, days/ }).map((button) => button.getAttribute("aria-label")?.slice(0, 6))).toEqual(["Step 1", "Step 2", "Step 3", "Step 4", "Step 5", "Step 6"]);
     fireEvent.click(screen.getByRole("button", { name: /Step 5, days/ }));
-    expect(rail).toHaveAttribute("data-progress", "5");
-    expect(rail?.querySelectorAll("path")[1].getAttribute("d")?.match(/\bL\b/g)).toHaveLength(4);
+    expect(branches).toHaveAttribute("data-progress", "5");
+    expect([...container.querySelectorAll("[data-branch-step]")].map((node) => node.getAttribute("data-reached"))).toEqual(["true", "true", "true", "true", "true", "false"]);
     expect(screen.getByRole("button", { name: /Step 5, days/ })).toHaveAttribute("aria-current", "step");
   });
 
@@ -112,7 +110,7 @@ describe("Trumpet recruitment milestones", () => {
     expect(screen.queryByRole("button", { name: /Replay milestone/ })).toBeNull();
     expect(screen.getByText("Listen to adults.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("data-tremor", "false");
-    expect(container.querySelector('svg[data-path-order="1-2-3-4-5-6"]')).toHaveAttribute("data-progress", "3");
+    expect(container.querySelector('svg[data-branch-order="1-2-3-4-5-6"]')).toHaveAttribute("data-progress", "3");
   });
 
   it("falls back to the poster and retains selection when media playback fails", async () => {

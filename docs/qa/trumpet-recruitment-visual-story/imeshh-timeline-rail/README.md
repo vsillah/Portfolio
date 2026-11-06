@@ -1,5 +1,7 @@
 # Connected milestone rail review
 
+Historical checkpoint: Human QA rejected this U-border rail because it routed steps down one side and back up the other. The [chronological trumpet branch](../imeshh-chronological-branch/README.md) is the current review target. Preserve this packet only as evidence of the rejected treatment.
+
 ## Decision and binding
 
 Human QA approved the vertical iMeshh trumpet at `e8be435a` but found its six cards visually disconnected. This packet reviews the timeline correction on draft PR #1215. Product commit: `7b731ffa675677e567d7464649ca2204000f009d` on `codex/trumpet-recruitment-visual-story`.

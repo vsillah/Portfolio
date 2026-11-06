@@ -1,31 +1,27 @@
 .timeline { isolation: isolate; min-width: 0; }
-.layout { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.9fr) minmax(0, 1.15fr); grid-template-rows: repeat(3, minmax(92px, auto)); align-items: center; column-gap: 2rem; row-gap: .7rem; padding-bottom: 22px; }
-.rail { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.railBase, .railActive { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; }
-.railBase { stroke: #aca38f; }
-.railActive { stroke: #8b6512; stroke-width: 3.5; }
-.stage { position: relative; z-index: 1; grid-column: 2; grid-row: 1 / 4; overflow: hidden; min-width: 0; width: 100%; border: 1px solid rgb(212 175 55 / 24%); border-radius: 1.25rem; background: #121e31; }
-.visual { position: relative; aspect-ratio: 1; width: 100%; }
-.poster, .video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.layout { position: relative; display: grid; width: 100%; max-width: 900px; margin-inline: auto; grid-template-columns: minmax(0, 1fr) 170px minmax(0, 1fr); grid-template-rows: repeat(6, minmax(70px, 1fr)); align-items: center; column-gap: 1rem; row-gap: .4rem; }
+.branches { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.branches g path { fill: none; stroke: #8c826f; stroke-linecap: round; stroke-width: 2.5; }
+.branches g circle { fill: #121e31; stroke: #c7baa0; stroke-width: 2.5; }
+.branches g[data-reached="true"] path { stroke: #9b7219; stroke-width: 3; }
+.branches g[data-reached="true"] circle { fill: #c99525; stroke: #fff2c9; }
+.branches g[data-branch-step] circle[r="8"] { stroke-width: 3; }
+.stage { position: relative; z-index: 1; grid-column: 2; grid-row: 1 / 7; overflow: hidden; min-width: 0; width: 100%; border: 1px solid rgb(212 175 55 / 24%); border-radius: 1.25rem; background: #121e31; }
+.visual { position: relative; aspect-ratio: 1 / 3; width: 100%; }
+.poster, .video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
 .posterFallback { display: grid; width: 100%; height: 100%; place-items: center; color: #eaecee; font-family: var(--font-premium), Georgia, serif; font-size: 1rem; }
 .video { opacity: 0; transition: opacity 180ms ease; }
 .video[data-visible="true"] { opacity: 1; }
 .stageLabel { position: absolute; right: .75rem; bottom: .6rem; color: rgb(234 236 238 / 72%); font-size: .67rem; font-weight: 700; letter-spacing: .14em; }
-.step { position: relative; z-index: 1; display: flex; min-width: 0; min-height: 92px; align-items: center; gap: .75rem; padding: .85rem; border: 1px solid rgb(212 175 55 / 23%); border-radius: 1rem; background: rgb(18 30 49 / 84%); color: #eaecee; text-align: left; cursor: pointer; transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease; }
-.step:nth-of-type(-n + 3) { grid-column: 1; }
-.step:nth-of-type(n + 4) { grid-column: 3; }
-.step:nth-of-type(1), .step:nth-of-type(6) { grid-row: 1; }
-.step:nth-of-type(2), .step:nth-of-type(5) { grid-row: 2; }
-.step:nth-of-type(3), .step:nth-of-type(4) { grid-row: 3; }
-.step::after { position: absolute; top: calc(50% - 1.5px); width: 9px; height: 3px; background: #aca38f; content: ""; pointer-events: none; }
-.step:nth-of-type(-n + 3)::after { right: -9px; }
-.step:nth-of-type(n + 4)::after { left: -9px; }
-.step[data-reached="true"]::after { background: #8b6512; }
-.marker { position: absolute; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); border: 2px solid #766b57; border-radius: 50%; background: #fff; pointer-events: none; }
-.step:nth-of-type(-n + 3) .marker { right: -23px; }
-.step:nth-of-type(n + 4) .marker { left: -23px; }
-.step[data-reached="true"] .marker { border-color: #8b6512; background: #8b6512; }
-.step[data-selected="true"] .marker { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #8b6512; }
+.step { position: relative; z-index: 3; display: flex; min-width: 0; min-height: 68px; align-items: center; gap: .65rem; padding: .65rem .8rem; border: 1px solid rgb(212 175 55 / 23%); border-radius: 1rem; background: rgb(18 30 49 / 84%); color: #eaecee; text-align: left; cursor: pointer; transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease; }
+.step:nth-of-type(odd) { grid-column: 1; }
+.step:nth-of-type(even) { grid-column: 3; }
+.step:nth-of-type(1) { grid-row: 1; }
+.step:nth-of-type(2) { grid-row: 2; }
+.step:nth-of-type(3) { grid-row: 3; }
+.step:nth-of-type(4) { grid-row: 4; }
+.step:nth-of-type(5) { grid-row: 5; }
+.step:nth-of-type(6) { grid-row: 6; }
 .step:hover { border-color: rgb(212 175 55 / 58%); }
 .step[data-selected="true"] { border-color: #d4af37; background: rgb(38 52 72 / 94%); box-shadow: inset 3px 0 #d4af37; }
 .number { flex: none; color: #d4af37; font-family: var(--font-premium), Georgia, serif; font-size: 1.25rem; }
@@ -50,20 +46,13 @@
 .notice { margin: .55rem .2rem 0; color: var(--muted-foreground); font-size: .78rem; }
 .step[data-tremor="true"] { animation: cardTremor 220ms ease-out; }
 @keyframes cardTremor { 25% { transform: translateX(1px); } 55% { transform: translateX(-1px); } 100% { transform: translateX(0); } }
-@media (min-width: 768px) and (max-width: 1023px) {
-  .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr) minmax(0, 1fr); }
-  .step { gap: .45rem; padding: .55rem; }
-  .number { font-size: 1.05rem; }
-  .stepCopy strong { font-size: .88rem; }
-}
 @media (max-width: 767px) {
-  .layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; gap: .5rem; padding-bottom: 0; }
-  .stage { grid-column: 1; grid-row: auto; max-width: 520px; justify-self: center; }
-  .stage { border-radius: 1rem; }
-  .step { grid-column: 1 !important; grid-row: auto !important; min-height: 64px; margin-left: 1.65rem; padding: .6rem .8rem; }
-  .step::after, .step:nth-of-type(n + 4)::after { left: -9px; right: auto; }
-  .step .marker, .step:nth-of-type(n + 4) .marker { left: -21px; right: auto; }
-  .stepCopy strong { font-size: .98rem; }
+  .layout { grid-template-columns: 140px minmax(0, 1fr); grid-template-rows: repeat(6, minmax(64px, 1fr)); column-gap: .75rem; row-gap: .3rem; }
+  .stage { grid-column: 1; grid-row: 1 / 7; border-radius: 1rem; }
+  .step { grid-column: 2 !important; min-height: 64px; gap: .35rem; padding: .45rem .5rem; }
+  .number { font-size: 1rem; }
+  .stepCopy small { font-size: .61rem; }
+  .stepCopy strong { font-size: .84rem; }
   .controls { gap: .1rem; }
   .dot { width: 28px; }
   .replay { min-width: 38px; margin-left: .1rem; }
