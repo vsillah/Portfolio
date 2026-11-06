@@ -7,7 +7,7 @@
 .spine {
   position: absolute;
   z-index: 0;
-  top: 1.5rem;
+  top: calc(clamp(200px, 58vw, 240px) * 1.5 + 1.5rem);
   bottom: 1.5rem;
   left: 22px;
   width: 1px;
@@ -16,18 +16,17 @@
 }
 
 .instrument {
-  position: absolute;
+  position: relative;
   z-index: 0;
-  top: 0;
-  right: -2rem;
-  width: 150px;
+  width: clamp(200px, 58vw, 240px);
   aspect-ratio: 2 / 3;
-  opacity: .22;
+  margin: .25rem auto 1rem;
+  opacity: .94;
   pointer-events: none;
   filter: drop-shadow(0 12px 24px rgb(0 0 0 / 35%));
   --base-x: 0;
   --base-y: 0;
-  --press-distance: 3px;
+  --press-distance: 5px;
 }
 
 .trumpet { display: block; width: 100%; height: auto; }
@@ -113,13 +112,15 @@
 }
 
 @media (min-width: 768px) {
-  .spine { left: 50%; }
+  .spine { top: 1.5rem; left: 50%; }
 
   .instrument {
+    position: absolute;
     top: 50%;
     right: auto;
     left: 50%;
     width: clamp(340px, 42vw, 480px);
+    margin: 0;
     transform: translate(-50%, -50%);
     opacity: .94;
     --base-x: -50%;
@@ -222,11 +223,10 @@
 
 @media (max-width: 767px) {
   .step[data-active="true"] { --card-in: 8px; }
-  .instrument { opacity: .32; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .timeline *, .timeline *::before, .timeline *::after { animation: none !important; transition: none !important; }
-  .instrument { opacity: .22 !important; }
+  .instrument { opacity: .94 !important; }
   .bellLight { opacity: 0 !important; }
 }
