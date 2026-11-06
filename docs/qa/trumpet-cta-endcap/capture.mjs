@@ -3,7 +3,6 @@ import { execFileSync } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import sharp from "sharp";
 
 const revision = process.env.REVIEW_COMMIT;
 if (!revision) throw new Error("Set REVIEW_COMMIT to the reviewed source commit");
@@ -45,13 +44,11 @@ async function checkTimeline(page, width, theme) {
         geometry.cards[index].right > geometry.cards[index - 1].left) throw new Error(`${width} ${theme} timeline cards overlap`);
   }
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw new Error(`${width} ${theme} horizontal overflow`);
-  await page.evaluate(() => scrollTo(0, 0));
-  const clip = await timeline.boundingBox();
-  if (!clip) throw new Error(`${width} ${theme} timeline is not visible`);
-  const fullPage = await page.screenshot({ fullPage: true });
-  await sharp(fullPage).extract({ left: Math.floor(clip.x), top: Math.floor(clip.y),
-    width: Math.ceil(clip.width), height: Math.ceil(clip.height) })
-    .png().toFile(join(output, `timeline-${width}-${theme}.png`));
+  // Keep the fixed global navigation above the isolated timeline crop.
+  const timelineTop = await timeline.evaluate((element) => element.getBoundingClientRect().top + scrollY);
+  await page.evaluate((top) => scrollTo(0, top - 90), timelineTop);
+  await pause(100);
+  await timeline.screenshot({ path: join(output, `timeline-${width}-${theme}.png`) });
   return timeline;
 }
 
