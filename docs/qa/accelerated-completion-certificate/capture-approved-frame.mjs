@@ -4,19 +4,22 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const output = dirname(fileURLToPath(import.meta.url))
-const baseUrl = process.env.QA_URL || 'http://localhost:3158/member/dashboard?qa=completion-ready&rev=certificate-frame'
+const baseUrl = process.env.QA_URL || 'http://localhost:3158/member/dashboard?qa=completion-ready&rev=profile-name-prefill'
 await mkdir(output, { recursive: true })
 
 const browser = await chromium.launch({ headless: true })
 
 async function claim(page) {
   await page.goto(baseUrl, { waitUntil: 'networkidle' })
-  await page.getByRole('textbox', { name: 'Name on certificate' }).fill('Course Learner')
+  const input = page.getByRole('textbox', { name: 'Name on certificate' })
+  if (await input.inputValue() !== 'Course Learner') throw new Error('Synthetic profile name was not prefilled')
   await page.getByRole('button', { name: 'Claim certificate' }).click()
   await page.getByLabel('Claimed Accelerated completion certificate').waitFor()
 }
 
 const desktop = await browser.newPage({ viewport: { width: 1440, height: 1100 }, deviceScaleFactor: 1 })
+await desktop.goto(baseUrl, { waitUntil: 'networkidle' })
+await desktop.getByLabel('Unclaimed Accelerated completion certificate preview').screenshot({ path: join(output, 'profile-name-prefill.png') })
 await claim(desktop)
 await desktop.getByLabel('Claimed Accelerated completion certificate').screenshot({ path: join(output, 'approved-frame-desktop.png') })
 

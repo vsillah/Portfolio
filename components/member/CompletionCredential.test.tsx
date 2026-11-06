@@ -31,6 +31,16 @@ describe('Accelerated completion certificate', () => {
     expect(screen.getByRole('button', { name: 'Download certificate' })).toBeEnabled()
   })
 
+  it('prefills the editable certificate name from the signed-in member profile', async () => {
+    render(<CompletionCredential profileName="Profile Member" />)
+    const input = await screen.findByRole('textbox', { name: 'Name on certificate' })
+    expect(input).toHaveValue('Profile Member')
+    expect(screen.getByLabelText('Unclaimed Accelerated completion certificate preview')).toHaveTextContent('Profile Member')
+    fireEvent.change(input, { target: { value: 'Preferred Certificate Name' } })
+    expect(input).toHaveValue('Preferred Certificate Name')
+    expect(screen.getByLabelText('Unclaimed Accelerated completion certificate preview')).toHaveTextContent('Preferred Certificate Name')
+  })
+
   it('keeps the certificate absent at 15/16 with a lesson recovery link', async () => {
     window.history.pushState({}, '', '/member/dashboard?qa=completion-blocked')
     render(<CompletionCredential />)

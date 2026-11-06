@@ -13,12 +13,13 @@ render_still() {
     -c:v libx264 -r 30 "$output"
 }
 
+render_still "$root/profile-name-prefill.png" "$work/prefill.mp4"
 render_still "$root/approved-frame-desktop.png" "$work/desktop.mp4"
 render_still "$root/approved-frame-mobile.png" "$work/mobile.mp4"
 render_still "$root/approved-frame-download.png" "$work/download.mp4"
 
-printf "file '%s'\nfile '%s'\nfile '%s'\n" \
-  "$work/desktop.mp4" "$work/mobile.mp4" "$work/download.mp4" > "$work/concat.txt"
+printf "file '%s'\nfile '%s'\nfile '%s'\nfile '%s'\n" \
+  "$work/prefill.mp4" "$work/desktop.mp4" "$work/mobile.mp4" "$work/download.mp4" > "$work/concat.txt"
 
 ffmpeg -loglevel error -y -f concat -safe 0 -i "$work/concat.txt" \
   -c:v libx264 -pix_fmt yuv420p -movflags +faststart \

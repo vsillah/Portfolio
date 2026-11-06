@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Copy, Download, ExternalLink, Link2, RotateCcw, Share2, ShieldOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -15,13 +15,17 @@ const recordLabel = (credential: Credential | null | undefined) => credential?.v
   ? `AT-ACC-${credential.verification_token.slice(0, 4).toUpperCase()}-${credential.verification_token.slice(4, 8).toUpperCase()}`
   : 'AT-ACC-0000-0000'
 
-export default function CompletionCredential({ token, completedCount }: { token?: string | null; completedCount?: number }) {
+export default function CompletionCredential({ token, completedCount, profileName }: { token?: string | null; completedCount?: number; profileName?: string | null }) {
   const [authToken, setAuthToken] = useState<string | null>(token ?? null)
   const [status, setStatus] = useState<Status | null>(null)
   const [name, setName] = useState('')
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [preview, setPreview] = useState(false)
+  const nameEdited = useRef(false)
+  useEffect(() => {
+    if (!nameEdited.current && profileName?.trim()) setName(profileName.trim())
+  }, [profileName])
   useEffect(() => {
     let active = true
     if (process.env.NODE_ENV === 'development' && new URLSearchParams(window.location.search).get('qa') === 'completion-ready') {
@@ -193,7 +197,7 @@ export default function CompletionCredential({ token, completedCount }: { token?
         <button type="button" title="Copy course link" aria-label="Copy course link" onClick={() => void copy(courseUrl, 'Course link')}><Copy aria-hidden="true" /></button>
       </div>
       <div className={styles.linkActions}>{verificationUrl ? <button type="button" disabled={busy || preview} onClick={() => void command('revoke')}><ShieldOff aria-hidden="true" /> Turn off verification link</button> : <button type="button" disabled={busy || preview} onClick={() => void command('rotate')}><RotateCcw aria-hidden="true" /> Create verification link</button>}</div>
-    </> : status?.eligible ? <><p>All sixteen lessons are complete. Choose the name that will appear on your certificate. You cannot change it after claiming.</p><label className={styles.name}>Name on certificate<input value={name} onChange={(event) => setName(event.target.value)} maxLength={120} autoComplete="name" /></label><button type="button" className={styles.claim} disabled={busy || !name.trim()} onClick={() => void command('claim')}>Claim certificate</button></> : <p>Complete and save all sixteen lessons to claim your certificate. Your worksheet answers can stay private. <Link href="/accelerated/learningplan">Continue lessons</Link></p>}
+    </> : status?.eligible ? <><p>All sixteen lessons are complete. Confirm the name that will appear on your certificate. You cannot change it after claiming.</p><label className={styles.name}>Name on certificate<input value={name} onChange={(event) => { nameEdited.current = true; setName(event.target.value) }} maxLength={120} autoComplete="name" /></label><button type="button" className={styles.claim} disabled={busy || !name.trim()} onClick={() => void command('claim')}>Claim certificate</button></> : <p>Complete and save all sixteen lessons to claim your certificate. Your worksheet answers can stay private. <Link href="/accelerated/learningplan">Continue lessons</Link></p>}
     {notice && <p className={styles.notice} role="status">{notice}</p>}
   </section>
 }

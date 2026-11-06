@@ -182,7 +182,9 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         const response = await fetch('/api/accelerated/member', { headers: { Authorization: `Bearer ${session.access_token}` }, cache: 'no-store' })
         if (!response.ok) { setMemberNotice('Member progress is unavailable. Your local work is still here.'); return }
         const result = await response.json()
-        if (!active || !result.enrollment) return
+        if (!active) return
+        if (typeof result.profileName === 'string' && result.profileName.trim()) setShareName(result.profileName.trim())
+        if (!result.enrollment) return
         memberRevisionRef.current = result.enrollment.revision
         setMemberClaimed(true)
         setSelected(result.enrollment.current_lesson_id)
@@ -365,7 +367,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
     {shareState && <p role="status" className={styles.workspaceStatus}>{shareState}</p>}
     {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
     {shareReview}
-    <CompletionCredential token={memberToken} completedCount={completed.length} />
+    <CompletionCredential token={memberToken} completedCount={completed.length} profileName={shareName} />
   </section>
 
   return <section className={styles.plan} aria-label="Accelerated learning plan">

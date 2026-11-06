@@ -2,18 +2,20 @@
 
 Draft PR: #1220, branch `codex/accelerated-completion-workspace`.
 
-Review fixture: `http://localhost:3158/member/dashboard?qa=completion-ready&rev=certificate-frame`. The fixture uses a fictional learner and does not create a database credential.
+Review fixture: `http://localhost:3158/member/dashboard?qa=completion-ready&rev=profile-name-prefill`. The fixture uses a fictional signed-in member profile and does not create a database credential.
 
 ## Approved treatment
 
 - The certificate uses an ivory security-paper texture, navy-and-gold engraved framing, guilloche linework, and African-inspired geometric and wisdom-knot motifs.
 - The AmaduTown shield preserves its portrait aspect ratio. Formal Roman serif typography keeps the credential legible; no cursive display text is used.
 - Learner name, issue date, credential record ID, verification reference, title, and course details remain dynamic. The frame is stable artwork rather than a text-bearing certificate image.
+- The unclaimed credential prefills the member profile name and keeps it editable until the member claims the immutable credential.
 - The central title and recipient block is intentionally lowered, while the issue, owner, and verification band remains clear of the lower frame.
 - The responsive browser certificate and downloadable SVG use the same approved frame and hierarchy.
 
 ## Evidence
 
+- `profile-name-prefill.png`: unclaimed desktop credential with its name supplied by the synthetic member profile.
 - `approved-frame-desktop.png`: claimed desktop certificate from the exact localhost fixture.
 - `approved-frame-mobile.png`: claimed 390px mobile certificate from the same fixture.
 - `approved-frame-download.svg`: actual downloaded certificate export.

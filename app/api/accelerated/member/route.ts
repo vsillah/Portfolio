@@ -32,7 +32,8 @@ async function loadRecommendations(userId: string) {
 export async function GET(request: NextRequest) {
   const userId = await identity(request)
   if (!userId) return fail('Sign in to view member progress.', 401)
-  const [enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders] = await Promise.all([
+  const [profile, enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders] = await Promise.all([
+    supabaseAdmin.from('user_profiles').select('full_name').eq('id', userId).maybeSingle(),
     supabaseAdmin.from('accelerated_member_enrollments').select('current_lesson_id,revision,updated_at').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
     supabaseAdmin.from('accelerated_member_lessons').select('lesson_id,completed_at,video_seconds').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION),
     supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,answers,updated_at').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
     supabaseAdmin.from('orders').select('id,status,final_amount,created_at,order_items(id,quantity,price_at_purchase,products(title),services(title))')
       .eq('user_id', userId).order('created_at', { ascending: false }).limit(30),
   ])
-  if ([enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders].some((item) => item.error)) return fail('Member data is temporarily unavailable.', 503)
+  if ([profile, enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders].some((item) => item.error)) return fail('Member data is temporarily unavailable.', 503)
   // Existing token projection is reused server-side. The token is never sent to the member.
   let assessment = null
   const audit = audits.data?.[0]
@@ -69,6 +70,7 @@ export async function GET(request: NextRequest) {
   }
   return NextResponse.json({
     version: DECISION_FILE_VERSION,
+    profileName: profile.data?.full_name?.trim() || null,
     enrollment: enrollment.data,
     lessons: lessonRows.data ?? [],
     worksheet: worksheet.data,
