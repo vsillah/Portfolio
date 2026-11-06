@@ -15,12 +15,15 @@ describe("Trumpet Trainer concept preview", () => {
     expect(exclusions).toContain("./public/work/trumpet-trainer/personas/*");
   });
 
-  it("presents a closed, noindex concept without operator copy or an action form", () => {
+  it("presents a noindex concept without redundant hero copy or an action form", () => {
     render(<TrumpetRecruitmentPage />);
     expect(metadata.robots).toEqual({ index: false, follow: false });
     expect(metadata.title).toBe("Trumpet Trainer | The first practice step");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("first step for beginner trumpet practice");
-    expect(screen.getByText(/A concept preview for the adults supporting a new player/)).toBeInTheDocument();
+    expect(screen.queryByText(/A concept preview for the adults supporting a new player/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Gameplay preview")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Inside Trumpet Trainer" })).toBeInTheDocument();
+    expect(screen.queryByText(/An example path, not a fixed schedule or a promise of progress/)).not.toBeInTheDocument();
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ })).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ }).every((link) => link.getAttribute("href") === "/work/trumpet-trainer")).toBe(true);
@@ -62,6 +65,5 @@ describe("Trumpet Trainer concept preview", () => {
     expect(path).toHaveAttribute("data-active", "4");
     expect(within(path).getByRole("heading", { name: "Listen and adjust" })).toBeInTheDocument();
     expect(within(path).getByText(/teacher's ear/)).toBeInTheDocument();
-    expect(screen.getByText(/not a fixed schedule or a promise of progress/)).toBeInTheDocument();
   });
 });

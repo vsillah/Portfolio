@@ -21,8 +21,11 @@ async function record(name, width, height) {
   await page.goto(url, { waitUntil: "networkidle" });
   if ((await page.locator('meta[name="robots"]').getAttribute("content")) !== "noindex, nofollow") throw new Error("Noindex missing");
   if (await page.locator("form").count()) throw new Error("Unexpected form");
+  if (await page.getByText("Gameplay preview").count()) throw new Error("Redundant media badge returned");
+  if (await page.getByText(/A concept preview for the adults supporting a new player/).count()) throw new Error("Redundant hero callout returned");
+  if (await page.getByText(/An example path, not a fixed schedule or a promise of progress/).count()) throw new Error("Redundant timeline subtitle returned");
   if (/tester interest|earlier invitation|recruitment/i.test(await page.locator("main").textContent())) throw new Error("Recruitment copy on the page");
-  await pause(1100);
+  await pause(2000);
   await page.getByRole("heading", { name: "Inside Trumpet Trainer" }).scrollIntoViewIfNeeded();
   await pause(700);
   await page.locator("video").evaluate(async (video) => { await video.play().catch(() => {}); });
@@ -65,12 +68,18 @@ async function stills(width) {
     await pause(150);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     if (overflow) throw new Error(`${width} ${theme} overflow ${overflow}`);
+    if (await page.getByText("Gameplay preview").count()) throw new Error("Redundant media badge returned");
+    if (await page.getByText(/A concept preview for the adults supporting a new player/).count()) throw new Error("Redundant hero callout returned");
+    if (await page.getByText(/An example path, not a fixed schedule or a promise of progress/).count()) throw new Error("Redundant timeline subtitle returned");
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.screenshot({ path: join(root, `hero-${width}-${theme}.png`) });
+    const navigation = page.locator("nav").first();
+    await navigation.evaluate((element) => { element.style.display = "none"; });
+    await page.locator('section[aria-labelledby="plan"]').screenshot({ path: join(root, `practice-${width}-${theme}.png`) });
     await page.getByRole("region", { name: "Example practice path" }).screenshot({ path: join(root, `timeline-${width}-${theme}.png`) });
     if (width === 360 || width === 1280) await page.getByRole("heading", { level: 1 }).screenshot({ path: join(root, `headline-${width}-${theme}.png`) });
     await page.getByRole("tab", { name: "Show screen 7" }).click();
     await page.waitForFunction(() => { const image = document.querySelector('img[alt^="Trumpet Trainer screen 7"]'); return image?.complete && image.naturalWidth > 0; });
-    const navigation = page.locator("nav").first();
-    await navigation.evaluate((element) => { element.style.display = "none"; });
     await page.locator("#trumpet-social-slide").screenshot({ path: join(root, `song-builder-${width}-${theme}.png`) });
     await navigation.evaluate((element) => { element.style.display = ""; });
   }
