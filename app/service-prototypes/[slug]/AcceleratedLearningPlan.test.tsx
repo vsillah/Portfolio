@@ -7,9 +7,14 @@ import { DECISION_FILE_STORAGE_KEY } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 
+const authMocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
+  onAuthStateChange: vi.fn(),
+}))
+
 vi.mock('@/lib/supabase', () => ({ supabase: { auth: {
-  getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
-  onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+  getSession: authMocks.getSession,
+  onAuthStateChange: authMocks.onAuthStateChange,
 } } }))
 
 vi.mock('next/image', () => ({
@@ -20,7 +25,12 @@ vi.mock('next/image', () => ({
 }))
 
 describe('Accelerated learning plan', () => {
-  beforeEach(() => { localStorage.removeItem(DECISION_FILE_STORAGE_KEY); localStorage.removeItem(GUEST_PROGRESS_KEY) })
+  beforeEach(() => {
+    localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+    localStorage.removeItem(GUEST_PROGRESS_KEY)
+    authMocks.getSession.mockResolvedValue({ data: { session: null } })
+    authMocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
+  })
   it('restores one local worksheet across lessons and requires review, redaction, and consent', async () => {
     localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
     const view = render(<AcceleratedLearningPlan />)
@@ -90,6 +100,9 @@ describe('Accelerated learning plan', () => {
     expect(css).toContain('background-image:none;')
     expect(css).toContain('box-shadow:none;')
     expect(css).toContain('.state[data-state=complete],.detailState[data-state=complete]')
+    expect(css).toContain('.detail>.player,.detail>.mediaNotice{grid-row:4}')
+    expect(css).toContain('.detail>.worksheet{grid-row:5}')
+    expect(css).toContain('.detail>.worksheet{grid-column:2;grid-row:4/span 3}')
   })
 
   it('renders the Decision File as a complete standalone workbook with flat scoped actions', () => {
@@ -102,6 +115,33 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('button', { name: 'Clear worksheet' }).className).toContain('dangerAction')
     fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'One bounded decision' } })
     expect(screen.getByRole('progressbar', { name: 'Decision File pages started' })).toHaveAttribute('value', '1')
+  })
+
+  it('loads a signed-in worksheet from the member profile and keeps assessment use consented', async () => {
+    const worksheetId = '12345678-1234-4234-8234-123456789abc'
+    authMocks.getSession.mockResolvedValue({ data: { session: {
+      access_token: 'member-token',
+      user: { id: 'member-1', email: 'member@example.com', user_metadata: { full_name: 'Synthetic Member' } },
+    } } })
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({
+        enrollment: { revision: 2, current_lesson_id: 'L03' },
+        lessons: [],
+        worksheet: { worksheet_id: worksheetId, answers: { L03: 'Profile-bound decision' }, updated_at: '2026-11-05T12:00:00Z' },
+      }) })
+      .mockResolvedValue({ ok: true, json: async () => ({ revision: 3, replay: false }) })
+    vi.stubGlobal('fetch', fetchMock)
+    render(<AcceleratedLearningPlan />)
+    await waitFor(() => expect(screen.getByText('Saved to your AmaduTown profile')).toBeInTheDocument())
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Profile-bound decision')
+    expect(screen.getByRole('button', { name: 'Save to profile' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Review for assessment' }))
+    const review = screen.getByRole('region', { name: 'Review before sharing' })
+    expect(review).toHaveTextContent('bound to your assessment intake')
+    expect(within(review).getByLabelText('Name')).toHaveValue('Synthetic Member')
+    expect(within(review).getByLabelText('Email')).toHaveValue('member@example.com')
+    expect(within(review).getByRole('button', { name: 'Send for assessment review' })).toBeDisabled()
+    vi.unstubAllGlobals()
   })
 
   it('keeps all approved lesson identities, order, durations, and four acts', () => {
