@@ -7,11 +7,41 @@ import styles from "./TrumpetRecruitmentSocialCarousel.module.css";
 const slides = Array.from({ length: 7 }, (_, index) => String(index + 1).padStart(2, "0"));
 const base = "/showcases/trumpet-trainer/c19989a3/social";
 const correctedSongBuilder = "/showcases/trumpet-trainer/a558583a/song-builder-capture.png";
+const SWIPE_THRESHOLD = 56;
+type Gesture = { pointerId: number; x: number; y: number; vertical: boolean; captured: boolean };
 
 export default function TrumpetRecruitmentSocialCarousel() {
   const [selected, setSelected] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const toggles = useRef<Array<HTMLButtonElement | null>>([]);
+  const gesture = useRef<Gesture | null>(null);
   const change = (next: number) => setSelected(Math.max(0, Math.min(slides.length - 1, next)));
+  const resetGesture = () => { gesture.current = null; setDragX(0); setDragging(false); };
+  function onPointerDown(event: React.PointerEvent<HTMLElement>) {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    gesture.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, vertical: false, captured: false };
+  }
+  function onPointerMove(event: React.PointerEvent<HTMLElement>) {
+    const start = gesture.current;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dy) > 18 && Math.abs(dy) > Math.abs(dx) * .8) start.vertical = true;
+    if (start.vertical) return;
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      if (!start.captured) { event.currentTarget.setPointerCapture?.(event.pointerId); start.captured = true; setDragging(true); }
+      setDragX(Math.max(-80, Math.min(80, dx)));
+    }
+  }
+  function onPointerUp(event: React.PointerEvent<HTMLElement>) {
+    const start = gesture.current;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (!start.vertical && Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) >= Math.abs(dy) * 1.25) change(selected + (dx < 0 ? 1 : -1));
+    resetGesture();
+  }
   function onToggleKey(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
     const next = event.key === "ArrowRight" ? Math.min(index + 1, slides.length - 1) : event.key === "ArrowLeft" ? Math.max(index - 1, 0) : event.key === "Home" ? 0 : event.key === "End" ? slides.length - 1 : null;
     if (next === null) return;
@@ -23,7 +53,7 @@ export default function TrumpetRecruitmentSocialCarousel() {
     <span className="font-heading text-xs uppercase tracking-[.15em] text-bronze dark:text-radiant-gold">A look through the app</span>
     <div className={styles.mediaRow}>
       <button type="button" onClick={() => change(selected - 1)} disabled={selected === 0} className={`${styles.arrow} ${styles.previous}`} aria-label="Previous screen" aria-controls="trumpet-social-slide"><span aria-hidden="true">◀</span></button>
-      <figure id="trumpet-social-slide" role="tabpanel" aria-labelledby={`trumpet-social-tab-${selected}`} className={styles.slide}>
+      <figure id="trumpet-social-slide" role="tabpanel" aria-labelledby={`trumpet-social-tab-${selected}`} className={styles.slide} data-dragging={dragging} style={{ "--drag-x": `${dragX}px` } as React.CSSProperties} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={resetGesture} onDragStart={(event) => event.preventDefault()}>
         {selected === 6 ? <div className={styles.songBuilderSlide}>
           <div className={styles.songBuilderCopy}>
             <Image src="/amadutown-logo-upscaled.png" alt="" width={80} height={110} className={styles.songBuilderLogo} />

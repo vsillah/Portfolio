@@ -62,4 +62,46 @@ describe("approved social slide carousel", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
+
+  it("advances and reverses with deliberate horizontal touch gestures", () => {
+    render(<TrumpetRecruitmentSocialCarousel />);
+    const slide = document.querySelector("#trumpet-social-slide")!;
+    fireEvent.pointerDown(slide, { pointerId: 1, pointerType: "touch", isPrimary: true, clientX: 230, clientY: 220 });
+    fireEvent.pointerMove(slide, { pointerId: 1, pointerType: "touch", clientX: 160, clientY: 224 });
+    expect(slide).toHaveAttribute("data-dragging", "true");
+    expect(slide.getAttribute("style")).toContain("--drag-x: -70px");
+    fireEvent.pointerUp(slide, { pointerId: 1, pointerType: "touch", clientX: 130, clientY: 224 });
+    expect(screen.getByRole("status")).toHaveTextContent("Screen 2 of 7");
+    expect(slide).toHaveAttribute("data-dragging", "false");
+    expect(slide.getAttribute("style")).toContain("--drag-x: 0px");
+    fireEvent.pointerDown(slide, { pointerId: 2, pointerType: "touch", isPrimary: true, clientX: 100, clientY: 220 });
+    fireEvent.pointerUp(slide, { pointerId: 2, pointerType: "touch", clientX: 185, clientY: 222 });
+    expect(screen.getByRole("status")).toHaveTextContent("Screen 1 of 7");
+  });
+
+  it("snaps back below threshold, ignores vertical movement, and respects slide bounds", () => {
+    render(<TrumpetRecruitmentSocialCarousel />);
+    const slide = document.querySelector("#trumpet-social-slide")!;
+    const capture = vi.fn();
+    Object.defineProperty(slide, "setPointerCapture", { value: capture, configurable: true });
+    fireEvent.pointerDown(slide, { pointerId: 3, pointerType: "touch", isPrimary: true, clientX: 220, clientY: 220 });
+    fireEvent.pointerMove(slide, { pointerId: 3, pointerType: "touch", clientX: 180, clientY: 223 });
+    expect(slide).toHaveAttribute("data-dragging", "true");
+    fireEvent.pointerUp(slide, { pointerId: 3, pointerType: "touch", clientX: 180, clientY: 223 });
+    expect(screen.getByRole("status")).toHaveTextContent("Screen 1 of 7");
+    expect(slide.getAttribute("style")).toContain("--drag-x: 0px");
+    capture.mockClear();
+    fireEvent.pointerDown(slide, { pointerId: 4, pointerType: "touch", isPrimary: true, clientX: 220, clientY: 220 });
+    fireEvent.pointerMove(slide, { pointerId: 4, pointerType: "touch", clientX: 165, clientY: 320 });
+    fireEvent.pointerUp(slide, { pointerId: 4, pointerType: "touch", clientX: 150, clientY: 335 });
+    expect(capture).not.toHaveBeenCalled();
+    expect(screen.getByRole("status")).toHaveTextContent("Screen 1 of 7");
+    fireEvent.pointerDown(slide, { pointerId: 5, pointerType: "touch", isPrimary: true, clientX: 100, clientY: 220 });
+    fireEvent.pointerUp(slide, { pointerId: 5, pointerType: "touch", clientX: 185, clientY: 222 });
+    expect(screen.getByRole("status")).toHaveTextContent("Screen 1 of 7");
+    fireEvent.click(screen.getByRole("tab", { name: "Show screen 7" }));
+    fireEvent.pointerDown(slide, { pointerId: 6, pointerType: "touch", isPrimary: true, clientX: 210, clientY: 220 });
+    fireEvent.pointerUp(slide, { pointerId: 6, pointerType: "touch", clientX: 120, clientY: 220 });
+    expect(screen.getByRole("status")).toHaveTextContent("Screen 7 of 7");
+  });
 });

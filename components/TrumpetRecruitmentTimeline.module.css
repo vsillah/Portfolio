@@ -70,11 +70,56 @@
 .dot span { width: 7px; height: 7px; border: 1px solid var(--step-progress); border-radius: 50%; }
 .dot[aria-current="step"] span { width: 10px; height: 10px; background: var(--step-progress); }
 .replay { gap: .4rem; min-width: 80px; height: 40px; margin-left: .5rem; border-radius: .6rem; background: transparent; font-size: .78rem; }
-.detail { display: flex; min-height: 100px; align-items: center; gap: 1.25rem; margin-top: .5rem; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); }
-.detail > div { flex: 0 0 min(32%, 12rem); }
+.detail { display: grid; grid-template-columns: minmax(140px, 190px) minmax(0, 1fr); min-height: 180px; align-items: center; gap: 1.25rem; margin-top: .5rem; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); }
+.detailBody { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(150px, .8fr); align-items: center; gap: 1rem; min-width: 0; }
 .detail span { color: var(--step-number); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .detail h3 { margin-top: .2rem; font-family: var(--font-premium), Georgia, serif; font-size: 1.13rem; line-height: 1.2; }
 .detail p { margin: 0; color: var(--muted-foreground); font-size: .86rem; line-height: 1.55; }
+.vignette { min-width: 0; padding: .55rem; border: 2px solid #d4af37; border-radius: .85rem; background: #5d41cf; box-shadow: 0 5px 0 #241b53; color: #fff; }
+.vignetteTop { display: flex; justify-content: space-between; gap: .5rem; margin-bottom: .4rem; }
+.detail .vignetteTop span { color: #fff; font-size: .58rem; letter-spacing: .1em; }
+.vignetteScreen { display: grid; min-height: 98px; align-items: center; padding: .65rem; border: 2px solid #241b53; border-radius: .65rem; background: #faf9ff; color: #241b53; }
+.detail .vignetteScreen span, .detail .vignetteScreen small { color: #241b53; }
+.vignetteScreen strong { font-size: .86rem; line-height: 1.2; }
+.lessonPreview, .notePreview, .questionPreview, .nextPreview { display: flex; align-items: center; gap: .7rem; min-width: 0; }
+.lessonNumber, .questionMark { display: grid; flex: none; width: 42px; height: 42px; place-items: center; border: 2px solid #241b53; border-radius: 50%; background: #ffd046; font-size: 1.35rem; font-weight: 800; }
+.lessonPreview > div, .questionPreview > div, .nextPreview > div { display: grid; min-width: 0; gap: .12rem; }
+.lessonPreview small, .questionPreview small, .nextPreview small { font-size: .64rem; font-weight: 700; text-transform: uppercase; }
+.lessonPreview > div > span { font-size: .7rem; }
+.detail .lessonStart { flex: none; margin-left: auto; padding: .35rem .5rem; border: 2px solid #241b53; border-radius: .45rem; background: #ffd046; color: #241b53; font-size: .7rem; letter-spacing: 0; text-transform: none; }
+.noteStaff, .patternStaff { position: relative; flex: 1; min-width: 65px; height: 60px; background: repeating-linear-gradient(to bottom, transparent 0 10px, #aaa6bf 10px 11px); }
+.singleNote, .patternNote { position: absolute; width: 18px; height: 12px; border-radius: 50%; background: #5d41cf; transform: rotate(-22deg); }
+.singleNote { top: 29px; left: 43%; }
+.singleNote::after, .patternNote::after { position: absolute; right: 0; bottom: 5px; width: 2px; height: 30px; background: #5d41cf; content: ""; transform: rotate(22deg); transform-origin: bottom; }
+.noteGuide { display: grid; flex: none; justify-items: center; gap: .15rem; }
+.noteGuide strong { font-size: 1.3rem; }
+.valves { display: flex; gap: .2rem; }
+.valves i { width: 10px; height: 10px; border: 2px solid #241b53; border-radius: 50%; }
+.noteGuide small { font-size: .6rem; }
+.patternPreview { display: grid; gap: .3rem; }
+.patternNote:nth-child(1) { top: 29px; left: 20%; }
+.patternNote:nth-child(2) { top: 21px; left: 47%; }
+.patternNote:nth-child(3) { top: 29px; left: 74%; }
+.patternCue { display: flex; justify-content: space-around; align-items: center; }
+.patternCue > span { font-size: .62rem; }
+.patternCue strong { color: #5d41cf; font-size: .7rem; }
+.listenPreview { display: grid; gap: .45rem; }
+.waveBars { display: flex; height: 30px; align-items: center; justify-content: center; gap: .22rem; }
+.waveBars i { width: 5px; height: 12px; border-radius: 3px; background: #5d41cf; }
+.waveBars i:nth-child(2), .waveBars i:nth-child(6) { height: 20px; }
+.waveBars i:nth-child(3), .waveBars i:nth-child(5) { height: 28px; }
+.pitchGuide { display: flex; align-items: center; gap: .45rem; }
+.pitchGuide > span { flex: none; font-size: .6rem; }
+.pitchGuide > div { position: relative; flex: 1; height: 9px; border-radius: 9px; background: #dcd6f3; }
+.pitchGuide i { position: absolute; left: 50%; top: -5px; width: 3px; height: 19px; background: #241b53; }
+.pitchGuide b { position: absolute; left: 30%; top: -3px; width: 15px; height: 15px; border: 2px solid #241b53; border-radius: 50%; background: #ffd046; }
+.questionMark { border-radius: .6rem; font-family: Georgia, serif; }
+.questionPreview > div { flex: 1; }
+.questionLine { display: block; height: 2px; margin-top: .25rem; background: #aaa6bf; }
+.questionLine:last-child { width: 70%; }
+.previousNote { flex: none; padding: .4rem; border: 1px solid #aaa6bf; border-radius: .4rem; font-size: .62rem; }
+.detail .nextArrow { flex: none; color: #5d41cf; font-size: 1.3rem; letter-spacing: 0; }
+.nextPreview > div { flex: 1; padding: .45rem; border: 2px solid #241b53; border-radius: .5rem; background: #ffd046; }
 .notice { margin: .55rem .2rem 0; color: var(--muted-foreground); font-size: .78rem; }
 .step[data-tremor="true"] { animation: cardTremor 220ms ease-out; }
 @keyframes cardTremor { 25% { transform: translateX(1px); } 55% { transform: translateX(-1px); } 100% { transform: translateX(0); } }
@@ -89,8 +134,9 @@
   .dot { width: 28px; }
   .replay { min-width: 38px; margin-left: .1rem; }
   .replay span { display: none; }
-  .detail { display: block; min-height: 184px; padding: .85rem 1rem; }
-  .detail p { margin-top: .5rem; }
+  .detail { grid-template-columns: 1fr; min-height: 0; gap: .65rem; padding: .85rem 1rem; }
+  .detailBody { grid-template-columns: 1fr; gap: .7rem; }
+  .vignetteScreen { min-height: 106px; }
 }
 .arrow:focus-visible, .dot:focus-visible, .replay:focus-visible, .step:focus-visible { outline: 2px solid var(--step-focus); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .timeline *, .timeline *::before, .timeline *::after { animation: none !important; transition: none !important; } }

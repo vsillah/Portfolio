@@ -1,5 +1,6 @@
 .mediaRow { position: relative; width: calc(100% - 104px); max-width: 640px; margin: 10px auto 0; }
-.slide { width: 100%; margin: 0; }
+.slide { width: 100%; margin: 0; touch-action: pan-y; cursor: grab; transform: translate3d(var(--drag-x, 0px), 0, 0); transition: transform 220ms ease; }
+.slide[data-dragging="true"] { cursor: grabbing; transition: none; }
 .songBuilderSlide {
   container-type: inline-size;
   display: grid;
@@ -51,3 +52,4 @@
   .next { right: -44px; }
   .dots { gap: 0; margin-right: -16px; margin-left: -16px; }
 }
+@media (prefers-reduced-motion: reduce) { .slide { transition: none; } }

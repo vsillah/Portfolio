@@ -90,6 +90,32 @@ describe("Trumpet recruitment milestones", () => {
     expect(screen.getByRole("button", { name: /Step 5, days/ })).toHaveAttribute("aria-current", "step");
   });
 
+  it("shows one distinct practice vignette for every selection and navigation path", () => {
+    const labels = [
+      "Choose one short first-note exercise",
+      "See one note and its trumpet fingering",
+      "Repeat a short pattern of notes on the staff",
+      "Listen to a note and adjust toward the pitch guide",
+      "Write down one question to bring to a teacher",
+      "Choose the next short note exercise",
+    ];
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    for (let index = 0; index < 6; index += 1) {
+      fireEvent.click(screen.getByRole("button", { name: new RegExp(`^Step ${index + 1}, days`) }));
+      expect(container.querySelectorAll("[data-visual-step]")).toHaveLength(1);
+      expect(container.querySelector("[data-visual-step]")).toHaveAttribute("data-visual-step", String(index + 1));
+      expect(screen.getByRole("img", { name: labels[index] })).toBeInTheDocument();
+      expect(screen.getByText(steps[index].detail)).toBeInTheDocument();
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Previous step" }));
+    expect(container.querySelector("[data-visual-step]")).toHaveAttribute("data-visual-step", "5");
+    fireEvent.click(screen.getByRole("button", { name: /Show step 2/ }));
+    expect(screen.getByRole("img", { name: labels[1] })).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole("button", { name: /Show step 2/ }), { key: "Home" });
+    expect(screen.getByRole("img", { name: labels[0] })).toBeInTheDocument();
+    expect(container.querySelector("[data-visual-step] button")).toBeNull();
+  });
+
   it("starts on a static poster and maps direct selections to one distinct clip and card", async () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
     expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
@@ -150,6 +176,7 @@ describe("Trumpet recruitment milestones", () => {
     expect(container.querySelector("video")).toBeNull();
     expect(screen.queryByRole("button", { name: /Replay step/ })).toBeNull();
     expect(screen.getByText("Listen to adults.")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Repeat a short pattern of notes on the staff" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("data-tremor", "false");
     expect(container.querySelector('svg[data-branch-order="1-2-3-4-5-6"]')).toHaveAttribute("data-progress", "3");
   });
@@ -163,6 +190,7 @@ describe("Trumpet recruitment milestones", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Animation is unavailable");
     expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
     expect(container.firstElementChild).toHaveAttribute("data-active", "6");
+    expect(screen.getByRole("img", { name: "Choose the next short note exercise" })).toBeInTheDocument();
   });
 
   it("uses the transparent poster when alpha playback is unsupported", () => {

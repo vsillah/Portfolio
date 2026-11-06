@@ -6,6 +6,8 @@ Status: **draft for captain review, inactive**. Review route: `/work/trumpet-tra
 
 The `/work/trumpet-trainer/recruitment` page is a visitor-facing concept preview. Keep its visible copy short and useful to parents, tutors, educators, and community program leads. Do not expose internal review, approval, operator, provenance, or launch-process language on that page. Keep campaign thresholds, message drafts, source hashes, activation gates, and contact rules in this internal plan, code/tests, or private QA evidence. Explain the generated demonstration sound plainly so it cannot be mistaken for a learner outcome. Do not place the historical tester-interest invitation on the page. Keep the route inactive, unlinked, and `noindex` until separately authorized.
 
+The selected timeline vignette is a schematic of a practice action, built from local HTML/CSS in the visual language of the first-party Trumpet Trainer captures. Its six states show an exercise choice, one note and fingering, a short staff pattern, a pitch guide, one question for a teacher, and a next-step card. The vignettes are illustrative interface compositions, not new app screenshots or learner outcomes. Their source reference is the captured home, first-lesson, gameplay-guidance, and Song Builder screens in `docs/qa/trumpet-trainer-gameplay/source/` and the corrected capture in `docs/qa/trumpet-recruitment-visual-story/source/`. The carousel's drag gesture is local UI navigation only; it does not fetch or write data.
+
 ## Source and claim register
 
 | Source | Observed use | Limit |

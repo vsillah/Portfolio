@@ -10,6 +10,28 @@ type BranchPoint = { x: number; y: number };
 type BranchGeometry = { width: number; height: number; spineX: number; nodes: BranchPoint[]; ends: BranchPoint[]; mobile: boolean };
 const mediaRoot = "/work/trumpet-trainer/recruitment-motion";
 const clipFor = (index: number) => `${mediaRoot}/step-${String(index + 1).padStart(2, "0")}.webm`;
+const vignetteLabels = [
+  "Choose one short first-note exercise",
+  "See one note and its trumpet fingering",
+  "Repeat a short pattern of notes on the staff",
+  "Listen to a note and adjust toward the pitch guide",
+  "Write down one question to bring to a teacher",
+  "Choose the next short note exercise",
+];
+
+function PracticeVignette({ index }: { index: number }) {
+  return <div className={styles.vignette} role="img" aria-label={vignetteLabels[index]} data-visual-step={index + 1}>
+    <div className={styles.vignetteTop}><span>Toot&apos;s journey</span><span>{String(index + 1).padStart(2, "0")} / 06</span></div>
+    <div className={styles.vignetteScreen}>
+      {index === 0 && <div className={styles.lessonPreview}><span className={styles.lessonNumber}>1</span><div><small>First notes</small><strong>Meet G</strong><span>One short exercise</span></div><span className={styles.lessonStart}>Start →</span></div>}
+      {index === 1 && <div className={styles.notePreview}><div className={styles.noteStaff}><span className={styles.singleNote} aria-hidden="true" /></div><div className={styles.noteGuide}><strong>G</strong><span className={styles.valves}><i /><i /><i /></span><small>See it · play it</small></div></div>}
+      {index === 2 && <div className={styles.patternPreview}><div className={styles.patternStaff}><span className={styles.patternNote} /><span className={styles.patternNote} /><span className={styles.patternNote} /></div><div className={styles.patternCue}><span>1</span><span>2</span><span>3</span><strong>↻ Try again</strong></div></div>}
+      {index === 3 && <div className={styles.listenPreview}><div className={styles.waveBars}><i /><i /><i /><i /><i /><i /><i /></div><div className={styles.pitchGuide}><span>Listen</span><div><i /><b /></div><span>Adjust</span></div></div>}
+      {index === 4 && <div className={styles.questionPreview}><span className={styles.questionMark}>?</span><div><small>Bring one question</small><strong>What felt hard?</strong><span className={styles.questionLine} /><span className={styles.questionLine} /></div></div>}
+      {index === 5 && <div className={styles.nextPreview}><span className={styles.previousNote}>First note ✓</span><span className={styles.nextArrow}>→</span><div><small>Next step</small><strong>Choose another note</strong></div></div>}
+    </div>
+  </div>;
+}
 
 export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineStep[] }) {
   const [active, setActive] = useState(0);
@@ -176,7 +198,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
       <button type="button" className={styles.arrow} aria-label="Next step" onClick={() => choose(safeActive + 1)} disabled={safeActive === steps.length - 1}><ChevronRight size={18} aria-hidden="true" /></button>
       {!reducedMotion && alphaMotionSupported && <button type="button" className={styles.replay} aria-label={`Replay step ${safeActive + 1} motion`} onClick={() => choose(safeActive)}><RotateCcw size={15} aria-hidden="true" /><span>Replay</span></button>}
     </div>
-    <div className={styles.detail} aria-live="polite"><div><span>Days {steps[safeActive]?.days}</span><h3>{steps[safeActive]?.title}</h3></div><p>{steps[safeActive]?.detail}</p></div>
+    <div className={styles.detail} aria-live="polite"><div className={styles.detailHeading}><span>Days {steps[safeActive]?.days}</span><h3>{steps[safeActive]?.title}</h3></div><div className={styles.detailBody}><PracticeVignette index={safeActive} /><p>{steps[safeActive]?.detail}</p></div></div>
     {mediaFailed && <p className={styles.notice} role="status">Animation is unavailable. You can still explore each step.</p>}
     {reducedMotion && <p className={styles.notice}>Animation is off. Select a step to read more.</p>}
   </section>;
