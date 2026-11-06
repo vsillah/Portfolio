@@ -2,26 +2,30 @@
 
 Draft PR: #1220, branch `codex/accelerated-completion-workspace`.
 
-Review fixture: `http://localhost:3100/member/dashboard?qa=completion-ready`. The `qa` route uses a fictional learner and does not create a database credential. Browser captures use the name **Amina Cole**.
+Review fixture: `http://localhost:3158/member/dashboard?qa=completion-ready&rev=certificate-frame`. The fixture uses a fictional learner and does not create a database credential.
 
-## What changed
+## Approved treatment
 
-- The certificate title, learner name, and body use formal Roman serif type. The existing Cormorant Garamond project font is used in the page; title and name are embedded as rasterized text in the downloadable SVG so the export renders consistently in other applications. No script font or cursive body text is used.
-- Four mirrored corners contain recognizable leaves, a five-petal flower, and stems inside a connected double-line frame. The lower corners are smaller to keep the issuer and signature area unobstructed. The same botanical SVG drawing is used by the page and download.
-- The AmaduTown shield retains its portrait ratio. The lower-right line remains unsigned, with a typed owner/author attribution below it. No signature asset was added.
-- Light and dark certificates use separate paper, ink, muted-text, and engraving colors.
+- The certificate uses an ivory security-paper texture, navy-and-gold engraved framing, guilloche linework, and African-inspired geometric and wisdom-knot motifs.
+- The AmaduTown shield preserves its portrait aspect ratio. Formal Roman serif typography keeps the credential legible; no cursive display text is used.
+- Learner name, issue date, credential record ID, verification reference, title, and course details remain dynamic. The frame is stable artwork rather than a text-bearing certificate image.
+- The central title and recipient block is intentionally lowered, while the issue, owner, and verification band remains clear of the lower frame.
+- The responsive browser certificate and downloadable SVG use the same approved frame and hierarchy.
 
 ## Evidence
 
-- `certificate-botanical-walkthrough.mp4`: 32-second H.264 sequence assembled from browser captures. It shows blocked eligibility, unclaimed preview, a synthetic claim, light and dark desktop and 390px mobile layouts, and both exported SVG renders. This is a still-capture walkthrough rather than a live screen recording. `render-walkthrough.py` reproduces it from the PNGs here.
-- `desktop-dark-blocked.png`, `desktop-light-preclaim.png`, `desktop-light-claimed.png`, `desktop-dark-claimed.png`, `mobile-light-claimed.png`, `mobile-dark-claimed.png`: browser captures from the local fixture.
-- `downloaded-light-botanical.png`, `downloaded-dark-botanical.png`: actual downloaded SVGs rendered by macOS Sips, then visually inspected. Both XML files passed `xmllint --noout`. The SVGs contain embedded crest and title/name images; no external font or image request is needed to display them.
+- `approved-frame-desktop.png`: claimed desktop certificate from the exact localhost fixture.
+- `approved-frame-mobile.png`: claimed 390px mobile certificate from the same fixture.
+- `approved-frame-download.svg`: actual downloaded certificate export.
+- `approved-frame-download.png`: exact 1424x1104 browser render of the downloaded SVG.
+- `certificate-approved-frame-walkthrough.mp4`: privacy-safe H.264 walkthrough of the desktop, mobile, and downloadable outputs.
+- `capture-approved-frame.mjs` and `render-approved-frame-walkthrough.sh`: reproducible capture and walkthrough commands.
 
 ## Validation and boundaries
 
-- `npx vitest run components/member/CompletionCredential.test.tsx`: 3/3 passed after the final frame adjustment.
-- `git diff --check`: passed.
-- `NODE_OPTIONS=--max-old-space-size=8192 npm run build`: passed before the final corner-scale and straight-rule styling adjustments. The default 4GB build hit Node's heap limit during page-data collection; the larger heap completed successfully. Focused Vitest and browser/export QA were repeated after those styling adjustments.
-- The browser was inspected at 1280px desktop and 390px mobile in light and dark themes. The synthetic claim and both download actions were exercised. No authenticated customer data, production database, social composer, or external send was used.
-- No approved public signature was found in the Portfolio repo or AmaduTown Drive materials. Unrelated personal signature documents were excluded. The certificate stays unsigned pending an approved signature asset.
-- Human QA and captain integration remain pending. Production migrations remain subject to their separate authorization gate.
+- Focused credential, API, and verification-route tests: 9/9 passed.
+- `NODE_OPTIONS=--max-old-space-size=8192 npm run build`: passed, including 140/140 static pages. The default 4GB Node heap reached its limit during page-data collection.
+- The downloaded SVG passed `xmllint --noout`; its verification reference was checked for frame overflow.
+- Certificate frame SHA-256: `37bf0de6734e2c3c238a0f28afb8dc96f61247449972af8a15d5f5e4421ca44c`.
+- No real credential, learner data, assessment, provider call, social post, database mutation, or external send was used.
+- Human QA and captain integration remain separate gates. Production migrations remain subject to their own authorization rules.
