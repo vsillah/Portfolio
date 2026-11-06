@@ -1,5 +1,7 @@
 # Transparent trumpet and chronological spine review
 
+Historical checkpoint: Human QA approved the transparent media, alternating chronology, and continuous numbered timeline, then requested that its rail move beneath the trumpet's physical axis. The [central-axis review](../imeshh-central-axis/README.md) is the current target.
+
 ## Decision and binding
 
 Human QA requested three corrections to draft PR #1215: remove the opaque navy media rectangle, make alternating 1–6 chronology unmistakable, and connect the milestones through one directional trumpet-centered timeline. Product commit: `9ceb54359eef833ccf4af258ad8968a36aaff367` on `codex/trumpet-recruitment-visual-story`.
