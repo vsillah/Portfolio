@@ -69,14 +69,20 @@ async function stills(width) {
     if (width === 360 || width === 1280) await page.getByRole("heading", { level: 1 }).screenshot({ path: join(root, `headline-${width}-${theme}.png`) });
     await page.getByRole("tab", { name: "Show screen 7" }).click();
     await page.waitForFunction(() => { const image = document.querySelector('img[alt^="Trumpet Trainer screen 7"]'); return image?.complete && image.naturalWidth > 0; });
-    await page.locator("#trumpet-social-slide").screenshot({ path: join(root, `song-builder-${width}-${theme}.png`), style: "nav { visibility: hidden !important; }" });
+    const navigation = page.locator("nav").first();
+    await navigation.evaluate((element) => { element.style.display = "none"; });
+    await page.locator("#trumpet-social-slide").screenshot({ path: join(root, `song-builder-${width}-${theme}.png`) });
+    await navigation.evaluate((element) => { element.style.display = ""; });
   }
   await page.close();
 }
 
 try {
   for (const width of [360, 768, 1280]) await stills(width);
-  const desktop = await record("desktop", 1280, 800);
-  const mobile = await record("mobile", 360, 780);
-  console.log(JSON.stringify({ revision, url, desktop, mobile }));
+  if (process.env.REVIEW_STILLS_ONLY === "1") console.log(JSON.stringify({ revision, url, stillsOnly: true }));
+  else {
+    const desktop = await record("desktop", 1280, 800);
+    const mobile = await record("mobile", 360, 780);
+    console.log(JSON.stringify({ revision, url, desktop, mobile }));
+  }
 } finally { await browser.close(); }
