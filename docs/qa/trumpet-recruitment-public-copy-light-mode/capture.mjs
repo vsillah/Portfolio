@@ -7,7 +7,8 @@ import { execFileSync } from "node:child_process";
 const root = new URL(".", import.meta.url).pathname;
 const revision = process.env.REVIEW_COMMIT;
 if (!revision) throw new Error("Set REVIEW_COMMIT to the reviewed source commit");
-const url = `http://localhost:3117/work/trumpet-trainer/recruitment?rev=${revision}`;
+const port = process.env.REVIEW_PORT ?? "3117";
+const url = `http://localhost:${port}/work/trumpet-trainer/recruitment?rev=${revision}`;
 const browser = await chromium.launch({ headless: true });
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -20,6 +21,7 @@ async function record(name, width, height) {
   await page.goto(url, { waitUntil: "networkidle" });
   if ((await page.locator('meta[name="robots"]').getAttribute("content")) !== "noindex, nofollow") throw new Error("Noindex missing");
   if (await page.locator("form").count()) throw new Error("Unexpected form");
+  if (/tester interest|earlier invitation|recruitment/i.test(await page.locator("main").textContent())) throw new Error("Recruitment copy on the page");
   await pause(1100);
   await page.getByRole("heading", { name: "Inside Trumpet Trainer" }).scrollIntoViewIfNeeded();
   await pause(700);
@@ -28,7 +30,10 @@ async function record(name, width, height) {
   await page.locator("video").evaluate((video) => video.pause());
   const carousel = page.getByRole("region", { name: "Trumpet Trainer practice screens" });
   await carousel.scrollIntoViewIfNeeded();
+  await page.evaluate(() => { const element = document.querySelector('[aria-label="Trumpet Trainer practice screens"]'); if (element) scrollTo(0, scrollY + element.getBoundingClientRect().top - 100); });
   for (let index = 2; index <= 7; index++) { await carousel.getByRole("button", { name: "Next screen" }).click(); await pause(550); }
+  await page.waitForFunction(() => { const image = document.querySelector('img[alt^="Trumpet Trainer screen 7"]'); return image?.complete && image.naturalWidth > 0; });
+  await pause(700);
   const personas = page.getByRole("group", { name: "Choose an example" });
   await personas.scrollIntoViewIfNeeded();
   await pause(700);
@@ -62,6 +67,9 @@ async function stills(width) {
     if (overflow) throw new Error(`${width} ${theme} overflow ${overflow}`);
     await page.getByRole("region", { name: "Example practice path" }).screenshot({ path: join(root, `timeline-${width}-${theme}.png`) });
     if (width === 360 || width === 1280) await page.getByRole("heading", { level: 1 }).screenshot({ path: join(root, `headline-${width}-${theme}.png`) });
+    await page.getByRole("tab", { name: "Show screen 7" }).click();
+    await page.waitForFunction(() => { const image = document.querySelector('img[alt^="Trumpet Trainer screen 7"]'); return image?.complete && image.naturalWidth > 0; });
+    await page.locator("#trumpet-social-slide").screenshot({ path: join(root, `song-builder-${width}-${theme}.png`), style: "nav { visibility: hidden !important; }" });
   }
   await page.close();
 }

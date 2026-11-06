@@ -20,23 +20,23 @@ describe("Trumpet Trainer concept preview", () => {
     expect(metadata.robots).toEqual({ index: false, follow: false });
     expect(metadata.title).toBe("Trumpet Trainer | The first practice step");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("first step for beginner trumpet practice");
-    expect(screen.getByText(/Tester sign-ups are not open/)).toBeInTheDocument();
+    expect(screen.getByText(/A concept preview for the adults supporting a new player/)).toBeInTheDocument();
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ })).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: /Back to Trumpet Trainer/ }).every((link) => link.getAttribute("href") === "/work/trumpet-trainer")).toBe(true);
     const text = screen.getByRole("main").textContent ?? "";
-    expect(text).not.toMatch(/internal review|review only|approved review slides|pending approval|media source and claim limits|operating boundaries|decision before activation|review details|message drafts|contact path|pilot-fit signals|qualified conversations|full activation boundary|captain must approve/i);
+    expect(text).not.toMatch(/internal review|review only|approved review slides|pending approval|media source and claim limits|operating boundaries|decision before activation|review details|message drafts|contact path|pilot-fit signals|qualified conversations|full activation boundary|captain must approve|tester sign-ups|tester interest|recruitment/i);
     expect(screen.queryByRole("link", { name: /interest form|enroll|sign up/i })).not.toBeInTheDocument();
   });
 
-  it("keeps the exact gameplay and seven-image flow with a plain synthetic disclosure", () => {
+  it("keeps the exact gameplay and seven-screen flow with a plain demonstration disclosure", () => {
     render(<TrumpetRecruitmentPage />);
     const gameplay = screen.getByLabelText("Illustrative Trumpet Trainer gameplay") as HTMLVideoElement;
     expect(gameplay).toHaveAttribute("controls");
     expect(gameplay).toHaveAttribute("preload", "metadata");
     expect(gameplay.querySelector("source")).toHaveAttribute("src", "/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4");
     expect(gameplay).toHaveTextContent("The images below show the practice flow.");
-    expect(screen.getByText(/synthetic audio.*No student or customer was recorded/)).toBeInTheDocument();
+    expect(screen.getByText(/sound in this preview was generated for the demonstration.*does not show a student's progress/)).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Trumpet Trainer screen 1 of 7" })).toBeInTheDocument();
     expect(within(screen.getByRole("tablist", { name: "Choose a screen" })).getAllByRole("tab")).toHaveLength(7);
     expect(screen.queryByText("Carousel provenance")).not.toBeInTheDocument();

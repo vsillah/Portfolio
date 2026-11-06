@@ -4,7 +4,7 @@ Status: **draft for captain review, inactive**. Review route: `/work/trumpet-tra
 
 ## Public demo copy boundary
 
-The `/work/trumpet-trainer/recruitment` page is a visitor-facing concept preview. Keep its visible copy short and useful to parents, tutors, educators, and community program leads. Do not expose internal review, approval, operator, provenance, or launch-process language on that page. Keep campaign thresholds, message drafts, source hashes, activation gates, and contact rules in this internal plan, code/tests, or private QA evidence. If a boundary matters to a visitor, say it plainly: the gameplay is illustrative and uses synthetic input, no student or customer was recorded, and tester sign-ups are closed. Keep the route inactive, unlinked, and `noindex` until separately authorized.
+The `/work/trumpet-trainer/recruitment` page is a visitor-facing concept preview. Keep its visible copy short and useful to parents, tutors, educators, and community program leads. Do not expose internal review, approval, operator, provenance, or launch-process language on that page. Keep campaign thresholds, message drafts, source hashes, activation gates, and contact rules in this internal plan, code/tests, or private QA evidence. Explain the generated demonstration sound plainly so it cannot be mistaken for a learner outcome. Do not place the historical tester-interest invitation on the page. Keep the route inactive, unlinked, and `noindex` until separately authorized.
 
 ## Source and claim register
 
@@ -55,7 +55,7 @@ The review route omits the site's Speed Insights script so opening or copying th
 
 ## Media and copy handoff
 
-The review route previews the first captured home screen, captioned landscape video, and all seven social slides, then links to the existing page for the full product carousel and adult-only interest behavior. Slides 1–6 were copied byte-for-byte into the public showcase path from `docs/qa/trumpet-trainer-gameplay/social/`; the historical slide 7 and source PDF remain there. The recruitment review's slide 7 now uses a separate derived asset from the exact corrected production capture at `a558583a`. The gameplay video and earlier slides were not recaptured. Review the slide order and final caption together before any future LinkedIn authorization. The route contains a landing-page blurb, LinkedIn companion, parent/community post, educator email, short direct message, and one follow-up. Copy buttons only write the selected text to the local clipboard; no tracked links or UTMs are generated. All drafts use the canonical work-page URL.
+The concept route previews the first captured home screen, captioned landscape video, and seven carousel moments. Slides 1–6 remain byte-for-byte from `docs/qa/trumpet-trainer-gameplay/social/`. Slide 7 now places the exact corrected Song Builder capture at `a558583a` in a visitor-facing HTML frame, without the historical recruitment invitation. The old slide 7 and source PDF remain in the internal source package for provenance. The gameplay video and earlier slides were not recaptured. Any future LinkedIn activation requires a separate review of current media and copy.
 
 Voice review used the Vambah personality pack, `docs/linkedin-voice.md`, and the humanizer checklist. The copy names a concrete practice tension, asks for critique, and avoids invented outcomes, testimonials, scarcity, school endorsement, and a personal story that was not supplied for this campaign.
 
