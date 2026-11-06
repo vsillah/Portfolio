@@ -15,6 +15,8 @@ const matchMotion = (matches: boolean) => vi.stubGlobal("matchMedia", vi.fn(() =
 
 beforeEach(() => {
   matchMotion(false);
+  vi.stubGlobal("navigator", { ...navigator, vendor: "Google Inc." });
+  vi.spyOn(HTMLMediaElement.prototype, "canPlayType").mockReturnValue("probably");
   vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
   vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
   vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
@@ -29,8 +31,12 @@ describe("Trumpet recruitment milestones", () => {
     expect(branches).toHaveAttribute("data-layout", "alternating");
     expect(nodes.map((node) => node.getAttribute("data-branch-step"))).toEqual(["1", "2", "3", "4", "5", "6"]);
     expect(nodes.map((node) => node.getAttribute("data-anchor-side"))).toEqual(["left", "right", "left", "right", "left", "right"]);
-    expect(nodes.every((node) => node.querySelector("path") && node.querySelector("circle"))).toBe(true);
-    expect(container.querySelector("[data-path-order]")).toBeNull();
+    expect(nodes.every((node) => node.querySelector("path") && node.querySelector("circle") && node.querySelector("text"))).toBe(true);
+    expect(nodes.map((node) => node.querySelector("text")?.textContent)).toEqual(["1", "2", "3", "4", "5", "6"]);
+    expect(container.querySelector('[data-timeline-spine="base"]')).toHaveAttribute("d", expect.stringMatching(/^M .* V .*$/));
+    expect(container.querySelector('[data-timeline-spine="progress"]')).toHaveAttribute("d", expect.stringMatching(/^M .* V .*$/));
+    expect(container.querySelector('[data-timeline-direction="down"]')).toBeInTheDocument();
+    expect([...container.querySelectorAll("button[data-side]")].map((node) => node.getAttribute("data-side"))).toEqual(["left", "right", "left", "right", "left", "right"]);
     fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
     expect(branches).toHaveAttribute("data-progress", "4");
     expect(nodes.map((node) => node.getAttribute("data-reached"))).toEqual(["true", "true", "true", "true", "false", "false"]);
@@ -58,7 +64,8 @@ describe("Trumpet recruitment milestones", () => {
     fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
     await act(async () => {});
     expect(container.firstElementChild).toHaveAttribute("data-active", "4");
-    expect(container.querySelector("video source")).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/step-04.mp4");
+    expect(container.querySelector("video source")).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/step-04.webm");
+    expect(container.querySelector("video source")).toHaveAttribute("type", 'video/webm; codecs="vp9"');
     expect(screen.getByText("Check channel rules.")).toBeInTheDocument();
     fireEvent.ended(container.querySelector("video")!);
     expect(container.querySelector("video")).toBeNull();
@@ -93,7 +100,7 @@ describe("Trumpet recruitment milestones", () => {
     fireEvent.click(screen.getByRole("button", { name: /Step 5, days/ }));
     await act(async () => {});
     expect(container.querySelectorAll("video")).toHaveLength(1);
-    expect(container.querySelector("video source")).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/step-05.mp4");
+    expect(container.querySelector("video source")).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/step-05.webm");
     fireEvent.click(screen.getByRole("button", { name: "Replay milestone 5 gesture" }));
     await act(async () => {});
     expect(play).toHaveBeenCalledTimes(3);
@@ -122,6 +129,44 @@ describe("Trumpet recruitment milestones", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Motion unavailable");
     expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toBeInTheDocument();
     expect(container.firstElementChild).toHaveAttribute("data-active", "6");
+  });
+
+  it("uses the transparent poster when alpha playback is unsupported", () => {
+    vi.stubGlobal("navigator", { ...navigator, vendor: "Apple Computer, Inc." });
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Step 3, days/ }));
+    expect(container.firstElementChild).toHaveAttribute("data-alpha-motion", "poster");
+    expect(container.querySelector("video")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Replay milestone/ })).toBeNull();
+    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toHaveAttribute("data-hidden", "false");
+  });
+
+  it("rejects opaque video decoding before revealing it", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      drawImage: vi.fn(), getImageData: () => ({ data: new Uint8ClampedArray([0, 0, 0, 255]) }),
+    } as unknown as CanvasRenderingContext2D);
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Step 2, days/ }));
+    await act(async () => {});
+    fireEvent.loadedData(container.querySelector("video")!);
+    expect(container.querySelector("video")).toBeNull();
+    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toHaveAttribute("data-hidden", "false");
+    expect(screen.getByRole("status")).toHaveTextContent("Motion unavailable");
+  });
+
+  it("reveals alpha video only after the transparent corner probe passes", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      drawImage: vi.fn(), getImageData: () => ({ data: new Uint8ClampedArray([0, 0, 0, 0]) }),
+    } as unknown as CanvasRenderingContext2D);
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Step 2, days/ }));
+    await act(async () => {});
+    const video = container.querySelector("video")!;
+    fireEvent.playing(video);
+    expect(video).toHaveAttribute("data-visible", "false");
+    fireEvent.loadedData(video);
+    expect(video).toHaveAttribute("data-visible", "true");
+    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toHaveAttribute("data-hidden", "true");
   });
 
   it("shows a readable fallback if the poster image cannot load", () => {

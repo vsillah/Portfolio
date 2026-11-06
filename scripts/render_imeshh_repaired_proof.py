@@ -311,15 +311,13 @@ def render_milestones(scene, output_dir, limit, poster_only=False):
             for frame in range(count):
                 milestone_state(step, frame, count, ROOTS)
                 render_frame(scene, Path(frames_dir) / f"{frame:04d}.png")
-            duration = count / FPS
             subprocess.run([
                 "ffmpeg", "-hide_banner", "-loglevel", "error",
-                "-f", "lavfi", "-i", f"color=c=0x121e31:s=800x800:r={FPS}:d={duration}",
                 "-framerate", str(FPS), "-i", str(Path(frames_dir) / "%04d.png"),
-                "-filter_complex", "[0:v][1:v]overlay=shortest=1:format=auto,format=yuv420p[v]",
-                "-map", "[v]", "-map_metadata", "-1", "-an",
-                "-c:v", "libx264", "-crf", "17", "-movflags", "+faststart", "-y",
-                str(output_dir / f"step-{step:02d}.mp4"),
+                "-map", "0:v:0", "-map_metadata", "-1", "-an",
+                "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p", "-crf", "18", "-b:v", "0",
+                "-auto-alt-ref", "0", "-row-mt", "1", "-metadata:s:v:0", "alpha_mode=1", "-y",
+                str(output_dir / f"step-{step:02d}.webm"),
             ], check=True)
 
 

@@ -36,6 +36,8 @@ def check_png(path: Path) -> None:
     if path.name == "poster.png" and path.parent.name == "recruitment-motion":
         if struct.unpack_from(">II", data, 16) != (800, 800):
             raise ValueError(f"Unexpected vertical poster dimensions: {path}")
+        if data[25] != 6:
+            raise ValueError(f"Poster must be RGBA: {path}")
     offset = 8
     types = []
     while offset + 12 <= len(data):
@@ -52,6 +54,21 @@ def check_png(path: Path) -> None:
             break
     if types[0] != b"IHDR" or types[-1] != b"IEND" or b"IDAT" not in types or offset != len(data):
         raise ValueError(f"Invalid PNG structure or trailing data: {path}")
+    if path.name == "poster.png" and path.parent.name == "recruitment-motion":
+        check_alpha_frame(path, is_webm=False)
+
+
+def check_alpha_frame(path: Path, *, is_webm: bool) -> None:
+    command = ["ffmpeg", "-v", "error"]
+    if is_webm:
+        command += ["-c:v", "libvpx-vp9"]
+    command += ["-i", str(path), "-frames:v", "1", "-pix_fmt", "rgba", "-f", "rawvideo", "-"]
+    decoded = subprocess.run(command, check=True, capture_output=True).stdout
+    if len(decoded) != 800 * 800 * 4:
+        raise ValueError(f"Unexpected decoded RGBA frame size: {path}")
+    alpha = decoded[3::4]
+    if not any(value > 0 for value in alpha) or any(alpha[index] != 0 for index in (0, 799, 800 * 799, 800 * 800 - 1)):
+        raise ValueError(f"Frame lacks a transparent surround and visible trumpet: {path}")
 
 
 def check_mp4(path: Path) -> None:
@@ -64,10 +81,7 @@ def check_mp4(path: Path) -> None:
     if len(streams) != 1 or streams[0].get("codec_type") != "video" or streams[0].get("codec_name") != "h264":
         raise ValueError(f"Unexpected stream or embedded attachment in {path}")
     video = streams[0]
-    if path.name.startswith("step-"):
-        expected_frames = 36 if path.name == "step-06.mp4" else 24
-        expected_size = (800, 800)
-    elif path.name == "repaired-mechanical-proof.mp4":
+    if path.name == "repaired-mechanical-proof.mp4":
         expected_frames = 96
         expected_size = (960, 600)
     else:
@@ -76,6 +90,27 @@ def check_mp4(path: Path) -> None:
         raise ValueError(f"Unexpected proof dimensions or frame count in {path}")
     if abs(float(media["format"]["duration"]) - expected_frames / 24) > 0.01:
         raise ValueError(f"Unexpected proof duration in {path}")
+
+
+def check_webm(path: Path) -> None:
+    if path.name not in {f"step-{step:02d}.webm" for step in range(1, 7)}:
+        raise ValueError(f"Unexpected transparent clip name: {path}")
+    result = subprocess.run(
+        ["ffprobe", "-v", "error", "-count_frames", "-show_streams", "-show_format", "-of", "json", str(path)],
+        check=True, capture_output=True, text=True,
+    )
+    media = json.loads(result.stdout)
+    streams = media.get("streams", [])
+    expected_frames = 36 if path.name == "step-06.webm" else 24
+    if len(streams) != 1 or streams[0].get("codec_name") != "vp9" or streams[0].get("codec_type") != "video":
+        raise ValueError(f"Unexpected VP9 stream: {path}")
+    stream = streams[0]
+    tags = {key.lower(): value for key, value in stream.get("tags", {}).items()}
+    if (stream.get("width"), stream.get("height"), stream.get("nb_read_frames"), tags.get("alpha_mode")) != (800, 800, str(expected_frames), "1"):
+        raise ValueError(f"Unexpected transparent clip dimensions, frames, or alpha tag: {path}")
+    if abs(float(media["format"]["duration"]) - expected_frames / 24) > 0.01:
+        raise ValueError(f"Unexpected transparent clip duration: {path}")
+    check_alpha_frame(path, is_webm=True)
 
 
 def main() -> int:
@@ -106,10 +141,10 @@ def main() -> int:
     stills = sorted(path for path in paths if in_proof(path) and path.suffix.lower() == ".png")
     for still in stills:
         check_png(root / still)
-    videos = sorted(path for path in paths if in_proof(path) and path.suffix.lower() == ".mp4")
+    videos = sorted(path for path in paths if in_proof(path) and path.suffix.lower() in {".mp4", ".webm"})
     for video in videos:
-        check_mp4(root / video)
-    print(f"PASS: source SHA-256 verified; {len(paths)} Git candidate paths exclude licensed source; {len(stills)} PNG stills contain image chunks only; {len(videos)} MP4 files contain one video stream only")
+        (check_webm if video.suffix.lower() == ".webm" else check_mp4)(root / video)
+    print(f"PASS: source SHA-256 verified; {len(paths)} Git candidate paths exclude licensed source; {len(stills)} PNG stills checked; {len(videos)} video streams and transparent clip frames checked")
     return 0
 
 
