@@ -33,7 +33,11 @@ describe("Trumpet recruitment milestones", () => {
     expect(nodes.map((node) => node.getAttribute("data-anchor-side"))).toEqual(["left", "right", "left", "right", "left", "right"]);
     expect(nodes.every((node) => node.querySelector("path") && node.querySelector("circle") && node.querySelector("text"))).toBe(true);
     expect(nodes.map((node) => node.querySelector("text")?.textContent)).toEqual(["1", "2", "3", "4", "5", "6"]);
-    expect(container.querySelector('[data-timeline-spine="base"]')).toHaveAttribute("d", expect.stringMatching(/^M .* V .*$/));
+    const spine = container.querySelector('[data-timeline-spine="base"]');
+    expect(spine).toHaveAttribute("d", expect.stringMatching(/^M .* V .*$/));
+    const spineX = spine?.getAttribute("d")?.match(/^M ([\d.-]+)/)?.[1];
+    expect(nodes.every((node) => node.querySelector("path")?.getAttribute("d")?.startsWith(`M ${spineX} `))).toBe(true);
+    expect(nodes.every((node) => node.querySelector("circle")?.getAttribute("cx") !== spineX)).toBe(true);
     expect(container.querySelector('[data-timeline-spine="progress"]')).toHaveAttribute("d", expect.stringMatching(/^M .* V .*$/));
     expect(container.querySelector('[data-timeline-direction="down"]')).toBeInTheDocument();
     expect([...container.querySelectorAll("button[data-side]")].map((node) => node.getAttribute("data-side"))).toEqual(["left", "right", "left", "right", "left", "right"]);

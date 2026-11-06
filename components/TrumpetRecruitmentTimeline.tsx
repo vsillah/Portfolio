@@ -38,10 +38,14 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
       const cards = cardRefs.current.slice(0, 6);
       if (!stage || cards.some((card) => !card)) return;
       const mobile = window.matchMedia?.("(max-width: 767px)").matches ?? window.innerWidth <= 767;
-      const spineX = stage.left - bounds.left + stage.width * (mobile ? .87 : .82);
-      const nodes = cards.map((card) => {
+      // The cropped RGBA render keeps the long main tube at 37.5% of the stage width.
+      // Draw the rail beneath that tube; only the branch ends and outside nodes show.
+      const spineX = stage.left - bounds.left + stage.width * .375;
+      const nodes = cards.map((card, index) => {
         const cardRect = card!.getBoundingClientRect();
-        return { x: spineX, y: cardRect.top + cardRect.height / 2 - bounds.top };
+        const right = mobile || index % 2 === 1;
+        return { x: (right ? stage.right - 2 : stage.left - 1) - bounds.left,
+          y: cardRect.top + cardRect.height / 2 - bounds.top };
       });
       const ends = cards.map((card, index) => {
         const rect = card!.getBoundingClientRect();
@@ -140,7 +144,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
         <path className={styles.spineProgress} data-timeline-spine="progress" d={`M ${branches.spineX} ${branches.nodes[0].y - 20} V ${branches.nodes[safeActive].y}`} />
         <path className={styles.spineArrow} data-timeline-direction="down" d={`M ${branches.spineX - 5} ${branches.nodes[5].y + 13} L ${branches.spineX} ${branches.nodes[5].y + 20} L ${branches.spineX + 5} ${branches.nodes[5].y + 13}`} />
         {branches.nodes.map((node, index) => <g key={index} data-branch-step={index + 1} data-reached={index <= safeActive} data-anchor-side={branches.mobile || index % 2 === 1 ? "right" : "left"}>
-          <path d={`M ${node.x} ${node.y} H ${branches.ends[index].x}`} />
+          <path d={`M ${branches.spineX} ${node.y} H ${branches.ends[index].x}`} />
           <circle cx={node.x} cy={node.y} r={12} />
           <text x={node.x} y={node.y} textAnchor="middle" dominantBaseline="central">{index + 1}</text>
         </g>)}
