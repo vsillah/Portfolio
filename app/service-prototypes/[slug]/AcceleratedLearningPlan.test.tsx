@@ -84,10 +84,24 @@ describe('Accelerated learning plan', () => {
     expect(css).toContain('.plan .catalogTools .filters button:hover:not(:disabled)')
     expect(css).toContain('.plan .mediaNotice button:not(:disabled)')
     expect(css).toContain('.plan .actions button:not(.secondary):not(:disabled)')
+    expect(css).toContain('.plan .worksheetActions .primaryAction:not(:disabled)')
+    expect(css).toContain('.worksheetActions button{')
     expect(css).toContain('background:var(--lp-primary-action);')
     expect(css).toContain('background-image:none;')
     expect(css).toContain('box-shadow:none;')
     expect(css).toContain('.state[data-state=complete],.detailState[data-state=complete]')
+  })
+
+  it('renders the Decision File as a complete standalone workbook with flat scoped actions', () => {
+    render(<AcceleratedLearningPlan mode="decision-file" />)
+    expect(screen.getByRole('heading', { name: 'The Accelerated Decision File' })).toBeInTheDocument()
+    expect(screen.getByRole('progressbar', { name: 'Decision File pages started' })).toHaveAttribute('value', '0')
+    expect(screen.getAllByPlaceholderText('Add your working notes')).toHaveLength(16)
+    expect(screen.getByRole('link', { name: 'Back to the Learning Plan' })).toHaveAttribute('href', '/accelerated/learningplan')
+    expect(screen.getByRole('button', { name: 'Review and send' }).className).toContain('primaryAction')
+    expect(screen.getByRole('button', { name: 'Clear worksheet' }).className).toContain('dangerAction')
+    fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'One bounded decision' } })
+    expect(screen.getByRole('progressbar', { name: 'Decision File pages started' })).toHaveAttribute('value', '1')
   })
 
   it('keeps all approved lesson identities, order, durations, and four acts', () => {

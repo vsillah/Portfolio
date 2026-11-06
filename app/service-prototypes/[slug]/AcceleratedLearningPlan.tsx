@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
 import l02Transcript from '@/docs/accelerated-course-modules/l02-native-composite/l02-learner-transcript.json'
 import l03Transcript from '@/docs/accelerated-course-modules/l03-native-composite/l03-learner-transcript.json'
@@ -94,7 +95,7 @@ const storyboard: Record<string, string> = {
   L16: '/showcases/accelerated-learning-plan/storyboard-l16.png',
 }
 
-export function AcceleratedLearningPlan() {
+export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'decision-file' }) {
   const detailRef = useRef<HTMLElement>(null)
   const playerRef = useRef<HTMLElement>(null)
   const watchRef = useRef<HTMLButtonElement>(null)
@@ -287,6 +288,28 @@ export function AcceleratedLearningPlan() {
     if (seconds > 0 && seconds % 5 === 0 && seconds !== videoSeconds[selected]) setVideoSeconds((positions) => ({ ...positions, [selected]: seconds }))
   }
 
+  const startedPages = Object.values(draft?.answers ?? {}).filter((answer) => answer.trim()).length
+  const worksheetActions = <div className={styles.worksheetActions}>
+    <button type="button" className={styles.secondaryAction} onClick={() => { if (!draft) return; try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)); setShareState('Saved on this device.') } catch { setShareState('Local storage is unavailable. Download a copy to keep your work.') } }}>Save locally</button>
+    <button type="button" className={styles.secondaryAction} onClick={exportDraft}>Download copy</button>
+    <button type="button" className={styles.dangerAction} onClick={clearDraft}>Clear worksheet</button>
+    <button type="button" className={styles.primaryAction} onClick={() => { setShareOpen(true); setConsent(false); setShareState('') }}>Review and send</button>
+  </div>
+  const shareReview = shareOpen && <div className={styles.sharePanel} role="region" aria-label="Review before sharing"><h4>Review what you will share</h4><p>AmaduTown will use these answers to understand your decision, consider existing services, and decide whether an assessment would help. A person reviews the work. Sending does not book a meeting or add you to a mailing list.</p><div className={styles.shareAnswers}>{lessons.map((item) => <label key={item.id} htmlFor={`share-${item.id}`}><strong>{item.id} · {item.artifact}</strong><textarea id={`share-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={3} aria-label={`Edit ${item.id} before sharing`} /></label>)}</div><div className={styles.shareContact}><label>Name<input value={shareName} onChange={(event) => setShareName(event.target.value)} maxLength={120} autoComplete="name" /></label><label>Email<input type="email" value={shareEmail} onChange={(event) => setShareEmail(event.target.value)} maxLength={254} autoComplete="email" /></label></div><label className={styles.consent}><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> I have reviewed these answers and agree to send them to AmaduTown for human review.</label><div className={styles.worksheetActions}><button type="button" className={styles.primaryAction} disabled={!consent || !shareName.trim() || !shareEmail.trim() || !Object.values(draft?.answers ?? {}).some((answer) => answer.trim())} onClick={submitDraft}>Send to AmaduTown</button><button type="button" className={styles.secondaryAction} onClick={() => setShareOpen(false)}>Keep editing</button></div></div>
+
+  if (mode === 'decision-file') return <section className={`${styles.plan} ${styles.decisionFile}`} aria-label="Accelerated Decision File">
+    <div className={styles.heading}>
+      <div><p className={styles.kicker}>YOUR WORKSHOP WORKBOOK</p><h2>The Accelerated Decision File</h2><p>Carry one real decision through all sixteen lessons. Your work stays in this browser unless you choose to sign in or send it to AmaduTown.</p></div>
+      <div className={styles.overview}><strong>{startedPages}<span> / 16</span></strong><span>pages started</span><progress value={startedPages} max={16} aria-label="Decision File pages started"/><small>Review every page before sharing</small></div>
+    </div>
+    <div className={styles.workspaceNav}><Link href="/accelerated/learningplan">Back to the Learning Plan</Link><span>{memberClaimed ? 'Saved to your member account' : 'Saved locally as you write'}</span></div>
+    <div className={styles.decisionFileGroups}>{acts.map((group) => <section key={group.name} className={styles.decisionFileGroup} aria-labelledby={`decision-file-${group.name.toLowerCase()}`}><div className={styles.actHeader}><div><h3 id={`decision-file-${group.name.toLowerCase()}`}>{group.name}</h3><p>{group.line}</p></div><span>{lessons.filter((item) => item.act === group.name).length} pages</span></div><div className={styles.decisionFilePages}>{lessons.filter((item) => item.act === group.name).map((item) => <label key={item.id} htmlFor={`decision-file-page-${item.id}`}><span>{item.id}</span><strong>{item.artifact}</strong><small>{item.exercise}</small><textarea id={`decision-file-page-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={5} placeholder="Add your working notes" /></label>)}</div></section>)}</div>
+    <div className={styles.decisionFileFooter}><div><strong>Keep the work. Share only when you are ready.</strong><p>Download a copy at any time. Sending opens a protected human review; it does not create an assessment, purchase, or appointment.</p></div>{worksheetActions}</div>
+    {shareState && <p role="status" className={styles.workspaceStatus}>{shareState}</p>}
+    {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
+    {shareReview}
+  </section>
+
   return <section className={styles.plan} aria-label="Accelerated learning plan">
     <div className={styles.heading}>
       <div><p className={styles.kicker}>YOUR LEARNING PLAN</p><h2>Sixteen lessons. One decision file.</h2><p>Bring one safe, real decision through the course. Each lesson adds a page you can review with your team.</p></div>
@@ -306,14 +329,15 @@ export function AcceleratedLearningPlan() {
         <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState} data-state={locked(lesson.id) ? 'locked' : completed.includes(lesson.id) ? 'complete' : current === lesson.id ? 'current' : 'ready'}>{locked(lesson.id) ? 'Video locked · brief preview' : completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
         <section className={styles.worksheet} aria-label={`${lesson.id} decision file worksheet`}>
-          <div className={styles.worksheetHeading}><div><span>DECISION FILE · {lesson.act}</span><h4>{lesson.artifact}</h4></div><span>{Object.values(draft?.answers ?? {}).filter((answer) => answer.trim()).length} / 16 pages started</span></div>
+          <div className={styles.worksheetHeading}><div><span>DECISION FILE · {lesson.act}</span><h4>{lesson.artifact}</h4></div><span>{startedPages} / 16 pages started</span></div>
           <label htmlFor={`decision-file-${lesson.id}`}>Your response to this lesson</label>
           <textarea id={`decision-file-${lesson.id}`} value={draft?.answers[lesson.id] ?? ''} onChange={(event) => updateAnswer(lesson.id, event.target.value)} maxLength={4000} rows={5} placeholder={lesson.exercise} />
           <p>Saved on this device as you write. Review every page before sending anything to AmaduTown.</p>
-          <div className={styles.worksheetActions}><button type="button" onClick={() => { if (!draft) return; try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)); setShareState('Saved on this device.') } catch { setShareState('Local storage is unavailable. Download a copy to keep your work.') } }}>Save locally</button><button type="button" onClick={exportDraft}>Download copy</button><button type="button" onClick={clearDraft}>Clear worksheet</button><button type="button" onClick={() => { setShareOpen(true); setConsent(false); setShareState('') }}>Review and send</button></div>
+          {worksheetActions}
+          <Link className={styles.openWorkbook} href="/accelerated/decision-file">Open the full Decision File</Link>
           {shareState && <p role="status">{shareState}</p>}
           {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
-          {shareOpen && <div className={styles.sharePanel} role="region" aria-label="Review before sharing"><h4>Review what you will share</h4><p>AmaduTown will use these answers to understand your decision, consider existing services, and decide whether an assessment would help. A person reviews the work. Sending does not book a meeting or add you to a mailing list.</p><div className={styles.shareAnswers}>{lessons.map((item) => <label key={item.id} htmlFor={`share-${item.id}`}><strong>{item.id} · {item.artifact}</strong><textarea id={`share-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={3} aria-label={`Edit ${item.id} before sharing`} /></label>)}</div><div className={styles.shareContact}><label>Name<input value={shareName} onChange={(event) => setShareName(event.target.value)} maxLength={120} autoComplete="name" /></label><label>Email<input type="email" value={shareEmail} onChange={(event) => setShareEmail(event.target.value)} maxLength={254} autoComplete="email" /></label></div><label className={styles.consent}><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> I have reviewed these answers and agree to send them to AmaduTown for human review.</label><div className={styles.worksheetActions}><button type="button" disabled={!consent || !shareName.trim() || !shareEmail.trim() || !Object.values(draft?.answers ?? {}).some((answer) => answer.trim())} onClick={submitDraft}>Send to AmaduTown</button><button type="button" onClick={() => setShareOpen(false)}>Keep editing</button></div></div>}
+          {shareReview}
         </section>
         <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · {approvedBatchMedia ? 'lesson visual' : 'approved workshop visual'}</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>{approvedBatchMedia ? 'Lesson illustration' : 'Storyboard preview · representative frame'}</figcaption></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
