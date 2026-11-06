@@ -1,0 +1,132 @@
+{
+  "ui_commit": "99ced630212dc16b9d638f0e5baf8597b3ad756e",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=99ced630212dc16b9d638f0e5baf8597b3ad756e&qa=brass-timeline#plan",
+  "qa_commit_locator": "git log -1 --format=%H -- docs/qa/trumpet-recruitment-visual-story/refinement-99ced630",
+  "files": [
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/1062-carousel-first.jpg",
+      "sha256": "aa0083939ec867ecf2ab90b2e0ca43e50851069b9395e5dec1f9e37443227b76",
+      "bytes": 91445
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/1062-carousel-last.jpg",
+      "sha256": "230ab9d62a40507a69162c5119c037d109b3e1502835320f19df5c440540eaba",
+      "bytes": 86322
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/1062-timeline-detail.jpg",
+      "sha256": "08b1f55737ea41fca4b396a26aa351fa73af4104c31bc7d742f5ca2599207338",
+      "bytes": 53013
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/1062-timeline.jpg",
+      "sha256": "fc637e3d613c480ae88cb4fbe0f01cfdd9d1430ea89bda67345acef773faced3",
+      "bytes": 58276
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/1280-carousel-first.jpg",
+      "sha256": "d50561f46d34d4e2a7396a32e9ed9e05b13cdacb6199af665726c6647fae0fdc",
+      "bytes": 102470
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/1280-carousel-last.jpg",
+      "sha256": "7b65ce0ca07b368c80904fccddc440db35af2840d684d45230c8abbd1d3e3fae",
+      "bytes": 101551
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/1280-timeline.jpg",
+      "sha256": "069d44d785de6b7b39e7957ea44581226c415ba88cfa9d2ee17b6677b79a51dc",
+      "bytes": 60718
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/360-carousel-first.jpg",
+      "sha256": "e9163e927c3496c77cd9f8eaa382208c9ecd0a436220e9e350688564e971ad6a",
+      "bytes": 49202
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/360-carousel-last.jpg",
+      "sha256": "f4ea44689d7ed71d431607069a94912364093f52f24c0bc9aba09c2a3c5c6177",
+      "bytes": 50907
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/360-timeline-detail.jpg",
+      "sha256": "2c585326698e3b31caae75aa8ca4effe05361c577df84ef0eee1bacf4187b451",
+      "bytes": 37540
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/360-timeline.jpg",
+      "sha256": "f2bfc9e5f11aa20d07098cbfd43e4a0130b65f3b88f5c90579d8e402b33cb15f",
+      "bytes": 39330
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/768-carousel-first.jpg",
+      "sha256": "9423b8ca21291bdd11154e335aa06bfb4e171f515930e1222be52cc2870deb54",
+      "bytes": 67249
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/768-carousel-last.jpg",
+      "sha256": "d14e5027aa75fc254cd07fc19550dc940d6367c55b435d875847cb5303ced2c2",
+      "bytes": 67761
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/768-timeline-bottom.jpg",
+      "sha256": "e6d95ea8793d2ad9064a1a75811d796c5f510cbf9535a8ff3855396b793e83ed",
+      "bytes": 44006
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/768-timeline.jpg",
+      "sha256": "2fc5ed446f7c223d2a6dc4cc30a03833974219411985bd129400f13c86fa3c05",
+      "bytes": 40889
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/geometry-audit.json",
+      "sha256": "8b893b99794fff6d7b6f73d355cf3ff5203c803067e149b9781d3d8b971500c4",
+      "bytes": 9235
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/build-walkthrough.sh",
+      "sha256": "5101a63b444162676f81aacd519c9bb133e9e590e19556d1e337c1c9b9d2f6cf",
+      "bytes": 1307
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/README.md",
+      "sha256": "52823f444ecf7c6ba1a47f6c2036be49fec76962ff6e112cd40bca03f37495f3",
+      "bytes": 3908
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/trumpet-recruitment-refinement-wide-99ced630.mp4",
+      "sha256": "304ff3780c46171ca02682218a7d069ad63bbfe763d825a95fc6d4867873877c",
+      "bytes": 813584
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/refinement-99ced630/trumpet-recruitment-refinement-mobile-99ced630.mp4",
+      "sha256": "e7c84c2ebb243310bcb24f809a179cf62ea89b95f860b545aefb00e661d2a60f",
+      "bytes": 201656
+    },
+    {
+      "path": "public/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png",
+      "sha256": "5f69be66bbd1957d214e823c6a679f70ff0eafe7782b9ad683d88bf9c8b955ce",
+      "bytes": 1493108
+    },
+    {
+      "path": "docs/qa/trumpet-recruitment-visual-story/timeline-trumpet-provenance.md",
+      "sha256": "631153632ef0d7ef34e9bb4be241711ae78ba455657b8588ff25c6995a2b50c1",
+      "bytes": 3112
+    },
+    {
+      "path": "components/TrumpetRecruitmentSocialCarousel.module.css",
+      "sha256": "0ff4d53e91cf178529381b3454e368380ded2bc5114367fdc035d4a2bc0e809d",
+      "bytes": 1426
+    },
+    {
+      "path": "app/work/trumpet-trainer/recruitment/timeline.module.css",
+      "sha256": "5c411036e9a5705a674e2c006fcd94d66518e39995847b6e602e795f8bf26f14",
+      "bytes": 2164
+    },
+    {
+      "path": "app/work/trumpet-trainer/recruitment/page.tsx",
+      "sha256": "1e5ef1081b578dd2c6ade242a85d30e89b62a8f29568efd76ce348d776812be0",
+      "bytes": 17473
+    }
+  ]
+}

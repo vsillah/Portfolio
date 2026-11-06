@@ -1,0 +1,34 @@
+.mediaRow { position: relative; width: calc(100% - 104px); max-width: 640px; margin: 10px auto 0; }
+.slide { width: 100%; margin: 0; }
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 8px;
+  background: rgb(17 28 48 / 72%);
+  color: var(--radiant-gold);
+  font-size: 14px;
+  cursor: pointer;
+}
+.previous { left: -52px; }
+.next { right: -52px; }
+.arrow:hover:not(:disabled) { background: rgb(17 28 48 / 96%); }
+.arrow:disabled { opacity: .35; cursor: default; }
+.arrow:focus-visible, .dot:focus-visible { outline: 2px solid var(--radiant-gold); outline-offset: 2px; }
+.arrow span { pointer-events: none; }
+.dots { display: flex; justify-content: center; gap: 2px; margin-top: 12px; }
+.dot { display: grid; flex: 0 0 44px; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.dot span { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--radiant-gold); background: transparent; }
+.dot[aria-current="true"] span { width: 10px; height: 10px; background: var(--radiant-gold); }
+@media (max-width: 639px) {
+  .mediaRow { width: calc(100% - 16px); max-width: 360px; margin-top: 16px; }
+  .previous { left: -44px; }
+  .next { right: -44px; }
+  .dots { gap: 0; margin-right: -16px; margin-left: -16px; }
+}

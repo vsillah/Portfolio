@@ -46,6 +46,7 @@ const nextConfig = {
         './public/accelerated/lessons/l15/review-67d066c8/*',
         './public/accelerated/lessons/l16/review-5ee4267c/*',
         './public/showcases/trumpet-trainer/c19989a3/*',
+        './public/work/trumpet-trainer/personas/*',
       ],
     },
     serverActions: {

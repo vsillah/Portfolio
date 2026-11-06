@@ -1,0 +1,481 @@
+{
+  "ui_commit": "e7e7ae1dc695a347e52f7f543f7f3d11925fd7f7",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=e7e7ae1dc695a347e52f7f543f7f3d11925fd7f7&qa=song-builder-rebind",
+  "source_commit": "a558583a7b4a16919a9dae0a82718ff7ec4c4891",
+  "social_carousel": [
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 850,
+      "imageRatio": 1.25,
+      "imageWidth": 680,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextGap": 8,
+      "pageOverflow": 0,
+      "prevGap": 8,
+      "regionWidth": 1056,
+      "rowWidth": 680,
+      "viewport": 1280
+    },
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 850,
+      "imageRatio": 1.25,
+      "imageWidth": 680,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextGap": 8,
+      "pageOverflow": 0,
+      "prevGap": 8,
+      "regionWidth": 956,
+      "rowWidth": 680,
+      "viewport": 1062
+    },
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 655,
+      "imageRatio": 1.25,
+      "imageWidth": 524,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextGap": 8,
+      "pageOverflow": 0,
+      "prevGap": 8,
+      "regionWidth": 678,
+      "rowWidth": 524,
+      "viewport": 768
+    },
+    {
+      "arrowSizes": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "imageHeight": 325,
+      "imageRatio": 1.25,
+      "imageWidth": 260,
+      "minDotHeight": 44,
+      "minDotWidth": 44,
+      "naturalHeight": 1350,
+      "naturalWidth": 1080,
+      "nextGap": 0,
+      "pageOverflow": 0,
+      "prevGap": 0,
+      "regionWidth": 310,
+      "rowWidth": 260,
+      "viewport": 360
+    }
+  ],
+  "social_endpoints": [
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
+      "viewport": 1280
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
+      "viewport": 1280
+    },
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
+      "viewport": 1062
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
+      "viewport": 1062
+    },
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
+      "viewport": 768
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
+      "viewport": 768
+    },
+    {
+      "nextDisabled": false,
+      "previousDisabled": true,
+      "selected": "Show social slide 1",
+      "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png",
+      "viewport": 360
+    },
+    {
+      "nextDisabled": true,
+      "previousDisabled": false,
+      "selected": "Show social slide 7",
+      "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png",
+      "viewport": 360
+    }
+  ],
+  "persona_states": [
+    {
+      "cardBottom": 833.875,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 1280
+    },
+    {
+      "cardBottom": 833.875,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 1280
+    },
+    {
+      "cardBottom": 833.875,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 1280
+    },
+    {
+      "cardBottom": 833.875,
+      "cardTop": 113.875,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 1280
+    },
+    {
+      "cardBottom": 834.125,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 1062
+    },
+    {
+      "cardBottom": 834.125,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 1062
+    },
+    {
+      "cardBottom": 834.125,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 1062
+    },
+    {
+      "cardBottom": 834.125,
+      "cardTop": 114.125,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 1062
+    },
+    {
+      "cardBottom": 833.75,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 768
+    },
+    {
+      "cardBottom": 833.75,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 768
+    },
+    {
+      "cardBottom": 833.75,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 768
+    },
+    {
+      "cardBottom": 833.75,
+      "cardTop": 113.75,
+      "contactOpen": true,
+      "copyHeight": 359,
+      "imageHeight": 359,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 768
+    },
+    {
+      "cardBottom": 1056.75,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "imageHeight": 328,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 360
+    },
+    {
+      "cardBottom": 1056.75,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "imageHeight": 328,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 360
+    },
+    {
+      "cardBottom": 1056.75,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "imageHeight": 328,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 360
+    },
+    {
+      "cardBottom": 1056.75,
+      "cardTop": 234.75,
+      "contactOpen": true,
+      "copyHeight": 492,
+      "imageHeight": 328,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 360
+    }
+  ],
+  "responsive_check": [
+    {
+      "contactBottomWithinCopy": 63,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 360
+    },
+    {
+      "contactBottomWithinCopy": 43,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 360
+    },
+    {
+      "contactBottomWithinCopy": 24,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 360
+    },
+    {
+      "contactBottomWithinCopy": 28,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 360
+    },
+    {
+      "contactBottomWithinCopy": 35,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 768
+    },
+    {
+      "contactBottomWithinCopy": 35,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 768
+    },
+    {
+      "contactBottomWithinCopy": 35,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 768
+    },
+    {
+      "contactBottomWithinCopy": 30,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 768
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 1062
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 1062
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 1062
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 1062
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Avery",
+      "viewport": 1280
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Morgan",
+      "viewport": 1280
+    },
+    {
+      "contactBottomWithinCopy": 73,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Casey",
+      "viewport": 1280
+    },
+    {
+      "contactBottomWithinCopy": 54,
+      "contactOpen": true,
+      "copyScrollOverflow": 0,
+      "pageOverflow": 0,
+      "selected": "Jordan",
+      "viewport": 1280
+    }
+  ],
+  "motion_states": [
+    {
+      "direction": "forward",
+      "outgoing": "Avery",
+      "selected": "Morgan",
+      "transform": "matrix(0.945792, -0.165832, 0.165832, 0.945792, -109.395, -47.7358)",
+      "viewport": 1280
+    },
+    {
+      "direction": "reverse",
+      "outgoing": "Avery",
+      "selected": "Jordan",
+      "transform": "matrix(0.95357, 0.11092, -0.11092, 0.95357, 74.4793, -42.0176)",
+      "viewport": 1280
+    },
+    {
+      "direction": "forward",
+      "outgoing": "Avery",
+      "selected": "Morgan",
+      "transform": "matrix(0.957919, -0.0665962, 0.0665962, 0.957919, -33.8037, -15.9076)",
+      "viewport": 360
+    },
+    {
+      "direction": "reverse",
+      "outgoing": "Avery",
+      "selected": "Jordan",
+      "transform": "matrix(0.957908, 0.0666114, -0.0666114, 0.957908, 33.8117, -15.9114)",
+      "viewport": 360
+    }
+  ],
+  "swipe_states": {
+    "forward": {
+      "motion": "forward",
+      "selected": "Morgan"
+    },
+    "reverse": {
+      "motion": "reverse",
+      "selected": "Avery"
+    }
+  }
+}
