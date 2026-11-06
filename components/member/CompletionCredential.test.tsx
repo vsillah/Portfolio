@@ -63,5 +63,8 @@ describe('Accelerated completion certificate', () => {
     expect(component).toContain("fetch('/accelerated/certificate-frame.png')")
     expect(component).toContain("fetch('/accelerated/vambah-signature.png')")
     expect(component).toContain('recordLabel(credential)')
+    const config = readFileSync('next.config.js', 'utf8')
+    expect(config).toContain("'./public/accelerated/certificate-frame.png'")
+    expect(config).toContain("'./public/accelerated/vambah-signature.png'")
   })
 })
