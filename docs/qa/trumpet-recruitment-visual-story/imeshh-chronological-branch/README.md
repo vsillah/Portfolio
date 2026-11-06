@@ -1,5 +1,7 @@
 # Chronological trumpet branch review
 
+Historical checkpoint: Human QA requested transparent motion and a continuous numbered spine after this packet. The [transparent spine review](../imeshh-transparent-spine/README.md) is the current target.
+
 ## Decision and binding
 
 Human QA rejected the preceding U-shaped rail because it placed steps 4–6 on an upward return path. This packet reviews the corrected six-step chronology on draft PR #1215. Product commit: `bfabcbfe1e6d8bb1a0ae776954a6fb9980394c73` on `codex/trumpet-recruitment-visual-story`.

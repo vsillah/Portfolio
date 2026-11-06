@@ -21,6 +21,7 @@ REVIEW_DIRS = (
     "docs/qa/trumpet-recruitment-visual-story/imeshh-vertical-correction/",
     "docs/qa/trumpet-recruitment-visual-story/imeshh-timeline-rail/",
     "docs/qa/trumpet-recruitment-visual-story/imeshh-chronological-branch/",
+    "docs/qa/trumpet-recruitment-visual-story/imeshh-transparent-spine/",
 )
 RESTRICTED_EXTENSIONS = {
     ".blend", ".blend1", ".fbx", ".glb", ".gltf", ".obj", ".mtl",
