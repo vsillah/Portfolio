@@ -74,6 +74,13 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(gameplay.querySelector("source")).toHaveAttribute("src", "/showcases/trumpet-trainer/c19989a3/gameplay-landscape.mp4");
     expect(gameplay).toHaveTextContent("The seven-slide social carousel below shows the reviewed product path.");
     expect(gameplay.parentElement).toContainElement(screen.getByText("Captioned gameplay. No child or customer recording."));
+    const mediaSource = screen.getByText("Media source and claim limits").closest("details");
+    expect(mediaSource).toHaveTextContent("c19989a3b156ce97326e35b335e169014ca076f3");
+    expect(mediaSource).toHaveTextContent("The corrected Song Builder social slide has a separate source below.");
+    const carouselSource = screen.getByText("Carousel provenance").closest("details");
+    expect(carouselSource).toHaveTextContent("Slides 1–6 are the historical review assets");
+    expect(carouselSource).toHaveTextContent("a558583a7b4a16919a9dae0a82718ff7ec4c4891");
+    expect(carouselSource).toHaveTextContent("The earlier slides and gameplay video were not recaptured.");
     expect(screen.queryByRole("img", { name: "Trumpet Trainer home screen from the synthetic gameplay capture" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Review the full carousel" })).not.toBeInTheDocument();
   });
