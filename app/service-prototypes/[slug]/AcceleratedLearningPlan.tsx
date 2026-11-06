@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, Download, PanelLeftClose, PanelLeftOpen, RotateCcw, Save, Send, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle2, Download, PanelLeftClose, PanelLeftOpen, RotateCcw, Save, Send, Trash2 } from 'lucide-react'
 import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
 import l02Transcript from '@/docs/accelerated-course-modules/l02-native-composite/l02-learner-transcript.json'
 import l03Transcript from '@/docs/accelerated-course-modules/l03-native-composite/l03-learner-transcript.json'
@@ -89,12 +89,16 @@ const acts: { name: Act; line: string }[] = [
   { name: 'Synthesis', line: 'Set the next move, owner, and review point.' },
 ]
 
+const LOCAL_SAVED_AT_KEY = `${DECISION_FILE_STORAGE_KEY}:saved-at`
+const savedTime = (value: string) => new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(value))
+
 export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'decision-file' }) {
   const detailRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const memberUserRef = useRef<string | null>(null)
   const memberRevisionRef = useRef<number>(0)
   const memberSaveQueueRef = useRef<Promise<void>>(Promise.resolve())
+  const persistedAnswersRef = useRef<string | null>(null)
   const workspaceActionRef = useRef(false)
   const [selected, setSelected] = useState('L01')
   const [posterRevealed, setPosterRevealed] = useState(false)
@@ -109,6 +113,9 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const [memberNotice, setMemberNotice] = useState('')
   const [ready, setReady] = useState(false)
   const [draft, setDraft] = useState<DecisionFileDraft | null>(null)
+  const [localSavedAt, setLocalSavedAt] = useState<string | null>(null)
+  const [localSaveTimeUnavailable, setLocalSaveTimeUnavailable] = useState(false)
+  const [accountSavedAt, setAccountSavedAt] = useState<string | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [shareName, setShareName] = useState('')
   const [shareEmail, setShareEmail] = useState('')
@@ -137,6 +144,15 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
       const saved = localStorage.getItem(DECISION_FILE_STORAGE_KEY)
       const checked = saved ? validateDecisionFile(JSON.parse(saved)) : null
       setDraft(checked?.ok ? checked.draft : emptyDecisionFile(crypto.randomUUID()))
+      persistedAnswersRef.current = JSON.stringify(checked?.ok ? checked.draft.answers : {})
+      if (checked?.ok) {
+        if (Object.values(checked.draft.answers).some((answer) => answer.trim())) setLocalSaveTimeUnavailable(true)
+        try {
+          const marker = localStorage.getItem(LOCAL_SAVED_AT_KEY)
+          const record = marker ? JSON.parse(marker) : null
+          if (record?.worksheetId === checked.draft.worksheetId && typeof record.savedAt === 'string' && !Number.isNaN(Date.parse(record.savedAt))) { setLocalSavedAt(record.savedAt); setLocalSaveTimeUnavailable(false) }
+        } catch { /* A damaged timestamp must not prevent the worksheet from loading. */ }
+      }
       const progress = localStorage.getItem(GUEST_PROGRESS_KEY)
       if (progress) {
         const savedProgress = validateLearningState(JSON.parse(progress))
@@ -155,7 +171,17 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   }, [])
   useEffect(() => {
     if (!draft || !ready || memberClaimed) return
-    try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)) }
+    try {
+      localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft))
+      const answers = JSON.stringify(draft.answers)
+      if (answers !== persistedAnswersRef.current) {
+        const savedAt = new Date().toISOString()
+        localStorage.setItem(LOCAL_SAVED_AT_KEY, JSON.stringify({ worksheetId: draft.worksheetId, savedAt }))
+        persistedAnswersRef.current = answers
+        setLocalSavedAt(savedAt)
+        setLocalSaveTimeUnavailable(false)
+      }
+    }
     catch { setShareState('Local storage is full or unavailable. Export a copy to keep your work.') }
   }, [draft, ready, memberClaimed])
   useEffect(() => {
@@ -191,6 +217,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         setCompleted(result.lessons.filter((item: { completed_at: string | null }) => item.completed_at).map((item: { lesson_id: string }) => item.lesson_id))
         setVideoSeconds(Object.fromEntries(result.lessons.map((item: { lesson_id: string; video_seconds: number }) => [item.lesson_id, item.video_seconds])))
         if (result.worksheet) setDraft({ version: DECISION_FILE_VERSION, worksheetId: result.worksheet.worksheet_id, answers: result.worksheet.answers, updatedAt: result.worksheet.updated_at })
+        if (result.worksheet && typeof result.worksheet.updated_at === 'string' && !Number.isNaN(Date.parse(result.worksheet.updated_at))) setAccountSavedAt(result.worksheet.updated_at)
       } catch { setMemberNotice('Member progress is unavailable. Your local work is still here.') }
     }
     void loadMember()
@@ -220,7 +247,9 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         setMemberClaimed(true)
         localStorage.removeItem(GUEST_PROGRESS_KEY)
         localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+        localStorage.removeItem(LOCAL_SAVED_AT_KEY)
       }
+      setAccountSavedAt(new Date().toISOString())
       setMemberNotice(action === 'claim' ? 'Guest progress is now linked to your member account.' : 'Saved to your member account.')
     }).catch(() => { setMemberNotice('Member progress could not be saved. Reload to reconcile your latest copy.') })
     await memberSaveQueueRef.current
@@ -256,6 +285,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
       const result = await response.json()
       if (!response.ok) { setShareState(result.error || 'This action could not be completed. Reload to reconcile your work.'); return false }
       memberRevisionRef.current = result.revision
+      setAccountSavedAt(new Date().toISOString())
       if (action === 'delete') {
         setDraft((current) => current ? { ...current, answers: {}, updatedAt: new Date().toISOString() } : current)
         setSent(false)
@@ -344,7 +374,18 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
       void saveMember('save')
       return
     }
-    try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)); setShareState('Saved on this device.') }
+    try {
+      localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft))
+      const answers = JSON.stringify(draft.answers)
+      if (answers !== persistedAnswersRef.current) {
+        const savedAt = new Date().toISOString()
+        localStorage.setItem(LOCAL_SAVED_AT_KEY, JSON.stringify({ worksheetId: draft.worksheetId, savedAt }))
+        persistedAnswersRef.current = answers
+        setLocalSavedAt(savedAt)
+        setLocalSaveTimeUnavailable(false)
+      }
+      setShareState('Saved on this device.')
+    }
     catch { setShareState('Local storage is unavailable. Download a copy to keep your work.') }
   }
   const worksheetActions = <div className={styles.worksheetActions}>
@@ -360,7 +401,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
       <div><p className={styles.kicker}>YOUR WORKSHOP WORKBOOK</p><h2>The Accelerated Decision File</h2><p>Carry one real decision through all sixteen lessons. Your work stays in this browser unless you choose to sign in or send it to AmaduTown.</p></div>
       <div className={styles.overview}><strong>{startedPages}<span> / 16</span></strong><span>pages started</span><progress value={startedPages} max={16} aria-label="Decision File pages started"/><small>Review every page before sharing</small></div>
     </div>
-    <div className={styles.workspaceNav}><Link href="/accelerated/learningplan">Back to the Learning Plan</Link><span>{memberClaimed ? 'Use Save all to update your member account' : 'Saved locally as you write'}</span></div>
+    <div className={styles.workspaceNav}><Link href="/accelerated/learningplan" className={styles.workspaceBack}><ArrowLeft aria-hidden="true" />Back to the Learning Plan</Link><span role="status" aria-live="polite">{memberClaimed ? accountSavedAt ? `Last saved to your account at ${savedTime(accountSavedAt)}` : 'Not saved to your account yet' : localSavedAt ? `Last saved locally at ${savedTime(localSavedAt)}` : localSaveTimeUnavailable ? 'Saved locally · time unavailable' : 'Not saved locally yet'}</span></div>
     {memberToken && !memberClaimed && <div className={styles.continuityAction}><button type="button" onClick={() => void saveMember('claim')}>Claim guest progress for this account</button>{memberNotice && <span role="status">{memberNotice}</span>}</div>}
     <div className={styles.decisionFileGroups}>{acts.map((group) => <section key={group.name} className={styles.decisionFileGroup} aria-labelledby={`decision-file-${group.name.toLowerCase()}`}><div className={styles.actHeader}><div><h3 id={`decision-file-${group.name.toLowerCase()}`}>{group.name}</h3><p>{group.line}</p></div><span>{lessons.filter((item) => item.act === group.name).length} pages</span></div><div className={styles.decisionFilePages}>{lessons.filter((item) => item.act === group.name).map((item) => <label key={item.id} htmlFor={`decision-file-page-${item.id}`}><span>{item.id}</span><strong>{item.artifact}</strong><small>{item.exercise}</small><textarea id={`decision-file-page-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={5} placeholder="Add your working notes" /></label>)}</div></section>)}</div>
     <div className={styles.decisionFileFooter}><div><strong>Keep the work. Share only when you are ready.</strong><p>Download a copy at any time. Sending opens a protected human review; it does not create an assessment, purchase, or appointment.</p></div>{worksheetActions}</div>
