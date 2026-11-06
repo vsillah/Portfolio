@@ -1,0 +1,380 @@
+{
+  "ui_commit": "99ced630212dc16b9d638f0e5baf8597b3ad756e",
+  "capture_url": "http://localhost:3018/work/trumpet-trainer/recruitment?revision=99ced630212dc16b9d638f0e5baf8597b3ad756e&qa=brass-timeline#plan",
+  "viewports": [
+    {
+      "label": "1280",
+      "arrows": [
+        43.9921875,
+        43.9921875
+      ],
+      "asset": "/_next/image?url=%2Fwork%2Ftrumpet-trainer%2Fdesign%2Fbrass-trumpet-timeline-v1.png&w=2048&q=75",
+      "carouselAbsTop": 1407.046875,
+      "carouselHeight": 799.9921875,
+      "carouselWidth": 639.99609375,
+      "details": 6,
+      "dots": [
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875
+      ],
+      "rowWidth": 639.99609375,
+      "scrollOverflow": 0,
+      "semanticSteps": 6,
+      "steps": [
+        {
+          "cardWidth": 420,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 420,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 420,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 420,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 420,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 420,
+          "height": 126,
+          "pinWidth": 43.9921875
+        }
+      ],
+      "timelineAbsTop": 3504.50390625,
+      "timelineHeight": 973.4765625,
+      "trumpetHeight": 789.99609375,
+      "trumpetWidth": 480,
+      "viewport": [
+        1279,
+        1099
+      ]
+    },
+    {
+      "label": "1062",
+      "arrows": [
+        43.9921875,
+        43.9921875
+      ],
+      "asset": "/_next/image?url=%2Fwork%2Ftrumpet-trainer%2Fdesign%2Fbrass-trumpet-timeline-v1.png&w=2048&q=75",
+      "carouselAbsTop": 1350.9375,
+      "carouselHeight": 799.9921875,
+      "carouselWidth": 639.99609375,
+      "details": 6,
+      "dots": [
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875
+      ],
+      "rowWidth": 639.99609375,
+      "scrollOverflow": 0,
+      "semanticSteps": 6,
+      "steps": [
+        {
+          "cardWidth": 370.546875,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 370.546875,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 370.546875,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 370.546875,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 370.546875,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 370.546875,
+          "height": 126,
+          "pinWidth": 43.9921875
+        }
+      ],
+      "timelineAbsTop": 3448.39453125,
+      "timelineHeight": 973.4765625,
+      "trumpetHeight": 789.99609375,
+      "trumpetWidth": 446.0390625,
+      "viewport": [
+        1062,
+        1099
+      ]
+    },
+    {
+      "label": "768",
+      "arrows": [
+        43.9921875,
+        43.9921875
+      ],
+      "asset": "/_next/image?url=%2Fwork%2Ftrumpet-trainer%2Fdesign%2Fbrass-trumpet-timeline-v1.png&w=2048&q=75",
+      "carouselAbsTop": 1254.57421875,
+      "carouselHeight": 655.93359375,
+      "carouselWidth": 524.75390625,
+      "details": 6,
+      "dots": [
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875
+      ],
+      "rowWidth": 524.75390625,
+      "scrollOverflow": 0,
+      "semanticSteps": 6,
+      "steps": [
+        {
+          "cardWidth": 255.12890625,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 255.12890625,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 255.12890625,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 255.12890625,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 255.12890625,
+          "height": 126,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 255.12890625,
+          "height": 126,
+          "pinWidth": 43.9921875
+        }
+      ],
+      "timelineAbsTop": 3207.97265625,
+      "timelineHeight": 973.4765625,
+      "trumpetHeight": 789.99609375,
+      "trumpetWidth": 339.99609375,
+      "viewport": [
+        768,
+        900
+      ]
+    },
+    {
+      "label": "360",
+      "arrows": [
+        43.9921875,
+        43.9921875
+      ],
+      "asset": "/_next/image?url=%2Fwork%2Ftrumpet-trainer%2Fdesign%2Fbrass-trumpet-timeline-v1.png&w=2048&q=75",
+      "carouselAbsTop": 1285.5234375,
+      "carouselHeight": 325.95703125,
+      "carouselWidth": 260.765625,
+      "details": 6,
+      "dots": [
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875,
+        43.9921875
+      ],
+      "rowWidth": 260.765625,
+      "scrollOverflow": 0,
+      "semanticSteps": 6,
+      "steps": [
+        {
+          "cardWidth": 254.2734375,
+          "height": 117.46875,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 254.2734375,
+          "height": 117.46875,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 254.2734375,
+          "height": 117.46875,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 254.2734375,
+          "height": 117.46875,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 254.2734375,
+          "height": 117.46875,
+          "pinWidth": 43.9921875
+        },
+        {
+          "cardWidth": 254.2734375,
+          "height": 117.46875,
+          "pinWidth": 43.9921875
+        }
+      ],
+      "timelineAbsTop": 2908.93359375,
+      "timelineHeight": 958.265625,
+      "trumpetHeight": 249.99609375,
+      "trumpetWidth": 150,
+      "viewport": [
+        360,
+        1080
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "label": "1280",
+      "viewportWidth": 1279,
+      "first": {
+        "dotMin": 43.9921875,
+        "imageHeight": 799.9921875,
+        "imageWidth": 639.99609375,
+        "nextDisabled": false,
+        "nextGap": 8.00390625,
+        "nextSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "prevDisabled": true,
+        "prevGap": 8.00390625,
+        "prevSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png"
+      },
+      "last": {
+        "nextDisabled": true,
+        "overflow": 0,
+        "prevDisabled": false,
+        "sevenDots": 7,
+        "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png"
+      }
+    },
+    {
+      "label": "1062",
+      "viewportWidth": 1062,
+      "first": {
+        "dotMin": 43.9921875,
+        "imageHeight": 799.9921875,
+        "imageWidth": 639.99609375,
+        "nextDisabled": false,
+        "nextGap": 8.00390625,
+        "nextSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "prevDisabled": true,
+        "prevGap": 8.00390625,
+        "prevSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png"
+      },
+      "last": {
+        "nextDisabled": true,
+        "overflow": 0,
+        "prevDisabled": false,
+        "sevenDots": 7,
+        "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png"
+      }
+    },
+    {
+      "label": "768",
+      "viewportWidth": 768,
+      "first": {
+        "dotMin": 43.9921875,
+        "imageHeight": 655.93359375,
+        "imageWidth": 524.75390625,
+        "nextDisabled": false,
+        "nextGap": 8.00390625,
+        "nextSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "prevDisabled": true,
+        "prevGap": 8.00390625,
+        "prevSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png"
+      },
+      "last": {
+        "nextDisabled": true,
+        "overflow": 0,
+        "prevDisabled": false,
+        "sevenDots": 7,
+        "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png"
+      }
+    },
+    {
+      "label": "360",
+      "viewportWidth": 360,
+      "first": {
+        "dotMin": 43.9921875,
+        "imageHeight": 325.95703125,
+        "imageWidth": 260.765625,
+        "nextDisabled": false,
+        "nextGap": 0,
+        "nextSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "prevDisabled": true,
+        "prevGap": 0,
+        "prevSize": [
+          43.9921875,
+          43.9921875
+        ],
+        "src": "/showcases/trumpet-trainer/c19989a3/social/slide-01.png"
+      },
+      "last": {
+        "nextDisabled": true,
+        "overflow": 0,
+        "prevDisabled": false,
+        "sevenDots": 7,
+        "src": "/showcases/trumpet-trainer/a558583a/social/slide-07.png"
+      }
+    }
+  ]
+}
