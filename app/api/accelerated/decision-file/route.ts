@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { validateDecisionFile } from "@/lib/accelerated-decision-file";
+import { tryVerifyAuth } from "@/lib/auth-server";
 
 export const dynamic = "force-dynamic";
 const noStore = { "Cache-Control": "no-store" };
@@ -59,6 +60,39 @@ export async function POST(request: NextRequest) {
   const digest = createHash("sha256")
     .update(JSON.stringify(evidence))
     .digest("hex");
+  const authenticated = await tryVerifyAuth(request);
+  if (request.headers.has("authorization") && !authenticated)
+    return fail("Your session has expired. Sign in again before sending this worksheet.", 401);
+  if (authenticated) {
+    const { data: memberReceipt, error: memberError } = await supabaseAdmin.rpc(
+      "accelerated_submit_member_decision_file",
+      {
+        p_user_id: authenticated.user.id,
+        p_worksheet_id: draft.worksheetId,
+        p_content_version: draft.version,
+        p_payload_sha256: digest,
+        p_learner_name: name,
+        p_learner_email: email,
+        p_answers: evidence.answers,
+        p_consented_at: new Date().toISOString(),
+      },
+    );
+    if (memberError) {
+      if (memberError.code === "P0001" || memberError.code === "23505")
+        return fail(memberError.message, 409);
+      return fail(
+        "Could not link this worksheet to your profile for assessment review.",
+        503,
+      );
+    }
+    const receipt = memberReceipt?.[0];
+    if (!receipt?.id)
+      return fail("The member assessment receipt was not recorded.", 503);
+    return NextResponse.json(
+      { received: true, memberLinked: true, replay: receipt.replay },
+      { status: receipt.replay ? 200 : 201, headers: noStore },
+    );
+  }
   const { data, error } = await supabaseAdmin
     .from("accelerated_decision_file_intakes")
     .insert({

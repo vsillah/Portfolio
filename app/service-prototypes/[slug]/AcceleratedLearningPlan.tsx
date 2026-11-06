@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
+import Link from 'next/link'
+import { ArrowRight, CheckCircle2, Download, PanelLeftClose, PanelLeftOpen, RotateCcw, Save, Send, Trash2 } from 'lucide-react'
 import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
 import l02Transcript from '@/docs/accelerated-course-modules/l02-native-composite/l02-learner-transcript.json'
 import l03Transcript from '@/docs/accelerated-course-modules/l03-native-composite/l03-learner-transcript.json'
@@ -80,32 +81,23 @@ export const reviewL13L16Media = {
   L16: { video: '/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4', captions: '/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt', duration: '08:00', compositeSha256: '5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0', transcript: l16Transcript },
 } as const
 
-const acts: { name: Act; line: string; image: string }[] = [
-  { name: 'Signals', line: 'Find the decision and the evidence that matters.', image: '/showcases/service-prototypes/v2/sam-signals-plate.webp' },
-  { name: 'Alignment', line: 'Carry evidence into a shared plan and a clear decision.', image: '/showcases/service-prototypes/v2/sam-alignment-plate.webp' },
-  { name: 'Momentum', line: 'Make each test useful to the next one.', image: '/showcases/service-prototypes/v2/sam-momentum-plate.webp' },
-  { name: 'Synthesis', line: 'Set the next move, owner, and review point.', image: '/showcases/service-prototypes/accelerated-sam-infographic.png' },
+const acts: { name: Act; line: string }[] = [
+  { name: 'Signals', line: 'Find the decision and the evidence that matters.' },
+  { name: 'Alignment', line: 'Carry evidence into a shared plan and a clear decision.' },
+  { name: 'Momentum', line: 'Make each test useful to the next one.' },
+  { name: 'Synthesis', line: 'Set the next move, owner, and review point.' },
 ]
 
-const storyboard: Record<string, string> = {
-  L05: '/showcases/accelerated-learning-plan/storyboard-l05.png',
-  L08: '/showcases/accelerated-learning-plan/storyboard-l08.png',
-  L11: '/showcases/accelerated-learning-plan/storyboard-l11.png',
-  L16: '/showcases/accelerated-learning-plan/storyboard-l16.png',
-}
-
-export function AcceleratedLearningPlan() {
+export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'decision-file' }) {
   const detailRef = useRef<HTMLElement>(null)
-  const playerRef = useRef<HTMLElement>(null)
-  const watchRef = useRef<HTMLButtonElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const memberUserRef = useRef<string | null>(null)
   const memberRevisionRef = useRef<number>(0)
   const memberSaveQueueRef = useRef<Promise<void>>(Promise.resolve())
   const [selected, setSelected] = useState('L01')
-  const [videoOpen, setVideoOpen] = useState(false)
   const [posterRevealed, setPosterRevealed] = useState(false)
   const [captionsOn, setCaptionsOn] = useState(true)
+  const [catalogCollapsed, setCatalogCollapsed] = useState(true)
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
   const [completed, setCompleted] = useState<string[]>([])
@@ -123,7 +115,6 @@ export function AcceleratedLearningPlan() {
   const [sent, setSent] = useState(false)
   const [fixtureReceived, setFixtureReceived] = useState(false)
   const lesson = lessons.find((item) => item.id === selected) ?? lessons[0]
-  const act = acts.find((item) => item.name === lesson.act) ?? acts[0]
   const posterUrl = lessonPosters[lesson.id as keyof typeof lessonPosters]
   const visible = lessons.filter((item) => (filter === 'All' || item.act === filter) && `${item.id} ${item.title} ${item.summary}`.toLowerCase().includes(query.toLowerCase().trim()))
   const current = lessons.find((item) => !completed.includes(item.id))?.id
@@ -131,6 +122,13 @@ export function AcceleratedLearningPlan() {
   const totalMinutes = lessons.reduce((sum, item) => sum + item.minutes, 0)
   const locked = (_id: string) => false
   const approvedBatchMedia = selected === 'L04' ? l04Media : selected in approvedL05L08Media ? approvedL05L08Media[selected as keyof typeof approvedL05L08Media] : selected in approvedL09L12Media ? approvedL09L12Media[selected as keyof typeof approvedL09L12Media] : selected in reviewL13L16Media ? reviewL13L16Media[selected as keyof typeof reviewL13L16Media] : null
+  const lessonMedia = selected === 'L01'
+    ? { ...l01Media, transcript }
+    : selected === 'L02'
+      ? { ...l02Media, transcript: l02Transcript }
+      : selected === 'L03'
+        ? { ...l03Media, transcript: l03Transcript }
+        : approvedBatchMedia
   useEffect(() => {
     try {
       const saved = localStorage.getItem(DECISION_FILE_STORAGE_KEY)
@@ -169,6 +167,14 @@ export function AcceleratedLearningPlan() {
       if (!active || !session) return
       memberUserRef.current = session.user.id
       setMemberToken(session.access_token)
+      setShareEmail(session.user.email ?? '')
+      setShareName(
+        typeof session.user.user_metadata?.full_name === 'string'
+          ? session.user.user_metadata.full_name
+          : typeof session.user.user_metadata?.name === 'string'
+            ? session.user.user_metadata.name
+            : '',
+      )
       try {
         const response = await fetch('/api/accelerated/member', { headers: { Authorization: `Bearer ${session.access_token}` }, cache: 'no-store' })
         if (!response.ok) { setMemberNotice('Member progress is unavailable. Your local work is still here.'); return }
@@ -216,6 +222,7 @@ export function AcceleratedLearningPlan() {
   }
   useEffect(() => {
     if (!ready || !memberClaimed || !draft) return
+    setMemberNotice('Saving this lesson and worksheet to your profile…')
     const timer = window.setTimeout(() => { void saveMember('save') }, 1200)
     return () => window.clearTimeout(timer)
     // Saving is driven by the current lesson and worksheet changes, after claim.
@@ -236,21 +243,32 @@ export function AcceleratedLearningPlan() {
     URL.revokeObjectURL(url)
   }
   const clearDraft = () => {
-    if (!window.confirm('Clear all sixteen worksheet answers on this device? Export a copy first if you want to keep them.')) return
-    setDraft(emptyDecisionFile(crypto.randomUUID()))
+    const target = memberClaimed ? 'your AmaduTown profile' : 'this device'
+    if (!window.confirm(`Clear all sixteen worksheet answers from ${target}? Export a copy first if you want to keep them.`)) return
+    setDraft((current) => memberClaimed && current
+      ? { ...current, answers: {}, updatedAt: new Date().toISOString() }
+      : emptyDecisionFile(crypto.randomUUID()))
     setSent(false)
     setFixtureReceived(false)
     setShareName('')
     setShareEmail('')
     setConsent(false)
     setShareOpen(false)
-    setShareState('The local worksheet has been cleared.')
+    setShareState(memberClaimed ? 'The worksheet has been cleared from this course profile.' : 'The local worksheet has been cleared.')
   }
   const submitDraft = async () => {
     if (!draft || !consent || !shareName.trim() || !shareEmail.trim()) { setShareState('Enter your name and email, then agree to share this worksheet.'); return }
     setShareState('Sending…')
     try {
-      const response = await fetch('/api/accelerated/decision-file', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ draft, worksheetId: draft.worksheetId, name: shareName.trim(), email: shareEmail.trim(), consent: true }) })
+      if (memberClaimed) await saveMember('save')
+      const response = await fetch('/api/accelerated/decision-file', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(memberToken ? { Authorization: `Bearer ${memberToken}` } : {}),
+        },
+        body: JSON.stringify({ draft, worksheetId: draft.worksheetId, name: shareName.trim(), email: shareEmail.trim(), consent: true }),
+      })
       const result = await response.json()
       if (!response.ok) { setShareState(result.error || 'Could not send your worksheet. Your local copy is still here.'); return }
       setSent(true)
@@ -259,15 +277,8 @@ export function AcceleratedLearningPlan() {
       setShareState('')
     } catch { setShareState('Could not connect. Your local copy is still here. Try again when you are online.') }
   }
-  useEffect(() => {
-    if (videoOpen) {
-      playerRef.current?.focus()
-      playerRef.current?.scrollIntoView?.({ block: 'start' })
-    }
-  }, [videoOpen])
   const selectLesson = (id: string) => {
     setSelected(id)
-    setVideoOpen(false)
     setPosterRevealed(false)
     if (window.matchMedia?.('(max-width: 1050px)').matches) {
       detailRef.current?.scrollIntoView({ block: 'start' })
@@ -287,75 +298,83 @@ export function AcceleratedLearningPlan() {
     if (seconds > 0 && seconds % 5 === 0 && seconds !== videoSeconds[selected]) setVideoSeconds((positions) => ({ ...positions, [selected]: seconds }))
   }
 
+  const startedPages = Object.values(draft?.answers ?? {}).filter((answer) => answer.trim()).length
+  const saveWorksheet = () => {
+    if (!draft) return
+    if (memberClaimed) {
+      void saveMember('save')
+      return
+    }
+    try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)); setShareState('Saved on this device.') }
+    catch { setShareState('Local storage is unavailable. Download a copy to keep your work.') }
+  }
+  const worksheetActions = <div className={styles.worksheetActions}>
+    <button type="button" className={`${styles.iconAction} ${styles.secondaryAction}`} aria-label={memberClaimed ? 'Save to profile' : 'Save on this device'} data-tooltip={memberClaimed ? 'Save to profile' : 'Save on this device'} onClick={saveWorksheet}><Save aria-hidden="true" /></button>
+    <button type="button" className={`${styles.iconAction} ${styles.secondaryAction}`} aria-label="Download copy" data-tooltip="Download copy" onClick={exportDraft}><Download aria-hidden="true" /></button>
+    <button type="button" className={`${styles.iconAction} ${styles.dangerAction}`} aria-label="Clear worksheet" data-tooltip="Clear worksheet" onClick={clearDraft}><Trash2 aria-hidden="true" /></button>
+    <button type="button" className={`${styles.iconAction} ${styles.primaryAction}`} aria-label={memberClaimed ? 'Review for assessment' : 'Review and send'} data-tooltip={memberClaimed ? 'Review for assessment' : 'Review and send'} onClick={() => { setShareOpen(true); setConsent(false); setShareState('') }}><Send aria-hidden="true" /></button>
+  </div>
+  const shareReview = shareOpen && <div className={styles.sharePanel} role="region" aria-label="Review before sharing"><h4>Review what you will share</h4><p>{memberClaimed ? 'This saved profile worksheet will be bound to your assessment intake so AmaduTown can review your decision and narrow relevant products or services. It does not create a paid-client project, purchase, or appointment.' : 'AmaduTown will use these answers to understand your decision, consider existing services, and decide whether an assessment would help. A person reviews the work. Sending does not book a meeting or add you to a mailing list.'}</p><div className={styles.shareAnswers}>{lessons.map((item) => <label key={item.id} htmlFor={`share-${item.id}`}><strong>{item.id} · {item.artifact}</strong><textarea id={`share-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={3} aria-label={`Edit ${item.id} before sharing`} /></label>)}</div><div className={styles.shareContact}><label>Name<input value={shareName} onChange={(event) => setShareName(event.target.value)} maxLength={120} autoComplete="name" /></label><label>Email<input type="email" value={shareEmail} onChange={(event) => setShareEmail(event.target.value)} maxLength={254} autoComplete="email" /></label></div><label className={styles.consent}><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> I have reviewed these answers and agree to send them to AmaduTown for human assessment review.</label><div className={styles.worksheetActions}><button type="button" className={styles.primaryAction} disabled={!consent || !shareName.trim() || !shareEmail.trim() || !Object.values(draft?.answers ?? {}).some((answer) => answer.trim())} onClick={submitDraft}>{memberClaimed ? 'Send for assessment review' : 'Send to AmaduTown'}</button><button type="button" className={styles.secondaryAction} onClick={() => setShareOpen(false)}>Keep editing</button></div></div>
+
+  if (mode === 'decision-file') return <section className={`${styles.plan} ${styles.decisionFile}`} aria-label="Accelerated Decision File">
+    <div className={styles.heading}>
+      <div><p className={styles.kicker}>YOUR WORKSHOP WORKBOOK</p><h2>The Accelerated Decision File</h2><p>Carry one real decision through all sixteen lessons. Your work stays in this browser unless you choose to sign in or send it to AmaduTown.</p></div>
+      <div className={styles.overview}><strong>{startedPages}<span> / 16</span></strong><span>pages started</span><progress value={startedPages} max={16} aria-label="Decision File pages started"/><small>Review every page before sharing</small></div>
+    </div>
+    <div className={styles.workspaceNav}><Link href="/accelerated/learningplan">Back to the Learning Plan</Link><span>{memberClaimed ? 'Auto-saved to your AmaduTown profile' : 'Saved locally as you write'}</span></div>
+    <div className={styles.decisionFileGroups}>{acts.map((group) => <section key={group.name} className={styles.decisionFileGroup} aria-labelledby={`decision-file-${group.name.toLowerCase()}`}><div className={styles.actHeader}><div><h3 id={`decision-file-${group.name.toLowerCase()}`}>{group.name}</h3><p>{group.line}</p></div><span>{lessons.filter((item) => item.act === group.name).length} pages</span></div><div className={styles.decisionFilePages}>{lessons.filter((item) => item.act === group.name).map((item) => <label key={item.id} htmlFor={`decision-file-page-${item.id}`}><span>{item.id}</span><strong>{item.artifact}</strong><small>{item.exercise}</small><textarea id={`decision-file-page-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={5} placeholder="Add your working notes" /></label>)}</div></section>)}</div>
+    <div className={styles.decisionFileFooter}><div><strong>Keep the work. Share only when you are ready.</strong><p>Download a copy at any time. Sending opens a protected human review; it does not create an assessment, purchase, or appointment.</p></div>{worksheetActions}</div>
+    {shareState && <p role="status" className={styles.workspaceStatus}>{shareState}</p>}
+    {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
+    {shareReview}
+  </section>
+
   return <section className={styles.plan} aria-label="Accelerated learning plan">
     <div className={styles.heading}>
       <div><p className={styles.kicker}>YOUR LEARNING PLAN</p><h2>Sixteen lessons. One decision file.</h2><p>Bring one safe, real decision through the course. Each lesson adds a page you can review with your team.</p></div>
       <div className={styles.overview}><strong>{completed.length}<span> / 16</span></strong><span>lessons complete</span><progress value={completed.length} max={16} aria-label="Lessons complete"/><small>{totalMinutes} minutes of planned teaching · practice time is separate</small></div>
     </div>
-    <div className={styles.mediaNotice} role="region" aria-label="Your learning continuity"><strong>{memberClaimed ? 'Member progress' : 'Continue at your own pace'}</strong><p>{memberClaimed ? 'Your lessons and worksheet save to your member account.' : 'Guest progress stays in this browser. Sign in if you want to continue on another device.'}</p>{memberToken ? memberClaimed ? <a href="/member/dashboard">Open member dashboard</a> : <button type="button" onClick={() => void saveMember('claim')}>I agree to claim this browser’s progress</button> : <a href="/auth/login?redirect=%2Fservice-prototypes%2Faccelerated-cohort%3Fview%3D3">Sign in for cross-device progress</a>}{memberNotice && <p role="status">{memberNotice}</p>}</div>
-    <div className={styles.layout}>
-      <div className={styles.catalog}>
+    <div className={styles.continuityAction}>{memberToken ? memberClaimed ? <a href="/member/dashboard">Open dashboard</a> : <button type="button" onClick={() => void saveMember('claim')}>Claim this progress</button> : <a href="/auth/login?redirect=%2Faccelerated%2Flearningplan">Sign in to save progress</a>}{memberNotice && <span role="status">{memberNotice}</span>}</div>
+    <div className={`${styles.layout} ${catalogCollapsed ? styles.layoutCollapsed : ''}`}>
+      <div className={styles.catalog} data-collapsed={catalogCollapsed ? 'true' : 'false'}>
+        <div className={styles.catalogHeader}><strong>Lessons</strong><button type="button" className={styles.catalogToggle} aria-expanded={!catalogCollapsed} aria-label={catalogCollapsed ? 'Expand lesson navigation' : 'Collapse lesson navigation'} data-tooltip={catalogCollapsed ? 'Expand lesson navigation' : 'Collapse lesson navigation'} onClick={() => setCatalogCollapsed((collapsed) => !collapsed)}>{catalogCollapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}</button></div>
         <div className={styles.catalogTools}><label htmlFor="lesson-search">Find a lesson</label><input id="lesson-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search titles or topics"/><div className={styles.filters} role="group" aria-label="Filter lessons by act">{(['All', 'Signals', 'Alignment', 'Momentum', 'Synthesis'] as const).map((name) => <button type="button" key={name} aria-pressed={filter === name} onClick={() => setFilter(name)}>{name}</button>)}</div></div>
         {visible.length === 0 ? <div className={styles.empty}><strong>No lessons found.</strong><p>Try another term or show the full plan.</p><button type="button" onClick={() => { setQuery(''); setFilter('All') }}>Show all lessons</button></div> : acts.map((group) => {
           const groupLessons = visible.filter((item) => item.act === group.name)
           if (!groupLessons.length) return null
-          return <section key={group.name} className={styles.actGroup} aria-label={`${group.name} lessons`}><div className={styles.actHeader}><div><h3>{group.name}</h3><p>{group.line}</p></div><span>{groupLessons.length} lessons</span></div><div className={styles.lessonList}>{groupLessons.map((item) => <button type="button" key={item.id} className={styles.lessonRow} aria-label={`${item.id}: ${item.title}, ${locked(item.id) ? 'locked' : completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}`} aria-current={selected === item.id ? 'true' : undefined} onClick={() => selectLesson(item.id)}><span className={styles.lessonNumber}>{item.id}</span><span className={styles.lessonName}><strong>{item.title}</strong><small>{item.minutes} min · {item.artifact}</small></span><span className={styles.state} data-state={locked(item.id) ? 'locked' : completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'}>{locked(item.id) ? 'Locked' : completed.includes(item.id) ? 'Complete' : current === item.id ? 'Current' : 'Ready'}</span></button>)}</div></section>
+          return <section key={group.name} className={styles.actGroup} aria-label={`${group.name} lessons`}><div className={styles.actHeader}><div><h3>{group.name}</h3><p>{group.line}</p></div><span>{groupLessons.length} lessons</span></div><div className={styles.lessonList}>{groupLessons.map((item) => {
+            const state = locked(item.id) ? 'locked' : completed.includes(item.id) ? 'complete' : current === item.id ? 'current' : 'ready'
+            const stateLabel = state === 'locked' ? 'Locked' : state === 'complete' ? 'Complete' : state === 'current' ? 'Current' : 'Ready'
+            return <button type="button" key={item.id} className={styles.lessonRow} aria-label={`${item.id}: ${item.title}, ${state}`} aria-current={selected === item.id ? 'true' : undefined} onClick={() => selectLesson(item.id)}><span className={styles.lessonNumber}>{item.id}</span><span className={styles.lessonName}><strong>{item.title}</strong><small>{item.minutes} min · {item.artifact}</small></span><span className={styles.state} data-state={state} title={stateLabel}>{stateLabel}</span></button>
+          })}</div></section>
         })}
       </div>
       <article ref={detailRef} className={styles.detail} aria-live="polite">
-        <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState} data-state={locked(lesson.id) ? 'locked' : completed.includes(lesson.id) ? 'complete' : current === lesson.id ? 'current' : 'ready'}>{locked(lesson.id) ? 'Video locked · brief preview' : completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
+        <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span></div>
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
         <section className={styles.worksheet} aria-label={`${lesson.id} decision file worksheet`}>
-          <div className={styles.worksheetHeading}><div><span>DECISION FILE · {lesson.act}</span><h4>{lesson.artifact}</h4></div><span>{Object.values(draft?.answers ?? {}).filter((answer) => answer.trim()).length} / 16 pages started</span></div>
+          <div className={styles.worksheetHeading}><div><span>DECISION FILE · {lesson.act}</span><h4>{lesson.artifact}</h4></div><span>{startedPages} / 16 pages started</span></div>
           <label htmlFor={`decision-file-${lesson.id}`}>Your response to this lesson</label>
           <textarea id={`decision-file-${lesson.id}`} value={draft?.answers[lesson.id] ?? ''} onChange={(event) => updateAnswer(lesson.id, event.target.value)} maxLength={4000} rows={5} placeholder={lesson.exercise} />
-          <p>Saved on this device as you write. Review every page before sending anything to AmaduTown.</p>
-          <div className={styles.worksheetActions}><button type="button" onClick={() => { if (!draft) return; try { localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft)); setShareState('Saved on this device.') } catch { setShareState('Local storage is unavailable. Download a copy to keep your work.') } }}>Save locally</button><button type="button" onClick={exportDraft}>Download copy</button><button type="button" onClick={clearDraft}>Clear worksheet</button><button type="button" onClick={() => { setShareOpen(true); setConsent(false); setShareState('') }}>Review and send</button></div>
+          {worksheetActions}
           {shareState && <p role="status">{shareState}</p>}
           {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
-          {shareOpen && <div className={styles.sharePanel} role="region" aria-label="Review before sharing"><h4>Review what you will share</h4><p>AmaduTown will use these answers to understand your decision, consider existing services, and decide whether an assessment would help. A person reviews the work. Sending does not book a meeting or add you to a mailing list.</p><div className={styles.shareAnswers}>{lessons.map((item) => <label key={item.id} htmlFor={`share-${item.id}`}><strong>{item.id} · {item.artifact}</strong><textarea id={`share-${item.id}`} value={draft?.answers[item.id] ?? ''} onChange={(event) => updateAnswer(item.id, event.target.value)} maxLength={4000} rows={3} aria-label={`Edit ${item.id} before sharing`} /></label>)}</div><div className={styles.shareContact}><label>Name<input value={shareName} onChange={(event) => setShareName(event.target.value)} maxLength={120} autoComplete="name" /></label><label>Email<input type="email" value={shareEmail} onChange={(event) => setShareEmail(event.target.value)} maxLength={254} autoComplete="email" /></label></div><label className={styles.consent}><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> I have reviewed these answers and agree to send them to AmaduTown for human review.</label><div className={styles.worksheetActions}><button type="button" disabled={!consent || !shareName.trim() || !shareEmail.trim() || !Object.values(draft?.answers ?? {}).some((answer) => answer.trim())} onClick={submitDraft}>Send to AmaduTown</button><button type="button" onClick={() => setShareOpen(false)}>Keep editing</button></div></div>}
+          {shareReview}
         </section>
-        <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · {approvedBatchMedia ? 'lesson visual' : 'approved workshop visual'}</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>{approvedBatchMedia ? 'Lesson illustration' : 'Storyboard preview · representative frame'}</figcaption></figure>}</div>
-        <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
-        {lesson.id === 'L01' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L01 guided video">
-          <div className={styles.playerHeading}><div><strong>Guided video · L01</strong><p>Watch the nine-minute lesson, then use the exercise above to start your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L01 Build smarter, stay human guided video" onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
-            <source src={l01Media.video} type="video/mp4" />
-            <track kind="captions" src={l01Media.captions} srcLang="en" label="English captions" default />
+        {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
+          <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
+          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video key={lesson.id} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
+            <source src={lessonMedia.video} type="video/mp4" />
+            <track kind="captions" src={lessonMedia.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
           </video></div>
-          <div className={styles.playerTools}><span>Duration {l01Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
-          <details className={styles.transcript}><summary>Read along with L01 transcript</summary><ol>{transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
-        </section> : <div className={styles.mediaNotice}><strong>L01 guided video is ready</strong><p>Watch the approved nine-minute lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L01 guided video · 09:00</button></div> : lesson.id === 'L02' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L02 guided video">
-          <div className={styles.playerHeading}><div><strong>Guided video · L02</strong><p>Watch the ten-minute lesson, then choose one priority to test in your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L02 Prioritize before generating guided video" onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
-            <source src={l02Media.video} type="video/mp4" />
-            <track kind="captions" src={l02Media.captions} srcLang="en" label="English captions" default />
-            Your browser cannot play this video. The read-along transcript is available below.
-          </video></div>
-          <div className={styles.playerTools}><span>Duration {l02Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
-          <details className={styles.transcript}><summary>Read along with L02 transcript</summary><ol>{l02Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
-        </section> : <div className={styles.mediaNotice}><strong>L02 guided video is ready</strong><p>Watch the approved ten-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L02 guided video · 10:00</button></div> : lesson.id === 'L03' ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label="L03 guided video">
-          <div className={styles.playerHeading}><div><strong>Guided video · L03</strong><p>Watch the nine-minute lesson, then write the decision question and evidence gap for your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label="L03 Answer-driven discovery guided video" onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
-            <source src={l03Media.video} type="video/mp4" />
-            <track kind="captions" src={l03Media.captions} srcLang="en" label="English captions" default />
-            Your browser cannot play this video. The read-along transcript is available below.
-          </video></div>
-          <div className={styles.playerTools}><span>Duration {l03Media.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
-          <details className={styles.transcript}><summary>Read along with L03 transcript</summary><ol>{l03Transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
-        </section> : <div className={styles.mediaNotice}><strong>L03 guided video is ready</strong><p>Watch the approved nine-minute composite with English captions and a read-along transcript. Some visual passages are intentionally silent.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch L03 guided video · 09:00</button></div> : approvedBatchMedia ? videoOpen ? <section ref={playerRef} tabIndex={-1} className={styles.player} aria-label={`${lesson.id} guided video`}>
-          <div className={styles.playerHeading}><div><strong>Guided video · {lesson.id}</strong><p>Watch the lesson, then use the exercise above to add to your decision file.</p></div><button type="button" className={styles.returnButton} onClick={() => { setVideoOpen(false); setPosterRevealed(false); window.requestAnimationFrame(() => watchRef.current?.focus()) }}>← Return to Learning plan</button></div>
-          <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
-            <source src={approvedBatchMedia.video} type="video/mp4" />
-            <track kind="captions" src={approvedBatchMedia.captions} srcLang="en" label="English captions" default />
-            Your browser cannot play this video. The read-along transcript is available below.
-          </video></div>
-          <div className={styles.playerTools}><span>Duration {approvedBatchMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
-          <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{approvedBatchMedia.transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
-        </section> : <div className={styles.mediaNotice}><strong>{lesson.id} guided video is ready</strong><p>Watch the lesson with English captions and a read-along transcript.</p><button ref={watchRef} type="button" onClick={() => setVideoOpen(true)}>Watch {lesson.id} guided video · {approvedBatchMedia.duration}</button></div> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
-        <div className={styles.actions}><button type="button" disabled={locked(lesson.id)} title={locked(lesson.id) ? 'Completion opens after the guided video is approved' : undefined} onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{locked(lesson.id) ? 'Completion unavailable' : completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'}</button>{next && <button type="button" className={styles.secondary} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}>Next lesson · {next.id}</button>}</div>
-        <p className={styles.previewNote}>Your worksheet stays on this device until you choose to send it. Use public, synthetic, or approved material in the exercises.</p>
+          <div className={styles.playerTools}><span>Duration {lessonMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
+          <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{lessonMedia.transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
+        </section> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
+        <div className={styles.actions}>{(() => {
+          const completionLabel = locked(lesson.id) ? 'Completion unavailable' : completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'
+          return <button type="button" className={styles.iconAction} disabled={locked(lesson.id)} aria-label={completionLabel} data-tooltip={locked(lesson.id) ? 'Completion opens after the guided video is approved' : completionLabel} onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{completed.includes(lesson.id) ? <RotateCcw aria-hidden="true" /> : <CheckCircle2 aria-hidden="true" />}</button>
+        })()}{next && <button type="button" className={`${styles.iconAction} ${styles.secondary}`} aria-label={`Next lesson · ${next.id}`} data-tooltip={`Next lesson · ${next.id}`} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}><ArrowRight aria-hidden="true" /></button>}</div>
       </article>
     </div>
   </section>

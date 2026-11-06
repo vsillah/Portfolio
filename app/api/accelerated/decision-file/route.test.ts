@@ -5,8 +5,11 @@ const mocks = vi.hoisted(() => ({
   insert: vi.fn(),
   existing: vi.fn(),
   from: vi.fn(),
+  rpc: vi.fn(),
+  auth: vi.fn(),
 }));
-vi.mock("@/lib/supabase", () => ({ supabaseAdmin: { from: mocks.from } }));
+vi.mock("@/lib/supabase", () => ({ supabaseAdmin: { from: mocks.from, rpc: mocks.rpc } }));
+vi.mock("@/lib/auth-server", () => ({ tryVerifyAuth: mocks.auth }));
 import { POST } from "./route";
 const draft = {
   version: DECISION_FILE_VERSION,
@@ -14,10 +17,10 @@ const draft = {
   answers: { L01: "Test this decision" },
   updatedAt: "2026-11-05T12:00:00Z",
 };
-const request = (body: unknown) =>
+const request = (body: unknown, authenticated = false) =>
   new NextRequest("http://localhost/api/accelerated/decision-file", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(authenticated ? { Authorization: "Bearer member-token" } : {}) },
     body: JSON.stringify(body),
   });
 const payload = () => ({
@@ -29,6 +32,7 @@ const payload = () => ({
 });
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.auth.mockResolvedValue(null);
   mocks.from.mockReturnValue({
     insert: mocks.insert,
     select: () => ({ eq: () => ({ single: mocks.existing }) }),
@@ -38,6 +42,7 @@ beforeEach(() => {
       single: async () => ({ data: { id: "receipt" }, error: null }),
     }),
   });
+  mocks.rpc.mockResolvedValue({ data: [{ id: "member-receipt", replay: false }], error: null });
 });
 describe("decision file submission", () => {
   it("requires consent and rejects stale or mismatched evidence", async () => {
@@ -122,5 +127,34 @@ describe("decision file submission", () => {
     expect(response.status).toBe(201);
     expect(mocks.insert).not.toHaveBeenCalled();
     vi.unstubAllEnvs();
+  });
+  it("atomically binds a consented submission to the authenticated member worksheet", async () => {
+    mocks.auth.mockResolvedValue({ user: { id: "member-1" }, isAdmin: false });
+    const response = await POST(request(payload(), true));
+    expect(response.status).toBe(201);
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "accelerated_submit_member_decision_file",
+      expect.objectContaining({
+        p_user_id: "member-1",
+        p_worksheet_id: draft.worksheetId,
+        p_content_version: DECISION_FILE_VERSION,
+        p_answers: draft.answers,
+      }),
+    );
+    expect(mocks.insert).not.toHaveBeenCalled();
+    expect(await response.json()).toMatchObject({ memberLinked: true, replay: false });
+  });
+  it("does not downgrade an invalid member session to a guest submission", async () => {
+    const response = await POST(request(payload(), true));
+    expect(response.status).toBe(401);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    expect(mocks.insert).not.toHaveBeenCalled();
+  });
+  it("fails closed when the authenticated worksheet is stale or belongs elsewhere", async () => {
+    mocks.auth.mockResolvedValue({ user: { id: "member-1" }, isAdmin: false });
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "P0001", message: "Save the latest worksheet to your profile before assessment review" } });
+    const response = await POST(request(payload(), true));
+    expect(response.status).toBe(409);
+    expect(mocks.insert).not.toHaveBeenCalled();
   });
 });
