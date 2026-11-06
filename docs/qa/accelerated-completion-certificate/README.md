@@ -21,7 +21,7 @@ Review fixture: `http://localhost:3100/member/dashboard?qa=completion-ready`. Th
 
 - `npx vitest run components/member/CompletionCredential.test.tsx`: 3/3 passed after the final frame adjustment.
 - `git diff --check`: passed.
-- `NODE_OPTIONS=--max-old-space-size=8192 npm run build`: passed before the last corner-scale adjustment. The default 4GB build hit Node's heap limit during page-data collection; the larger heap completed successfully. No code changed after that build except corner sizing and QA evidence.
+- `NODE_OPTIONS=--max-old-space-size=8192 npm run build`: passed before the final corner-scale and straight-rule styling adjustments. The default 4GB build hit Node's heap limit during page-data collection; the larger heap completed successfully. Focused Vitest and browser/export QA were repeated after those styling adjustments.
 - The browser was inspected at 1280px desktop and 390px mobile in light and dark themes. The synthetic claim and both download actions were exercised. No authenticated customer data, production database, social composer, or external send was used.
 - No approved public signature was found in the Portfolio repo or AmaduTown Drive materials. Unrelated personal signature documents were excluded. The certificate stays unsigned pending an approved signature asset.
 - Human QA and captain integration remain pending. Production migrations remain subject to their separate authorization gate.
