@@ -7,9 +7,17 @@ import styles from "./TrumpetRecruitmentTimeline.module.css";
 
 export type TimelineStep = { days: string; title: string; detail: string };
 type BranchPoint = { x: number; y: number };
-type BranchGeometry = { width: number; height: number; spineX: number; nodes: BranchPoint[]; ends: BranchPoint[]; mobile: boolean };
+type BranchGeometry = { width: number; height: number; spineX: number; spineTop: number; spineBottom: number; nodes: BranchPoint[]; ends: BranchPoint[]; mobile: boolean };
 const mediaRoot = "/work/trumpet-trainer/recruitment-motion";
 const clipFor = (index: number) => `${mediaRoot}/step-${String(index + 1).padStart(2, "0")}.webm`;
+// The approved 800px transparent poster has visible trumpet pixels from y=43 through y=765.
+// Inset the rail by half its stroke so neither cap extends past the instrument.
+export const visibleTrumpetBounds = { top: 43 / 800, bottom: 766 / 800 };
+export function spineBounds(stageTop: number, stageHeight: number) {
+  const strokeInset = Math.min(2, stageHeight * .02);
+  return { top: stageTop + stageHeight * visibleTrumpetBounds.top + strokeInset,
+    bottom: stageTop + stageHeight * visibleTrumpetBounds.bottom - strokeInset };
+}
 const vignetteLabels = [
   "Choose one short first-note exercise",
   "See one note and its trumpet fingering",
@@ -63,6 +71,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
       // The cropped RGBA render keeps the long main tube at 37.5% of the stage width.
       // Draw the rail beneath that tube; only the branch ends and outside nodes show.
       const spineX = stage.left - bounds.left + stage.width * .375;
+      const { top: spineTop, bottom: spineBottom } = spineBounds(stage.top - bounds.top, stage.height);
       const nodes = cards.map((card, index) => {
         const cardRect = card!.getBoundingClientRect();
         const right = mobile || index % 2 === 1;
@@ -74,7 +83,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
         return { x: (mobile || index % 2 === 1 ? rect.left : rect.right) - bounds.left,
           y: rect.top + rect.height / 2 - bounds.top };
       });
-      setBranches({ width: bounds.width, height: bounds.height, spineX, nodes, ends, mobile });
+      setBranches({ width: bounds.width, height: bounds.height, spineX, spineTop, spineBottom, nodes, ends, mobile });
     };
     measure();
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
@@ -160,11 +169,11 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
   };
 
   return <section className={styles.timeline} aria-label="Example practice path" data-active={safeActive + 1} data-motion={reducedMotion ? "reduced" : "standard"} data-alpha-motion={alphaMotionSupported ? "supported" : "poster"}>
-    <div className={styles.layout} ref={layoutRef}>
+    <div className={styles.layout} ref={layoutRef} data-timeline-layout>
       {branches && <svg className={styles.branches} viewBox={`0 0 ${branches.width} ${branches.height}`} preserveAspectRatio="none" aria-hidden="true" focusable="false" data-branch-order="1-2-3-4-5-6" data-progress={safeActive + 1} data-layout={branches.mobile ? "stacked" : "alternating"}>
-        <path className={styles.spineBase} data-timeline-spine="base" d={`M ${branches.spineX} ${branches.nodes[0].y - 20} V ${branches.nodes[5].y + 18}`} />
-        <path className={styles.spineProgress} data-timeline-spine="progress" d={`M ${branches.spineX} ${branches.nodes[0].y - 20} V ${branches.nodes[safeActive].y}`} />
-        <path className={styles.spineArrow} data-timeline-direction="down" d={`M ${branches.spineX - 5} ${branches.nodes[5].y + 13} L ${branches.spineX} ${branches.nodes[5].y + 20} L ${branches.spineX + 5} ${branches.nodes[5].y + 13}`} />
+        <path className={styles.spineBase} data-timeline-spine="base" d={`M ${branches.spineX} ${branches.spineTop} V ${branches.spineBottom}`} />
+        <path className={styles.spineProgress} data-timeline-spine="progress" d={`M ${branches.spineX} ${branches.spineTop} V ${Math.max(branches.spineTop, Math.min(branches.nodes[safeActive].y, branches.spineBottom))}`} />
+        <path className={styles.spineArrow} data-timeline-direction="down" d={`M ${branches.spineX - 5} ${branches.spineBottom - 9} L ${branches.spineX} ${branches.spineBottom - 2} L ${branches.spineX + 5} ${branches.spineBottom - 9}`} />
         {branches.nodes.map((node, index) => <g key={index} data-branch-step={index + 1} data-reached={index <= safeActive} data-anchor-side={branches.mobile || index % 2 === 1 ? "right" : "left"}>
           <path d={`M ${branches.spineX} ${node.y} H ${branches.ends[index].x}`} />
           <circle cx={node.x} cy={node.y} r={12} />
