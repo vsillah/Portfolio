@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 const recipient = "vambah@amadutown.com";
@@ -70,6 +72,12 @@ export default function TrumpetInterestForm() {
         This review form builds an email draft on your device. It does not send,
         save, or enroll anyone. Please keep child details out of every field.
       </p>
+      <Link
+        href="/work/trumpet-trainer/recruitment"
+        className="mt-5 inline-flex min-h-12 max-w-full items-center gap-2 rounded-full border border-radiant-gold/60 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:border-radiant-gold hover:text-radiant-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold"
+      >
+        See the tester experience <ArrowRight aria-hidden="true" size={17} className="shrink-0" />
+      </Link>
       <form
         onChange={() => {
           setDraft("");

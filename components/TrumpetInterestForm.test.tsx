@@ -24,6 +24,14 @@ function completeForm() {
 }
 
 describe("Trumpet Trainer interest review", () => {
+  it("links to the tester experience without changing the email-draft action", () => {
+    render(<TrumpetInterestForm />);
+    const link = screen.getByRole("link", { name: "See the tester experience" });
+    expect(link).toHaveAttribute("href", "/work/trumpet-trainer/recruitment");
+    expect(link.className).toContain("focus-visible:outline");
+    expect(screen.getByRole("button", { name: "Prepare email draft" })).toHaveAttribute("type", "submit");
+  });
+
   it("asks only for adult contact and broad student experience", () => {
     render(<TrumpetInterestForm />);
     expect(screen.getByLabelText("Your name")).toBeInTheDocument();
