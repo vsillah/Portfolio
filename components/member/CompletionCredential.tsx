@@ -83,15 +83,18 @@ export default function CompletionCredential({ token, completedCount, profileNam
     const gold = '#a57413'
     let logoData = ''
     let frameData = ''
+    let signatureData = ''
     try {
-      const [logoResponse, frameResponse] = await Promise.all([
+      const [logoResponse, frameResponse, signatureResponse] = await Promise.all([
         fetch('/amadutown-logo-upscaled.png'),
         fetch('/accelerated/certificate-frame.png'),
+        fetch('/accelerated/vambah-signature.png'),
       ])
-      if (!logoResponse.ok || !frameResponse.ok) throw new Error('Certificate artwork unavailable')
+      if (!logoResponse.ok || !frameResponse.ok || !signatureResponse.ok) throw new Error('Certificate artwork unavailable')
       const toDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(blob) })
       logoData = await toDataUrl(await logoResponse.blob())
       frameData = await toDataUrl(await frameResponse.blob())
+      signatureData = await toDataUrl(await signatureResponse.blob())
       await document.fonts.ready
     } catch { setNotice('The certificate artwork could not be loaded. Try downloading again.'); return }
     const titleElement = document.querySelector(`.${styles.certificateTitle}`)
@@ -142,6 +145,7 @@ export default function CompletionCredential({ token, completedCount, profileNam
       <text x="712" y="755" fill="${ink}" font-family="Georgia,serif" font-size="45" font-weight="700" text-anchor="middle" letter-spacing="12">ACCELERATED</text>
       <text x="712" y="794" fill="${ink}" font-family="Georgia,serif" font-size="27" font-weight="600" text-anchor="middle">Building Smarter Products with AI</text>
       <text x="184" y="840" fill="${gold}" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="3">ISSUE DATE</text><text x="184" y="874" fill="${ink}" font-family="Georgia,serif" font-size="21">${escapeXml(date)}</text>
+      <image href="${signatureData}" x="517" y="785" width="390" height="112" preserveAspectRatio="xMidYMid meet"/>
       <line x1="518" y1="886" x2="906" y2="886" stroke="${ink}" stroke-width="1.3"/>
       <text x="712" y="919" fill="${ink}" font-family="Georgia,serif" font-size="25" font-weight="700" text-anchor="middle">Vambah Sillah</text><text x="712" y="950" fill="${ink}" font-family="Georgia,serif" font-size="18" text-anchor="middle">Owner, AmaduTown · Author, Accelerated</text>
       <text x="1040" y="828" fill="${gold}" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2">CREDENTIAL RECORD ID</text><text x="1040" y="861" fill="${ink}" font-family="Georgia,serif" font-size="18">${escapeXml(recordLabel(credential))}</text>
@@ -179,7 +183,7 @@ export default function CompletionCredential({ token, completedCount, profileNam
           <span className={styles.courseSubtitle}>Building Smarter Products with AI</span>
           <div className={styles.certification}>
             <div className={styles.issue}><span>ISSUE DATE</span><strong>{credential ? new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }) : 'Month DD, YYYY'}</strong></div>
-            <div className={styles.signature}><span className={styles.signatureLine} aria-hidden="true" /><strong>Vambah Sillah</strong><span>Owner, AmaduTown · Author, Accelerated</span></div>
+            <div className={styles.signature}><Image className={styles.signatureImage} src="/accelerated/vambah-signature.png" alt="" width={360} height={130} /><span className={styles.signatureLine} aria-hidden="true" /><strong>Vambah Sillah</strong><span>Owner, AmaduTown · Author, Accelerated</span></div>
             <div className={styles.record}><span>CREDENTIAL RECORD ID</span><strong>{recordLabel(credential)}</strong><span>VERIFICATION REFERENCE</span><strong>{verificationUrl ? verificationUrl.replace(/^https?:\/\//, '') : 'Available after claiming'}</strong></div>
           </div>
         </div>
