@@ -22,6 +22,8 @@ async function check(page, width, theme) {
   if ((await primary.getAttribute("target")) !== "_blank") throw new Error("Primary must open a new tab");
   if (!(await primary.getAttribute("rel"))?.includes("noopener noreferrer")) throw new Error("Primary link safety missing");
   if ((await secondary.getAttribute("href")) !== "/work/trumpet-trainer") throw new Error("Product story destination changed");
+  const fill = await secondary.evaluate((element) => ({ button: getComputedStyle(element).backgroundColor, section: getComputedStyle(element.closest("section")).backgroundColor }));
+  if (fill.button !== fill.section || fill.button === "rgba(0, 0, 0, 0)") throw new Error(`${width} ${theme} product-story CTA fill is transparent`);
   if ((await page.locator('meta[name="robots"]').getAttribute("content")) !== "noindex, nofollow") throw new Error("Noindex missing");
   if (await page.locator("form").count()) throw new Error("Unexpected form");
   if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw new Error(`${width} ${theme} horizontal overflow`);
