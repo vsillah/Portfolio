@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
-import { DECISION_FILE_STORAGE_KEY } from '@/lib/accelerated-decision-file'
+import { DECISION_FILE_STORAGE_KEY, emptyDecisionFile } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 
@@ -27,6 +27,7 @@ vi.mock('next/image', () => ({
 describe('Accelerated learning plan', () => {
   beforeEach(() => {
     localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+    localStorage.removeItem(`${DECISION_FILE_STORAGE_KEY}:saved-at`)
     localStorage.removeItem(GUEST_PROGRESS_KEY)
     authMocks.getSession.mockResolvedValue({ data: { session: null } })
     authMocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
@@ -106,6 +107,9 @@ describe('Accelerated learning plan', () => {
     expect(css).toContain('.detail>.player,.detail>.mediaNotice{grid-row:4}')
     expect(css).toContain('.detail>.worksheet{grid-row:5}')
     expect(css).toContain('.detail>.worksheet{grid-column:2;grid-row:4}')
+    expect(css).toContain('.workspaceNav .workspaceBack:hover')
+    expect(css).toContain('.workspaceNav .workspaceBack:focus-visible')
+    expect(css).toContain('@media(max-width:760px){.workspaceNav{align-items:flex-start;flex-direction:column}')
   })
 
   it('renders the Decision File as a complete standalone workbook with flat scoped actions', () => {
@@ -113,11 +117,65 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('heading', { name: 'The Accelerated Decision File' })).toBeInTheDocument()
     expect(screen.getByRole('progressbar', { name: 'Decision File pages started' })).toHaveAttribute('value', '0')
     expect(screen.getAllByPlaceholderText('Add your working notes')).toHaveLength(16)
-    expect(screen.getByRole('link', { name: 'Back to the Learning Plan' })).toHaveAttribute('href', '/accelerated/learningplan')
+    const back = screen.getByRole('link', { name: 'Back to the Learning Plan' })
+    expect(back).toHaveAttribute('href', '/accelerated/learningplan')
+    expect(back.className).toContain('workspaceBack')
+    expect(back.querySelector('svg')).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent('Not saved locally yet')
     expect(screen.getByRole('button', { name: 'Review and send' }).className).toContain('primaryAction')
     expect(screen.getByRole('button', { name: 'Delete all answers' }).className).toContain('dangerAction')
     fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'One bounded decision' } })
     expect(screen.getByRole('progressbar', { name: 'Decision File pages started' })).toHaveAttribute('value', '1')
+  })
+
+  it('shows a local save time only after worksheet answers persist and restores it on reload', async () => {
+    const view = render(<AcceleratedLearningPlan mode="decision-file" />)
+    expect(localStorage.getItem(`${DECISION_FILE_STORAGE_KEY}:saved-at`)).toBeNull()
+    fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'Synthetic decision' } })
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(/^Last saved locally at \d{1,2}:\d{2}\s?[AP]M$/))
+    const marker = JSON.parse(localStorage.getItem(`${DECISION_FILE_STORAGE_KEY}:saved-at`) || '{}')
+    expect(marker.worksheetId).toBe(JSON.parse(localStorage.getItem(DECISION_FILE_STORAGE_KEY) || '{}').worksheetId)
+    expect(Date.parse(marker.savedAt)).not.toBeNaN()
+    const label = screen.getByRole('status').textContent
+    view.unmount()
+    render(<AcceleratedLearningPlan mode="decision-file" />)
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(label || ''))
+    expect(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/)).toHaveValue('Synthetic decision')
+  })
+
+  it('labels an older saved worksheet without inventing a save time', async () => {
+    const draft = emptyDecisionFile('12345678-1234-4234-8234-123456789abc')
+    draft.answers.L01 = 'Existing local work'
+    localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(draft))
+    render(<AcceleratedLearningPlan mode="decision-file" />)
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saved locally · time unavailable'))
+    expect(localStorage.getItem(`${DECISION_FILE_STORAGE_KEY}:saved-at`)).toBeNull()
+  })
+
+  it('labels account saves only after a confirmed member write', async () => {
+    authMocks.getSession.mockResolvedValue({ data: { session: {
+      access_token: 'synthetic-token',
+      user: { id: 'synthetic-member', email: 'member@example.test', user_metadata: {} },
+    } } })
+    let writes = 0
+    const fetchMock = vi.fn(async (url: string, options?: RequestInit) => {
+      if (url === '/api/accelerated/member/credential') return { ok: true, json: async () => ({ available: false }) }
+      if (url === '/api/accelerated/member' && !options?.method) return { ok: true, json: async () => ({ enrollment: { revision: 1, current_lesson_id: 'L01' }, lessons: [], worksheet: null }) }
+      writes += 1
+      return writes === 1 ? { ok: false, json: async () => ({ error: 'Save failed' }) } : { ok: true, json: async () => ({ revision: 2 }) }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    render(<AcceleratedLearningPlan mode="decision-file" />)
+    await waitFor(() => expect(screen.getByText('Not saved to your account yet')).toBeInTheDocument())
+    fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'Unsaved member work' } })
+    expect(screen.getByText('Not saved to your account yet')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Save all pages' }))
+    await waitFor(() => expect(screen.getByText('Save failed')).toBeInTheDocument())
+    expect(screen.getByText('Not saved to your account yet')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Save all pages' }))
+    await waitFor(() => expect(screen.getByText(/^Last saved to your account at \d{1,2}:\d{2}\s?[AP]M$/)).toBeInTheDocument())
+    expect(writes).toBe(2)
+    vi.unstubAllGlobals()
   })
 
   it('uses compact accessible action controls and a collapsible lesson rail', () => {
