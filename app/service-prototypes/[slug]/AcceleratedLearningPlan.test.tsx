@@ -100,6 +100,9 @@ describe('Accelerated learning plan', () => {
     expect(css).toContain('background-image:none;')
     expect(css).toContain('box-shadow:none;')
     expect(css).toContain('.state[data-state=complete],.detailState[data-state=complete]')
+    expect(css).toContain('border-radius:999px')
+    expect(css).toContain('.catalog[data-collapsed=true]')
+    expect(css).toContain('.iconAction::after,.catalogToggle::after')
     expect(css).toContain('.detail>.player,.detail>.mediaNotice{grid-row:4}')
     expect(css).toContain('.detail>.worksheet{grid-row:5}')
     expect(css).toContain('.detail>.worksheet{grid-column:2;grid-row:4/span 3}')
@@ -115,6 +118,23 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('button', { name: 'Clear worksheet' }).className).toContain('dangerAction')
     fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'One bounded decision' } })
     expect(screen.getByRole('progressbar', { name: 'Decision File pages started' })).toHaveAttribute('value', '1')
+  })
+
+  it('uses compact accessible action controls and a collapsible lesson rail', () => {
+    render(<AcceleratedLearningPlan />)
+    const save = screen.getByRole('button', { name: 'Save on this device' })
+    const review = screen.getByRole('button', { name: 'Review and send' })
+    const complete = screen.getByRole('button', { name: 'Mark lesson complete' })
+    const next = screen.getByRole('button', { name: 'Next lesson · L02' })
+    for (const control of [save, review, complete, next]) {
+      expect(control.className).toContain('iconAction')
+      expect(control).toHaveAttribute('data-tooltip')
+    }
+    const toggle = screen.getByRole('button', { name: 'Expand lesson navigation' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(toggle)
+    expect(screen.getByRole('button', { name: 'Collapse lesson navigation' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: /L02: Prioritize before generating/ }).querySelector('[data-state="ready"]')).toHaveTextContent('Ready')
   })
 
   it('loads a signed-in worksheet from the member profile and keeps assessment use consented', async () => {
