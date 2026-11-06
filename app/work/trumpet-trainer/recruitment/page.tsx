@@ -74,7 +74,7 @@ export default function TrumpetRecruitmentPage() {
           </div>
           <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-stretch">
             <a href="https://trumpet-trainer-zeta.vercel.app/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-radiant-gold px-6 py-3 text-base font-semibold text-imperial-navy shadow-[0_8px_28px_rgba(0,0,0,0.18)] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold" aria-label="Try Trumpet Trainer (opens the practice app in a new tab)">Try Trumpet Trainer <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></a>
-            <Link href="/work/trumpet-trainer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/45 px-6 py-3 text-base font-semibold text-white transition-colors hover:border-radiant-gold hover:text-radiant-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold">See the product story <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
+            <Link href="/work/trumpet-trainer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/45 bg-imperial-navy px-6 py-3 text-base font-semibold text-white transition-colors hover:border-radiant-gold hover:text-radiant-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold">See the product story <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
           </div>
         </div>
       </section>
