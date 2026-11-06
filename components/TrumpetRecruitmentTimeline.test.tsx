@@ -12,21 +12,39 @@ const steps: TimelineStep[] = [
 ];
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe("Trumpet recruitment timeline media", () => {
-  it("offers Safari an alpha-capable HEVC source before the MP4 fallback", () => {
+  it("plays Safari's transparent animated WebP once and advances the six beats", () => {
+    vi.useFakeTimers();
     vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15");
     vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false })));
-    vi.stubGlobal("IntersectionObserver", class { observe() {} disconnect() {} });
+    let trigger!: () => void;
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(callback: IntersectionObserverCallback) {
+        trigger = () => callback([{ isIntersecting: true } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+      }
+      observe() {}
+      disconnect() {}
+    });
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
-    const sources = [...container.querySelectorAll("video source")];
-    expect(sources.map((source) => source.getAttribute("src"))).toEqual([
-      "/work/trumpet-trainer/design/trumpet-timeline-hevc.mp4",
-      "/work/trumpet-trainer/design/trumpet-timeline.mp4",
-    ]);
+    expect(container.querySelector("video")).toBeNull();
+    act(trigger);
+    const image = container.querySelector('img[src$="trumpet-timeline.webp"]')!;
+    expect(image).not.toBeNull();
+    fireEvent.load(image);
+    expect(container.firstElementChild).toHaveAttribute("data-beat", "1");
+    act(() => vi.advanceTimersByTime(1280));
+    expect(container.firstElementChild).toHaveAttribute("data-beat", "2");
+    act(() => vi.advanceTimersByTime(5200));
+    expect(container.firstElementChild).toHaveAttribute("data-beat", "6");
+    expect(container.querySelectorAll('img[src$="trumpet-timeline.webp"]')).toHaveLength(1);
+    act(() => vi.advanceTimersByTime(600));
+    expect(container.querySelector('img[src$="trumpet-timeline.webp"]')).toBeNull();
+    expect(container.querySelector('img[src*="trumpet-timeline-poster.png"]')).not.toBeNull();
   });
 
   it("shows the stable poster and all six native details when motion is reduced", () => {

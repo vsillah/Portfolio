@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element -- Native image loading starts and stops Safari's transparent animation. */
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -13,10 +14,12 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
   const root = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const started = useRef(false);
+  const safariTimers = useRef<number[]>([]);
   const [beat, setBeat] = useState(0);
   const [staticPoster, setStaticPoster] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [safariMedia, setSafariMedia] = useState<boolean | null>(null);
+  const [safariAnimated, setSafariAnimated] = useState(false);
 
   useEffect(() => {
     const ua = navigator.userAgent;
@@ -36,6 +39,10 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
       if (!entry.isIntersecting || started.current) return;
       started.current = true;
       observer.disconnect();
+      if (safariMedia) {
+        setSafariAnimated(true);
+        return;
+      }
       const player = video.current;
       if (!player) {
         setStaticPoster(true);
@@ -49,8 +56,31 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
       });
     }, { threshold: 0.25 });
     if (root.current) observer.observe(root.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      safariTimers.current.forEach(window.clearTimeout);
+      safariTimers.current = [];
+    };
   }, [safariMedia, steps.length]);
+
+  const failMedia = () => {
+    safariTimers.current.forEach(window.clearTimeout);
+    safariTimers.current = [];
+    setPlaying(false);
+    setStaticPoster(true);
+    setBeat(steps.length);
+  };
+
+  const startSafariBeats = () => {
+    setPlaying(true);
+    setBeat(1);
+    safariTimers.current = beatTimes.slice(1, steps.length).map((time, index) =>
+      window.setTimeout(() => setBeat(index + 2), time * 1000));
+    safariTimers.current.push(window.setTimeout(() => {
+      setPlaying(false);
+      setStaticPoster(true);
+    }, 7000));
+  };
 
   const updateBeat = () => {
     const elapsed = video.current?.currentTime ?? 0;
@@ -62,8 +92,9 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
     <span aria-hidden="true" className={styles.spine} />
     <div aria-hidden="true" className={styles.instrument}>
       {!playing && <Image src={`${asset}-poster.png`} width={512} height={768} alt="" draggable={false} priority className={styles.trumpet} />}
-      {!staticPoster && safariMedia !== null && <video ref={video} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} poster={`${asset}-poster.png`} preload="auto" muted playsInline onPlaying={() => setPlaying(true)} onTimeUpdate={updateBeat} onEnded={() => setBeat(steps.length)} onError={() => { setPlaying(false); setStaticPoster(true); setBeat(steps.length); }}>
-          {safariMedia ? <source src={`${asset}-hevc.mp4`} type='video/mp4; codecs="hvc1"' /> : <source src={`${asset}.webm`} type="video/webm" />}
+      {!staticPoster && safariMedia && safariAnimated && <img src={`${asset}.webp`} width={512} height={768} alt="" draggable={false} onLoad={startSafariBeats} onError={failMedia} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} />}
+      {!staticPoster && safariMedia === false && <video ref={video} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} poster={`${asset}-poster.png`} preload="auto" muted playsInline onPlaying={() => setPlaying(true)} onTimeUpdate={updateBeat} onEnded={() => setBeat(steps.length)} onError={failMedia}>
+          <source src={`${asset}.webm`} type="video/webm" />
           <source src={`${asset}.mp4`} type="video/mp4" />
         </video>}
     </div>
