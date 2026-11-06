@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import TrumpetRecruitmentMessages from "@/components/TrumpetRecruitmentMessages";
 import TrumpetRecruitmentPersonas from "@/components/TrumpetRecruitmentPersonas";
 import TrumpetRecruitmentSocialCarousel from "@/components/TrumpetRecruitmentSocialCarousel";
+import TrumpetRecruitmentTimeline from "@/components/TrumpetRecruitmentTimeline";
 import { BookOpen, ShieldCheck } from "lucide-react";
-import timelineStyles from "./timeline.module.css";
 
 export const metadata: Metadata = {
   title: "Trumpet Trainer | Recruitment review packet",
@@ -97,16 +96,7 @@ export default function RecruitmentReviewPage() {
 
         <section aria-labelledby="plan" className="mt-16">
           <p className="font-heading text-xs uppercase tracking-[.2em] text-radiant-gold">A proposed rhythm, pending approval</p><h2 id="plan" className="mt-2 font-premium text-3xl">14 days, six steps</h2>
-          <div className={`${timelineStyles.timeline} mt-8`}>
-            <span aria-hidden="true" className={timelineStyles.spine} />
-            <Image src="/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png" width={1024} height={1536} alt="" aria-hidden="true" draggable={false} className={timelineStyles.trumpet} />
-            <ol className={timelineStyles.list}>
-              {schedule.map(({ days, title, detail }, index) => <li key={days} className={timelineStyles.step}>
-                <span aria-hidden="true" className={timelineStyles.pin}>{index + 1}</span>
-                <div className={`${timelineStyles.card} rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5`}><span className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Days {days}</span><h3 className="mt-1 font-premium text-xl">{title}</h3><details className="mt-2 text-sm text-muted-foreground"><summary className="cursor-pointer">Review details</summary><p className="mt-2 leading-6">{detail}</p></details></div>
-              </li>)}
-            </ol>
-          </div>
+          <div className="mt-8"><TrumpetRecruitmentTimeline steps={schedule} /></div>
           <details className="mt-5 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground"><summary className="cursor-pointer font-semibold text-foreground">Operating boundaries and stop signals</summary><p className="mt-3 leading-6">Start the clock only after exact channels, copy, adult recipient basis, and retention are approved. Count by role and channel in an approved aggregate log only. Pause for child data, a declined post, an opt-out, a request to contact a minor, institutional approval needs, unexpected cost, or a flow that conflicts with teaching. One nonresponse follow-up maximum; none after a decline. No scraped lists, student rosters, contact import, or paid ads.</p></details>
         </section>
 

@@ -1,0 +1,232 @@
+.timeline {
+  position: relative;
+  isolation: isolate;
+  --spine-column: clamp(9rem, 18vw, 12rem);
+}
+
+.spine {
+  position: absolute;
+  z-index: 0;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  left: 22px;
+  width: 1px;
+  background: linear-gradient(transparent, rgb(225 185 92 / 65%) 10%, rgb(225 185 92 / 65%) 90%, transparent);
+  pointer-events: none;
+}
+
+.instrument {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: -2rem;
+  width: 150px;
+  aspect-ratio: 2 / 3;
+  opacity: .22;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 24px rgb(0 0 0 / 35%));
+  --base-x: 0;
+  --base-y: 0;
+  --press-distance: 3px;
+}
+
+.trumpet { display: block; width: 100%; height: auto; }
+
+.valve {
+  position: absolute;
+  z-index: 1;
+  left: 30%;
+  width: 4.8%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(106 75 36 / 90%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #fff9e8 0%, #e7dfd0 48%, #baa782 74%, #79562c 100%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 65%), inset 0 1px 1px rgb(255 255 255 / 65%);
+  transform: translate(-50%, -50%);
+}
+
+.valveOne { top: 35.5%; }
+.valveTwo { top: 40.7%; }
+.valveThree { top: 45.9%; }
+
+.bellLight {
+  position: absolute;
+  right: 26%;
+  bottom: 1%;
+  left: 28%;
+  height: 13%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(255 225 144 / 35%), transparent 70%);
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.list {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.step::before {
+  position: absolute;
+  top: 50%;
+  left: 44px;
+  width: 12px;
+  height: 1px;
+  background: rgb(225 185 92 / 65%);
+  content: "";
+}
+
+.pin {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  grid-column: 1;
+  grid-row: 1;
+  place-items: center;
+  border: 2px solid var(--radiant-gold);
+  border-radius: 50%;
+  background: var(--background);
+  color: var(--radiant-gold);
+  font-family: var(--font-premium), Georgia, serif;
+  font-size: 1.125rem;
+}
+
+.card {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+@media (min-width: 768px) {
+  .spine { left: 50%; }
+
+  .instrument {
+    top: 50%;
+    right: auto;
+    left: 50%;
+    width: clamp(340px, 42vw, 480px);
+    transform: translate(-50%, -50%);
+    opacity: .94;
+    --base-x: -50%;
+    --base-y: -50%;
+    --press-distance: 7px;
+  }
+
+  .list { gap: 12px; }
+
+  .step {
+    min-height: 126px;
+    grid-template-columns: minmax(0, 1fr) var(--spine-column) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .step::before {
+    left: calc(50% - var(--spine-column) / 2 - 12px);
+    width: calc(var(--spine-column) / 2 + 12px);
+  }
+
+  .step:nth-child(even)::before { left: 50%; }
+
+  .pin { grid-column: 2; margin: auto; }
+
+  .card { grid-column: 1; }
+
+  .step:nth-child(even) .card { grid-column: 3; }
+}
+
+@keyframes instrumentSettle {
+  0% { transform: translate(var(--base-x), var(--base-y)) translateY(-3px) rotate(-.3deg); }
+  55% { transform: translate(var(--base-x), var(--base-y)) translateY(1px) rotate(.12deg); }
+  100% { transform: translate(var(--base-x), var(--base-y)); }
+}
+
+@keyframes valveStroke {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  32% { transform: translate(-50%, -50%) translateY(var(--press-distance)); }
+  57% { transform: translate(-50%, -50%) translateY(calc(var(--press-distance) * .78)); }
+}
+
+@keyframes valveStrokeFinal {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  32% { transform: translate(-50%, -50%) translateY(var(--press-distance)); }
+  57% { transform: translate(-50%, -50%) translateY(calc(var(--press-distance) * .78)); }
+}
+
+@keyframes dampedVibration {
+  0%, 100% { transform: translate(var(--base-x), var(--base-y)); }
+  30% { transform: translate(var(--base-x), var(--base-y)) translateX(1.5px) rotate(.12deg); }
+  56% { transform: translate(var(--base-x), var(--base-y)) translateX(-.8px) rotate(-.07deg); }
+  78% { transform: translate(var(--base-x), var(--base-y)) translateX(.35px); }
+}
+
+@keyframes cardReceive {
+  from { opacity: .76; transform: translateX(var(--card-in, -9px)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes connectorDraw {
+  from { transform: scaleX(0); opacity: .35; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes pinSettle {
+  0% { transform: scale(.87); }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+@keyframes markerTremor {
+  0%, 100% { transform: rotate(0); }
+  35% { transform: rotate(2deg) translateX(1px); }
+  58% { transform: rotate(-1.2deg) translateX(-.5px); }
+  78% { transform: rotate(.4deg); }
+}
+
+@keyframes bellSettle {
+  0%, 100% { opacity: 0; }
+  45% { opacity: .42; }
+}
+
+.timeline[data-beat="1"] .instrument { animation: instrumentSettle 480ms ease-out both; }
+.timeline[data-beat="2"] .valveOne,
+.timeline[data-beat="3"] .valveTwo,
+.timeline[data-beat="4"] .valveOne,
+.timeline[data-beat="4"] .valveThree,
+.timeline[data-beat="5"] .valveTwo,
+.timeline[data-beat="5"] .valveThree { animation: valveStroke 480ms cubic-bezier(.22, .7, .28, 1) both; }
+.timeline[data-beat="3"] .instrument { animation: dampedVibration 360ms 100ms ease-out both; }
+.timeline[data-beat="5"] .valveTwo,
+.timeline[data-beat="5"] .valveThree { animation-name: valveStrokeFinal; }
+.timeline[data-beat="6"] .bellLight { animation: bellSettle 520ms ease-out both; }
+.step[data-active="true"] { --card-in: -9px; }
+.step:nth-child(even)[data-active="true"] { --card-in: 9px; }
+.step[data-active="true"]::before { animation: connectorDraw 300ms 140ms ease-out both; }
+.step[data-active="true"] .pin { animation: pinSettle 330ms 170ms ease-out both; }
+.step:nth-child(3)[data-active="true"] .pin { animation: markerTremor 380ms 165ms ease-out both; }
+.step[data-active="true"] .card { animation: cardReceive 350ms 190ms ease-out both; }
+
+@media (max-width: 767px) {
+  .step[data-active="true"] { --card-in: 8px; }
+  .instrument { opacity: .32; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline *, .timeline *::before, .timeline *::after { animation: none !important; transition: none !important; }
+  .instrument { opacity: .22 !important; }
+  .bellLight { opacity: 0 !important; }
+}

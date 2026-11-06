@@ -44,7 +44,7 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(sequence?.querySelectorAll("svg")).toHaveLength(0);
     const trumpet = sequence?.querySelector("img");
     expect(trumpet).toHaveAttribute("alt", "");
-    expect(trumpet).toHaveAttribute("aria-hidden", "true");
+    expect(trumpet?.closest('[aria-hidden="true"]')).not.toBeNull();
     expect(new URL(trumpet?.getAttribute("src") || "", "http://localhost").searchParams.get("url")).toBe("/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png");
     expect(createHash("sha256").update(readFileSync(join(process.cwd(), "public/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png"))).digest("hex")).toBe("5f69be66bbd1957d214e823c6a679f70ff0eafe7782b9ad683d88bf9c8b955ce");
     expect(sequence?.textContent).not.toContain("𝄞");
