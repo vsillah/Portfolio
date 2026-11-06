@@ -3,6 +3,7 @@
 
 import argparse
 import hashlib
+import json
 from pathlib import Path
 import struct
 import subprocess
@@ -10,7 +11,10 @@ import sys
 
 
 EXPECTED_SHA256 = "5d7d57de0da0cd1defe1c2b61c48bf9d66c73b0d698644bb0715ba75b92526fa"
-PROOF_DIR = "docs/qa/trumpet-recruitment-visual-story/imeshh-topology/"
+PROOF_DIRS = (
+    "docs/qa/trumpet-recruitment-visual-story/imeshh-topology/",
+    "docs/qa/trumpet-recruitment-visual-story/imeshh-repair/",
+)
 RESTRICTED_EXTENSIONS = {
     ".blend", ".blend1", ".fbx", ".glb", ".gltf", ".obj", ".mtl",
     ".zip", ".jpg", ".jpeg", ".tga", ".exr", ".hdr",
@@ -40,6 +44,22 @@ def check_png(path: Path) -> None:
         raise ValueError(f"Invalid PNG structure or trailing data: {path}")
 
 
+def check_mp4(path: Path) -> None:
+    result = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", str(path)],
+        check=True, capture_output=True, text=True,
+    )
+    media = json.loads(result.stdout)
+    streams = media.get("streams", [])
+    if len(streams) != 1 or streams[0].get("codec_type") != "video" or streams[0].get("codec_name") != "h264":
+        raise ValueError(f"Unexpected stream or embedded attachment in {path}")
+    video = streams[0]
+    if (video.get("width"), video.get("height"), video.get("nb_frames")) != (960, 600, "96"):
+        raise ValueError(f"Unexpected proof dimensions or frame count in {path}")
+    if abs(float(media["format"]["duration"]) - 4.0) > 0.01:
+        raise ValueError(f"Unexpected proof duration in {path}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--asset-zip", type=Path, required=True, help="Caller-supplied local iMeshh ZIP")
@@ -56,17 +76,21 @@ def main() -> int:
         cwd=root, check=True, capture_output=True,
     )
     paths = [Path(raw.decode()) for raw in result.stdout.split(b"\0") if raw]
+    in_proof = lambda path: any(str(path).startswith(directory) for directory in PROOF_DIRS)
     restricted = [
         str(path) for path in paths
         if "decorations_instruments_trumpet_01" in str(path).lower()
-        or (str(path).startswith(PROOF_DIR) and path.suffix.lower() in RESTRICTED_EXTENSIONS)
+        or (in_proof(path) and path.suffix.lower() in RESTRICTED_EXTENSIONS)
     ]
     if restricted:
         raise ValueError(f"Recoverable licensed source in Git candidate files: {restricted}")
-    stills = sorted(path for path in paths if str(path).startswith(PROOF_DIR) and path.suffix.lower() == ".png")
+    stills = sorted(path for path in paths if in_proof(path) and path.suffix.lower() == ".png")
     for still in stills:
         check_png(root / still)
-    print(f"PASS: source SHA-256 verified; {len(paths)} Git candidate paths exclude licensed source; {len(stills)} PNG stills contain image chunks only")
+    videos = sorted(path for path in paths if in_proof(path) and path.suffix.lower() == ".mp4")
+    for video in videos:
+        check_mp4(root / video)
+    print(f"PASS: source SHA-256 verified; {len(paths)} Git candidate paths exclude licensed source; {len(stills)} PNG stills contain image chunks only; {len(videos)} MP4 files contain one video stream only")
     return 0
 
 
