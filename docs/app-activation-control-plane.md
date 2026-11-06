@@ -19,6 +19,8 @@ Reference review: ReversR SIT's hosted commercial API and `useCommercialization`
 
 The tables are in `public` for repo schema convention, with RLS enabled and `anon`/`authenticated` privileges revoked. No client policies exist. Only a trusted server role may use the data; the redemption function is in non-exposed `activation_private` and callable only by `service_role`. Phase 2 must add explicit application authorization, rate limiting, anti-enumeration responses, operator audit, and local RLS/SQL tests before any route is exposed. The server role must never reach a client bundle.
 
+The private function runs as its caller and compares the supplied Auth user ID with the canonical `auth.users.email`. Current Supabase projects do not give `service_role` table SELECT for this invoker query, so the migration grants that server-only role SELECT on exactly `auth.users.id` and `auth.users.email`. It does not grant client roles access to Auth data or change Auth schema ownership. This narrow dependency must be checked again during hosted migration review.
+
 ## Source contract
 
 `lib/app-activation.ts` is the product-neutral TypeScript domain contract. The generated migration `20261106234206_app_activation_control_plane.sql` is the local persistence contract. The SQL function is the atomic redemption boundary; the TypeScript redemption predicate is a preflight guard, not a substitute for the database claim. One unrevoked grant per app/account and one grant per invitation are enforced by indexes. Reissue after expiration requires explicit revocation or a future lifecycle design, so Phase 2 must not silently overwrite grants.

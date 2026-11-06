@@ -124,6 +124,12 @@ create schema if not exists activation_private;
 revoke all on schema activation_private from public, anon, authenticated;
 grant usage on schema activation_private to service_role;
 
+-- The invoker must verify the supplied account ID against Auth's canonical email.
+-- service_role already has auth-schema usage, but not table SELECT in current
+-- Supabase projects. Grant only the two columns this private check reads.
+-- No anon/authenticated Auth-table or activation-table access is added.
+grant select (id, email) on auth.users to service_role;
+
 create function activation_private.redeem_invitation(
   p_app_key text,
   p_token_hash text,
