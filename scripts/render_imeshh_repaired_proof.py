@@ -39,6 +39,7 @@ def args_after_dashdash():
     parser.add_argument("--preview-only", action="store_true")
     parser.add_argument("--stills-only", action="store_true")
     parser.add_argument("--milestone-clips", action="store_true")
+    parser.add_argument("--milestone-poster-only", action="store_true")
     parser.add_argument("--milestone-limit", type=int, default=6)
     parsed = parser.parse_args(args)
     if not parsed.asset_zip.is_file():
@@ -48,6 +49,8 @@ def args_after_dashdash():
         parser.error("Licensed ZIP SHA-256 mismatch; refusing a different source")
     if not 1 <= parsed.milestone_limit <= 6:
         parser.error("Milestone limit must be between one and six")
+    if parsed.milestone_poster_only and not parsed.milestone_clips:
+        parser.error("Milestone poster preview requires --milestone-clips")
     return parsed
 
 
@@ -290,13 +293,17 @@ def render_still(scene, path, frame):
     render_frame(scene, path)
 
 
-def render_milestones(scene, output_dir, limit):
+def render_milestones(scene, output_dir, limit, poster_only=False):
     scene.render.film_transparent = True
     scene.render.image_settings.color_mode = "RGBA"
-    scene.camera.data.ortho_scale = .62
+    scene.render.resolution_x = 800
+    scene.render.resolution_y = 800
+    scene.camera.data.ortho_scale = .54
     milestone_state(1, 0, 24, ROOTS)
     scene.cycles.samples = 24
     render_frame(scene, output_dir / "poster.png")
+    if poster_only:
+        return
     scene.cycles.samples = 10
     for step in range(1, limit + 1):
         count = 36 if step == 6 else 24
@@ -307,7 +314,7 @@ def render_milestones(scene, output_dir, limit):
             duration = count / FPS
             subprocess.run([
                 "ffmpeg", "-hide_banner", "-loglevel", "error",
-                "-f", "lavfi", "-i", f"color=c=0x121e31:s=960x600:r={FPS}:d={duration}",
+                "-f", "lavfi", "-i", f"color=c=0x121e31:s=800x800:r={FPS}:d={duration}",
                 "-framerate", str(FPS), "-i", str(Path(frames_dir) / "%04d.png"),
                 "-filter_complex", "[0:v][1:v]overlay=shortest=1:format=auto,format=yuv420p[v]",
                 "-map", "[v]", "-map_metadata", "-1", "-an",
@@ -392,10 +399,13 @@ if __name__ == "__main__":
             source_tube_overlaps[name] = round(source_overlap, 5)
             if source_overlap < .012:
                 raise RuntimeError(f"Original slide exits fixed sleeve: {name} {source_overlap}")
-        presentation.rotation_euler.x = math.radians(40)
+        # Keep the approved mechanical proof unchanged; frame the public
+        # milestone renders with bell down and mouthpiece up.
+        presentation.rotation_euler.x = math.radians(90 if arguments.milestone_clips else 40)
         camera = setup_render(scene, presentation)
         if arguments.milestone_clips:
-            render_milestones(scene, arguments.out, arguments.milestone_limit)
+            render_milestones(scene, arguments.out, arguments.milestone_limit,
+                              arguments.milestone_poster_only)
         elif arguments.preview_only:
             render_still(scene, arguments.out / "repaired-preview.png", 36)
         else:
@@ -434,6 +444,6 @@ if __name__ == "__main__":
               "minimum_source_tube_overlap_m": min(source_tube_overlaps.values()),
               "minimum_radial_clearance_m": round(minimum_radial_clearance, 6),
               "overlaps_m": overlaps, "source_tube_overlaps_m": source_tube_overlaps,
-              "frames": (arguments.milestone_limit * 24 + (12 if arguments.milestone_limit == 6 else 0))
+              "frames": (1 if arguments.milestone_poster_only else arguments.milestone_limit * 24 + (12 if arguments.milestone_limit == 6 else 0))
               if arguments.milestone_clips else (1 if arguments.preview_only else
               (0 if arguments.stills_only else FRAMES))}))

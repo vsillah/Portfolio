@@ -1,7 +1,7 @@
 .timeline { isolation: isolate; min-width: 0; }
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.3fr) minmax(0, 1fr); grid-template-rows: repeat(3, minmax(92px, auto)); align-items: center; gap: .7rem; }
-.stage { position: relative; grid-column: 2; grid-row: 1 / 4; overflow: hidden; min-width: 0; border: 1px solid rgb(212 175 55 / 24%); border-radius: 1.25rem; background: #121e31; }
-.visual { position: relative; aspect-ratio: 8 / 5; width: 100%; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.9fr) minmax(0, 1.15fr); grid-template-rows: repeat(3, minmax(92px, auto)); align-items: center; gap: .7rem; }
+.stage { position: relative; grid-column: 2; grid-row: 1 / 4; overflow: hidden; min-width: 0; width: 100%; border: 1px solid rgb(212 175 55 / 24%); border-radius: 1.25rem; background: #121e31; }
+.visual { position: relative; aspect-ratio: 1; width: 100%; }
 .poster, .video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
 .posterFallback { display: grid; width: 100%; height: 100%; place-items: center; color: #eaecee; font-family: var(--font-premium), Georgia, serif; font-size: 1rem; }
 .video { opacity: 0; transition: opacity 180ms ease; }
@@ -39,7 +39,7 @@
 @keyframes cardTremor { 25% { transform: translateX(1px); } 55% { transform: translateX(-1px); } 100% { transform: translateX(0); } }
 @media (max-width: 1023px) {
   .layout { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; }
-  .stage { grid-column: 1 / -1; grid-row: auto; }
+  .stage { grid-column: 1 / -1; grid-row: auto; max-width: 520px; justify-self: center; }
   .step { grid-column: auto !important; grid-row: auto !important; }
 }
 @media (max-width: 639px) {

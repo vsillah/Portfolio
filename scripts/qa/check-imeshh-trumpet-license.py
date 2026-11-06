@@ -16,6 +16,10 @@ PROOF_DIRS = (
     "docs/qa/trumpet-recruitment-visual-story/imeshh-repair/",
     "public/work/trumpet-trainer/recruitment-motion/",
 )
+REVIEW_DIRS = (
+    "docs/qa/trumpet-recruitment-visual-story/imeshh-integration/",
+    "docs/qa/trumpet-recruitment-visual-story/imeshh-vertical-correction/",
+)
 RESTRICTED_EXTENSIONS = {
     ".blend", ".blend1", ".fbx", ".glb", ".gltf", ".obj", ".mtl",
     ".zip", ".jpg", ".jpeg", ".tga", ".exr", ".hdr",
@@ -27,6 +31,9 @@ def check_png(path: Path) -> None:
     data = path.read_bytes()
     if not data.startswith(b"\x89PNG\r\n\x1a\n"):
         raise ValueError(f"Invalid PNG: {path}")
+    if path.name == "poster.png" and path.parent.name == "recruitment-motion":
+        if struct.unpack_from(">II", data, 16) != (800, 800):
+            raise ValueError(f"Unexpected vertical poster dimensions: {path}")
     offset = 8
     types = []
     while offset + 12 <= len(data):
@@ -57,11 +64,13 @@ def check_mp4(path: Path) -> None:
     video = streams[0]
     if path.name.startswith("step-"):
         expected_frames = 36 if path.name == "step-06.mp4" else 24
+        expected_size = (800, 800)
     elif path.name == "repaired-mechanical-proof.mp4":
         expected_frames = 96
+        expected_size = (960, 600)
     else:
         raise ValueError(f"Unexpected iMeshh-derived video name: {path}")
-    if (video.get("width"), video.get("height"), video.get("nb_frames")) != (960, 600, str(expected_frames)):
+    if (video.get("width"), video.get("height"), video.get("nb_frames")) != (*expected_size, str(expected_frames)):
         raise ValueError(f"Unexpected proof dimensions or frame count in {path}")
     if abs(float(media["format"]["duration"]) - expected_frames / 24) > 0.01:
         raise ValueError(f"Unexpected proof duration in {path}")
@@ -84,10 +93,11 @@ def main() -> int:
     )
     paths = [Path(raw.decode()) for raw in result.stdout.split(b"\0") if raw]
     in_proof = lambda path: any(str(path).startswith(directory) for directory in PROOF_DIRS)
+    in_review = lambda path: any(str(path).startswith(directory) for directory in REVIEW_DIRS)
     restricted = [
         str(path) for path in paths
         if "decorations_instruments_trumpet_01" in str(path).lower()
-        or (in_proof(path) and path.suffix.lower() in RESTRICTED_EXTENSIONS)
+        or ((in_proof(path) or in_review(path)) and path.suffix.lower() in RESTRICTED_EXTENSIONS)
     ]
     if restricted:
         raise ValueError(f"Recoverable licensed source in Git candidate files: {restricted}")

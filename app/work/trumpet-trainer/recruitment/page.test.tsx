@@ -43,7 +43,7 @@ describe("Trumpet Trainer recruitment review", () => {
     const sequence = screen.getByRole("heading", { name: "14 days, six steps" }).nextElementSibling;
     expect(sequence?.querySelectorAll('button[aria-label^="Step "]')).toHaveLength(6);
     const trumpet = sequence?.querySelector("img");
-    expect(trumpet).toHaveAttribute("alt", "Upright brass trumpet");
+    expect(trumpet).toHaveAttribute("alt", "Vertically framed brass trumpet");
     expect(trumpet).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/poster.png");
     expect(readFileSync(join(process.cwd(), "public/work/trumpet-trainer/recruitment-motion/poster.png")).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));

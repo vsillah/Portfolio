@@ -1,5 +1,7 @@
 # Milestone trumpet integration review
 
+Historical checkpoint: Human QA approved the mechanical gestures but rejected this diagonal orientation. The [vertical correction](../imeshh-vertical-correction/README.md) is the current review target. Preserve this packet as evidence of the earlier state.
+
 ## Binding and scope
 
 - Product commit: `5ada98cd761ee2df26c268ae400f3575f8f1032d` on `codex/trumpet-recruitment-visual-story` (draft PR #1215).

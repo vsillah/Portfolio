@@ -24,7 +24,7 @@ afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.resto
 describe("Trumpet recruitment milestones", () => {
   it("starts on a static poster and maps direct selections to one distinct clip and card", async () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
-    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toBeInTheDocument();
     expect(container.querySelector("video")).toBeNull();
     expect(screen.getAllByRole("button", { name: /^Step \d, days/ })).toHaveLength(6);
     fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
@@ -91,13 +91,13 @@ describe("Trumpet recruitment milestones", () => {
     await act(async () => {});
     expect(container.querySelector("video")).toBeNull();
     expect(screen.getByRole("status")).toHaveTextContent("Motion unavailable");
-    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toBeInTheDocument();
     expect(container.firstElementChild).toHaveAttribute("data-active", "6");
   });
 
   it("shows a readable fallback if the poster image cannot load", () => {
     render(<TrumpetRecruitmentTimeline steps={steps} />);
-    fireEvent.error(screen.getByRole("img", { name: "Upright brass trumpet" }));
+    fireEvent.error(screen.getByRole("img", { name: "Vertically framed brass trumpet" }));
     expect(screen.getByRole("img", { name: "Trumpet visual unavailable" })).toHaveTextContent("Trumpet visual unavailable");
     expect(screen.getByRole("button", { name: /Step 1, days/ })).toBeEnabled();
   });

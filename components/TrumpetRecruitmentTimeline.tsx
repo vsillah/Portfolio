@@ -94,7 +94,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
     <div className={styles.layout}>
       <div className={styles.stage}>
         <div className={styles.visual}>
-          {posterFailed ? <div className={styles.posterFallback} role="img" aria-label="Trumpet visual unavailable">Trumpet visual unavailable</div> : <img src={`${mediaRoot}/poster.png`} width={960} height={600} alt="Upright brass trumpet" className={styles.poster} draggable={false} onError={() => setPosterFailed(true)} />}
+          {posterFailed ? <div className={styles.posterFallback} role="img" aria-label="Trumpet visual unavailable">Trumpet visual unavailable</div> : <img src={`${mediaRoot}/poster.png`} width={800} height={800} alt="Vertically framed brass trumpet" className={styles.poster} draggable={false} onError={() => setPosterFailed(true)} />}
           {clip !== null && !reducedMotion && !mediaFailed && <video key={`${clip}-${playToken}`} ref={videoRef} className={styles.video} data-visible={playing} muted playsInline preload="auto" aria-hidden="true" onPlaying={() => setPlaying(true)} onEnded={() => { setPlaying(false); setClip(null); }} onError={() => { setPlaying(false); setMediaFailed(true); setClip(null); }}><source src={clipFor(clip)} type="video/mp4" /></video>}
         </div>
         <span className={styles.stageLabel} aria-hidden="true">{String(safeActive + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}</span>
