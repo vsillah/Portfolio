@@ -115,7 +115,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getAllByPlaceholderText('Add your working notes')).toHaveLength(16)
     expect(screen.getByRole('link', { name: 'Back to the Learning Plan' })).toHaveAttribute('href', '/accelerated/learningplan')
     expect(screen.getByRole('button', { name: 'Review and send' }).className).toContain('primaryAction')
-    expect(screen.getByRole('button', { name: 'Clear worksheet' }).className).toContain('dangerAction')
+    expect(screen.getByRole('button', { name: 'Delete all answers' }).className).toContain('dangerAction')
     fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'One bounded decision' } })
     expect(screen.getByRole('progressbar', { name: 'Decision File pages started' })).toHaveAttribute('value', '1')
   })
