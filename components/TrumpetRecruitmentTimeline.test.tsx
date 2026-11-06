@@ -22,6 +22,36 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("Trumpet recruitment milestones", () => {
+  it("connects six numbered nodes and advances one continuous desktop rail in milestone order", () => {
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    const rail = container.querySelector('svg[data-path-order="1-2-3-4-5-6"]');
+    const progress = rail?.querySelectorAll("path")[1];
+    expect(rail).toHaveAttribute("data-progress", "1");
+    expect(rail?.querySelectorAll("path")[0].getAttribute("d")?.match(/\bL\b/g)).toHaveLength(7);
+    expect(container.querySelectorAll("[data-marker-index]")).toHaveLength(6);
+    fireEvent.click(screen.getByRole("button", { name: /Step 3, days/ }));
+    expect(rail).toHaveAttribute("data-progress", "3");
+    expect(progress?.getAttribute("d")?.match(/\bL\b/g)).toHaveLength(2);
+    expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("aria-current", "step");
+    expect(screen.getByRole("button", { name: /Step 4, days/ })).toHaveAttribute("data-reached", "false");
+    fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
+    expect(progress?.getAttribute("d")?.match(/\bL\b/g)).toHaveLength(5);
+    fireEvent.click(screen.getByRole("button", { name: /Step 6, days/ }));
+    expect(progress?.getAttribute("d")?.match(/\bL\b/g)).toHaveLength(7);
+  });
+
+  it("keeps a single ordered left rail and semantic active step on mobile", () => {
+    vi.stubGlobal("matchMedia", vi.fn((query: string) => ({ matches: query.includes("max-width: 767px"), addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    const rail = container.querySelector('svg[data-path-order="1-2-3-4-5-6"]');
+    expect(rail?.querySelectorAll("path")[0].getAttribute("d")?.match(/\bL\b/g)).toHaveLength(5);
+    expect([...container.querySelectorAll("[data-marker-index]")].map((node) => node.getAttribute("data-marker-index"))).toEqual(["1", "2", "3", "4", "5", "6"]);
+    fireEvent.click(screen.getByRole("button", { name: /Step 5, days/ }));
+    expect(rail).toHaveAttribute("data-progress", "5");
+    expect(rail?.querySelectorAll("path")[1].getAttribute("d")?.match(/\bL\b/g)).toHaveLength(4);
+    expect(screen.getByRole("button", { name: /Step 5, days/ })).toHaveAttribute("aria-current", "step");
+  });
+
   it("starts on a static poster and maps direct selections to one distinct clip and card", async () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
     expect(screen.getByRole("img", { name: "Vertically framed brass trumpet" })).toBeInTheDocument();
@@ -82,6 +112,7 @@ describe("Trumpet recruitment milestones", () => {
     expect(screen.queryByRole("button", { name: /Replay milestone/ })).toBeNull();
     expect(screen.getByText("Listen to adults.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("data-tremor", "false");
+    expect(container.querySelector('svg[data-path-order="1-2-3-4-5-6"]')).toHaveAttribute("data-progress", "3");
   });
 
   it("falls back to the poster and retains selection when media playback fails", async () => {

@@ -1,5 +1,7 @@
 # Vertical trumpet correction review
 
+Historical checkpoint: Human QA approved the vertical trumpet but found the six cards visually disconnected. The [connected timeline rail](../imeshh-timeline-rail/README.md) is the current review target. Preserve this packet as evidence of the approved vertical instrument state.
+
 ## Decision and binding
 
 Human QA accepted the six mechanical gestures in the prior `e9f3b774` checkpoint and rejected its diagonal framing. This packet reviews only the vertical orientation correction for draft PR #1215. The product commit is `b3f495fd20a76adfeadc030e0275eb78bfa4daa8` on `codex/trumpet-recruitment-visual-story`.
