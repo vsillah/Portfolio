@@ -1,110 +1,114 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- Native image loading starts and stops Safari's transparent animation. */
+/* eslint-disable @next/next/no-img-element -- Local transparent poster pairs with licensed rendered video. */
 
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./TrumpetRecruitmentTimeline.module.css";
 
 export type TimelineStep = { days: string; title: string; detail: string };
-
-const asset = "/work/trumpet-trainer/design/trumpet-timeline";
-const beatTimes = [0, 1.26, 3.24, 4.28, 5.40, 6.40];
+const mediaRoot = "/work/trumpet-trainer/recruitment-motion";
+const clipFor = (index: number) => `${mediaRoot}/step-${String(index + 1).padStart(2, "0")}.mp4`;
 
 export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineStep[] }) {
-  const root = useRef<HTMLDivElement>(null);
-  const video = useRef<HTMLVideoElement>(null);
-  const started = useRef(false);
-  const safariTimers = useRef<number[]>([]);
-  const [beat, setBeat] = useState(0);
-  const [staticPoster, setStaticPoster] = useState(false);
+  const [active, setActive] = useState(0);
+  const [clip, setClip] = useState<number | null>(null);
+  const [playToken, setPlayToken] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [safariMedia, setSafariMedia] = useState<boolean | null>(null);
-  const [safariAnimated, setSafariAnimated] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [mediaFailed, setMediaFailed] = useState(false);
+  const [posterFailed, setPosterFailed] = useState(false);
+  const [tremor, setTremor] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const dotRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const safeActive = Math.min(active, Math.max(steps.length - 1, 0));
 
   useEffect(() => {
-    const ua = navigator.userAgent;
-    setSafariMedia(/iPad|iPhone|iPod/.test(ua) || (/Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)));
+    const query = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (!query) return;
+    const update = () => setReducedMotion(query.matches);
+    update();
+    query.addEventListener?.("change", update);
+    return () => query.removeEventListener?.("change", update);
   }, []);
 
   useEffect(() => {
-    if (safariMedia === null) return;
-    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reduced || typeof IntersectionObserver === "undefined") {
-      setStaticPoster(true);
-      setBeat(steps.length);
-      return;
-    }
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting || started.current) return;
-      started.current = true;
-      observer.disconnect();
-      if (safariMedia) {
-        setSafariAnimated(true);
-        return;
-      }
-      const player = video.current;
-      if (!player) {
-        setStaticPoster(true);
-        setBeat(steps.length);
-        return;
-      }
-      player.play().then(() => setBeat((current) => Math.max(current, 1))).catch(() => {
-        setPlaying(false);
-        setStaticPoster(true);
-        setBeat(steps.length);
-      });
-    }, { threshold: 0.25 });
-    if (root.current) observer.observe(root.current);
-    return () => {
-      observer.disconnect();
-      safariTimers.current.forEach(window.clearTimeout);
-      safariTimers.current = [];
-    };
-  }, [safariMedia, steps.length]);
-
-  const failMedia = () => {
-    safariTimers.current.forEach(window.clearTimeout);
-    safariTimers.current = [];
+    if (!reducedMotion) return;
+    videoRef.current?.pause();
+    setClip(null);
     setPlaying(false);
-    setStaticPoster(true);
-    setBeat(steps.length);
-  };
+    setTremor(false);
+  }, [reducedMotion]);
 
-  const startSafariBeats = () => {
-    setPlaying(true);
-    setBeat(1);
-    safariTimers.current = beatTimes.slice(1, steps.length).map((time, index) =>
-      window.setTimeout(() => setBeat(index + 2), time * 1000));
-    safariTimers.current.push(window.setTimeout(() => {
+  const choose = useCallback((index: number) => {
+    if (index < 0 || index >= steps.length) return;
+    setActive(index);
+    setClip(reducedMotion ? null : index);
+    setPlayToken((current) => current + 1);
+    setPlaying(false);
+    setMediaFailed(false);
+    setTremor(false);
+  }, [reducedMotion, steps.length]);
+
+  useEffect(() => {
+    if (clip === null || reducedMotion) return;
+    const player = videoRef.current;
+    if (!player) return;
+    let current = true;
+    let pulseTimer: number | undefined;
+    let settleTimer: number | undefined;
+    player.load();
+    player.play().catch(() => {
+      if (!current) return;
+      setMediaFailed(true);
+      setClip(null);
       setPlaying(false);
-      setStaticPoster(true);
-    }, 7000));
+    });
+    if (clip === 2) {
+      pulseTimer = window.setTimeout(() => {
+        if (!current) return;
+        setTremor(true);
+        settleTimer = window.setTimeout(() => setTremor(false), 220);
+      }, 520);
+    }
+    return () => {
+      current = false;
+      player.pause();
+      if (pulseTimer !== undefined) window.clearTimeout(pulseTimer);
+      if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+    };
+  }, [clip, playToken, reducedMotion]);
+
+  const keyboardSelect = (event: React.KeyboardEvent<HTMLButtonElement>, index: number, controls: Array<HTMLButtonElement | null>) => {
+    const next = event.key === "ArrowRight" ? Math.min(index + 1, steps.length - 1)
+      : event.key === "ArrowLeft" ? Math.max(index - 1, 0)
+      : event.key === "Home" ? 0
+      : event.key === "End" ? steps.length - 1 : null;
+    if (next === null) return;
+    event.preventDefault();
+    choose(next);
+    controls[next]?.focus();
   };
 
-  const updateBeat = () => {
-    const elapsed = video.current?.currentTime ?? 0;
-    const next = beatTimes.reduce((current, time, index) => elapsed >= time ? index + 1 : current, 1);
-    setBeat(Math.min(next, steps.length));
-  };
-
-  return <div ref={root} className={styles.timeline} data-beat={beat}>
-    <div className={styles.stage}>
-    <div aria-hidden="true" className={styles.instrument}>
-      {!playing && <Image src={`${asset}-poster.png`} width={960} height={540} alt="" draggable={false} priority className={styles.trumpet} />}
-      {!staticPoster && safariMedia && safariAnimated && <img src={`${asset}.webp`} width={960} height={540} alt="" draggable={false} onLoad={startSafariBeats} onError={failMedia} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} />}
-      {!staticPoster && safariMedia === false && <video ref={video} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} poster={`${asset}-poster.png`} preload="auto" muted playsInline onPlaying={() => setPlaying(true)} onTimeUpdate={updateBeat} onEnded={() => setBeat(steps.length)} onError={failMedia}>
-          <source src={`${asset}.webm`} type="video/webm" />
-          <source src={`${asset}.mp4`} type="video/mp4" />
-        </video>}
+  return <section className={styles.timeline} aria-label="Proposed 14-day milestone plan" data-active={safeActive + 1} data-motion={reducedMotion ? "reduced" : "standard"}>
+    <div className={styles.layout}>
+      <div className={styles.stage}>
+        <div className={styles.visual}>
+          {posterFailed ? <div className={styles.posterFallback} role="img" aria-label="Trumpet visual unavailable">Trumpet visual unavailable</div> : <img src={`${mediaRoot}/poster.png`} width={960} height={600} alt="Upright brass trumpet" className={styles.poster} draggable={false} onError={() => setPosterFailed(true)} />}
+          {clip !== null && !reducedMotion && !mediaFailed && <video key={`${clip}-${playToken}`} ref={videoRef} className={styles.video} data-visible={playing} muted playsInline preload="auto" aria-hidden="true" onPlaying={() => setPlaying(true)} onEnded={() => { setPlaying(false); setClip(null); }} onError={() => { setPlaying(false); setMediaFailed(true); setClip(null); }}><source src={clipFor(clip)} type="video/mp4" /></video>}
+        </div>
+        <span className={styles.stageLabel} aria-hidden="true">{String(safeActive + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}</span>
+      </div>
+      {steps.map((step, index) => <button key={step.days} ref={(element) => { cardRefs.current[index] = element; }} type="button" className={styles.step} data-selected={safeActive === index} data-tremor={index === 2 && tremor} aria-pressed={safeActive === index} aria-label={`Step ${index + 1}, days ${step.days}: ${step.title}`} onClick={() => choose(index)} onKeyDown={(event) => keyboardSelect(event, index, cardRefs.current)}><span className={styles.number}>{String(index + 1).padStart(2, "0")}</span><span className={styles.stepCopy}><small>Days {step.days}</small><strong>{step.title}</strong></span></button>)}
     </div>
-    <div aria-hidden="true" data-testid="timeline-cue" className={styles.cue}><span className={styles.cueNumber}>{Math.max(beat, 1)}</span><span>{steps[Math.max(beat - 1, 0)]?.title}</span></div>
+    <div className={styles.controls} aria-label="Milestone navigation">
+      <button type="button" className={styles.arrow} aria-label="Previous milestone" onClick={() => choose(safeActive - 1)} disabled={safeActive === 0}><ChevronLeft size={18} aria-hidden="true" /></button>
+      <div className={styles.dots} role="group" aria-label="Choose a milestone">{steps.map((step, index) => <button key={step.days} ref={(element) => { dotRefs.current[index] = element; }} type="button" className={styles.dot} aria-label={`Show milestone ${index + 1}: ${step.title}`} aria-current={safeActive === index ? "step" : undefined} onClick={() => choose(index)} onKeyDown={(event) => keyboardSelect(event, index, dotRefs.current)}><span /></button>)}</div>
+      <button type="button" className={styles.arrow} aria-label="Next milestone" onClick={() => choose(safeActive + 1)} disabled={safeActive === steps.length - 1}><ChevronRight size={18} aria-hidden="true" /></button>
+      {!reducedMotion && <button type="button" className={styles.replay} aria-label={`Replay milestone ${safeActive + 1} gesture`} onClick={() => choose(safeActive)}><RotateCcw size={15} aria-hidden="true" /><span>Replay</span></button>}
     </div>
-    <ol className={styles.list}>
-      {steps.map(({ days, title, detail }, index) => <li key={days} className={styles.step} data-active={beat === index + 1}>
-        <span aria-hidden="true" className={styles.pin}>{index + 1}</span>
-        <div className={`${styles.card} rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5`}><span className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Days {days}</span><h3 className="mt-1 font-premium text-xl">{title}</h3><details className="mt-2 text-sm text-muted-foreground"><summary className="cursor-pointer">Review details</summary><p className="mt-2 leading-6">{detail}</p></details></div>
-      </li>)}
-    </ol>
-  </div>;
+    <div className={styles.detail} aria-live="polite"><div><span>Days {steps[safeActive]?.days}</span><h3>{steps[safeActive]?.title}</h3></div><p>{steps[safeActive]?.detail}</p></div>
+    {mediaFailed && <p className={styles.notice} role="status">Motion unavailable. The plan remains selectable.</p>}
+    {reducedMotion && <p className={styles.notice}>Motion is off. Select any milestone to read its plan.</p>}
+  </section>;
 }

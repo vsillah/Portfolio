@@ -24,7 +24,7 @@ from mathutils import Vector
 EXPECTED_SHA256 = "5d7d57de0da0cd1defe1c2b61c48bf9d66c73b0d698644bb0715ba75b92526fa"
 FIRST_IDS = {6, 14, 29, 30, 34, 44, 49, 51, 58, 61, 65, 71}
 THIRD_IDS = {7, 9, 20, 21, 28, 31, 35, 36, 52, 62, 68, 69}
-PISTON_IDS = {1: 24, 3: 22}
+PISTON_IDS = {1: 24, 2: 23, 3: 22}
 TRAVEL_M = 0.008
 PISTON_TRAVEL_M = 0.004
 FPS = 24
@@ -38,12 +38,16 @@ def args_after_dashdash():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--preview-only", action="store_true")
     parser.add_argument("--stills-only", action="store_true")
+    parser.add_argument("--milestone-clips", action="store_true")
+    parser.add_argument("--milestone-limit", type=int, default=6)
     parsed = parser.parse_args(args)
     if not parsed.asset_zip.is_file():
         parser.error("Local licensed ZIP is missing")
     digest = hashlib.sha256(parsed.asset_zip.read_bytes()).hexdigest()
     if digest != EXPECTED_SHA256:
         parser.error("Licensed ZIP SHA-256 mismatch; refusing a different source")
+    if not 1 <= parsed.milestone_limit <= 6:
+        parser.error("Milestone limit must be between one and six")
     return parsed
 
 
@@ -163,6 +167,31 @@ def state(frame, roots):
     roots["third"].location.y = TRAVEL_M * smooth_pulse(frame, 72, 95)
 
 
+def milestone_state(step, frame, total, roots):
+    for name in ("piston_1", "piston_2", "piston_3"):
+        roots[name].location.z = 0
+    roots["first"].location.y = 0
+    roots["third"].location.y = 0
+    if step == 6:
+        span = total // 3
+        for index, name in enumerate(("piston_1", "piston_2", "piston_3")):
+            local = frame - index * span
+            if 0 <= local < span:
+                roots[name].location.z = -PISTON_TRAVEL_M * math.sin(math.pi * local / (span - 1)) ** 2
+        return
+    pulse = math.sin(math.pi * frame / (total - 1)) ** 2
+    if step == 1:
+        roots["piston_1"].location.z = -PISTON_TRAVEL_M * pulse
+    elif step == 2:
+        roots["first"].location.y = -TRAVEL_M * pulse
+    elif step == 3:
+        roots["piston_2"].location.z = -PISTON_TRAVEL_M * pulse
+    elif step == 4:
+        roots["third"].location.y = TRAVEL_M * pulse
+    elif step == 5:
+        roots["piston_3"].location.z = -PISTON_TRAVEL_M * pulse
+
+
 def aim(camera, target):
     direction = Vector(target) - camera.location
     camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
@@ -237,8 +266,7 @@ def setup_render(scene, presentation):
     return camera
 
 
-def render_still(scene, path, frame):
-    state(frame, ROOTS)
+def render_frame(scene, path):
     scene.render.filepath = str(path)
     bpy.ops.render.render(write_still=True)
     # Drop Blender text/EXIF ancillary chunks so the committed PNG contains
@@ -255,6 +283,37 @@ def render_still(scene, path, frame):
         if kind == b"IEND":
             break
     path.write_bytes(cleaned)
+
+
+def render_still(scene, path, frame):
+    state(frame, ROOTS)
+    render_frame(scene, path)
+
+
+def render_milestones(scene, output_dir, limit):
+    scene.render.film_transparent = True
+    scene.render.image_settings.color_mode = "RGBA"
+    scene.camera.data.ortho_scale = .62
+    milestone_state(1, 0, 24, ROOTS)
+    scene.cycles.samples = 24
+    render_frame(scene, output_dir / "poster.png")
+    scene.cycles.samples = 10
+    for step in range(1, limit + 1):
+        count = 36 if step == 6 else 24
+        with tempfile.TemporaryDirectory(prefix=f"trumpet-milestone-{step}-") as frames_dir:
+            for frame in range(count):
+                milestone_state(step, frame, count, ROOTS)
+                render_frame(scene, Path(frames_dir) / f"{frame:04d}.png")
+            duration = count / FPS
+            subprocess.run([
+                "ffmpeg", "-hide_banner", "-loglevel", "error",
+                "-f", "lavfi", "-i", f"color=c=0x121e31:s=960x600:r={FPS}:d={duration}",
+                "-framerate", str(FPS), "-i", str(Path(frames_dir) / "%04d.png"),
+                "-filter_complex", "[0:v][1:v]overlay=shortest=1:format=auto,format=yuv420p[v]",
+                "-map", "[v]", "-map_metadata", "-1", "-an",
+                "-c:v", "libx264", "-crf", "17", "-movflags", "+faststart", "-y",
+                str(output_dir / f"step-{step:02d}.mp4"),
+            ], check=True)
 
 
 if __name__ == "__main__":
@@ -277,11 +336,12 @@ if __name__ == "__main__":
         parts = separate_and_map(source)
         presentation = make_root("LOCAL_ONLY__presentation")
         ROOTS = {name: make_root("LOCAL_ONLY__" + name, presentation) for name in
-                 ("piston_1", "piston_3", "first", "third")}
+                 ("piston_1", "piston_2", "piston_3", "first", "third")}
         for part_id, obj in parts.items():
             group = ("first" if part_id in FIRST_IDS else
                      "third" if part_id in THIRD_IDS else
                      "piston_1" if part_id == PISTON_IDS[1] else
+                     "piston_2" if part_id == PISTON_IDS[2] else
                      "piston_3" if part_id == PISTON_IDS[3] else None)
             parent_preserving_world(obj, ROOTS[group] if group else presentation)
         gold = bpy.data.materials.get("Metal_Gold_Marked_01_2k")
@@ -334,7 +394,9 @@ if __name__ == "__main__":
                 raise RuntimeError(f"Original slide exits fixed sleeve: {name} {source_overlap}")
         presentation.rotation_euler.x = math.radians(40)
         camera = setup_render(scene, presentation)
-        if arguments.preview_only:
+        if arguments.milestone_clips:
+            render_milestones(scene, arguments.out, arguments.milestone_limit)
+        elif arguments.preview_only:
             render_still(scene, arguments.out / "repaired-preview.png", 36)
         else:
             for group, frames, focus in (
@@ -372,5 +434,6 @@ if __name__ == "__main__":
               "minimum_source_tube_overlap_m": min(source_tube_overlaps.values()),
               "minimum_radial_clearance_m": round(minimum_radial_clearance, 6),
               "overlaps_m": overlaps, "source_tube_overlaps_m": source_tube_overlaps,
-              "frames": 1 if arguments.preview_only else
-              (0 if arguments.stills_only else FRAMES)}))
+              "frames": (arguments.milestone_limit * 24 + (12 if arguments.milestone_limit == 6 else 0))
+              if arguments.milestone_clips else (1 if arguments.preview_only else
+              (0 if arguments.stills_only else FRAMES))}))

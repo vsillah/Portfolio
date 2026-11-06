@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
@@ -35,23 +35,29 @@ describe("Trumpet Trainer recruitment review", () => {
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
   });
 
-  it("shows a six-step sequence with accessible details and learning thresholds", () => {
+  it("shows six directly selectable milestones and learning thresholds", () => {
+    const load = vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
     render(<RecruitmentReviewPage />);
     const sequence = screen.getByRole("heading", { name: "14 days, six steps" }).nextElementSibling;
-    expect(sequence?.querySelectorAll("ol > li")).toHaveLength(6);
-    expect(sequence?.querySelectorAll("ol > li details")).toHaveLength(6);
-    expect(sequence?.querySelectorAll("svg")).toHaveLength(0);
+    expect(sequence?.querySelectorAll('button[aria-label^="Step "]')).toHaveLength(6);
     const trumpet = sequence?.querySelector("img");
-    expect(trumpet).toHaveAttribute("alt", "");
-    expect(trumpet?.closest('[aria-hidden="true"]')).not.toBeNull();
-    expect(new URL(trumpet?.getAttribute("src") || "", "http://localhost").searchParams.get("url")).toBe("/work/trumpet-trainer/design/trumpet-timeline-poster.png");
-    expect(readFileSync(join(process.cwd(), "public/work/trumpet-trainer/design/trumpet-timeline-poster.png")).length).toBeGreaterThan(0);
+    expect(trumpet).toHaveAttribute("alt", "Upright brass trumpet");
+    expect(trumpet).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/poster.png");
+    expect(readFileSync(join(process.cwd(), "public/work/trumpet-trainer/recruitment-motion/poster.png")).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
+    expect(screen.getByRole("heading", { name: "Try one more channel" })).toBeInTheDocument();
     expect(sequence?.textContent).not.toContain("𝄞");
     expect(screen.getByText("20")).toBeInTheDocument();
     expect(screen.getByText("pilot-fit signals")).toBeInTheDocument();
     const boundaries = screen.getByText("Operating boundaries and stop signals").closest("details");
     expect(boundaries).toHaveTextContent("No scraped lists, student rosters, contact import, or paid ads");
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
+    cleanup();
+    load.mockRestore();
+    play.mockRestore();
+    pause.mockRestore();
   });
 
   it("keeps one adult-specific profile visible at a time", () => {

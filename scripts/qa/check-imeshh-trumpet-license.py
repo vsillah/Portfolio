@@ -14,6 +14,7 @@ EXPECTED_SHA256 = "5d7d57de0da0cd1defe1c2b61c48bf9d66c73b0d698644bb0715ba75b9252
 PROOF_DIRS = (
     "docs/qa/trumpet-recruitment-visual-story/imeshh-topology/",
     "docs/qa/trumpet-recruitment-visual-story/imeshh-repair/",
+    "public/work/trumpet-trainer/recruitment-motion/",
 )
 RESTRICTED_EXTENSIONS = {
     ".blend", ".blend1", ".fbx", ".glb", ".gltf", ".obj", ".mtl",
@@ -54,9 +55,15 @@ def check_mp4(path: Path) -> None:
     if len(streams) != 1 or streams[0].get("codec_type") != "video" or streams[0].get("codec_name") != "h264":
         raise ValueError(f"Unexpected stream or embedded attachment in {path}")
     video = streams[0]
-    if (video.get("width"), video.get("height"), video.get("nb_frames")) != (960, 600, "96"):
+    if path.name.startswith("step-"):
+        expected_frames = 36 if path.name == "step-06.mp4" else 24
+    elif path.name == "repaired-mechanical-proof.mp4":
+        expected_frames = 96
+    else:
+        raise ValueError(f"Unexpected iMeshh-derived video name: {path}")
+    if (video.get("width"), video.get("height"), video.get("nb_frames")) != (960, 600, str(expected_frames)):
         raise ValueError(f"Unexpected proof dimensions or frame count in {path}")
-    if abs(float(media["format"]["duration"]) - 4.0) > 0.01:
+    if abs(float(media["format"]["duration"]) - expected_frames / 24) > 0.01:
         raise ValueError(f"Unexpected proof duration in {path}")
 
 

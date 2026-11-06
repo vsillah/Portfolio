@@ -1,7 +1,5 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TrumpetRecruitmentTimeline, { type TimelineStep } from "./TrumpetRecruitmentTimeline";
 
 const steps: TimelineStep[] = [
@@ -13,107 +11,106 @@ const steps: TimelineStep[] = [
   { days: "13–14", title: "Choose the next note", detail: "Decide what to revise." },
 ];
 
-afterEach(() => {
-  vi.useRealTimers();
-  vi.unstubAllGlobals();
-  vi.restoreAllMocks();
+const matchMotion = (matches: boolean) => vi.stubGlobal("matchMedia", vi.fn(() => ({ matches, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+
+beforeEach(() => {
+  matchMotion(false);
+  vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+  vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
 });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
-describe("Trumpet recruitment timeline media", () => {
-  it("keeps milestone numbers in the UI without a false marker tremor", () => {
-    const css = readFileSync(resolve(process.cwd(), "components/TrumpetRecruitmentTimeline.module.css"), "utf8");
-    expect(css).not.toContain("markerTremor");
-  });
-
-  it("plays Safari's transparent animated WebP once and advances the six beats", () => {
-    vi.useFakeTimers();
-    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15");
-    vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false })));
-    let trigger!: () => void;
-    vi.stubGlobal("IntersectionObserver", class {
-      constructor(callback: IntersectionObserverCallback) {
-        trigger = () => callback([{ isIntersecting: true } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
-      }
-      observe() {}
-      disconnect() {}
-    });
+describe("Trumpet recruitment milestones", () => {
+  it("starts on a static poster and maps direct selections to one distinct clip and card", async () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
     expect(container.querySelector("video")).toBeNull();
-    act(trigger);
-    const image = container.querySelector('img[src$="trumpet-timeline.webp"]')!;
-    expect(image).not.toBeNull();
-    fireEvent.load(image);
-    expect(container.firstElementChild).toHaveAttribute("data-beat", "1");
-    act(() => vi.advanceTimersByTime(1280));
-    expect(container.firstElementChild).toHaveAttribute("data-beat", "2");
-    act(() => vi.advanceTimersByTime(5200));
-    expect(container.firstElementChild).toHaveAttribute("data-beat", "6");
-    expect(container.querySelectorAll('img[src$="trumpet-timeline.webp"]')).toHaveLength(1);
-    act(() => vi.advanceTimersByTime(600));
-    expect(container.querySelector('img[src$="trumpet-timeline.webp"]')).toBeNull();
-    expect(container.querySelector('img[src*="trumpet-timeline-poster.png"]')).not.toBeNull();
+    expect(screen.getAllByRole("button", { name: /^Step \d, days/ })).toHaveLength(6);
+    fireEvent.click(screen.getByRole("button", { name: /Step 4, days/ }));
+    await act(async () => {});
+    expect(container.firstElementChild).toHaveAttribute("data-active", "4");
+    expect(container.querySelector("video source")).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/step-04.mp4");
+    expect(screen.getByText("Check channel rules.")).toBeInTheDocument();
+    fireEvent.ended(container.querySelector("video")!);
+    expect(container.querySelector("video")).toBeNull();
+    expect(container.firstElementChild).toHaveAttribute("data-active", "4");
   });
 
-  it("shows the stable poster and all six native details when motion is reduced", () => {
-    vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true })));
-    const observer = vi.fn();
-    vi.stubGlobal("IntersectionObserver", observer);
+  it("supports arrow, Home, and End keys plus both navigation directions", () => {
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
-    const timeline = container.firstElementChild!;
-    expect(timeline).toHaveAttribute("data-beat", "6");
-    expect(timeline.querySelectorAll("ol > li details")).toHaveLength(6);
-    expect(timeline.querySelector("video")).toBeNull();
-    expect(timeline.querySelector("img")).toHaveAttribute("alt", "");
-    expect(observer).not.toHaveBeenCalled();
-    const details = screen.getAllByText("Review details")[2].closest("details")!;
-    fireEvent.click(details.querySelector("summary")!);
-    expect(details).toHaveAttribute("open");
+    const first = screen.getByRole("button", { name: /Step 1, days/ });
+    first.focus();
+    fireEvent.keyDown(first, { key: "ArrowRight" });
+    expect(screen.getByRole("button", { name: /Step 2, days/ })).toHaveFocus();
+    expect(container.firstElementChild).toHaveAttribute("data-active", "2");
+    fireEvent.click(screen.getByRole("button", { name: "Next milestone" }));
+    expect(container.firstElementChild).toHaveAttribute("data-active", "3");
+    fireEvent.click(screen.getByRole("button", { name: "Previous milestone" }));
+    expect(container.firstElementChild).toHaveAttribute("data-active", "2");
+    const dot = screen.getByRole("button", { name: /Show milestone 2/ });
+    fireEvent.keyDown(dot, { key: "End" });
+    expect(screen.getByRole("button", { name: /Show milestone 6/ })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Next milestone" })).toBeDisabled();
+    fireEvent.keyDown(screen.getByRole("button", { name: /Show milestone 6/ }), { key: "Home" });
+    expect(container.firstElementChild).toHaveAttribute("data-active", "1");
   });
 
-  it("plays the rendered instrument once and follows its beat timestamps without losing details focus", async () => {
-    vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false })));
-    let trigger!: (visible: boolean) => void;
-    const disconnect = vi.fn();
-    const observe = vi.fn();
-    class MockObserver {
-      constructor(callback: IntersectionObserverCallback) {
-        trigger = (visible) => callback([{ isIntersecting: visible } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
-      }
-      observe = observe;
-      disconnect = disconnect;
-    }
-    vi.stubGlobal("IntersectionObserver", MockObserver);
+  it("pauses the old video on rapid selection and replays the selected gesture", async () => {
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
     const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
-    const timeline = container.firstElementChild!;
-    const player = timeline.querySelector("video")!;
-    expect(player.querySelectorAll("source")).toHaveLength(2);
-    expect(timeline.querySelector("[data-motion-part]")).toBeNull();
-    expect(observe).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: /Step 2, days/ }));
+    await act(async () => {});
+    fireEvent.click(screen.getByRole("button", { name: /Step 5, days/ }));
+    await act(async () => {});
+    expect(container.querySelectorAll("video")).toHaveLength(1);
+    expect(container.querySelector("video source")).toHaveAttribute("src", "/work/trumpet-trainer/recruitment-motion/step-05.mp4");
+    fireEvent.click(screen.getByRole("button", { name: "Replay milestone 5 gesture" }));
+    await act(async () => {});
+    expect(play).toHaveBeenCalledTimes(3);
+    expect(pause).toHaveBeenCalled();
+    expect(container.querySelectorAll("video")).toHaveLength(1);
+  });
 
-    await act(async () => trigger(true));
-    expect(play).toHaveBeenCalledOnce();
-    expect(disconnect).toHaveBeenCalled();
-    expect(timeline).toHaveAttribute("data-beat", "1");
-    expect(timeline.querySelector("img")).not.toBeNull();
-    fireEvent.playing(player);
-    expect(timeline.querySelector("img")).toBeNull();
-    const summary = timeline.querySelectorAll("ol > li summary")[2];
-    (summary as HTMLElement).focus();
-    fireEvent.click(summary);
-    for (const [time, beat] of [[1.3, 2], [3.3, 3], [4.3, 4], [5.5, 5], [6.5, 6]] as const) {
-      Object.defineProperty(player, "currentTime", { configurable: true, value: time });
-      fireEvent.timeUpdate(player);
-      expect(timeline).toHaveAttribute("data-beat", String(beat));
-      expect(screen.getByTestId("timeline-cue")).toHaveTextContent(`${beat}${steps[beat - 1].title}`);
-    }
-    act(() => { trigger(false); trigger(true); });
-    expect(play).toHaveBeenCalledOnce();
-    expect(summary).toHaveFocus();
-    expect(summary.closest("details")).toHaveAttribute("open");
-    fireEvent.error(player);
-    expect(timeline.querySelector("video")).toBeNull();
-    expect(timeline.querySelector("img")).not.toBeNull();
-    expect(timeline).toHaveAttribute("data-beat", "6");
+  it("keeps direct selection and card highlights without video or tremor in reduced motion", () => {
+    matchMotion(true);
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Step 3, days/ }));
+    expect(container.firstElementChild).toHaveAttribute("data-motion", "reduced");
+    expect(container.querySelector("video")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Replay milestone/ })).toBeNull();
+    expect(screen.getByText("Listen to adults.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("data-tremor", "false");
+  });
+
+  it("falls back to the poster and retains selection when media playback fails", async () => {
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValue(new Error("blocked"));
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Step 6, days/ }));
+    await act(async () => {});
+    expect(container.querySelector("video")).toBeNull();
+    expect(screen.getByRole("status")).toHaveTextContent("Motion unavailable");
+    expect(screen.getByRole("img", { name: "Upright brass trumpet" })).toBeInTheDocument();
+    expect(container.firstElementChild).toHaveAttribute("data-active", "6");
+  });
+
+  it("shows a readable fallback if the poster image cannot load", () => {
+    render(<TrumpetRecruitmentTimeline steps={steps} />);
+    fireEvent.error(screen.getByRole("img", { name: "Upright brass trumpet" }));
+    expect(screen.getByRole("img", { name: "Trumpet visual unavailable" })).toHaveTextContent("Trumpet visual unavailable");
+    expect(screen.getByRole("button", { name: /Step 1, days/ })).toBeEnabled();
+  });
+
+  it("adds only a brief card pulse after the third milestone press", async () => {
+    vi.useFakeTimers();
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Step 3, days/ }));
+    await act(async () => {});
+    act(() => vi.advanceTimersByTime(520));
+    expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("data-tremor", "true");
+    act(() => vi.advanceTimersByTime(220));
+    expect(screen.getByRole("button", { name: /Step 3, days/ })).toHaveAttribute("data-tremor", "false");
+    expect(container.querySelectorAll('[data-tremor="true"]')).toHaveLength(0);
   });
 });
