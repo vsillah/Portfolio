@@ -1,0 +1,119 @@
+.timeline {
+  position: relative;
+  isolation: isolate;
+  --spine-column: clamp(9rem, 18vw, 12rem);
+}
+
+.spine {
+  position: absolute;
+  z-index: 0;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  left: 22px;
+  width: 1px;
+  background: linear-gradient(transparent, rgb(225 185 92 / 65%) 10%, rgb(225 185 92 / 65%) 90%, transparent);
+  pointer-events: none;
+}
+
+.trumpet {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: -2rem;
+  width: 150px;
+  height: 250px;
+  object-fit: contain;
+  opacity: .22;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 24px rgb(0 0 0 / 35%));
+}
+
+.list {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.step::before {
+  position: absolute;
+  top: 50%;
+  left: 44px;
+  width: 12px;
+  height: 1px;
+  background: rgb(225 185 92 / 65%);
+  content: "";
+}
+
+.pin {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  grid-column: 1;
+  grid-row: 1;
+  place-items: center;
+  border: 2px solid var(--radiant-gold);
+  border-radius: 50%;
+  background: var(--background);
+  color: var(--radiant-gold);
+  font-family: var(--font-premium), Georgia, serif;
+  font-size: 1.125rem;
+}
+
+.card {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+@media (min-width: 768px) {
+  .spine { left: 50%; }
+
+  .trumpet {
+    top: 50%;
+    right: auto;
+    left: 50%;
+    width: clamp(340px, 42vw, 480px);
+    height: min(100%, 790px);
+    transform: translate(-50%, -50%);
+    opacity: .94;
+  }
+
+  .list { gap: 12px; }
+
+  .step {
+    min-height: 126px;
+    grid-template-columns: minmax(0, 1fr) var(--spine-column) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .step::before {
+    left: calc(50% - var(--spine-column) / 2 - 12px);
+    width: calc(var(--spine-column) / 2 + 12px);
+  }
+
+  .step:nth-child(even)::before { left: 50%; }
+
+  .pin { grid-column: 2; margin: auto; }
+
+  .card { grid-column: 1; }
+
+  .step:nth-child(even) .card { grid-column: 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trumpet { transition: none; }
+}

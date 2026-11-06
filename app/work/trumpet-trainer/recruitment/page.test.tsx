@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import RecruitmentReviewPage, { metadata } from "./page";
 
 vi.mock("@/components/Navigation", () => ({ default: () => <nav aria-label="Site navigation" /> }));
@@ -37,6 +40,14 @@ describe("Trumpet Trainer recruitment review", () => {
     render(<RecruitmentReviewPage />);
     const sequence = screen.getByRole("heading", { name: "14 days, six steps" }).nextElementSibling;
     expect(sequence?.querySelectorAll("ol > li")).toHaveLength(6);
+    expect(sequence?.querySelectorAll("ol > li details")).toHaveLength(6);
+    expect(sequence?.querySelectorAll("svg")).toHaveLength(0);
+    const trumpet = sequence?.querySelector("img");
+    expect(trumpet).toHaveAttribute("alt", "");
+    expect(trumpet).toHaveAttribute("aria-hidden", "true");
+    expect(new URL(trumpet?.getAttribute("src") || "", "http://localhost").searchParams.get("url")).toBe("/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png");
+    expect(createHash("sha256").update(readFileSync(join(process.cwd(), "public/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png"))).digest("hex")).toBe("5f69be66bbd1957d214e823c6a679f70ff0eafe7782b9ad683d88bf9c8b955ce");
+    expect(sequence?.textContent).not.toContain("𝄞");
     expect(screen.getByText("20")).toBeInTheDocument();
     expect(screen.getByText("pilot-fit signals")).toBeInTheDocument();
     const boundaries = screen.getByText("Operating boundaries and stop signals").closest("details");

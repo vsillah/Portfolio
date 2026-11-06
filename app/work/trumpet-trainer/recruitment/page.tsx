@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import TrumpetRecruitmentMessages from "@/components/TrumpetRecruitmentMessages";
 import TrumpetRecruitmentPersonas from "@/components/TrumpetRecruitmentPersonas";
 import TrumpetRecruitmentSocialCarousel from "@/components/TrumpetRecruitmentSocialCarousel";
 import { BookOpen, ShieldCheck } from "lucide-react";
+import timelineStyles from "./timeline.module.css";
 
 export const metadata: Metadata = {
   title: "Trumpet Trainer | Recruitment review packet",
@@ -95,16 +97,13 @@ export default function RecruitmentReviewPage() {
 
         <section aria-labelledby="plan" className="mt-16">
           <p className="font-heading text-xs uppercase tracking-[.2em] text-radiant-gold">A proposed rhythm, pending approval</p><h2 id="plan" className="mt-2 font-premium text-3xl">14 days, six steps</h2>
-          <div className="relative mt-8">
-            <span aria-hidden="true" className="pointer-events-none absolute -top-10 left-2 z-0 font-serif text-[8rem] leading-none text-radiant-gold/30 lg:left-1/2 lg:-translate-x-1/2">𝄞</span>
-            <svg aria-hidden="true" viewBox="0 0 100 600" preserveAspectRatio="none" className="pointer-events-none absolute bottom-0 left-5 top-0 h-full w-10 text-radiant-gold/50 lg:left-1/2 lg:w-14 lg:-translate-x-1/2"><path d="M54 2 C5 52 9 113 55 125 C104 138 98 193 51 206 C5 220 8 280 53 293 C96 309 96 366 51 380 C9 393 10 446 54 461 C97 477 88 526 51 542 L50 600" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" /><path d="M10 67 H92 M10 79 H92 M10 91 H92 M10 103 H92 M10 115 H92" stroke="currentColor" strokeWidth="1.3" opacity=".5" /></svg>
-            <ol className="relative space-y-5">
-              {schedule.map(({ days, title, detail }, index) => <li key={days} className={`relative grid min-h-36 grid-cols-[3.5rem_1fr] items-center gap-3 lg:grid-cols-[1fr_5rem_1fr] lg:gap-5`}>
-                <div className={`hidden lg:block ${index % 2 === 0 ? "col-start-1 row-start-1" : "col-start-3 row-start-1"}`}>
-                  <div className="rounded-2xl border border-border bg-card p-5 shadow-sm"><span className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Days {days}</span><h3 className="mt-1 font-premium text-xl">{title}</h3><details className="mt-2 text-sm text-muted-foreground"><summary className="cursor-pointer">Review details</summary><p className="mt-2 leading-6">{detail}</p></details></div>
-                </div>
-                <span aria-hidden="true" className="relative z-10 col-start-1 row-start-1 mx-auto flex h-11 w-11 items-center justify-center rounded-full border-2 border-radiant-gold bg-background font-premium text-lg text-radiant-gold lg:col-start-2">{index + 1}</span>
-                <div className="col-start-2 row-start-1 rounded-2xl border border-border bg-card p-4 shadow-sm lg:hidden"><span className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Days {days}</span><h3 className="mt-1 font-premium text-xl">{title}</h3><details className="mt-2 text-sm text-muted-foreground"><summary className="cursor-pointer">Review details</summary><p className="mt-2 leading-6">{detail}</p></details></div>
+          <div className={`${timelineStyles.timeline} mt-8`}>
+            <span aria-hidden="true" className={timelineStyles.spine} />
+            <Image src="/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png" width={1024} height={1536} alt="" aria-hidden="true" draggable={false} className={timelineStyles.trumpet} />
+            <ol className={timelineStyles.list}>
+              {schedule.map(({ days, title, detail }, index) => <li key={days} className={timelineStyles.step}>
+                <span aria-hidden="true" className={timelineStyles.pin}>{index + 1}</span>
+                <div className={`${timelineStyles.card} rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5`}><span className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Days {days}</span><h3 className="mt-1 font-premium text-xl">{title}</h3><details className="mt-2 text-sm text-muted-foreground"><summary className="cursor-pointer">Review details</summary><p className="mt-2 leading-6">{detail}</p></details></div>
               </li>)}
             </ol>
           </div>
