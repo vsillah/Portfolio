@@ -1,12 +1,27 @@
 # Accelerated completion certificate visual QA
 
-Commit: `6d6bbd58`
+Draft PR: #1220, branch `codex/accelerated-completion-workspace`.
 
-Local fixture: `http://localhost:3100/member/dashboard?qa=completion-ready&rev=6d6bbd58`
+Review fixture: `http://localhost:3100/member/dashboard?qa=completion-ready`. The `qa` route uses a fictional learner and does not create a database credential. Browser captures use the name **Amina Cole**.
 
-- Inspected the unclaimed certificate in light and dark themes at desktop width, plus light theme at 390px mobile width. The ornate border, issuer area, and bottom-right owner/author line remained visible without clipping.
-- Used the development-only `completion-ready` fixture to claim a certificate for `Course Learner`. No database row or real learner credential was created.
-- Downloaded the dark SVG, validated its XML with `xmllint --noout`, rendered it with `sips`, and visually inspected the result in `downloaded-dark-6d6bbd58.png`. The source SVG included the current theme colors, AmaduTown shield, learner name, date, and unsigned owner block.
-- Focused Vitest: 5 tests passed. Production build passed before the final dark-gold contrast adjustment; focused Vitest passed again afterward. Both Vercel preview checks passed at the final head.
-- No approved signature image was found in the Portfolio repo or AmaduTown Drive materials. Unrelated personal signature documents were excluded. The signature line remains blank; a real signature must be supplied and approved before this part of the request can be completed.
-- Replacement MP4 remains pending. The browser tool rendered the exact route, but available system screen capture targeted a different foreground desktop, and window capture of the off-desktop Chrome window failed. A full-screen recording would expose unrelated material, so none was retained. Human QA should remain pending until a privacy-safe walkthrough of this commit is attached.
+## What changed
+
+- The certificate title, learner name, and body use formal Roman serif type. The existing Cormorant Garamond project font is used in the page; title and name are embedded as rasterized text in the downloadable SVG so the export renders consistently in other applications. No script font or cursive body text is used.
+- Four mirrored corners contain recognizable leaves, a five-petal flower, and stems inside a connected double-line frame. The lower corners are smaller to keep the issuer and signature area unobstructed. The same botanical SVG drawing is used by the page and download.
+- The AmaduTown shield retains its portrait ratio. The lower-right line remains unsigned, with a typed owner/author attribution below it. No signature asset was added.
+- Light and dark certificates use separate paper, ink, muted-text, and engraving colors.
+
+## Evidence
+
+- `certificate-botanical-walkthrough.mp4`: 32-second H.264 sequence assembled from browser captures. It shows blocked eligibility, unclaimed preview, a synthetic claim, light and dark desktop and 390px mobile layouts, and both exported SVG renders. This is a still-capture walkthrough rather than a live screen recording. `render-walkthrough.py` reproduces it from the PNGs here.
+- `desktop-dark-blocked.png`, `desktop-light-preclaim.png`, `desktop-light-claimed.png`, `desktop-dark-claimed.png`, `mobile-light-claimed.png`, `mobile-dark-claimed.png`: browser captures from the local fixture.
+- `downloaded-light-botanical.png`, `downloaded-dark-botanical.png`: actual downloaded SVGs rendered by macOS Sips, then visually inspected. Both XML files passed `xmllint --noout`. The SVGs contain embedded crest and title/name images; no external font or image request is needed to display them.
+
+## Validation and boundaries
+
+- `npx vitest run components/member/CompletionCredential.test.tsx`: 3/3 passed after the final frame adjustment.
+- `git diff --check`: passed.
+- `NODE_OPTIONS=--max-old-space-size=8192 npm run build`: passed before the last corner-scale adjustment. The default 4GB build hit Node's heap limit during page-data collection; the larger heap completed successfully. No code changed after that build except corner sizing and QA evidence.
+- The browser was inspected at 1280px desktop and 390px mobile in light and dark themes. The synthetic claim and both download actions were exercised. No authenticated customer data, production database, social composer, or external send was used.
+- No approved public signature was found in the Portfolio repo or AmaduTown Drive materials. Unrelated personal signature documents were excluded. The certificate stays unsigned pending an approved signature asset.
+- Human QA and captain integration remain pending. Production migrations remain subject to their separate authorization gate.

@@ -38,12 +38,16 @@ describe('Accelerated completion certificate', () => {
     expect(screen.getByRole('link', { name: 'Continue lessons' })).toHaveAttribute('href', '/accelerated/learningplan')
   })
 
-  it('uses the Accelerated html.dark theme boundary for all certificate surfaces', () => {
+  it('uses distinct paper and ink artwork tokens within the Accelerated html.dark theme boundary', () => {
     const css = readFileSync('components/member/CompletionCredential.module.css', 'utf8')
     for (const surface of ['.card', '.verificationPage', '.verificationCard']) expect(css).toContain(`:global(html.dark) ${surface}`)
-    expect(css).toContain('--certificate-surface:#f8f5e9')
-    expect(css).toContain('--certificate-surface:#112a3a')
-    expect(css).toContain('background:var(--certificate-surface)')
-    expect(css).toContain('color:var(--certificate-ink)')
+    expect(css).toContain('--paper: #faf6ea')
+    expect(css).toContain('--paper: #112a38')
+    expect(css).toContain('background: var(--paper)')
+    expect(css).toContain('color: var(--paper-ink)')
+    expect(css).toContain('var(--font-cormorant)')
+    expect(css).toContain('.botanical')
+    expect(css).toContain('.artwork:before')
+    expect(readFileSync('components/member/CompletionCredential.tsx', 'utf8')).toContain('botanicalMarkup(gold)')
   })
 })

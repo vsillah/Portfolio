@@ -11,6 +11,23 @@ type Credential = { learner_name: string; completed_at: string; verification_tok
 type Status = { available?: boolean; eligible: boolean; completedCount: number; credential: Credential | null }
 const courseUrl = 'https://amadutown.com/accelerated/learningplan'
 const escapeXml = (value: string) => value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[character] ?? character)
+const botanicalMarkup = (color: string) => `
+  <g stroke="${color}" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 150 C24 108 46 74 88 47 C111 32 132 24 153 18" fill="none" stroke-width="1.7"/>
+    <path d="M22 127 C17 111 18 96 25 82 M50 77 C54 58 67 44 86 34" fill="none" stroke-width="1"/>
+    <path d="M29 111 C10 103 4 85 11 67 C31 77 39 94 29 111Z M43 87 C37 68 47 52 66 45 C68 65 59 80 43 87Z M65 64 C67 44 82 33 102 31 C99 51 86 61 65 64Z" fill="${color}" fill-opacity=".13" stroke-width="1.15"/>
+    <path d="M36 103 C56 94 72 100 79 118 C58 119 43 114 36 103Z M58 76 C76 68 91 73 99 89 C81 92 66 87 58 76Z M87 50 C104 43 118 48 125 62 C107 65 94 60 87 50Z" fill="${color}" fill-opacity=".13" stroke-width="1.15"/>
+    <path d="M16 76 29 107 M44 85 63 50 M66 63 97 35 M39 103 75 116 M61 76 94 87 M91 50 121 60" fill="none" stroke-width=".75" opacity=".8"/>
+    <g fill="${color}" fill-opacity=".16" stroke-width="1.1">
+      <ellipse cx="128" cy="29" rx="6" ry="13" transform="rotate(-18 128 29)"/>
+      <ellipse cx="143" cy="34" rx="6" ry="13" transform="rotate(52 143 34)"/>
+      <ellipse cx="145" cy="50" rx="6" ry="13" transform="rotate(122 145 50)"/>
+      <ellipse cx="129" cy="54" rx="6" ry="13" transform="rotate(192 129 54)"/>
+      <ellipse cx="120" cy="42" rx="6" ry="13" transform="rotate(258 120 42)"/>
+    </g>
+    <circle cx="133" cy="42" r="5.5" fill="${color}" fill-opacity=".72" stroke-width="1"/>
+    <circle cx="80" cy="26" r="2" fill="${color}"/><circle cx="89" cy="22" r="1.5" fill="${color}"/>
+  </g>`
 
 export default function CompletionCredential({ token, completedCount }: { token?: string | null; completedCount?: number }) {
   const [authToken, setAuthToken] = useState<string | null>(token ?? null)
@@ -70,17 +87,69 @@ export default function CompletionCredential({ token, completedCount }: { token?
     if (!credential) return
     const date = new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })
     const dark = document.documentElement.classList.contains('dark')
-    const canvas = dark ? '#112a3a' : '#f8f5e9'
-    const ink = dark ? '#f7f7f0' : '#172d35'
-    const muted = dark ? '#c8d8d6' : '#4c6468'
-    const goldInk = dark ? '#e7c66d' : '#ad7c21'
-    let logo = ''
+    const paper = dark ? '#112a38' : '#faf6ea'
+    const ink = dark ? '#f3ecdb' : '#25343b'
+    const muted = dark ? '#c9c9bf' : '#5c6461'
+    const gold = dark ? '#d9bd78' : '#9d783f'
+    let logoData = ''
     try {
-      const blob = await (await fetch('/amadutown-logo-upscaled.png')).blob()
-      const dataUrl = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(blob) })
-      logo = `<image href="${dataUrl}" x="560" y="74" width="80" height="100"/>`
-    } catch { setNotice('The certificate logo could not be loaded. Try downloading again.'); return }
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850"><rect width="1200" height="850" fill="${canvas}"/><rect x="26" y="26" width="1148" height="798" fill="none" stroke="#b78d34" stroke-width="4"/><rect x="39" y="39" width="1122" height="772" fill="none" stroke="#b78d34" stroke-width="1"/><path d="M72 92V72h20 M1108 72h20v20 M72 758v20h20 M1108 778h20v-20" fill="none" stroke="#b78d34" stroke-width="3"/><path d="M470 212h92m76 0h92M470 525h92m76 0h92" stroke="#b78d34" stroke-width="2"/><path d="M600 204l8 8-8 8-8-8zM600 517l8 8-8 8-8-8z" fill="#b78d34"/>${logo}<text x="600" y="195" fill="${goldInk}" font-family="Arial" font-size="20" text-anchor="middle" letter-spacing="4">AMADUTOWN · ACCELERATED</text><text x="600" y="298" fill="${ink}" font-family="Georgia" font-size="60" text-anchor="middle">Certificate of Completion</text><text x="600" y="365" fill="${muted}" font-family="Arial" font-size="24" text-anchor="middle">Presented to</text><text x="600" y="444" fill="${ink}" font-family="Georgia" font-size="56" text-anchor="middle">${escapeXml(credential.learner_name)}</text><text x="600" y="493" fill="${muted}" font-family="Arial" font-size="24" text-anchor="middle">For completing all sixteen Accelerated lessons</text><text x="600" y="568" fill="${goldInk}" font-family="Arial" font-size="22" text-anchor="middle">${escapeXml(date)}</text><line x1="100" y1="615" x2="1100" y2="615" stroke="#b78d34" stroke-width="1"/><text x="100" y="658" fill="${muted}" font-family="Arial" font-size="17" letter-spacing="2">ISSUED BY AMADUTOWN</text><text x="100" y="689" fill="${ink}" font-family="Georgia" font-size="24">Accelerated</text><line x1="790" y1="679" x2="1090" y2="679" stroke="#b78d34" stroke-width="2"/><text x="790" y="706" fill="${ink}" font-family="Georgia" font-size="23">Vambah Sillah</text><text x="790" y="730" fill="${muted}" font-family="Arial" font-size="14">Owner, AmaduTown · Author, Accelerated</text><text x="600" y="786" fill="${muted}" font-family="Arial" font-size="16" text-anchor="middle">Course completion · No professional accreditation or certification</text></svg>`
+      const logoResponse = await fetch('/amadutown-logo-upscaled.png')
+      if (!logoResponse.ok) throw new Error('Certificate crest unavailable')
+      const toDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(blob) })
+      logoData = await toDataUrl(await logoResponse.blob())
+      await document.fonts.ready
+    } catch { setNotice('The certificate artwork could not be loaded. Try downloading again.'); return }
+    const titleElement = document.querySelector(`.${styles.certificateTitle}`)
+    const fontFamily = titleElement ? getComputedStyle(titleElement).fontFamily : 'Georgia, serif'
+    const serifImage = (value: string, initialSize: number, baseline: number, maxWidth: number) => {
+      const canvas = document.createElement('canvas')
+      const context = canvas.getContext('2d')
+      if (!context) throw new Error('Certificate drawing unavailable')
+      let fontSize = initialSize
+      context.font = `600 ${fontSize}px ${fontFamily}`
+      while (context.measureText(value).width > maxWidth && fontSize > 42) {
+        fontSize -= 2
+        context.font = `600 ${fontSize}px ${fontFamily}`
+      }
+      const metrics = context.measureText(value)
+      const width = Math.ceil(metrics.width + 32)
+      const height = Math.ceil(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + 32)
+      const scale = 3
+      canvas.width = width * scale
+      canvas.height = height * scale
+      context.scale(scale, scale)
+      context.font = `600 ${fontSize}px ${fontFamily}`
+      context.fillStyle = ink
+      context.textBaseline = 'alphabetic'
+      context.fillText(value, 16, 16 + metrics.actualBoundingBoxAscent)
+      return `<image href="${canvas.toDataURL('image/png')}" x="${600 - width / 2}" y="${baseline - 16 - metrics.actualBoundingBoxAscent}" width="${width}" height="${height}"/>`
+    }
+    const corner = (transform: string) => `<g transform="${transform}" opacity=".88">${botanicalMarkup(gold)}</g>`
+    let titleArtwork = ''
+    let learnerArtwork = ''
+    try {
+      titleArtwork = serifImage('CERTIFICATE OF COMPLETION', 65, 327, 910)
+      learnerArtwork = serifImage(credential.learner_name, 91, 482, 900)
+    } catch { setNotice('The certificate artwork could not be drawn. Try downloading again.'); return }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850">
+      <title>Accelerated Certificate of Completion</title><desc>Certificate awarded to ${escapeXml(credential.learner_name)} on ${escapeXml(date)} by AmaduTown.</desc>
+      <rect width="1200" height="850" fill="${paper}"/><rect x="27" y="27" width="1146" height="796" fill="none" stroke="${gold}" stroke-width="1.6"/><rect x="38" y="38" width="1124" height="774" fill="none" stroke="${gold}" stroke-width=".7" opacity=".65"/>
+      ${corner('translate(45 40)')}${corner('translate(1155 40) scale(-1 1)')}${corner('translate(45 810) scale(.7 -.7)')}${corner('translate(1155 810) scale(-.7 -.7)')}
+      <image href="${logoData}" x="565" y="67" width="70" height="86" preserveAspectRatio="xMidYMid meet"/>
+      <text x="600" y="180" fill="${gold}" font-family="Arial,sans-serif" font-size="18" text-anchor="middle" letter-spacing="7">AMADUTOWN</text>
+      <text x="600" y="205" fill="${muted}" font-family="Arial,sans-serif" font-size="15" text-anchor="middle" letter-spacing="6">ACCELERATED</text>
+      <line x1="433" y1="229" x2="767" y2="229" stroke="${gold}" stroke-width="1.2"/>
+      ${titleArtwork}
+      <text x="600" y="384" fill="${muted}" font-family="Arial,sans-serif" font-size="16" text-anchor="middle" letter-spacing="4">THIS CERTIFIES THAT</text>
+      ${learnerArtwork}
+      <text x="600" y="530" fill="${muted}" font-family="Georgia,serif" font-size="25" text-anchor="middle">has completed all sixteen lessons of Accelerated</text>
+      <text x="600" y="588" fill="${gold}" font-family="Arial,sans-serif" font-size="17" text-anchor="middle" letter-spacing="3">${escapeXml(date.toUpperCase())}</text>
+      <line x1="445" y1="618" x2="755" y2="618" stroke="${gold}" stroke-width="1.3"/>
+      <text x="215" y="686" fill="${muted}" font-family="Arial,sans-serif" font-size="14" letter-spacing="3">ISSUED BY</text><text x="215" y="722" fill="${ink}" font-family="Georgia,serif" font-size="29">AmaduTown</text>
+      <line x1="780" y1="686" x2="1093" y2="686" stroke="${gold}" stroke-width="1.5"/>
+      <text x="785" y="718" fill="${ink}" font-family="Georgia,serif" font-size="23">Vambah Sillah</text><text x="785" y="742" fill="${muted}" font-family="Arial,sans-serif" font-size="14">Owner, AmaduTown · Author, Accelerated</text>
+      <text x="600" y="789" fill="${muted}" font-family="Arial,sans-serif" font-size="14" text-anchor="middle">Course completion · No professional accreditation or certification</text>
+    </svg>`
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }))
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'accelerated-certificate-of-completion.svg'; anchor.click(); URL.revokeObjectURL(url)
   }
@@ -98,21 +167,29 @@ export default function CompletionCredential({ token, completedCount }: { token?
   return <section className={styles.card} aria-label="Accelerated Certificate of Completion">
     <div className={styles.top}><div><p className={styles.eyebrow}>ACCELERATED · COMPLETION</p><h3>Certificate of Completion</h3></div><span className={styles.count}>{status?.completedCount ?? completedCount ?? 0} / 16 lessons</span></div>
     {(credential || status?.eligible) && <div className={styles.certificate} aria-label={credential ? 'Claimed Accelerated completion certificate' : 'Unclaimed Accelerated completion certificate preview'}>
-      <span className={styles.cornerTopLeft} aria-hidden="true" /><span className={styles.cornerTopRight} aria-hidden="true" /><span className={styles.cornerBottomLeft} aria-hidden="true" /><span className={styles.cornerBottomRight} aria-hidden="true" />
-      <span className={styles.certificateState}>{credential ? 'Claimed certificate' : 'Preview · unclaimed'}</span>
-      <Image className={styles.logo} src="/amadutown-logo-upscaled.png" alt="AmaduTown shield" width={48} height={60} />
-      <span className={styles.certificateBrand}>AMADUTOWN · ACCELERATED</span>
-      <span className={styles.ornament} aria-hidden="true">◆</span>
-      <strong className={styles.certificateTitle}>Certificate of Completion</strong>
-      <span className={styles.presented}>Presented to</span>
-      <strong className={styles.learner}>{credential?.learner_name || name.trim() || 'Your name'}</strong>
-      <span className={styles.certificateCourse}>For completing all sixteen Accelerated lessons</span>
-      <span className={styles.certificateDate}>{credential ? new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }) : 'Completion date added when claimed'}</span>
-      <div className={styles.certification}>
-        <div className={styles.issuer}><span>ISSUED BY AMADUTOWN</span><strong>Accelerated</strong></div>
-        <div className={styles.signature}><span className={styles.signatureLine} aria-hidden="true" /><strong>Vambah Sillah</strong><span>Owner, AmaduTown · Author, Accelerated</span></div>
+      <span className={styles.certificateState}>{credential ? 'CLAIMED CERTIFICATE' : 'PREVIEW · UNCLAIMED'}</span>
+      <div className={styles.artwork}>
+        <BotanicalCorner className={`${styles.botanical} ${styles.topLeft}`} />
+        <BotanicalCorner className={`${styles.botanical} ${styles.topRight}`} />
+        <BotanicalCorner className={`${styles.botanical} ${styles.bottomLeft}`} />
+        <BotanicalCorner className={`${styles.botanical} ${styles.bottomRight}`} />
+        <div className={styles.artworkBody}>
+          <Image className={styles.logo} src="/amadutown-logo-upscaled.png" alt="AmaduTown shield" width={70} height={86} />
+          <span className={styles.certificateBrand}>AMADUTOWN <span>ACCELERATED</span></span>
+          <span className={styles.divider} aria-hidden="true" />
+          <strong className={styles.certificateTitle}>Certificate of Completion</strong>
+          <span className={styles.presented}>THIS CERTIFIES THAT</span>
+          <strong className={styles.learner}>{credential?.learner_name || name.trim() || 'Your name'}</strong>
+          <span className={styles.certificateCourse}>has completed all sixteen lessons of <em>Accelerated</em></span>
+          <span className={styles.certificateDate}>{credential ? new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }) : 'Completion date added when claimed'}</span>
+          <span className={styles.lowerDivider} aria-hidden="true" />
+          <div className={styles.certification}>
+            <div className={styles.issuer}><span>ISSUED BY</span><strong>AmaduTown</strong></div>
+            <div className={styles.signature}><span className={styles.signatureLine} aria-hidden="true" /><strong>Vambah Sillah</strong><span>Owner, AmaduTown · Author, Accelerated</span></div>
+          </div>
+          <small>Course completion · No professional accreditation or certification</small>
+        </div>
       </div>
-      <small>Course completion · No professional accreditation or certification</small>
     </div>}
     {!authToken && !preview ? <p>Sign in and save your completed lessons to claim a certificate. <Link href="/auth/login?redirect=%2Faccelerated%2Fdecision-file">Sign in</Link></p> : credential ? <>
       <p><strong>{credential.learner_name}</strong> completed all sixteen lessons on {new Date(credential.completed_at).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}.</p>
@@ -132,3 +209,7 @@ export default function CompletionCredential({ token, completedCount }: { token?
 }
 
 function windowOrigin() { return typeof window === 'undefined' ? 'https://amadutown.com' : window.location.origin }
+
+function BotanicalCorner({ className }: { className: string }) {
+  return <svg className={className} viewBox="0 0 170 170" aria-hidden="true" dangerouslySetInnerHTML={{ __html: botanicalMarkup('currentColor') }} />
+}
