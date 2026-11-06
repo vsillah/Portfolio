@@ -6,44 +6,59 @@ import styles from "./TrumpetRecruitmentTimeline.module.css";
 
 export type TimelineStep = { days: string; title: string; detail: string };
 
-const beatIntervalMs = 620;
+const asset = "/work/trumpet-trainer/design/trumpet-timeline";
+const beatTimes = [0, 1.26, 3.24, 4.28, 5.40, 6.40];
 
 export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineStep[] }) {
   const root = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const started = useRef(false);
   const [beat, setBeat] = useState(0);
+  const [staticPoster, setStaticPoster] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || typeof IntersectionObserver === "undefined") {
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || typeof IntersectionObserver === "undefined") {
+      setStaticPoster(true);
       setBeat(steps.length);
       return;
     }
 
-    const timers: number[] = [];
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting || started.current) return;
       started.current = true;
-      setBeat(1);
-      for (let next = 2; next <= steps.length; next += 1) {
-        timers.push(window.setTimeout(() => setBeat(next), (next - 1) * beatIntervalMs));
-      }
       observer.disconnect();
+      const player = video.current;
+      if (!player) {
+        setStaticPoster(true);
+        setBeat(steps.length);
+        return;
+      }
+      player.play().then(() => setBeat((current) => Math.max(current, 1))).catch(() => {
+        setPlaying(false);
+        setStaticPoster(true);
+        setBeat(steps.length);
+      });
     }, { threshold: 0.25 });
     if (root.current) observer.observe(root.current);
-    return () => {
-      observer.disconnect();
-      timers.forEach(window.clearTimeout);
-    };
+    return () => observer.disconnect();
   }, [steps.length]);
+
+  const updateBeat = () => {
+    const elapsed = video.current?.currentTime ?? 0;
+    const next = beatTimes.reduce((current, time, index) => elapsed >= time ? index + 1 : current, 1);
+    setBeat(Math.min(next, steps.length));
+  };
 
   return <div ref={root} className={styles.timeline} data-beat={beat}>
     <span aria-hidden="true" className={styles.spine} />
-    <div aria-hidden="true" className={styles.instrument} data-vibrate={beat === 3}>
-      <Image src="/work/trumpet-trainer/design/brass-trumpet-timeline-v1.png" width={1024} height={1536} alt="" draggable={false} className={styles.trumpet} />
-      <span className={`${styles.valve} ${styles.valveOne}`} data-motion-part="valve-1" data-pressed={beat === 2 || beat === 4} />
-      <span className={`${styles.valve} ${styles.valveTwo}`} data-motion-part="valve-2" data-pressed={beat === 3 || beat === 5} />
-      <span className={`${styles.valve} ${styles.valveThree}`} data-motion-part="valve-3" data-pressed={beat === 4 || beat === 5} />
-      <span className={styles.bellLight} data-motion-part="bell" data-resolve={beat === 6} />
+    <div aria-hidden="true" className={styles.instrument}>
+      {!playing && <Image src={`${asset}-poster.png`} width={512} height={768} alt="" draggable={false} priority className={styles.trumpet} />}
+      {!staticPoster && <video ref={video} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} poster={`${asset}-poster.png`} preload="auto" muted playsInline onPlaying={() => setPlaying(true)} onTimeUpdate={updateBeat} onEnded={() => setBeat(steps.length)} onError={() => { setPlaying(false); setStaticPoster(true); setBeat(steps.length); }}>
+          <source src={`${asset}.webm`} type="video/webm" />
+          <source src={`${asset}.mp4`} type="video/mp4" />
+        </video>}
     </div>
     <ol className={styles.list}>
       {steps.map(({ days, title, detail }, index) => <li key={days} className={styles.step} data-active={beat === index + 1}>

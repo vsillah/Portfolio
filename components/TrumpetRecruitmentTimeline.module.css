@@ -24,41 +24,12 @@
   opacity: .94;
   pointer-events: none;
   filter: drop-shadow(0 12px 24px rgb(0 0 0 / 35%));
-  --base-x: 0;
-  --base-y: 0;
-  --press-distance: 5px;
+
 }
 
-.trumpet { display: block; width: 100%; height: auto; }
-
-.valve {
-  position: absolute;
-  z-index: 1;
-  left: 30%;
-  width: 4.8%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(106 75 36 / 90%);
-  border-radius: 50%;
-  background: radial-gradient(circle at 36% 30%, #fff9e8 0%, #e7dfd0 48%, #baa782 74%, #79562c 100%);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 65%), inset 0 1px 1px rgb(255 255 255 / 65%);
-  transform: translate(-50%, -50%);
-}
-
-.valveOne { top: 35.5%; }
-.valveTwo { top: 40.7%; }
-.valveThree { top: 45.9%; }
-
-.bellLight {
-  position: absolute;
-  right: 26%;
-  bottom: 1%;
-  left: 28%;
-  height: 13%;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgb(255 225 144 / 35%), transparent 70%);
-  opacity: 0;
-  mix-blend-mode: screen;
-}
+.trumpet { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: contain; }
+.video { position: absolute; inset: 0; }
+.videoPending { opacity: 0; }
 
 .list {
   position: relative;
@@ -123,9 +94,7 @@
     margin: 0;
     transform: translate(-50%, -50%);
     opacity: .94;
-    --base-x: -50%;
-    --base-y: -50%;
-    --press-distance: 7px;
+
   }
 
   .list { gap: 12px; }
@@ -150,31 +119,6 @@
   .step:nth-child(even) .card { grid-column: 3; }
 }
 
-@keyframes instrumentSettle {
-  0% { transform: translate(var(--base-x), var(--base-y)) translateY(-3px) rotate(-.3deg); }
-  55% { transform: translate(var(--base-x), var(--base-y)) translateY(1px) rotate(.12deg); }
-  100% { transform: translate(var(--base-x), var(--base-y)); }
-}
-
-@keyframes valveStroke {
-  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-  32% { transform: translate(-50%, -50%) translateY(var(--press-distance)); }
-  57% { transform: translate(-50%, -50%) translateY(calc(var(--press-distance) * .78)); }
-}
-
-@keyframes valveStrokeFinal {
-  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-  32% { transform: translate(-50%, -50%) translateY(var(--press-distance)); }
-  57% { transform: translate(-50%, -50%) translateY(calc(var(--press-distance) * .78)); }
-}
-
-@keyframes dampedVibration {
-  0%, 100% { transform: translate(var(--base-x), var(--base-y)); }
-  30% { transform: translate(var(--base-x), var(--base-y)) translateX(1.5px) rotate(.12deg); }
-  56% { transform: translate(var(--base-x), var(--base-y)) translateX(-.8px) rotate(-.07deg); }
-  78% { transform: translate(var(--base-x), var(--base-y)) translateX(.35px); }
-}
-
 @keyframes cardReceive {
   from { opacity: .76; transform: translateX(var(--card-in, -9px)); }
   to { opacity: 1; transform: translateX(0); }
@@ -191,29 +135,6 @@
   100% { transform: scale(1); }
 }
 
-@keyframes markerTremor {
-  0%, 100% { transform: rotate(0); }
-  35% { transform: rotate(2deg) translateX(1px); }
-  58% { transform: rotate(-1.2deg) translateX(-.5px); }
-  78% { transform: rotate(.4deg); }
-}
-
-@keyframes bellSettle {
-  0%, 100% { opacity: 0; }
-  45% { opacity: .42; }
-}
-
-.timeline[data-beat="1"] .instrument { animation: instrumentSettle 480ms ease-out both; }
-.timeline[data-beat="2"] .valveOne,
-.timeline[data-beat="3"] .valveTwo,
-.timeline[data-beat="4"] .valveOne,
-.timeline[data-beat="4"] .valveThree,
-.timeline[data-beat="5"] .valveTwo,
-.timeline[data-beat="5"] .valveThree { animation: valveStroke 480ms cubic-bezier(.22, .7, .28, 1) both; }
-.timeline[data-beat="3"] .instrument { animation: dampedVibration 360ms 100ms ease-out both; }
-.timeline[data-beat="5"] .valveTwo,
-.timeline[data-beat="5"] .valveThree { animation-name: valveStrokeFinal; }
-.timeline[data-beat="6"] .bellLight { animation: bellSettle 520ms ease-out both; }
 .step[data-active="true"] { --card-in: -9px; }
 .step:nth-child(even)[data-active="true"] { --card-in: 9px; }
 .step[data-active="true"]::before { animation: connectorDraw 300ms 140ms ease-out both; }
@@ -228,5 +149,4 @@
 @media (prefers-reduced-motion: reduce) {
   .timeline *, .timeline *::before, .timeline *::after { animation: none !important; transition: none !important; }
   .instrument { opacity: .94 !important; }
-  .bellLight { opacity: 0 !important; }
 }

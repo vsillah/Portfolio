@@ -12,30 +12,28 @@ const steps: TimelineStep[] = [
 ];
 
 afterEach(() => {
-  vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
-describe("Trumpet recruitment timeline motion", () => {
-  it("keeps all six native steps and details stable in reduced motion", () => {
+describe("Trumpet recruitment timeline media", () => {
+  it("shows the stable poster and all six native details when motion is reduced", () => {
     vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true })));
     const observer = vi.fn();
     vi.stubGlobal("IntersectionObserver", observer);
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
     const timeline = container.firstElementChild!;
     expect(timeline).toHaveAttribute("data-beat", "6");
-    expect(timeline.querySelectorAll("ol > li")).toHaveLength(6);
     expect(timeline.querySelectorAll("ol > li details")).toHaveLength(6);
+    expect(timeline.querySelector("video")).toBeNull();
     expect(timeline.querySelector("img")).toHaveAttribute("alt", "");
-    expect(timeline.querySelector("img")?.closest('[aria-hidden="true"]')).not.toBeNull();
     expect(observer).not.toHaveBeenCalled();
     const details = screen.getAllByText("Review details")[2].closest("details")!;
     fireEvent.click(details.querySelector("summary")!);
     expect(details).toHaveAttribute("open");
   });
 
-  it("plays six one-shot instrument beats and coordinates the third valve, pin, and card", () => {
-    vi.useFakeTimers();
+  it("plays the rendered instrument once and follows its beat timestamps without losing details focus", async () => {
     vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false })));
     let trigger!: (visible: boolean) => void;
     const disconnect = vi.fn();
@@ -48,46 +46,36 @@ describe("Trumpet recruitment timeline motion", () => {
       disconnect = disconnect;
     }
     vi.stubGlobal("IntersectionObserver", MockObserver);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
     const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
     const timeline = container.firstElementChild!;
-    const milestone = (index: number) => timeline.querySelectorAll("ol > li")[index - 1];
-    const valve = (index: number) => timeline.querySelector(`[data-motion-part="valve-${index}"]`);
-    expect(timeline).toHaveAttribute("data-beat", "0");
-    expect(observe).toHaveBeenCalledTimes(1);
+    const player = timeline.querySelector("video")!;
+    expect(player.querySelectorAll("source")).toHaveLength(2);
+    expect(timeline.querySelector("[data-motion-part]")).toBeNull();
+    expect(observe).toHaveBeenCalledOnce();
 
-    act(() => trigger(true));
-    expect(timeline).toHaveAttribute("data-beat", "1");
-    expect(milestone(1)).toHaveAttribute("data-active", "true");
-    act(() => vi.advanceTimersByTime(620));
-    expect(timeline).toHaveAttribute("data-beat", "2");
-    expect(valve(1)).toHaveAttribute("data-pressed", "true");
-
-    const focusedSummary = milestone(3).querySelector("summary")!;
-    focusedSummary.focus();
-    fireEvent.click(focusedSummary);
-    act(() => vi.advanceTimersByTime(620));
-    expect(timeline).toHaveAttribute("data-beat", "3");
-    expect(valve(2)).toHaveAttribute("data-pressed", "true");
-    expect(timeline.querySelector('[data-vibrate="true"]')).not.toBeNull();
-    expect(milestone(3)).toHaveAttribute("data-active", "true");
-    expect(focusedSummary).toHaveFocus();
-    expect(focusedSummary.closest("details")).toHaveAttribute("open");
-
-    act(() => vi.advanceTimersByTime(620));
-    expect(timeline).toHaveAttribute("data-beat", "4");
-    expect(valve(1)).toHaveAttribute("data-pressed", "true");
-    expect(valve(3)).toHaveAttribute("data-pressed", "true");
-    act(() => vi.advanceTimersByTime(620));
-    expect(timeline).toHaveAttribute("data-beat", "5");
-    expect(valve(2)).toHaveAttribute("data-pressed", "true");
-    expect(valve(3)).toHaveAttribute("data-pressed", "true");
-    act(() => vi.advanceTimersByTime(620));
-    expect(timeline).toHaveAttribute("data-beat", "6");
-    expect(timeline.querySelector('[data-motion-part="bell"]')).toHaveAttribute("data-resolve", "true");
-
-    act(() => { trigger(false); trigger(true); vi.advanceTimersByTime(5000); });
-    expect(timeline).toHaveAttribute("data-beat", "6");
+    await act(async () => trigger(true));
+    expect(play).toHaveBeenCalledOnce();
     expect(disconnect).toHaveBeenCalled();
-    expect(focusedSummary.closest("details")).toHaveAttribute("open");
+    expect(timeline).toHaveAttribute("data-beat", "1");
+    expect(timeline.querySelector("img")).not.toBeNull();
+    fireEvent.playing(player);
+    expect(timeline.querySelector("img")).toBeNull();
+    const summary = timeline.querySelectorAll("ol > li summary")[2];
+    (summary as HTMLElement).focus();
+    fireEvent.click(summary);
+    for (const [time, beat] of [[1.3, 2], [3.3, 3], [4.3, 4], [5.5, 5], [6.5, 6]] as const) {
+      Object.defineProperty(player, "currentTime", { configurable: true, value: time });
+      fireEvent.timeUpdate(player);
+      expect(timeline).toHaveAttribute("data-beat", String(beat));
+    }
+    act(() => { trigger(false); trigger(true); });
+    expect(play).toHaveBeenCalledOnce();
+    expect(summary).toHaveFocus();
+    expect(summary.closest("details")).toHaveAttribute("open");
+    fireEvent.error(player);
+    expect(timeline.querySelector("video")).toBeNull();
+    expect(timeline.querySelector("img")).not.toBeNull();
+    expect(timeline).toHaveAttribute("data-beat", "6");
   });
 });
