@@ -16,8 +16,15 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
   const [beat, setBeat] = useState(0);
   const [staticPoster, setStaticPoster] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [safariMedia, setSafariMedia] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const ua = navigator.userAgent;
+    setSafariMedia(/iPad|iPhone|iPod/.test(ua) || (/Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)));
+  }, []);
+
+  useEffect(() => {
+    if (safariMedia === null) return;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduced || typeof IntersectionObserver === "undefined") {
       setStaticPoster(true);
@@ -43,7 +50,7 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
     }, { threshold: 0.25 });
     if (root.current) observer.observe(root.current);
     return () => observer.disconnect();
-  }, [steps.length]);
+  }, [safariMedia, steps.length]);
 
   const updateBeat = () => {
     const elapsed = video.current?.currentTime ?? 0;
@@ -55,8 +62,8 @@ export default function TrumpetRecruitmentTimeline({ steps }: { steps: TimelineS
     <span aria-hidden="true" className={styles.spine} />
     <div aria-hidden="true" className={styles.instrument}>
       {!playing && <Image src={`${asset}-poster.png`} width={512} height={768} alt="" draggable={false} priority className={styles.trumpet} />}
-      {!staticPoster && <video ref={video} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} poster={`${asset}-poster.png`} preload="auto" muted playsInline onPlaying={() => setPlaying(true)} onTimeUpdate={updateBeat} onEnded={() => setBeat(steps.length)} onError={() => { setPlaying(false); setStaticPoster(true); setBeat(steps.length); }}>
-          <source src={`${asset}.webm`} type="video/webm" />
+      {!staticPoster && safariMedia !== null && <video ref={video} className={`${styles.trumpet} ${styles.video} ${playing ? "" : styles.videoPending}`} poster={`${asset}-poster.png`} preload="auto" muted playsInline onPlaying={() => setPlaying(true)} onTimeUpdate={updateBeat} onEnded={() => setBeat(steps.length)} onError={() => { setPlaying(false); setStaticPoster(true); setBeat(steps.length); }}>
+          {safariMedia ? <source src={`${asset}-hevc.mp4`} type='video/mp4; codecs="hvc1"' /> : <source src={`${asset}.webm`} type="video/webm" />}
           <source src={`${asset}.mp4`} type="video/mp4" />
         </video>}
     </div>

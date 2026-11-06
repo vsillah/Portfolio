@@ -17,6 +17,18 @@ afterEach(() => {
 });
 
 describe("Trumpet recruitment timeline media", () => {
+  it("offers Safari an alpha-capable HEVC source before the MP4 fallback", () => {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15");
+    vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false })));
+    vi.stubGlobal("IntersectionObserver", class { observe() {} disconnect() {} });
+    const { container } = render(<TrumpetRecruitmentTimeline steps={steps} />);
+    const sources = [...container.querySelectorAll("video source")];
+    expect(sources.map((source) => source.getAttribute("src"))).toEqual([
+      "/work/trumpet-trainer/design/trumpet-timeline-hevc.mp4",
+      "/work/trumpet-trainer/design/trumpet-timeline.mp4",
+    ]);
+  });
+
   it("shows the stable poster and all six native details when motion is reduced", () => {
     vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true })));
     const observer = vi.fn();
