@@ -107,7 +107,7 @@ BEGIN
     ) result;
     IF v_intake IS NULL THEN RAISE EXCEPTION 'Submission receipt missing' USING ERRCODE = 'P0001'; END IF;
   END IF;
-  UPDATE public.accelerated_member_enrollments SET revision = revision + 1, updated_at = now()
+  UPDATE public.accelerated_member_enrollments SET revision = accelerated_member_enrollments.revision + 1, updated_at = now()
     WHERE user_id = p_user_id AND content_version = p_version;
   INSERT INTO public.accelerated_completion_commands(
     command_id,user_id,content_version,worksheet_id,action,expected_revision,resulting_revision,payload_sha256,intake_id
