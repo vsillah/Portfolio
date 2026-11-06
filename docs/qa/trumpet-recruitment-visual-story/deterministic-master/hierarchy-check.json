@@ -1,0 +1,16 @@
+{
+  "units": "metres",
+  "reference_bell_diameter_m": 0.123,
+  "reference_bore_m": 0.01165,
+  "first_slide_max_travel_m": 0.018,
+  "third_slide_max_travel_m": 0.025,
+  "named_moving_roots": {
+    "PISTON_1__translate_negative_Z": "PISTON_1__button",
+    "PISTON_2__translate_negative_Z": "PISTON_2__button",
+    "PISTON_3__translate_negative_Z": "PISTON_3__button",
+    "FIRST_SLIDE__translate_negative_X": "FIRST_SLIDE__paired_inner_shanks_and_crook",
+    "THIRD_SLIDE__translate_positive_X": "THIRD_SLIDE__paired_inner_shanks_and_crook"
+  },
+  "static_root": "TRUMPET_MASTER__static_root",
+  "source_script": "scripts/render_trumpet_master.py"
+}

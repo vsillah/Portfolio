@@ -1,0 +1,20 @@
+# Deterministic B-flat trumpet anatomy checkpoint
+
+## Reference and rights
+
+- [Yamaha trumpet owner manual, nomenclature p. 4](https://usa.yamaha.com/files/download/other_assets/8/326908/trumpet_en_om_b0.pdf) supplies the side-view placement and names of the bell, leadpipe, mouthpiece, main tuning slide and water key, three valve casings, first and third slides, slide hook/ring, and finger hook. It is a copyrighted manufacturer diagram used only as a visual reference; it is not copied into the model or committed as an image.
+- [Yamaha YTR-4335GII B-flat specifications](https://usa.yamaha.com/files/download/brochure/2/2133632/W215R18_trumpets.pdf) list a 123 mm bell and 11.65 mm medium-large bore. Those two values are the scale anchors for this generic model, not a claim that it reproduces that specific product.
+- [Yamaha piston and slide explanation](https://www.yamaha.com/en/musical_instrument_guide/trumpet/mechanism/mechanism002.html) documents that the first and third slides are hand-operated and that the three valves add separate lengths of tubing. [Yamaha piston-system description](https://www.yamaha.com/en/musical_instrument_guide/trumpet/mechanism/mechanism004.html) confirms that the appropriate slide joins each valve's air path.
+- `scripts/render_trumpet_master.py` creates all geometry procedurally from authored coordinates. No marketplace, rejected GLB mesh, generative mesh, source image texture, motion clip, or audio is imported. This is an original derived study. The reference pages remain the property of their publishers; this package contains only links and new Blender output.
+
+## Coordinates and assumptions
+
+The Blender scene uses metres. X follows the mouthpiece-to-bell axis, Y is depth, and Z is the piston axis. Mouthpiece lip to bell rim spans 574 mm in the modeled coordinate system. The bell rim is 123 mm in diameter; straight-tube external radius is about 6.1–6.4 mm around the 11.65 mm nominal bore. Case diameters, valve spacing (29 mm), bow radii, ferrules, braces, ring sizes, and water-key hardware were inferred from the manual's proportions, not measured from a physical trumpet. They require instrument-maker or player review before the model can be described as exact engineering CAD.
+
+The first slide translates outward along negative X, with 18 mm proposed maximum travel; the third slide translates outward along positive X, with 25 mm proposed maximum travel. The paired inner shanks and connected crook are children of one moving root for each slide. Female sleeves remain fixed to their valve ports. Both modeled sleeve overlaps remain greater than 20 mm at proposed maximum travel. Each button, stem, felt, and internal piston body is grouped under its own Z-travel root, distinct from the fixed casing and caps. These travel distances are mechanical design assumptions for a future proof, not animation in this checkpoint.
+
+## Checkpoint scope
+
+`trumpet-master.blend` is the packed editable source; `trumpet-master-candidate.glb` is a static web-suitable export candidate. The front, side, and top orthographic stills are neutral anatomy views. Separate close-ups show the valve block and two slide assemblies. `neutral_turntable.mp4` is a slow camera-only turntable for inspection; the instrument itself is static. `hierarchy-check.json` records the named controlled roots and the two scale anchors. `scripts/render_trumpet_master.py` reproduces the checkpoint.
+
+This is a **Phase 1 anatomy review**, with no page integration or timeline animation. Captain must assess proportions, visual realism, slide-port continuity, ring placement, and hardware against a physical or manufacturer reference before approving motion work. The model is not a product-specific Yamaha replica and does not claim verified internal air-channel machining.
