@@ -17,6 +17,11 @@ assert.equal(traced.some((file) => file.startsWith(`${l01Dir}/`)), false, 'Stati
 assert.equal(traced.some((file) => file.startsWith(`${trumpetDir}/`)), false, 'Static Trumpet Trainer media must stay out of the unrelated admin function')
 assert(traced.includes(join(darkCastleDir, 'dark-castle-youtube-master.mp4')), 'The admin function still needs its approved master')
 assert(traced.includes(join(darkCastleDir, '03-accidental-success-v2.png')), 'The admin function still needs its approved thumbnail')
+assert.deepEqual(
+  traced.filter((file) => file.startsWith(join(root, 'public') + '/')).sort(),
+  [join(darkCastleDir, '03-accidental-success-v2.png'), join(darkCastleDir, 'dark-castle-youtube-master.mp4')].sort(),
+  'The admin function must trace only its two approved public assets',
+)
 
 const bytes = traced.reduce((sum, file) => sum + statSync(file).size, 0)
 assert(bytes < 250 * 1024 * 1024, `Admin function trace is ${(bytes / 1024 / 1024).toFixed(1)} MiB`)

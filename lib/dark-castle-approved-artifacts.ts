@@ -25,10 +25,9 @@ export async function verifiedDarkCastleApprovedArtifacts() {
     || Object.values(masterReceipt.externalGates).some(Boolean)) {
     throw new Error('Approved artifact receipt identities are missing or mismatched.')
   }
-  const root = path.join(process.cwd(), 'public')
   const [master, thumbnail] = await Promise.all([
-    readFile(path.join(root, DARK_CASTLE_MASTER_PATH)),
-    readFile(path.join(root, DARK_CASTLE_THUMBNAIL_PATH)),
+    readFile(path.join(process.cwd(), 'public/review-assets/social-content/dark-castle-youtube-master-2026-10-29/dark-castle-youtube-master.mp4')),
+    readFile(path.join(process.cwd(), 'public/review-assets/social-content/dark-castle-youtube-master-2026-10-29/03-accidental-success-v2.png')),
   ])
   const sha = (value: Buffer) => createHash('sha256').update(value).digest('hex')
   if (sha(master) !== DARK_CASTLE_MASTER_SHA256 || sha(thumbnail) !== DARK_CASTLE_THUMBNAIL_SHA256) {
