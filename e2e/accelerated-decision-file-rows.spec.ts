@@ -27,6 +27,8 @@ for (const width of [1440, 768, 360]) {
       expect(row.textareaWidth, `L${index + 1} has a usable response field`).toBeGreaterThan(200)
       if (index > 0) expect(row.rowY, `L${index + 1} follows the previous lesson`).toBeGreaterThan(layout[index - 1].rowY)
     }
+    const footerOverflow = await page.locator('[class*="decisionFileFooter"]').evaluate((element) => element.scrollWidth - element.clientWidth)
+    expect(footerOverflow, 'footer actions and their tooltips stay within the footer').toBeLessThanOrEqual(1)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1)
   })
 }
