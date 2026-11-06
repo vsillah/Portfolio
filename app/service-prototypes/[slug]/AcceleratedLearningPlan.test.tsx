@@ -105,7 +105,7 @@ describe('Accelerated learning plan', () => {
     expect(css).toContain('.iconAction::after,.catalogToggle::after')
     expect(css).toContain('.detail>.player,.detail>.mediaNotice{grid-row:4}')
     expect(css).toContain('.detail>.worksheet{grid-row:5}')
-    expect(css).toContain('.detail>.worksheet{grid-column:2;grid-row:4/span 3}')
+    expect(css).toContain('.detail>.worksheet{grid-column:2;grid-row:4}')
   })
 
   it('renders the Decision File as a complete standalone workbook with flat scoped actions', () => {
@@ -178,7 +178,7 @@ describe('Accelerated learning plan', () => {
     expect(l01Media.duration).toBe('09:00')
   })
 
-  it('shows a learner brief, playable lessons, storyboard, and truthful preview progress', () => {
+  it('shows a learner brief, playable lessons, and truthful preview progress', () => {
     render(<AcceleratedLearningPlan />)
     expect(screen.getByRole('heading', { name: 'Sixteen lessons. One decision file.' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ })).toBeInTheDocument()
@@ -191,8 +191,7 @@ describe('Accelerated learning plan', () => {
     fireEvent.click(screen.getByText('Read along with L01 transcript'))
     expect(screen.getByText('The document is open. At the top it says, Q3 Innovation Plan.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /L05: From feedback to signal/ }))
-    expect(screen.getByText('Code six synthetic comments, name one pattern, and flag what contradicts it.')).toBeInTheDocument()
-    expect(screen.getByAltText('Representative storyboard frame for L05')).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveAttribute('placeholder', 'Code six synthetic comments, name one pattern, and flag what contradicts it.')
     expect(screen.getByLabelText('L05 From feedback to signal guided video')).toHaveAttribute('controls')
     for (const item of lessons.filter((lesson) => Number(lesson.id.slice(1)) >= 9)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
@@ -212,7 +211,10 @@ describe('Accelerated learning plan', () => {
       'Signals · lesson visual',
       'Your worksheet stays on this device until you choose to send it.',
       'Watch the lesson, then use the worksheet below to add to your decision file.',
+      'TRY IT',
+      'ADD TO YOUR DECISION FILE',
     ]) expect(screen.queryByText(text, { exact: false })).not.toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: /visual from the Accelerated workshop|Representative storyboard frame/ })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Sign in to save progress' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Review and send' })).toBeInTheDocument()
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')

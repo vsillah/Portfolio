@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle2, Download, PanelLeftClose, PanelLeftOpen, RotateCcw, Save, Send, Trash2 } from 'lucide-react'
 import transcript from '@/docs/accelerated-course-modules/l01-guided-video/approved-composite/l01-approved-transcript.json'
@@ -82,19 +81,12 @@ export const reviewL13L16Media = {
   L16: { video: '/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4', captions: '/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt', duration: '08:00', compositeSha256: '5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0', transcript: l16Transcript },
 } as const
 
-const acts: { name: Act; line: string; image: string }[] = [
-  { name: 'Signals', line: 'Find the decision and the evidence that matters.', image: '/showcases/service-prototypes/v2/sam-signals-plate.webp' },
-  { name: 'Alignment', line: 'Carry evidence into a shared plan and a clear decision.', image: '/showcases/service-prototypes/v2/sam-alignment-plate.webp' },
-  { name: 'Momentum', line: 'Make each test useful to the next one.', image: '/showcases/service-prototypes/v2/sam-momentum-plate.webp' },
-  { name: 'Synthesis', line: 'Set the next move, owner, and review point.', image: '/showcases/service-prototypes/accelerated-sam-infographic.png' },
+const acts: { name: Act; line: string }[] = [
+  { name: 'Signals', line: 'Find the decision and the evidence that matters.' },
+  { name: 'Alignment', line: 'Carry evidence into a shared plan and a clear decision.' },
+  { name: 'Momentum', line: 'Make each test useful to the next one.' },
+  { name: 'Synthesis', line: 'Set the next move, owner, and review point.' },
 ]
-
-const storyboard: Record<string, string> = {
-  L05: '/showcases/accelerated-learning-plan/storyboard-l05.png',
-  L08: '/showcases/accelerated-learning-plan/storyboard-l08.png',
-  L11: '/showcases/accelerated-learning-plan/storyboard-l11.png',
-  L16: '/showcases/accelerated-learning-plan/storyboard-l16.png',
-}
 
 export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'decision-file' }) {
   const detailRef = useRef<HTMLElement>(null)
@@ -123,7 +115,6 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const [sent, setSent] = useState(false)
   const [fixtureReceived, setFixtureReceived] = useState(false)
   const lesson = lessons.find((item) => item.id === selected) ?? lessons[0]
-  const act = acts.find((item) => item.name === lesson.act) ?? acts[0]
   const posterUrl = lessonPosters[lesson.id as keyof typeof lessonPosters]
   const visible = lessons.filter((item) => (filter === 'All' || item.act === filter) && `${item.id} ${item.title} ${item.summary}`.toLowerCase().includes(query.toLowerCase().trim()))
   const current = lessons.find((item) => !completed.includes(item.id))?.id
@@ -370,8 +361,6 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
           {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
           {shareReview}
         </section>
-        <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/></figure>}</div>
-        <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
           <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video key={lesson.id} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
