@@ -343,7 +343,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
       <div><p className={styles.kicker}>YOUR LEARNING PLAN</p><h2>Sixteen lessons. One decision file.</h2><p>Bring one safe, real decision through the course. Each lesson adds a page you can review with your team.</p></div>
       <div className={styles.overview}><strong>{completed.length}<span> / 16</span></strong><span>lessons complete</span><progress value={completed.length} max={16} aria-label="Lessons complete"/><small>{totalMinutes} minutes of planned teaching · practice time is separate</small></div>
     </div>
-    <div className={styles.mediaNotice} role="region" aria-label="Your learning continuity"><strong>{memberClaimed ? 'Saved to your AmaduTown profile' : 'Continue at your own pace'}</strong><p>{memberClaimed ? 'Lessons, video position, and Decision File answers save across devices. You choose when to send the worksheet for assessment review.' : 'Guest progress stays in this browser. Sign in if you want to continue on another device.'}</p>{memberToken ? memberClaimed ? <a href="/member/dashboard">Open member dashboard</a> : <button type="button" onClick={() => void saveMember('claim')}>I agree to claim this browser’s progress</button> : <a href="/auth/login?redirect=%2Faccelerated%2Flearningplan">Sign in for cross-device progress</a>}{memberNotice && <p role="status">{memberNotice}</p>}</div>
+    <div className={styles.continuityAction}>{memberToken ? memberClaimed ? <a href="/member/dashboard">Open dashboard</a> : <button type="button" onClick={() => void saveMember('claim')}>Claim this progress</button> : <a href="/auth/login?redirect=%2Faccelerated%2Flearningplan">Sign in to save progress</a>}{memberNotice && <span role="status">{memberNotice}</span>}</div>
     <div className={`${styles.layout} ${catalogCollapsed ? styles.layoutCollapsed : ''}`}>
       <div className={styles.catalog} data-collapsed={catalogCollapsed ? 'true' : 'false'}>
         <div className={styles.catalogHeader}><strong>Lessons</strong><button type="button" className={styles.catalogToggle} aria-expanded={!catalogCollapsed} aria-label={catalogCollapsed ? 'Expand lesson navigation' : 'Collapse lesson navigation'} data-tooltip={catalogCollapsed ? 'Expand lesson navigation' : 'Collapse lesson navigation'} onClick={() => setCatalogCollapsed((collapsed) => !collapsed)}>{catalogCollapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}</button></div>
@@ -359,23 +359,21 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         })}
       </div>
       <article ref={detailRef} className={styles.detail} aria-live="polite">
-        <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span><span className={styles.detailState} data-state={locked(lesson.id) ? 'locked' : completed.includes(lesson.id) ? 'complete' : current === lesson.id ? 'current' : 'ready'}>{locked(lesson.id) ? 'Video locked · brief preview' : completed.includes(lesson.id) ? 'Complete' : current === lesson.id ? 'Current lesson' : 'Ready to explore'}</span></div>
+        <div className={styles.detailTop}><span>{lesson.id} · {lesson.act} · {lesson.minutes} min</span></div>
         <h3>{lesson.title}</h3><p className={styles.summary}>{lesson.summary}</p>
         <section className={styles.worksheet} aria-label={`${lesson.id} decision file worksheet`}>
           <div className={styles.worksheetHeading}><div><span>DECISION FILE · {lesson.act}</span><h4>{lesson.artifact}</h4></div><span>{startedPages} / 16 pages started</span></div>
           <label htmlFor={`decision-file-${lesson.id}`}>Your response to this lesson</label>
           <textarea id={`decision-file-${lesson.id}`} value={draft?.answers[lesson.id] ?? ''} onChange={(event) => updateAnswer(lesson.id, event.target.value)} maxLength={4000} rows={5} placeholder={lesson.exercise} />
-          <p>{memberClaimed ? 'Auto-saved to your AmaduTown profile as you write. It becomes assessment input only after you review and send it.' : 'Saved on this device as you write. Review every page before sending anything to AmaduTown.'}</p>
           {worksheetActions}
-          <Link className={styles.openWorkbook} href="/accelerated/decision-file">Open the full Decision File</Link>
           {shareState && <p role="status">{shareState}</p>}
           {sent && <div className={styles.receipt} role="status"><strong>{fixtureReceived ? 'Local test complete' : 'Decision file received'}</strong><p>{fixtureReceived ? 'This was a synthetic local test. Nothing was sent to AmaduTown.' : 'AmaduTown will review your decision file before suggesting a next step. No assessment or appointment has been created.'}</p><p>Keep your downloaded or local copy for your records.</p></div>}
           {shareReview}
         </section>
-        <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/><figcaption>{lesson.act} · {approvedBatchMedia ? 'lesson visual' : 'approved workshop visual'}</figcaption></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/><figcaption>{approvedBatchMedia ? 'Lesson illustration' : 'Storyboard preview · representative frame'}</figcaption></figure>}</div>
+        <div className={styles.visuals}><figure><Image src={act.image} alt={`${lesson.act} visual from the Accelerated workshop`} width={520} height={350} unoptimized/></figure>{storyboard[lesson.id] && <figure><Image src={storyboard[lesson.id]} alt={`Representative storyboard frame for ${lesson.id}`} width={520} height={350} unoptimized/></figure>}</div>
         <div className={styles.practice}><div><span>TRY IT</span><p>{lesson.exercise}</p></div><div><span>ADD TO YOUR DECISION FILE</span><p>{lesson.artifact}</p></div></div>
         {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
-          <div className={styles.playerHeading}><div><strong>Guided video · {lesson.id}</strong><p>Watch the lesson, then use the worksheet below to add to your decision file.</p></div></div>
+          <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
           <div className={styles.videoStage} style={{ backgroundImage: `url(${posterUrl})` }}><video key={lesson.id} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => setPosterRevealed(true)} onEmptied={() => setPosterRevealed(false)} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={lessonMedia.video} type="video/mp4" />
             <track kind="captions" src={lessonMedia.captions} srcLang="en" label="English captions" default />
@@ -388,7 +386,6 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
           const completionLabel = locked(lesson.id) ? 'Completion unavailable' : completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'
           return <button type="button" className={styles.iconAction} disabled={locked(lesson.id)} aria-label={completionLabel} data-tooltip={locked(lesson.id) ? 'Completion opens after the guided video is approved' : completionLabel} onClick={() => setCompleted((items) => items.includes(lesson.id) ? items.filter((id) => id !== lesson.id) : [...items, lesson.id])}>{completed.includes(lesson.id) ? <RotateCcw aria-hidden="true" /> : <CheckCircle2 aria-hidden="true" />}</button>
         })()}{next && <button type="button" className={`${styles.iconAction} ${styles.secondary}`} aria-label={`Next lesson · ${next.id}`} data-tooltip={`Next lesson · ${next.id}`} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery('') }}><ArrowRight aria-hidden="true" /></button>}</div>
-        <p className={styles.previewNote}>{memberClaimed ? 'Your worksheet is saved to your profile. Assessment review begins only after your explicit submission.' : 'Your worksheet stays on this device until you choose to send it.'} Use public, synthetic, or approved material in the exercises.</p>
       </article>
     </div>
   </section>

@@ -99,7 +99,7 @@ describe('Accelerated learning plan', () => {
     expect(css).toContain('background:var(--lp-primary-action);')
     expect(css).toContain('background-image:none;')
     expect(css).toContain('box-shadow:none;')
-    expect(css).toContain('.state[data-state=complete],.detailState[data-state=complete]')
+    expect(css).toContain('.state[data-state=complete]')
     expect(css).toContain('border-radius:999px')
     expect(css).toContain('.catalog[data-collapsed=true]')
     expect(css).toContain('.iconAction::after,.catalogToggle::after')
@@ -152,7 +152,7 @@ describe('Accelerated learning plan', () => {
       .mockResolvedValue({ ok: true, json: async () => ({ revision: 3, replay: false }) })
     vi.stubGlobal('fetch', fetchMock)
     render(<AcceleratedLearningPlan />)
-    await waitFor(() => expect(screen.getByText('Saved to your AmaduTown profile')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Open dashboard' })).toBeInTheDocument())
     expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Profile-bound decision')
     expect(screen.getByRole('button', { name: 'Save to profile' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Review for assessment' }))
@@ -199,6 +199,23 @@ describe('Accelerated learning plan', () => {
       expect(screen.getByLabelText(`${item.id} ${item.title} guided video`)).toHaveAttribute('controls')
     }
     expect(screen.queryByText(/production packet|source hash|provider instruction/i)).not.toBeInTheDocument()
+  })
+
+  it('keeps the workspace focused on learner actions instead of internal explanations', () => {
+    render(<AcceleratedLearningPlan />)
+    for (const text of [
+      'Continue at your own pace',
+      'Guest progress stays in this browser.',
+      'Ready to explore',
+      'Saved on this device as you write.',
+      'Open the full Decision File',
+      'Signals · lesson visual',
+      'Your worksheet stays on this device until you choose to send it.',
+      'Watch the lesson, then use the worksheet below to add to your decision file.',
+    ]) expect(screen.queryByText(text, { exact: false })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Sign in to save progress' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Review and send' })).toBeInTheDocument()
+    expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')
   })
 
   it('opens every lesson player with its approved cover and media', () => {
