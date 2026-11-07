@@ -112,12 +112,44 @@ async function setup() {
     preparedAt: prepared.rows[0].result.content_updated_at }
 }
 async function decide(db: PGlite, approvalId: string, preparedAt: string,
-  key = 'final-decision-1', decision = 'approve') {
+  key = 'final-decision-1', decision = 'approve', operator = operatorId) {
   const result = await db.query<{ result: any }>(`SELECT public.record_social_content_stage_decision(
     $1::uuid,$2::uuid,$3::timestamptz,$4,$5::uuid,$6,$7) result`,
-  [contentId, approvalId, preparedAt, decision, operatorId, key,
+  [contentId, approvalId, preparedAt, decision, operator, key,
     decision === 'approve' ? 'approve_platform_submission' : 'hold_platform_submission'])
   return result.rows[0].result
+}
+async function withoutQueueClock(db: PGlite, change: () => Promise<unknown>) {
+  await db.exec('RESET ROLE')
+  await db.exec('ALTER TABLE public.social_content_queue DISABLE TRIGGER set_social_updated_at')
+  try {
+    await change()
+  } finally {
+    await db.exec('ALTER TABLE public.social_content_queue ENABLE TRIGGER set_social_updated_at')
+    await db.exec('SET ROLE service_role')
+  }
+}
+async function setPreparedFrom(db: PGlite, instant: string) {
+  await withoutQueueClock(db, async () => {
+    await db.query(`UPDATE public.agent_approvals
+      SET metadata = jsonb_set(metadata, '{review_packet,prepared_from_content_updated_at}', to_jsonb($1::text))`, [instant])
+    await db.query(`UPDATE public.social_content_queue
+      SET rag_context = jsonb_set(rag_context, '{mobile_decision_review,prepared_from_content_updated_at}', to_jsonb($1::text))`, [instant])
+  })
+}
+async function movePrerequisiteClocks(db: PGlite, instant: string) {
+  const shifted = `(SELECT jsonb_object_agg(key, value || jsonb_build_object('content_updated_at', $1::text)) FROM jsonb_each(%SOURCE%))`
+  await withoutQueueClock(db, async () => {
+    await db.query(`UPDATE public.social_content_decision_receipts
+      SET receipt_bundle = ${shifted.replace('%SOURCE%', 'receipt_bundle')}
+      WHERE id = $2::uuid`, [instant, privacyId])
+    await db.query(`UPDATE public.agent_approvals SET metadata = jsonb_set(jsonb_set(metadata,
+      '{review_packet,receipts}', ${shifted.replace('%SOURCE%', "metadata #> '{review_packet,receipts}'")}),
+      '{review_packet,source_receipts}', ${shifted.replace('%SOURCE%', "metadata #> '{review_packet,source_receipts}'")})`, [instant])
+    await db.query(`UPDATE public.social_content_queue SET rag_context = jsonb_set(jsonb_set(rag_context,
+      '{mobile_decision_review,receipts}', ${shifted.replace('%SOURCE%', "rag_context #> '{mobile_decision_review,receipts}'")}),
+      '{mobile_decision_review,source_receipts}', ${shifted.replace('%SOURCE%', "rag_context #> '{mobile_decision_review,source_receipts}'")})`, [instant])
+  })
 }
 async function state(db: PGlite) {
   const result = await db.query<{ decisions: number; events: number; approval_status: string; gate_status: string | null }>(`
@@ -175,6 +207,46 @@ describe('YouTube final canonical decision timestamp reconciliation in PostgreSQ
     } finally { await db.close() }
   })
 
+  it('rejects prerequisite clocks rewritten to the prepared queue version', async () => {
+    const { db, approvalId, preparedAt } = await setup()
+    try {
+      const preparedClock = new Date(preparedAt).toISOString()
+      await movePrerequisiteClocks(db, preparedClock)
+      await expect(decide(db, approvalId, preparedAt)).rejects.toThrow('Source receipt is missing, failed, or stale')
+      expect(await state(db)).toEqual({ decisions: 0, events: 0, approval_status: 'pending', gate_status: null })
+      const privacy = await db.query<{ content_updated_at: string }>(
+        'SELECT content_updated_at FROM public.social_content_decision_receipts WHERE id = $1::uuid', [privacyId])
+      expect(new Date(privacy.rows[0].content_updated_at).toISOString()).toBe(new Date(approvedAt).toISOString())
+    } finally { await db.close() }
+  })
+
+  it('allows a preparation source equal to the approved privacy clock and rejects an earlier one', async () => {
+    const { db, approvalId, preparedAt } = await setup()
+    try {
+      await setPreparedFrom(db, '2026-11-02T02:19:59.999Z')
+      await expect(decide(db, approvalId, preparedAt)).rejects.toThrow('YouTube final packet source decision is stale or identity mismatched')
+      expect(await state(db)).toEqual({ decisions: 0, events: 0, approval_status: 'pending', gate_status: null })
+
+      await setPreparedFrom(db, approvedAt)
+      const recorded = await decide(db, approvalId, preparedAt)
+      expect(recorded).toMatchObject({ decision: 'approve', idempotent_replay: false, external_execution: false })
+      expect(await state(db)).toEqual({ decisions: 1, events: 1, approval_status: 'approved', gate_status: 'approved' })
+      const persisted = await db.query<{ content_updated_at: string; receipt_bundle: unknown }>(
+        "SELECT content_updated_at, receipt_bundle FROM public.social_content_decision_receipts WHERE current_gate = 'platform_submission'")
+      expect(new Date(persisted.rows[0].content_updated_at).toISOString()).toBe(new Date(preparedAt).toISOString())
+      expect(persisted.rows[0].receipt_bundle).toEqual(bundle)
+    } finally { await db.close() }
+  })
+
+  it('rejects an invalid decision and a blank idempotency key before writing', async () => {
+    const { db, approvalId, preparedAt } = await setup()
+    try {
+      await expect(decide(db, approvalId, preparedAt, 'final-decision-bad', 'APPROVE')).rejects.toThrow('Invalid Social Content decision')
+      await expect(decide(db, approvalId, preparedAt, '   ')).rejects.toThrow('Decision idempotency key is required')
+      expect(await state(db)).toEqual({ decisions: 0, events: 0, approval_status: 'pending', gate_status: null })
+    } finally { await db.close() }
+  })
+
   it('rejects replay under a different approval identity', async () => {
     const { db, approvalId, preparedAt } = await setup()
     try {
@@ -182,6 +254,8 @@ describe('YouTube final canonical decision timestamp reconciliation in PostgreSQ
       await expect(decide(db, '11111111-1111-4111-8111-111111111111', preparedAt)).rejects.toThrow('replay identity mismatched')
       expect((await state(db)).decisions).toBe(1)
       expect(first.id).toBeTruthy()
+      await expect(decide(db, approvalId, preparedAt, 'final-decision-1', 'approve', '22222222-2222-4222-8222-222222222222')).rejects.toThrow('Decision replay identity mismatched')
+      expect(await state(db)).toEqual({ decisions: 1, events: 1, approval_status: 'approved', gate_status: 'approved' })
     } finally { await db.close() }
   })
 
