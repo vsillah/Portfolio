@@ -199,9 +199,9 @@ export default function TrumpetTrainerPage() {
             <p>
               <strong className="text-foreground">Privacy:</strong> This
               interest step is for adults. Please share no child name, photo,
-              school, exact age, address, or practice recording. The review form
-              prepares a message in your email app; it does not enroll a child
-              or submit data to this website.
+              school, exact age, address, or practice recording. The adult
+              consent page explains whether interest intake is open. Interest
+              does not enroll a child.
             </p>
             <p>
               <strong className="text-foreground">Price research:</strong> We
@@ -230,7 +230,7 @@ export default function TrumpetTrainerPage() {
               ],
               [
                 "Does interest mean we are enrolled?",
-                "No. This page prepares an email draft for an adult to send. We would follow up separately if a pilot opens and there is a fit.",
+                "No. An adult may review the contact terms and express interest when intake opens. We would review fit separately before any invitation.",
               ],
               [
                 "Will a school need to approve it?",
@@ -254,7 +254,7 @@ export default function TrumpetTrainerPage() {
             href="#interest"
             className="mt-9 inline-flex items-center gap-2 font-semibold text-radiant-gold underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-radiant-gold"
           >
-            Review the interest form <ArrowRight size={17} />
+            Review adult interest <ArrowRight size={17} />
           </a>
         </div>
       </section>

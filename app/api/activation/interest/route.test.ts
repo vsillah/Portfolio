@@ -32,6 +32,12 @@ describe('adult activation interest route', () => {
     expect(repository.intake).toHaveBeenCalledWith(expect.objectContaining({ adultEmail: 'adult@example.test', consentGranted: true, sourceReceipt: 'direct:fixture-1' }))
     expect(JSON.stringify(await response.json())).toContain('No account or access')
   })
+  it('accepts Portfolio first-party adult interest while keeping other origins closed', async () => {
+    const response = await POST(request(payload, { origin: 'https://portfolio.example.test' }))
+    expect(response.status).toBe(202)
+    expect(repository.intake).toHaveBeenCalledTimes(1)
+    expect((await POST(request(payload, { origin: 'https://wrong.example.test' }))).status).toBe(403)
+  })
   it('limits browser preflight to configured origins', async () => {
     expect((await OPTIONS(request())).status).toBe(204)
     expect((await OPTIONS(request(payload, { origin: 'https://wrong.example.test' }))).status).toBe(403)

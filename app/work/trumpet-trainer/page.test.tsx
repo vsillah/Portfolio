@@ -24,6 +24,7 @@ describe("Trumpet Trainer public page", () => {
         /Please share no child name, photo, school, exact age, address, or practice recording/,
       ),
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Review adult interest and consent/ })).toHaveAttribute('href', '/activate/trumpet-trainer');
     expect(
       screen.getByText(/There is no checkout, paid entitlement/),
     ).toBeInTheDocument();
