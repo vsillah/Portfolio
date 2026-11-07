@@ -102,4 +102,68 @@ describe('campaign Slack dispatch and signed decision bridge', () => {
     vi.setSystemTime(new Date('2026-10-05T00:00:00Z'))
     expect((await decideCampaignSlackRelease(m.command, m.store)).status).toBe('blocked'); expect(m.store.decide).not.toHaveBeenCalled()
   })
+  it('stays disabled on an unhosted runtime even when the flag is set', () => {
+    vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true')
+    vi.stubEnv('VERCEL', ''); vi.stubEnv('VERCEL_ENV', ''); vi.stubEnv('NODE_ENV', 'test')
+    vi.stubEnv('APP_ENV', 'local'); vi.stubEnv('NEXT_PUBLIC_APP_ENV', 'local')
+    expect(campaignSlackDispatchGate()).toMatchObject({ enabled: false, reason: expect.stringContaining('Slack dispatch is disabled') })
+  })
+  it('stays disabled when the receipt worker environment does not match the source', () => {
+    vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true'); vi.stubEnv('SLACK_ACTION_RECEIPTS_ENVIRONMENT', 'production')
+    expect(campaignSlackDispatchGate()).toEqual({ enabled: false, reason: 'Configure signed callbacks and the source-environment receipt worker, then refresh.' })
+  })
+  it('stays disabled when the staging channel is also a production allowlisted destination', () => {
+    vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true')
+    vi.stubEnv('SLACK_AGENT_OPS_STAGING_ALLOWED_CHANNEL_IDS', 'C123')
+    vi.stubEnv('SLACK_AGENT_OPS_PRODUCTION_ALLOWED_CHANNEL_IDS', 'C123')
+    expect(campaignSlackDispatchGate()).toEqual({ enabled: false, reason: 'Verify the Agent Ops workspace, operator allowlist and source channel, then refresh.' })
+  })
+  it('rejects a workspace label that is not a Slack team id', () => {
+    vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true'); vi.stubEnv('SLACK_AGENT_OPS_TEAM_ID', 'agent-ops')
+    expect(campaignSlackDispatchGate()).toEqual({ enabled: false, reason: 'Verify the Agent Ops workspace, operator allowlist and source channel, then refresh.' })
+  })
+  it('refuses an expired, future-dated, or stale-evidence release before saving an intent', async () => {
+    const m = memory(), transport = send()
+    vi.setSystemTime(new Date('2026-10-04T00:00:00Z'))
+    await expect(routeCampaignToSlack(m.input, m.store, transport)).rejects.toThrow('Release changed or expired')
+    vi.setSystemTime(new Date('2026-10-02T23:59:59Z'))
+    await expect(routeCampaignToSlack(m.input, m.store, transport)).rejects.toThrow('Release changed or expired')
+    vi.setSystemTime(new Date('2026-10-03T01:00:00Z'))
+    const manifest = structuredClone(m.record().manifest)
+    manifest.actions[0].evidenceExpiresAt = '2026-10-03T01:00:00Z'
+    const hash = releaseHash(manifest)
+    m.mutate({ manifest, hash })
+    await expect(routeCampaignToSlack({ ...m.input, hash }, m.store, transport)).rejects.toThrow('Release changed or expired')
+    expect(m.intents.size).toBe(0); expect(m.store.sources).not.toHaveBeenCalled(); expect(transport).not.toHaveBeenCalled()
+  })
+  it('does not send when the dispatch claim is lost', async () => {
+    vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true'); const m = memory(), transport = send()
+    m.store.transition = async () => null
+    await expect(routeCampaignToSlack(m.input, m.store, transport)).rejects.toThrow('Dispatch already claimed. Refresh; do not resend.')
+    expect(transport).not.toHaveBeenCalled(); expect([...m.intents.values()][0].state).toBe('prepared')
+  })
+  it('keeps a claimed dispatch unconfirmed when evidence changes and never sends', async () => {
+    vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true'); const m = memory(), transport = send()
+    vi.mocked(m.store.sources).mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('source drifted secret-token'))
+    const result = await routeCampaignToSlack(m.input, m.store, transport)
+    expect(transport).not.toHaveBeenCalled(); expect(result.sent).toBe(false); expect(result.intent).toMatchObject({ state: 'unconfirmed' })
+    expect(result.intent.ts).toBeUndefined(); expect(JSON.stringify(result)).not.toContain('secret-token')
+    await routeCampaignToSlack(m.input, m.store, transport); expect(transport).not.toHaveBeenCalled()
+  })
+  it('keeps a claimed dispatch unconfirmed when the gate closes and never sends', async () => {
+    vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true'); const m = memory(), transport = send()
+    vi.mocked(m.store.sources).mockImplementation(async () => {
+      if (vi.mocked(m.store.sources).mock.calls.length === 2) vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', '')
+    })
+    const result = await routeCampaignToSlack(m.input, m.store, transport)
+    expect(transport).not.toHaveBeenCalled(); expect(result.sent).toBe(false); expect(result.intent.state).toBe('unconfirmed')
+  })
+  it.each([{ channel: 'C999', ts: '123.456' }, { channel: 'C123', ts: '123' }, { channel: 'C123', ts: undefined }])(
+    'treats a Slack success with binding %j as unconfirmed and does not resend', async delivery => {
+      vi.stubEnv('CAMPAIGN_SLACK_DISPATCH_ENABLED', 'true'); const m = memory()
+      const transport = vi.fn(async () => ({ sent: true, reason: null, mode: 'bot' as const, uncertain: false, ...delivery }))
+      const first = await routeCampaignToSlack(m.input, m.store, transport)
+      expect(first.sent).toBe(false); expect(first.intent.state).toBe('unconfirmed'); expect(first.intent.ts).toBeUndefined()
+      await routeCampaignToSlack(m.input, m.store, transport); expect(transport).toHaveBeenCalledOnce()
+    })
 })
