@@ -77,48 +77,48 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 3.132,
+          "end_seconds": 3.37,
           "text": "It is Friday at Harbor Learning Circle. "
         },
         {
-          "start_seconds": 3.132,
-          "end_seconds": 7.047,
+          "start_seconds": 3.37,
+          "end_seconds": 7.581,
           "text": "Morgan opens a paper brief, not a live dashboard. "
         },
         {
-          "start_seconds": 7.047,
-          "end_seconds": 15.268,
+          "start_seconds": 7.581,
+          "end_seconds": 16.426,
           "text": "The preparation agent's job was to compare three cleared course inputs and draft a Session Option Brief. "
         },
         {
-          "start_seconds": 15.268,
-          "end_seconds": 18.4,
+          "start_seconds": 16.426,
+          "end_seconds": 19.796,
           "text": "The first line says prepared, not sent. "
         },
         {
-          "start_seconds": 18.4,
-          "end_seconds": 21.846,
+          "start_seconds": 19.796,
+          "end_seconds": 22.952,
           "text": "A second line says staffing is unconfirmed. "
         },
         {
-          "start_seconds": 21.846,
-          "end_seconds": 25.447,
+          "start_seconds": 22.952,
+          "end_seconds": 26.251,
           "text": "A third says a research proposal has not run. "
         },
         {
-          "start_seconds": 25.447,
-          "end_seconds": 29.049,
+          "start_seconds": 26.251,
+          "end_seconds": 29.55,
           "text": "Morgan's day is not about clearing every row. "
         },
         {
-          "start_seconds": 29.049,
+          "start_seconds": 29.55,
           "end_seconds": 35,
           "text": "It is about spending judgment where a decision can change what happens next."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 18.4,
+        "end_seconds": 19.796,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",

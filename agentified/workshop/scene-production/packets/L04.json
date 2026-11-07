@@ -83,43 +83,43 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 8.022,
+          "end_seconds": 8.049,
           "text": "Morgan reviews the Harbor brief and writes a correction: ‘The facilitator note says available for review. "
         },
         {
-          "start_seconds": 8.022,
-          "end_seconds": 10.822,
+          "start_seconds": 8.049,
+          "end_seconds": 10.859,
           "text": "It does not say confirmed to teach.’ "
         },
         {
-          "start_seconds": 10.822,
-          "end_seconds": 12.335,
+          "start_seconds": 10.859,
+          "end_seconds": 12.377,
           "text": "The draft is fixed. "
         },
         {
-          "start_seconds": 12.335,
-          "end_seconds": 15.362,
+          "start_seconds": 12.377,
+          "end_seconds": 15.415,
           "text": "A week later, another request comes in. "
         },
         {
-          "start_seconds": 15.362,
-          "end_seconds": 18.616,
+          "start_seconds": 15.415,
+          "end_seconds": 18.68,
           "text": "Should the agent remember that correction? "
         },
         {
-          "start_seconds": 18.616,
-          "end_seconds": 19.676,
+          "start_seconds": 18.68,
+          "end_seconds": 19.743,
           "text": "Yes, perhaps. "
         },
         {
-          "start_seconds": 19.676,
+          "start_seconds": 19.743,
           "end_seconds": 28,
           "text": "But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 19.676,
+        "end_seconds": 19.743,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",

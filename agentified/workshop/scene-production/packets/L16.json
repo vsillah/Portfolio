@@ -78,48 +78,48 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 4.8,
+          "end_seconds": 5.054,
           "text": "At the end of Harbor's Friday, Morgan has a full Operating File. "
         },
         {
-          "start_seconds": 4.8,
-          "end_seconds": 16.174,
+          "start_seconds": 5.054,
+          "end_seconds": 17.029,
           "text": "It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal. "
         },
         {
-          "start_seconds": 16.174,
-          "end_seconds": 20.531,
+          "start_seconds": 17.029,
+          "end_seconds": 21.207,
           "text": "The file is impressive in one sense: its gaps are visible. "
         },
         {
-          "start_seconds": 20.531,
-          "end_seconds": 22.82,
+          "start_seconds": 21.207,
+          "end_seconds": 23.403,
           "text": "Staffing is still unconfirmed. "
         },
         {
-          "start_seconds": 22.82,
-          "end_seconds": 24.371,
+          "start_seconds": 23.403,
+          "end_seconds": 24.89,
           "text": "Spend is unapproved. "
         },
         {
-          "start_seconds": 24.371,
-          "end_seconds": 26.661,
+          "start_seconds": 24.89,
+          "end_seconds": 27.085,
           "text": "The research test has not run. "
         },
         {
-          "start_seconds": 26.661,
-          "end_seconds": 29.393,
+          "start_seconds": 27.085,
+          "end_seconds": 29.706,
           "text": "The board proof has not been shared. "
         },
         {
-          "start_seconds": 29.393,
+          "start_seconds": 29.706,
           "end_seconds": 37,
           "text": "The capstone asks whether this design deserves to continue, in what smaller form, and under whose care."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 16.174,
+        "end_seconds": 17.029,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",

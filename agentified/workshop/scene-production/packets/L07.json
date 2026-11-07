@@ -547,27 +547,27 @@
       "captions": [
         {
           "start_seconds": 575,
-          "end_seconds": 577.732,
+          "end_seconds": 577.71,
           "text": "Save revision seven as a draft. "
         },
         {
-          "start_seconds": 577.732,
-          "end_seconds": 585.585,
+          "start_seconds": 577.71,
+          "end_seconds": 585.5,
           "text": "A requirement becomes useful when a new teammate can tell what to prepare and when to stop. "
         },
         {
-          "start_seconds": 585.585,
-          "end_seconds": 591.305,
+          "start_seconds": 585.5,
+          "end_seconds": 591.266,
           "text": "A team becomes useful when a blocked packet has one place to land. "
         },
         {
-          "start_seconds": 591.305,
+          "start_seconds": 591.266,
           "end_seconds": 596,
           "text": "Next we will test that handoff with three course cases."
         }
       ],
       "avatar_window": {
-        "start_seconds": 585.585,
+        "start_seconds": 585.5,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

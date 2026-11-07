@@ -82,43 +82,43 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 5.575,
+          "end_seconds": 5.619,
           "text": "Morgan comes to Harbor's Friday planning table with three open questions. "
         },
         {
-          "start_seconds": 5.575,
-          "end_seconds": 7.986,
+          "start_seconds": 5.619,
+          "end_seconds": 8.049,
           "text": "Is the room note still current? "
         },
         {
-          "start_seconds": 7.986,
-          "end_seconds": 10.473,
+          "start_seconds": 8.049,
+          "end_seconds": 10.554,
           "text": "Who is checking the facilitator? "
         },
         {
-          "start_seconds": 10.473,
-          "end_seconds": 13.336,
+          "start_seconds": 10.554,
+          "end_seconds": 13.44,
           "text": "Did anyone approve the print request? "
         },
         {
-          "start_seconds": 13.336,
-          "end_seconds": 19.514,
+          "start_seconds": 13.44,
+          "end_seconds": 19.666,
           "text": "If the answers live in three people's heads, Morgan becomes the operating system. "
         },
         {
-          "start_seconds": 19.514,
-          "end_seconds": 26.219,
+          "start_seconds": 19.666,
+          "end_seconds": 26.296,
           "text": "We already have receipts, a handoff, a rubric, a review posture, and two held decisions. "
         },
         {
-          "start_seconds": 26.219,
+          "start_seconds": 26.296,
           "end_seconds": 33,
           "text": "Put them where a second team member could see the state and take the next authorized step."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 19.514,
+        "end_seconds": 19.666,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",

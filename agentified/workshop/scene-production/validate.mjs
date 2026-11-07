@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildPacket, here, repo, sha } from './build.mjs'
+import { buildPacket, here, presenterWindows, repo, sha } from './build.mjs'
 import { validate as validateVisuals } from '../visual-review/validate.mjs'
 
 const required = (value) => typeof value === 'string' && value.length > 0
@@ -28,6 +28,8 @@ export function validatePacket(packet, expected = buildPacket(Number(packet?.id?
       const boundaries = [scene.start_seconds, ...cues.flatMap((cue) => [cue.start_seconds, cue.end_seconds]), scene.end_seconds]
       if (state !== 'reserved_unfilled' || from < scene.start_seconds || to > scene.end_seconds || from >= to || !boundaries.includes(from) || !boundaries.includes(to)) errors.push(`${packet.id}: presenter handoff cuts a sentence at scene ${index + 1}`)
     }
+    const approvedWindow = presenterWindows.windows[scene.id] ?? null
+    if (JSON.stringify(scene.avatar_window) !== JSON.stringify(approvedWindow)) errors.push(`${packet.id}: presenter window binding changed at scene ${index + 1}`)
     if (!Array.isArray(scene.audience_copy) || scene.audience_copy.some((line) => /\b(?:fixture|placeholder|QA note|production note|source hash|api key|password|token)\b|\/Users\/|https?:\/\//i.test(line))) errors.push(`${packet.id}: audience copy leakage at scene ${index + 1}`)
     for (const visual of scene.approved_visuals ?? []) {
       const approval = JSON.parse(readFileSync(path.join(repo, 'agentified/workshop/visual-review/packets.json'))).lessons.find((x) => x.id === packet.id)?.visuals.find((x) => x.source_path === visual.path)
@@ -45,6 +47,7 @@ export function validatePacket(packet, expected = buildPacket(Number(packet?.id?
 export function validateAll(count = 16) {
   const visualErrors = validateVisuals(JSON.parse(readFileSync(path.join(repo, 'agentified/workshop/visual-review/packets.json'))))
   const errors = [...visualErrors]
+  if (presenterWindows.schema_version !== 1 || presenterWindows.source_head !== '80080500516a448856a3fc44ee6c370b1e67672f' || Object.keys(presenterWindows.windows).length !== 32) errors.push('presenter window manifest identity changed')
   for (let i = 1; i <= count; i++) {
     const id = `L${String(i).padStart(2, '0')}`
     let packet

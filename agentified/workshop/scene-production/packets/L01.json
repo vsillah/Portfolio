@@ -83,53 +83,53 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 1.232,
+          "end_seconds": 1.464,
           "text": "Friday afternoon. "
         },
         {
-          "start_seconds": 1.232,
-          "end_seconds": 4.517,
+          "start_seconds": 1.464,
+          "end_seconds": 5.367,
           "text": "Morgan runs a small community learning program. "
         },
         {
-          "start_seconds": 4.517,
-          "end_seconds": 11.703,
+          "start_seconds": 5.367,
+          "end_seconds": 13.904,
           "text": "For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. "
         },
         {
-          "start_seconds": 11.703,
-          "end_seconds": 16.221,
+          "start_seconds": 13.904,
+          "end_seconds": 19.271,
           "text": "Someone suggests adding a free digital-skills session next month. "
         },
         {
-          "start_seconds": 16.221,
-          "end_seconds": 23.749,
+          "start_seconds": 19.271,
+          "end_seconds": 25.638,
           "text": "Three notes are on the table: an attendance count, a facilitator availability note, and a room-capacity note. "
         },
         {
-          "start_seconds": 23.749,
-          "end_seconds": 28.335,
+          "start_seconds": 25.638,
+          "end_seconds": 29.517,
           "text": "An assistant can turn those into a neat recommendation in seconds. "
         },
         {
-          "start_seconds": 28.335,
-          "end_seconds": 31.62,
+          "start_seconds": 29.517,
+          "end_seconds": 32.295,
           "text": "But if Morgan asks, ‘Where did this come from?’ "
         },
         {
-          "start_seconds": 31.62,
-          "end_seconds": 34.426,
+          "start_seconds": 32.295,
+          "end_seconds": 34.669,
           "text": "a polished paragraph is thin protection. "
         },
         {
-          "start_seconds": 34.426,
+          "start_seconds": 34.669,
           "end_seconds": 36,
           "text": "The work needs a trail."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 16.221,
+        "end_seconds": 19.271,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",

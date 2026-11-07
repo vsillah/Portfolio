@@ -82,33 +82,33 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 6.77,
+          "end_seconds": 6.815,
           "text": "Morgan sees a line in the Harbor Session Option Brief: ‘The room can hold twenty people.’ "
         },
         {
-          "start_seconds": 6.77,
-          "end_seconds": 9.779,
+          "start_seconds": 6.815,
+          "end_seconds": 9.844,
           "text": "Morgan asks where the number came from. "
         },
         {
-          "start_seconds": 9.779,
-          "end_seconds": 16.925,
+          "start_seconds": 9.844,
+          "end_seconds": 17.037,
           "text": "A raw machine log might answer eventually, after someone searches through hundreds of entries. "
         },
         {
-          "start_seconds": 16.925,
-          "end_seconds": 29.712,
+          "start_seconds": 17.037,
+          "end_seconds": 29.741,
           "text": "Morgan needs a shorter trail: the source that carried the number, the date it was checked, what the agent concluded, and the condition that would have stopped the draft. "
         },
         {
-          "start_seconds": 29.712,
+          "start_seconds": 29.741,
           "end_seconds": 34,
           "text": "A trace should serve the person accountable for the work."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 16.925,
+        "end_seconds": 17.037,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",

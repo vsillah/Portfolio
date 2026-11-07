@@ -78,43 +78,43 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 11.704,
+          "end_seconds": 12.046,
           "text": "A Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? "
         },
         {
-          "start_seconds": 11.704,
-          "end_seconds": 15.276,
+          "start_seconds": 12.046,
+          "end_seconds": 15.722,
           "text": "Morgan brings three paper panels to the table. "
         },
         {
-          "start_seconds": 15.276,
-          "end_seconds": 20.368,
+          "start_seconds": 15.722,
+          "end_seconds": 20.714,
           "text": "The first panel shows the queue, including held and rejected work. "
         },
         {
-          "start_seconds": 20.368,
-          "end_seconds": 23.94,
+          "start_seconds": 20.714,
+          "end_seconds": 24.216,
           "text": "The second follows one item through its trace. "
         },
         {
-          "start_seconds": 23.94,
-          "end_seconds": 27.208,
+          "start_seconds": 24.216,
+          "end_seconds": 27.42,
           "text": "The third shows the rule that governed it. "
         },
         {
-          "start_seconds": 27.208,
-          "end_seconds": 31.996,
+          "start_seconds": 27.42,
+          "end_seconds": 32.114,
           "text": "This is a design walkthrough, not a live system demonstration. "
         },
         {
-          "start_seconds": 31.996,
+          "start_seconds": 32.114,
           "end_seconds": 38,
           "text": "Morgan is showing what Harbor intends to inspect before it trusts the workflow."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 15.276,
+        "end_seconds": 15.722,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
