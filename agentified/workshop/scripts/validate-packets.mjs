@@ -12,16 +12,20 @@ const filenames = [
   'L02-decision.md',
   'L03-trace-and-sources.md',
   'L04-memory-and-routing.md',
+  'L05-operating-map.md',
+  'L06-permission-and-cull.md',
+  'L07-prd-and-pod.md',
+  'L08-handoff-and-eval.md',
 ]
 
-export function validatePackets() {
+export function validatePackets(readPacket = (file) => readFileSync(file, 'utf8')) {
   const errors = validateBindings(register, crosswalk)
   const registered = new Set(register.sources.map((source) => source.path))
   for (const [index, filename] of filenames.entries()) {
     const lesson = crosswalk.lessons[index]
     const file = path.join(here, filename)
     if (!existsSync(file)) { errors.push(`${filename}: missing`); continue }
-    const packet = readFileSync(file, 'utf8')
+    const packet = readPacket(file)
     if (!packet.startsWith(`# L${String(index + 1).padStart(2, '0')} — ${lesson.title}`)) errors.push(`${filename}: title differs from crosswalk`)
     for (const source of [...lesson.chapter_sources, lesson.workbook_source]) {
       if (!registered.has(source) || !packet.includes(path.relative(here, path.join(root, source)))) errors.push(`${filename}: missing registered source citation ${source}`)
@@ -35,6 +39,12 @@ export function validatePackets() {
     if (/\/Users\/|https?:\/\/|(?:password|api key|token)\s*[:=]\s*\S+/i.test(packet)) errors.push(`${filename}: possible private path, external asset, or secret`)
     if (!/review candidate|only a candidate/i.test(packet)) errors.push(`${filename}: visual candidate boundary missing`)
     if (!/synthetic|invented|fictional/i.test(packet)) errors.push(`${filename}: synthetic evidence boundary missing`)
+    if (index >= 4) {
+      if (!/no (?:live |real )?(?:permission|provider|media|agent|evaluation|execution)/i.test(packet)) errors.push(`${filename}: execution boundary missing`)
+      if (!/Morgan/.test(packet) || !/SYN-/.test(packet)) errors.push(`${filename}: Harbor continuity missing`)
+      const ranges = [...packet.matchAll(/^\| (\d{1,2}:\d{2})–(\d{1,2}:\d{2}) \|/gm)]
+      if (ranges.length !== 8 || ranges[0]?.[1] !== '0:00' || ranges.at(-1)?.[2] !== '10:00' || ranges.some((range, i) => i > 0 && ranges[i - 1][2] !== range[1])) errors.push(`${filename}: timed narration must cover a continuous 10:00 in eight beats`)
+    }
   }
   return errors
 }
@@ -42,5 +52,5 @@ export function validatePackets() {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const errors = validatePackets()
   if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1 }
-  else console.log('L01–L04: registered sources, crosswalk outputs, packet sections, and media boundaries pass.')
+  else console.log('L01–L08: registered sources, crosswalk outputs, packet sections, timing, and media boundaries pass.')
 }
