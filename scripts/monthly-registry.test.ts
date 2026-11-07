@@ -32,6 +32,44 @@ describe('monthly eval registry', () => {
     expect(hostedFreshness(undefined, 'chatbot', 31, now)).toBe('gated')
   })
 
+  it('treats the exact age limit as current and a missing snapshot key as absent', () => {
+    const now = new Date('2026-11-02T00:00:00.000Z')
+    const exact = new Date(now.getTime() - 31 * 86400000).toISOString()
+    const older = new Date(now.getTime() - 31 * 86400000 - 1).toISOString()
+    expect(evidenceFreshness({ count: 1, latestAt: exact }, 31, now)).toBe('current')
+    expect(evidenceFreshness({ count: 1, latestAt: older }, 31, now)).toBe('stale')
+    expect(evidenceFreshness({ count: 1, latestAt: 'not-a-time' }, 31, now)).toBe('stale')
+    expect(evidenceFreshness({ count: 3, latestAt: null }, 31, now)).toBe('absent')
+    expect(evidenceFreshness({ count: -1, latestAt: exact }, 31, now)).toBe('absent')
+    expect(hostedFreshness({}, 'chatbot', 31, now)).toBe('absent')
+    expect(hostedFreshness({ chatbot: { count: 1, latestAt: exact } }, 'chatbot', 31, now)).toBe('current')
+  })
+
+  it('stops at an unsupported schema and rejects duplicate coverage or a drifted command', () => {
+    expect(validateManifest({ schemaVersion: 2, discoveryPattern: 'eval', families: [] }, ['lib/orphan-eval.test.ts'])).toEqual(['Unsupported manifest schema'])
+    const drifted = { ...family, command: ['vitest', 'run', 'lib/other-eval.test.ts'] }
+    expect(validateManifest(
+      { schemaVersion: 1, discoveryPattern: 'eval', families: [drifted, { ...family }] },
+      ['lib/sample-eval.test.ts'],
+    )).toEqual([
+      'sample: command must run exactly the listed tests',
+      'Missing or duplicate family id: sample',
+      'lib/sample-eval.test.ts: covered twice',
+    ])
+  })
+
+  it('requires an evidence-only hosted command and test files for a local family', () => {
+    const hosted = {
+      ...family, id: 'hosted-chatbot', mode: 'gated' as const, testFiles: [], command: ['vitest', 'run'],
+      evidence: { ...family.evidence, snapshotKey: 'chatbot' },
+    }
+    const localEmpty = { ...family, id: 'local-empty', testFiles: [], command: ['vitest', 'run'] }
+    expect(validateManifest({ schemaVersion: 1, discoveryPattern: 'eval', families: [hosted, localEmpty] }, [])).toEqual([
+      'hosted-chatbot: hosted command must be evidence-only',
+      'local-empty: local command needs test files',
+    ])
+  })
+
   it('discovers legitimate eval tests and skips nested worktrees', () => {
     const dir = mkdtempSync(join(tmpdir(), 'portfolio-eval-discovery-'))
     try {

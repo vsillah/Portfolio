@@ -40,4 +40,41 @@ describe('eval source binding review packets', () => {
     expect(packets[0].blockers).toContain('Approval does not match the exact family, subject, version, evidence, and required source fields.')
     expect(packets[1].blockers).toContain('Approval does not match the exact family, subject, version, evidence, and required source fields.')
   })
+
+  it('keeps one exact approval blocked and rejects a declined, blank, or duplicate candidate', () => {
+    const chatbot = evalSourceBindingPackets[0]
+    const video = evalSourceBindingPackets[3]
+    const exact: SourceApproval = {
+      family: 'chatbot', subjectId: chatbot.subjectId, version: chatbot.version, evidenceSha256: chatbot.evidenceSha256,
+      receiptId: 'receipt-1', approved: true, promptSha256: chatbot.audit.promptSha256,
+    }
+    const matched = buildEvalSourceBindingPackets({ ...input(), approvals: [exact] })
+    expect(matched[0].approvalPresent).toBe(true)
+    expect(matched[0].state).toBe('blocked')
+    expect(matched[0].blockers).toEqual(chatbot.blockers)
+    expect(matched[1].approvalPresent).toBe(false)
+
+    const declined = buildEvalSourceBindingPackets({ ...input(), approvals: [{ ...exact, approved: false }] })
+    expect(declined[0].approvalPresent).toBe(true)
+    expect(declined[0].blockers).toContain('Approval does not match the exact family, subject, version, evidence, and required source fields.')
+
+    const blankReceipt = buildEvalSourceBindingPackets({ ...input(), approvals: [{ ...exact, receiptId: '' }] })
+    expect(blankReceipt[0].blockers).toContain('Approval does not match the exact family, subject, version, evidence, and required source fields.')
+
+    const duplicate = buildEvalSourceBindingPackets({ ...input(), approvals: [exact, { ...exact, receiptId: 'receipt-2' }] })
+    expect(duplicate[0].blockers).toContain('Multiple approval candidates require owner reconciliation.')
+    expect(duplicate[0].blockers).not.toContain('Approval does not match the exact family, subject, version, evidence, and required source fields.')
+    expect(duplicate[0].state).toBe('blocked')
+
+    const distinct: SourceApproval = {
+      family: 'video-script', subjectId: video.subjectId, version: video.version, evidenceSha256: video.evidenceSha256,
+      receiptId: 'script-template-receipt-1', approved: true, templateId: video.audit.templateCandidate,
+      libraryVersion: video.audit.frameworkLibrary, scriptSha256: video.audit.scriptSha256,
+      scriptTemplateEvaluationReceipt: 'script-template-evaluation:distinct',
+    }
+    const videoPackets = buildEvalSourceBindingPackets({ ...input(), approvals: [distinct] })
+    expect(videoPackets[3].blockers).toEqual(video.blockers)
+    const missingReceipt = buildEvalSourceBindingPackets({ ...input(), approvals: [{ ...distinct, scriptTemplateEvaluationReceipt: undefined }] })
+    expect(missingReceipt[3].blockers).toContain('A distinct script-template evaluation receipt is required.')
+  })
 })
