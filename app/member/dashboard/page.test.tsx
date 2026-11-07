@@ -20,6 +20,7 @@ vi.mock('@/components/member/CompletionCredential', () => ({ default: () => null
 
 describe('Member dashboard course loading', () => {
   beforeEach(() => {
+    window.history.replaceState({}, '', '/member/dashboard')
     getSession.mockReset()
     getSession.mockResolvedValue({ data: { session: { access_token: 'synthetic-token' } } })
     vi.restoreAllMocks()
@@ -38,5 +39,16 @@ describe('Member dashboard course loading', () => {
     expect(screen.getByText('Your guest workshop progress has not been linked to this account.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open the Learning Plan to review and claim it' })).toHaveAttribute('href', '/agentified/learningplan')
     expect(screen.getByRole('status')).toHaveTextContent('Loading your dashboard')
+  })
+
+  it('provides a privacy-safe unclaimed Agentified state for local visual QA', async () => {
+    window.history.replaceState({}, '', '/member/dashboard?qa=member')
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    render(<MemberDashboardPage />)
+
+    expect(await screen.findByRole('region', { name: 'Agentified progress' })).toBeInTheDocument()
+    expect(screen.getByText('Your guest workshop progress has not been linked to this account.')).toBeInTheDocument()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 })

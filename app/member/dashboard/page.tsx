@@ -88,8 +88,8 @@ export default function MemberDashboardPage() {
     let active = true
     const controller = new AbortController()
     async function load() {
-      const preview = process.env.NODE_ENV === 'development' ? new URLSearchParams(window.location.search).get('qa') : null
-      if (preview && ['member', 'assessed', 'paid', 'orders', 'completion-ready', 'completion-blocked'].includes(preview)) { setPreviewMode(true); setData(syntheticMember(preview)); setLoading(false); return }
+      const preview = process.env.NODE_ENV !== 'production' ? new URLSearchParams(window.location.search).get('qa') : null
+      if (preview && ['member', 'assessed', 'paid', 'orders', 'completion-ready', 'completion-blocked'].includes(preview)) { setPreviewMode(true); setData(syntheticMember(preview)); setAgentified({ enrollment: null, lessons: [], worksheet: null }); setLoading(false); return }
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { if (active) { setError('Sign in to see your member dashboard.'); setLoading(false) }; return }
       const request = (path: string) => fetch(path, {
