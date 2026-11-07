@@ -1,0 +1,517 @@
+{
+  "schema_version": 1,
+  "id": "L11",
+  "title": "Run the cockpit and unblock lane",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L11-cockpit-and-unblock.md",
+  "script_sha256": "ffbecbb0ed4426af4c97a38149a94c382b1fd908f2fd92f0c4d241d72e0a5e71",
+  "narration_sha256": "f81ce5081331e4c90d3d9792a3d3d871b044aad8a30e79d7caf5983fa04a220c",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch19-mission-control.md",
+      "sha256": "5b65bd6692814092fffe62fefafe150cf82f4fe6092a37ab78139b18e698e027"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch20-slack-is-the-unblock-lane.md",
+      "sha256": "06a859ee777b258c7cad132878243d40736c9fde996f31bf140601c7c49ebe16"
+    }
+  ],
+  "learning_outcome": "Show status, blockers, owner, and the next authorized step in one view.",
+  "exercise": "Sketch a cockpit card and a mobile unblock message for the same job.",
+  "workbook_outputs": [
+    "Mission Control Cockpit",
+    "Unblock Ladder"
+  ],
+  "operating_file": {
+    "artifact": "cockpit-and-unblock",
+    "revision": 11,
+    "status": "draft",
+    "update_exact": "`cockpit-and-unblock` → `cockpit` and `unblock-ladder`, revision 11, status `draft`; carries forward the prepare-only authority and held staffing and spend decisions."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-HOLD-01",
+      "SYN-SPEND-01",
+      "SYN-TRACE-01",
+      "SYN-BRIEF-01",
+      "SYN-FAC-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "No Slack messages or live task records; use fictional status data.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L11-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“Morgan comes to Harbor's Friday planning table with three open questions. Is the room note still current? Who is checking the facilitator? Did anyone approve the mock print request? If the answers live in three people's heads, Morgan becomes the operating system. We already have receipts, a handoff, a rubric, a review posture, and two held decisions. Put them where a second team member could see the state and take the next authorized step.”",
+      "on_screen_copy_exact": "“One job. Three questions. One readable state.”",
+      "audience_copy": [
+        "One job. Three questions. One readable state."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 5.512,
+          "text": "Morgan comes to Harbor's Friday planning table with three open questions. "
+        },
+        {
+          "start_seconds": 5.512,
+          "end_seconds": 7.896,
+          "text": "Is the room note still current? "
+        },
+        {
+          "start_seconds": 7.896,
+          "end_seconds": 10.354,
+          "text": "Who is checking the facilitator? "
+        },
+        {
+          "start_seconds": 10.354,
+          "end_seconds": 13.558,
+          "text": "Did anyone approve the mock print request? "
+        },
+        {
+          "start_seconds": 13.558,
+          "end_seconds": 19.666,
+          "text": "If the answers live in three people's heads, Morgan becomes the operating system. "
+        },
+        {
+          "start_seconds": 19.666,
+          "end_seconds": 26.296,
+          "text": "We already have receipts, a handoff, a rubric, a review posture, and two held decisions. "
+        },
+        {
+          "start_seconds": 26.296,
+          "end_seconds": 33,
+          "text": "Put them where a second team member could see the state and take the next authorized step."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L11-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 145,
+      "source_time": "1:10–2:25",
+      "narration_exact": "“Chapter Nineteen calls this a cockpit. Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; `SYN-HOLD-01` names Morgan; `SYN-SPEND-01` is unapproved; the next action is to request a current, permitted staffing note. Add owner, age, cost signal, approval queue, and a link to `SYN-TRACE-01`. A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. This is a paper sketch, not a screenshot of a running system.”",
+      "on_screen_copy_exact": "“Status / Blocker / Owner / Next safe step / Trace.”",
+      "audience_copy": [
+        "Status / Blocker / Owner / Next safe step / Trace."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-8-1-portfolio-first-stack-publication-plate.png",
+          "use": "Four-rung Unblock Ladder beside a phone-shaped *wireframe*, not an app capture."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 72.886,
+          "text": "Chapter Nineteen calls this a cockpit. "
+        },
+        {
+          "start_seconds": 72.886,
+          "end_seconds": 90.722,
+          "text": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; `SYN-HOLD-01` names Morgan; `SYN-SPEND-01` is unapproved; the next action is to request a current, permitted staffing note. "
+        },
+        {
+          "start_seconds": 90.722,
+          "end_seconds": 96.273,
+          "text": "Add owner, age, cost signal, approval queue, and a link to `SYN-TRACE-01`. "
+        },
+        {
+          "start_seconds": 96.273,
+          "end_seconds": 106.486,
+          "text": "A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. "
+        },
+        {
+          "start_seconds": 106.486,
+          "end_seconds": 111,
+          "text": "This is a paper sketch, not a screenshot of a running system."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L11-03",
+      "beat": 3,
+      "start_seconds": 145,
+      "end_seconds": 215,
+      "source_time": "2:25–3:35",
+      "narration_exact": "“Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to a fictional coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. There is no need to display individual speed rankings or make a teammate's latency look like failure. The cockpit should reduce guessing, not pressure people into faster approval.”",
+      "on_screen_copy_exact": "“Scan → Sort → Signal → Step in.”",
+      "audience_copy": [
+        "Scan → Sort → Signal → Step in."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 145,
+          "end_seconds": 155.45,
+          "text": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. "
+        },
+        {
+          "start_seconds": 155.45,
+          "end_seconds": 169.919,
+          "text": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to a fictional coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. "
+        },
+        {
+          "start_seconds": 169.919,
+          "end_seconds": 177.373,
+          "text": "There is no need to display individual speed rankings or make a teammate's latency look like failure. "
+        },
+        {
+          "start_seconds": 177.373,
+          "end_seconds": 183,
+          "text": "The cockpit should reduce guessing, not pressure people into faster approval."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L11-04",
+      "beat": 4,
+      "start_seconds": 215,
+      "end_seconds": 290,
+      "source_time": "3:35–4:50",
+      "narration_exact": "“Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate. On a real system, each rung would need a defined authority window and trace. On Harbor's paper design, a status update may be drafted as a notify card. The staffing gap is an ask to Morgan for direction. A proposed announcement or purchase escalates to a separate, named human gate. A mobile card may point Morgan to the full brief and source status. It must never hide a missing note behind an approve button.”",
+      "on_screen_copy_exact": "“Notify: status.” “Ask: staffing direction.” “Escalate: external action.”",
+      "audience_copy": [
+        "Notify: status.",
+        "Ask: staffing direction.",
+        "Escalate: external action."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 215,
+          "end_seconds": 220.942,
+          "text": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate. "
+        },
+        {
+          "start_seconds": 220.942,
+          "end_seconds": 226.963,
+          "text": "On a real system, each rung would need a defined authority window and trace. "
+        },
+        {
+          "start_seconds": 226.963,
+          "end_seconds": 232.827,
+          "text": "On Harbor's paper design, a status update may be drafted as a notify card. "
+        },
+        {
+          "start_seconds": 232.827,
+          "end_seconds": 236.893,
+          "text": "The staffing gap is an ask to Morgan for direction. "
+        },
+        {
+          "start_seconds": 236.893,
+          "end_seconds": 243.07,
+          "text": "A proposed announcement or purchase escalates to a separate, named human gate. "
+        },
+        {
+          "start_seconds": 243.07,
+          "end_seconds": 248.387,
+          "text": "A mobile card may point Morgan to the full brief and source status. "
+        },
+        {
+          "start_seconds": 248.387,
+          "end_seconds": 253,
+          "text": "It must never hide a missing note behind an approve button."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L11-05",
+      "beat": 5,
+      "start_seconds": 290,
+      "end_seconds": 355,
+      "source_time": "4:50–5:55",
+      "narration_exact": "“The phone is a narrow doorway into the cockpit. A good card says what is held, why, who owns it, and where to open the complete evidence. It can invite a comment or route the issue within a previously defined scope. It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure. Every paper disposition returns to the same trace. A small screen does not make a consequential decision smaller.”",
+      "on_screen_copy_exact": "“Mobile card → full trace.” “No shortcut around the gate.”",
+      "audience_copy": [
+        "Mobile card → full trace.",
+        "No shortcut around the gate."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 290,
+          "end_seconds": 293.815,
+          "text": "The phone is a narrow doorway into the cockpit. "
+        },
+        {
+          "start_seconds": 293.815,
+          "end_seconds": 300.967,
+          "text": "A good card says what is held, why, who owns it, and where to open the complete evidence. "
+        },
+        {
+          "start_seconds": 300.967,
+          "end_seconds": 307.166,
+          "text": "It can invite a comment or route the issue within a previously defined scope. "
+        },
+        {
+          "start_seconds": 307.166,
+          "end_seconds": 317.02,
+          "text": "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure. "
+        },
+        {
+          "start_seconds": 317.02,
+          "end_seconds": 321.073,
+          "text": "Every paper disposition returns to the same trace. "
+        },
+        {
+          "start_seconds": 321.073,
+          "end_seconds": 326,
+          "text": "A small screen does not make a consequential decision smaller."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L11-06",
+      "beat": 6,
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "source_time": "5:55–6:15",
+      "narration_exact": "“Pause. If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?”",
+      "on_screen_copy_exact": "“Pause: find one missing field.”",
+      "audience_copy": [
+        "Pause: find one missing field."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 355,
+          "end_seconds": 355.558,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 355.558,
+          "end_seconds": 364,
+          "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L11-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. Show status, blocker, owner, age, source pointer, next safe step, and decision destination. Assign each message to a ladder rung. Label what can be handled in the sketch and what must open the full review. Include a route for stale evidence and a closed spend gate. Use fictional data only; do not paste a real Slack message, agent run, person, or client record.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Create a `Mission Control Cockpit` card and an `Unblock Ladder` for the same fictional Harbor job. The card needs status, blocker, owner, due or age signal, evidence pointer, cost/spend status, next authorized action, recovery, and disposition history. The ladder must distinguish `auto-run`, `notify`, `ask`, and `escalate`, with allowed response, trace event, deep link, and forbidden actions. Mark anything requiring full review as a handoff to the cockpit, not a one-tap mobile approval.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 383.213,
+          "text": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. "
+        },
+        {
+          "start_seconds": 383.213,
+          "end_seconds": 390.275,
+          "text": "Show status, blocker, owner, age, source pointer, next safe step, and decision destination. "
+        },
+        {
+          "start_seconds": 390.275,
+          "end_seconds": 393.192,
+          "text": "Assign each message to a ladder rung. "
+        },
+        {
+          "start_seconds": 393.192,
+          "end_seconds": 399.026,
+          "text": "Label what can be handled in the sketch and what must open the full review. "
+        },
+        {
+          "start_seconds": 399.026,
+          "end_seconds": 403.631,
+          "text": "Include a route for stale evidence and a closed spend gate. "
+        },
+        {
+          "start_seconds": 403.631,
+          "end_seconds": 411,
+          "text": "Use fictional data only; do not paste a real Slack message, agent run, person, or client record."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L11-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision eleven as a draft. The test is simple: can a second person understand why the work is held and who can move it? Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build.”",
+      "on_screen_copy_exact": "“Operating File v11: cockpit + unblock.” “Next: scoped proof.”",
+      "audience_copy": [
+        "Operating File v11: cockpit + unblock.",
+        "Next: scoped proof."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.876,
+          "text": "Save revision eleven as a draft. "
+        },
+        {
+          "start_seconds": 577.876,
+          "end_seconds": 585.979,
+          "text": "The test is simple: can a second person understand why the work is held and who can move it? "
+        },
+        {
+          "start_seconds": 585.979,
+          "end_seconds": 596,
+          "text": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

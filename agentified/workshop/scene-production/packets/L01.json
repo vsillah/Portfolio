@@ -1,0 +1,583 @@
+{
+  "schema_version": 1,
+  "id": "L01",
+  "title": "Give the agent a job and a receipt",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L01-job-and-receipt.md",
+  "script_sha256": "159baf03db33be47260c6312efbd121c88da54c891b024c1e1100e68fb9e72a3",
+  "narration_sha256": "3f92ea2d1f1c12835070a7274bc06f2b436b6708e768272fcfd334a8dcda01a8",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch01-the-first-receipt.md",
+      "sha256": "718ad20af6f9c8cfa6d4b8f83c84488b646098aa02503f5febcd9ddd26518590"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch02-agents-need-jobs-not-vibes.md",
+      "sha256": "d2940c61b6eba67800d47e8dc4b5b1dfe420867c1d949afa34244a9894952c52"
+    }
+  ],
+  "learning_outcome": "Define one bounded job and the receipt that would make its work reviewable.",
+  "exercise": "Describe a familiar workflow; mark its owner, inputs, output, and first receipt.",
+  "workbook_outputs": [
+    "Agent Work Receipt",
+    "Agent Job Description"
+  ],
+  "operating_file": {
+    "artifact": "workflow-and-job",
+    "revision": 1,
+    "status": "draft",
+    "update_exact": "`workflow-and-job` → `workflow` and `receipt`, revision 1, status `draft`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-ROOM-01",
+      "SYN-ATTEND-01",
+      "SYN-FAC-01",
+      "SYN-RUN-01",
+      "SYN-BRIEF-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Use a synthetic workflow; omit actual prompts, identities, and private work traces.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 540,
+  "scenes": [
+    {
+      "id": "L01-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 65,
+      "source_time": "0:00–1:05",
+      "narration_exact": "“Friday afternoon. Morgan runs a small community learning program. Someone suggests adding a free digital-skills session next month. There are three notes on the table: a made-up attendance count, a made-up facilitator availability note, and a made-up room-capacity note. An assistant can turn those into a neat recommendation in seconds. But if Morgan asks, ‘Where did this come from?’ a polished paragraph is thin protection. The work needs a trail.”",
+      "on_screen_copy_exact": "“A suggestion needs a source.” “Fictional case: Harbor Learning Circle.”",
+      "audience_copy": [
+        "A suggestion needs a source.",
+        "Fictional case: Harbor Learning Circle."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 1.28,
+          "text": "Friday afternoon. "
+        },
+        {
+          "start_seconds": 1.28,
+          "end_seconds": 4.693,
+          "text": "Morgan runs a small community learning program. "
+        },
+        {
+          "start_seconds": 4.693,
+          "end_seconds": 9.387,
+          "text": "Someone suggests adding a free digital-skills session next month. "
+        },
+        {
+          "start_seconds": 9.387,
+          "end_seconds": 19.271,
+          "text": "There are three notes on the table: a made-up attendance count, a made-up facilitator availability note, and a made-up room-capacity note. "
+        },
+        {
+          "start_seconds": 19.271,
+          "end_seconds": 24.036,
+          "text": "An assistant can turn those into a neat recommendation in seconds. "
+        },
+        {
+          "start_seconds": 24.036,
+          "end_seconds": 27.449,
+          "text": "But if Morgan asks, ‘Where did this come from?’ "
+        },
+        {
+          "start_seconds": 27.449,
+          "end_seconds": 30.364,
+          "text": "a polished paragraph is thin protection. "
+        },
+        {
+          "start_seconds": 30.364,
+          "end_seconds": 32,
+          "text": "The work needs a trail."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L01-02",
+      "beat": 2,
+      "start_seconds": 65,
+      "end_seconds": 140,
+      "source_time": "1:05–2:20",
+      "narration_exact": "“Our job today is small: design one preparation role and one receipt. The agent does not decide whether the session happens. It prepares a Session Option Brief for Morgan to review. That distinction matters. If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary. What exactly begins its work? What can it read? What must it hand back? Who owns the outcome? These are ordinary management questions. They become more urgent when a tool can produce work while nobody is watching.”",
+      "on_screen_copy_exact": "“Job: prepare one Session Option Brief.” “Owner: Morgan, program lead.”",
+      "audience_copy": [
+        "Job: prepare one Session Option Brief.",
+        "Owner: Morgan, program lead."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 65,
+          "end_seconds": 70.318,
+          "text": "Our job today is small: design one preparation role and one receipt. "
+        },
+        {
+          "start_seconds": 70.318,
+          "end_seconds": 74.557,
+          "text": "The agent does not decide whether the session happens. "
+        },
+        {
+          "start_seconds": 74.557,
+          "end_seconds": 78.95,
+          "text": "It prepares a Session Option Brief for Morgan to review. "
+        },
+        {
+          "start_seconds": 78.95,
+          "end_seconds": 80.954,
+          "text": "That distinction matters. "
+        },
+        {
+          "start_seconds": 80.954,
+          "end_seconds": 88.584,
+          "text": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary. "
+        },
+        {
+          "start_seconds": 88.584,
+          "end_seconds": 90.896,
+          "text": "What exactly begins its work? "
+        },
+        {
+          "start_seconds": 90.896,
+          "end_seconds": 92.283,
+          "text": "What can it read? "
+        },
+        {
+          "start_seconds": 92.283,
+          "end_seconds": 94.133,
+          "text": "What must it hand back? "
+        },
+        {
+          "start_seconds": 94.133,
+          "end_seconds": 95.829,
+          "text": "Who owns the outcome? "
+        },
+        {
+          "start_seconds": 95.829,
+          "end_seconds": 98.988,
+          "text": "These are ordinary management questions. "
+        },
+        {
+          "start_seconds": 98.988,
+          "end_seconds": 105,
+          "text": "They become more urgent when a tool can produce work while nobody is watching."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L01-03",
+      "beat": 3,
+      "start_seconds": 140,
+      "end_seconds": 215,
+      "source_time": "2:20–3:35",
+      "narration_exact": "“Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared sample inputs.’ The trigger is Morgan's request. The output is a draft brief. The manager is Morgan. The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log. The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending. A useful agent job names the work it finishes and the work it leaves alone.”",
+      "on_screen_copy_exact": "“Trigger → cleared inputs → draft brief → Morgan.” “No booking • no announcement • no spending.”",
+      "audience_copy": [
+        "Trigger → cleared inputs → draft brief → Morgan.",
+        "No booking • no announcement • no spending."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 140,
+          "end_seconds": 153.028,
+          "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared sample inputs.’ "
+        },
+        {
+          "start_seconds": 153.028,
+          "end_seconds": 155.513,
+          "text": "The trigger is Morgan's request. "
+        },
+        {
+          "start_seconds": 155.513,
+          "end_seconds": 157.697,
+          "text": "The output is a draft brief. "
+        },
+        {
+          "start_seconds": 157.697,
+          "end_seconds": 159.429,
+          "text": "The manager is Morgan. "
+        },
+        {
+          "start_seconds": 159.429,
+          "end_seconds": 168.993,
+          "text": "The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log. "
+        },
+        {
+          "start_seconds": 168.993,
+          "end_seconds": 177.352,
+          "text": "The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending. "
+        },
+        {
+          "start_seconds": 177.352,
+          "end_seconds": 183,
+          "text": "A useful agent job names the work it finishes and the work it leaves alone."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L01-04",
+      "beat": 4,
+      "start_seconds": 215,
+      "end_seconds": 290,
+      "source_time": "3:35–4:50",
+      "narration_exact": "“Now attach the receipt. Imagine the brief says the room can hold twenty people. Morgan needs to see which invented note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it. The receipt also records cost or resource use, outcome, and how to pull the draft back. A blank field stays blank and gets an owner. We never fill a gap with a confident guess. The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.”",
+      "on_screen_copy_exact": "“Receipt: intent • agent • source • action • artifact • approval • cost • outcome • rollback.”",
+      "audience_copy": [
+        "Receipt: intent • agent • source • action • artifact • approval • cost • outcome • rollback."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-1-1-first-receipt-publication-plate.png",
+          "use": "Split card: job description on left, receipt on right. Highlight “pending” and “source missing.”"
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 215,
+          "end_seconds": 216.926,
+          "text": "Now attach the receipt. "
+        },
+        {
+          "start_seconds": 216.926,
+          "end_seconds": 221.419,
+          "text": "Imagine the brief says the room can hold twenty people. "
+        },
+        {
+          "start_seconds": 221.419,
+          "end_seconds": 233.614,
+          "text": "Morgan needs to see which invented note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it. "
+        },
+        {
+          "start_seconds": 233.614,
+          "end_seconds": 240.675,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back. "
+        },
+        {
+          "start_seconds": 240.675,
+          "end_seconds": 244.286,
+          "text": "A blank field stays blank and gets an owner. "
+        },
+        {
+          "start_seconds": 244.286,
+          "end_seconds": 247.816,
+          "text": "We never fill a gap with a confident guess. "
+        },
+        {
+          "start_seconds": 247.816,
+          "end_seconds": 256,
+          "text": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L01-05",
+      "beat": 5,
+      "start_seconds": 290,
+      "end_seconds": 345,
+      "source_time": "4:50–5:45",
+      "narration_exact": "“In our case, approval is ‘pending Morgan.’ The outcome is ‘draft prepared, no session selected.’ The rollback is ‘withdraw the draft from the review folder and mark it superseded.’ If the source for room capacity is missing, mark the brief blocked. A complete-looking card without a source can move bad information faster than an obviously unfinished one. The receipt makes that gap visible before anyone treats the draft as a decision.”",
+      "on_screen_copy_exact": "“Approval: pending.” “Missing source → hold.”",
+      "audience_copy": [
+        "Approval: pending.",
+        "Missing source → hold."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 290,
+          "end_seconds": 293.156,
+          "text": "In our case, approval is ‘pending Morgan.’ "
+        },
+        {
+          "start_seconds": 293.156,
+          "end_seconds": 297.119,
+          "text": "The outcome is ‘draft prepared, no session selected.’ "
+        },
+        {
+          "start_seconds": 297.119,
+          "end_seconds": 303.284,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’ "
+        },
+        {
+          "start_seconds": 303.284,
+          "end_seconds": 308.275,
+          "text": "If the source for room capacity is missing, mark the brief blocked. "
+        },
+        {
+          "start_seconds": 308.275,
+          "end_seconds": 316.128,
+          "text": "A complete-looking card without a source can move bad information faster than an obviously unfinished one. "
+        },
+        {
+          "start_seconds": 316.128,
+          "end_seconds": 322,
+          "text": "The receipt makes that gap visible before anyone treats the draft as a decision."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L01-06",
+      "beat": 6,
+      "start_seconds": 345,
+      "end_seconds": 365,
+      "source_time": "5:45–6:05",
+      "narration_exact": "“Take a moment. Picture one workflow in your own work. Keep this exercise on paper or in a local draft. Use invented details. What is the one useful output, and who would have to defend it?”",
+      "on_screen_copy_exact": "“Pause: choose one workflow type.”",
+      "audience_copy": [
+        "Pause: choose one workflow type."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 345,
+          "end_seconds": 346.277,
+          "text": "Take a moment. "
+        },
+        {
+          "start_seconds": 346.277,
+          "end_seconds": 349.596,
+          "text": "Picture one workflow in your own work. "
+        },
+        {
+          "start_seconds": 349.596,
+          "end_seconds": 353.766,
+          "text": "Keep this exercise on paper or in a local draft. "
+        },
+        {
+          "start_seconds": 353.766,
+          "end_seconds": 355.638,
+          "text": "Use invented details. "
+        },
+        {
+          "start_seconds": 355.638,
+          "end_seconds": 361,
+          "text": "What is the one useful output, and who would have to defend it?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L01-07",
+      "beat": 7,
+      "start_seconds": 365,
+      "end_seconds": 505,
+      "source_time": "6:05–8:25",
+      "narration_exact": "“Fill the Job and Receipt boxes. Name the trigger, permitted inputs, output, human manager, success check, and three forbidden actions. Then fill the nine receipt fields for one imaginary run. If you cannot name a source, approval state, or rollback, write ‘unknown’ and the person who must resolve it. Do not open a real system to complete this exercise. The point is to see the shape of the work before asking a tool to do it.”",
+      "on_screen_copy_exact": "Exercise card below; 2:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Choose a familiar workflow type. Use invented details. Write the one-sentence agent job; trigger; allowed input references; draft output; human manager; success check; three forbidden actions. Then record the nine receipt fields for an imaginary run. Circle every unknown and assign a human owner. Do not paste a real trace or personal record.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 365,
+          "end_seconds": 367.548,
+          "text": "Fill the Job and Receipt boxes. "
+        },
+        {
+          "start_seconds": 367.548,
+          "end_seconds": 375.749,
+          "text": "Name the trigger, permitted inputs, output, human manager, success check, and three forbidden actions. "
+        },
+        {
+          "start_seconds": 375.749,
+          "end_seconds": 380.288,
+          "text": "Then fill the nine receipt fields for one imaginary run. "
+        },
+        {
+          "start_seconds": 380.288,
+          "end_seconds": 389.047,
+          "text": "If you cannot name a source, approval state, or rollback, write ‘unknown’ and the person who must resolve it. "
+        },
+        {
+          "start_seconds": 389.047,
+          "end_seconds": 393.267,
+          "text": "Do not open a real system to complete this exercise. "
+        },
+        {
+          "start_seconds": 393.267,
+          "end_seconds": 399,
+          "text": "The point is to see the shape of the work before asking a tool to do it."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L01-08",
+      "beat": 8,
+      "start_seconds": 505,
+      "end_seconds": 540,
+      "source_time": "8:25–9:00",
+      "narration_exact": "“Save those two boxes in your Agentified Operating File as a draft. Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper. Next we will name the decision Morgan actually owns.”",
+      "on_screen_copy_exact": "“Operating File v1: workflow + receipt.” “Stop: missing owner, source, or gate.”",
+      "audience_copy": [
+        "Operating File v1: workflow + receipt.",
+        "Stop: missing owner, source, or gate."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 505,
+          "end_seconds": 510.36,
+          "text": "Save those two boxes in your Agentified Operating File as a draft. "
+        },
+        {
+          "start_seconds": 510.36,
+          "end_seconds": 518.84,
+          "text": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper. "
+        },
+        {
+          "start_seconds": 518.84,
+          "end_seconds": 523,
+          "text": "Next we will name the decision Morgan actually owns."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 525,
+        "end_seconds": 540,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

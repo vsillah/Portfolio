@@ -1,0 +1,564 @@
+{
+  "schema_version": 1,
+  "id": "L04",
+  "title": "Turn feedback into governed memory",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L04-memory-and-routing.md",
+  "script_sha256": "30410aab2be49b2a9a5285b8ef69a66afc1256ae48ef8cde3e75efc77862ba5a",
+  "narration_sha256": "390b476a1a057d68313307b124758c9dc7286a6e198426b9464e07e1547bbd64",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch06-from-feedback-to-memory.md",
+      "sha256": "a75a6d1225e4b7b7c9e9f6ec86a3088f9f07d11ffa67dc69b4e9ccf089ff229b"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch07-the-controller-brain.md",
+      "sha256": "bce93d180625f9ff2d455706ac8d717184d0e39b8434761b028572b3ce03c032"
+    }
+  ],
+  "learning_outcome": "Separate source, event, proposal, approved memory, and controller routing.",
+  "exercise": "Route one feedback item and reject an unsupported memory proposal.",
+  "workbook_outputs": [
+    "Source, Event, Proposal, Memory",
+    "Controller Routing Policy"
+  ],
+  "operating_file": {
+    "artifact": "memory-and-routing-policy",
+    "revision": 4,
+    "status": "draft",
+    "update_exact": "`memory-and-routing-policy` → `memory` and `routing`, revision 4, status `draft`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-FEEDBACK-01",
+      "SYN-BRIEF-01",
+      "SYN-EVENT-01",
+      "SYN-PROP-01",
+      "SYN-PROP-02"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Use synthetic feedback; Open Brain records are architecture examples, not learner data.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L04-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“Morgan reviews the fictional brief and writes a correction: ‘The facilitator note says available for review. It does not say confirmed to teach.’ The draft is fixed. A week later, another request comes in. Should the agent remember that correction? Yes, perhaps. But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats.”",
+      "on_screen_copy_exact": "“Correction received.” “What may persist?”",
+      "audience_copy": [
+        "Correction received.",
+        "What may persist?"
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 8.182,
+          "text": "Morgan reviews the fictional brief and writes a correction: ‘The facilitator note says available for review. "
+        },
+        {
+          "start_seconds": 8.182,
+          "end_seconds": 10.96,
+          "text": "It does not say confirmed to teach.’ "
+        },
+        {
+          "start_seconds": 10.96,
+          "end_seconds": 12.461,
+          "text": "The draft is fixed. "
+        },
+        {
+          "start_seconds": 12.461,
+          "end_seconds": 15.464,
+          "text": "A week later, another request comes in. "
+        },
+        {
+          "start_seconds": 15.464,
+          "end_seconds": 18.692,
+          "text": "Should the agent remember that correction? "
+        },
+        {
+          "start_seconds": 18.692,
+          "end_seconds": 19.743,
+          "text": "Yes, perhaps. "
+        },
+        {
+          "start_seconds": 19.743,
+          "end_seconds": 28,
+          "text": "But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L04-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 140,
+      "source_time": "1:10–2:20",
+      "narration_exact": "“Start with the source: Morgan's invented correction, saved as `SYN-FEEDBACK-01`. The event records what happened: Morgan changed a staffing claim in draft `SYN-BRIEF-01`. A proposal then asks whether a narrow rule should be kept: ‘Treat availability as unconfirmed until a separate confirmation record exists.’ That proposal names its source, owner, privacy tier, and review date. It is still only a proposal. An approved memory would require a human to accept the wording, scope, and expiry. In this exercise no memory is approved.”",
+      "on_screen_copy_exact": "“Source → Event → Proposal → Human approval → Memory.” “Current state: proposal only.”",
+      "audience_copy": [
+        "Source → Event → Proposal → Human approval → Memory.",
+        "Current state: proposal only."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 75.633,
+          "text": "Start with the source: Morgan's invented correction, saved as `SYN-FEEDBACK-01`. "
+        },
+        {
+          "start_seconds": 75.633,
+          "end_seconds": 81.893,
+          "text": "The event records what happened: Morgan changed a staffing claim in draft `SYN-BRIEF-01`. "
+        },
+        {
+          "start_seconds": 81.893,
+          "end_seconds": 91.63,
+          "text": "A proposal then asks whether a narrow rule should be kept: ‘Treat availability as unconfirmed until a separate confirmation record exists.’ "
+        },
+        {
+          "start_seconds": 91.63,
+          "end_seconds": 96.498,
+          "text": "That proposal names its source, owner, privacy tier, and review date. "
+        },
+        {
+          "start_seconds": 96.498,
+          "end_seconds": 98.515,
+          "text": "It is still only a proposal. "
+        },
+        {
+          "start_seconds": 98.515,
+          "end_seconds": 104.288,
+          "text": "An approved memory would require a human to accept the wording, scope, and expiry. "
+        },
+        {
+          "start_seconds": 104.288,
+          "end_seconds": 107,
+          "text": "In this exercise no memory is approved."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L04-03",
+      "beat": 3,
+      "start_seconds": 140,
+      "end_seconds": 210,
+      "source_time": "2:20–3:30",
+      "narration_exact": "“Try a second proposal: ‘Morgan dislikes all digital-skills sessions.’ That does not follow from the correction. Reject it. The difference matters. A system that keeps every sentence as a fact will grow confident in things nobody actually said. A good memory process makes a claim traceable and revocable. It also leaves room for ‘we do not know.’ Here, the unsupported proposal is rejected; the narrow one remains pending for Morgan's review. Neither becomes shared memory by default.”",
+      "on_screen_copy_exact": "“Narrow proposal: pending.” “Unsupported inference: rejected.”",
+      "audience_copy": [
+        "Narrow proposal: pending.",
+        "Unsupported inference: rejected."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 140,
+          "end_seconds": 145.062,
+          "text": "Try a second proposal: ‘Morgan dislikes all digital-skills sessions.’ "
+        },
+        {
+          "start_seconds": 145.062,
+          "end_seconds": 148.099,
+          "text": "That does not follow from the correction. "
+        },
+        {
+          "start_seconds": 148.099,
+          "end_seconds": 148.895,
+          "text": "Reject it. "
+        },
+        {
+          "start_seconds": 148.895,
+          "end_seconds": 150.63,
+          "text": "The difference matters. "
+        },
+        {
+          "start_seconds": 150.63,
+          "end_seconds": 157.645,
+          "text": "A system that keeps every sentence as a fact will grow confident in things nobody actually said. "
+        },
+        {
+          "start_seconds": 157.645,
+          "end_seconds": 162.056,
+          "text": "A good memory process makes a claim traceable and revocable. "
+        },
+        {
+          "start_seconds": 162.056,
+          "end_seconds": 165.093,
+          "text": "It also leaves room for ‘we do not know.’ "
+        },
+        {
+          "start_seconds": 165.093,
+          "end_seconds": 172.035,
+          "text": "Here, the unsupported proposal is rejected; the narrow one remains pending for Morgan's review. "
+        },
+        {
+          "start_seconds": 172.035,
+          "end_seconds": 175,
+          "text": "Neither becomes shared memory by default."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L04-04",
+      "beat": 4,
+      "start_seconds": 210,
+      "end_seconds": 285,
+      "source_time": "3:30–4:45",
+      "narration_exact": "“Now a new fictional request arrives: ‘Prepare a different session option for next month.’ Two preparation roles could respond. One compares session evidence; another drafts participant messages. Which one should touch it? A controller can route the request before either acts. First name the intent: compare an option. Then check eligibility: evidence-comparison role may read the three cleared sample IDs and draft; messaging role is ineligible because no outreach is authorized. Assign one role, record the rule, and route the brief to Morgan. If the request asks for a public announcement, the controller must refuse that path and hand it to Morgan.”",
+      "on_screen_copy_exact": "“Intent → Eligibility → Assignment → Evidence.” “No message route.”",
+      "audience_copy": [
+        "Intent → Eligibility → Assignment → Evidence.",
+        "No message route."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-3-amina-inside-sam-publication-plate.png",
+          "use": "One inbound request forks to eligible preparation role and blocked messaging role, then joins at Morgan review."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 210,
+          "end_seconds": 216.35,
+          "text": "Now a new fictional request arrives: ‘Prepare a different session option for next month.’ "
+        },
+        {
+          "start_seconds": 216.35,
+          "end_seconds": 218.96,
+          "text": "Two preparation roles could respond. "
+        },
+        {
+          "start_seconds": 218.96,
+          "end_seconds": 223.758,
+          "text": "One compares session evidence; another drafts participant messages. "
+        },
+        {
+          "start_seconds": 223.758,
+          "end_seconds": 225.663,
+          "text": "Which one should touch it? "
+        },
+        {
+          "start_seconds": 225.663,
+          "end_seconds": 229.543,
+          "text": "A controller can route the request before either acts. "
+        },
+        {
+          "start_seconds": 229.543,
+          "end_seconds": 232.506,
+          "text": "First name the intent: compare an option. "
+        },
+        {
+          "start_seconds": 232.506,
+          "end_seconds": 243.936,
+          "text": "Then check eligibility: evidence-comparison role may read the three cleared sample IDs and draft; messaging role is ineligible because no outreach is authorized. "
+        },
+        {
+          "start_seconds": 243.936,
+          "end_seconds": 248.521,
+          "text": "Assign one role, record the rule, and route the brief to Morgan. "
+        },
+        {
+          "start_seconds": 248.521,
+          "end_seconds": 256,
+          "text": "If the request asks for a public announcement, the controller must refuse that path and hand it to Morgan."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L04-05",
+      "beat": 5,
+      "start_seconds": 285,
+      "end_seconds": 355,
+      "source_time": "4:45–5:55",
+      "narration_exact": "“The controller is not a second decision maker hiding behind a friendly name. It checks written rules and records why a role was selected. It cannot approve memory, authorize outreach, or turn an unconfirmed facilitator into a confirmed one. The routing record is another receipt: request type, applicable rule, selected role, human gate, and fallback. If the rule is missing, the work waits. That pause protects the program from two agents preparing conflicting answers or one agent running beyond its job.”",
+      "on_screen_copy_exact": "“Controller routes by written rule.” “Missing rule → human fallback.”",
+      "audience_copy": [
+        "Controller routes by written rule.",
+        "Missing rule → human fallback."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 285,
+          "end_seconds": 290.478,
+          "text": "The controller is not a second decision maker hiding behind a friendly name. "
+        },
+        {
+          "start_seconds": 290.478,
+          "end_seconds": 294.818,
+          "text": "It checks written rules and records why a role was selected. "
+        },
+        {
+          "start_seconds": 294.818,
+          "end_seconds": 302.146,
+          "text": "It cannot approve memory, authorize outreach, or turn an unconfirmed facilitator into a confirmed one. "
+        },
+        {
+          "start_seconds": 302.146,
+          "end_seconds": 310.043,
+          "text": "The routing record is another receipt: request type, applicable rule, selected role, human gate, and fallback. "
+        },
+        {
+          "start_seconds": 310.043,
+          "end_seconds": 312.889,
+          "text": "If the rule is missing, the work waits. "
+        },
+        {
+          "start_seconds": 312.889,
+          "end_seconds": 321,
+          "text": "That pause protects the program from two agents preparing conflicting answers or one agent running beyond its job."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L04-06",
+      "beat": 6,
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "source_time": "5:55–6:15",
+      "narration_exact": "“Pause on your own workflow. Which correction is worth proposing as a reusable rule, and which tempting inference should be rejected?”",
+      "on_screen_copy_exact": "“Pause: one correction, one rejected inference.”",
+      "audience_copy": [
+        "Pause: one correction, one rejected inference."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 355,
+          "end_seconds": 357.121,
+          "text": "Pause on your own workflow. "
+        },
+        {
+          "start_seconds": 357.121,
+          "end_seconds": 365,
+          "text": "Which correction is worth proposing as a reusable rule, and which tempting inference should be rejected?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L04-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Walk an invented correction through source, event, proposal, and possible memory. Name the approving human, owner, expiry, and revocation path. Keep the status pending. Then write two routing rows: one permitted preparation request and one request that must stop. Give each a task type, evidence requirement, eligible role, human gate, and fallback. Do not test this against live agents or put a real person's feedback into the exercise.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Use synthetic feedback from the same workflow. Record source ID, event, narrow proposal, evidence, privacy tier, approving human, owner, expiry, revocation path, and status. Reject one unsupported inference in writing. Then draft two controller rows: permitted preparation and a blocked external action. No live memory write or agent route is part of this exercise.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 380.817,
+          "text": "Walk an invented correction through source, event, proposal, and possible memory. "
+        },
+        {
+          "start_seconds": 380.817,
+          "end_seconds": 385.215,
+          "text": "Name the approving human, owner, expiry, and revocation path. "
+        },
+        {
+          "start_seconds": 385.215,
+          "end_seconds": 386.989,
+          "text": "Keep the status pending. "
+        },
+        {
+          "start_seconds": 386.989,
+          "end_seconds": 393.728,
+          "text": "Then write two routing rows: one permitted preparation request and one request that must stop. "
+        },
+        {
+          "start_seconds": 393.728,
+          "end_seconds": 399.828,
+          "text": "Give each a task type, evidence requirement, eligible role, human gate, and fallback. "
+        },
+        {
+          "start_seconds": 399.828,
+          "end_seconds": 406,
+          "text": "Do not test this against live agents or put a real person's feedback into the exercise."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L04-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save both policies as draft sections of your Operating File. Stop if a proposal promotes itself, if a route has no written rule, or if a role can send, spend, or publish without a separate human gate. The next lesson will place these pieces on one operating map.”",
+      "on_screen_copy_exact": "“Operating File v4: memory + routing.” “Stop: self-promotion or unowned route.”",
+      "audience_copy": [
+        "Operating File v4: memory + routing.",
+        "Stop: self-promotion or unowned route."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 580.122,
+          "text": "Save both policies as draft sections of your Operating File. "
+        },
+        {
+          "start_seconds": 580.122,
+          "end_seconds": 591.878,
+          "text": "Stop if a proposal promotes itself, if a route has no written rule, or if a role can send, spend, or publish without a separate human gate. "
+        },
+        {
+          "start_seconds": 591.878,
+          "end_seconds": 597,
+          "text": "The next lesson will place these pieces on one operating map."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

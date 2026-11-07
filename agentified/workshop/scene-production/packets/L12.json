@@ -1,0 +1,537 @@
+{
+  "schema_version": 1,
+  "id": "L12",
+  "title": "Prove the work safely",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L12-proof-and-foundry.md",
+  "script_sha256": "4a49004183485ad46b7d501462dd9c59316a3ee7a95224246048e1a434533de8",
+  "narration_sha256": "a0244b72aa8addbe6be68361116114a7c477984a634fa5b90a281d2777f5f075",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch21-client-safe-proof.md",
+      "sha256": "fe8fe9a8c8650fd03f92633603f67fab48038d05ebc6a0314202c87446fcab88"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch22-the-mobile-foundry-test.md",
+      "sha256": "8d827d2bb5b6c8c721d464dc73196b605e52fc93aa99fb645c1acb249edc4905"
+    }
+  ],
+  "learning_outcome": "Package scoped proof and test an idea without leaking the underlying record.",
+  "exercise": "Redact a fictional trace and score a mock app concept against the workflow.",
+  "workbook_outputs": [
+    "Client-Safe Proof Packet",
+    "Foundry Test"
+  ],
+  "operating_file": {
+    "artifact": "proof-and-foundry",
+    "revision": 12,
+    "status": "draft",
+    "update_exact": "`proof-and-foundry` → `proof` and `foundry-test`, revision 12, status `draft`; revision 11's staffing and spend holds remain visible."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-HOLD-01",
+      "SYN-SPEND-01",
+      "SYN-TRACE-01",
+      "SYN-PROOF-01",
+      "SYN-IDEA-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "No client data, private screenshots, or public claims of deployment.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L12-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“A fictional Harbor board member asks Morgan what the preparation agent actually did for the proposed session. Morgan could hand over the entire trace. That would reveal source notes and internal deliberation the board member did not request. Morgan could write a polished story from memory. That would be hard to check. We need a smaller packet: enough to show the boundary, the work, the hold, and the human decision, without dragging every underlying record into the room.”",
+      "on_screen_copy_exact": "“Show the work. Bound the view.”",
+      "audience_copy": [
+        "Show the work. Bound the view."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 8.122,
+          "text": "A fictional Harbor board member asks Morgan what the preparation agent actually did for the proposed session. "
+        },
+        {
+          "start_seconds": 8.122,
+          "end_seconds": 11.15,
+          "text": "Morgan could hand over the entire trace. "
+        },
+        {
+          "start_seconds": 11.15,
+          "end_seconds": 17.869,
+          "text": "That would reveal source notes and internal deliberation the board member did not request. "
+        },
+        {
+          "start_seconds": 17.869,
+          "end_seconds": 21.487,
+          "text": "Morgan could write a polished story from memory. "
+        },
+        {
+          "start_seconds": 21.487,
+          "end_seconds": 23.629,
+          "text": "That would be hard to check. "
+        },
+        {
+          "start_seconds": 23.629,
+          "end_seconds": 35,
+          "text": "We need a smaller packet: enough to show the boundary, the work, the hold, and the human decision, without dragging every underlying record into the room."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L12-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 145,
+      "source_time": "1:10–2:25",
+      "narration_exact": "“Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger. For our invented board reader, scope is one Harbor session-option paper case, across one fictional planning window. Include the permitted job, evidence-status summary, handoff result, `SYN-HOLD-01`, Morgan's paper disposition, and the still-unapproved `SYN-SPEND-01`. Exclude raw source text, prompts, private reasoning, unrelated people, and any actual records. The packet records what is known and what is withheld. It does not certify agent quality or imply a session happened.”",
+      "on_screen_copy_exact": "“Audience / Scope / Window / Exclusions / Export / Ledger.”",
+      "audience_copy": [
+        "Audience / Scope / Window / Exclusions / Export / Ledger."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 77,
+          "text": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger. "
+        },
+        {
+          "start_seconds": 77,
+          "end_seconds": 84.25,
+          "text": "For our invented board reader, scope is one Harbor session-option paper case, across one fictional planning window. "
+        },
+        {
+          "start_seconds": 84.25,
+          "end_seconds": 93.75,
+          "text": "Include the permitted job, evidence-status summary, handoff result, `SYN-HOLD-01`, Morgan's paper disposition, and the still-unapproved `SYN-SPEND-01`. "
+        },
+        {
+          "start_seconds": 93.75,
+          "end_seconds": 99.688,
+          "text": "Exclude raw source text, prompts, private reasoning, unrelated people, and any actual records. "
+        },
+        {
+          "start_seconds": 99.688,
+          "end_seconds": 103.125,
+          "text": "The packet records what is known and what is withheld. "
+        },
+        {
+          "start_seconds": 103.125,
+          "end_seconds": 107,
+          "text": "It does not certify agent quality or imply a session happened."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L12-03",
+      "beat": 3,
+      "start_seconds": 145,
+      "end_seconds": 215,
+      "source_time": "2:25–3:35",
+      "narration_exact": "“The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes. Use placeholder IDs and an invented timestamp label, not a real log. Morgan reviews the proposed proof packet before any sharing. If a field cannot be safely summarized, mark it withheld with a reason. Redaction is a decision, not a blur laid over a screenshot. Here, the export is only a classroom outline; nothing is sent.”",
+      "on_screen_copy_exact": "“Include: scoped receipts and decision.” “Withhold: raw and unrelated records.”",
+      "audience_copy": [
+        "Include: scoped receipts and decision.",
+        "Withhold: raw and unrelated records."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-1-1-first-receipt-publication-plate.png",
+          "use": "Six-field scoped proof card with a visible inclusion column and exclusion column."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 145,
+          "end_seconds": 155.857,
+          "text": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes. "
+        },
+        {
+          "start_seconds": 155.857,
+          "end_seconds": 160.786,
+          "text": "Use placeholder IDs and an invented timestamp label, not a real log. "
+        },
+        {
+          "start_seconds": 160.786,
+          "end_seconds": 165.143,
+          "text": "Morgan reviews the proposed proof packet before any sharing. "
+        },
+        {
+          "start_seconds": 165.143,
+          "end_seconds": 170.286,
+          "text": "If a field cannot be safely summarized, mark it withheld with a reason. "
+        },
+        {
+          "start_seconds": 170.286,
+          "end_seconds": 174.571,
+          "text": "Redaction is a decision, not a blur laid over a screenshot. "
+        },
+        {
+          "start_seconds": 174.571,
+          "end_seconds": 179,
+          "text": "Here, the export is only a classroom outline; nothing is sent."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L12-04",
+      "beat": 4,
+      "start_seconds": 215,
+      "end_seconds": 290,
+      "source_time": "3:35–4:50",
+      "narration_exact": "“The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options. The temptation is to build it because it fits the Harbor story. Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates. The workbook proposes a weighted score out of one hundred. A score is useful only when each field has attributable evidence. Our class has no real market research, payer interview, or release review. Those fields stay unscored. A made-up number would turn an idea into false proof.”",
+      "on_screen_copy_exact": "“Idea → evidence → packet → human gate.” “Missing evidence: unscored.”",
+      "audience_copy": [
+        "Idea → evidence → packet → human gate.",
+        "Missing evidence: unscored."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 215,
+          "end_seconds": 223.026,
+          "text": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options. "
+        },
+        {
+          "start_seconds": 223.026,
+          "end_seconds": 227.612,
+          "text": "The temptation is to build it because it fits the Harbor story. "
+        },
+        {
+          "start_seconds": 227.612,
+          "end_seconds": 238.863,
+          "text": "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates. "
+        },
+        {
+          "start_seconds": 238.863,
+          "end_seconds": 243.091,
+          "text": "The workbook proposes a weighted score out of one hundred. "
+        },
+        {
+          "start_seconds": 243.091,
+          "end_seconds": 247.821,
+          "text": "A score is useful only when each field has attributable evidence. "
+        },
+        {
+          "start_seconds": 247.821,
+          "end_seconds": 253.195,
+          "text": "Our class has no real market research, payer interview, or release review. "
+        },
+        {
+          "start_seconds": 253.195,
+          "end_seconds": 255.202,
+          "text": "Those fields stay unscored. "
+        },
+        {
+          "start_seconds": 255.202,
+          "end_seconds": 259,
+          "text": "A made-up number would turn an idea into false proof."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L12-05",
+      "beat": 5,
+      "start_seconds": 290,
+      "end_seconds": 355,
+      "source_time": "4:50–5:55",
+      "narration_exact": "“Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay. Even that is a proposed plan, not a provider call or outreach. No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson. A phone can display the packet and a hold status, but it cannot waive the gate. The valuable outcome may be a decision to shelve the idea. That saves time a rushed build would consume.”",
+      "on_screen_copy_exact": "“Next: proposed research review.” “No build authority.”",
+      "audience_copy": [
+        "Next: proposed research review.",
+        "No build authority."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 290,
+          "end_seconds": 299.441,
+          "text": "Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay. "
+        },
+        {
+          "start_seconds": 299.441,
+          "end_seconds": 304.398,
+          "text": "Even that is a proposed plan, not a provider call or outreach. "
+        },
+        {
+          "start_seconds": 304.398,
+          "end_seconds": 313.524,
+          "text": "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson. "
+        },
+        {
+          "start_seconds": 313.524,
+          "end_seconds": 319.818,
+          "text": "A phone can display the packet and a hold status, but it cannot waive the gate. "
+        },
+        {
+          "start_seconds": 319.818,
+          "end_seconds": 324.46,
+          "text": "The valuable outcome may be a decision to shelve the idea. "
+        },
+        {
+          "start_seconds": 324.46,
+          "end_seconds": 328,
+          "text": "That saves time a rushed build would consume."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L12-06",
+      "beat": 6,
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "source_time": "5:55–6:15",
+      "narration_exact": "“Pause. What would you leave out of the board packet even if it helped tell a better story?”",
+      "on_screen_copy_exact": "“Pause: write one exclusion.”",
+      "audience_copy": [
+        "Pause: write one exclusion."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 355,
+          "end_seconds": 355.622,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 355.622,
+          "end_seconds": 363,
+          "text": "What would you leave out of the board packet even if it helped tell a better story?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L12-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Draft a Client-Safe Proof Packet outline for the single Harbor planning case. State audience, scope, window, inclusions, exclusions, export review, and ledger fields. Redact the fictional trace in words rather than pasting it. Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition. Use only invented case material. Do not fetch private records, contact a person, create a repo, or generate a public claim.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Create a `Client-Safe Proof Packet` outline for one fictional Harbor decision with audience, scope, window, capability and delegation boundary, trace references, approval/hold history, spend authority summary, exclusions, export review owner, and ledger metadata. Then create a `Foundry Test` for one adjacent app idea. For each field, name its evidence or mark it `unscored`; include demand, payer/monetization, builder fit, build velocity, differentiation, release readiness, approval gates, the smallest proposed test, and stop condition. Do not substitute a fabricated total score for missing evidence.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 380.521,
+          "text": "Draft a Client-Safe Proof Packet outline for the single Harbor planning case. "
+        },
+        {
+          "start_seconds": 380.521,
+          "end_seconds": 386.82,
+          "text": "State audience, scope, window, inclusions, exclusions, export review, and ledger fields. "
+        },
+        {
+          "start_seconds": 386.82,
+          "end_seconds": 391.067,
+          "text": "Redact the fictional trace in words rather than pasting it. "
+        },
+        {
+          "start_seconds": 391.067,
+          "end_seconds": 405.294,
+          "text": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition. "
+        },
+        {
+          "start_seconds": 405.294,
+          "end_seconds": 407.63,
+          "text": "Use only invented case material. "
+        },
+        {
+          "start_seconds": 407.63,
+          "end_seconds": 414,
+          "text": "Do not fetch private records, contact a person, create a repo, or generate a public claim."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L12-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision twelve as a draft. Harbor now has a way to explain its held work and a way to examine a new idea without pretending either is ready to ship. The Operating File keeps the missing evidence visible. That is what makes the next human decision honest.”",
+      "on_screen_copy_exact": "“Operating File v12: proof + foundry.” “Next: gated research design.”",
+      "audience_copy": [
+        "Operating File v12: proof + foundry.",
+        "Next: gated research design."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.792,
+          "text": "Save revision twelve as a draft. "
+        },
+        {
+          "start_seconds": 577.792,
+          "end_seconds": 588.115,
+          "text": "Harbor now has a way to explain its held work and a way to examine a new idea without pretending either is ready to ship. "
+        },
+        {
+          "start_seconds": 588.115,
+          "end_seconds": 592.769,
+          "text": "The Operating File keeps the missing evidence visible. "
+        },
+        {
+          "start_seconds": 592.769,
+          "end_seconds": 597,
+          "text": "That is what makes the next human decision honest."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

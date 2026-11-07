@@ -1,0 +1,581 @@
+{
+  "schema_version": 1,
+  "id": "L03",
+  "title": "Trace the work and grade the sources",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L03-trace-and-sources.md",
+  "script_sha256": "6c52bb358c43f203eb3ad99a413a3287faa6f3b2cdef879f12face1823af730a",
+  "narration_sha256": "3e064c982222f9ca587e927344f732bfe8b8e6174df853f2aba8e8f15e1b9eb8",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch04-the-trace-harness.md",
+      "sha256": "92bb2c304f4f5b2424089ad13dec78cb61296422f4d72a3aee3debb4dc139916"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch05-data-safety-becomes-source-safety.md",
+      "sha256": "e9fd32865cb7972bfe25386b0717bea95934ddc91a2f934f29735adb0f60b682"
+    }
+  ],
+  "learning_outcome": "Specify trace fields and safe source tiers for the same workflow.",
+  "exercise": "Draw one path from source to artifact to human review; classify each sample source.",
+  "workbook_outputs": [
+    "Trace Harness",
+    "Source Safety Ladder"
+  ],
+  "operating_file": {
+    "artifact": "trace-and-source-policy",
+    "revision": 3,
+    "status": "draft",
+    "update_exact": "`trace-and-source-policy` → `sources` and `receipt.trace`, revision 3, status `draft`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-ROOM-01",
+      "SYN-BRIEF-01",
+      "SYN-ATTEND-01",
+      "SYN-FAC-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Use mock source IDs; keep private corpus and operational trace data outside the course.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L03-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“Morgan sees a line in the fictional Session Option Brief: ‘The room can hold twenty people.’ Morgan asks where the number came from. A raw machine log might answer eventually, after someone searches through hundreds of entries. Morgan needs a shorter trail: the source that carried the number, the date it was checked, what the agent concluded, and the condition that would have stopped the draft. A trace should serve the person accountable for the work.”",
+      "on_screen_copy_exact": "“Claim: room capacity = 20.” “Can Morgan defend it?”",
+      "audience_copy": [
+        "Claim: room capacity = 20.",
+        "Can Morgan defend it?"
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 6.949,
+          "text": "Morgan sees a line in the fictional Session Option Brief: ‘The room can hold twenty people.’ "
+        },
+        {
+          "start_seconds": 6.949,
+          "end_seconds": 9.938,
+          "text": "Morgan asks where the number came from. "
+        },
+        {
+          "start_seconds": 9.938,
+          "end_seconds": 17.037,
+          "text": "A raw machine log might answer eventually, after someone searches through hundreds of entries. "
+        },
+        {
+          "start_seconds": 17.037,
+          "end_seconds": 29.741,
+          "text": "Morgan needs a shorter trail: the source that carried the number, the date it was checked, what the agent concluded, and the condition that would have stopped the draft. "
+        },
+        {
+          "start_seconds": 29.741,
+          "end_seconds": 34,
+          "text": "A trace should serve the person accountable for the work."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L03-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 140,
+      "source_time": "1:10–2:20",
+      "narration_exact": "“For our paper design, the trace has five questions. What did the agent prepare? What did it read? What would have stopped it? Where is the artifact? Who reviews it? Answer in plain language. ‘Prepared a draft comparison.’ ‘Read sample room note SYN-ROOM-01.’ ‘Would hold if the note expired or conflicted with another source.’ ‘Draft at SYN-BRIEF-01.’ ‘Morgan reviews.’ We can keep technical diagnostics elsewhere. The operator's view needs the load-bearing facts first.”",
+      "on_screen_copy_exact": "“Prepared • Read • Stop rule • Artifact • Reviewer.”",
+      "audience_copy": [
+        "Prepared • Read • Stop rule • Artifact • Reviewer."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-1-1-first-receipt-publication-plate.png",
+          "use": "Four-tier ladder with one “unknown” source parked outside it."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 73.651,
+          "text": "For our paper design, the trace has five questions. "
+        },
+        {
+          "start_seconds": 73.651,
+          "end_seconds": 75.617,
+          "text": "What did the agent prepare? "
+        },
+        {
+          "start_seconds": 75.617,
+          "end_seconds": 76.881,
+          "text": "What did it read? "
+        },
+        {
+          "start_seconds": 76.881,
+          "end_seconds": 78.847,
+          "text": "What would have stopped it? "
+        },
+        {
+          "start_seconds": 78.847,
+          "end_seconds": 80.462,
+          "text": "Where is the artifact? "
+        },
+        {
+          "start_seconds": 80.462,
+          "end_seconds": 81.585,
+          "text": "Who reviews it? "
+        },
+        {
+          "start_seconds": 81.585,
+          "end_seconds": 83.411,
+          "text": "Answer in plain language. "
+        },
+        {
+          "start_seconds": 83.411,
+          "end_seconds": 85.587,
+          "text": "‘Prepared a draft comparison.’ "
+        },
+        {
+          "start_seconds": 85.587,
+          "end_seconds": 88.185,
+          "text": "‘Read sample room note SYN-ROOM-01.’ "
+        },
+        {
+          "start_seconds": 88.185,
+          "end_seconds": 92.96,
+          "text": "‘Would hold if the note expired or conflicted with another source.’ "
+        },
+        {
+          "start_seconds": 92.96,
+          "end_seconds": 94.715,
+          "text": "‘Draft at SYN-BRIEF-01.’ "
+        },
+        {
+          "start_seconds": 94.715,
+          "end_seconds": 95.979,
+          "text": "‘Morgan reviews.’ "
+        },
+        {
+          "start_seconds": 95.979,
+          "end_seconds": 99.138,
+          "text": "We can keep technical diagnostics elsewhere. "
+        },
+        {
+          "start_seconds": 99.138,
+          "end_seconds": 103,
+          "text": "The operator's view needs the load-bearing facts first."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L03-03",
+      "beat": 3,
+      "start_seconds": 140,
+      "end_seconds": 210,
+      "source_time": "2:20–3:30",
+      "narration_exact": "“Now inspect the source. A real document can still be old. A correct citation can still support a wrong current claim. Before the agent uses a source, record who created it, when it was observed, when it expires, what it may be used for, and where it may travel. In this classroom case all three sample notes are invented. Their IDs help us practice a source contract. They are not evidence of actual attendance, room capacity, or staff availability.”",
+      "on_screen_copy_exact": "“Citation + freshness + permitted use.” “All classroom data is invented.”",
+      "audience_copy": [
+        "Citation + freshness + permitted use.",
+        "All classroom data is invented."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 140,
+          "end_seconds": 141.924,
+          "text": "Now inspect the source. "
+        },
+        {
+          "start_seconds": 141.924,
+          "end_seconds": 144.65,
+          "text": "A real document can still be old. "
+        },
+        {
+          "start_seconds": 144.65,
+          "end_seconds": 149.461,
+          "text": "A correct citation can still support a wrong current claim. "
+        },
+        {
+          "start_seconds": 149.461,
+          "end_seconds": 161.007,
+          "text": "Before the agent uses a source, record who created it, when it was observed, when it expires, what it may be used for, and where it may travel. "
+        },
+        {
+          "start_seconds": 161.007,
+          "end_seconds": 165.817,
+          "text": "In this classroom case all three sample notes are invented. "
+        },
+        {
+          "start_seconds": 165.817,
+          "end_seconds": 169.506,
+          "text": "Their IDs help us practice a source contract. "
+        },
+        {
+          "start_seconds": 169.506,
+          "end_seconds": 176,
+          "text": "They are not evidence of actual attendance, room capacity, or staff availability."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L03-04",
+      "beat": 4,
+      "start_seconds": 210,
+      "end_seconds": 295,
+      "source_time": "3:30–4:55",
+      "narration_exact": "“The source ladder gives us four useful tiers: public safe, client safe, internal operations, and private. Public safe means cleared for the specific external use. Client safe stays inside that client's context. Internal operations can inform an internal draft but needs a reviewed rewrite before an external claim. Private material needs explicit access authority and stays out of this workshop exercise. A summary inherits the strictest tier of its sources. A missing tier means hold. A public link by itself does not prove that a document is current, accurate, or cleared for reuse.”",
+      "on_screen_copy_exact": "“public_safe / client_safe / internal_ops / private.” “Unknown tier → hold.”",
+      "audience_copy": [
+        "public_safe / client_safe / internal_ops / private.",
+        "Unknown tier → hold."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 210,
+          "end_seconds": 217.623,
+          "text": "The source ladder gives us four useful tiers: public safe, client safe, internal operations, and private. "
+        },
+        {
+          "start_seconds": 217.623,
+          "end_seconds": 221.723,
+          "text": "Public safe means cleared for the specific external use. "
+        },
+        {
+          "start_seconds": 221.723,
+          "end_seconds": 225.175,
+          "text": "Client safe stays inside that client's context. "
+        },
+        {
+          "start_seconds": 225.175,
+          "end_seconds": 232.654,
+          "text": "Internal operations can inform an internal draft but needs a reviewed rewrite before an external claim. "
+        },
+        {
+          "start_seconds": 232.654,
+          "end_seconds": 239.127,
+          "text": "Private material needs explicit access authority and stays out of this workshop exercise. "
+        },
+        {
+          "start_seconds": 239.127,
+          "end_seconds": 243.01,
+          "text": "A summary inherits the strictest tier of its sources. "
+        },
+        {
+          "start_seconds": 243.01,
+          "end_seconds": 244.952,
+          "text": "A missing tier means hold. "
+        },
+        {
+          "start_seconds": 244.952,
+          "end_seconds": 252,
+          "text": "A public link by itself does not prove that a document is current, accurate, or cleared for reuse."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L03-05",
+      "beat": 5,
+      "start_seconds": 295,
+      "end_seconds": 355,
+      "source_time": "4:55–5:55",
+      "narration_exact": "“Classify our three invented notes as classroom-only, with no publication permission. The capacity note has an invented date and expires before the next planning cycle. The attendance note is an aggregate fictional count, not a list of people. The facilitator note says only ‘available for review,’ not ‘confirmed to teach.’ That wording changes the recommendation. The brief may say ‘availability unconfirmed.’ It may not say the session is staffed. This is source safety doing practical work: it stops a small mismatch from becoming a confident plan.”",
+      "on_screen_copy_exact": "“Availability unconfirmed → no staffing claim.”",
+      "audience_copy": [
+        "Availability unconfirmed → no staffing claim."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 295,
+          "end_seconds": 301.016,
+          "text": "Classify our three invented notes as classroom-only, with no publication permission. "
+        },
+        {
+          "start_seconds": 301.016,
+          "end_seconds": 306.891,
+          "text": "The capacity note has an invented date and expires before the next planning cycle. "
+        },
+        {
+          "start_seconds": 306.891,
+          "end_seconds": 312.2,
+          "text": "The attendance note is an aggregate fictional count, not a list of people. "
+        },
+        {
+          "start_seconds": 312.2,
+          "end_seconds": 317.933,
+          "text": "The facilitator note says only ‘available for review,’ not ‘confirmed to teach.’ "
+        },
+        {
+          "start_seconds": 317.933,
+          "end_seconds": 320.835,
+          "text": "That wording changes the recommendation. "
+        },
+        {
+          "start_seconds": 320.835,
+          "end_seconds": 324.091,
+          "text": "The brief may say ‘availability unconfirmed.’ "
+        },
+        {
+          "start_seconds": 324.091,
+          "end_seconds": 326.851,
+          "text": "It may not say the session is staffed. "
+        },
+        {
+          "start_seconds": 326.851,
+          "end_seconds": 334,
+          "text": "This is source safety doing practical work: it stops a small mismatch from becoming a confident plan."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L03-06",
+      "beat": 6,
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "source_time": "5:55–6:15",
+      "narration_exact": "“Pause. In your own workflow type, which single source would be most dangerous to trust after it goes stale?”",
+      "on_screen_copy_exact": "“Pause: choose one source type.”",
+      "audience_copy": [
+        "Pause: choose one source type."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 355,
+          "end_seconds": 355.589,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 355.589,
+          "end_seconds": 364,
+          "text": "In your own workflow type, which single source would be most dangerous to trust after it goes stale?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L03-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Draw the path from source reference to draft to Morgan's review gate. Fill the five trace answers for one imaginary run. Then classify each sample source: tier, owner, observed date, expiry, read use, quote use, memory use, and publish use. If a source has no attribution or is too old for the decision, mark the brief blocked. Do not paste a real customer document, private note, or execution trace into the worksheet. We are designing the gate, not operating it.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Draw `source ID → draft artifact ID → human reviewer`. Answer the five Trace Harness questions. For three invented source types, record tier, attribution, observed date, expiry, permitted read/quote/memory/publish use, and what happens if the source is missing or stale. Keep actual operational data out.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 380.431,
+          "text": "Draw the path from source reference to draft to Morgan's review gate. "
+        },
+        {
+          "start_seconds": 380.431,
+          "end_seconds": 384.388,
+          "text": "Fill the five trace answers for one imaginary run. "
+        },
+        {
+          "start_seconds": 384.388,
+          "end_seconds": 393.698,
+          "text": "Then classify each sample source: tier, owner, observed date, expiry, read use, quote use, memory use, and publish use. "
+        },
+        {
+          "start_seconds": 393.698,
+          "end_seconds": 400.448,
+          "text": "If a source has no attribution or is too old for the decision, mark the brief blocked. "
+        },
+        {
+          "start_seconds": 400.448,
+          "end_seconds": 407.586,
+          "text": "Do not paste a real customer document, private note, or execution trace into the worksheet. "
+        },
+        {
+          "start_seconds": 407.586,
+          "end_seconds": 411,
+          "text": "We are designing the gate, not operating it."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L03-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save the trace and source policy in your Operating File. The stop condition is a missing source tier, freshness check, artifact reference, or reviewer. Next we will decide what a human correction is allowed to teach the system.”",
+      "on_screen_copy_exact": "“Operating File v3: trace + sources.” “Stop: unknown source or reviewer.”",
+      "audience_copy": [
+        "Operating File v3: trace + sources.",
+        "Stop: unknown source or reviewer."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 579.269,
+          "text": "Save the trace and source policy in your Operating File. "
+        },
+        {
+          "start_seconds": 579.269,
+          "end_seconds": 586.383,
+          "text": "The stop condition is a missing source tier, freshness check, artifact reference, or reviewer. "
+        },
+        {
+          "start_seconds": 586.383,
+          "end_seconds": 592,
+          "text": "Next we will decide what a human correction is allowed to teach the system."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

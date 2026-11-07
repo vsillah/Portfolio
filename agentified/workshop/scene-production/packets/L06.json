@@ -1,0 +1,535 @@
+{
+  "schema_version": 1,
+  "id": "L06",
+  "title": "Write the permission slip",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L06-permission-and-cull.md",
+  "script_sha256": "6cb52f99d4dd4b775594f472bd1bfabd3b4952ab1bbfce8e72e7607d613b7663",
+  "narration_sha256": "c58665421e7cae2c1c6718b868fb02d04ecb7daf28451507f4a49737044a5cc1",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch09-the-permission-slip.md",
+      "sha256": "e42dfbf5c7692b540a434f376708aaab076ecd167ff7141918ec1ddffe68272b"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch10-the-priority-trap-returns.md",
+      "sha256": "dc4c6f125ca8cff4b34e6433d8fa3ae77bf509e1c834d23393f22361c35994bc"
+    }
+  ],
+  "learning_outcome": "Bound reads, writes, retention, and the work worth retiring.",
+  "exercise": "Mark permitted actions and remove one low-value agent task from the map.",
+  "workbook_outputs": [
+    "Permission Slip",
+    "Quarterly Cull"
+  ],
+  "operating_file": {
+    "artifact": "permission-and-cull",
+    "revision": 6,
+    "status": "draft",
+    "update_exact": "`permission-and-cull` → `authority` and `portfolio-review`, revision 6, status `draft`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-ROOM-01",
+      "SYN-ATTEND-01",
+      "SYN-FAC-01",
+      "SYN-BRIEF-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Treat examples as proposals; no live permission changes or deletion.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L06-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 65,
+      "source_time": "0:00–1:05",
+      "narration_exact": "“The Operating Map has a row that says ‘prepare the Session Option Brief.’ Morgan asks a fair question: what is this preparation role actually allowed to read or change? ‘Be careful’ will not answer it. One Friday, the facilitator note says ‘available for review.’ If the agent quietly treats that as permission to confirm a teacher, the map looks orderly while the work crosses a boundary. We need a permission slip someone can inspect before the next draft.”",
+      "on_screen_copy_exact": "“What may this role read, prepare, retain, and hand off?”",
+      "audience_copy": [
+        "What may this role read, prepare, retain, and hand off?"
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 5.655,
+          "text": "The Operating Map has a row that says ‘prepare the Session Option Brief.’ "
+        },
+        {
+          "start_seconds": 5.655,
+          "end_seconds": 12.915,
+          "text": "Morgan asks a fair question: what is this preparation role actually allowed to read or change? "
+        },
+        {
+          "start_seconds": 12.915,
+          "end_seconds": 15.437,
+          "text": "‘Be careful’ will not answer it. "
+        },
+        {
+          "start_seconds": 15.437,
+          "end_seconds": 20.175,
+          "text": "One Friday, the facilitator note says ‘available for review.’ "
+        },
+        {
+          "start_seconds": 20.175,
+          "end_seconds": 29.803,
+          "text": "If the agent quietly treats that as permission to confirm a teacher, the map looks orderly while the work crosses a boundary. "
+        },
+        {
+          "start_seconds": 29.803,
+          "end_seconds": 35,
+          "text": "We need a permission slip someone can inspect before the next draft."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L06-02",
+      "beat": 2,
+      "start_seconds": 65,
+      "end_seconds": 140,
+      "source_time": "1:05–2:20",
+      "narration_exact": "“Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. For Harbor, scope is three cleared invented notes and a draft brief. The ceiling is preparation only. The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. Escalation names Morgan for missing or conflicting evidence. Expiry sends the proposed slip back for review before the next fictional planning cycle.”",
+      "on_screen_copy_exact": "“Scope / Ceiling / Reversibility / Escalation / Expiry.”",
+      "audience_copy": [
+        "Scope / Ceiling / Reversibility / Escalation / Expiry."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 65,
+          "end_seconds": 71.042,
+          "text": "Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. "
+        },
+        {
+          "start_seconds": 71.042,
+          "end_seconds": 75.833,
+          "text": "For Harbor, scope is three cleared invented notes and a draft brief. "
+        },
+        {
+          "start_seconds": 75.833,
+          "end_seconds": 78.125,
+          "text": "The ceiling is preparation only. "
+        },
+        {
+          "start_seconds": 78.125,
+          "end_seconds": 86.458,
+          "text": "The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. "
+        },
+        {
+          "start_seconds": 86.458,
+          "end_seconds": 94.653,
+          "text": "Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. "
+        },
+        {
+          "start_seconds": 94.653,
+          "end_seconds": 98.889,
+          "text": "Escalation names Morgan for missing or conflicting evidence. "
+        },
+        {
+          "start_seconds": 98.889,
+          "end_seconds": 105,
+          "text": "Expiry sends the proposed slip back for review before the next fictional planning cycle."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L06-03",
+      "beat": 3,
+      "start_seconds": 140,
+      "end_seconds": 210,
+      "source_time": "2:20–3:30",
+      "narration_exact": "“The workbook asks us to place an action on an authority ladder: prepare, recommend, route, stage, execute. Our role sits at prepare. Its proposed slip also names permitted source IDs, forbidden inputs, the receipt, source checks, an owner, and a revocation path. A source that was cleared last week may expire. A rule written in a prompt is not enough for our paper design; the permission needs to be visible beside the job and decision. This exercise grants no real permission.”",
+      "on_screen_copy_exact": "“Prepare only.” “Source check + receipt + owner.”",
+      "audience_copy": [
+        "Prepare only.",
+        "Source check + receipt + owner."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "use": "Authority ladder with a fixed marker at “prepare” and closed gates above it."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 140,
+          "end_seconds": 148.059,
+          "text": "The workbook asks us to place an action on an authority ladder: prepare, recommend, route, stage, execute. "
+        },
+        {
+          "start_seconds": 148.059,
+          "end_seconds": 150.017,
+          "text": "Our role sits at prepare. "
+        },
+        {
+          "start_seconds": 150.017,
+          "end_seconds": 159.808,
+          "text": "Its proposed slip also names permitted source IDs, forbidden inputs, the receipt, source checks, an owner, and a revocation path. "
+        },
+        {
+          "start_seconds": 159.808,
+          "end_seconds": 163.423,
+          "text": "A source that was cleared last week may expire. "
+        },
+        {
+          "start_seconds": 163.423,
+          "end_seconds": 172.987,
+          "text": "A rule written in a prompt is not enough for our paper design; the permission needs to be visible beside the job and decision. "
+        },
+        {
+          "start_seconds": 172.987,
+          "end_seconds": 176,
+          "text": "This exercise grants no real permission."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L06-04",
+      "beat": 4,
+      "start_seconds": 210,
+      "end_seconds": 285,
+      "source_time": "3:30–4:45",
+      "narration_exact": "“Now test the value of the work itself. Suppose Harbor also has a second paper role that drafts a daily weather summary for possible workshops. Nobody reads it. It has a clean receipt, but no decision uses it. Chapter Ten calls for a Quarterly Cull: proof delivered, permission current, and would we build it again today? The session brief has a named decision and reviewer, though its value is still only a classroom hypothesis. The weather summary fails the proof test. In this exercise we recommend retirement for human review; we do not delete a trigger or revoke a live tool.”",
+      "on_screen_copy_exact": "“Proof? Current permission? Build again?” “Weather summary: review retirement.”",
+      "audience_copy": [
+        "Proof? Current permission? Build again?",
+        "Weather summary: review retirement."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 210,
+          "end_seconds": 213.031,
+          "text": "Now test the value of the work itself. "
+        },
+        {
+          "start_seconds": 213.031,
+          "end_seconds": 221.114,
+          "text": "Suppose Harbor also has a second paper role that drafts a daily weather summary for possible workshops. "
+        },
+        {
+          "start_seconds": 221.114,
+          "end_seconds": 222.435,
+          "text": "Nobody reads it. "
+        },
+        {
+          "start_seconds": 222.435,
+          "end_seconds": 226.244,
+          "text": "It has a clean receipt, but no decision uses it. "
+        },
+        {
+          "start_seconds": 226.244,
+          "end_seconds": 234.948,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof delivered, permission current, and would we build it again today? "
+        },
+        {
+          "start_seconds": 234.948,
+          "end_seconds": 243.342,
+          "text": "The session brief has a named decision and reviewer, though its value is still only a classroom hypothesis. "
+        },
+        {
+          "start_seconds": 243.342,
+          "end_seconds": 246.606,
+          "text": "The weather summary fails the proof test. "
+        },
+        {
+          "start_seconds": 246.606,
+          "end_seconds": 255,
+          "text": "In this exercise we recommend retirement for human review; we do not delete a trigger or revoke a live tool."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L06-05",
+      "beat": 5,
+      "start_seconds": 285,
+      "end_seconds": 355,
+      "source_time": "4:45–5:55",
+      "narration_exact": "“A retirement decision needs a person too. If a real agent existed, a human owner would review the evidence, sign the sunset, revoke access, archive governed memory, remove triggers, and record the change. Neglect leaves permissions behind. Here, there is no running agent, no trigger, and no memory to remove. Write the proposed decision and its reason. Keep the external world untouched. The same human discipline governs adding a capability and taking one away.”",
+      "on_screen_copy_exact": "“Proposal → human owner → documented disposition.”",
+      "audience_copy": [
+        "Proposal → human owner → documented disposition."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 285,
+          "end_seconds": 287.994,
+          "text": "A retirement decision needs a person too. "
+        },
+        {
+          "start_seconds": 287.994,
+          "end_seconds": 299.611,
+          "text": "If a real agent existed, a human owner would review the evidence, sign the sunset, revoke access, archive governed memory, remove triggers, and record the change. "
+        },
+        {
+          "start_seconds": 299.611,
+          "end_seconds": 302.106,
+          "text": "Neglect leaves permissions behind. "
+        },
+        {
+          "start_seconds": 302.106,
+          "end_seconds": 307.095,
+          "text": "Here, there is no running agent, no trigger, and no memory to remove. "
+        },
+        {
+          "start_seconds": 307.095,
+          "end_seconds": 310.231,
+          "text": "Write the proposed decision and its reason. "
+        },
+        {
+          "start_seconds": 310.231,
+          "end_seconds": 312.726,
+          "text": "Keep the external world untouched. "
+        },
+        {
+          "start_seconds": 312.726,
+          "end_seconds": 318,
+          "text": "The same human discipline governs adding a capability and taking one away."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L06-06",
+      "beat": 6,
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "source_time": "5:55–6:15",
+      "narration_exact": "“Pause. Which line in the slip would prevent a well-written brief from turning into an unauthorized announcement?”",
+      "on_screen_copy_exact": "“Pause: point to the boundary.”",
+      "audience_copy": [
+        "Pause: point to the boundary."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 355,
+          "end_seconds": 355.5,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 355.5,
+          "end_seconds": 363,
+          "text": "Which line in the slip would prevent a well-written brief from turning into an unauthorized announcement?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L06-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Write the Permission Slip for the preparation role. Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. Then run the Quarterly Cull on the session brief role and the invented weather-summary role. Use the three tests and record keep, narrow, or retirement proposal. Do not grant a real permission, delete anything, or paste live agent inventories into this exercise.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Draft a `Permission Slip` with scope, ceiling, reversibility, escalation, expiry, authority rung, source and receipt checks, forbidden actions, retention, owner, and revocation. Then make a `Quarterly Cull` table for two invented roles: proof delivered this quarter, current owner/approver, permission validity, cost or maintenance burden, build again, and proposed disposition. All decisions remain proposals.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 378.699,
+          "text": "Write the Permission Slip for the preparation role. "
+        },
+        {
+          "start_seconds": 378.699,
+          "end_seconds": 390.364,
+          "text": "Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. "
+        },
+        {
+          "start_seconds": 390.364,
+          "end_seconds": 396.979,
+          "text": "Then run the Quarterly Cull on the session brief role and the invented weather-summary role. "
+        },
+        {
+          "start_seconds": 396.979,
+          "end_seconds": 401.887,
+          "text": "Use the three tests and record keep, narrow, or retirement proposal. "
+        },
+        {
+          "start_seconds": 401.887,
+          "end_seconds": 409,
+          "text": "Do not grant a real permission, delete anything, or paste live agent inventories into this exercise."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L06-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision six as a draft. A role's permission and its reason to exist both need renewal. Next we will give the work a tighter requirement packet and decide how a small team would share it.”",
+      "on_screen_copy_exact": "“Operating File v6: slip + cull.” “Next: requirements and roles.”",
+      "audience_copy": [
+        "Operating File v6: slip + cull.",
+        "Next: requirements and roles."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.5,
+          "text": "Save revision six as a draft. "
+        },
+        {
+          "start_seconds": 577.5,
+          "end_seconds": 582.75,
+          "text": "A role's permission and its reason to exist both need renewal. "
+        },
+        {
+          "start_seconds": 582.75,
+          "end_seconds": 591,
+          "text": "Next we will give the work a tighter requirement packet and decide how a small team would share it."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}
