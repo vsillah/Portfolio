@@ -16,6 +16,10 @@ const filenames = [
   'L06-permission-and-cull.md',
   'L07-prd-and-pod.md',
   'L08-handoff-and-eval.md',
+  'L09-metrics-and-review.md',
+  'L10-spend-and-decision-brief.md',
+  'L11-cockpit-and-unblock.md',
+  'L12-proof-and-foundry.md',
 ]
 
 export function validatePackets(readPacket = (file) => readFileSync(file, 'utf8')) {
@@ -45,6 +49,11 @@ export function validatePackets(readPacket = (file) => readFileSync(file, 'utf8'
       const ranges = [...packet.matchAll(/^\| (\d{1,2}:\d{2})–(\d{1,2}:\d{2}) \|/gm)]
       if (ranges.length !== 8 || ranges[0]?.[1] !== '0:00' || ranges.at(-1)?.[2] !== '10:00' || ranges.some((range, i) => i > 0 && ranges[i - 1][2] !== range[1])) errors.push(`${filename}: timed narration must cover a continuous 10:00 in eight beats`)
     }
+    if (index >= 8) {
+      if (!packet.includes(`revision ${index + 1}`)) errors.push(`${filename}: Operating File revision missing`)
+      if (!/prepare.only|preparation.role|preparation agent/i.test(packet)) errors.push(`${filename}: prepare-only authority boundary missing`)
+      if (!/hold|unapproved|unscored/i.test(packet)) errors.push(`${filename}: explicit blocked state missing`)
+    }
   }
   return errors
 }
@@ -52,5 +61,5 @@ export function validatePackets(readPacket = (file) => readFileSync(file, 'utf8'
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const errors = validatePackets()
   if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1 }
-  else console.log('L01–L08: registered sources, crosswalk outputs, packet sections, timing, and media boundaries pass.')
+  else console.log('L01–L12: registered sources, crosswalk outputs, packet sections, timing, and media boundaries pass.')
 }
