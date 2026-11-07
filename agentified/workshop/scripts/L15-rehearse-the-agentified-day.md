@@ -1,9 +1,9 @@
 # L15 — Rehearse the agentified day
 
-**Group:** The Agentified Organization  
-**Outcome:** Rehearse six decisions around a bounded job, including a hold, recovery choice, and memory proposal.  
-**Run time:** 10:00 (about 6:05 spoken, 3:55 guided work and pause).  
-**Operating File update:** `six-beat-rehearsal` → `day_and_audit.day`, revision 15, status `draft`; all prior unresolved gates persist.  
+**Group:** The Agentified Organization
+**Outcome:** Rehearse six decisions around a bounded job, including a hold, recovery choice, and memory proposal.
+**Run time:** 10:00 (about 6:05 spoken, 3:55 guided work and pause).
+**Operating File update:** `six-beat-rehearsal` → `day_and_audit.day`, revision 15, status `draft`; all prior unresolved gates persist.
 **Source bindings:** [Chapter 25, The Agentified Day](../../manuscript/production-draft/chapters/ch25-the-agentified-day.md); [companion workbook, Chapter 25 Six-Beat Day](../../manuscript/workbook/agentified-operating-system-workbook.md). Both are registered in `source-register.json` and assigned to L15 by `curriculum-crosswalk.json`.
 
 ## Timed narration and screen

@@ -1,9 +1,9 @@
 # L14 — Show the board the controls
 
-**Group:** The Agentified Organization  
-**Outcome:** Explain a held workflow through its queue, trace, and governed memory to a skeptical reviewer.  
-**Run time:** 10:00 (about 6:05 spoken, 3:55 guided work and pause).  
-**Operating File update:** `three-panel-demo` → `proof.board_demo`, revision 14, status `draft`; revision 13's research proposal remains `not_run`.  
+**Group:** The Agentified Organization
+**Outcome:** Explain a held workflow through its queue, trace, and governed memory to a skeptical reviewer.
+**Run time:** 10:00 (about 6:05 spoken, 3:55 guided work and pause).
+**Operating File update:** `three-panel-demo` → `proof.board_demo`, revision 14, status `draft`; revision 13's research proposal remains `not_run`.
 **Source bindings:** [Chapter 24, The Board Demo](../../manuscript/production-draft/chapters/ch24-the-board-demo.md); [companion workbook, Chapter 24 Three-Panel Demo](../../manuscript/workbook/agentified-operating-system-workbook.md). Both are registered in `source-register.json` and assigned to L14 by `curriculum-crosswalk.json`.
 
 ## Timed narration and screen

@@ -1,9 +1,9 @@
 # L13 — Research with a gate
 
-**Group:** The Agentified Organization  
-**Outcome:** Record a testable research proposal and a reason to hold it without treating the proposal as a result.  
-**Run time:** 10:00 (about 6:10 spoken, 3:50 guided work and pause).  
-**Operating File update:** `research-proposal` → `research`, revision 13, status `draft`; revision 12's `SYN-HOLD-01`, `SYN-SPEND-01`, and unscored foundry idea stay open.  
+**Group:** The Agentified Organization
+**Outcome:** Record a testable research proposal and a reason to hold it without treating the proposal as a result.
+**Run time:** 10:00 (about 6:10 spoken, 3:50 guided work and pause).
+**Operating File update:** `research-proposal` → `research`, revision 13, status `draft`; revision 12's `SYN-HOLD-01`, `SYN-SPEND-01`, and unscored foundry idea stay open.
 **Source bindings:** [Chapter 23, AutoResearch Without Autonomy Theater](../../manuscript/production-draft/chapters/ch23-autoresearch-without-autonomy-theater.md); [companion workbook, Chapter 23 AutoResearch Proposal](../../manuscript/workbook/agentified-operating-system-workbook.md). Both are registered in `source-register.json` and assigned to L13 by `curriculum-crosswalk.json`.
 
 ## Timed narration and screen

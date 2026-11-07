@@ -1,9 +1,9 @@
 # L16 — Audit the operating file
 
-**Group:** Synthesis and capstone  
-**Outcome:** Audit one bounded workflow, expose its weakest gate, and record a human keep, shrink, or retire disposition.  
-**Run time:** 10:00 (about 5:55 spoken, 4:05 guided work and pause).  
-**Operating File update:** `accountability-stack` → `day_and_audit.audit`, revision 16, status `needs_review`; no learner completion grants execution authority.  
+**Group:** Synthesis and capstone
+**Outcome:** Audit one bounded workflow, expose its weakest gate, and record a human keep, shrink, or retire disposition.
+**Run time:** 10:00 (about 5:55 spoken, 4:05 guided work and pause).
+**Operating File update:** `accountability-stack` → `day_and_audit.audit`, revision 16, status `needs_review`; no learner completion grants execution authority.
 **Source bindings:** [Chapter 26, What Comes Next](../../manuscript/production-draft/chapters/ch26-what-comes-next.md); [companion workbook, Chapter 26 Accountability Stack](../../manuscript/workbook/agentified-operating-system-workbook.md). Both are registered in `source-register.json` and assigned to L16 by `curriculum-crosswalk.json`.
 
 ## Timed narration and screen
