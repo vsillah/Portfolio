@@ -45,3 +45,32 @@ it('does not label other Slack actions as approval decisions', () => {
     metadata: { state: 'delivered', envelope: { value: { action: 'work.ready' } } } }))
     .toMatchObject({ topic: 'Action', decision: 'Action completed' })
 })
+
+it('labels a completed receipt-only canary without claiming Slack or provider work', () => {
+  expect(slackReceiptStatus({
+    kind: 'slack_action_receipt',
+    metadata: { state: 'receipt_only', envelope: { value: { action: 'canary.receipt' } } },
+    outcome: { canonical: { actionStatus: 'completed', text: 'Receipt canary verified. No approval, work, outreach, or provider action was performed.' } },
+  })).toEqual({
+    topic: 'Canary',
+    decision: 'Receipt verified',
+    delivery: 'Slack update intentionally skipped',
+    next: 'Receipt-only check complete. No real work or provider action was performed.',
+    reviewHref: '/admin/agents/runs',
+    text: 'Receipt canary verified. No approval, work, outreach, or provider action was performed.',
+    deliveryError: null,
+  })
+})
+
+it('labels an unconfirmed receipt-only canary as blocked', () => {
+  expect(slackReceiptStatus({
+    kind: 'slack_action_receipt',
+    metadata: { state: 'receipt_only', envelope: { value: { action: 'canary.receipt' } } },
+    outcome: {},
+  })).toMatchObject({
+    topic: 'Canary',
+    decision: 'Canary blocked',
+    delivery: 'Slack update intentionally skipped',
+    reviewHref: '/admin/agents/runs',
+  })
+})
