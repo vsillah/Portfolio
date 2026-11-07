@@ -25,13 +25,16 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
 
   it('restores claimed member playback without claiming guest progress', async () => {
     vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: { access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.invalid', user_metadata: {} } } }, error: null } as Awaited<ReturnType<typeof supabase.auth.getSession>>)
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ enrollment: { revision: 4, current_lesson_id: 'L01', updated_at: new Date().toISOString() }, worksheet: null, lessons: [{ lesson_id: 'L01', video_seconds: 73, completed_at: null }] }) })))
+    vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => ({ ok: true, json: async () => init?.method === 'POST' ? { revision: 5 } : { enrollment: { revision: 4, current_lesson_id: 'L01', updated_at: new Date().toISOString() }, worksheet: null, lessons: [{ lesson_id: 'L01', video_seconds: 73, completed_at: null }] } })))
     const { container } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Claim guest progress for this account' })).toBeNull())
     Object.defineProperty(video, 'duration', { configurable: true, value: 540 })
     fireEvent.loadedMetadata(video)
     expect((video as HTMLVideoElement).currentTime).toBe(73)
+    Object.defineProperty(video, 'currentTime', { configurable: true, value: 95 })
+    fireEvent.timeUpdate(video)
+    await waitFor(() => expect(vi.mocked(fetch).mock.calls.some(([, init]) => init?.method === 'POST' && JSON.parse(String(init.body)).state.videoSeconds.L01 === 95)).toBe(true), { timeout: 3000 })
     expect(container.querySelector('video')).toBe(video)
     expect(vi.mocked(fetch)).toHaveBeenCalledWith('/api/agentified/member', expect.objectContaining({ cache: 'no-store' }))
     vi.unstubAllGlobals()
