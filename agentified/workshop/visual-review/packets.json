@@ -11,7 +11,7 @@
       "id": "L01",
       "title": "Give the agent a job and a receipt",
       "script_path": "agentified/workshop/scripts/L01-job-and-receipt.md",
-      "script_sha256": "159baf03db33be47260c6312efbd121c88da54c891b024c1e1100e68fb9e72a3",
+      "script_sha256": "c600f29d7fcc6c2a50d3bcb2d07f92a9d0f45225520e300d865c188d75cdaa26",
       "operating_file_artifact": "workflow-and-job",
       "workbook_outputs": [
         "Agent Work Receipt",
@@ -52,7 +52,7 @@
       "id": "L02",
       "title": "Start with the decision",
       "script_path": "agentified/workshop/scripts/L02-decision.md",
-      "script_sha256": "af0c9bb1a2c563cf06dc13f7f8951470b20e408b88f18f7cd95ccda68a58cd70",
+      "script_sha256": "5e589c9ce3ff24923f6f215c5300ac5171799e572d27660d6f4ffc2168b94a9a",
       "operating_file_artifact": "decision-card",
       "workbook_outputs": [
         "Decision Card"
@@ -92,7 +92,7 @@
       "id": "L03",
       "title": "Trace the work and grade the sources",
       "script_path": "agentified/workshop/scripts/L03-trace-and-sources.md",
-      "script_sha256": "6c52bb358c43f203eb3ad99a413a3287faa6f3b2cdef879f12face1823af730a",
+      "script_sha256": "3e42459bdad850982094af0de03eda93485d9015bdf884b8cdd0a3abfd3baa7d",
       "operating_file_artifact": "trace-and-source-policy",
       "workbook_outputs": [
         "Trace Harness",
@@ -133,7 +133,7 @@
       "id": "L04",
       "title": "Turn feedback into governed memory",
       "script_path": "agentified/workshop/scripts/L04-memory-and-routing.md",
-      "script_sha256": "30410aab2be49b2a9a5285b8ef69a66afc1256ae48ef8cde3e75efc77862ba5a",
+      "script_sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
       "operating_file_artifact": "memory-and-routing-policy",
       "workbook_outputs": [
         "Source, Event, Proposal, Memory",
@@ -174,7 +174,7 @@
       "id": "L05",
       "title": "Map the operating system",
       "script_path": "agentified/workshop/scripts/L05-operating-map.md",
-      "script_sha256": "98882b9679b44ff2c523317581c4a3a243f4bd8a589dfe493aec75902190d36e",
+      "script_sha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
       "operating_file_artifact": "operating-map",
       "workbook_outputs": [
         "Operating Map"
@@ -214,7 +214,7 @@
       "id": "L06",
       "title": "Write the permission slip",
       "script_path": "agentified/workshop/scripts/L06-permission-and-cull.md",
-      "script_sha256": "6cb52f99d4dd4b775594f472bd1bfabd3b4952ab1bbfce8e72e7607d613b7663",
+      "script_sha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
       "operating_file_artifact": "permission-and-cull",
       "workbook_outputs": [
         "Permission Slip",
@@ -255,7 +255,7 @@
       "id": "L07",
       "title": "Specify the work and the team",
       "script_path": "agentified/workshop/scripts/L07-prd-and-pod.md",
-      "script_sha256": "bb105a10e134cf636e0e1aad96539967f4b98fcaa4190cb713605b4581654a41",
+      "script_sha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
       "operating_file_artifact": "prd-and-pod",
       "workbook_outputs": [
         "Agentic PRD Packet",
@@ -296,7 +296,7 @@
       "id": "L08",
       "title": "Make handoffs testable",
       "script_path": "agentified/workshop/scripts/L08-handoff-and-eval.md",
-      "script_sha256": "9a3f53226105aa9f5358d26ab3cce9bf4fed3f65c3da89ad1cc572b6dd7aa345",
+      "script_sha256": "219060baa998bd6a866e9ff00a6df99d2ccba64b6c5ecd55e9db7cc385df6846",
       "operating_file_artifact": "handoff-and-eval",
       "workbook_outputs": [
         "Handoff Contract Card",
@@ -337,7 +337,7 @@
       "id": "L09",
       "title": "Measure trust and choose review posture",
       "script_path": "agentified/workshop/scripts/L09-metrics-and-review.md",
-      "script_sha256": "0a5643eedfdee43b34502b1434f122f46769d7c095960a2a7536c5bd466c6ea9",
+      "script_sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
       "operating_file_artifact": "metrics-and-review",
       "workbook_outputs": [
         "Agent Metrics Ladder",
@@ -406,7 +406,7 @@
       "id": "L10",
       "title": "Gate spend and brief the decision",
       "script_path": "agentified/workshop/scripts/L10-spend-and-decision-brief.md",
-      "script_sha256": "449ab3d2d17557cf74a09276a66fd4ed9fa21a61c65d1f2954a5860d7da7ea71",
+      "script_sha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a",
       "operating_file_artifact": "spend-and-decision-brief",
       "workbook_outputs": [
         "Spend Envelope",
@@ -447,7 +447,7 @@
       "id": "L11",
       "title": "Run the cockpit and unblock lane",
       "script_path": "agentified/workshop/scripts/L11-cockpit-and-unblock.md",
-      "script_sha256": "ffbecbb0ed4426af4c97a38149a94c382b1fd908f2fd92f0c4d241d72e0a5e71",
+      "script_sha256": "adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d",
       "operating_file_artifact": "cockpit-and-unblock",
       "workbook_outputs": [
         "Mission Control Cockpit",
@@ -488,7 +488,7 @@
       "id": "L12",
       "title": "Prove the work safely",
       "script_path": "agentified/workshop/scripts/L12-proof-and-foundry.md",
-      "script_sha256": "4a49004183485ad46b7d501462dd9c59316a3ee7a95224246048e1a434533de8",
+      "script_sha256": "5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4",
       "operating_file_artifact": "proof-and-foundry",
       "workbook_outputs": [
         "Client-Safe Proof Packet",
@@ -529,7 +529,7 @@
       "id": "L13",
       "title": "Research with a gate",
       "script_path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
-      "script_sha256": "bcb2cc6e3d1de7389f8e0b996dfbbcbc032cd9fb02a78ea12bc9a4963e1771dd",
+      "script_sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
       "operating_file_artifact": "research-proposal",
       "workbook_outputs": [
         "AutoResearch Proposal"
@@ -569,7 +569,7 @@
       "id": "L14",
       "title": "Show the board the controls",
       "script_path": "agentified/workshop/scripts/L14-show-the-board-the-controls.md",
-      "script_sha256": "d92f8d263af59310f06c41deb7e911ace60631545903a4b5c4aef7240ef03729",
+      "script_sha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
       "operating_file_artifact": "three-panel-demo",
       "workbook_outputs": [
         "Three-Panel Demo"
@@ -637,7 +637,7 @@
       "id": "L15",
       "title": "Rehearse the agentified day",
       "script_path": "agentified/workshop/scripts/L15-rehearse-the-agentified-day.md",
-      "script_sha256": "708cb5c1f8205c7c79542f12ee35b1e6791d7e2977b4dcd1984f18335262abc0",
+      "script_sha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
       "operating_file_artifact": "six-beat-rehearsal",
       "workbook_outputs": [
         "Six-Beat Day"
@@ -677,7 +677,7 @@
       "id": "L16",
       "title": "Audit the operating file",
       "script_path": "agentified/workshop/scripts/L16-audit-the-operating-file.md",
-      "script_sha256": "ebe9d2b8da1bf79356cb6d139bb0b089d5a0a4badda8fd1ad20e332d9c2f36d6",
+      "script_sha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e",
       "operating_file_artifact": "accountability-stack",
       "workbook_outputs": [
         "Accountability Stack"

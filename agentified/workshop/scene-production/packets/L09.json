@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L09",
   "title": "Measure trust and choose review posture",
+  "batch": 3,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L09-metrics-and-review.md",
-  "script_sha256": "0a5643eedfdee43b34502b1434f122f46769d7c095960a2a7536c5bd466c6ea9",
-  "narration_sha256": "135daaf9210118780e98cf931abbb9fa8df88d6cf3b08b6f89e557ba22294e93",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "script_sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
+  "narration_sha256": "abd4b0d5d6a1243166dbb69ddf4a64e99cc15d69e1901ed11d73b114cc674792",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -52,6 +59,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -121,7 +129,7 @@
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 17.6,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -214,7 +222,7 @@
       "start_seconds": 145,
       "end_seconds": 215,
       "source_time": "2:25–3:35",
-      "narration_exact": "“The workbook adds cost and trust to the scorecard. Harbor can record invented minutes of Morgan's review and an illustrative preparation cost, but cannot claim real savings. For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer. Write a decision beside each measure. If a measure cannot tell Morgan to keep, revise, narrow, or stop the design, take it off the front page. Three classroom cases are a test exercise, not a performance baseline.”",
+      "narration_exact": "“The workbook adds cost and trust to the scorecard. Harbor can record course minutes for Morgan's review and an illustrative preparation cost, but cannot claim real savings. For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer. Write a decision beside each measure. If a measure cannot tell Morgan to keep, revise, narrow, or stop the design, take it off the front page. Three classroom cases are a test exercise, not a performance baseline.”",
       "on_screen_copy_exact": "“Measure → decision → named decider.” “No live baseline.”",
       "audience_copy": [
         "Measure → decision → named decider.",
@@ -228,31 +236,31 @@
       "captions": [
         {
           "start_seconds": 145,
-          "end_seconds": 148.622,
+          "end_seconds": 148.629,
           "text": "The workbook adds cost and trust to the scorecard. "
         },
         {
-          "start_seconds": 148.622,
-          "end_seconds": 157.359,
-          "text": "Harbor can record invented minutes of Morgan's review and an illustrative preparation cost, but cannot claim real savings. "
+          "start_seconds": 148.629,
+          "end_seconds": 157.311,
+          "text": "Harbor can record course minutes for Morgan's review and an illustrative preparation cost, but cannot claim real savings. "
         },
         {
-          "start_seconds": 157.359,
-          "end_seconds": 167.871,
+          "start_seconds": 157.311,
+          "end_seconds": 167.843,
           "text": "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer. "
         },
         {
-          "start_seconds": 167.871,
-          "end_seconds": 170.57,
+          "start_seconds": 167.843,
+          "end_seconds": 170.547,
           "text": "Write a decision beside each measure. "
         },
         {
-          "start_seconds": 170.57,
-          "end_seconds": 178.028,
+          "start_seconds": 170.547,
+          "end_seconds": 178.019,
           "text": "If a measure cannot tell Morgan to keep, revise, narrow, or stop the design, take it off the front page. "
         },
         {
-          "start_seconds": 178.028,
+          "start_seconds": 178.019,
           "end_seconds": 183,
           "text": "Three classroom cases are a test exercise, not a performance baseline."
         }
@@ -444,7 +452,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Add an Agent Metrics Ladder and Review Postures card to your Operating File. Name one measure for activity, quality, behavior or trust, cost, and outcome. Give each a source, a review cadence, a named decider, and the decision it could change. Mark any unavailable baseline as unproven. Then classify three Harbor actions: drafting the brief, Morgan's internal review, and a proposed external announcement. For each, state the reviewer view and stop condition. Use only invented cases; do not paste live dashboards or customer results.”",
+      "narration_exact": "“Add an Agent Metrics Ladder and Review Postures card to your Operating File. Name one measure for activity, quality, behavior or trust, cost, and outcome. Give each a source, a review cadence, a named decider, and the decision it could change. Mark any unavailable baseline as unproven. Then classify three Harbor actions: drafting the brief, Morgan's internal review, and a proposed external announcement. For each, state the reviewer view and stop condition. Use a fictional or approved example. Do not use private operational data or paste live dashboards or customer results.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -455,38 +463,43 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 380.469,
+          "end_seconds": 380.453,
           "text": "Add an Agent Metrics Ladder and Review Postures card to your Operating File. "
         },
         {
-          "start_seconds": 380.469,
-          "end_seconds": 386.009,
+          "start_seconds": 380.453,
+          "end_seconds": 385.976,
           "text": "Name one measure for activity, quality, behavior or trust, cost, and outcome. "
         },
         {
-          "start_seconds": 386.009,
-          "end_seconds": 392.331,
+          "start_seconds": 385.976,
+          "end_seconds": 392.278,
           "text": "Give each a source, a review cadence, a named decider, and the decision it could change. "
         },
         {
-          "start_seconds": 392.331,
-          "end_seconds": 395.385,
+          "start_seconds": 392.278,
+          "end_seconds": 395.323,
           "text": "Mark any unavailable baseline as unproven. "
         },
         {
-          "start_seconds": 395.385,
-          "end_seconds": 403.908,
+          "start_seconds": 395.323,
+          "end_seconds": 403.82,
           "text": "Then classify three Harbor actions: drafting the brief, Morgan's internal review, and a proposed external announcement. "
         },
         {
-          "start_seconds": 403.908,
-          "end_seconds": 407.744,
+          "start_seconds": 403.82,
+          "end_seconds": 407.644,
           "text": "For each, state the reviewer view and stop condition. "
         },
         {
-          "start_seconds": 407.744,
-          "end_seconds": 413,
-          "text": "Use only invented cases; do not paste live dashboards or customer results."
+          "start_seconds": 407.644,
+          "end_seconds": 410.264,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 410.264,
+          "end_seconds": 416,
+          "text": "Do not use private operational data or paste live dashboards or customer results."
         }
       ],
       "avatar_window": null,
@@ -541,7 +554,7 @@
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 584.13,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

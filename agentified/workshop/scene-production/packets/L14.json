@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L14",
   "title": "Show the board the controls",
+  "batch": 4,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L14-show-the-board-the-controls.md",
-  "script_sha256": "d92f8d263af59310f06c41deb7e911ace60631545903a4b5c4aef7240ef03729",
-  "narration_sha256": "5fe0fdbc350b3a164e4bde3e6a401680fd21af4850a5a7dcfb26564ef234d585",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "script_sha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
+  "narration_sha256": "a633c51e7e2f41a72040ee53c3f1727a1fd62111a6b5ea55121e76d52b8364b7",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -34,10 +41,10 @@
     "case": "Harbor Learning Circle",
     "owner": "Morgan",
     "source_ids": [
+      "SYN-DEMO-01",
       "SYN-HOLD-01",
       "SYN-SPEND-01",
       "SYN-RESEARCH-01",
-      "SYN-DEMO-01",
       "SYN-PROOF-01"
     ]
   },
@@ -46,6 +53,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -56,7 +64,7 @@
       "start_seconds": 0,
       "end_seconds": 70,
       "source_time": "0:00–1:10",
-      "narration_exact": "“A fictional Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? Morgan brings three paper panels to the table. The first panel shows the queue, including held and rejected work. The second follows one item through its trace. The third shows the rule that governed it. This is a design walkthrough, not a live system demonstration. Morgan is showing what Harbor intends to inspect before it trusts the workflow.”",
+      "narration_exact": "“A Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? Morgan brings three paper panels to the table. The first panel shows the queue, including held and rejected work. The second follows one item through its trace. The third shows the rule that governed it. This is a design walkthrough, not a live system demonstration. Morgan is showing what Harbor intends to inspect before it trusts the workflow.”",
       "on_screen_copy_exact": "“Queue. Trace. Memory.” “Paper design review.”",
       "audience_copy": [
         "Queue. Trace. Memory.",
@@ -70,11 +78,11 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 12.22,
-          "text": "A fictional Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? "
+          "end_seconds": 12.046,
+          "text": "A Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? "
         },
         {
-          "start_seconds": 12.22,
+          "start_seconds": 12.046,
           "end_seconds": 15.722,
           "text": "Morgan brings three paper panels to the table. "
         },
@@ -106,7 +114,7 @@
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 15.722,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -126,7 +134,7 @@
       "start_seconds": 70,
       "end_seconds": 140,
       "source_time": "1:10–2:20",
-      "narration_exact": "“Start with the queue. One Session Option Brief is prepared, not proposed to the team. `SYN-HOLD-01` says staffing is unconfirmed. `SYN-SPEND-01` says no spend is approved. `SYN-RESEARCH-01` is `not_run` because its baseline and reviewer protocol are missing. Place the rejections where the reviewer can see them too. A queue that only displays polished outputs hides the decisions that make the operation governable.”",
+      "narration_exact": "“Start with the queue. One Session Option Brief is prepared, not proposed to the team. The staffing hold says staffing is unconfirmed. The print request says no spend is approved. The research proposal is not run because its baseline and reviewer protocol are missing. Place the rejections where the reviewer can see them too. A queue that only displays polished outputs hides the decisions that make the operation governable.”",
       "on_screen_copy_exact": "“Prepared / Held / Rejected / Not run.”",
       "audience_copy": [
         "Prepared / Held / Rejected / Not run."
@@ -139,37 +147,37 @@
       "captions": [
         {
           "start_seconds": 70,
-          "end_seconds": 71.481,
+          "end_seconds": 71.605,
           "text": "Start with the queue. "
         },
         {
-          "start_seconds": 71.481,
-          "end_seconds": 75.788,
+          "start_seconds": 71.605,
+          "end_seconds": 76.273,
           "text": "One Session Option Brief is prepared, not proposed to the team. "
         },
         {
-          "start_seconds": 75.788,
-          "end_seconds": 78.75,
-          "text": "`SYN-HOLD-01` says staffing is unconfirmed. "
+          "start_seconds": 76.273,
+          "end_seconds": 79.774,
+          "text": "The staffing hold says staffing is unconfirmed. "
         },
         {
-          "start_seconds": 78.75,
-          "end_seconds": 81.577,
-          "text": "`SYN-SPEND-01` says no spend is approved. "
+          "start_seconds": 79.774,
+          "end_seconds": 83.056,
+          "text": "The print request says no spend is approved. "
         },
         {
-          "start_seconds": 81.577,
-          "end_seconds": 87.433,
-          "text": "`SYN-RESEARCH-01` is `not_run` because its baseline and reviewer protocol are missing. "
+          "start_seconds": 83.056,
+          "end_seconds": 89.548,
+          "text": "The research proposal is not run because its baseline and reviewer protocol are missing. "
         },
         {
-          "start_seconds": 87.433,
-          "end_seconds": 91.337,
+          "start_seconds": 89.548,
+          "end_seconds": 93.779,
           "text": "Place the rejections where the reviewer can see them too. "
         },
         {
-          "start_seconds": 91.337,
-          "end_seconds": 98,
+          "start_seconds": 93.779,
+          "end_seconds": 101,
           "text": "A queue that only displays polished outputs hides the decisions that make the operation governable."
         }
       ],
@@ -191,7 +199,7 @@
       "start_seconds": 140,
       "end_seconds": 210,
       "source_time": "2:20–3:30",
-      "narration_exact": "“Open the trace for the held brief. It begins with invented, cleared source references. It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. There is no send or booking event. The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. The absence of an event is part of the answer.”",
+      "narration_exact": "“Open the trace for the held brief. It begins with cleared Harbor source references. It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. There is no send or booking event. The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. The absence of an event is part of the answer.”",
       "on_screen_copy_exact": "“Request → draft → check → hold → Morgan.” “No send event.”",
       "audience_copy": [
         "Request → draft → check → hold → Morgan.",
@@ -213,31 +221,31 @@
       "captions": [
         {
           "start_seconds": 140,
-          "end_seconds": 142.829,
+          "end_seconds": 142.849,
           "text": "Open the trace for the held brief. "
         },
         {
-          "start_seconds": 142.829,
-          "end_seconds": 147.032,
-          "text": "It begins with invented, cleared source references. "
+          "start_seconds": 142.849,
+          "end_seconds": 146.837,
+          "text": "It begins with cleared Harbor source references. "
         },
         {
-          "start_seconds": 147.032,
-          "end_seconds": 157.136,
+          "start_seconds": 146.837,
+          "end_seconds": 157.012,
           "text": "It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. "
         },
         {
-          "start_seconds": 157.136,
-          "end_seconds": 159.965,
+          "start_seconds": 157.012,
+          "end_seconds": 159.86,
           "text": "There is no send or booking event. "
         },
         {
-          "start_seconds": 159.965,
-          "end_seconds": 171.282,
+          "start_seconds": 159.86,
+          "end_seconds": 171.256,
           "text": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. "
         },
         {
-          "start_seconds": 171.282,
+          "start_seconds": 171.256,
           "end_seconds": 175,
           "text": "The absence of an event is part of the answer."
         }
@@ -439,7 +447,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Storyboard a Three-Panel Demo for your invented workflow. Give each panel a reviewer question and one piece of evidence. Include a blocked or rejected item beside the successful work. In the trace, name the missing event as clearly as the recorded ones. In memory, identify who may approve the rule. Write two likely skeptical questions and honest answers. Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing.”",
+      "narration_exact": "“Storyboard a Three-Panel Demo for your workflow. Give each panel a reviewer question and one piece of evidence. Include a blocked or rejected item beside the successful work. In the trace, name the missing event as clearly as the recorded ones. In memory, identify who may approve the rule. Write two likely skeptical questions and honest answers. Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing. Use a fictional or approved example. Do not use private operational data.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -450,38 +458,48 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 379.197,
-          "text": "Storyboard a Three-Panel Demo for your invented workflow. "
+          "end_seconds": 378.574,
+          "text": "Storyboard a Three-Panel Demo for your workflow. "
         },
         {
-          "start_seconds": 379.197,
-          "end_seconds": 383.757,
+          "start_seconds": 378.574,
+          "end_seconds": 383.169,
           "text": "Give each panel a reviewer question and one piece of evidence. "
         },
         {
-          "start_seconds": 383.757,
-          "end_seconds": 388.316,
+          "start_seconds": 383.169,
+          "end_seconds": 387.764,
           "text": "Include a blocked or rejected item beside the successful work. "
         },
         {
-          "start_seconds": 388.316,
-          "end_seconds": 393.382,
+          "start_seconds": 387.764,
+          "end_seconds": 392.869,
           "text": "In the trace, name the missing event as clearly as the recorded ones. "
         },
         {
-          "start_seconds": 393.382,
-          "end_seconds": 396.711,
+          "start_seconds": 392.869,
+          "end_seconds": 396.225,
           "text": "In memory, identify who may approve the rule. "
         },
         {
-          "start_seconds": 396.711,
-          "end_seconds": 400.836,
+          "start_seconds": 396.225,
+          "end_seconds": 400.382,
           "text": "Write two likely skeptical questions and honest answers. "
         },
         {
-          "start_seconds": 400.836,
-          "end_seconds": 408,
-          "text": "Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing."
+          "start_seconds": 400.382,
+          "end_seconds": 407.676,
+          "text": "Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing. "
+        },
+        {
+          "start_seconds": 407.676,
+          "end_seconds": 410.374,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 410.374,
+          "end_seconds": 413,
+          "text": "Do not use private operational data."
         }
       ],
       "avatar_window": null,
@@ -536,7 +554,7 @@
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 585.589,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L16",
   "title": "Audit the operating file",
+  "batch": 4,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L16-audit-the-operating-file.md",
-  "script_sha256": "ebe9d2b8da1bf79356cb6d139bb0b089d5a0a4badda8fd1ad20e332d9c2f36d6",
-  "narration_sha256": "bc0311f0834e8b0464bbdee262a4a61c5fb150cfb9e68973b6e3f43c1037dc55",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "script_sha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e",
+  "narration_sha256": "88bdb6f808bf0012b5241d88b2f61947739512e939e609fc5cc2723b6814fb6b",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -47,6 +54,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -57,7 +65,7 @@
       "start_seconds": 0,
       "end_seconds": 65,
       "source_time": "0:00–1:05",
-      "narration_exact": "“At the end of Harbor's fictional Friday, Morgan has a full Operating File. It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal. The file is impressive in one sense: its gaps are visible. Staffing is still unconfirmed. Spend is unapproved. The research test has not run. The board proof has not been shared. The capstone asks whether this design deserves to continue, in what smaller form, and under whose care.”",
+      "narration_exact": "“At the end of Harbor's Friday, Morgan has a full Operating File. It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal. The file is impressive in one sense: its gaps are visible. Staffing is still unconfirmed. Spend is unapproved. The research test has not run. The board proof has not been shared. The capstone asks whether this design deserves to continue, in what smaller form, and under whose care.”",
       "on_screen_copy_exact": "“Capstone: inspect the gaps.”",
       "audience_copy": [
         "Capstone: inspect the gaps."
@@ -70,48 +78,48 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 5.577,
-          "text": "At the end of Harbor's fictional Friday, Morgan has a full Operating File. "
+          "end_seconds": 5.054,
+          "text": "At the end of Harbor's Friday, Morgan has a full Operating File. "
         },
         {
-          "start_seconds": 5.577,
+          "start_seconds": 5.054,
           "end_seconds": 17.029,
           "text": "It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal. "
         },
         {
           "start_seconds": 17.029,
-          "end_seconds": 21.417,
+          "end_seconds": 21.207,
           "text": "The file is impressive in one sense: its gaps are visible. "
         },
         {
-          "start_seconds": 21.417,
-          "end_seconds": 23.722,
+          "start_seconds": 21.207,
+          "end_seconds": 23.403,
           "text": "Staffing is still unconfirmed. "
         },
         {
-          "start_seconds": 23.722,
-          "end_seconds": 25.284,
+          "start_seconds": 23.403,
+          "end_seconds": 24.89,
           "text": "Spend is unapproved. "
         },
         {
-          "start_seconds": 25.284,
-          "end_seconds": 27.589,
+          "start_seconds": 24.89,
+          "end_seconds": 27.085,
           "text": "The research test has not run. "
         },
         {
-          "start_seconds": 27.589,
-          "end_seconds": 30.341,
+          "start_seconds": 27.085,
+          "end_seconds": 29.706,
           "text": "The board proof has not been shared. "
         },
         {
-          "start_seconds": 30.341,
-          "end_seconds": 38,
+          "start_seconds": 29.706,
+          "end_seconds": 37,
           "text": "The capstone asks whether this design deserves to continue, in what smaller form, and under whose care."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 17.029,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -201,7 +209,7 @@
       "start_seconds": 130,
       "end_seconds": 195,
       "source_time": "2:10–3:15",
-      "narration_exact": "“Begin with source and event. Harbor's three sample inputs are invented, with opaque IDs and a source-status field. No raw private record belongs in the learner export. The receipt describes a paper event shape; it does not certify that an agent ran. Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan. A missing approval date stays blank. Do not backfill it to make the stack look complete.”",
+      "narration_exact": "“Begin with source and event. Harbor's three course inputs use opaque references and a source-status field. No raw private record belongs in the learner export. The receipt describes a paper event shape; it does not certify that an agent ran. Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan. A missing approval date stays blank. Do not backfill it to make the stack look complete.”",
       "on_screen_copy_exact": "“Source status. Receipt shape. Proposal status.”",
       "audience_copy": [
         "Source status. Receipt shape. Proposal status."
@@ -214,37 +222,37 @@
       "captions": [
         {
           "start_seconds": 130,
-          "end_seconds": 132.162,
+          "end_seconds": 132.136,
           "text": "Begin with source and event. "
         },
         {
-          "start_seconds": 132.162,
-          "end_seconds": 138.575,
-          "text": "Harbor's three sample inputs are invented, with opaque IDs and a source-status field. "
+          "start_seconds": 132.136,
+          "end_seconds": 137.882,
+          "text": "Harbor's three course inputs use opaque references and a source-status field. "
         },
         {
-          "start_seconds": 138.575,
-          "end_seconds": 142.526,
+          "start_seconds": 137.882,
+          "end_seconds": 141.786,
           "text": "No raw private record belongs in the learner export. "
         },
         {
-          "start_seconds": 142.526,
-          "end_seconds": 148.64,
+          "start_seconds": 141.786,
+          "end_seconds": 147.826,
           "text": "The receipt describes a paper event shape; it does not certify that an agent ran. "
         },
         {
-          "start_seconds": 148.64,
-          "end_seconds": 157.439,
+          "start_seconds": 147.826,
+          "end_seconds": 156.518,
           "text": "Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan. "
         },
         {
-          "start_seconds": 157.439,
-          "end_seconds": 160.197,
+          "start_seconds": 156.518,
+          "end_seconds": 159.243,
           "text": "A missing approval date stays blank. "
         },
         {
-          "start_seconds": 160.197,
-          "end_seconds": 164,
+          "start_seconds": 159.243,
+          "end_seconds": 163,
           "text": "Do not backfill it to make the stack look complete."
         }
       ],
@@ -414,7 +422,7 @@
       "start_seconds": 320,
       "end_seconds": 375,
       "source_time": "5:20–6:15",
-      "narration_exact": "“Pause. Pick the weakest gate in your own invented workflow. Would you keep the design as a paper trial, shrink its scope, or retire it? Name the human who can make that call and the evidence that person would need. A blank disposition is pending, never consent.”",
+      "narration_exact": "“Pause. Pick the weakest gate in your workflow. Would you keep the design as a paper trial, shrink its scope, or retire it? Name the human who can make that call and the evidence that person would need. Use a fictional or approved example. Do not use private operational data. A blank disposition is pending, never consent.”",
       "on_screen_copy_exact": "“Pause: keep / shrink / retire?”",
       "audience_copy": [
         "Pause: keep / shrink / retire?"
@@ -427,27 +435,37 @@
       "captions": [
         {
           "start_seconds": 320,
-          "end_seconds": 320.563,
+          "end_seconds": 320.565,
           "text": "Pause. "
         },
         {
-          "start_seconds": 320.563,
-          "end_seconds": 324.828,
-          "text": "Pick the weakest gate in your own invented workflow. "
+          "start_seconds": 320.565,
+          "end_seconds": 323.795,
+          "text": "Pick the weakest gate in your workflow. "
         },
         {
-          "start_seconds": 324.828,
-          "end_seconds": 330.943,
+          "start_seconds": 323.795,
+          "end_seconds": 329.932,
           "text": "Would you keep the design as a paper trial, shrink its scope, or retire it? "
         },
         {
-          "start_seconds": 330.943,
-          "end_seconds": 337.299,
+          "start_seconds": 329.932,
+          "end_seconds": 336.311,
           "text": "Name the human who can make that call and the evidence that person would need. "
         },
         {
-          "start_seconds": 337.299,
-          "end_seconds": 341,
+          "start_seconds": 336.311,
+          "end_seconds": 339.298,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 339.298,
+          "end_seconds": 342.286,
+          "text": "Do not use private operational data. "
+        },
+        {
+          "start_seconds": 342.286,
+          "end_seconds": 346,
           "text": "A blank disposition is pending, never consent."
         }
       ],
@@ -566,7 +584,7 @@
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 588.293,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

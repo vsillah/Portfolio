@@ -7,7 +7,7 @@
   <style>
     :root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f8f5ef;background:#101b27}
     *{box-sizing:border-box} body{margin:0} button,select,input{font:inherit} button,select{border:1px solid #7d9eb4;border-radius:.5rem;background:#1b3040;color:#fff;padding:.55rem .75rem;cursor:pointer} button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #eac878;outline-offset:2px}
-    main{max-width:1500px;margin:auto;padding:clamp(.75rem,2vw,2rem)} header{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;flex-wrap:wrap;margin-bottom:1rem} h1{font-size:clamp(1.3rem,2.5vw,2rem);margin:0} .meta{color:#bdd0dc;font-size:.9rem}
+    main{max-width:1500px;margin:auto;padding:clamp(.75rem,2vw,2rem)} header{display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}.identity{display:flex;align-items:center;gap:.75rem;min-width:0}.identity img{display:block;width:42px;height:auto;max-height:64px;object-fit:contain} h1{font-size:clamp(1.3rem,2.5vw,2rem);margin:0} .meta{color:#bdd0dc;font-size:.9rem}
     #stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(1rem,3vw,3rem);width:100%;aspect-ratio:16/9;padding:clamp(1rem,3vw,3rem);background:#182a37;border:1px solid #496173;border-radius:1rem;overflow:hidden}
     .teaching{display:flex;flex-direction:column;justify-content:center;min-width:0}.eyebrow{font-size:clamp(.7rem,1.4vw,1rem);letter-spacing:.12em;text-transform:uppercase;color:#f0cb79}.stage-title{font-size:clamp(1.4rem,3.5vw,3.8rem);line-height:1.04;margin:.5rem 0 1rem;overflow-wrap:anywhere}.cards{display:grid;gap:.65rem}.card{padding:clamp(.55rem,1.35vw,1.2rem);border:1px solid #7594a6;border-radius:.6rem;background:#243d4b;font-size:clamp(.9rem,1.6vw,1.55rem);line-height:1.24;overflow-wrap:anywhere}
     .visual{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;border-radius:.65rem;background:#10212e;padding:.75rem}.visual img{display:block;width:100%;height:100%;max-height:100%;object-fit:contain;object-position:center}.visual.empty{border:1px dashed #68899c}.visual.empty span{font-size:clamp(1rem,2vw,2rem);text-align:center;color:#d9e4e7}.quiet{font-size:clamp(2rem,8vw,7rem);font-variant-numeric:tabular-nums}
@@ -20,7 +20,7 @@
 </head>
 <body>
 <main>
-  <header><h1 id="lesson-title">Agentified lesson animatic</h1><span class="meta" id="lesson-meta">Silent review · source-bound</span></header>
+  <header><div class="identity"><img id="cover" alt="Agentified book cover" hidden><h1 id="lesson-title">Agentified lesson animatic</h1></div><span class="meta" id="lesson-meta">Silent review · source-bound</span></header>
   <section id="stage" aria-label="Lesson frame">
     <div class="teaching"><span class="eyebrow" id="scene-label"></span><h2 class="stage-title" id="scene-title"></h2><div class="cards" id="cards"></div></div>
     <div class="visual empty" id="visual"></div>
@@ -39,7 +39,13 @@
   const lessonId = /^L(0[1-9]|1[0-6])$/.test(query.get('lesson') || '') ? query.get('lesson') : 'L01'
   const fmt = (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
   let packet, time = 0, playing = false, lastTick = performance.now(), lastScene = ''
-  for (let i = 1; i <= 16; i++) { const id = `L${String(i).padStart(2, '0')}`; const option = document.createElement('option'); option.value = id; option.textContent = id; $('lesson').append(option) }
+  for (let batch = 1; batch <= 4; batch++) {
+    const group = document.createElement('optgroup')
+    const start = (batch - 1) * 4 + 1
+    group.label = `Batch ${batch} · L${String(start).padStart(2, '0')}–L${String(start + 3).padStart(2, '0')}`
+    for (let i = start; i < start + 4; i++) { const id = `L${String(i).padStart(2, '0')}`; const option = document.createElement('option'); option.value = id; option.textContent = id; group.append(option) }
+    $('lesson').append(group)
+  }
   $('lesson').value = lessonId
   $('lesson').onchange = () => { const url = new URL(location.href); url.searchParams.set('lesson', $('lesson').value); location.href = url.toString() }
   $('speed').value = '8'
@@ -75,7 +81,7 @@
   fetch(`packets/${lessonId}.json`).then((response) => { if (!response.ok) throw new Error(`Packet ${lessonId} unavailable`); return response.json() }).then(async (value) => {
     const paths = [...new Set(value.scenes.flatMap((scene) => scene.approved_visuals.map((visual) => visual.path)))]
     await Promise.all(paths.map(async (path) => { const image = new Image(); image.src = '/' + path; await image.decode() }))
-    packet = value; $('lesson-title').textContent = `${packet.id} · ${packet.title}`; $('lesson-meta').textContent = `Silent review · ${packet.scenes.length} scenes · ${fmt(packet.timing_seconds)}`; $('seek').max = packet.timing_seconds - 1; render(); requestAnimationFrame(tick)
+    packet = value; $('cover').src = '/' + packet.package_cover.path; $('cover').hidden = false; $('lesson-title').textContent = `${packet.id} · ${packet.title}`; $('lesson-meta').textContent = `Batch ${packet.batch} of 4 · Silent review · ${packet.scenes.length} scenes · ${fmt(packet.timing_seconds)}`; $('seek').max = packet.timing_seconds - 1; render(); requestAnimationFrame(tick)
   }).catch((error) => { $('lesson-title').textContent = error.message })
 </script>
 </body>
