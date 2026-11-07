@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { createHash, randomBytes } from 'node:crypto'
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 import { Pool, type PoolClient } from 'pg'
 import { hashInvitationToken } from './app-activation'
 import { isExactHttpsOrigin } from './app-activation-rollout.server'
@@ -16,11 +16,17 @@ export type IntakeInput = {
 }
 export type RedeemInput = { appKey: string; token: string; authUserId: string; adultEmail: string }
 export type OperatorInput = { appKey: string; recordId: string; action: OperatorAction; actor: string; reason: string; confirmation?: string }
+export type AbuseKind = 'interest' | 'redeem' | 'handoff_issue' | 'handoff_exchange' | 'grant'
 
 export interface ActivationRepository {
   intake(input: IntakeInput): Promise<void>
   redeem(input: RedeemInput): Promise<boolean>
   hasGrant(appKey: string, authUserId: string): Promise<boolean>
+  hasGrantForHandle(appKey: string, handle: string): Promise<boolean>
+  consumeAbuseBudget(kind: AbuseKind, clientIp: string): Promise<boolean>
+  issueHandoff(appKey: string, authUserId: string): Promise<string | null>
+  exchangeHandoff(appKey: string, code: string): Promise<string | null>
+  revokeUndeliveredInvitation(appKey: string, interestId: string, invitationId: string, actor: string): Promise<void>
   snapshot(): Promise<OperatorSnapshot>
   operator(input: OperatorInput): Promise<{ record: OperatorRecord; deliveryToken?: string }>
 }
@@ -28,10 +34,34 @@ export interface ActivationRepository {
 const hash = (value: string) => createHash('sha256').update(value).digest('hex')
 let pool: Pool | null = null
 
+export function activationDatabaseUrl(env: Record<string, string | undefined> = process.env): string | null {
+  if (env.APP_ACTIVATION_DATABASE_URL) return env.APP_ACTIVATION_DATABASE_URL
+  if (env.APP_ACTIVATION_STAGING_DB_FALLBACK === 'true'
+    && env.APP_ACTIVATION_STAGING_PROJECT_ID && env.VERCEL_PROJECT_ID === env.APP_ACTIVATION_STAGING_PROJECT_ID
+    && env.VERCEL_ENV === 'production' && env.POSTGRES_URL_NON_POOLING) return env.POSTGRES_URL_NON_POOLING
+  return null
+}
+
 export function activationProviderConfigured(env: Record<string, string | undefined> = process.env): boolean {
   return env.APP_ACTIVATION_PROVIDER === 'postgres' && env.APP_ACTIVATION_ENABLE_WRITES === 'true'
-    && !!env.APP_ACTIVATION_DATABASE_URL && !!env.APP_ACTIVATION_APP_ORIGINS
+    && !!activationDatabaseUrl(env) && !!env.APP_ACTIVATION_APP_ORIGINS
     && !!env.APP_ACTIVATION_CONSENT_VERSION
+}
+
+export function activationRuntimeConfigured(env: Record<string, string | undefined> = process.env): boolean {
+  return activationProviderConfigured(env) && env.APP_ACTIVATION_DISTRIBUTED_ABUSE_ENABLED === 'true'
+    && typeof env.APP_ACTIVATION_ABUSE_SECRET === 'string' && env.APP_ACTIVATION_ABUSE_SECRET.length >= 32
+}
+
+export function appServerSecretValid(appKey: string, supplied: string, env: Record<string, string | undefined> = process.env): boolean {
+  if (env.APP_ACTIVATION_HANDOFF_ENABLED !== 'true' || !/^[a-z0-9][a-z0-9-]{1,62}$/.test(appKey) || supplied.length < 32) return false
+  try {
+    const secrets: unknown = JSON.parse(env.APP_ACTIVATION_APP_SECRETS || '{}')
+    if (!secrets || typeof secrets !== 'object' || Array.isArray(secrets)) return false
+    const expected = (secrets as Record<string, unknown>)[appKey]
+    if (typeof expected !== 'string' || expected.length < 32) return false
+    return timingSafeEqual(createHash('sha256').update(supplied).digest(), createHash('sha256').update(expected).digest())
+  } catch { return false }
 }
 
 export function configuredAppOrigins(env: Record<string, string | undefined> = process.env): Record<string, string[]> {
@@ -52,7 +82,7 @@ export function configuredAppOrigins(env: Record<string, string | undefined> = p
 
 export function getActivationRepository(): ActivationRepository | null {
   if (!activationProviderConfigured() || Object.keys(configuredAppOrigins()).length === 0) return null
-  if (!pool) pool = new Pool({ connectionString: process.env.APP_ACTIVATION_DATABASE_URL!, max: 4 })
+  if (!pool) pool = new Pool({ connectionString: activationDatabaseUrl()!, max: 4 })
   return new PostgresActivationRepository(pool)
 }
 
@@ -77,6 +107,71 @@ const event = async (db: PoolClient, appKey: string, interestId: string, type: s
 
 class PostgresActivationRepository implements ActivationRepository {
   constructor(private readonly db: Pool) {}
+
+  async consumeAbuseBudget(kind: AbuseKind, clientIp: string): Promise<boolean> {
+    if (!activationRuntimeConfigured()) return false
+    const digest = createHmac('sha256', process.env.APP_ACTIVATION_ABUSE_SECRET!).update(`${kind}\0${clientIp}`).digest('hex')
+    const limit = { interest: 5, redeem: 8, handoff_issue: 12, handoff_exchange: 120, grant: 1200 }[kind]
+    return transaction(this.db, async db => {
+      const result = await db.query<{ hits: number }>(`insert into activation_private.abuse_buckets(bucket_key,window_start,hits)
+        values($1,date_trunc('minute',now()),1)
+        on conflict(bucket_key) do update set
+          window_start=case when activation_private.abuse_buckets.window_start <= now()-interval '15 minutes' then date_trunc('minute',now()) else activation_private.abuse_buckets.window_start end,
+          hits=case when activation_private.abuse_buckets.window_start <= now()-interval '15 minutes' then 1 else activation_private.abuse_buckets.hits+1 end
+        returning hits`, [digest])
+      return Number(result.rows[0]?.hits) <= limit
+    })
+  }
+
+  async issueHandoff(appKey: string, authUserId: string): Promise<string | null> {
+    if (process.env.APP_ACTIVATION_HANDOFF_ENABLED !== 'true') return null
+    const code = randomBytes(32).toString('base64url')
+    return transaction(this.db, async db => {
+      const grant = await db.query(`select 1 from public.activation_grants where app_key=$1 and auth_user_id=$2
+        and revoked_at is null and (expires_at is null or expires_at>now()) limit 1`, [appKey, authUserId])
+      if (!grant.rowCount) return null
+      await db.query(`insert into activation_private.handoff_codes(app_key,auth_user_id,code_hash,expires_at)
+        values($1,$2,$3,now()+interval '2 minutes')`, [appKey, authUserId, hash(code)])
+      return code
+    })
+  }
+
+  async exchangeHandoff(appKey: string, code: string): Promise<string | null> {
+    if (process.env.APP_ACTIVATION_HANDOFF_ENABLED !== 'true') return null
+    return transaction(this.db, async db => {
+      const claimed = await db.query<{ auth_user_id: string }>(`update activation_private.handoff_codes
+        set consumed_at=now() where app_key=$1 and code_hash=$2 and consumed_at is null and expires_at>now()
+        returning auth_user_id`, [appKey, hash(code)])
+      const userId = claimed.rows[0]?.auth_user_id
+      if (!userId) return null
+      const grant = await db.query(`select 1 from public.activation_grants where app_key=$1 and auth_user_id=$2
+        and revoked_at is null and (expires_at is null or expires_at>now()) limit 1`, [appKey, userId])
+      if (!grant.rowCount) return null
+      const handle = randomBytes(32).toString('base64url')
+      await db.query(`insert into activation_private.app_session_handles(handle_hash,app_key,auth_user_id,expires_at)
+        values($1,$2,$3,now()+interval '24 hours')`, [hash(handle), appKey, userId])
+      return handle
+    })
+  }
+
+  async hasGrantForHandle(appKey: string, handle: string): Promise<boolean> {
+    return transaction(this.db, async db => {
+      const result = await db.query(`select 1 from activation_private.app_session_handles h
+        join public.activation_grants g on g.app_key=h.app_key and g.auth_user_id=h.auth_user_id
+        where h.app_key=$1 and h.handle_hash=$2 and h.expires_at>now()
+          and g.revoked_at is null and (g.expires_at is null or g.expires_at>now()) limit 1`, [appKey, hash(handle)])
+      return !!result.rowCount
+    })
+  }
+
+  async revokeUndeliveredInvitation(appKey: string, interestId: string, invitationId: string, actor: string): Promise<void> {
+    await transaction(this.db, async db => {
+      const revoked = await db.query(`update public.activation_invitations set status='revoked',revoked_at=now(),revoked_by=$1
+        where id=$2 and interest_id=$3 and app_key=$4 and status='issued' returning id`, [actor, invitationId, interestId, appKey])
+      if (!revoked.rowCount) throw new ActivationError('Undelivered invitation requires operator review.', 503)
+      await event(db, appKey, interestId, 'invitation_revoked', actor, 'delivery_failure', 'Delivery adapter failed; invitation invalidated.', invitationId)
+    })
+  }
 
   async intake(input: IntakeInput): Promise<void> {
     const replay = hash(`${input.appKey}\0${input.idempotencyKey}`)
@@ -186,13 +281,13 @@ class PostgresActivationRepository implements ActivationRepository {
         if (row.status !== 'approved' || !row.source_ref) throw new ActivationError('Approved interest and source receipt required.')
         const consent = await db.query<{ decision: string }>(`select decision from public.activation_consents where interest_id=$1 and consent_kind='interest_contact' order by recorded_at desc,id desc limit 1`, [input.recordId])
         if (consent.rows[0]?.decision !== 'granted') throw new ActivationError('Current contact consent required.')
-        const prior = await db.query('select 1 from public.activation_invitations where interest_id=$1', [input.recordId])
+        const prior = await db.query(`select 1 from public.activation_invitations where interest_id=$1 and status in ('issued','redeemed')`, [input.recordId])
         if (prior.rowCount) throw new ActivationError('An invitation already exists. Review its state before reissue.')
         const raw = randomBytes(32).toString('base64url')
         const issued = await db.query<{ id: string }>(`insert into public.activation_invitations(app_key,interest_id,token_hash,expires_at)
           values($1,$2,$3,now()+interval '7 days') returning id`, [input.appKey,input.recordId,hashInvitationToken(raw)])
         await event(db,input.appKey,input.recordId,'invitation_issued',input.actor,'operator',reason,issued.rows[0].id)
-        // Returned exactly once to the authorized operator route. No delivery adapter is wired.
+        // Returned only to the server-side delivery adapter, never to a browser.
         deliveryToken = raw
       } else if (input.action === 'revoke_invitation') {
         const revoked = await db.query<{ id: string }>(`update public.activation_invitations set status='revoked',revoked_at=now(),revoked_by=$1

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { configuredAppOrigins, getActivationRepository } from '@/lib/app-activation-repository.server'
+import { ActivationError, activationRuntimeConfigured, configuredAppOrigins, getActivationRepository } from '@/lib/app-activation-repository.server'
 import { isAdultInterestForm, normalizeAdultEmail } from '@/lib/app-activation-intake'
-import { getClientIpFromRequest, isIpRateLimited } from '@/lib/simple-ip-rate-limit'
+import { getClientIpFromRequest } from '@/lib/simple-ip-rate-limit'
 
 export const dynamic = 'force-dynamic'
 const corsOrigin = (origin: string | null) => origin && Object.values(configuredAppOrigins()).some(origins => origins.includes(origin)) ? origin : null
@@ -16,11 +16,12 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const repository = getActivationRepository()
-  if (!repository) return reply({ error: 'Activation intake is unavailable.' }, 503)
+  if (!repository || !activationRuntimeConfigured()) return reply({ error: 'Activation intake is unavailable.' }, 503)
   if (request.headers.get('content-type')?.split(';')[0] !== 'application/json') return reply({ error: 'JSON content type required.' }, 415)
   const origin = request.headers.get('origin')
   if (!origin) return reply({ error: 'Origin required.' }, 403)
-  if (isIpRateLimited('activation_interest', getClientIpFromRequest(request))) return reply({ error: 'Please try again later.' }, 429)
+  try { if (!await repository.consumeAbuseBudget('interest', getClientIpFromRequest(request))) return reply({ error: 'Please try again later.' }, 429) }
+  catch { return reply({ error: 'Activation intake is unavailable.' }, 503) }
   if (Number(request.headers.get('content-length') || 0) > 4096) return reply({ error: 'Request too large.' }, 413)
   let body: unknown
   try { body = await request.json() } catch { return reply({ error: 'Invalid JSON.' }, 400) }
@@ -31,5 +32,8 @@ export async function POST(request: NextRequest) {
     await repository.intake({ appKey: body.appKey, adultEmail: normalizeAdultEmail(body.adultEmail)!, consentVersion: body.consentVersion,
       consentGranted: true, idempotencyKey: body.idempotencyKey, sourceType: 'direct_form', sourceReceipt: body.sourceReceipt })
     return reply({ message: 'Your interest has been recorded for review. No account or access has been granted.' }, 202, origin)
-  } catch { return reply({ error: 'Interest could not be recorded.' }, 503) }
+  } catch (error) {
+    if (error instanceof ActivationError && [404, 409].includes(error.status)) return reply({ message: 'Your interest has been recorded for review. No account or access has been granted.' }, 202, origin)
+    return reply({ error: 'Interest could not be recorded.' }, 503)
+  }
 }

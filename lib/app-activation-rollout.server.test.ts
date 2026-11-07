@@ -4,7 +4,7 @@ import { checkAppAccess, decideAppAccess, trumpetTrainerRollout, validateRollout
 import type { ActivationGrant } from './app-activation'
 
 const now = new Date('2026-11-07T12:00:00.000Z')
-const enabled: AppRolloutManifest = { ...trumpetTrainerRollout, exactOrigins: ['https://app.example.test'], invitationDelivery: 'approved-server-adapter', activationEnabled: true }
+const enabled: AppRolloutManifest = { ...trumpetTrainerRollout, exactOrigins: ['https://app.example.test'], invitationDelivery: 'approved-server-adapter', abuseControl: 'postgres-distributed', identityExchange: 'single-use-code', appSessionBinding: 'verified-adult-server-session', activationEnabled: true }
 const grant: ActivationGrant = { id: 'grant-1', appKey: enabled.appKey, interestId: 'interest-1', invitationId: 'inv-1', authUserId: 'adult-1', expiresAt: '2026-12-01T00:00:00.000Z', revokedAt: null }
 const paid: PaidEntitlement = { appKey: enabled.appKey, authUserId: 'adult-1', status: 'active', expiresAt: '2026-12-01T00:00:00.000Z' }
 const access = (manifest: AppRolloutManifest, activeGrant: ActivationGrant | null = grant, entitlement: PaidEntitlement | null = null, appKey = enabled.appKey, authUserId = 'adult-1') =>
@@ -29,6 +29,9 @@ describe('source-only app rollout registration', () => {
   })
   it('requires a reviewed delivery adapter before activation', () => {
     expect(() => validateRolloutManifests([{ ...enabled, invitationDelivery: 'unconfigured' }])).toThrow(/delivery/)
+    expect(() => validateRolloutManifests([{ ...enabled, abuseControl: 'unconfigured' }])).toThrow(/abuse control/)
+    expect(() => validateRolloutManifests([{ ...enabled, identityExchange: 'unconfigured' }])).toThrow(/identity exchange/)
+    expect(() => validateRolloutManifests([{ ...enabled, appSessionBinding: 'unconfigured' }])).toThrow(/app session binding/)
   })
 })
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAuthError, verifyAdmin } from '@/lib/auth-server'
 import { applySyntheticOperatorAction, getOperatorSnapshot, OperatorActionError, type OperatorAction } from '@/lib/app-activation-operator.server'
 import { ActivationError, getActivationRepository } from '@/lib/app-activation-repository.server'
+import { getInvitationDeliveryAdapter, ProviderDisabledDelivery } from '@/lib/app-activation-delivery.server'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,8 +34,20 @@ export async function POST(request: NextRequest) {
   }
   try {
     if (repository) {
-      if (body.action === 'prepare_invitation') return NextResponse.json({ error: 'Hosted invitation delivery is not authorized or configured.' }, { status: 503 })
+      if (body.action === 'prepare_invitation' && getInvitationDeliveryAdapter() instanceof ProviderDisabledDelivery) return NextResponse.json({ error: 'Hosted invitation delivery is not authorized or configured.' }, { status: 503 })
       const result = await repository.operator({ appKey: body.appKey, recordId: body.recordId, action: body.action as OperatorAction, actor: auth.user.id, reason: body.reason, confirmation: typeof body.confirmation === 'string' ? body.confirmation : undefined })
+      if (body.action === 'prepare_invitation') {
+        const invitation = result.record.invitation
+        if (!result.deliveryToken || !invitation) return NextResponse.json({ error: 'Invitation preparation failed.' }, { status: 503 })
+        try {
+          const receipt = await getInvitationDeliveryAdapter().deliver({ appKey: body.appKey, adultEmail: result.record.adultEmail, rawToken: result.deliveryToken, expiresAt: invitation.expiresAt })
+          return NextResponse.json({ record: result.record, delivery: receipt, message: 'Invitation delivery adapter completed.' }, { headers: { 'Cache-Control': 'no-store' } })
+        } catch {
+          try { await repository.revokeUndeliveredInvitation(body.appKey, body.recordId, invitation.id, auth.user.id) }
+          catch { return NextResponse.json({ error: 'Delivery failed and invitation recovery needs operator review.' }, { status: 503 }) }
+          return NextResponse.json({ error: 'Delivery failed; invitation was revoked.' }, { status: 503 })
+        }
+      }
       return NextResponse.json({ record: result.record, message: 'Activation review updated.' }, { headers: { 'Cache-Control': 'no-store' } })
     }
     const record = applySyntheticOperatorAction({ appKey: body.appKey, recordId: body.recordId, action: body.action as OperatorAction, actor: auth.user.id, reason: body.reason, confirmation: typeof body.confirmation === 'string' ? body.confirmation : undefined })
