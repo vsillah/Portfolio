@@ -1,0 +1,46 @@
+# L11 — Run the cockpit and unblock lane
+
+**Group:** The Agentified Organization
+**Outcome:** Show status, blockers, owner, and the next authorized step in one view.
+**Run time:** 10:00 (about 6:05 spoken, 3:55 guided work and pause).
+**Operating File update:** `cockpit-and-unblock` → `cockpit` and `unblock-ladder`, revision 11, status `draft`; carries forward the prepare-only authority and held staffing and spend decisions.
+**Source bindings:** [Chapter 19, Mission Control](../../manuscript/production-draft/chapters/ch19-mission-control.md); [Chapter 20, Slack Is The Unblock Lane](../../manuscript/production-draft/chapters/ch20-slack-is-the-unblock-lane.md); [companion workbook, Chapter 19 Mission Control Cockpit and Chapter 20 Unblock Ladder](../../manuscript/workbook/agentified-operating-system-workbook.md). All are registered in `source-register.json` and assigned to L11 by `curriculum-crosswalk.json`.
+
+## Timed narration and screen
+
+| Time | Spoken narration — read in full | On-screen copy |
+| --- | --- | --- |
+| 0:00–1:10 | “Morgan comes to Harbor's Friday planning table with three open questions. Is the room note still current? Who is checking the facilitator? Did anyone approve the mock print request? If the answers live in three people's heads, Morgan becomes the operating system. We already have receipts, a handoff, a rubric, a review posture, and two held decisions. Put them where a second team member could see the state and take the next authorized step.” | “One job. Three questions. One readable state.” |
+| 1:10–2:25 | “Chapter Nineteen calls this a cockpit. Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; `SYN-HOLD-01` names Morgan; `SYN-SPEND-01` is unapproved; the next action is to request a current, permitted staffing note. Add owner, age, cost signal, approval queue, and a link to `SYN-TRACE-01`. A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. This is a paper sketch, not a screenshot of a running system.” | “Status / Blocker / Owner / Next safe step / Trace.” |
+| 2:25–3:35 | “Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to a fictional coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. There is no need to display individual speed rankings or make a teammate's latency look like failure. The cockpit should reduce guessing, not pressure people into faster approval.” | “Scan → Sort → Signal → Step in.” |
+| 3:35–4:50 | “Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate. On a real system, each rung would need a defined authority window and trace. On Harbor's paper design, a status update may be drafted as a notify card. The staffing gap is an ask to Morgan for direction. A proposed announcement or purchase escalates to a separate, named human gate. A mobile card may point Morgan to the full brief and source status. It must never hide a missing note behind an approve button.” | “Notify: status.” “Ask: staffing direction.” “Escalate: external action.” |
+| 4:50–5:55 | “The phone is a narrow doorway into the cockpit. A good card says what is held, why, who owns it, and where to open the complete evidence. It can invite a comment or route the issue within a previously defined scope. It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure. Every paper disposition returns to the same trace. A small screen does not make a consequential decision smaller.” | “Mobile card → full trace.” “No shortcut around the gate.” |
+| 5:55–6:15 | “Pause. If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?” | “Pause: find one missing field.” |
+| 6:15–9:35 | “Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. Show status, blocker, owner, age, source pointer, next safe step, and decision destination. Assign each message to a ladder rung. Label what can be handled in the sketch and what must open the full review. Include a route for stale evidence and a closed spend gate. Use fictional data only; do not paste a real Slack message, agent run, person, or client record.” | Exercise card below; 3:20 quiet writing timer with optional pause. |
+| 9:35–10:00 | “Save revision eleven as a draft. The test is simple: can a second person understand why the work is held and who can move it? Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build.” | “Operating File v11: cockpit + unblock.” “Next: scoped proof.” |
+
+## Exercise and model Operating File entry
+
+**Prompt:** Create a `Mission Control Cockpit` card and an `Unblock Ladder` for the same fictional Harbor job. The card needs status, blocker, owner, due or age signal, evidence pointer, cost/spend status, next authorized action, recovery, and disposition history. The ladder must distinguish `auto-run`, `notify`, `ask`, and `escalate`, with allowed response, trace event, deep link, and forbidden actions. Mark anything requiring full review as a handoff to the cockpit, not a one-tap mobile approval.
+
+**Harbor example — Mission Control Cockpit:** Job `SYN-BRIEF-01`; state `held, staffing evidence incomplete`; blocker `SYN-FAC-01` says available for review, not confirmed; owner Morgan; invented age one planning day; next safe step request a current cleared facilitator note through the fictional coordinator; evidence `SYN-TRACE-01`; source check `SYN-HOLD-01`; spend `SYN-SPEND-01` unapproved and closed; recovery, revise brief or keep on hold after Morgan reviews the new note; history, case B stale and case C unsupported claim from revision 8. No production run is asserted.
+
+**Harbor example — Unblock Ladder:** `auto-run`: paper source-format check only, no external effect. `notify`: invented status card says brief held and links to the full trace. `ask`: Morgan may request revision or route the staffing question after opening the evidence view; the paper trace records the disposition. `escalate`: any proposed room booking, announcement, purchase, or policy change goes to a separate human gate outside this exercise. Mobile sample copy: “Harbor brief held: facilitator status unconfirmed. Morgan owns the next decision. Open source and trace; request a current note or keep hold.” No real mobile action or Slack send occurs.
+
+**Claim map for source review:** Cockpit exceptions, approvals, costs, trace drilldowns, recovery, and scan/sort/signal/step-in loop derive from Chapter 19; first-screen prompts derive from workbook “Mission Control Cockpit.” Four ladder rungs, mobile trace link, and bounded authority window derive from Chapter 20; allowed and forbidden action prompts derive from workbook “Unblock Ladder.” Harbor card fields and message are invented design examples.
+
+## Storyboard-ready visual briefs
+
+| Beat | Candidate composition for later review | Motion and legibility | Boundaries |
+| --- | --- | --- | --- |
+| 1 | One Harbor paper cockpit card with the staffing hold at the top and spend gate below. | Reveal status, blocker, owner, next step in that order; keep trace pointer visible. | No real dashboard, Slack screenshot, agent roster, or private task data. |
+| 2 | Four-rung Unblock Ladder beside a phone-shaped *wireframe*, not an app capture. | Text labels remain readable; mobile card opens a full-evidence panel conceptually. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png` is a review candidate only. Attribution, rights, author, privacy, and accessibility review pending; do not embed or redraw. |
+| 3 | “Scan, sort, signal, step in” path ending at Morgan's hold decision. | Show routing as a paper arrow, never as a sent message or executed approval. | All names, status, and time markers are fictional. |
+
+**Avatar/B-roll:** Approved presenter may establish the three-question planning scene and close on the colleague test. Use full-frame cards and diagrams for the workflow. No provider call or media generation is authorized; avoid real notification footage, live cockpit UI, messages, and unreviewed art.
+
+**Pronunciation:** Say “cockpit” as “KOK-pit” and `SYN-HOLD-01` as “the sample hold.” Read ladder rungs as ordinary words; do not voice file paths.
+
+**Accessibility:** Provide a linear text version of the cockpit and ladder. Speak the blocker and owner, not just the status color. Make the phone concept legible without gesture-only cues. Keep the writing timer pausable; check focus order, caption clearance, and the actual content lane width if produced.
+
+**Editorial hold:** Reviewer confirms mobile does not inherit ungranted authority from a message and every held state has a next step. No live agent action, Slack send, provider call, approval execution, or permission change is authorized.
