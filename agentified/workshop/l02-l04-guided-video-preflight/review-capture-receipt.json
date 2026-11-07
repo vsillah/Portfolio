@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "code_revision": "467645fa9c607d17b24f8853d84c96a2defae42e",
+  "walkthroughs": [
+    {
+      "viewport": "desktop",
+      "route": "http://127.0.0.1:4173/agentified/workshop/l02-l04-guided-video-preflight/review.html?lesson=L02&state=opening&revision=467645fa9c607d17b24f8853d84c96a2defae42e",
+      "path": "desktop-walkthrough.mp4",
+      "sha256": "197b7e9746715991790f0bb58bda3eb6df6625ee31ace9d55ad3dc7947f0b1f4",
+      "bytes": 1215788,
+      "duration_seconds": 11.6,
+      "codec": "h264",
+      "width": 1280,
+      "height": 800,
+      "states_checked": 12,
+      "privacy": "synthetic packet and approved local assets only"
+    },
+    {
+      "viewport": "mobile",
+      "route": "http://127.0.0.1:4173/agentified/workshop/l02-l04-guided-video-preflight/review.html?lesson=L02&state=opening&revision=467645fa9c607d17b24f8853d84c96a2defae42e",
+      "path": "mobile-walkthrough.mp4",
+      "sha256": "25a7a43e0e61de264af84b18139134b7e244a8be6f112476688380dcb3e047e0",
+      "bytes": 1252931,
+      "duration_seconds": 15.6,
+      "codec": "h264",
+      "width": 390,
+      "height": 844,
+      "states_checked": 12,
+      "privacy": "synthetic packet and approved local assets only"
+    }
+  ],
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "customer_data_used": false
+}
