@@ -4,10 +4,12 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Breadcrumbs from "@/components/admin/Breadcrumbs";
 import { fetchWithSessionRecovery } from "@/lib/authenticated-fetch";
 import { lessons } from "@/lib/accelerated-decision-file";
+import { AGENTIFIED_VERSION, agentifiedLessons } from "@/lib/agentified-workshop";
 import { catalogOfferHref } from "@/lib/accelerated-service-review";
 
 type Item = {
   id: string;
+  content_version?: string;
   learner_name: string;
   learner_email: string;
   answers: Record<string, string>;
@@ -99,11 +101,11 @@ export default function DecisionFilesReview({ fixture = false }: { fixture?: boo
         <Breadcrumbs
           items={[
             { label: "Admin", href: "/admin" },
-            { label: "Accelerated decision files" },
+            { label: "Workshop files" },
           ]}
         />
         <h1 className="text-3xl font-semibold mt-6">
-          Accelerated decision files
+          Workshop files for review
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Learner evidence for human review. Match an existing offer only when
@@ -117,7 +119,7 @@ export default function DecisionFilesReview({ fixture = false }: { fixture?: boo
         )}
         {(showEmpty || items.length === 0) && (
           <p className="mt-8">
-            No decision files are waiting. Refresh after a learner sends one.
+            No workshop files are waiting. Refresh after a learner sends one.
           </p>
         )}
         <div className="mt-5 space-y-5">
@@ -130,6 +132,7 @@ export default function DecisionFilesReview({ fixture = false }: { fixture?: boo
                 <div>
                   <h2 className="text-xl font-semibold">{item.learner_name}</h2>
                   <p className="text-sm">{item.learner_email}</p>
+                  <p className="mt-1 text-xs font-semibold text-muted-foreground">{item.content_version === AGENTIFIED_VERSION ? 'Agentified Operating File' : 'Accelerated Decision File'}</p>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {item.review_status} ·{" "}
@@ -138,10 +141,10 @@ export default function DecisionFilesReview({ fixture = false }: { fixture?: boo
               </div>
               <details className="mt-4">
                 <summary className="cursor-pointer font-medium">
-                  Read learner decision file
+                  Read learner file
                 </summary>
                 <div className="mt-3 space-y-4">
-                  {lessons.map(
+                  {(item.content_version === AGENTIFIED_VERSION ? agentifiedLessons.map((lesson) => ({ id: lesson.id, artifact: lesson.outputs.join(' + ') })) : lessons).map(
                     (lesson) =>
                       item.answers[lesson.id]?.trim() && (
                         <section key={lesson.id}>
