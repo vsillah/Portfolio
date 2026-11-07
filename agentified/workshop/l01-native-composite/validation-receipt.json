@@ -27,7 +27,8 @@
   "bindings": {
     "timeline_sha256": "b9e252bb1b3d7ec5683720146b3c20f159e8e5aa3c04390f0e7166ea270f8b00",
     "caption_sha256": "e778245ead0585e151ae8c354684cb0e7970f950681039958c7b0e70aa4bf1b7",
-    "renderer_sha256": "e9b86ab0ebc8dea585472bc97db6bd04452f429c5efbb69787d04af06ea244fb"
+    "caption_vtt_sha256": "82caf5147d51f4c7aa93350edfdff4009cb3fad6a9d465bfea181ee22598f16c",
+    "renderer_sha256": "61689a455dea30c9cf8aebaa8673ee0e20ea902a0650990ed756b3cb1056284c"
   },
   "timing": {
     "source_split_seconds": 14.171,

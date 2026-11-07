@@ -13,6 +13,7 @@ const source = path.join(root, 'agentified/workshop/l01-native-source/agentified
 const frames = path.join(here, 'frames')
 const output = path.join(here, 'agentified-l01-native-composite.mp4')
 const captions = path.join(here, 'agentified-l01-native-captions.srt')
+const captionsVtt = path.join(here, 'agentified-l01-native-captions.vtt')
 const timelinePath = path.join(here, 'composite-timeline.json')
 const W = 1920, H = 1080, fps = 25
 const split = 14.171
@@ -82,6 +83,7 @@ const timeline = {
 }
 writeFileSync(timelinePath, JSON.stringify(timeline, null, 2) + '\n')
 writeFileSync(captions, `1\n00:00:00,000 --> 00:00:00,909\nFriday afternoon.\n\n2\n00:00:01,450 --> 00:00:03,841\nMorgan runs a small community learning program.\n\n3\n00:00:04,173 --> 00:00:09,597\nFor this course, we'll follow Harbor Learning Circle, an illustrative case built from fictional records.\n\n4\n00:00:10,035 --> 00:00:13,935\nSomeone suggests adding a free digital-skills session next month.\n\n5\n00:08:38,840 --> 00:08:42,911\nNext we will name the decision Morgan actually owns.\n`)
+writeFileSync(captionsVtt, `WEBVTT\n\n00:00:00.000 --> 00:00:00.909\nFriday afternoon.\n\n00:00:01.450 --> 00:00:03.841\nMorgan runs a small community learning program.\n\n00:00:04.173 --> 00:00:09.597\nFor this course, we'll follow Harbor Learning Circle, an illustrative case built from fictional records.\n\n00:00:10.035 --> 00:00:13.935\nSomeone suggests adding a free digital-skills session next month.\n\n00:08:38.840 --> 00:08:42.911\nNext we will name the decision Morgan actually owns.\n`)
 
 const inputs = [], filters = []
 packet.scenes.forEach((scene, i) => {
