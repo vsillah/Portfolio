@@ -81,38 +81,51 @@ export default function MemberDashboardPage() {
   const [data, setData] = useState<MemberData | null>(null)
   const [agentified, setAgentified] = useState<{ enrollment: { current_lesson_id: string } | null; lessons: { completed_at: string | null }[]; worksheet: { answers: Record<string, string> } | null } | null>(null)
   const [error, setError] = useState('')
+  const [agentifiedError, setAgentifiedError] = useState('')
+  const [loading, setLoading] = useState(true)
   const [previewMode, setPreviewMode] = useState(false)
   useEffect(() => {
     let active = true
+    const controller = new AbortController()
     async function load() {
       const preview = process.env.NODE_ENV === 'development' ? new URLSearchParams(window.location.search).get('qa') : null
-      if (preview && ['member', 'assessed', 'paid', 'orders', 'completion-ready', 'completion-blocked'].includes(preview)) { setPreviewMode(true); setData(syntheticMember(preview)); return }
+      if (preview && ['member', 'assessed', 'paid', 'orders', 'completion-ready', 'completion-blocked'].includes(preview)) { setPreviewMode(true); setData(syntheticMember(preview)); setLoading(false); return }
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setError('Sign in to see your member dashboard.'); return }
-      try {
-        const response = await fetch('/api/accelerated/member', { headers: { Authorization: `Bearer ${session.access_token}` }, cache: 'no-store' })
-        if (!response.ok) throw new Error('Your dashboard is temporarily unavailable.')
-        const result = await response.json()
-        if (active) setData(result)
-        const agentifiedResponse = await fetch('/api/agentified/member', { headers: { Authorization: `Bearer ${session.access_token}` }, cache: 'no-store' })
-        if (active && agentifiedResponse.ok) setAgentified(await agentifiedResponse.json())
-      } catch { if (active) setError('Your dashboard is temporarily unavailable.') }
+      if (!session) { if (active) { setError('Sign in to see your member dashboard.'); setLoading(false) }; return }
+      const request = (path: string) => fetch(path, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        cache: 'no-store',
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
+      })
+      const acceleratedRequest = request('/api/accelerated/member').then(async (response) => {
+          if (!response.ok) throw new Error('accelerated')
+          return response.json()
+        }).then((result) => { if (active) setData(result) })
+        .catch(() => { if (active) setError('Your Accelerated and client records are temporarily unavailable.') })
+      const agentifiedRequest = request('/api/agentified/member').then(async (response) => {
+          if (!response.ok) throw new Error('agentified')
+          return response.json()
+        }).then((result) => { if (active) setAgentified(result) })
+        .catch(() => { if (active) setAgentifiedError('Your Agentified progress is temporarily unavailable.') })
+      await Promise.allSettled([acceleratedRequest, agentifiedRequest])
+      if (!active) return
+      setLoading(false)
     }
     void load()
-    return () => { active = false }
+    return () => { active = false; controller.abort() }
   }, [])
   const complete = data?.lessons.filter((item) => item.completed_at).length ?? 0
   const pages = Object.values(data?.worksheet?.answers ?? {}).filter((value) => value.trim()).length
   return <main className="min-h-screen bg-imperial-navy px-4 py-10 text-platinum-white sm:px-8">
     <div className="mx-auto max-w-5xl space-y-8">
       <header><p className="text-sm uppercase tracking-widest text-radiant-gold">AmaduTown member</p><h1 className="mt-2 text-3xl font-bold">Your learning, in one place</h1><p className="mt-2 text-platinum-white/70">Pick up the next lesson. Your assessment and client work appear here only after they are linked to your account.</p></header>
-      {error ? <section className="rounded-lg border border-radiant-gold/25 p-6"><p role="alert">{error}</p><Link className="text-radiant-gold underline" href="/auth/login?redirect=%2Fmember%2Fdashboard">Sign in</Link></section> : !data ? <p role="status">Loading your dashboard…</p> : <>
+      {agentified ? <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Agentified progress"><h2 className="text-xl font-semibold">Agentified workshop</h2>{agentified.enrollment ? <><p className="mt-2 text-sm text-platinum-white/70">{agentified.lessons.filter((item) => item.completed_at).length} / {agentifiedLessons.length} lessons complete · {Object.values(agentified.worksheet?.answers ?? {}).filter((answer) => answer.trim()).length} Operating File pages started</p><div className="mt-3 flex flex-wrap gap-5"><Link className="text-radiant-gold underline" href={`/agentified/learningplan?lesson=${agentified.enrollment.current_lesson_id}`}>Continue {agentified.enrollment.current_lesson_id}</Link><Link className="text-radiant-gold underline" href="/agentified/operating-file">Open Operating File</Link></div></> : <><p className="mt-2 text-sm text-platinum-white/70">Your guest workshop progress has not been linked to this account.</p><Link className="mt-3 inline-block text-radiant-gold underline" href="/agentified/learningplan">Open the Learning Plan to review and claim it</Link></>}</section> : agentifiedError ? <section className="rounded-lg border border-radiant-gold/25 p-6"><p role="alert">{agentifiedError}</p><Link className="mt-2 inline-block text-radiant-gold underline" href="/agentified/learningplan">Open the Agentified Learning Plan</Link></section> : null}
+      {loading ? <p role="status">Loading your dashboard…</p> : error ? <section className="rounded-lg border border-radiant-gold/25 p-6"><p role="alert">{error}</p>{error.startsWith('Sign in') ? <Link className="text-radiant-gold underline" href="/auth/login?redirect=%2Fmember%2Fdashboard">Sign in</Link> : null}</section> : data ? <>
         <section className="grid gap-4 sm:grid-cols-3" aria-label="Course progress">
           <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Lessons</span><strong className="mt-2 block text-3xl">{complete} / {lessons.length}</strong><progress className="mt-3 w-full" value={complete} max={lessons.length} aria-label="Lessons complete" /></div>
           <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Decision File pages started</span><strong className="mt-2 block text-3xl">{pages} / {lessons.length}</strong><p className="mt-2 text-xs text-platinum-white/60">{data.decisionFileCount ? `${data.decisionFileCount} submitted file linked by review` : 'Your worksheet is private until you choose to send it.'}</p><Link className="mt-3 inline-block text-radiant-gold underline" href="/accelerated/decision-file">Open complete Decision File</Link></div>
           <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Continue</span><strong className="mt-2 block text-2xl">{data.enrollment?.current_lesson_id ?? 'L01'}</strong><Link className="mt-3 inline-block text-radiant-gold underline" href="/service-prototypes/accelerated-cohort?view=3">Open learning plan</Link></div>
         </section>
-        {agentified?.enrollment && <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Agentified progress"><h2 className="text-xl font-semibold">Agentified workshop</h2><p className="mt-2 text-sm text-platinum-white/70">{agentified.lessons.filter((item) => item.completed_at).length} / {agentifiedLessons.length} lessons complete · {Object.values(agentified.worksheet?.answers ?? {}).filter((answer) => answer.trim()).length} Operating File pages started</p><div className="mt-3 flex flex-wrap gap-5"><Link className="text-radiant-gold underline" href={`/agentified/learningplan?lesson=${agentified.enrollment.current_lesson_id}`}>Continue {agentified.enrollment.current_lesson_id}</Link><Link className="text-radiant-gold underline" href="/agentified/operating-file">Open Operating File</Link></div></section>}
         <CompletionCredential completedCount={complete} profileName={data.profileName} />
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Assessment"><h2 className="text-xl font-semibold">Assessment</h2>{data.assessment ? <><p className="my-3 text-platinum-white/75">{data.assessment.assessment?.diagnostic_summary ?? 'Your completed assessment is linked to this account.'}</p><AssessmentScoreBreakdown scores={data.assessment.scores.categoryScores} hasFormalAssessment /></> : data.assessmentStatus ? <p className="mt-2 text-platinum-white/65">Completed assessment linked. {data.assessmentStatus.summary ?? 'The report is not available in this dashboard yet.'}</p> : <p className="mt-2 text-platinum-white/65">No completed assessment has been linked to this account. An operator reviews identity before it appears here.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Reviewed recommendations"><h2 className="text-xl font-semibold">Recommended next steps</h2>{data.recommendations.length ? <ul className="mt-3 space-y-4">{data.recommendations.map((item) => <li key={item.id} className="border-t border-radiant-gold/15 pt-4 first:border-0 first:pt-0"><strong>{item.title}</strong><p className="text-sm text-platinum-white/65">{item.rationale}</p><RecommendationAction item={item} preview={previewMode} /></li>)}</ul> : <p className="mt-2 text-platinum-white/65">No operator-reviewed recommendation yet.</p>}</section>
@@ -128,7 +141,7 @@ export default function MemberDashboardPage() {
           <div><h4 className="mb-2 font-semibold">Meetings</h4>{data.projectMeetings?.[project.project.id]?.length ? <MeetingHistory initialMeetings={data.projectMeetings[project.project.id]} /> : <p className="text-sm text-platinum-white/65">No meetings yet.</p>}</div>
           <div><h4 className="mb-2 font-semibold">Documents and reports</h4><DocumentsSection documents={project.documents ?? []} />{(project.valueReports?.length || project.gammaReports?.length) ? <ReportsSection valueReports={project.valueReports ?? []} gammaReports={project.gammaReports ?? []} /> : null}{!project.documents?.length && !project.valueReports?.length && !project.gammaReports?.length && <p className="text-sm text-platinum-white/65">No documents or reports yet.</p>}</div>
         </div>) : <p className="text-platinum-white/65">No paid client project is linked to this account.</p>}</section>
-      </>}
+      </> : null}
     </div>
   </main>
 }
