@@ -2,8 +2,8 @@
   "schema_version": 1,
   "base_commit": "de1e01f04393963db6fe93962af47c0bd77439d5",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
-  "source_map_sha256": "68cb6536ae9837470e4e8192e64057fb076f44b868ebf893d4f432ba452527c4",
-  "authority": "read_only_prepare_only",
+  "source_map_sha256": "825e5ca6426854867cb72271cbd77db358c79c3d8adf04e282865894b44aaae5",
+  "authority": "approved_visual_preproduction_only",
   "external_execution": "disabled",
   "review_date": "2026-11-07",
   "lessons": [
@@ -27,10 +27,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Split card: job description on left, receipt on right. Highlight “pending” and “source missing.”",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -38,13 +38,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -67,10 +67,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Decision Card with evidence rows and a visible stale-source warning.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -78,13 +78,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -108,10 +108,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Four-tier ladder with one “unknown” source parked outside it.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -119,13 +119,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -149,10 +149,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "One inbound request forks to eligible preparation role and blocked messaging role, then joins at Morgan review.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -160,13 +160,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "fresh_attributable_publication_approval_required"
+          "blocker": null
         }
       ]
     },
@@ -189,10 +189,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Six small labeled markers for job, decision, source, receipt, proposed memory, owner, placed on the map.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -200,13 +200,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -230,10 +230,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "Authority ladder with a fixed marker at “prepare” and closed gates above it.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -241,13 +241,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -271,10 +271,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "A blocked `SYN-FAC-01` handoff card landing with Morgan instead of the drafter.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -282,13 +282,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -312,10 +312,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Three-case evaluation grid with pass/fail text and a separate human decision box.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -323,13 +323,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -353,10 +353,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "Seven-rung ladder beside a small measure-to-decision card.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -364,13 +364,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         },
         {
           "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
@@ -381,10 +381,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Review posture matrix with Morgan's evidence view and a closed external-action gate.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -392,13 +392,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -422,10 +422,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "Seven-field envelope with a closed `unapproved` gate and expiry line.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -433,13 +433,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -463,10 +463,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "Four-rung Unblock Ladder beside a phone-shaped *wireframe*, not an app capture.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -474,13 +474,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -504,10 +504,10 @@
           "storyboard_beat": "1",
           "intended_production_use": "Six-field scoped proof card with a visible inclusion column and exclusion column.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -515,13 +515,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -544,10 +544,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "Five-step ladder ending in a closed gate; a separate memory-proposal lane does not connect automatically.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -555,13 +555,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "fresh_attributable_publication_approval_required"
+          "blocker": null
         }
       ]
     },
@@ -584,10 +584,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "A narrow trace with a conspicuous stop before any send or booking node.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -595,13 +595,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         },
         {
           "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
@@ -612,10 +612,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Draft rule card beside a closed authority gate and `not shared` proof outline.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -623,13 +623,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -652,10 +652,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "Paper draft A and corrected draft B with a missing source-status field highlighted in text.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -663,13 +663,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     },
@@ -692,10 +692,10 @@
           "storyboard_beat": "2",
           "intended_production_use": "Harbor hold card nested in the Gate row, with staffing, spend, and research as separate statuses.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -703,13 +703,13 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "fresh_attributable_publication_approval_required"
+          "blocker": null
         },
         {
           "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
@@ -720,10 +720,10 @@
           "storyboard_beat": "3",
           "intended_production_use": "Human disposition card showing suggested `shrink` and actual `pending` in separate labeled fields.",
           "rights": {
-            "status": "unresolved",
+            "status": "approved",
             "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
-            "author_review": "pending",
-            "workshop_redistribution": "pending"
+            "author_review": "approved",
+            "workshop_redistribution": "approved_for_bound_agentified_lesson_uses"
           },
           "accessibility": {
             "text_alternative": "Write a concise literal description of the approved final plate before production.",
@@ -731,31 +731,28 @@
             "color_independent": "Use labels and shape or placement to communicate state.",
             "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
           },
-          "disposition": "blocked_pending_human_review",
+          "disposition": "approved_for_production_packets_and_provider_free_animatics",
           "approval": {
-            "status": "pending",
-            "record": null,
+            "status": "approved",
+            "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
             "expires_at": null
           },
-          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+          "blocker": null
         }
       ]
     }
   ],
   "cover_hold": {
-    "disposition": "blocked_identity_and_rights_reconciliation",
-    "reason": "The visual source map names SVG as current public cover while the route displays JPG; neither grants workshop reuse.",
+    "disposition": "approved_canonical_jpg",
+    "reason": "Author selected the JPG as canonical and explicitly rejected and deleted the SVG candidate.",
     "jpg": {
       "path": "public/agentified-cover.jpg",
       "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
     },
-    "svg": {
-      "path": "public/agentified-cover.svg",
-      "sha256": "6e5be9c44919f21e024adb16bd7a1c5d7506d58e4c08b5de33ab9ffff0c6c954"
-    },
     "approval": {
-      "status": "pending",
-      "record": null
+      "status": "approved",
+      "record": "user_choice_use_jpg_delete_svg_2026-11-07",
+      "plate_approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8"
     }
   },
   "sam_lineage": {
@@ -763,5 +760,19 @@
     "local_source_path": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
     "local_sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
     "workshop_use": "blocked_pending_rights_and_design_review"
+  },
+  "visual_approval": {
+    "status": "approved",
+    "approved_at": "2026-11-07",
+    "record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+    "scope": "five exact publication plates for listed L01-L16 workshop, storyboard, animatic, and guided-video production-package uses",
+    "exclusions": [
+      "provider calls",
+      "avatar generation",
+      "voice generation",
+      "upload",
+      "publication",
+      "external send"
+    ]
   }
 }

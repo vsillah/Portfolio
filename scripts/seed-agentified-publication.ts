@@ -74,7 +74,7 @@ const publicationPayload = {
   display_order: 2,
   is_published: true,
   file_path: agentifiedPublication.coverImage,
-  file_type: 'image/svg+xml',
+  file_type: 'image/jpeg',
   file_size: null as number | null,
   lead_magnet_id: null as string | null,
   audiobook_lead_magnet_id: null as string | null,

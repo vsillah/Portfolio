@@ -20,7 +20,7 @@ Current state:
   - publisher: AmaduTown Manuscript
   - display_order: 2
   - is_published: true
-  - file_path: /agentified-cover.svg
+  - file_path: /agentified-cover.jpg
 - Seed command, if reconciliation is needed:
   npm run publications:seed-agentified -- --target prod
 

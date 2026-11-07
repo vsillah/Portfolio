@@ -30,7 +30,7 @@ Use this as the draft Portfolio campaign definition:
 | `ends_at` | `2026-08-09T18:00:00-04:00` |
 | `promo_copy` | Achieve agentic scale through trust. |
 | `description` | Launch campaign for Agentified, Vambah Sillah's product-leadership book on governing agentic work through memory, roles, routing, approvals, evals, drift checks, receipts, and operating-system design. |
-| `hero_image_url` | `/agentified-cover.svg` until the final cover comp is approved and promoted. |
+| `hero_image_url` | `/agentified-cover.jpg` (author-approved canonical cover). |
 
 This packet is prepare-only. It does not create the campaign row, insert calendar items, schedule posts, send email, upload media, or publish externally.
 

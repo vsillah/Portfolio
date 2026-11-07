@@ -85,7 +85,7 @@ Figure II.1, Authority ladder:
 
 ## Agentified cover review comps
 
-The current public cover remains `/Users/vambahsillah/Projects/Portfolio/public/agentified-cover.svg` until an author-approved replacement is selected.
+The author-approved canonical public cover is `/Users/vambahsillah/Projects/Portfolio/public/agentified-cover.jpg` (SHA-256 `b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce`). The superseded SVG candidate was rejected and removed.
 
 Cover review comps use the same textless-base plus exact-overlay lane as the publication plates:
 
