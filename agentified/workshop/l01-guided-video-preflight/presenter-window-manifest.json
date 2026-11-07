@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "approved_l01_execution_timing",
+  "authorized_source_commit": "63ad5911294534d111f0696346682cc79c52fdc3",
+  "source_storyboard_manifest": {
+    "path": "agentified/workshop/scene-production/presenter-windows.json",
+    "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+    "treatment": "historical storyboard reservation; preserved unchanged"
+  },
+  "lesson_id": "L01",
+  "lesson_duration_seconds": 540,
+  "provider_presenter_windows": [
+    {
+      "id": "L01-01",
+      "start_seconds": 0,
+      "end_seconds": 19.271,
+      "presenter_duration_seconds": 19.271,
+      "narration_sha256": "a74e9c21c24d9b6f4b730d66d38458502da809b27446b40dd3b57074183360b1"
+    },
+    {
+      "id": "L01-08",
+      "start_seconds": 518.84,
+      "end_seconds": 523,
+      "presenter_duration_seconds": 4.16,
+      "narration_sha256": "00cc15136e5f5d627a96371e223d39835886770122d09900f78069ba4793fdac"
+    }
+  ],
+  "provider_free_closing_card": {
+    "scene_id": "L01-08",
+    "start_seconds": 523,
+    "end_seconds": 540,
+    "duration_seconds": 17,
+    "treatment": "approved closing evidence card; no presenter footage or generated voice"
+  }
+}

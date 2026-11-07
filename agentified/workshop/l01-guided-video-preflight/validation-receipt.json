@@ -1,26 +1,24 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "validated_local_candidate",
   "provider_calls": 0,
   "media_generated": 0,
   "spend_usd": 0,
-  "request_sha256": "9798ff87f0eb36d6e9479c1ea324e2506715baba78a5b9f936d6e43e1a9f3c10",
+  "request_sha256": "3d36d889ffb65d63e6a6bd4f0b315c00ed25162e329c0303acec09656c5114cb",
   "source_binding_count": 15,
   "source_bindings_sha256": "fd87ee08c5d1685bb8b18488b1508989761b50ba734c9516a63f8af88a5bc304",
   "checks": [
     "exact source hashes match current files",
     "script and cover map agree",
     "both passages reconstruct complete sentences from exact packet captions",
-    "presenter windows stay reserved and immutable",
-    "17-second closing tail is recorded as an unresolved timing gate",
-    "static cover identity rights are not promoted to provider avatar rights",
+    "presenter windows end at sentence boundaries",
+    "17-second closing tail is bound to a provider-free evidence card",
+    "purpose-specific look and avatar-native voice approval is bound by hash",
     "provider execution and spending are disabled"
   ],
   "unresolved": [
-    "recorded-audio timing and 17-second closing tail",
-    "provider identity and voice rights",
     "binding one-job quote and enforceable cap",
-    "provider support for two windows within one job",
-    "final transcript and rendered accessibility review"
+    "provider support for the exact look and two passages within one job",
+    "final native-source timing, transcript and rendered accessibility review"
   ]
 }

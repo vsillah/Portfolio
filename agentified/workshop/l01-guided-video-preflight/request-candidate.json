@@ -1,9 +1,10 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "provider_free_request_candidate_locked",
   "provider_candidate": "HeyGen",
   "lesson_id": "L01",
-  "source_base_commit": "1f28587c1e0cc275a02a3d31a9913f7fd506c9e5",
+  "authorized_source_commit": "63ad5911294534d111f0696346682cc79c52fdc3",
+  "correction_scope": "sentence-complete presenter windows plus provider-free closing evidence card",
   "prior_scene_packet_merge": "db010ebfe7c14a378fb4ff2102af48c1b1954293",
   "execution_allowed": false,
   "provider_contact_allowed": false,
@@ -14,13 +15,13 @@
   "spend_cap_usd": 0,
   "automatic_retries": 0,
   "requested_job_limit": 1,
-  "one_job_candidate_key": "835c7791342ee5815219d6cbe2b1b5af022b9d1fd00bdf25b6d00f3d24b1175d",
+  "one_job_candidate_key": "3faa39307512c5221086816824a7ff118bc4fc8d635057cc2c9dd558005a9c8f",
   "lesson_duration_seconds": 540,
-  "reserved_presenter_duration_seconds": 40.431,
+  "presenter_duration_seconds": 23.431,
   "scripted_speech_span_seconds": 23.431,
-  "conditional_generated_duration_seconds": 40.431,
+  "conditional_generated_duration_seconds": 23.431,
   "provider_billable_duration_seconds": null,
-  "duration_note": "If both clips fill their immutable windows, expected combined generated duration is 40.431 seconds. This is a conditional storyboard target, not a quote or confirmed billable duration. L01-08 contains 17 seconds after the last approved caption; final clip length and treatment require recorded-audio timing approval.",
+  "duration_note": "Generate only the two exact sentence-complete passages in one continuous source. The expected scripted span is 23.431 seconds before provider pacing. The 17-second L01-08 tail is provider-free and remains inside the unchanged 09:00 lesson.",
   "format_candidate": {
     "master": "1920x1080 16:9",
     "frame_rate": 30,
@@ -31,7 +32,8 @@
       "id": "L01-01",
       "start_seconds": 0,
       "end_seconds": 19.271,
-      "reserved_duration_seconds": 19.271,
+      "original_reserved_end_seconds": 19.271,
+      "presenter_duration_seconds": 19.271,
       "narration_exact": "Friday afternoon. Morgan runs a small community learning program. For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. Someone suggests adding a free digital-skills session next month.",
       "narration_sha256": "a74e9c21c24d9b6f4b730d66d38458502da809b27446b40dd3b57074183360b1",
       "caption_cues": [
@@ -57,14 +59,15 @@
         }
       ],
       "caption_end_seconds": 19.271,
-      "unscripted_tail_seconds": 0,
-      "timing_status": "provisional_storyboard; rebind only after recorded speech and fresh approval"
+      "provider_free_tail_seconds": 0,
+      "timing_status": "approved_sentence_complete_presenter_window"
     },
     {
       "id": "L01-08",
       "start_seconds": 518.84,
-      "end_seconds": 540,
-      "reserved_duration_seconds": 21.16,
+      "end_seconds": 523,
+      "original_reserved_end_seconds": 540,
+      "presenter_duration_seconds": 4.16,
       "narration_exact": "Next we will name the decision Morgan actually owns.",
       "narration_sha256": "00cc15136e5f5d627a96371e223d39835886770122d09900f78069ba4793fdac",
       "caption_cues": [
@@ -75,10 +78,50 @@
         }
       ],
       "caption_end_seconds": 523,
-      "unscripted_tail_seconds": 17,
-      "timing_status": "provisional_storyboard; rebind only after recorded speech and fresh approval"
+      "provider_free_tail_seconds": 17,
+      "timing_status": "approved_sentence_complete_presenter_window"
     }
   ],
+  "provider_free_closing_card": {
+    "scene_id": "L01-08",
+    "start_seconds": 523,
+    "end_seconds": 540,
+    "duration_seconds": 17,
+    "treatment": "Hold the approved closing evidence card without presenter footage or generated voice; preserve the existing plate binding, lesson timing, captions and reduced-motion behavior."
+  },
+  "approved_identity_voice_binding": {
+    "receipt": "identity-voice-use-approval-receipt.json",
+    "receipt_sha256": "c49f0ddda4d09ff73e6de12ee24c7c3fc99256363a775a26675ab3ee8b8017ac",
+    "look": {
+      "name": "Vambah green sweater",
+      "id": "329ae68b92d342f6a4362cc656d486a0"
+    },
+    "voice": {
+      "name": "Vambah green sweater",
+      "id": "14b592b937744404a4fa7c01aafd7dbe",
+      "type": "avatar-native voice"
+    },
+    "scope": "Agentified L01 review-only source"
+  },
+  "revised_presenter_window_manifest": {
+    "receipt": "presenter-window-manifest.json",
+    "receipt_sha256": "844957755c075731e5ce14630da5ac2346234d54c4368cd141b2195482091394"
+  },
+  "one_job_payload_boundary": {
+    "passages": [
+      {
+        "id": "L01-01",
+        "narration_exact": "Friday afternoon. Morgan runs a small community learning program. For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. Someone suggests adding a free digital-skills session next month.",
+        "narration_sha256": "a74e9c21c24d9b6f4b730d66d38458502da809b27446b40dd3b57074183360b1"
+      },
+      {
+        "id": "L01-08",
+        "narration_exact": "Next we will name the decision Morgan actually owns.",
+        "narration_sha256": "00cc15136e5f5d627a96371e223d39835886770122d09900f78069ba4793fdac"
+      }
+    ],
+    "treatment": "Submit the two passages as one continuous script in one job, then split and place the native source provider-free at the approved sentence boundaries."
+  },
   "production": {
     "composition": "Keep presenter clear of captions, teaching copy, and worksheet fields; preserve approved diagram aspect ratio and never overlay its labels.",
     "plate_use": {
@@ -181,13 +224,13 @@
   ],
   "boundaries": {
     "evidence": "Synthetic Harbor Learning Circle and Morgan only; no participant, customer, admin, private chat, or live operational records.",
-    "rights": "Static cover rights do not establish talking-avatar, voice-clone, or provider-upload rights. Verify Vambah identity consent and exact provider-use grant separately.",
+    "rights": "Vambah approved the named private look and avatar-native voice for this Agentified L01 review-only source. The grant does not extend to other lessons, publication, distribution, provider training reuse or credential changes.",
     "lineage": "Accelerated SAM media is reference lineage only and excluded from Agentified output.",
     "release": "Customer-facing audio, provider execution, video playback and publication remain held pending recorded timing, transcript/copy, accessibility, rights and separate authorization."
   },
   "execution_gates": [
-    "Approve exact identity and voice rights for the specified provider, source assets, use and retention.",
-    "Record or approve final human narration and re-time both presenter windows and every caption; resolve the 17-second L01-08 gap.",
+    "Preserve the exact purpose-specific identity and voice-use receipt and fail closed on look, voice, provider or scope drift.",
+    "Preserve both sentence-complete presenter endpoints and the provider-free 17-second closing evidence card.",
     "Obtain a binding one-job quote, known billable duration and an enforceable total below the separately authorized limit; no split jobs or retry.",
     "Complete privacy, source, customer-copy, accessibility and final composite transcript review.",
     "Receive separate exact provider execution authorization; this draft conveys none."
@@ -206,5 +249,6 @@
       "condition": "Use if neither enforceable option exists. A price estimate or manual promise is insufficient."
     }
   ],
-  "candidate_sha256": "9798ff87f0eb36d6e9479c1ea324e2506715baba78a5b9f936d6e43e1a9f3c10"
+  "supersedes_candidate_sha256": "9798ff87f0eb36d6e9479c1ea324e2506715baba78a5b9f936d6e43e1a9f3c10",
+  "candidate_sha256": "3d36d889ffb65d63e6a6bd4f0b315c00ed25162e329c0303acec09656c5114cb"
 }

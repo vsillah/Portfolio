@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "approved_for_named_review_only_source",
+  "authorized_source_commit": "63ad5911294534d111f0696346682cc79c52fdc3",
+  "approval": {
+    "approved_by": "Vambah Sillah",
+    "approval_date": "2026-11-07",
+    "provider": "HeyGen",
+    "use": "Agentified L01 review-only source",
+    "look": {
+      "name": "Vambah green sweater",
+      "id": "329ae68b92d342f6a4362cc656d486a0"
+    },
+    "voice": {
+      "name": "Vambah green sweater",
+      "id": "14b592b937744404a4fa7c01aafd7dbe",
+      "type": "avatar-native voice"
+    },
+    "inputs": [
+      "approved public material",
+      "approved synthetic teaching material",
+      "approved book material",
+      "approved Agentified workshop assets"
+    ],
+    "exclusions": [
+      "other lessons",
+      "publication",
+      "distribution",
+      "provider training reuse",
+      "automatic retries",
+      "credential or account changes"
+    ]
+  },
+  "approval_sha256": "c49f0ddda4d09ff73e6de12ee24c7c3fc99256363a775a26675ab3ee8b8017ac",
+  "provider_execution_allowed": false,
+  "upload_allowed": false,
+  "media_generation_allowed": false,
+  "spend_allowed": false,
+  "automatic_retries": 0
+}
