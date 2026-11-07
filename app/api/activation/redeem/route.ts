@@ -19,10 +19,10 @@ export async function POST(request: NextRequest) {
   if (request.headers.get('content-type')?.split(';')[0] !== 'application/json') return reply({ error: 'JSON content type required.' }, 415)
   const origin = request.headers.get('origin')
   if (origin !== new URL(request.url).origin) return reply({ error: 'Portfolio origin required.' }, 403)
-  try { if (!await repository.consumeAbuseBudget('redeem', getClientIpFromRequest(request))) return reply({ error: 'Please try again later.' }, 429) }
-  catch { return reply({ error: 'Activation redemption is unavailable.' }, 503) }
   const auth = await verifyAuth(request)
   if (isAuthError(auth) || !auth.user.email || auth.user.is_anonymous) return reply({ error: 'Signed-in adult account required.' }, 401)
+  try { if (!await repository.consumeAbuseBudget('redeem', getClientIpFromRequest(request))) return reply({ error: 'Please try again later.' }, 429) }
+  catch { return reply({ error: 'Activation redemption is unavailable.' }, 503) }
   if (Number(request.headers.get('content-length') || 0) > 4096) return reply({ error: 'Request too large.' }, 413)
   let body: unknown
   try { body = await request.json() } catch { return reply({ error: 'Invalid JSON.' }, 400) }
