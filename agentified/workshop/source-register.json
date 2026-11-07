@@ -51,7 +51,7 @@
     {
       "path": "agentified/manuscript/visuals/source-map.md",
       "role": "visual provenance map",
-      "sha256": "68cb6536ae9837470e4e8192e64057fb076f44b868ebf893d4f432ba452527c4",
+      "sha256": "825e5ca6426854867cb72271cbd77db358c79c3d8adf04e282865894b44aaae5",
       "provenance": "repo-local; author/source-map attribution",
       "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
       "privacy": "internal-source",
@@ -70,19 +70,10 @@
       "path": "public/agentified-cover.jpg",
       "role": "public cover raster",
       "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
-      "provenance": "existing public route asset; rights review for workshop reuse pending",
-      "rights_status": "already public in Portfolio; workshop reuse review pending",
+      "provenance": "author-approved canonical public and Agentified workshop cover; approval recorded 2026-11-07",
+      "rights_status": "owned/project-authored; author-approved for Agentified workshop reuse",
       "privacy": "public",
-      "allowed_workshop_use": "existing-public-reference"
-    },
-    {
-      "path": "public/agentified-cover.svg",
-      "role": "public cover vector",
-      "sha256": "6e5be9c44919f21e024adb16bd7a1c5d7506d58e4c08b5de33ab9ffff0c6c954",
-      "provenance": "existing public route asset; rights review for workshop reuse pending",
-      "rights_status": "already public in Portfolio; workshop reuse review pending",
-      "privacy": "public",
-      "allowed_workshop_use": "existing-public-reference"
+      "allowed_workshop_use": "canonical-cover-for-storyboards-animatics-and-guided-video-packages"
     },
     {
       "path": "app/agentified/page.tsx",

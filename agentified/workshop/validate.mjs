@@ -16,7 +16,6 @@ const requiredSources = [
   'agentified/manuscript/visuals/agentified-sam-trust-layer-diagrams.md',
   'agentified/manuscript/visuals/source-map.md',
   'public/agentified-cover.jpg',
-  'public/agentified-cover.svg',
   'app/agentified/page.tsx',
 ]
 

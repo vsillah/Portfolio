@@ -7,7 +7,8 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const sha = (value) => createHash('sha256').update(value).digest('hex')
 const read = (p) => readFileSync(path.join(repo, p))
 const expectedCrosswalk = 'b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e'
-const expectedSourceMap = '68cb6536ae9837470e4e8192e64057fb076f44b868ebf893d4f432ba452527c4'
+const expectedSourceMap = '825e5ca6426854867cb72271cbd77db358c79c3d8adf04e282865894b44aaae5'
+const expectedApprovalRecord = 'msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8'
 
 export function validate(packet, { readSource = read, today = '2026-11-07' } = {}) {
   const errors = []
@@ -36,21 +37,21 @@ export function validate(packet, { readSource = read, today = '2026-11-07' } = {
       if (!registered || visual.source_identity !== path.basename(visualPath) || visual.register_sha256 !== registered.sha256 || visual.source_map_path !== 'agentified/manuscript/visuals/source-map.md' || !sourceMap.includes(path.basename(visualPath))) errors.push(`${id}: source mismatch ${visualPath}`)
       try { if (sha(readSource(visualPath)) !== visual.register_sha256) errors.push(`${id}: visual hash drift ${visualPath}`) } catch { errors.push(`${id}: missing visual ${visualPath}`) }
       if (!visual.script_passage || !script.split('\n').includes(visual.script_passage) || !visual.script_passage.includes(visualPath)) errors.push(`${id}: passage mismatch ${visualPath}`)
-      if (!visual.rights?.status || visual.rights.status !== 'unresolved' || !visual.rights.attribution || !visual.rights.author_review) errors.push(`${id}: rights ambiguity ${visualPath}`)
+      if (visual.rights?.status !== 'approved' || !visual.rights.attribution || visual.rights.author_review !== 'approved' || visual.rights.workshop_redistribution !== 'approved_for_bound_agentified_lesson_uses') errors.push(`${id}: rights approval mismatch ${visualPath}`)
       if (!visual.accessibility?.text_alternative || !visual.accessibility?.spoken_equivalent || !visual.accessibility?.color_independent || !visual.accessibility?.motion_treatment) errors.push(`${id}: accessibility omission ${visualPath}`)
-      if (!visual.intended_production_use || visual.disposition !== 'blocked_pending_human_review') errors.push(`${id}: approval disposition invalid ${visualPath}`)
-      if (visual.approval?.status !== 'pending' || visual.approval.record !== null) errors.push(`${id}: unapproved visual reuse ${visualPath}`)
+      if (!visual.intended_production_use || visual.disposition !== 'approved_for_production_packets_and_provider_free_animatics') errors.push(`${id}: approval disposition invalid ${visualPath}`)
+      if (visual.approval?.status !== 'approved' || visual.approval.record !== expectedApprovalRecord) errors.push(`${id}: visual approval mismatch ${visualPath}`)
       if (visual.approval?.expires_at && visual.approval.expires_at <= today) errors.push(`${id}: stale approval ${visualPath}`)
-      if (/figure-3-amina-inside-sam/.test(visualPath) && visual.blocker !== 'fresh_attributable_publication_approval_required') errors.push(`${id}: blocked A.M.I.N.A. reuse`)
+      if (visual.blocker !== null) errors.push(`${id}: stale visual blocker ${visualPath}`)
     }
   }
   const cover = packet.cover_hold
-  if (!cover || cover.disposition !== 'blocked_identity_and_rights_reconciliation' || cover.jpg?.path !== 'public/agentified-cover.jpg' || cover.svg?.path !== 'public/agentified-cover.svg' || cover.jpg.sha256 !== sources.get(cover.jpg.path)?.sha256 || cover.svg.sha256 !== sources.get(cover.svg.path)?.sha256) errors.push('blocked book-cover reuse')
-  else for (const source of [cover.jpg, cover.svg]) if (sha(readSource(source.path)) !== source.sha256) errors.push(`cover hash drift ${source.path}`)
+  if (!cover || cover.disposition !== 'approved_canonical_jpg' || cover.jpg?.path !== 'public/agentified-cover.jpg' || cover.jpg.sha256 !== sources.get(cover.jpg.path)?.sha256 || cover.svg !== undefined || cover.approval?.status !== 'approved') errors.push('canonical book-cover approval mismatch')
+  else if (sha(readSource(cover.jpg.path)) !== cover.jpg.sha256) errors.push(`cover hash drift ${cover.jpg.path}`)
   const sam = packet.sam_lineage
   if (!sam?.original_drive_path?.endsWith('/Accelerated_infographic.png') || sam?.local_source_path !== 'agentified/source-assets/accelerated/accelerated-sam-infographic.png' || sam?.local_sha256 !== sources.get(sam?.local_source_path)?.sha256 || sam?.workshop_use !== 'blocked_pending_rights_and_design_review') errors.push('SAM lineage or rights mismatch')
   else if (sha(readSource(sam.local_source_path)) !== sam.local_sha256) errors.push('SAM source hash drift')
-  if (packet.authority !== 'read_only_prepare_only' || packet.external_execution !== 'disabled') errors.push('authority boundary changed')
+  if (packet.authority !== 'approved_visual_preproduction_only' || packet.external_execution !== 'disabled' || packet.visual_approval?.record !== expectedApprovalRecord) errors.push('authority boundary changed')
   for (const frame of ['L01-receipt.md', 'L06-permission.md', 'L16-audit.md']) {
     let content
     try { content = readSource(`agentified/workshop/visual-review/frames/${frame}`).toString() }
@@ -64,5 +65,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const packet = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'packets.json')))
   const errors = validate(packet)
   if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1 }
-  else console.log('Agentified L01–L16: 19 visual bindings, script passages, hashes, rights, accessibility, and blocked approval gates pass.')
+  else console.log('Agentified L01–L16: 19 approved visual bindings, script passages, hashes, rights, accessibility, and external-execution gates pass.')
 }
