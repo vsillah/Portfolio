@@ -11,9 +11,9 @@
     "use": "package_identity_only"
   },
   "script_path": "agentified/workshop/scripts/L04-memory-and-routing.md",
-  "script_sha256": "30410aab2be49b2a9a5285b8ef69a66afc1256ae48ef8cde3e75efc77862ba5a",
-  "narration_sha256": "390b476a1a057d68313307b124758c9dc7286a6e198426b9464e07e1547bbd64",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "script_sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
+  "narration_sha256": "bb39f630d6d35091853a91986527eabf464a006e9b36232ada93a19edf87bff8",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
   "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
@@ -69,7 +69,7 @@
       "start_seconds": 0,
       "end_seconds": 70,
       "source_time": "0:00–1:10",
-      "narration_exact": "“Morgan reviews the fictional brief and writes a correction: ‘The facilitator note says available for review. It does not say confirmed to teach.’ The draft is fixed. A week later, another request comes in. Should the agent remember that correction? Yes, perhaps. But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats.”",
+      "narration_exact": "“Morgan reviews the Harbor brief and writes a correction: ‘The facilitator note says available for review. It does not say confirmed to teach.’ The draft is fixed. A week later, another request comes in. Should the agent remember that correction? Yes, perhaps. But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats.”",
       "on_screen_copy_exact": "“Correction received.” “What may persist?”",
       "audience_copy": [
         "Correction received.",
@@ -83,43 +83,43 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 8.182,
-          "text": "Morgan reviews the fictional brief and writes a correction: ‘The facilitator note says available for review. "
+          "end_seconds": 8.022,
+          "text": "Morgan reviews the Harbor brief and writes a correction: ‘The facilitator note says available for review. "
         },
         {
-          "start_seconds": 8.182,
-          "end_seconds": 10.96,
+          "start_seconds": 8.022,
+          "end_seconds": 10.822,
           "text": "It does not say confirmed to teach.’ "
         },
         {
-          "start_seconds": 10.96,
-          "end_seconds": 12.461,
+          "start_seconds": 10.822,
+          "end_seconds": 12.335,
           "text": "The draft is fixed. "
         },
         {
-          "start_seconds": 12.461,
-          "end_seconds": 15.464,
+          "start_seconds": 12.335,
+          "end_seconds": 15.362,
           "text": "A week later, another request comes in. "
         },
         {
-          "start_seconds": 15.464,
-          "end_seconds": 18.692,
+          "start_seconds": 15.362,
+          "end_seconds": 18.616,
           "text": "Should the agent remember that correction? "
         },
         {
-          "start_seconds": 18.692,
-          "end_seconds": 19.743,
+          "start_seconds": 18.616,
+          "end_seconds": 19.676,
           "text": "Yes, perhaps. "
         },
         {
-          "start_seconds": 19.743,
+          "start_seconds": 19.676,
           "end_seconds": 28,
           "text": "But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 19.743,
+        "end_seconds": 19.676,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -139,7 +139,7 @@
       "start_seconds": 70,
       "end_seconds": 140,
       "source_time": "1:10–2:20",
-      "narration_exact": "“Start with the source: Morgan's invented correction, saved as `SYN-FEEDBACK-01`. The event records what happened: Morgan changed a staffing claim in draft `SYN-BRIEF-01`. A proposal then asks whether a narrow rule should be kept: ‘Treat availability as unconfirmed until a separate confirmation record exists.’ That proposal names its source, owner, privacy tier, and review date. It is still only a proposal. An approved memory would require a human to accept the wording, scope, and expiry. In this exercise no memory is approved.”",
+      "narration_exact": "“Start with the source: Morgan's correction, saved as a feedback note. The event records what happened: Morgan changed a staffing claim in the draft brief. A proposal then asks whether a narrow rule should be kept: ‘Treat availability as unconfirmed until a separate confirmation record exists.’ That proposal names its source, owner, privacy tier, and review date. It is still only a proposal. An approved memory would require a human to accept the wording, scope, and expiry. In this exercise no memory is approved.”",
       "on_screen_copy_exact": "“Source → Event → Proposal → Human approval → Memory.” “Current state: proposal only.”",
       "audience_copy": [
         "Source → Event → Proposal → Human approval → Memory.",
@@ -153,37 +153,37 @@
       "captions": [
         {
           "start_seconds": 70,
-          "end_seconds": 75.633,
-          "text": "Start with the source: Morgan's invented correction, saved as `SYN-FEEDBACK-01`. "
+          "end_seconds": 75.155,
+          "text": "Start with the source: Morgan's correction, saved as a feedback note. "
         },
         {
-          "start_seconds": 75.633,
-          "end_seconds": 81.893,
-          "text": "The event records what happened: Morgan changed a staffing claim in draft `SYN-BRIEF-01`. "
+          "start_seconds": 75.155,
+          "end_seconds": 81.415,
+          "text": "The event records what happened: Morgan changed a staffing claim in the draft brief. "
         },
         {
-          "start_seconds": 81.893,
-          "end_seconds": 91.63,
+          "start_seconds": 81.415,
+          "end_seconds": 91.725,
           "text": "A proposal then asks whether a narrow rule should be kept: ‘Treat availability as unconfirmed until a separate confirmation record exists.’ "
         },
         {
-          "start_seconds": 91.63,
-          "end_seconds": 96.498,
+          "start_seconds": 91.725,
+          "end_seconds": 96.88,
           "text": "That proposal names its source, owner, privacy tier, and review date. "
         },
         {
-          "start_seconds": 96.498,
-          "end_seconds": 98.515,
+          "start_seconds": 96.88,
+          "end_seconds": 99.016,
           "text": "It is still only a proposal. "
         },
         {
-          "start_seconds": 98.515,
-          "end_seconds": 104.288,
+          "start_seconds": 99.016,
+          "end_seconds": 105.128,
           "text": "An approved memory would require a human to accept the wording, scope, and expiry. "
         },
         {
-          "start_seconds": 104.288,
-          "end_seconds": 107,
+          "start_seconds": 105.128,
+          "end_seconds": 108,
           "text": "In this exercise no memory is approved."
         }
       ],
@@ -281,7 +281,7 @@
       "start_seconds": 210,
       "end_seconds": 285,
       "source_time": "3:30–4:45",
-      "narration_exact": "“Now a new fictional request arrives: ‘Prepare a different session option for next month.’ Two preparation roles could respond. One compares session evidence; another drafts participant messages. Which one should touch it? A controller can route the request before either acts. First name the intent: compare an option. Then check eligibility: evidence-comparison role may read the three cleared sample IDs and draft; messaging role is ineligible because no outreach is authorized. Assign one role, record the rule, and route the brief to Morgan. If the request asks for a public announcement, the controller must refuse that path and hand it to Morgan.”",
+      "narration_exact": "“Now a new Harbor request arrives: ‘Prepare a different session option for next month.’ Two preparation roles could respond. One compares session evidence; another drafts participant messages. Which one should touch it? A controller can route the request before either acts. First name the intent: compare an option. Then check eligibility: the evidence-comparison role may read the three cleared source references and draft; the messaging role is ineligible because no outreach is authorized. Assign one role, record the rule, and route the brief to Morgan. If the request asks for a public announcement, the controller must refuse that path and hand it to Morgan.”",
       "on_screen_copy_exact": "“Intent → Eligibility → Assignment → Evidence.” “No message route.”",
       "audience_copy": [
         "Intent → Eligibility → Assignment → Evidence.",
@@ -303,47 +303,47 @@
       "captions": [
         {
           "start_seconds": 210,
-          "end_seconds": 216.35,
-          "text": "Now a new fictional request arrives: ‘Prepare a different session option for next month.’ "
+          "end_seconds": 216.158,
+          "text": "Now a new Harbor request arrives: ‘Prepare a different session option for next month.’ "
         },
         {
-          "start_seconds": 216.35,
-          "end_seconds": 218.96,
+          "start_seconds": 216.158,
+          "end_seconds": 218.777,
           "text": "Two preparation roles could respond. "
         },
         {
-          "start_seconds": 218.96,
-          "end_seconds": 223.758,
+          "start_seconds": 218.777,
+          "end_seconds": 223.59,
           "text": "One compares session evidence; another drafts participant messages. "
         },
         {
-          "start_seconds": 223.758,
-          "end_seconds": 225.663,
+          "start_seconds": 223.59,
+          "end_seconds": 225.502,
           "text": "Which one should touch it? "
         },
         {
-          "start_seconds": 225.663,
-          "end_seconds": 229.543,
+          "start_seconds": 225.502,
+          "end_seconds": 229.395,
           "text": "A controller can route the request before either acts. "
         },
         {
-          "start_seconds": 229.543,
-          "end_seconds": 232.506,
+          "start_seconds": 229.395,
+          "end_seconds": 232.367,
           "text": "First name the intent: compare an option. "
         },
         {
-          "start_seconds": 232.506,
-          "end_seconds": 243.936,
-          "text": "Then check eligibility: evidence-comparison role may read the three cleared sample IDs and draft; messaging role is ineligible because no outreach is authorized. "
+          "start_seconds": 232.367,
+          "end_seconds": 244.896,
+          "text": "Then check eligibility: the evidence-comparison role may read the three cleared source references and draft; the messaging role is ineligible because no outreach is authorized. "
         },
         {
-          "start_seconds": 243.936,
-          "end_seconds": 248.521,
+          "start_seconds": 244.896,
+          "end_seconds": 249.497,
           "text": "Assign one role, record the rule, and route the brief to Morgan. "
         },
         {
-          "start_seconds": 248.521,
-          "end_seconds": 256,
+          "start_seconds": 249.497,
+          "end_seconds": 257,
           "text": "If the request asks for a public announcement, the controller must refuse that path and hand it to Morgan."
         }
       ],
@@ -466,7 +466,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Walk an invented correction through source, event, proposal, and possible memory. Name the approving human, owner, expiry, and revocation path. Keep the status pending. Then write two routing rows: one permitted preparation request and one request that must stop. Give each a task type, evidence requirement, eligible role, human gate, and fallback. Do not test this against live agents or put a real person's feedback into the exercise.”",
+      "narration_exact": "“Walk a correction through source, event, proposal, and possible memory. Name the approving human, owner, expiry, and revocation path. Keep the status pending. Then write two routing rows: one permitted preparation request and one request that must stop. Give each a task type, evidence requirement, eligible role, human gate, and fallback. Use a fictional or approved example. Do not use private operational data or test this against live agents.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -477,33 +477,38 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 380.817,
-          "text": "Walk an invented correction through source, event, proposal, and possible memory. "
+          "end_seconds": 380.004,
+          "text": "Walk a correction through source, event, proposal, and possible memory. "
         },
         {
-          "start_seconds": 380.817,
-          "end_seconds": 385.215,
+          "start_seconds": 380.004,
+          "end_seconds": 384.314,
           "text": "Name the approving human, owner, expiry, and revocation path. "
         },
         {
-          "start_seconds": 385.215,
-          "end_seconds": 386.989,
+          "start_seconds": 384.314,
+          "end_seconds": 386.052,
           "text": "Keep the status pending. "
         },
         {
-          "start_seconds": 386.989,
-          "end_seconds": 393.728,
+          "start_seconds": 386.052,
+          "end_seconds": 392.655,
           "text": "Then write two routing rows: one permitted preparation request and one request that must stop. "
         },
         {
-          "start_seconds": 393.728,
-          "end_seconds": 399.828,
+          "start_seconds": 392.655,
+          "end_seconds": 398.632,
           "text": "Give each a task type, evidence requirement, eligible role, human gate, and fallback. "
         },
         {
-          "start_seconds": 399.828,
+          "start_seconds": 398.632,
+          "end_seconds": 401.204,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 401.204,
           "end_seconds": 406,
-          "text": "Do not test this against live agents or put a real person's feedback into the exercise."
+          "text": "Do not use private operational data or test this against live agents."
         }
       ],
       "avatar_window": null,

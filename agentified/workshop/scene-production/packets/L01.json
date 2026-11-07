@@ -11,9 +11,9 @@
     "use": "package_identity_only"
   },
   "script_path": "agentified/workshop/scripts/L01-job-and-receipt.md",
-  "script_sha256": "159baf03db33be47260c6312efbd121c88da54c891b024c1e1100e68fb9e72a3",
-  "narration_sha256": "3f92ea2d1f1c12835070a7274bc06f2b436b6708e768272fcfd334a8dcda01a8",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "script_sha256": "c600f29d7fcc6c2a50d3bcb2d07f92a9d0f45225520e300d865c188d75cdaa26",
+  "narration_sha256": "5065bb1b3e2ad55ce7f701f0f5aa7c117887eb3fac70dc1b5d67601136000de1",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
   "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
@@ -69,11 +69,11 @@
       "start_seconds": 0,
       "end_seconds": 65,
       "source_time": "0:00–1:05",
-      "narration_exact": "“Friday afternoon. Morgan runs a small community learning program. Someone suggests adding a free digital-skills session next month. There are three notes on the table: a made-up attendance count, a made-up facilitator availability note, and a made-up room-capacity note. An assistant can turn those into a neat recommendation in seconds. But if Morgan asks, ‘Where did this come from?’ a polished paragraph is thin protection. The work needs a trail.”",
-      "on_screen_copy_exact": "“A suggestion needs a source.” “Fictional case: Harbor Learning Circle.”",
+      "narration_exact": "“Friday afternoon. Morgan runs a small community learning program. For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. Someone suggests adding a free digital-skills session next month. Three notes are on the table: an attendance count, a facilitator availability note, and a room-capacity note. An assistant can turn those into a neat recommendation in seconds. But if Morgan asks, ‘Where did this come from?’ a polished paragraph is thin protection. The work needs a trail.”",
+      "on_screen_copy_exact": "“A suggestion needs a source.” “Illustrative case: Harbor Learning Circle.”",
       "audience_copy": [
         "A suggestion needs a source.",
-        "Fictional case: Harbor Learning Circle."
+        "Illustrative case: Harbor Learning Circle."
       ],
       "audience_copy_state": "exact_script_quotes",
       "exercise_prompt_exact": null,
@@ -83,48 +83,53 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 1.28,
+          "end_seconds": 1.232,
           "text": "Friday afternoon. "
         },
         {
-          "start_seconds": 1.28,
-          "end_seconds": 4.693,
+          "start_seconds": 1.232,
+          "end_seconds": 4.517,
           "text": "Morgan runs a small community learning program. "
         },
         {
-          "start_seconds": 4.693,
-          "end_seconds": 9.387,
+          "start_seconds": 4.517,
+          "end_seconds": 11.703,
+          "text": "For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. "
+        },
+        {
+          "start_seconds": 11.703,
+          "end_seconds": 16.221,
           "text": "Someone suggests adding a free digital-skills session next month. "
         },
         {
-          "start_seconds": 9.387,
-          "end_seconds": 19.271,
-          "text": "There are three notes on the table: a made-up attendance count, a made-up facilitator availability note, and a made-up room-capacity note. "
+          "start_seconds": 16.221,
+          "end_seconds": 23.749,
+          "text": "Three notes are on the table: an attendance count, a facilitator availability note, and a room-capacity note. "
         },
         {
-          "start_seconds": 19.271,
-          "end_seconds": 24.036,
+          "start_seconds": 23.749,
+          "end_seconds": 28.335,
           "text": "An assistant can turn those into a neat recommendation in seconds. "
         },
         {
-          "start_seconds": 24.036,
-          "end_seconds": 27.449,
+          "start_seconds": 28.335,
+          "end_seconds": 31.62,
           "text": "But if Morgan asks, ‘Where did this come from?’ "
         },
         {
-          "start_seconds": 27.449,
-          "end_seconds": 30.364,
+          "start_seconds": 31.62,
+          "end_seconds": 34.426,
           "text": "a polished paragraph is thin protection. "
         },
         {
-          "start_seconds": 30.364,
-          "end_seconds": 32,
+          "start_seconds": 34.426,
+          "end_seconds": 36,
           "text": "The work needs a trail."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 19.271,
+        "end_seconds": 16.221,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -230,7 +235,7 @@
       "start_seconds": 140,
       "end_seconds": 215,
       "source_time": "2:20–3:35",
-      "narration_exact": "“Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared sample inputs.’ The trigger is Morgan's request. The output is a draft brief. The manager is Morgan. The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log. The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending. A useful agent job names the work it finishes and the work it leaves alone.”",
+      "narration_exact": "“Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’ The trigger is Morgan's request. The output is a draft brief. The manager is Morgan. The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log. The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending. A useful agent job names the work it finishes and the work it leaves alone.”",
       "on_screen_copy_exact": "“Trigger → cleared inputs → draft brief → Morgan.” “No booking • no announcement • no spending.”",
       "audience_copy": [
         "Trigger → cleared inputs → draft brief → Morgan.",
@@ -244,37 +249,37 @@
       "captions": [
         {
           "start_seconds": 140,
-          "end_seconds": 153.028,
-          "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared sample inputs.’ "
+          "end_seconds": 152.362,
+          "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’ "
         },
         {
-          "start_seconds": 153.028,
-          "end_seconds": 155.513,
+          "start_seconds": 152.362,
+          "end_seconds": 154.819,
           "text": "The trigger is Morgan's request. "
         },
         {
-          "start_seconds": 155.513,
-          "end_seconds": 157.697,
+          "start_seconds": 154.819,
+          "end_seconds": 156.979,
           "text": "The output is a draft brief. "
         },
         {
-          "start_seconds": 157.697,
-          "end_seconds": 159.429,
+          "start_seconds": 156.979,
+          "end_seconds": 158.691,
           "text": "The manager is Morgan. "
         },
         {
-          "start_seconds": 159.429,
-          "end_seconds": 168.993,
+          "start_seconds": 158.691,
+          "end_seconds": 168.149,
           "text": "The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log. "
         },
         {
-          "start_seconds": 168.993,
-          "end_seconds": 177.352,
+          "start_seconds": 168.149,
+          "end_seconds": 176.415,
           "text": "The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending. "
         },
         {
-          "start_seconds": 177.352,
-          "end_seconds": 183,
+          "start_seconds": 176.415,
+          "end_seconds": 182,
           "text": "A useful agent job names the work it finishes and the work it leaves alone."
         }
       ],
@@ -296,7 +301,7 @@
       "start_seconds": 215,
       "end_seconds": 290,
       "source_time": "3:35–4:50",
-      "narration_exact": "“Now attach the receipt. Imagine the brief says the room can hold twenty people. Morgan needs to see which invented note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it. The receipt also records cost or resource use, outcome, and how to pull the draft back. A blank field stays blank and gets an owner. We never fill a gap with a confident guess. The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.”",
+      "narration_exact": "“Now attach the receipt. Imagine the brief says the room can hold twenty people. Morgan needs to see which note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it. The receipt also records cost or resource use, outcome, and how to pull the draft back. A blank field stays blank and gets an owner. We never fill a gap with a confident guess. The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.”",
       "on_screen_copy_exact": "“Receipt: intent • agent • source • action • artifact • approval • cost • outcome • rollback.”",
       "audience_copy": [
         "Receipt: intent • agent • source • action • artifact • approval • cost • outcome • rollback."
@@ -317,37 +322,37 @@
       "captions": [
         {
           "start_seconds": 215,
-          "end_seconds": 216.926,
+          "end_seconds": 216.912,
           "text": "Now attach the receipt. "
         },
         {
-          "start_seconds": 216.926,
-          "end_seconds": 221.419,
+          "start_seconds": 216.912,
+          "end_seconds": 221.375,
           "text": "Imagine the brief says the room can hold twenty people. "
         },
         {
-          "start_seconds": 221.419,
-          "end_seconds": 233.614,
-          "text": "Morgan needs to see which invented note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it. "
+          "start_seconds": 221.375,
+          "end_seconds": 232.769,
+          "text": "Morgan needs to see which note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it. "
         },
         {
-          "start_seconds": 233.614,
-          "end_seconds": 240.675,
+          "start_seconds": 232.769,
+          "end_seconds": 239.781,
           "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back. "
         },
         {
-          "start_seconds": 240.675,
-          "end_seconds": 244.286,
+          "start_seconds": 239.781,
+          "end_seconds": 243.367,
           "text": "A blank field stays blank and gets an owner. "
         },
         {
-          "start_seconds": 244.286,
-          "end_seconds": 247.816,
+          "start_seconds": 243.367,
+          "end_seconds": 246.873,
           "text": "We never fill a gap with a confident guess. "
         },
         {
-          "start_seconds": 247.816,
-          "end_seconds": 256,
+          "start_seconds": 246.873,
+          "end_seconds": 255,
           "text": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
         }
       ],
@@ -430,7 +435,7 @@
       "start_seconds": 345,
       "end_seconds": 365,
       "source_time": "5:45–6:05",
-      "narration_exact": "“Take a moment. Picture one workflow in your own work. Keep this exercise on paper or in a local draft. Use invented details. What is the one useful output, and who would have to defend it?”",
+      "narration_exact": "“Take a moment. Picture one workflow in your own work. Keep this exercise on paper or in a local draft. Use a fictional or approved example. Do not use private operational data. What is the one useful output, and who would have to defend it?”",
       "on_screen_copy_exact": "“Pause: choose one workflow type.”",
       "audience_copy": [
         "Pause: choose one workflow type."
@@ -443,27 +448,32 @@
       "captions": [
         {
           "start_seconds": 345,
-          "end_seconds": 346.277,
+          "end_seconds": 346.25,
           "text": "Take a moment. "
         },
         {
-          "start_seconds": 346.277,
-          "end_seconds": 349.596,
+          "start_seconds": 346.25,
+          "end_seconds": 349.5,
           "text": "Picture one workflow in your own work. "
         },
         {
-          "start_seconds": 349.596,
-          "end_seconds": 353.766,
+          "start_seconds": 349.5,
+          "end_seconds": 353.583,
           "text": "Keep this exercise on paper or in a local draft. "
         },
         {
-          "start_seconds": 353.766,
-          "end_seconds": 355.638,
-          "text": "Use invented details. "
+          "start_seconds": 353.583,
+          "end_seconds": 356.667,
+          "text": "Use a fictional or approved example. "
         },
         {
-          "start_seconds": 355.638,
-          "end_seconds": 361,
+          "start_seconds": 356.667,
+          "end_seconds": 359.75,
+          "text": "Do not use private operational data. "
+        },
+        {
+          "start_seconds": 359.75,
+          "end_seconds": 365,
           "text": "What is the one useful output, and who would have to defend it?"
         }
       ],

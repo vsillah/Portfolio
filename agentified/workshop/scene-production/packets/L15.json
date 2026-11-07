@@ -11,9 +11,9 @@
     "use": "package_identity_only"
   },
   "script_path": "agentified/workshop/scripts/L15-rehearse-the-agentified-day.md",
-  "script_sha256": "708cb5c1f8205c7c79542f12ee35b1e6791d7e2977b4dcd1984f18335262abc0",
-  "narration_sha256": "c365fb0f527b275c8f088631cf23cf93833ae9de5fd4312d6543ba9ba280cbd8",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "script_sha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
+  "narration_sha256": "98fbd16386d1d103b0535e681f9f89d25c4ae5f9fad067996b807b6c7474115d",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
   "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
@@ -41,8 +41,8 @@
     "case": "Harbor Learning Circle",
     "owner": "Morgan",
     "source_ids": [
-      "SYN-HOLD-01",
       "SYN-DAY-01",
+      "SYN-HOLD-01",
       "SYN-SPEND-01",
       "SYN-RESEARCH-01"
     ]
@@ -63,7 +63,7 @@
       "start_seconds": 0,
       "end_seconds": 70,
       "source_time": "0:00–1:10",
-      "narration_exact": "“It is Friday in the fictional Harbor Learning Circle. Morgan opens a paper brief, not a live dashboard. The preparation agent's job was to compare three invented, cleared sample inputs and draft a Session Option Brief. The first line says prepared, not sent. A second line says staffing is unconfirmed. A third says a research proposal has not run. Morgan's day is not about clearing every row. It is about spending judgment where a decision can change what happens next.”",
+      "narration_exact": "“It is Friday at Harbor Learning Circle. Morgan opens a paper brief, not a live dashboard. The preparation agent's job was to compare three cleared course inputs and draft a Session Option Brief. The first line says prepared, not sent. A second line says staffing is unconfirmed. A third says a research proposal has not run. Morgan's day is not about clearing every row. It is about spending judgment where a decision can change what happens next.”",
       "on_screen_copy_exact": "“Prepared, not sent.” “Protect judgment.”",
       "audience_copy": [
         "Prepared, not sent.",
@@ -77,48 +77,48 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 4.127,
-          "text": "It is Friday in the fictional Harbor Learning Circle. "
+          "end_seconds": 3.132,
+          "text": "It is Friday at Harbor Learning Circle. "
         },
         {
-          "start_seconds": 4.127,
-          "end_seconds": 7.949,
+          "start_seconds": 3.132,
+          "end_seconds": 7.047,
           "text": "Morgan opens a paper brief, not a live dashboard. "
         },
         {
-          "start_seconds": 7.949,
-          "end_seconds": 16.739,
-          "text": "The preparation agent's job was to compare three invented, cleared sample inputs and draft a Session Option Brief. "
+          "start_seconds": 7.047,
+          "end_seconds": 15.268,
+          "text": "The preparation agent's job was to compare three cleared course inputs and draft a Session Option Brief. "
         },
         {
-          "start_seconds": 16.739,
-          "end_seconds": 19.796,
+          "start_seconds": 15.268,
+          "end_seconds": 18.4,
           "text": "The first line says prepared, not sent. "
         },
         {
-          "start_seconds": 19.796,
-          "end_seconds": 23.159,
+          "start_seconds": 18.4,
+          "end_seconds": 21.846,
           "text": "A second line says staffing is unconfirmed. "
         },
         {
-          "start_seconds": 23.159,
-          "end_seconds": 26.675,
+          "start_seconds": 21.846,
+          "end_seconds": 25.447,
           "text": "A third says a research proposal has not run. "
         },
         {
-          "start_seconds": 26.675,
-          "end_seconds": 30.191,
+          "start_seconds": 25.447,
+          "end_seconds": 29.049,
           "text": "Morgan's day is not about clearing every row. "
         },
         {
-          "start_seconds": 30.191,
-          "end_seconds": 36,
+          "start_seconds": 29.049,
+          "end_seconds": 35,
           "text": "It is about spending judgment where a decision can change what happens next."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 19.796,
+        "end_seconds": 18.4,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -263,7 +263,7 @@
       "start_seconds": 195,
       "end_seconds": 255,
       "source_time": "3:15–4:15",
-      "narration_exact": "“Third, review. Morgan reads the brief beside its source-status summary and trace template. One synthetic source is stale for the proposed month. The agent's draft sounds confident anyway. Morgan marks the claim unsupported and keeps `SYN-HOLD-01` in place. Fourth, approve. There is nothing to approve for a team proposal today. Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.”",
+      "narration_exact": "“Third, review. Morgan reads the brief beside its source-status summary and trace template. One course source is stale for the proposed month. The agent's draft sounds confident anyway. Morgan marks the claim unsupported and keeps the staffing hold in place. Fourth, approve. There is nothing to approve for a team proposal today. Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.”",
       "on_screen_copy_exact": "“3. Review: check source and claim.” “4. Approve: only the bounded correction.”",
       "audience_copy": [
         "3. Review: check source and claim.",
@@ -285,42 +285,42 @@
       "captions": [
         {
           "start_seconds": 195,
-          "end_seconds": 196.096,
+          "end_seconds": 196.125,
           "text": "Third, review. "
         },
         {
-          "start_seconds": 196.096,
-          "end_seconds": 201.649,
+          "start_seconds": 196.125,
+          "end_seconds": 201.825,
           "text": "Morgan reads the brief beside its source-status summary and trace template. "
         },
         {
-          "start_seconds": 201.649,
-          "end_seconds": 205.595,
-          "text": "One synthetic source is stale for the proposed month. "
+          "start_seconds": 201.825,
+          "end_seconds": 205.65,
+          "text": "One course source is stale for the proposed month. "
         },
         {
-          "start_seconds": 205.595,
-          "end_seconds": 208.737,
+          "start_seconds": 205.65,
+          "end_seconds": 208.875,
           "text": "The agent's draft sounds confident anyway. "
         },
         {
-          "start_seconds": 208.737,
-          "end_seconds": 213.779,
-          "text": "Morgan marks the claim unsupported and keeps `SYN-HOLD-01` in place. "
+          "start_seconds": 208.875,
+          "end_seconds": 214.35,
+          "text": "Morgan marks the claim unsupported and keeps the staffing hold in place. "
         },
         {
-          "start_seconds": 213.779,
-          "end_seconds": 215.021,
+          "start_seconds": 214.35,
+          "end_seconds": 215.625,
           "text": "Fourth, approve. "
         },
         {
-          "start_seconds": 215.021,
-          "end_seconds": 219.04,
+          "start_seconds": 215.625,
+          "end_seconds": 219.75,
           "text": "There is nothing to approve for a team proposal today. "
         },
         {
-          "start_seconds": 219.04,
-          "end_seconds": 230,
+          "start_seconds": 219.75,
+          "end_seconds": 231,
           "text": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement."
         }
       ],
@@ -468,7 +468,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Write a Six-Beat Day brief for your invented workflow. For each beat, name the item, evidence, owner, safe action, and stop condition. Make one thing fail. Show how the operator recovers without hiding the original version. Mark any lesson as a memory proposal rather than an approved rule. Close with the question you would ask after a busy day. Keep the example synthetic; do not open a live account, import a trace, or contact a person.”",
+      "narration_exact": "“Write a Six-Beat Day brief for your workflow. For each beat, name the item, evidence, owner, safe action, and stop condition. Make one thing fail. Show how the operator recovers without hiding the original version. Mark any lesson as a memory proposal rather than an approved rule. Close with the question you would ask after a busy day. Use a fictional or approved example. Do not use private operational data, open a live account, import a trace, or contact a person.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -479,38 +479,43 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 379.26,
-          "text": "Write a Six-Beat Day brief for your invented workflow. "
+          "end_seconds": 378.531,
+          "text": "Write a Six-Beat Day brief for your workflow. "
         },
         {
-          "start_seconds": 379.26,
-          "end_seconds": 385.456,
+          "start_seconds": 378.531,
+          "end_seconds": 384.672,
           "text": "For each beat, name the item, evidence, owner, safe action, and stop condition. "
         },
         {
-          "start_seconds": 385.456,
-          "end_seconds": 387.082,
+          "start_seconds": 384.672,
+          "end_seconds": 386.284,
           "text": "Make one thing fail. "
         },
         {
-          "start_seconds": 387.082,
-          "end_seconds": 392.349,
+          "start_seconds": 386.284,
+          "end_seconds": 391.503,
           "text": "Show how the operator recovers without hiding the original version. "
         },
         {
-          "start_seconds": 392.349,
-          "end_seconds": 397.538,
+          "start_seconds": 391.503,
+          "end_seconds": 396.646,
           "text": "Mark any lesson as a memory proposal rather than an approved rule. "
         },
         {
-          "start_seconds": 397.538,
-          "end_seconds": 401.875,
+          "start_seconds": 396.646,
+          "end_seconds": 400.945,
           "text": "Close with the question you would ask after a busy day. "
         },
         {
-          "start_seconds": 401.875,
-          "end_seconds": 409,
-          "text": "Keep the example synthetic; do not open a live account, import a trace, or contact a person."
+          "start_seconds": 400.945,
+          "end_seconds": 403.785,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 403.785,
+          "end_seconds": 411,
+          "text": "Do not use private operational data, open a live account, import a trace, or contact a person."
         }
       ],
       "avatar_window": null,

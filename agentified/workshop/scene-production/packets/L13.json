@@ -11,9 +11,9 @@
     "use": "package_identity_only"
   },
   "script_path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
-  "script_sha256": "bcb2cc6e3d1de7389f8e0b996dfbbcbc032cd9fb02a78ea12bc9a4963e1771dd",
-  "narration_sha256": "19f9ade124051ade61b22a945b081b57c86e34f2d4a9999fcde551b05a4b52e3",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "script_sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+  "narration_sha256": "26c12f8f1e8f7426d9fa17bb526b47890fffc8a1ced0e4594ee50fda104fa10c",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
   "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
@@ -126,7 +126,7 @@
       "start_seconds": 70,
       "end_seconds": 140,
       "source_time": "1:10–2:20",
-      "narration_exact": "“Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. For this classroom case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? The hypothesis needs a comparison and a metric. We could compare two invented brief layouts in a paper exercise. We cannot claim one works better because it looks cleaner to us. The `not_run` state records exactly what is missing.”",
+      "narration_exact": "“Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. For the Harbor case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? The hypothesis needs a comparison and a metric. We could compare two course brief layouts in a paper exercise. We cannot claim one works better because it looks cleaner to us. The `not_run` state records exactly what is missing.”",
       "on_screen_copy_exact": "“Propose → not_run → gate → trace → approve or discard.”",
       "audience_copy": [
         "Propose → not_run → gate → trace → approve or discard."
@@ -147,31 +147,31 @@
       "captions": [
         {
           "start_seconds": 70,
-          "end_seconds": 77.203,
+          "end_seconds": 77.296,
           "text": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. "
         },
         {
-          "start_seconds": 77.203,
-          "end_seconds": 87.432,
-          "text": "For this classroom case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? "
+          "start_seconds": 77.296,
+          "end_seconds": 87.365,
+          "text": "For the Harbor case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? "
         },
         {
-          "start_seconds": 87.432,
-          "end_seconds": 90.89,
+          "start_seconds": 87.365,
+          "end_seconds": 90.867,
           "text": "The hypothesis needs a comparison and a metric. "
         },
         {
-          "start_seconds": 90.89,
-          "end_seconds": 95.572,
-          "text": "We could compare two invented brief layouts in a paper exercise. "
+          "start_seconds": 90.867,
+          "end_seconds": 95.464,
+          "text": "We could compare two course brief layouts in a paper exercise. "
         },
         {
-          "start_seconds": 95.572,
-          "end_seconds": 100.254,
+          "start_seconds": 95.464,
+          "end_seconds": 100.206,
           "text": "We cannot claim one works better because it looks cleaner to us. "
         },
         {
-          "start_seconds": 100.254,
+          "start_seconds": 100.206,
           "end_seconds": 104,
           "text": "The `not_run` state records exactly what is missing."
         }
@@ -422,7 +422,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Draft one AutoResearch Proposal using invented facts. Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. Mark the result `not_run`. Write the reason in plain language and the action Morgan may take after review. Keep the staffing and spend holds visible. Do not run a provider, contact anyone, change a setting, or promote a finding.”",
+      "narration_exact": "“Draft one AutoResearch Proposal. Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. Mark the result `not_run`. Write the reason in plain language and the action Morgan may take after review. Keep the staffing and spend holds visible. Use a fictional or approved example. Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -433,33 +433,38 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 378.646,
-          "text": "Draft one AutoResearch Proposal using invented facts. "
+          "end_seconds": 377.221,
+          "text": "Draft one AutoResearch Proposal. "
         },
         {
-          "start_seconds": 378.646,
-          "end_seconds": 391.608,
+          "start_seconds": 377.221,
+          "end_seconds": 390.144,
           "text": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. "
         },
         {
-          "start_seconds": 391.608,
-          "end_seconds": 393.43,
+          "start_seconds": 390.144,
+          "end_seconds": 391.962,
           "text": "Mark the result `not_run`. "
         },
         {
-          "start_seconds": 393.43,
-          "end_seconds": 398.831,
+          "start_seconds": 391.962,
+          "end_seconds": 397.346,
           "text": "Write the reason in plain language and the action Morgan may take after review. "
         },
         {
-          "start_seconds": 398.831,
-          "end_seconds": 401.734,
+          "start_seconds": 397.346,
+          "end_seconds": 400.24,
           "text": "Keep the staffing and spend holds visible. "
         },
         {
-          "start_seconds": 401.734,
-          "end_seconds": 407,
-          "text": "Do not run a provider, contact anyone, change a setting, or promote a finding."
+          "start_seconds": 400.24,
+          "end_seconds": 402.731,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 402.731,
+          "end_seconds": 410,
+          "text": "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
         }
       ],
       "avatar_window": null,

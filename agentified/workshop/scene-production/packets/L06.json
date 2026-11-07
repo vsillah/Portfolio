@@ -11,9 +11,9 @@
     "use": "package_identity_only"
   },
   "script_path": "agentified/workshop/scripts/L06-permission-and-cull.md",
-  "script_sha256": "6cb52f99d4dd4b775594f472bd1bfabd3b4952ab1bbfce8e72e7607d613b7663",
-  "narration_sha256": "c58665421e7cae2c1c6718b868fb02d04ecb7daf28451507f4a49737044a5cc1",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "script_sha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
+  "narration_sha256": "3f84d93e7143c9b769912ac8522d851568a71fdf2ed790169d4c7d747667f8c3",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
   "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
@@ -132,7 +132,7 @@
       "start_seconds": 65,
       "end_seconds": 140,
       "source_time": "1:05–2:20",
-      "narration_exact": "“Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. For Harbor, scope is three cleared invented notes and a draft brief. The ceiling is preparation only. The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. Escalation names Morgan for missing or conflicting evidence. Expiry sends the proposed slip back for review before the next fictional planning cycle.”",
+      "narration_exact": "“Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. For Harbor, scope is three cleared course notes and a draft brief. The ceiling is preparation only. The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. Escalation names Morgan for missing or conflicting evidence. Expiry sends the proposed slip back for review before the next course planning cycle.”",
       "on_screen_copy_exact": "“Scope / Ceiling / Reversibility / Escalation / Expiry.”",
       "audience_copy": [
         "Scope / Ceiling / Reversibility / Escalation / Expiry."
@@ -145,38 +145,38 @@
       "captions": [
         {
           "start_seconds": 65,
-          "end_seconds": 71.042,
+          "end_seconds": 71.095,
           "text": "Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. "
         },
         {
-          "start_seconds": 71.042,
-          "end_seconds": 75.833,
-          "text": "For Harbor, scope is three cleared invented notes and a draft brief. "
+          "start_seconds": 71.095,
+          "end_seconds": 75.788,
+          "text": "For Harbor, scope is three cleared course notes and a draft brief. "
         },
         {
-          "start_seconds": 75.833,
-          "end_seconds": 78.125,
+          "start_seconds": 75.788,
+          "end_seconds": 78.1,
           "text": "The ceiling is preparation only. "
         },
         {
-          "start_seconds": 78.125,
-          "end_seconds": 86.458,
+          "start_seconds": 78.1,
+          "end_seconds": 86.506,
           "text": "The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. "
         },
         {
-          "start_seconds": 86.458,
-          "end_seconds": 94.653,
+          "start_seconds": 86.506,
+          "end_seconds": 94.772,
           "text": "Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. "
         },
         {
-          "start_seconds": 94.653,
-          "end_seconds": 98.889,
+          "start_seconds": 94.772,
+          "end_seconds": 99.046,
           "text": "Escalation names Morgan for missing or conflicting evidence. "
         },
         {
-          "start_seconds": 98.889,
+          "start_seconds": 99.046,
           "end_seconds": 105,
-          "text": "Expiry sends the proposed slip back for review before the next fictional planning cycle."
+          "text": "Expiry sends the proposed slip back for review before the next course planning cycle."
         }
       ],
       "avatar_window": null,
@@ -442,7 +442,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Write the Permission Slip for the preparation role. Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. Then run the Quarterly Cull on the session brief role and the invented weather-summary role. Use the three tests and record keep, narrow, or retirement proposal. Do not grant a real permission, delete anything, or paste live agent inventories into this exercise.”",
+      "narration_exact": "“Write the Permission Slip for the preparation role. Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. Then run the Quarterly Cull on the session brief role and the course weather-summary role. Use the three tests and record keep, narrow, or retirement proposal. Use a fictional or approved example. Do not use private operational data or grant a real permission.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -453,28 +453,33 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 378.699,
+          "end_seconds": 378.714,
           "text": "Write the Permission Slip for the preparation role. "
         },
         {
-          "start_seconds": 378.699,
-          "end_seconds": 390.364,
+          "start_seconds": 378.714,
+          "end_seconds": 390.429,
           "text": "Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. "
         },
         {
-          "start_seconds": 390.364,
-          "end_seconds": 396.979,
-          "text": "Then run the Quarterly Cull on the session brief role and the invented weather-summary role. "
+          "start_seconds": 390.429,
+          "end_seconds": 396.929,
+          "text": "Then run the Quarterly Cull on the session brief role and the course weather-summary role. "
         },
         {
-          "start_seconds": 396.979,
-          "end_seconds": 401.887,
+          "start_seconds": 396.929,
+          "end_seconds": 401.857,
           "text": "Use the three tests and record keep, narrow, or retirement proposal. "
         },
         {
-          "start_seconds": 401.887,
+          "start_seconds": 401.857,
+          "end_seconds": 404.5,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 404.5,
           "end_seconds": 409,
-          "text": "Do not grant a real permission, delete anything, or paste live agent inventories into this exercise."
+          "text": "Do not use private operational data or grant a real permission."
         }
       ],
       "avatar_window": null,

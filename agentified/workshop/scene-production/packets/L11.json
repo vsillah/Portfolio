@@ -11,9 +11,9 @@
     "use": "package_identity_only"
   },
   "script_path": "agentified/workshop/scripts/L11-cockpit-and-unblock.md",
-  "script_sha256": "ffbecbb0ed4426af4c97a38149a94c382b1fd908f2fd92f0c4d241d72e0a5e71",
-  "narration_sha256": "f81ce5081331e4c90d3d9792a3d3d871b044aad8a30e79d7caf5983fa04a220c",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "script_sha256": "adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d",
+  "narration_sha256": "ab05a969da7b1a4acc14ef1feb9e098222e658fff7af7989340b4b16e3287f22",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
   "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
@@ -46,11 +46,11 @@
     "case": "Harbor Learning Circle",
     "owner": "Morgan",
     "source_ids": [
-      "SYN-HOLD-01",
-      "SYN-SPEND-01",
-      "SYN-TRACE-01",
       "SYN-BRIEF-01",
-      "SYN-FAC-01"
+      "SYN-FAC-01",
+      "SYN-TRACE-01",
+      "SYN-HOLD-01",
+      "SYN-SPEND-01"
     ]
   },
   "boundaries": {
@@ -69,7 +69,7 @@
       "start_seconds": 0,
       "end_seconds": 70,
       "source_time": "0:00–1:10",
-      "narration_exact": "“Morgan comes to Harbor's Friday planning table with three open questions. Is the room note still current? Who is checking the facilitator? Did anyone approve the mock print request? If the answers live in three people's heads, Morgan becomes the operating system. We already have receipts, a handoff, a rubric, a review posture, and two held decisions. Put them where a second team member could see the state and take the next authorized step.”",
+      "narration_exact": "“Morgan comes to Harbor's Friday planning table with three open questions. Is the room note still current? Who is checking the facilitator? Did anyone approve the print request? If the answers live in three people's heads, Morgan becomes the operating system. We already have receipts, a handoff, a rubric, a review posture, and two held decisions. Put them where a second team member could see the state and take the next authorized step.”",
       "on_screen_copy_exact": "“One job. Three questions. One readable state.”",
       "audience_copy": [
         "One job. Three questions. One readable state."
@@ -82,43 +82,43 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 5.512,
+          "end_seconds": 5.575,
           "text": "Morgan comes to Harbor's Friday planning table with three open questions. "
         },
         {
-          "start_seconds": 5.512,
-          "end_seconds": 7.896,
+          "start_seconds": 5.575,
+          "end_seconds": 7.986,
           "text": "Is the room note still current? "
         },
         {
-          "start_seconds": 7.896,
-          "end_seconds": 10.354,
+          "start_seconds": 7.986,
+          "end_seconds": 10.473,
           "text": "Who is checking the facilitator? "
         },
         {
-          "start_seconds": 10.354,
-          "end_seconds": 13.558,
-          "text": "Did anyone approve the mock print request? "
+          "start_seconds": 10.473,
+          "end_seconds": 13.336,
+          "text": "Did anyone approve the print request? "
         },
         {
-          "start_seconds": 13.558,
-          "end_seconds": 19.666,
+          "start_seconds": 13.336,
+          "end_seconds": 19.514,
           "text": "If the answers live in three people's heads, Morgan becomes the operating system. "
         },
         {
-          "start_seconds": 19.666,
-          "end_seconds": 26.296,
+          "start_seconds": 19.514,
+          "end_seconds": 26.219,
           "text": "We already have receipts, a handoff, a rubric, a review posture, and two held decisions. "
         },
         {
-          "start_seconds": 26.296,
+          "start_seconds": 26.219,
           "end_seconds": 33,
           "text": "Put them where a second team member could see the state and take the next authorized step."
         }
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 19.666,
+        "end_seconds": 19.514,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -138,7 +138,7 @@
       "start_seconds": 70,
       "end_seconds": 145,
       "source_time": "1:10–2:25",
-      "narration_exact": "“Chapter Nineteen calls this a cockpit. Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; `SYN-HOLD-01` names Morgan; `SYN-SPEND-01` is unapproved; the next action is to request a current, permitted staffing note. Add owner, age, cost signal, approval queue, and a link to `SYN-TRACE-01`. A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. This is a paper sketch, not a screenshot of a running system.”",
+      "narration_exact": "“Chapter Nineteen calls this a cockpit. Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note. Add owner, age, cost signal, approval queue, and a link to the source trace. A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. This is a paper sketch, not a screenshot of a running system.”",
       "on_screen_copy_exact": "“Status / Blocker / Owner / Next safe step / Trace.”",
       "audience_copy": [
         "Status / Blocker / Owner / Next safe step / Trace."
@@ -159,27 +159,27 @@
       "captions": [
         {
           "start_seconds": 70,
-          "end_seconds": 72.886,
+          "end_seconds": 73.048,
           "text": "Chapter Nineteen calls this a cockpit. "
         },
         {
-          "start_seconds": 72.886,
-          "end_seconds": 90.722,
-          "text": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; `SYN-HOLD-01` names Morgan; `SYN-SPEND-01` is unapproved; the next action is to request a current, permitted staffing note. "
+          "start_seconds": 73.048,
+          "end_seconds": 92.43,
+          "text": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note. "
         },
         {
-          "start_seconds": 90.722,
-          "end_seconds": 96.273,
-          "text": "Add owner, age, cost signal, approval queue, and a link to `SYN-TRACE-01`. "
+          "start_seconds": 92.43,
+          "end_seconds": 98.448,
+          "text": "Add owner, age, cost signal, approval queue, and a link to the source trace. "
         },
         {
-          "start_seconds": 96.273,
-          "end_seconds": 106.486,
+          "start_seconds": 98.448,
+          "end_seconds": 109.233,
           "text": "A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. "
         },
         {
-          "start_seconds": 106.486,
-          "end_seconds": 111,
+          "start_seconds": 109.233,
+          "end_seconds": 114,
           "text": "This is a paper sketch, not a screenshot of a running system."
         }
       ],
@@ -201,7 +201,7 @@
       "start_seconds": 145,
       "end_seconds": 215,
       "source_time": "2:25–3:35",
-      "narration_exact": "“Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to a fictional coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. There is no need to display individual speed rankings or make a teammate's latency look like failure. The cockpit should reduce guessing, not pressure people into faster approval.”",
+      "narration_exact": "“Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. There is no need to display individual speed rankings or make a teammate's latency look like failure. The cockpit should reduce guessing, not pressure people into faster approval.”",
       "on_screen_copy_exact": "“Scan → Sort → Signal → Step in.”",
       "audience_copy": [
         "Scan → Sort → Signal → Step in."
@@ -214,21 +214,21 @@
       "captions": [
         {
           "start_seconds": 145,
-          "end_seconds": 155.45,
+          "end_seconds": 155.47,
           "text": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. "
         },
         {
-          "start_seconds": 155.45,
-          "end_seconds": 169.919,
-          "text": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to a fictional coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. "
+          "start_seconds": 155.47,
+          "end_seconds": 169.894,
+          "text": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. "
         },
         {
-          "start_seconds": 169.919,
-          "end_seconds": 177.373,
+          "start_seconds": 169.894,
+          "end_seconds": 177.362,
           "text": "There is no need to display individual speed rankings or make a teammate's latency look like failure. "
         },
         {
-          "start_seconds": 177.373,
+          "start_seconds": 177.362,
           "end_seconds": 183,
           "text": "The cockpit should reduce guessing, not pressure people into faster approval."
         }
@@ -419,7 +419,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. Show status, blocker, owner, age, source pointer, next safe step, and decision destination. Assign each message to a ladder rung. Label what can be handled in the sketch and what must open the full review. Include a route for stale evidence and a closed spend gate. Use fictional data only; do not paste a real Slack message, agent run, person, or client record.”",
+      "narration_exact": "“Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. Show status, blocker, owner, age, source pointer, next safe step, and decision destination. Assign each message to a ladder rung. Label what can be handled in the sketch and what must open the full review. Include a route for stale evidence and a closed spend gate. Use a fictional or approved example. Do not use private operational data or paste a real message, agent run, person, or client record.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -430,33 +430,38 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 383.213,
+          "end_seconds": 383.231,
           "text": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. "
         },
         {
-          "start_seconds": 383.213,
-          "end_seconds": 390.275,
+          "start_seconds": 383.231,
+          "end_seconds": 390.308,
           "text": "Show status, blocker, owner, age, source pointer, next safe step, and decision destination. "
         },
         {
-          "start_seconds": 390.275,
-          "end_seconds": 393.192,
+          "start_seconds": 390.308,
+          "end_seconds": 393.231,
           "text": "Assign each message to a ladder rung. "
         },
         {
-          "start_seconds": 393.192,
-          "end_seconds": 399.026,
+          "start_seconds": 393.231,
+          "end_seconds": 399.077,
           "text": "Label what can be handled in the sketch and what must open the full review. "
         },
         {
-          "start_seconds": 399.026,
-          "end_seconds": 403.631,
+          "start_seconds": 399.077,
+          "end_seconds": 403.692,
           "text": "Include a route for stale evidence and a closed spend gate. "
         },
         {
-          "start_seconds": 403.631,
-          "end_seconds": 411,
-          "text": "Use fictional data only; do not paste a real Slack message, agent run, person, or client record."
+          "start_seconds": 403.692,
+          "end_seconds": 406.538,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 406.538,
+          "end_seconds": 414,
+          "text": "Do not use private operational data or paste a real message, agent run, person, or client record."
         }
       ],
       "avatar_window": null,

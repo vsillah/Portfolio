@@ -11,9 +11,9 @@
     "use": "package_identity_only"
   },
   "script_path": "agentified/workshop/scripts/L05-operating-map.md",
-  "script_sha256": "98882b9679b44ff2c523317581c4a3a243f4bd8a589dfe493aec75902190d36e",
-  "narration_sha256": "50089933116dfa701683e021a9735905d3af61d0a5186b3927c2a97eae8ab631",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "script_sha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
+  "narration_sha256": "3de38247160c257b35ba7519a177e2943d9675e9a83ea0a28a2d067530d16d9c",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
   "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
@@ -141,7 +141,7 @@
       "start_seconds": 65,
       "end_seconds": 135,
       "source_time": "1:05–2:15",
-      "narration_exact": "“Start with the real sequence on paper. A request to compare a free digital-skills session enters. A routing rule assigns the evidence-comparison role. That role reads three invented classroom notes and prepares a draft. The draft and its short trace wait for Morgan. Morgan may propose the option to the team, ask for another date, or hold it. The agent has no route to announce, book, buy, or send anything. Draw that sequence before adding another box.”",
+      "narration_exact": "“Start with the real sequence on paper. A request to compare a free digital-skills session enters. A routing rule assigns the evidence-comparison role. That role reads the three Harbor course notes and prepares a draft. The draft and its short trace wait for Morgan. Morgan may propose the option to the team, ask for another date, or hold it. The agent has no route to announce, book, buy, or send anything. Draw that sequence before adding another box.”",
       "on_screen_copy_exact": "“Request → route → source check → draft + trace → Morgan.” “External action: closed.”",
       "audience_copy": [
         "Request → route → source check → draft + trace → Morgan.",
@@ -155,41 +155,41 @@
       "captions": [
         {
           "start_seconds": 65,
-          "end_seconds": 68.007,
+          "end_seconds": 68.013,
           "text": "Start with the real sequence on paper. "
         },
         {
-          "start_seconds": 68.007,
-          "end_seconds": 72.555,
+          "start_seconds": 68.013,
+          "end_seconds": 72.572,
           "text": "A request to compare a free digital-skills session enters. "
         },
         {
-          "start_seconds": 72.555,
-          "end_seconds": 76.641,
+          "start_seconds": 72.572,
+          "end_seconds": 76.667,
           "text": "A routing rule assigns the evidence-comparison role. "
         },
         {
-          "start_seconds": 76.641,
-          "end_seconds": 81.96,
-          "text": "That role reads three invented classroom notes and prepares a draft. "
+          "start_seconds": 76.667,
+          "end_seconds": 81.921,
+          "text": "That role reads the three Harbor course notes and prepares a draft. "
         },
         {
-          "start_seconds": 81.96,
-          "end_seconds": 85.584,
+          "start_seconds": 81.921,
+          "end_seconds": 85.552,
           "text": "The draft and its short trace wait for Morgan. "
         },
         {
-          "start_seconds": 85.584,
-          "end_seconds": 91.52,
+          "start_seconds": 85.552,
+          "end_seconds": 91.501,
           "text": "Morgan may propose the option to the team, ask for another date, or hold it. "
         },
         {
-          "start_seconds": 91.52,
-          "end_seconds": 96.531,
+          "start_seconds": 91.501,
+          "end_seconds": 96.523,
           "text": "The agent has no route to announce, book, buy, or send anything. "
         },
         {
-          "start_seconds": 96.531,
+          "start_seconds": 96.523,
           "end_seconds": 100,
           "text": "Draw that sequence before adding another box."
         }
@@ -478,7 +478,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Build the Operating Map in your Operating File. Use a synthetic version of a workflow you know. Give every row the five columns. Place the job, decision, source, receipt, memory proposal, and human owner. Label closed paths for spending, publication, and external messages. Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. Do not map a real internal stack, copy credentials, or paste a private trace. We are making a design someone can review.”",
+      "narration_exact": "“Build the Operating Map in your Operating File. Use a fictional or approved example. Do not use private operational data. Give every row the five columns. Place the job, decision, source, receipt, memory proposal, and human owner. Label closed paths for spending, publication, and external messages. Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. We are making a design someone can review.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -489,42 +489,42 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 378.581,
+          "end_seconds": 378.459,
           "text": "Build the Operating Map in your Operating File. "
         },
         {
-          "start_seconds": 378.581,
-          "end_seconds": 382.161,
-          "text": "Use a synthetic version of a workflow you know. "
+          "start_seconds": 378.459,
+          "end_seconds": 381.126,
+          "text": "Use a fictional or approved example. "
         },
         {
-          "start_seconds": 382.161,
-          "end_seconds": 384.623,
+          "start_seconds": 381.126,
+          "end_seconds": 383.793,
+          "text": "Do not use private operational data. "
+        },
+        {
+          "start_seconds": 383.793,
+          "end_seconds": 386.171,
           "text": "Give every row the five columns. "
         },
         {
-          "start_seconds": 384.623,
-          "end_seconds": 390.292,
+          "start_seconds": 386.171,
+          "end_seconds": 391.649,
           "text": "Place the job, decision, source, receipt, memory proposal, and human owner. "
         },
         {
-          "start_seconds": 390.292,
-          "end_seconds": 395.44,
+          "start_seconds": 391.649,
+          "end_seconds": 396.622,
           "text": "Label closed paths for spending, publication, and external messages. "
         },
         {
-          "start_seconds": 395.44,
-          "end_seconds": 403.048,
+          "start_seconds": 396.622,
+          "end_seconds": 403.973,
           "text": "Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. "
         },
         {
-          "start_seconds": 403.048,
-          "end_seconds": 408.867,
-          "text": "Do not map a real internal stack, copy credentials, or paste a private trace. "
-        },
-        {
-          "start_seconds": 408.867,
-          "end_seconds": 412,
+          "start_seconds": 403.973,
+          "end_seconds": 407,
           "text": "We are making a design someone can review."
         }
       ],
