@@ -1,0 +1,767 @@
+{
+  "schema_version": 1,
+  "base_commit": "de1e01f04393963db6fe93962af47c0bd77439d5",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "source_map_sha256": "68cb6536ae9837470e4e8192e64057fb076f44b868ebf893d4f432ba452527c4",
+  "authority": "read_only_prepare_only",
+  "external_execution": "disabled",
+  "review_date": "2026-11-07",
+  "lessons": [
+    {
+      "id": "L01",
+      "title": "Give the agent a job and a receipt",
+      "script_path": "agentified/workshop/scripts/L01-job-and-receipt.md",
+      "script_sha256": "159baf03db33be47260c6312efbd121c88da54c891b024c1e1100e68fb9e72a3",
+      "operating_file_artifact": "workflow-and-job",
+      "workbook_outputs": [
+        "Agent Work Receipt",
+        "Agent Job Description"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-1-1-first-receipt-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "register_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Split card: job description on left, receipt on right. Highlight “pending” and “source missing.” | Minimum large-text view; reveal no more than three lines at once. | Registered first-receipt plate is only a candidate: `agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png`. Its attribution, rights, and author review remain pending; do not embed or recreate it. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Split card: job description on left, receipt on right. Highlight “pending” and “source missing.”",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L02",
+      "title": "Start with the decision",
+      "script_path": "agentified/workshop/scripts/L02-decision.md",
+      "script_sha256": "af0c9bb1a2c563cf06dc13f7f8951470b20e408b88f18f7cd95ccda68a58cd70",
+      "operating_file_artifact": "decision-card",
+      "workbook_outputs": [
+        "Decision Card"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-0-1-sam-trust-layer-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "register_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Decision Card with evidence rows and a visible stale-source warning. | Enlarge the warning before showing fallback. | Registered SAM trust-layer plate is only a candidate: `agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png`. Attribution, rights, and editorial approval remain pending; do not embed or redraw the plate. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Decision Card with evidence rows and a visible stale-source warning.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L03",
+      "title": "Trace the work and grade the sources",
+      "script_path": "agentified/workshop/scripts/L03-trace-and-sources.md",
+      "script_sha256": "6c52bb358c43f203eb3ad99a413a3287faa6f3b2cdef879f12face1823af730a",
+      "operating_file_artifact": "trace-and-source-policy",
+      "workbook_outputs": [
+        "Trace Harness",
+        "Source Safety Ladder"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-1-1-first-receipt-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "register_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Four-tier ladder with one “unknown” source parked outside it. | Read every tier aloud; use labels and placement as well as color. | Registered first-receipt plate is only a candidate: `agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png`. Attribution, rights, and author review remain pending; do not embed or adapt it. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Four-tier ladder with one “unknown” source parked outside it.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L04",
+      "title": "Turn feedback into governed memory",
+      "script_path": "agentified/workshop/scripts/L04-memory-and-routing.md",
+      "script_sha256": "30410aab2be49b2a9a5285b8ef69a66afc1256ae48ef8cde3e75efc77862ba5a",
+      "operating_file_artifact": "memory-and-routing-policy",
+      "workbook_outputs": [
+        "Source, Event, Proposal, Memory",
+        "Controller Routing Policy"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-3-amina-inside-sam-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "register_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | One inbound request forks to eligible preparation role and blocked messaging role, then joins at Morgan review. | Animate route in reading order with a persistent “no outreach” boundary. | Registered A.M.I.N.A. plate is only a candidate: `agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png`. It requires fresh publication review. Do not embed, trace, redraw, or generate it. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "One inbound request forks to eligible preparation role and blocked messaging role, then joins at Morgan review.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "fresh_attributable_publication_approval_required"
+        }
+      ]
+    },
+    {
+      "id": "L05",
+      "title": "Map the operating system",
+      "script_path": "agentified/workshop/scripts/L05-operating-map.md",
+      "script_sha256": "98882b9679b44ff2c523317581c4a3a243f4bd8a589dfe493aec75902190d36e",
+      "operating_file_artifact": "operating-map",
+      "workbook_outputs": [
+        "Operating Map"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-8-1-portfolio-first-stack-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "register_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Six small labeled markers for job, decision, source, receipt, proposed memory, owner, placed on the map. | Follow reading order and repeat marker names in captions. | Registered figure `agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png` is only a review candidate. Attribution, rights, author, privacy, and accessibility decisions remain pending; do not embed, redraw, or generate it. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Six small labeled markers for job, decision, source, receipt, proposed memory, owner, placed on the map.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L06",
+      "title": "Write the permission slip",
+      "script_path": "agentified/workshop/scripts/L06-permission-and-cull.md",
+      "script_sha256": "6cb52f99d4dd4b775594f472bd1bfabd3b4952ab1bbfce8e72e7607d613b7663",
+      "operating_file_artifact": "permission-and-cull",
+      "workbook_outputs": [
+        "Permission Slip",
+        "Quarterly Cull"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "register_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | Authority ladder with a fixed marker at “prepare” and closed gates above it. | Read every rung aloud; shapes and labels distinguish each rung. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png` is only a review candidate. Attribution, rights, author, privacy, and accessibility review remain pending; do not embed, trace, redraw, or generate it. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "Authority ladder with a fixed marker at “prepare” and closed gates above it.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L07",
+      "title": "Specify the work and the team",
+      "script_path": "agentified/workshop/scripts/L07-prd-and-pod.md",
+      "script_sha256": "bb105a10e134cf636e0e1aad96539967f4b98fcaa4190cb713605b4581654a41",
+      "operating_file_artifact": "prd-and-pod",
+      "workbook_outputs": [
+        "Agentic PRD Packet",
+        "Pod Model"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "register_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | A blocked `SYN-FAC-01` handoff card landing with Morgan instead of the drafter. | Hold the blocked state and reason long enough to read. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png` is only a review candidate. Attribution, rights, author, privacy, and accessibility decisions remain pending; do not embed, redraw, or generate it. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "A blocked `SYN-FAC-01` handoff card landing with Morgan instead of the drafter.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L08",
+      "title": "Make handoffs testable",
+      "script_path": "agentified/workshop/scripts/L08-handoff-and-eval.md",
+      "script_sha256": "9a3f53226105aa9f5358d26ab3cce9bf4fed3f65c3da89ad1cc572b6dd7aa345",
+      "operating_file_artifact": "handoff-and-eval",
+      "workbook_outputs": [
+        "Handoff Contract Card",
+        "Evaluation Loop"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-1-1-first-receipt-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "register_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Three-case evaluation grid with pass/fail text and a separate human decision box. | Keep rubric version visible; read each case and result aloud. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png` is only a review candidate. Attribution, rights, author, privacy, and accessibility decisions remain pending; do not embed, trace, redraw, or generate it. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Three-case evaluation grid with pass/fail text and a separate human decision box.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L09",
+      "title": "Measure trust and choose review posture",
+      "script_path": "agentified/workshop/scripts/L09-metrics-and-review.md",
+      "script_sha256": "0a5643eedfdee43b34502b1434f122f46769d7c095960a2a7536c5bd466c6ea9",
+      "operating_file_artifact": "metrics-and-review",
+      "workbook_outputs": [
+        "Agent Metrics Ladder",
+        "Review Postures"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-0-1-sam-trust-layer-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "register_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | Seven-rung ladder beside a small measure-to-decision card. | Show labels in reading order; keep cost and review burden legible as workbook checks. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png` is a review candidate only. Attribution, rights, author, privacy, and accessibility review pending; do not embed or redraw. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "Seven-rung ladder beside a small measure-to-decision card.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        },
+        {
+          "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "register_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Review posture matrix with Morgan's evidence view and a closed external-action gate. | Use text labels and gate outline, not color alone; hold long enough to read. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png` is a review candidate only, subject to the same approvals. No real dashboard capture. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Review posture matrix with Morgan's evidence view and a closed external-action gate.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L10",
+      "title": "Gate spend and brief the decision",
+      "script_path": "agentified/workshop/scripts/L10-spend-and-decision-brief.md",
+      "script_sha256": "449ab3d2d17557cf74a09276a66fd4ed9fa21a61c65d1f2954a5860d7da7ea71",
+      "operating_file_artifact": "spend-and-decision-brief",
+      "workbook_outputs": [
+        "Spend Envelope",
+        "Decision Brief"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "register_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | Seven-field envelope with a closed `unapproved` gate and expiry line. | Reveal amount and counterparty together; use a stop label, not a transaction animation. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png` is a review candidate only. Attribution, rights, author, privacy, and accessibility review pending; do not embed or redraw. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "Seven-field envelope with a closed `unapproved` gate and expiry line.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L11",
+      "title": "Run the cockpit and unblock lane",
+      "script_path": "agentified/workshop/scripts/L11-cockpit-and-unblock.md",
+      "script_sha256": "ffbecbb0ed4426af4c97a38149a94c382b1fd908f2fd92f0c4d241d72e0a5e71",
+      "operating_file_artifact": "cockpit-and-unblock",
+      "workbook_outputs": [
+        "Mission Control Cockpit",
+        "Unblock Ladder"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-8-1-portfolio-first-stack-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "register_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | Four-rung Unblock Ladder beside a phone-shaped *wireframe*, not an app capture. | Text labels remain readable; mobile card opens a full-evidence panel conceptually. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png` is a review candidate only. Attribution, rights, author, privacy, and accessibility review pending; do not embed or redraw. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "Four-rung Unblock Ladder beside a phone-shaped *wireframe*, not an app capture.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L12",
+      "title": "Prove the work safely",
+      "script_path": "agentified/workshop/scripts/L12-proof-and-foundry.md",
+      "script_sha256": "4a49004183485ad46b7d501462dd9c59316a3ee7a95224246048e1a434533de8",
+      "operating_file_artifact": "proof-and-foundry",
+      "workbook_outputs": [
+        "Client-Safe Proof Packet",
+        "Foundry Test"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-1-1-first-receipt-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "register_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 1 | Six-field scoped proof card with a visible inclusion column and exclusion column. | Reveal scope before details; show withheld reason as text, not a blur effect. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png` is a review candidate only. Attribution, rights, author, privacy, and accessibility review pending; do not embed or redraw. |",
+          "storyboard_beat": "1",
+          "intended_production_use": "Six-field scoped proof card with a visible inclusion column and exclusion column.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L13",
+      "title": "Research with a gate",
+      "script_path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
+      "script_sha256": "bcb2cc6e3d1de7389f8e0b996dfbbcbc032cd9fb02a78ea12bc9a4963e1771dd",
+      "operating_file_artifact": "research-proposal",
+      "workbook_outputs": [
+        "AutoResearch Proposal"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-3-amina-inside-sam-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "register_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | Five-step ladder ending in a closed gate; a separate memory-proposal lane does not connect automatically. | Read steps in order and use text labels beyond color. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png` is a review candidate only. Author, rights, attribution, privacy, and accessibility approval pending; do not embed or redraw. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "Five-step ladder ending in a closed gate; a separate memory-proposal lane does not connect automatically.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "fresh_attributable_publication_approval_required"
+        }
+      ]
+    },
+    {
+      "id": "L14",
+      "title": "Show the board the controls",
+      "script_path": "agentified/workshop/scripts/L14-show-the-board-the-controls.md",
+      "script_sha256": "d92f8d263af59310f06c41deb7e911ace60631545903a4b5c4aef7240ef03729",
+      "operating_file_artifact": "three-panel-demo",
+      "workbook_outputs": [
+        "Three-Panel Demo"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-8-1-portfolio-first-stack-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "register_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | A narrow trace with a conspicuous stop before any send or booking node. | Use text “No event” and a labeled stop, not a color-only line. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png` is a review candidate only. Author, rights, attribution, privacy, and accessibility approval pending; do not embed or redraw. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "A narrow trace with a conspicuous stop before any send or booking node.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        },
+        {
+          "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "register_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Draft rule card beside a closed authority gate and `not shared` proof outline. | Hold the status and reviewer name long enough for narration. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png` is a review candidate only. Separate author, rights, attribution, privacy, and accessibility approval pending. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Draft rule card beside a closed authority gate and `not shared` proof outline.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L15",
+      "title": "Rehearse the agentified day",
+      "script_path": "agentified/workshop/scripts/L15-rehearse-the-agentified-day.md",
+      "script_sha256": "708cb5c1f8205c7c79542f12ee35b1e6791d7e2977b4dcd1984f18335262abc0",
+      "operating_file_artifact": "six-beat-rehearsal",
+      "workbook_outputs": [
+        "Six-Beat Day"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-0-1-sam-trust-layer-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "register_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | Paper draft A and corrected draft B with a missing source-status field highlighted in text. | Show the preserved first version and the correction request; do not animate an automatic retry. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png` is a review candidate only. Author, rights, attribution, privacy, and accessibility approval pending; do not embed or redraw. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "Paper draft A and corrected draft B with a missing source-status field highlighted in text.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    },
+    {
+      "id": "L16",
+      "title": "Audit the operating file",
+      "script_path": "agentified/workshop/scripts/L16-audit-the-operating-file.md",
+      "script_sha256": "ebe9d2b8da1bf79356cb6d139bb0b089d5a0a4badda8fd1ad20e332d9c2f36d6",
+      "operating_file_artifact": "accountability-stack",
+      "workbook_outputs": [
+        "Accountability Stack"
+      ],
+      "visuals": [
+        {
+          "source_identity": "figure-3-amina-inside-sam-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "register_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 2 | Harbor hold card nested in the Gate row, with staffing, spend, and research as separate statuses. | Read each status aloud; never animate a completion check on a pending item. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png` is a review candidate only. Author, rights, attribution, privacy, and accessibility approval pending; do not embed or redraw. |",
+          "storyboard_beat": "2",
+          "intended_production_use": "Harbor hold card nested in the Gate row, with staffing, spend, and research as separate statuses.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "fresh_attributable_publication_approval_required"
+        },
+        {
+          "source_identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "register_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "source_map_path": "agentified/manuscript/visuals/source-map.md",
+          "script_passage": "| 3 | Human disposition card showing suggested `shrink` and actual `pending` in separate labeled fields. | Hold long enough to read the distinction; avoid celebratory completion motion. | Registered `agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png` is a review candidate only. Separate author, rights, attribution, privacy, and accessibility approval pending. |",
+          "storyboard_beat": "3",
+          "intended_production_use": "Human disposition card showing suggested `shrink` and actual `pending` in separate labeled fields.",
+          "rights": {
+            "status": "unresolved",
+            "attribution": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+            "author_review": "pending",
+            "workshop_redistribution": "pending"
+          },
+          "accessibility": {
+            "text_alternative": "Write a concise literal description of the approved final plate before production.",
+            "spoken_equivalent": "Read each meaningful label and blocked state aloud in the final narration or transcript.",
+            "color_independent": "Use labels and shape or placement to communicate state.",
+            "motion_treatment": "Static hold or reduced-motion equivalent; verify mobile legibility."
+          },
+          "disposition": "blocked_pending_human_review",
+          "approval": {
+            "status": "pending",
+            "record": null,
+            "expires_at": null
+          },
+          "blocker": "author_rights_attribution_privacy_accessibility_review_pending"
+        }
+      ]
+    }
+  ],
+  "cover_hold": {
+    "disposition": "blocked_identity_and_rights_reconciliation",
+    "reason": "The visual source map names SVG as current public cover while the route displays JPG; neither grants workshop reuse.",
+    "jpg": {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    "svg": {
+      "path": "public/agentified-cover.svg",
+      "sha256": "6e5be9c44919f21e024adb16bd7a1c5d7506d58e4c08b5de33ab9ffff0c6c954"
+    },
+    "approval": {
+      "status": "pending",
+      "record": null
+    }
+  },
+  "sam_lineage": {
+    "original_drive_path": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Accelerated_infographic.png",
+    "local_source_path": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+    "local_sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+    "workshop_use": "blocked_pending_rights_and_design_review"
+  }
+}
