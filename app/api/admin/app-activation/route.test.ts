@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
+vi.mock('server-only', () => ({}))
 
 const { verifyAdminMock, snapshotMock, actionMock } = vi.hoisted(() => ({ verifyAdminMock: vi.fn(), snapshotMock: vi.fn(), actionMock: vi.fn() }))
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: verifyAdminMock, isAuthError: (value: unknown) => !!value && typeof value === 'object' && 'error' in value }))

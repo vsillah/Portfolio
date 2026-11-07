@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isAuthError, verifyAuth } from '@/lib/auth-server'
-import { configuredAppOrigins, getActivationRepository } from '@/lib/app-activation-repository.server'
+import { activationRuntimeConfigured, appServerSecretValid, configuredAppOrigins, getActivationRepository } from '@/lib/app-activation-repository.server'
+import { getClientIpFromRequest } from '@/lib/simple-ip-rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+// Consuming apps call this server-side using their own authenticated session.
+// Portfolio Auth bearers are never passed to an app.
+export async function POST(request: NextRequest) {
   const repository = getActivationRepository()
-  if (!repository) return NextResponse.json({ error: 'Activation grants are unavailable.' }, { status: 503 })
-  const auth = await verifyAuth(request)
-  if (isAuthError(auth) || auth.user.is_anonymous) return NextResponse.json({ error: 'Authentication required.' }, { status: 401 })
-  const appKey = request.nextUrl.searchParams.get('appKey') || ''
-  const origin = request.headers.get('origin')
-  if (!configuredAppOrigins()[appKey]?.includes(origin || '')) return NextResponse.json({ error: 'Origin is not allowed for this app.' }, { status: 403 })
+  if (!repository || !activationRuntimeConfigured() || process.env.APP_ACTIVATION_HANDOFF_ENABLED !== 'true') return NextResponse.json({ error: 'Grant check is unavailable.' }, { status: 503 })
+  if (request.headers.get('origin')) return NextResponse.json({ error: 'Browser grant check is not allowed.' }, { status: 403 })
+  if (request.headers.get('content-type')?.split(';')[0] !== 'application/json') return NextResponse.json({ error: 'JSON content type required.' }, { status: 415 })
+  try { if (!await repository.consumeAbuseBudget('grant', getClientIpFromRequest(request))) return NextResponse.json({ error: 'Please try again later.' }, { status: 429 }) }
+  catch { return NextResponse.json({ error: 'Grant check is unavailable.' }, { status: 503 }) }
+  if (Number(request.headers.get('content-length') || 0) > 2048) return NextResponse.json({ error: 'Request too large.' }, { status: 413 })
+  let body: unknown
+  try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 }) }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
+  const { appKey, sessionHandle } = body as Record<string, unknown>
+  if (typeof appKey !== 'string' || typeof sessionHandle !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(sessionHandle)) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
+  if (!configuredAppOrigins()[appKey] || !appServerSecretValid(appKey, request.headers.get('x-activation-app-secret') || '')) return NextResponse.json({ error: 'Grant check is unavailable.' }, { status: 403 })
   try {
-    const active = await repository.hasGrant(appKey, auth.user.id)
-    return NextResponse.json({ appKey, active }, { headers: { 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': origin!, Vary: 'Origin' } })
+    const active = await repository.hasGrantForHandle(appKey, sessionHandle)
+    return NextResponse.json({ appKey, active }, { headers: { 'Cache-Control': 'no-store' } })
   } catch { return NextResponse.json({ error: 'Grant could not be checked.' }, { status: 503 }) }
-}
-
-export async function OPTIONS(request: NextRequest) {
-  const origin = request.headers.get('origin')
-  if (!getActivationRepository() || !origin || !Object.values(configuredAppOrigins()).some(origins => origins.includes(origin))) return new NextResponse(null, { status: 403 })
-  return new NextResponse(null, { status: 204, headers: { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Authorization', 'Access-Control-Max-Age': '600', Vary: 'Origin' } })
 }

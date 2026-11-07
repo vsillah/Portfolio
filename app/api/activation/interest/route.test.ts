@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const { repository, provider, origins, limited } = vi.hoisted(() => ({
-  repository: { intake: vi.fn() }, provider: vi.fn(), origins: vi.fn(), limited: vi.fn(),
+const { repository, provider, origins } = vi.hoisted(() => ({
+  repository: { intake: vi.fn(), consumeAbuseBudget: vi.fn() }, provider: vi.fn(), origins: vi.fn(),
 }))
-vi.mock('@/lib/app-activation-repository.server', () => ({ getActivationRepository: provider, configuredAppOrigins: origins }))
-vi.mock('@/lib/simple-ip-rate-limit', () => ({ getClientIpFromRequest: () => 'fixture-ip', isIpRateLimited: limited }))
+vi.mock('@/lib/app-activation-repository.server', () => ({ getActivationRepository: provider, configuredAppOrigins: origins, activationRuntimeConfigured: () => true, ActivationError: class ActivationError extends Error { status = 409 } }))
+vi.mock('@/lib/simple-ip-rate-limit', () => ({ getClientIpFromRequest: () => 'fixture-ip' }))
 import { OPTIONS, POST } from './route'
 
 const payload = { appKey: 'trumpet-trainer', adultEmail: ' ADULT@EXAMPLE.TEST ', consentGranted: true, adultConfirmed: true,
@@ -16,7 +16,7 @@ const request = (body: unknown = payload, headers: Record<string, string> = {}) 
 
 beforeEach(() => {
   repository.intake.mockReset().mockResolvedValue(undefined); provider.mockReset().mockReturnValue(repository); origins.mockReset().mockReturnValue({ 'trumpet-trainer': ['https://app.example.test'] })
-  limited.mockReset().mockReturnValue(false); process.env.APP_ACTIVATION_CONSENT_VERSION = 'interest-v1'
+  repository.consumeAbuseBudget.mockReset().mockResolvedValue(true); process.env.APP_ACTIVATION_CONSENT_VERSION = 'interest-v1'
 })
 
 describe('adult activation interest route', () => {
@@ -40,7 +40,7 @@ describe('adult activation interest route', () => {
     expect((await POST(request({ ...payload, consentGranted: false }))).status).toBe(400)
     expect((await POST(request(payload, { origin: 'https://wrong.example.test' }))).status).toBe(403)
     expect((await POST(request({ ...payload, consentVersion: 'old' }))).status).toBe(409)
-    limited.mockReturnValueOnce(true)
+    repository.consumeAbuseBudget.mockResolvedValueOnce(false)
     expect((await POST(request())).status).toBe(429)
     expect(repository.intake).not.toHaveBeenCalled()
   })
