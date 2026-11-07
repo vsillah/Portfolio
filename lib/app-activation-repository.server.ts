@@ -3,6 +3,7 @@ import 'server-only'
 import { createHash, randomBytes } from 'node:crypto'
 import { Pool, type PoolClient } from 'pg'
 import { hashInvitationToken } from './app-activation'
+import { isExactHttpsOrigin } from './app-activation-rollout.server'
 import type { OperatorAction, OperatorRecord, OperatorSnapshot } from './app-activation-operator'
 
 export class ActivationError extends Error {
@@ -38,9 +39,12 @@ export function configuredAppOrigins(env: Record<string, string | undefined> = p
   try {
     const value: unknown = JSON.parse(env.APP_ACTIVATION_APP_ORIGINS!)
     if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-    return Object.fromEntries(Object.entries(value).filter(([key, origins]) =>
-      /^[a-z0-9][a-z0-9-]{1,62}$/.test(key) && Array.isArray(origins)
-      && origins.length > 0 && origins.every(origin => typeof origin === 'string' && /^https:\/\/[^/]+$/.test(origin)))) as Record<string, string[]>
+    const entries = Object.entries(value)
+    if (!entries.length || entries.some(([key, origins]) =>
+      !/^[a-z0-9][a-z0-9-]{1,62}$/.test(key) || !Array.isArray(origins)
+      || origins.length === 0 || origins.some(origin => !isExactHttpsOrigin(origin))
+      || new Set(origins).size !== origins.length)) return {}
+    return Object.fromEntries(entries) as Record<string, string[]>
   } catch { return {} }
 }
 

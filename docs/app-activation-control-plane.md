@@ -2,6 +2,8 @@
 
 Status: Phase 1 source foundation, Phase 2 local synthetic operator console, and Phase 3 direct application contracts. The new provider remains disabled by default. No remote migration, provider configuration, invitation delivery, or app integration is active.
 
+Phase 5 adds a source-only, reusable rollout kit in `lib/app-activation-rollout.server.ts`. It adds no route, table, provider configuration, or live entitlement check. Captain source review, focused tests, lint, typecheck, and build are the validation gate; there is no changed client-facing behavior requiring Human QA or an MP4.
+
 ## Purpose and ownership
 
 Portfolio owns the reusable adult tester activation lifecycle for Trumpet Trainer and future apps. An app identifies itself with a registered `app_key` and consumes only its own grant. An interest record is not a sales lead, an invitation is not a grant, and neither interest nor consent authorizes external outreach by itself. Existing Portfolio lead and outreach systems remain separate; future intake may link provenance without silently enrolling a contact into sales automation.
@@ -42,3 +44,20 @@ Add a separate adult-facing interest and redemption API only after privacy copy,
 `POST /api/activation/redeem` requires Portfolio verified Auth, non-anonymous signed-in user, adult attestation, app origin, and a one-time token. The server hashes the token before the private SQL claim. The SQL function checks canonical Auth email, approval, latest consent, app key, expiry, and revoked state; redemption and grant events are atomic. Failed or replayed claims return no grant. The repository never logs or returns token material.
 
 `GET /api/activation/grant?appKey=...` checks a verified user's active, unrevoked, unexpired grant for exactly one allowed app. It returns only app key and a boolean. The admin API uses the same repository when configured and otherwise retains the synthetic or unconfigured behavior. Hosted review decisions and revocations are supported by the repository; invitation issuance is blocked at the route because there is no separately authorized delivery adapter. The repository's issuance contract also requires an explicit `APP_ACTIVATION_ISSUANCE_ENABLED=true` gate. No raw token is shown in a list or read model. Actual invitation delivery and app integration are later phases.
+
+## Phase 5 reusable rollout kit
+
+The `AppRolloutManifest` is a reviewed registration proposal, **not** a second runtime registry. `public.activation_apps` is the app registration system of record, and the existing server-only `APP_ACTIVATION_APP_ORIGINS` map is the runtime exact-origin allowlist. The kit validates app keys, duplicate registrations, exact HTTPS origins, consent version, source adapter commit, adult Auth handoff, delivery status, and default-off switches. Invalid entries in the runtime origin map now fail the whole map closed. Keep the manifest's approved values aligned with the eventual Postgres row and server configuration; a manifest alone cannot enable either.
+
+The Trumpet Trainer reference manifest binds source adapter commit `1e3f9d23d211552af5c1f42b5cd286919ef1295a`. Its origin list is empty, delivery is unconfigured, and activation and billing are off. The `interest-v1` field is a source example and needs a separately reviewed consent document/version before any rollout. Do not infer a live origin or readiness from the source commit.
+
+### Adding an app: operator checklist
+
+1. Review the app's source adapter at an exact commit. Prepare a manifest with a unique stable app key, display name, and exact HTTPS origins. Reject paths, credentials, query strings, duplicate origins, and cross-app origin reuse until its ownership is resolved.
+2. Approve adult contact and privacy copy and its consent version. Confirm the app sends an adult-only interest request with source receipt and idempotency key; keep child data out of Portfolio activation records.
+3. Review the adult Auth handoff and require Portfolio-verified identity at redemption and every grant read. Bind `app_key` and `auth_user_id` on both sides. Register the app in the existing `activation_apps` table only through a separately approved data change, then configure only its reviewed exact origins through the existing server setting.
+4. Review a server-side invitation delivery adapter, operator authorization, abuse controls, and one-time token handling. No provider is wired by this kit. Confirm consent and approval before issuance, and verify redemption, expiry, replay denial, and app-scoped grant reads using synthetic accounts.
+5. Keep `activationEnabled` false until the provider, migration, app integration, consent, delivery, release, and Human QA gates have separately passed. Revocation must end grant access immediately; revoking an unredeemed invitation must prevent redemption. Roll back by disabling the app rollout/provider and revoking issued grants or invitations through the authorized operator path. Verify that access then fails closed.
+6. If paid access is later proposed, review it as a separate project. An activation approval or grant is **not** a paid entitlement. The `activation_and_paid` decision requires both an active app/account grant and a separately read, active, unexpired paid entitlement bound to the same app/account. A paid record alone cannot activate an app. The `AppAccessAdapter` and `checkAppAccess` scaffold fail closed when either read is unavailable. This kit creates no checkout, price, product, webhook, charge, billing table, or paid route.
+
+Portfolio's existing Postgres activation tables are the only activation system of record. Google Sheets and n8n have no runtime or operating role in this rollout. Source receipts may retain historical provenance but cannot become an alternate enrollment or billing authority.

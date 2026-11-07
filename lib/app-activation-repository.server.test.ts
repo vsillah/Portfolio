@@ -22,6 +22,8 @@ describe('activation provider gate', () => {
   it('allows only exact HTTPS app origins and exposes no database secret in the public contract', () => {
     expect(configuredAppOrigins(configured)).toEqual({ 'trumpet-trainer': ['https://app.example.test'] })
     expect(configuredAppOrigins({ ...configured, APP_ACTIVATION_APP_ORIGINS: '{"trumpet-trainer":["http://bad.example.test"]}' })).toEqual({})
+    expect(configuredAppOrigins({ ...configured, APP_ACTIVATION_APP_ORIGINS: '{"trumpet-trainer":["https://app.example.test/path"]}' })).toEqual({})
+    expect(configuredAppOrigins({ ...configured, APP_ACTIVATION_APP_ORIGINS: '{"trumpet-trainer":["https://app.example.test"],"other-app":["http://bad.example.test"]}' })).toEqual({})
     expect(JSON.stringify(configuredAppOrigins(configured))).not.toContain('fixture:fixture')
   })
 })
