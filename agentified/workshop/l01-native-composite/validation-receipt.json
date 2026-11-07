@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "status": "human_qa_candidate",
+  "lesson_id": "L01",
+  "source_commit": "63ad5911294534d111f0696346682cc79c52fdc3",
+  "request_candidate_sha256": "3d36d889ffb65d63e6a6bd4f0b315c00ed25162e329c0303acec09656c5114cb",
+  "provider_job_id": "ab6f123ddc5147db8ea448c725a19c93",
+  "source": {
+    "path": "agentified/workshop/l01-native-source/agentified-l01-heygen-native-source.mp4",
+    "sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
+    "duration_seconds": 18.242,
+    "playback_speed": 1.0
+  },
+  "composite": {
+    "path": "agentified/workshop/l01-native-composite/agentified-l01-native-composite.mp4",
+    "sha256": "da85f9e1bf5959dcd55eefb58b58e00233c0bcc674967a2a0835a9b1cd4fe3a5",
+    "duration_seconds": 540,
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "frame_count": 13500,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "subtitle_codec": "mov_text",
+    "subtitle_language": "eng"
+  },
+  "bindings": {
+    "timeline_sha256": "b9e252bb1b3d7ec5683720146b3c20f159e8e5aa3c04390f0e7166ea270f8b00",
+    "caption_sha256": "e778245ead0585e151ae8c354684cb0e7970f950681039958c7b0e70aa4bf1b7",
+    "renderer_sha256": "e9b86ab0ebc8dea585472bc97db6bd04452f429c5efbb69787d04af06ea244fb"
+  },
+  "timing": {
+    "source_split_seconds": 14.171,
+    "opening_source_range": [0, 14.171],
+    "opening_sequence_range": [0, 14.171],
+    "closing_source_range": [14.171, 18.242],
+    "closing_sequence_range": [518.84, 522.911],
+    "approved_provider_free_close": [523, 540]
+  },
+  "checks": {
+    "full_decode": "pass",
+    "native_speed": "pass",
+    "source_frame_geometry": "pass",
+    "sentence_complete_handoff": "pass",
+    "approved_plate_unobscured": "pass",
+    "closing_card_no_frozen_presenter": "pass",
+    "caption_track": "pass",
+    "packet_validation": "pass",
+    "source_binding_validation": "pass",
+    "git_diff_check": "pass"
+  },
+  "provider_calls_during_composite": 0,
+  "additional_spend_usd": 0
+}
