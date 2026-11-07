@@ -1,6 +1,6 @@
 # App Activation Control Plane
 
-Status: Phase 1 source foundation. No intake endpoint, operator console, invitation delivery, remote migration, or app integration is active.
+Status: Phase 1 source foundation plus a Phase 2 local synthetic operator console. No intake endpoint, invitation delivery, remote migration, hosted operator provider, or app integration is active.
 
 ## Purpose and ownership
 
@@ -26,6 +26,8 @@ The private function runs as its caller and compares the supplied Auth user ID w
 `lib/app-activation.ts` is the product-neutral TypeScript domain contract. The generated migration `20261106234206_app_activation_control_plane.sql` is the local persistence contract. The SQL function is the atomic redemption boundary; the TypeScript redemption predicate is a preflight guard, not a substitute for the database claim. One unrevoked grant per app/account and one grant per invitation are enforced by indexes. Reissue after expiration requires explicit revocation or a future lifecycle design, so Phase 2 must not silently overwrite grants.
 
 ## Phase 2 implementation brief: operator review console
+
+The Phase 2 console route is `/admin/app-activation`. Its admin API requires Portfolio's server-side admin verification. The only active repository is a deterministic local fixture enabled by `APP_ACTIVATION_REVIEW_MODE=synthetic` during `next dev`; production and previews return a provider-unconfigured state and reject mutations. Synthetic invitation preparation stores no raw token, hash, or delivery link. Its audit events reset with the development server. Portfolio activation tables are the sole future system of record. Source receipts remain provider-neutral so a separately approved, one-time legacy import could retain provenance; this phase does not read or import a legacy source. No Google Sheets or n8n runtime integration belongs in the target architecture.
 
 Build a private admin route that lists interest by app and state, shows consent version/source and a timeline, and supports review, waitlist, rejection, approval, invite issuance, and grant revocation. Require server-side admin authorization using Portfolio's current auth pattern. Every mutation must validate the lifecycle, write an audit event transactionally, and record actor/reason. Search by adult email with deliberate limits; do not show raw tokens or child identity. Invitation issuance must check current consent, use secure randomness, and return the raw token once only to an explicitly approved delivery adapter. No automatic Gmail/n8n send or sales-lead creation.
 
