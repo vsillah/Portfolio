@@ -35,11 +35,16 @@ for (const [name, viewport] of [['desktop', { width: 1280, height: 800 }], ['mob
           stageOverflow: stage.scrollWidth > stage.clientWidth + 2 || stage.scrollHeight > stage.clientHeight + 2,
           copyVisualOverlap: cr.left < vr.right - 2 && cr.right > vr.left + 2 && cr.top < vr.bottom - 2 && cr.bottom > vr.top + 2,
           imageInvalid: Boolean(image && (!image.naturalWidth || ir.right > vr.right + 2 || ir.bottom > vr.bottom + 2)),
+          controlClipped: [...document.querySelectorAll('.controls button')].some((button) => button.scrollWidth > button.clientWidth + 2 || button.getBoundingClientRect().right > innerWidth + 2),
           error: document.querySelector('#caption')?.textContent?.startsWith('Review load failed:'),
         };
       });
       if (Object.values(measured).some(Boolean)) errors.push(`${name} ${lesson} ${state}: ${JSON.stringify(measured)}`);
-      if (state === 'diagram' || state === 'card') await page.screenshot({ path: path.join(here, `${name}-${lesson}-${state}.png`) });
+      if (state === 'diagram' || state === 'card') await page.screenshot({ path: path.join(here, `${name}-${lesson}-${state}.png`), fullPage: true });
+      if (name === 'mobile') {
+        await page.waitForTimeout(350);
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      }
       await page.waitForTimeout(850);
     }
   }
