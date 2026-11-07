@@ -1,0 +1,47 @@
+import { readFileSync } from 'node:fs'
+import { PGlite } from '@electric-sql/pglite'
+import { describe, expect, it } from 'vitest'
+import { hashInvitationToken } from './app-activation'
+
+const base = readFileSync('supabase/migrations/20261106234206_app_activation_control_plane.sql', 'utf8')
+const direct = readFileSync('supabase/migrations/20261107010645_app_activation_direct_intake.sql', 'utf8')
+const id = (last: string) => `00000000-0000-4000-8000-${last.padStart(12, '0')}`
+
+describe('local activation SQL', () => {
+  it('applies both migrations and atomically rejects cross-app, email, expiry, revocation, and replay', async () => {
+    const db = new PGlite()
+    try {
+      await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
+        create schema auth; create table auth.users(id uuid primary key, email text); grant usage on schema auth to service_role;`)
+      await db.exec(base)
+      await db.exec(direct)
+      await db.query(`insert into auth.users(id,email) values($1,'adult@example.test'),($2,'other@example.test')`, [id('1'), id('2')])
+      await db.exec(`insert into public.activation_apps(app_key,display_name) values('trumpet-trainer','Trumpet Trainer'),('future-app','Future App');`)
+      const token = 'fixture-invite-secret'
+      await db.query(`insert into public.activation_interests(id,app_key,adult_email,status,source_type,source_ref,intake_key_hash)
+        values($1,'trumpet-trainer','adult@example.test','approved','direct_form','fixture:receipt-1',$2)`, [id('3'), 'a'.repeat(64)])
+      await expect(db.query(`insert into public.activation_interests(app_key,adult_email,source_type,intake_key_hash)
+        values('trumpet-trainer','adult@example.test','direct_form',$1)`, ['a'.repeat(64)])).rejects.toThrow()
+      await db.query(`insert into public.activation_consents(interest_id,app_key,consent_kind,document_version,decision,source_type)
+        values($1,'trumpet-trainer','interest_contact','interest-v1','granted','direct_form')`, [id('3')])
+      await db.query(`insert into public.activation_invitations(id,interest_id,app_key,token_hash,expires_at)
+        values($1,$2,'trumpet-trainer',$3,now()+interval '7 days')`, [id('4'), id('3'), hashInvitationToken(token)])
+      await db.exec('set role service_role')
+      const claim = async (app: string, user: string, raw = token) => db.query<{ id: string | null }>(
+        `select activation_private.redeem_invitation($1,$2,$3,now()+interval '30 days') id`, [app, hashInvitationToken(raw), user])
+      expect((await claim('future-app', id('1'))).rows[0].id).toBeNull()
+      expect((await claim('trumpet-trainer', id('2'))).rows[0].id).toBeNull()
+      expect((await claim('trumpet-trainer', id('1'))).rows[0].id).toBeTruthy()
+      expect((await claim('trumpet-trainer', id('1'))).rows[0].id).toBeNull()
+      const grants = await db.query<{ app_key: string; auth_user_id: string }>('select app_key,auth_user_id from public.activation_grants')
+      expect(grants.rows).toEqual([{ app_key: 'trumpet-trainer', auth_user_id: id('1') }])
+
+      await db.query(`insert into public.activation_invitations(id,interest_id,app_key,token_hash,expires_at,status,revoked_at,revoked_by)
+        values($1,$2,'trumpet-trainer',$3,now()+interval '7 days','revoked',now(),$4)`, [id('5'), id('3'), hashInvitationToken('revoked-token'), id('1')])
+      expect((await claim('trumpet-trainer', id('1'), 'revoked-token')).rows[0].id).toBeNull()
+      await db.query(`insert into public.activation_invitations(id,interest_id,app_key,token_hash,issued_at,expires_at)
+        values($1,$2,'trumpet-trainer',$3,now()-interval '3 days',now()-interval '1 day')`, [id('6'), id('3'), hashInvitationToken('expired-token')])
+      expect((await claim('trumpet-trainer', id('1'), 'expired-token')).rows[0].id).toBeNull()
+    } finally { await db.close() }
+  })
+})
