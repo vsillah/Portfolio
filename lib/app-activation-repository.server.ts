@@ -44,6 +44,8 @@ export function configuredAppOrigins(env: Record<string, string | undefined> = p
       !/^[a-z0-9][a-z0-9-]{1,62}$/.test(key) || !Array.isArray(origins)
       || origins.length === 0 || origins.some(origin => !isExactHttpsOrigin(origin))
       || new Set(origins).size !== origins.length)) return {}
+    const allOrigins = entries.flatMap(([, origins]) => origins as string[])
+    if (new Set(allOrigins).size !== allOrigins.length) return {}
     return Object.fromEntries(entries) as Record<string, string[]>
   } catch { return {} }
 }
