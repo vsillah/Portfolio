@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
   let body: unknown
   try { body = await request.json() } catch { return reply({ error: 'Invalid JSON.' }, 400) }
   if (!isAdultInterestForm(body)) return reply({ error: 'Adult email and explicit consent are required.' }, 400)
-  if (!configuredAppOrigins()[body.appKey]?.includes(origin)) return reply({ error: 'Origin is not allowed for this app.' }, 403)
+  const appOrigins = configuredAppOrigins()[body.appKey]
+  if (!appOrigins || (origin !== new URL(request.url).origin && !appOrigins.includes(origin))) return reply({ error: 'Origin is not allowed for this app.' }, 403)
   if (body.consentVersion !== process.env.APP_ACTIVATION_CONSENT_VERSION) return reply({ error: 'Consent version is not current.' }, 409)
   try {
     await repository.intake({ appKey: body.appKey, adultEmail: normalizeAdultEmail(body.adultEmail)!, consentVersion: body.consentVersion,
