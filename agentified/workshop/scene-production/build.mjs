@@ -10,24 +10,38 @@ const read = (p) => readFileSync(path.join(repo, p))
 const map = JSON.parse(read('agentified/workshop/curriculum-crosswalk.json'))
 const approved = JSON.parse(read('agentified/workshop/visual-review/packets.json'))
 const register = JSON.parse(read('agentified/workshop/source-register.json'))
+export const presenterWindows = JSON.parse(read('agentified/workshop/scene-production/presenter-windows.json'))
 const sourceByPath = new Map(register.sources.map((x) => [x.path, x]))
 const sceneForVisual = {
   L01: [4], L02: [4], L03: [2], L04: [4], L05: [4], L06: [3], L07: [5], L08: [5],
   L09: [2, 4], L10: [3], L11: [2], L12: [3], L13: [2], L14: [3, 4], L15: [4], L16: [4, 5],
 }
+const batchFor = (number) => Math.floor((number - 1) / 4) + 1
 const seconds = (clock) => { const [m, s] = clock.split(':').map(Number); return m * 60 + s }
-const captionCues = (narration, start, end) => {
-  const text = narration.replace(/^“|”$/g, '')
-  const segments = [...new Intl.Segmenter('en', { granularity: 'sentence' }).segment(text)].map((x) => x.segment)
-  const words = text.trim().split(/\s+/).length
-  const speaking = Math.min(end - start, Math.ceil(words / 2.25))
+const timedSegments = (segments, start, end) => {
+  const length = segments.reduce((sum, segment) => sum + segment.length, 0)
   let cursor = start
-  return segments.map((segment, i) => {
-    const next = i === segments.length - 1 ? start + speaking : cursor + speaking * (segment.length / text.length)
+  return segments.map((segment, index) => {
+    const next = index === segments.length - 1 ? end : cursor + (end - start) * (segment.length / length)
     const cue = { start_seconds: Number(cursor.toFixed(3)), end_seconds: Number(next.toFixed(3)), text: segment }
     cursor = next
     return cue
   })
+}
+const captionCues = (narration, start, end, presenterWindow) => {
+  const text = narration.replace(/^“|”$/g, '')
+  const segments = [...new Intl.Segmenter('en', { granularity: 'sentence' }).segment(text)].map((x) => x.segment)
+  const words = text.trim().split(/\s+/).length
+  const speaking = Math.min(end - start, Math.ceil(words / 2.25))
+  const speakingEnd = start + speaking
+  const unlocked = timedSegments(segments, start, speakingEnd)
+  if (!presenterWindow || segments.length < 2) return unlocked
+  const lock = presenterWindow.start_seconds === start ? presenterWindow.end_seconds : presenterWindow.start_seconds
+  if (lock <= start || lock >= speakingEnd) throw new Error(`presenter window ${lock} falls outside spoken span ${start}-${speakingEnd}`)
+  if (unlocked.some((cue) => cue.start_seconds === lock || cue.end_seconds === lock)) return unlocked
+  const boundaries = unlocked.slice(0, -1).map((cue, index) => ({ index: index + 1, distance: Math.abs(cue.end_seconds - lock) }))
+  const split = boundaries.sort((a, b) => a.distance - b.distance)[0].index
+  return [...timedSegments(segments.slice(0, split), start, lock), ...timedSegments(segments.slice(split), lock, speakingEnd)]
 }
 const cells = (row) => row.trim().slice(1, -1).split(' | ').map((cell) => cell.trim())
 const audienceLines = (raw) => [...raw.matchAll(/“([^”]+)”/g)].map((m) => m[1])
@@ -55,8 +69,11 @@ export function buildPacket(number) {
     }))
     const lines = audienceLines(onScreen)
     const isExercise = lines.length === 0
+    const sceneId = `${id}-${String(index + 1).padStart(2, '0')}`
+    const presenterWindow = presenterWindows.windows[sceneId] ?? null
+    const captions = captionCues(narration, start, end, presenterWindow)
     return {
-      id: `${id}-${String(index + 1).padStart(2, '0')}`, beat: index + 1,
+      id: sceneId, beat: index + 1,
       start_seconds: start, end_seconds: end, source_time: range,
       narration_exact: narration, on_screen_copy_exact: onScreen,
       audience_copy: lines, audience_copy_state: isExercise ? 'pause_only_source_instruction_withheld' : 'exact_script_quotes',
@@ -64,8 +81,8 @@ export function buildPacket(number) {
       composition: visualBindings.length ? 'approved plate in independent contain region; separate teaching copy' : isExercise ? 'quiet writing timer and blank workspace' : 'synthetic type cards on neutral field',
       approved_visuals: visualBindings,
       motion: visualBindings.length ? 'static hold; no crop, pan, or zoom on plate' : '150 ms opacity entrance on each text card; reduced motion uses instant cut',
-      captions: captionCues(narration, start, end),
-      avatar_window: index === 0 ? { start_seconds: start, end_seconds: Math.min(end, start + 20), state: 'reserved_unfilled' } : index === 7 ? { start_seconds: Math.max(start, end - 15), end_seconds: end, state: 'reserved_unfilled' } : null,
+      captions,
+      avatar_window: presenterWindow,
       b_roll: visualBindings.length ? 'approved static plate only; no product, participant, or live system footage' : 'none; synthetic layout only',
       audio_ownership: 'exact scripted narration reserved; no voice rendered; silence after provisional caption span',
       transition: index === 0 ? 'open on static frame' : 'straight cut; no content overlap',
@@ -75,7 +92,8 @@ export function buildPacket(number) {
   })
   const exactNarration = scenes.map((scene) => scene.narration_exact).join('\n')
   return {
-    schema_version: 1, id, title: lesson.title, base_commit: '0eed3e63014390038f4f6550cf0f3971c4b526ee',
+    schema_version: 1, id, title: lesson.title, batch: batchFor(number), base_commit: '0eed3e63014390038f4f6550cf0f3971c4b526ee',
+    package_cover: { path: approved.cover_hold.jpg.path, sha256: approved.cover_hold.jpg.sha256, approval_record: approved.cover_hold.approval.record, use: 'package_identity_only' },
     script_path: scriptPath, script_sha256: sha(read(scriptPath)), narration_sha256: sha(exactNarration),
     approved_visual_packet_sha256: sha(read('agentified/workshop/visual-review/packets.json')),
     source_register_sha256: sha(read('agentified/workshop/source-register.json')),
@@ -85,7 +103,7 @@ export function buildPacket(number) {
     learning_outcome: lesson.learning_outcome, exercise: lesson.exercise, workbook_outputs: lesson.workbook_outputs,
     operating_file: { artifact: lesson.operating_file_artifact, revision: number, status: 'draft', update_exact: script.match(/^\*\*Operating File update:\*\* (.+)$/m)?.[1] ?? '' },
     continuity: { case: 'Harbor Learning Circle', owner: 'Morgan', source_ids: [...new Set(script.match(/SYN-[A-Z0-9-]+/g) ?? [])] },
-    boundaries: { evidence: lesson.evidence_boundary, privacy: 'synthetic Harbor only; no actual participant, client, admin, or private corpus content', authority: 'prepare_only; no live agent, memory promotion, message, booking, spending, or publication', provider_execution: 'disabled', accelerated_sam_media: 'lineage_only_excluded' },
+    boundaries: { evidence: lesson.evidence_boundary, privacy: 'synthetic Harbor only; no actual participant, client, admin, or private corpus content', authority: 'prepare_only; no live agent, memory promotion, message, booking, spending, or publication', provider_execution: 'disabled', customer_release: 'held_pending_editorial_and_final_audio_review', accelerated_sam_media: 'lineage_only_excluded' },
     timing_seconds: scenes.at(-1).end_seconds, scenes,
   }
 }

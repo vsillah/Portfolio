@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L12",
   "title": "Prove the work safely",
+  "batch": 3,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L12-proof-and-foundry.md",
-  "script_sha256": "4a49004183485ad46b7d501462dd9c59316a3ee7a95224246048e1a434533de8",
-  "narration_sha256": "a0244b72aa8addbe6be68361116114a7c477984a634fa5b90a281d2777f5f075",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "script_sha256": "5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4",
+  "narration_sha256": "09b9c378054dd76b9e44ef1660e887f02fb6ae0e9cc560a86fadd553952d0d0a",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -39,9 +46,9 @@
     "case": "Harbor Learning Circle",
     "owner": "Morgan",
     "source_ids": [
+      "SYN-TRACE-01",
       "SYN-HOLD-01",
       "SYN-SPEND-01",
-      "SYN-TRACE-01",
       "SYN-PROOF-01",
       "SYN-IDEA-01"
     ]
@@ -51,6 +58,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -61,7 +69,7 @@
       "start_seconds": 0,
       "end_seconds": 70,
       "source_time": "0:00–1:10",
-      "narration_exact": "“A fictional Harbor board member asks Morgan what the preparation agent actually did for the proposed session. Morgan could hand over the entire trace. That would reveal source notes and internal deliberation the board member did not request. Morgan could write a polished story from memory. That would be hard to check. We need a smaller packet: enough to show the boundary, the work, the hold, and the human decision, without dragging every underlying record into the room.”",
+      "narration_exact": "“A Harbor board member asks Morgan what the preparation agent actually did for the proposed session. Morgan could hand over the entire trace. That would reveal source notes and internal deliberation the board member did not request. Morgan could write a polished story from memory. That would be hard to check. We need a smaller packet: enough to show the boundary, the work, the hold, and the human decision, without dragging every underlying record into the room.”",
       "on_screen_copy_exact": "“Show the work. Bound the view.”",
       "audience_copy": [
         "Show the work. Bound the view."
@@ -74,16 +82,16 @@
       "captions": [
         {
           "start_seconds": 0,
-          "end_seconds": 8.122,
-          "text": "A fictional Harbor board member asks Morgan what the preparation agent actually did for the proposed session. "
+          "end_seconds": 7.702,
+          "text": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session. "
         },
         {
-          "start_seconds": 8.122,
-          "end_seconds": 11.15,
+          "start_seconds": 7.702,
+          "end_seconds": 10.86,
           "text": "Morgan could hand over the entire trace. "
         },
         {
-          "start_seconds": 11.15,
+          "start_seconds": 10.86,
           "end_seconds": 17.869,
           "text": "That would reveal source notes and internal deliberation the board member did not request. "
         },
@@ -105,7 +113,7 @@
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 17.869,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -125,7 +133,7 @@
       "start_seconds": 70,
       "end_seconds": 145,
       "source_time": "1:10–2:25",
-      "narration_exact": "“Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger. For our invented board reader, scope is one Harbor session-option paper case, across one fictional planning window. Include the permitted job, evidence-status summary, handoff result, `SYN-HOLD-01`, Morgan's paper disposition, and the still-unapproved `SYN-SPEND-01`. Exclude raw source text, prompts, private reasoning, unrelated people, and any actual records. The packet records what is known and what is withheld. It does not certify agent quality or imply a session happened.”",
+      "narration_exact": "“Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger. For the Harbor board reader, scope is one session-option paper case across one course planning window. Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request. Exclude raw source text, prompts, private reasoning, unrelated people, and any actual records. The packet records what is known and what is withheld. It does not certify agent quality or imply a session happened.”",
       "on_screen_copy_exact": "“Audience / Scope / Window / Exclusions / Export / Ledger.”",
       "audience_copy": [
         "Audience / Scope / Window / Exclusions / Export / Ledger."
@@ -138,32 +146,32 @@
       "captions": [
         {
           "start_seconds": 70,
-          "end_seconds": 77,
+          "end_seconds": 77.313,
           "text": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger. "
         },
         {
-          "start_seconds": 77,
-          "end_seconds": 84.25,
-          "text": "For our invented board reader, scope is one Harbor session-option paper case, across one fictional planning window. "
+          "start_seconds": 77.313,
+          "end_seconds": 84.038,
+          "text": "For the Harbor board reader, scope is one session-option paper case across one course planning window. "
         },
         {
-          "start_seconds": 84.25,
-          "end_seconds": 93.75,
-          "text": "Include the permitted job, evidence-status summary, handoff result, `SYN-HOLD-01`, Morgan's paper disposition, and the still-unapproved `SYN-SPEND-01`. "
+          "start_seconds": 84.038,
+          "end_seconds": 94.158,
+          "text": "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request. "
         },
         {
-          "start_seconds": 93.75,
-          "end_seconds": 99.688,
+          "start_seconds": 94.158,
+          "end_seconds": 100.361,
           "text": "Exclude raw source text, prompts, private reasoning, unrelated people, and any actual records. "
         },
         {
-          "start_seconds": 99.688,
-          "end_seconds": 103.125,
+          "start_seconds": 100.361,
+          "end_seconds": 103.952,
           "text": "The packet records what is known and what is withheld. "
         },
         {
-          "start_seconds": 103.125,
-          "end_seconds": 107,
+          "start_seconds": 103.952,
+          "end_seconds": 108,
           "text": "It does not certify agent quality or imply a session happened."
         }
       ],
@@ -185,7 +193,7 @@
       "start_seconds": 145,
       "end_seconds": 215,
       "source_time": "2:25–3:35",
-      "narration_exact": "“The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes. Use placeholder IDs and an invented timestamp label, not a real log. Morgan reviews the proposed proof packet before any sharing. If a field cannot be safely summarized, mark it withheld with a reason. Redaction is a decision, not a blur laid over a screenshot. Here, the export is only a classroom outline; nothing is sent.”",
+      "narration_exact": "“The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes. Use course references and a course timestamp label, not a real log. Morgan reviews the proposed proof packet before any sharing. If a field cannot be safely summarized, mark it withheld with a reason. Redaction is a decision, not a blur laid over a screenshot. Here, the export is only a classroom outline; nothing is sent.”",
       "on_screen_copy_exact": "“Include: scoped receipts and decision.” “Withhold: raw and unrelated records.”",
       "audience_copy": [
         "Include: scoped receipts and decision.",
@@ -207,31 +215,31 @@
       "captions": [
         {
           "start_seconds": 145,
-          "end_seconds": 155.857,
+          "end_seconds": 155.88,
           "text": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes. "
         },
         {
-          "start_seconds": 155.857,
-          "end_seconds": 160.786,
-          "text": "Use placeholder IDs and an invented timestamp label, not a real log. "
+          "start_seconds": 155.88,
+          "end_seconds": 160.747,
+          "text": "Use course references and a course timestamp label, not a real log. "
         },
         {
-          "start_seconds": 160.786,
-          "end_seconds": 165.143,
+          "start_seconds": 160.747,
+          "end_seconds": 165.114,
           "text": "Morgan reviews the proposed proof packet before any sharing. "
         },
         {
-          "start_seconds": 165.143,
-          "end_seconds": 170.286,
+          "start_seconds": 165.114,
+          "end_seconds": 170.267,
           "text": "If a field cannot be safely summarized, mark it withheld with a reason. "
         },
         {
-          "start_seconds": 170.286,
-          "end_seconds": 174.571,
+          "start_seconds": 170.267,
+          "end_seconds": 174.562,
           "text": "Redaction is a decision, not a blur laid over a screenshot. "
         },
         {
-          "start_seconds": 174.571,
+          "start_seconds": 174.562,
           "end_seconds": 179,
           "text": "Here, the export is only a classroom outline; nothing is sent."
         }
@@ -254,7 +262,7 @@
       "start_seconds": 215,
       "end_seconds": 290,
       "source_time": "3:35–4:50",
-      "narration_exact": "“The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options. The temptation is to build it because it fits the Harbor story. Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates. The workbook proposes a weighted score out of one hundred. A score is useful only when each field has attributable evidence. Our class has no real market research, payer interview, or release review. Those fields stay unscored. A made-up number would turn an idea into false proof.”",
+      "narration_exact": "“The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options. The temptation is to build it because it fits the Harbor story. Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates. The workbook proposes a weighted score out of one hundred. A score is useful only when each field has attributable evidence. Our class has no real market research, payer interview, or release review. Those fields stay unscored. A number without evidence would turn an idea into false proof.”",
       "on_screen_copy_exact": "“Idea → evidence → packet → human gate.” “Missing evidence: unscored.”",
       "audience_copy": [
         "Idea → evidence → packet → human gate.",
@@ -268,43 +276,43 @@
       "captions": [
         {
           "start_seconds": 215,
-          "end_seconds": 223.026,
+          "end_seconds": 222.91,
           "text": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options. "
         },
         {
-          "start_seconds": 223.026,
-          "end_seconds": 227.612,
+          "start_seconds": 222.91,
+          "end_seconds": 227.43,
           "text": "The temptation is to build it because it fits the Harbor story. "
         },
         {
-          "start_seconds": 227.612,
-          "end_seconds": 238.863,
+          "start_seconds": 227.43,
+          "end_seconds": 238.518,
           "text": "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates. "
         },
         {
-          "start_seconds": 238.863,
-          "end_seconds": 243.091,
+          "start_seconds": 238.518,
+          "end_seconds": 242.685,
           "text": "The workbook proposes a weighted score out of one hundred. "
         },
         {
-          "start_seconds": 243.091,
-          "end_seconds": 247.821,
+          "start_seconds": 242.685,
+          "end_seconds": 247.347,
           "text": "A score is useful only when each field has attributable evidence. "
         },
         {
-          "start_seconds": 247.821,
-          "end_seconds": 253.195,
+          "start_seconds": 247.347,
+          "end_seconds": 252.644,
           "text": "Our class has no real market research, payer interview, or release review. "
         },
         {
-          "start_seconds": 253.195,
-          "end_seconds": 255.202,
+          "start_seconds": 252.644,
+          "end_seconds": 254.621,
           "text": "Those fields stay unscored. "
         },
         {
-          "start_seconds": 255.202,
+          "start_seconds": 254.621,
           "end_seconds": 259,
-          "text": "A made-up number would turn an idea into false proof."
+          "text": "A number without evidence would turn an idea into false proof."
         }
       ],
       "avatar_window": null,
@@ -426,7 +434,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Draft a Client-Safe Proof Packet outline for the single Harbor planning case. State audience, scope, window, inclusions, exclusions, export review, and ledger fields. Redact the fictional trace in words rather than pasting it. Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition. Use only invented case material. Do not fetch private records, contact a person, create a repo, or generate a public claim.”",
+      "narration_exact": "“Draft a Client-Safe Proof Packet outline for the Harbor planning case. State audience, scope, window, inclusions, exclusions, export review, and ledger fields. Redact the course trace in words rather than pasting it. Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition. Use a fictional or approved example. Do not use private operational data, contact a person, create a repo, or generate a public claim.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -437,33 +445,33 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 380.521,
-          "text": "Draft a Client-Safe Proof Packet outline for the single Harbor planning case. "
+          "end_seconds": 380.016,
+          "text": "Draft a Client-Safe Proof Packet outline for the Harbor planning case. "
         },
         {
-          "start_seconds": 380.521,
-          "end_seconds": 386.82,
+          "start_seconds": 380.016,
+          "end_seconds": 386.304,
           "text": "State audience, scope, window, inclusions, exclusions, export review, and ledger fields. "
         },
         {
-          "start_seconds": 386.82,
-          "end_seconds": 391.067,
-          "text": "Redact the fictional trace in words rather than pasting it. "
+          "start_seconds": 386.304,
+          "end_seconds": 390.332,
+          "text": "Redact the course trace in words rather than pasting it. "
         },
         {
-          "start_seconds": 391.067,
-          "end_seconds": 405.294,
+          "start_seconds": 390.332,
+          "end_seconds": 404.533,
           "text": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition. "
         },
         {
-          "start_seconds": 405.294,
-          "end_seconds": 407.63,
-          "text": "Use only invented case material. "
+          "start_seconds": 404.533,
+          "end_seconds": 407.147,
+          "text": "Use a fictional or approved example. "
         },
         {
-          "start_seconds": 407.63,
+          "start_seconds": 407.147,
           "end_seconds": 414,
-          "text": "Do not fetch private records, contact a person, create a repo, or generate a public claim."
+          "text": "Do not use private operational data, contact a person, create a repo, or generate a public claim."
         }
       ],
       "avatar_window": null,
@@ -518,7 +526,7 @@
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 588.115,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

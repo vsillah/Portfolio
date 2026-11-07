@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L07",
   "title": "Specify the work and the team",
+  "batch": 2,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L07-prd-and-pod.md",
-  "script_sha256": "bb105a10e134cf636e0e1aad96539967f4b98fcaa4190cb713605b4581654a41",
-  "narration_sha256": "9264ed514a68f732f973ada2c72e9d7ac0a9a91d7a7661ff2e04a9c85e63efdc",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "script_sha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
+  "narration_sha256": "3defc026c10a8809e632603722acd180f5b107fbbba765dc13cc9322f8885382",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -51,6 +58,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -131,7 +139,7 @@
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 13.173,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -151,7 +159,7 @@
       "start_seconds": 65,
       "end_seconds": 145,
       "source_time": "1:05–2:25",
-      "narration_exact": "“Chapter Eleven turns the request into an Agentic PRD Packet. Seven fields carry the load: outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal. The outcome is a comparison Morgan can review, not a session announcement. Scope fences keep the role away from participant messages and calendar changes. The input manifest lists three invented note IDs and their freshness checks. An acceptance test says staffing language must match the facilitator note exactly in meaning. If the note is missing or ambiguous, the escalation is a hold for Morgan.”",
+      "narration_exact": "“Chapter Eleven turns the request into an Agentic PRD Packet. Seven fields carry the load: outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal. The outcome is a comparison Morgan can review, not a session announcement. Scope fences keep the role away from participant messages and calendar changes. The input manifest lists the three Harbor note references and their freshness checks. An acceptance test says staffing language must match the facilitator note exactly in meaning. If the note is missing or ambiguous, the escalation is a hold for Morgan.”",
       "on_screen_copy_exact": "“Outcome • Scope • Inputs • Tests • Escalation • Owner • Reversal.”",
       "audience_copy": [
         "Outcome • Scope • Inputs • Tests • Escalation • Owner • Reversal."
@@ -164,37 +172,37 @@
       "captions": [
         {
           "start_seconds": 65,
-          "end_seconds": 69.214,
+          "end_seconds": 69.253,
           "text": "Chapter Eleven turns the request into an Agentic PRD Packet. "
         },
         {
-          "start_seconds": 69.214,
-          "end_seconds": 77.435,
+          "start_seconds": 69.253,
+          "end_seconds": 77.551,
           "text": "Seven fields carry the load: outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal. "
         },
         {
-          "start_seconds": 77.435,
-          "end_seconds": 82.617,
+          "start_seconds": 77.551,
+          "end_seconds": 82.781,
           "text": "The outcome is a comparison Morgan can review, not a session announcement. "
         },
         {
-          "start_seconds": 82.617,
-          "end_seconds": 88.143,
+          "start_seconds": 82.781,
+          "end_seconds": 88.359,
           "text": "Scope fences keep the role away from participant messages and calendar changes. "
         },
         {
-          "start_seconds": 88.143,
-          "end_seconds": 93.463,
-          "text": "The input manifest lists three invented note IDs and their freshness checks. "
+          "start_seconds": 88.359,
+          "end_seconds": 94.355,
+          "text": "The input manifest lists the three Harbor note references and their freshness checks. "
         },
         {
-          "start_seconds": 93.463,
-          "end_seconds": 99.957,
+          "start_seconds": 94.355,
+          "end_seconds": 100.91,
           "text": "An acceptance test says staffing language must match the facilitator note exactly in meaning. "
         },
         {
-          "start_seconds": 99.957,
-          "end_seconds": 105,
+          "start_seconds": 100.91,
+          "end_seconds": 106,
           "text": "If the note is missing or ambiguous, the escalation is a hold for Morgan."
         }
       ],
@@ -467,7 +475,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Draft the seven-field PRD in under a page. Give it two acceptance tests, including the staffing claim, and one explicit failure route. Then sketch the Pod Model: charter, lead, specialists, board, standup, handoff, and human owner. Use role labels and invented IDs. Do not configure production agents, paste a real staff roster, or promote the pod's coordinator into final decision authority.”",
+      "narration_exact": "“Draft the seven-field PRD in under a page. Give it two acceptance tests, including the staffing claim, and one explicit failure route. Then sketch the Pod Model: charter, lead, specialists, board, standup, handoff, and human owner. Use role labels and course references. Use a fictional or approved example. Do not use private operational data, configure production agents, or promote the pod's coordinator into final decision authority.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -478,28 +486,33 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 378.071,
+          "end_seconds": 377.952,
           "text": "Draft the seven-field PRD in under a page. "
         },
         {
-          "start_seconds": 378.071,
-          "end_seconds": 384.643,
+          "start_seconds": 377.952,
+          "end_seconds": 384.268,
           "text": "Give it two acceptance tests, including the staffing claim, and one explicit failure route. "
         },
         {
-          "start_seconds": 384.643,
-          "end_seconds": 391.571,
+          "start_seconds": 384.268,
+          "end_seconds": 390.927,
           "text": "Then sketch the Pod Model: charter, lead, specialists, board, standup, handoff, and human owner. "
         },
         {
-          "start_seconds": 391.571,
-          "end_seconds": 394,
-          "text": "Use role labels and invented IDs. "
+          "start_seconds": 390.927,
+          "end_seconds": 393.604,
+          "text": "Use role labels and course references. "
         },
         {
-          "start_seconds": 394,
-          "end_seconds": 403,
-          "text": "Do not configure production agents, paste a real staff roster, or promote the pod's coordinator into final decision authority."
+          "start_seconds": 393.604,
+          "end_seconds": 396.144,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 396.144,
+          "end_seconds": 405,
+          "text": "Do not use private operational data, configure production agents, or promote the pod's coordinator into final decision authority."
         }
       ],
       "avatar_window": null,
@@ -520,7 +533,7 @@
       "start_seconds": 575,
       "end_seconds": 600,
       "source_time": "9:35–10:00",
-      "narration_exact": "“Save revision seven as a draft. A requirement becomes useful when a new teammate can tell what to prepare and when to stop. A team becomes useful when a blocked packet has one place to land. Next we will test that handoff with three invented cases.”",
+      "narration_exact": "“Save revision seven as a draft. A requirement becomes useful when a new teammate can tell what to prepare and when to stop. A team becomes useful when a blocked packet has one place to land. Next we will test that handoff with three course cases.”",
       "on_screen_copy_exact": "“Operating File v7: PRD + pod.” “Next: handoff and evaluation.”",
       "audience_copy": [
         "Operating File v7: PRD + pod.",
@@ -544,17 +557,17 @@
         },
         {
           "start_seconds": 585.5,
-          "end_seconds": 591.173,
+          "end_seconds": 591.266,
           "text": "A team becomes useful when a blocked packet has one place to land. "
         },
         {
-          "start_seconds": 591.173,
+          "start_seconds": 591.266,
           "end_seconds": 596,
-          "text": "Next we will test that handoff with three invented cases."
+          "text": "Next we will test that handoff with three course cases."
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 585.5,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

@@ -21,19 +21,24 @@ for (const [name, width, height] of viewports) {
     const lesson = `L${String(number).padStart(2, '0')}`
     await page.goto(`${url}?lesson=${lesson}&rev=${revision}`)
     await page.waitForFunction((id) => document.querySelector('#scene-label')?.textContent?.startsWith(id), lesson)
+    await page.locator('#cover').evaluate((img) => img.decode())
     const packet = await page.evaluate(async (id) => (await (await fetch(`packets/${id}.json`)).json()), lesson)
     for (const beat of [0, 1, 2, 3, 4, 6, 7]) {
       await page.locator('#seek').fill(String(packet.scenes[beat].start_seconds))
       if (await page.locator('#visual img').count()) await page.locator('#visual img').evaluate((img) => img.decode())
       const state = await page.evaluate(() => {
-        const stage = document.querySelector('#stage'), visual = document.querySelector('#visual'), teaching = document.querySelector('.teaching'), img = visual.querySelector('img')
+        const stage = document.querySelector('#stage'), visual = document.querySelector('#visual'), teaching = document.querySelector('.teaching'), img = visual.querySelector('img'), cover = document.querySelector('#cover')
         const rect = (element) => element.getBoundingClientRect()
         const imgBox = img && rect(img), visualBox = rect(visual)
+        const stageBox = rect(stage), teachingBox = rect(teaching)
         return {
           documentOverflow: document.documentElement.scrollWidth > innerWidth + 2,
           stageOverflow: stage.scrollHeight > stage.clientHeight + 2 || stage.scrollWidth > stage.clientWidth + 2,
           teachingOverflow: teaching.scrollHeight > teaching.clientHeight + 2,
           visualOverflow: visual.scrollHeight > visual.clientHeight + 2,
+          coverInvalid: !cover.complete || !cover.naturalWidth || !cover.naturalHeight || cover.naturalWidth / cover.naturalHeight >= 1 || getComputedStyle(cover).objectFit !== 'contain',
+          stageAspectRatio: innerWidth > 600 && Math.abs(stageBox.width / stageBox.height - 16 / 9) > .02,
+          contentOverlap: teachingBox.right > visualBox.left + 2 && teachingBox.left < visualBox.right - 2 && teachingBox.bottom > visualBox.top + 2 && teachingBox.top < visualBox.bottom - 2,
           imageInvalid: img && (!img.complete || !img.naturalWidth || getComputedStyle(img).objectFit !== 'contain' || imgBox.right > visualBox.right + 2 || imgBox.bottom > visualBox.bottom + 2),
         }
       })

@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L08",
   "title": "Make handoffs testable",
+  "batch": 2,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L08-handoff-and-eval.md",
-  "script_sha256": "9a3f53226105aa9f5358d26ab3cce9bf4fed3f65c3da89ad1cc572b6dd7aa345",
-  "narration_sha256": "eaabbb1b3dd97cd785859ab986cfd0d5a43bcb8c1de171d14b4095161306d251",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "script_sha256": "219060baa998bd6a866e9ff00a6df99d2ccba64b6c5ecd55e9db7cc385df6846",
+  "narration_sha256": "372fab792360b2254a8266207701f9ea443ac6e19cf6d384bf9089caaffe9532",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -39,9 +46,9 @@
     "case": "Harbor Learning Circle",
     "owner": "Morgan",
     "source_ids": [
-      "SYN-FAC-01",
       "SYN-ROOM-01",
       "SYN-ATTEND-01",
+      "SYN-FAC-01",
       "SYN-TRACE-01",
       "SYN-HOLD-01"
     ]
@@ -51,6 +58,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -130,7 +138,7 @@
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 18.434,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -150,7 +158,7 @@
       "start_seconds": 70,
       "end_seconds": 145,
       "source_time": "1:10–2:25",
-      "narration_exact": "“Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. Producer: Harbor's source checker. Consumer: brief drafter. Payload: the three invented source IDs, observation and expiry checks, allowed claim for each, open questions, and a trace reference. Preconditions: all IDs are permitted classroom inputs and checked for freshness. Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. Owner: Morgan, who can revise the paper contract. The receiver does not fill a blank by guessing.”",
+      "narration_exact": "“Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. Producer: Harbor's source checker. Consumer: brief drafter. Payload: the three course source references, observation and expiry checks, allowed claim for each, open questions, and a trace reference. Preconditions: all references are permitted classroom inputs and checked for freshness. Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. Owner: Morgan, who can revise the paper contract. The receiver does not fill a blank by guessing.”",
       "on_screen_copy_exact": "“Producer / Consumer / Payload / Preconditions / Rejection / Owner.”",
       "audience_copy": [
         "Producer / Consumer / Payload / Preconditions / Rejection / Owner."
@@ -163,41 +171,41 @@
       "captions": [
         {
           "start_seconds": 70,
-          "end_seconds": 78.343,
+          "end_seconds": 78.175,
           "text": "Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. "
         },
         {
-          "start_seconds": 78.343,
-          "end_seconds": 80.624,
+          "start_seconds": 78.175,
+          "end_seconds": 80.41,
           "text": "Producer: Harbor's source checker. "
         },
         {
-          "start_seconds": 80.624,
-          "end_seconds": 82.254,
+          "start_seconds": 80.41,
+          "end_seconds": 82.007,
           "text": "Consumer: brief drafter. "
         },
         {
-          "start_seconds": 82.254,
-          "end_seconds": 90.988,
-          "text": "Payload: the three invented source IDs, observation and expiry checks, allowed claim for each, open questions, and a trace reference. "
+          "start_seconds": 82.007,
+          "end_seconds": 90.884,
+          "text": "Payload: the three course source references, observation and expiry checks, allowed claim for each, open questions, and a trace reference. "
         },
         {
-          "start_seconds": 90.988,
-          "end_seconds": 96.268,
-          "text": "Preconditions: all IDs are permitted classroom inputs and checked for freshness. "
+          "start_seconds": 90.884,
+          "end_seconds": 96.504,
+          "text": "Preconditions: all references are permitted classroom inputs and checked for freshness. "
         },
         {
-          "start_seconds": 96.268,
-          "end_seconds": 101.678,
+          "start_seconds": 96.504,
+          "end_seconds": 101.805,
           "text": "Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. "
         },
         {
-          "start_seconds": 101.678,
-          "end_seconds": 104.937,
+          "start_seconds": 101.805,
+          "end_seconds": 104.998,
           "text": "Owner: Morgan, who can revise the paper contract. "
         },
         {
-          "start_seconds": 104.937,
+          "start_seconds": 104.998,
           "end_seconds": 108,
           "text": "The receiver does not fill a blank by guessing."
         }
@@ -220,7 +228,7 @@
       "start_seconds": 145,
       "end_seconds": 215,
       "source_time": "2:25–3:35",
-      "narration_exact": "“Try a broken payload on purpose. `SYN-FAC-01` says only ‘available for review,’ but the handoff labels the facilitator confirmed. The receiver must refuse it. The reason is `staffing_claim_unsupported`. The drafter does not quietly edit the source check or send the draft onward. Rejection is a visible outcome, with Morgan as the human fallback. That is the test of a contract: what happens when its promise fails?”",
+      "narration_exact": "“Try a broken payload on purpose. The facilitator note says only ‘available for review,’ but the handoff labels the facilitator confirmed. The receiver must refuse it. The reason is staffing claim unsupported. The drafter does not quietly edit the source check or send the draft onward. Rejection is a visible outcome, with Morgan as the human fallback. That is the test of a contract: what happens when its promise fails?”",
       "on_screen_copy_exact": "“Reject: staffing_claim_unsupported.” “Morgan receives hold.”",
       "audience_copy": [
         "Reject: staffing_claim_unsupported.",
@@ -234,37 +242,37 @@
       "captions": [
         {
           "start_seconds": 145,
-          "end_seconds": 147.386,
+          "end_seconds": 147.508,
           "text": "Try a broken payload on purpose. "
         },
         {
-          "start_seconds": 147.386,
-          "end_seconds": 154.398,
-          "text": "`SYN-FAC-01` says only ‘available for review,’ but the handoff labels the facilitator confirmed. "
+          "start_seconds": 147.508,
+          "end_seconds": 155.489,
+          "text": "The facilitator note says only ‘available for review,’ but the handoff labels the facilitator confirmed. "
         },
         {
-          "start_seconds": 154.398,
-          "end_seconds": 156.494,
+          "start_seconds": 155.489,
+          "end_seconds": 157.694,
           "text": "The receiver must refuse it. "
         },
         {
-          "start_seconds": 156.494,
-          "end_seconds": 159.675,
-          "text": "The reason is `staffing_claim_unsupported`. "
+          "start_seconds": 157.694,
+          "end_seconds": 160.886,
+          "text": "The reason is staffing claim unsupported. "
         },
         {
-          "start_seconds": 159.675,
-          "end_seconds": 165.241,
+          "start_seconds": 160.886,
+          "end_seconds": 166.739,
           "text": "The drafter does not quietly edit the source check or send the draft onward. "
         },
         {
-          "start_seconds": 165.241,
-          "end_seconds": 170.084,
+          "start_seconds": 166.739,
+          "end_seconds": 171.831,
           "text": "Rejection is a visible outcome, with Morgan as the human fallback. "
         },
         {
-          "start_seconds": 170.084,
-          "end_seconds": 175,
+          "start_seconds": 171.831,
+          "end_seconds": 177,
           "text": "That is the test of a contract: what happens when its promise fails?"
         }
       ],
@@ -352,7 +360,7 @@
       "start_seconds": 290,
       "end_seconds": 355,
       "source_time": "4:50–5:55",
-      "narration_exact": "“Use three invented cases. Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. Case B: facilitator note stale; fail the freshness check and hold before drafting. Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. Three cases are a classroom starting set, not proof of reliability. If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission.”",
+      "narration_exact": "“Use three Harbor cases. Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. Case B: facilitator note stale; fail the freshness check and hold before drafting. Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. Three cases are a classroom starting set, not proof of reliability. If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission.”",
       "on_screen_copy_exact": "“A: review. B: hold. C: reject draft.” “Three cases ≠ production proof.”",
       "audience_copy": [
         "A: review. B: hold. C: reject draft.",
@@ -374,31 +382,31 @@
       "captions": [
         {
           "start_seconds": 290,
-          "end_seconds": 291.83,
-          "text": "Use three invented cases. "
+          "end_seconds": 291.695,
+          "text": "Use three Harbor cases. "
         },
         {
-          "start_seconds": 291.83,
-          "end_seconds": 301.259,
+          "start_seconds": 291.695,
+          "end_seconds": 301.16,
           "text": "Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. "
         },
         {
-          "start_seconds": 301.259,
-          "end_seconds": 307.1,
+          "start_seconds": 301.16,
+          "end_seconds": 307.022,
           "text": "Case B: facilitator note stale; fail the freshness check and hold before drafting. "
         },
         {
-          "start_seconds": 307.1,
-          "end_seconds": 314.559,
+          "start_seconds": 307.022,
+          "end_seconds": 314.509,
           "text": "Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. "
         },
         {
-          "start_seconds": 314.559,
-          "end_seconds": 319.344,
+          "start_seconds": 314.509,
+          "end_seconds": 319.312,
           "text": "Three cases are a classroom starting set, not proof of reliability. "
         },
         {
-          "start_seconds": 319.344,
+          "start_seconds": 319.312,
           "end_seconds": 328,
           "text": "If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission."
         }
@@ -461,7 +469,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Write the Handoff Contract Card, then grade A, B, and C with a named rubric version. Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. Include a human sample rule and the decision you would recommend from these cases. Keep permission at prepare only, regardless of the score. Use invented evidence; do not submit a real prompt, private record, model trace, or customer case.”",
+      "narration_exact": "“Write the Handoff Contract Card, then grade A, B, and C with a named rubric version. Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. Include a human review rule and the decision you would recommend from these cases. Keep permission at prepare only, regardless of the score. Use a fictional or approved example. Do not use private operational data.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -472,28 +480,33 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 381.476,
+          "end_seconds": 381.456,
           "text": "Write the Handoff Contract Card, then grade A, B, and C with a named rubric version. "
         },
         {
-          "start_seconds": 381.476,
-          "end_seconds": 388.79,
+          "start_seconds": 381.456,
+          "end_seconds": 388.747,
           "text": "Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. "
         },
         {
-          "start_seconds": 388.79,
-          "end_seconds": 395.114,
-          "text": "Include a human sample rule and the decision you would recommend from these cases. "
+          "start_seconds": 388.747,
+          "end_seconds": 395.051,
+          "text": "Include a human review rule and the decision you would recommend from these cases. "
         },
         {
-          "start_seconds": 395.114,
-          "end_seconds": 399.533,
+          "start_seconds": 395.051,
+          "end_seconds": 399.456,
           "text": "Keep permission at prepare only, regardless of the score. "
         },
         {
-          "start_seconds": 399.533,
-          "end_seconds": 407,
-          "text": "Use invented evidence; do not submit a real prompt, private record, model trace, or customer case."
+          "start_seconds": 399.456,
+          "end_seconds": 402.266,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 402.266,
+          "end_seconds": 405,
+          "text": "Do not use private operational data."
         }
       ],
       "avatar_window": null,
@@ -543,7 +556,7 @@
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 586.752,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

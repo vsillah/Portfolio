@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L10",
   "title": "Gate spend and brief the decision",
+  "batch": 3,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L10-spend-and-decision-brief.md",
-  "script_sha256": "449ab3d2d17557cf74a09276a66fd4ed9fa21a61c65d1f2954a5860d7da7ea71",
-  "narration_sha256": "a8afe2f7250f1fd721ce402bc6f5504b2a138775a21e47cfbbd19389653fb80b",
-  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "script_sha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a",
+  "narration_sha256": "537f90997efb99b478b2b421be86a16171f7f2b6c1f3402a4d6b01f90f66358a",
+  "approved_visual_packet_sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -51,6 +58,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -125,7 +133,7 @@
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 15.379,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -145,7 +153,7 @@
       "start_seconds": 70,
       "end_seconds": 145,
       "source_time": "1:10–2:25",
-      "narration_exact": "“Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. The workbook adds currency, requesting role, forbidden actions, and revocation. Use an invented example: a proposed forty-dollar print test with a named fictional printer and a two-day window. The number is classroom arithmetic, not a quote, budget, or authorization. The envelope is incomplete until the actual approving human can see the evidence and exact terms. It cannot be stretched into a recurring charge or an ‘up to’ range.”",
+      "narration_exact": "“Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. The workbook adds currency, requesting role, forbidden actions, and revocation. In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window. The number is classroom arithmetic, not a quote, budget, or authorization. The envelope is incomplete until the actual approving human can see the evidence and exact terms. It cannot be stretched into a recurring charge or an ‘up to’ range.”",
       "on_screen_copy_exact": "“Amount / Counterparty / Purpose / Window / Retries / Trace / Approval.”",
       "audience_copy": [
         "Amount / Counterparty / Purpose / Window / Retries / Trace / Approval."
@@ -158,31 +166,31 @@
       "captions": [
         {
           "start_seconds": 70,
-          "end_seconds": 78.237,
+          "end_seconds": 78.357,
           "text": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. "
         },
         {
-          "start_seconds": 78.237,
-          "end_seconds": 83.551,
+          "start_seconds": 78.357,
+          "end_seconds": 83.749,
           "text": "The workbook adds currency, requesting role, forbidden actions, and revocation. "
         },
         {
-          "start_seconds": 83.551,
-          "end_seconds": 91.057,
-          "text": "Use an invented example: a proposed forty-dollar print test with a named fictional printer and a two-day window. "
+          "start_seconds": 83.749,
+          "end_seconds": 90.825,
+          "text": "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window. "
         },
         {
-          "start_seconds": 91.057,
-          "end_seconds": 96.039,
+          "start_seconds": 90.825,
+          "end_seconds": 95.88,
           "text": "The number is classroom arithmetic, not a quote, budget, or authorization. "
         },
         {
-          "start_seconds": 96.039,
-          "end_seconds": 102.549,
+          "start_seconds": 95.88,
+          "end_seconds": 102.485,
           "text": "The envelope is incomplete until the actual approving human can see the evidence and exact terms. "
         },
         {
-          "start_seconds": 102.549,
+          "start_seconds": 102.485,
           "end_seconds": 107,
           "text": "It cannot be stretched into a recurring charge or an ‘up to’ range."
         }
@@ -205,7 +213,7 @@
       "start_seconds": 145,
       "end_seconds": 215,
       "source_time": "2:25–3:35",
-      "narration_exact": "“Harbor's preparation role has no payment authority. It may draft `SYN-SPEND-01`; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. Put a closed gate between the proposed envelope and any dollar-moving verb. If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. If it expires, it stays closed. A prior approval of the session idea would not approve the print order. The approval has to match the action.”",
+      "narration_exact": "“Harbor's preparation role has no payment authority. It may draft a spend request; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. Put a closed gate between the proposed envelope and any dollar-moving verb. If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. If it expires, it stays closed. A prior approval of the session idea would not approve the print order. The approval has to match the action.”",
       "on_screen_copy_exact": "“Recommend ≠ execute.” “Changed terms → new review.”",
       "audience_copy": [
         "Recommend ≠ execute.",
@@ -227,37 +235,37 @@
       "captions": [
         {
           "start_seconds": 145,
-          "end_seconds": 148.975,
+          "end_seconds": 149.076,
           "text": "Harbor's preparation role has no payment authority. "
         },
         {
-          "start_seconds": 148.975,
-          "end_seconds": 157.535,
-          "text": "It may draft `SYN-SPEND-01`; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. "
+          "start_seconds": 149.076,
+          "end_seconds": 157.934,
+          "text": "It may draft a spend request; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. "
         },
         {
-          "start_seconds": 157.535,
-          "end_seconds": 163.344,
+          "start_seconds": 157.934,
+          "end_seconds": 163.892,
           "text": "Put a closed gate between the proposed envelope and any dollar-moving verb. "
         },
         {
-          "start_seconds": 163.344,
-          "end_seconds": 170.223,
+          "start_seconds": 163.892,
+          "end_seconds": 170.947,
           "text": "If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. "
         },
         {
-          "start_seconds": 170.223,
-          "end_seconds": 172.669,
+          "start_seconds": 170.947,
+          "end_seconds": 173.456,
           "text": "If it expires, it stays closed. "
         },
         {
-          "start_seconds": 172.669,
-          "end_seconds": 178.172,
+          "start_seconds": 173.456,
+          "end_seconds": 179.1,
           "text": "A prior approval of the session idea would not approve the print order. "
         },
         {
-          "start_seconds": 178.172,
-          "end_seconds": 181,
+          "start_seconds": 179.1,
+          "end_seconds": 182,
           "text": "The approval has to match the action."
         }
       ],
@@ -349,7 +357,7 @@
       "start_seconds": 290,
       "end_seconds": 355,
       "source_time": "4:50–5:55",
-      "narration_exact": "“Put the spend question on its own line. Even if Morgan favors a conditional session proposal, the mock print request remains held. The brief should name Morgan as decision owner, the fictional deadline, the evidence gap, and what can be reversed. A draft brief can be withdrawn. A flyer sent into the community cannot be pulled back with the same ease. That difference is why preparation and side effects have different gates. An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation.”",
+      "narration_exact": "“Put the spend question on its own line. Even if Morgan favors a conditional session proposal, the print request remains held. The brief should name Morgan as decision owner, the course deadline, the evidence gap, and what can be reversed. A draft brief can be withdrawn. A flyer sent into the community cannot be pulled back with the same ease. That difference is why preparation and side effects have different gates. An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation.”",
       "on_screen_copy_exact": "“Session decision: conditional or hold.” “Print spend: separate hold.”",
       "audience_copy": [
         "Session decision: conditional or hold.",
@@ -363,37 +371,37 @@
       "captions": [
         {
           "start_seconds": 290,
-          "end_seconds": 292.913,
+          "end_seconds": 292.883,
           "text": "Put the spend question on its own line. "
         },
         {
-          "start_seconds": 292.913,
-          "end_seconds": 299.54,
-          "text": "Even if Morgan favors a conditional session proposal, the mock print request remains held. "
+          "start_seconds": 292.883,
+          "end_seconds": 299.081,
+          "text": "Even if Morgan favors a conditional session proposal, the print request remains held. "
         },
         {
-          "start_seconds": 299.54,
-          "end_seconds": 307.988,
-          "text": "The brief should name Morgan as decision owner, the fictional deadline, the evidence gap, and what can be reversed. "
+          "start_seconds": 299.081,
+          "end_seconds": 307.225,
+          "text": "The brief should name Morgan as decision owner, the course deadline, the evidence gap, and what can be reversed. "
         },
         {
-          "start_seconds": 307.988,
-          "end_seconds": 310.318,
+          "start_seconds": 307.225,
+          "end_seconds": 309.532,
           "text": "A draft brief can be withdrawn. "
         },
         {
-          "start_seconds": 310.318,
-          "end_seconds": 315.707,
+          "start_seconds": 309.532,
+          "end_seconds": 314.865,
           "text": "A flyer sent into the community cannot be pulled back with the same ease. "
         },
         {
-          "start_seconds": 315.707,
-          "end_seconds": 321.096,
+          "start_seconds": 314.865,
+          "end_seconds": 320.198,
           "text": "That difference is why preparation and side effects have different gates. "
         },
         {
-          "start_seconds": 321.096,
-          "end_seconds": 331,
+          "start_seconds": 320.198,
+          "end_seconds": 330,
           "text": "An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation."
         }
       ],
@@ -455,7 +463,7 @@
       "start_seconds": 375,
       "end_seconds": 575,
       "source_time": "6:15–9:35",
-      "narration_exact": "“Fill a mock Spend Envelope, then a Decision Brief. Give the envelope an exact illustrative amount, named fictional counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. Mark it unapproved. Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. Keep the facilitator unconfirmed. Do not open a checkout, use a card, call a provider, or publish a session.”",
+      "narration_exact": "“Fill a Spend Envelope, then a Decision Brief. Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. Mark it unapproved. Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. Keep the facilitator unconfirmed. Use a fictional or approved example. Do not use private operational data, open a checkout, use a card, call a provider, or publish a session.”",
       "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
       "audience_copy": [],
       "audience_copy_state": "pause_only_source_instruction_withheld",
@@ -466,33 +474,38 @@
       "captions": [
         {
           "start_seconds": 375,
-          "end_seconds": 378.47,
-          "text": "Fill a mock Spend Envelope, then a Decision Brief. "
+          "end_seconds": 378.129,
+          "text": "Fill a Spend Envelope, then a Decision Brief. "
         },
         {
-          "start_seconds": 378.47,
-          "end_seconds": 389.969,
-          "text": "Give the envelope an exact illustrative amount, named fictional counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. "
+          "start_seconds": 378.129,
+          "end_seconds": 389.419,
+          "text": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. "
         },
         {
-          "start_seconds": 389.969,
-          "end_seconds": 391.33,
+          "start_seconds": 389.419,
+          "end_seconds": 390.779,
           "text": "Mark it unapproved. "
         },
         {
-          "start_seconds": 391.33,
-          "end_seconds": 400.652,
+          "start_seconds": 390.779,
+          "end_seconds": 400.097,
           "text": "Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. "
         },
         {
-          "start_seconds": 400.652,
-          "end_seconds": 402.965,
+          "start_seconds": 400.097,
+          "end_seconds": 402.41,
           "text": "Keep the facilitator unconfirmed. "
         },
         {
-          "start_seconds": 402.965,
-          "end_seconds": 408,
-          "text": "Do not open a checkout, use a card, call a provider, or publish a session."
+          "start_seconds": 402.41,
+          "end_seconds": 404.926,
+          "text": "Use a fictional or approved example. "
+        },
+        {
+          "start_seconds": 404.926,
+          "end_seconds": 412,
+          "text": "Do not use private operational data, open a checkout, use a card, call a provider, or publish a session."
         }
       ],
       "avatar_window": null,
@@ -547,7 +560,7 @@
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 583.951,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },
