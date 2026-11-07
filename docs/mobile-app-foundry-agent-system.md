@@ -4,6 +4,8 @@
 
 The Mobile App Foundry turns app ideas into a governed pipeline: market signal, app-fit analysis, prototype build, tester readiness, and commercialization review.
 
+For tester activation, reuse the product-neutral [App Activation Control Plane](./app-activation-control-plane.md). New apps register an app key and follow its adult-interest, review, invitation, redemption, and per-app grant lifecycle. Do not create an app-specific invite store or connect a tester form directly to outreach or delivery. The control plane is a Phase 1 source foundation; operator and public routes require Phase 2 review before use.
+
 The first source method is Adam Lyttle's YouTube video, `My $1.19M App Process: App Idea & Validation (Part 1 of 3)`, supplied by Vambah on June 19, 2026:
 
 - `https://youtu.be/yBa3BKOrVPA?si=QfNu_KvZ_1e9Wu3y`
