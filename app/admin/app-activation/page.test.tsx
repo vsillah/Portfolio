@@ -66,7 +66,7 @@ describe('app activation operator console', () => {
     ] as const
     for (const [email, action] of paths) {
       await user.click(screen.getByRole('button', { name: new RegExp(email.replace('.', '\\.'), 'i') }))
-      await user.click(screen.getByRole('button', { name: action, exact: true }))
+      await user.click(screen.getByRole('button', { name: new RegExp(`^${action}$`) }))
       expect(screen.getByLabelText('Audit reason')).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
     }

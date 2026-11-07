@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server'
 const { verifyAdminMock, snapshotMock, actionMock } = vi.hoisted(() => ({ verifyAdminMock: vi.fn(), snapshotMock: vi.fn(), actionMock: vi.fn() }))
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: verifyAdminMock, isAuthError: (value: unknown) => !!value && typeof value === 'object' && 'error' in value }))
 vi.mock('@/lib/app-activation-operator.server', () => ({ getOperatorSnapshot: snapshotMock, applySyntheticOperatorAction: actionMock, OperatorActionError: class extends Error { status = 409 } }))
+vi.mock('@/lib/app-activation-repository.server', () => ({ getActivationRepository: () => null, ActivationError: class extends Error { status = 409 } }))
 
 import { GET, POST } from './route'
 

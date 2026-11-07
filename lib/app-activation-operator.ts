@@ -17,7 +17,7 @@ export type OperatorRecord = {
   events: OperatorEvent[]
 }
 export type OperatorApp = { key: string; name: string }
-export type OperatorSnapshot = { mode: 'synthetic' | 'unconfigured'; apps: OperatorApp[]; records: OperatorRecord[]; message: string }
+export type OperatorSnapshot = { mode: 'synthetic' | 'unconfigured' | 'provider'; apps: OperatorApp[]; records: OperatorRecord[]; message: string }
 
 const apps: OperatorApp[] = [
   { key: 'trumpet-trainer', name: 'Trumpet Trainer' },
