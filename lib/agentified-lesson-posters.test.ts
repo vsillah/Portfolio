@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { agentifiedLessons } from './agentified-workshop'
-import { agentifiedLessonPosters } from './agentified-lesson-posters'
+import { agentifiedLessonPosters, agentifiedPosterAlt } from './agentified-lesson-posters'
 
 const hash = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex')
 const manifest = JSON.parse(readFileSync('docs/qa/agentified-lesson-covers/source-map.json', 'utf8')) as {
@@ -44,7 +44,7 @@ describe('Agentified lesson covers', () => {
       expect(entry.promptIdentity).toBe(`agentified-${entry.lesson.toLowerCase()}-static-cover-avatar/v1`)
       expect(entry.inputIdentity).toBe(`${entry.identityReferenceSha256}:${entry.approvedVisualSha256}:${entry.scriptSha256}`)
       expect(entry.poseBrief.length).toBeGreaterThan(12)
-      expect(entry.altText).toContain(entry.title)
+      expect(entry.altText).toBe(agentifiedPosterAlt({ id: entry.lesson, title: entry.title }))
       expect(entry.mediaStatus).toBe('static-cover; video locked')
     }
   })

@@ -1,5 +1,5 @@
 import { chromium } from 'playwright'
-import { mkdirSync, copyFileSync } from 'node:fs'
+import { mkdirSync, copyFileSync, unlinkSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 
@@ -14,11 +14,12 @@ const browser = await chromium.launch({ headless: true })
 async function select(page, id, mobile) {
   if (mobile) await page.getByRole('button', { name: 'Expand lesson navigation' }).click()
   await page.getByRole('button', { name: new RegExp(`^${id} `) }).click()
-  const cover = page.getByRole('img', { name: new RegExp(`^${id} .+ lesson cover$`) })
+  const cover = page.getByRole('img', { name: new RegExp(`^${id} .+ lesson cover:`) })
   await cover.waitFor({ state: 'visible' })
   await cover.scrollIntoViewIfNeeded()
-  const state = await cover.evaluate((img) => ({ loaded: img.complete && img.naturalWidth === 1280 && img.naturalHeight === 720, src: img.currentSrc }))
-  if (!state.loaded || !state.src.includes(`l${id.slice(1).toLowerCase()}-poster.webp`)) throw new Error(`${id} cover did not load`)
+  await cover.evaluate((img) => img.decode())
+  const state = await cover.evaluate((img) => ({ loaded: img.complete && img.naturalWidth > 0 && Math.abs(img.naturalWidth / img.naturalHeight - 16 / 9) < .01, src: img.currentSrc }))
+  if (!state.loaded || !state.src.includes(`l${id.slice(1).toLowerCase()}-poster.webp`)) throw new Error(`${id} cover did not load: ${JSON.stringify(state)}`)
   if (await page.locator('video').count()) throw new Error(`${id} exposed a video without approved media`)
   if (!(await page.getByText('Video locked').isVisible())) throw new Error(`${id} lost the media gate`)
   if (!(await page.getByText(`OPERATING FILE · ${id}`).isVisible())) throw new Error(`${id} lost the Operating File`)
@@ -56,6 +57,21 @@ try {
   copyFileSync(webm,path.join(out,'walkthrough-source.webm'))
   const mp4=path.join(out,'agentified-locked-covers-walkthrough.mp4')
   execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-i',webm,'-c:v','libx264','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart','-y',mp4])
+  unlinkSync(webm)
+  const mobileContext = await browser.newContext({ viewport:{width:390,height:844}, recordVideo:{dir:out,size:{width:390,height:844}} })
+  const mobilePage = await mobileContext.newPage()
+  await mobilePage.goto(url)
+  for (const id of reps) {
+    await select(mobilePage,id,true)
+    await mobilePage.waitForTimeout(1150)
+  }
+  const mobileVideo = mobilePage.video()
+  await mobileContext.close()
+  const mobileWebm = await mobileVideo.path()
+  const mobileMp4=path.join(out,'agentified-locked-covers-mobile.mp4')
+  execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-i',mobileWebm,'-c:v','libx264','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart','-y',mobileMp4])
+  unlinkSync(mobileWebm)
   execFileSync('ffprobe',['-v','error','-select_streams','v:0','-show_entries','stream=codec_name,width,height','-of','default=noprint_wrappers=1',mp4],{stdio:'inherit'})
-  console.log(`Captured four lessons at three widths and an MP4 at ${url}`)
+  execFileSync('ffprobe',['-v','error','-select_streams','v:0','-show_entries','stream=codec_name,width,height','-of','default=noprint_wrappers=1',mobileMp4],{stdio:'inherit'})
+  console.log(`Captured four lessons at three widths and two MP4s at ${url}`)
 } finally { await browser.close() }

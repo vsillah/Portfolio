@@ -34,6 +34,13 @@ POSES = [
   'present an evidence card', 'hold research notes and point to a gate',
   'present a board briefing', 'check a watch and daily plan', 'hold an audit sheet',
 ]
+PLATE_ALTS = {
+  'figure-1-1-first-receipt-publication-plate.png': 'first receipt',
+  'figure-0-1-sam-trust-layer-publication-plate.png': 'SAM trust layer',
+  'figure-3-amina-inside-sam-publication-plate.png': 'A.M.I.N.A. inside SAM',
+  'figure-8-1-portfolio-first-stack-publication-plate.png': 'portfolio-first operating stack',
+  'figure-ii-1-authority-ladder-publication-plate.png': 'authority ladder',
+}
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def rel(path): return str(path.relative_to(ROOT))
@@ -106,7 +113,7 @@ def render(index, lesson):
     'promptIdentity':f'agentified-{lid.lower()}-static-cover-avatar/v1',
     'poseBrief':POSES[index-1], 'inputIdentity':f'{sha(IDENTITY)}:{sha(plate)}:{lesson["script_sha256"]}',
     'logo':rel(LOGO),'logoSha256':sha(LOGO),
-    'altText':f'{lid} {lesson["title"]}: Vambah presents the {visual["source_identity"].replace("figure-", "").replace("-publication-plate.png", "").replace("-", " ")} lesson diagram.',
+    'altText':f'{lid} {lesson["title"]} lesson cover: Vambah presents the {PLATE_ALTS[visual["source_identity"]]} diagram.',
     'posterBinding':f'/agentified/posters/{lid.lower()}-poster.webp',
     'output':rel(output),'outputSha256':sha(output),'dimensions':[1280,720],
     'mediaStatus':'static-cover; video locked',

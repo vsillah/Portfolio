@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import styles from './workshop.module.css'
 
-type Props = { lessonId: string; title: string; poster: string; videoSrc?: string; captionsSrc?: string }
+type Props = { lessonId: string; title: string; poster: string; altText?: string; videoSrc?: string; captionsSrc?: string }
 
 /** Video is an explicit future input. Without an approved source the hero is a static cover. */
-export function AgentifiedLessonHero({ lessonId, title, poster, videoSrc, captionsSrc }: Props) {
+export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSrc, captionsSrc }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [posterRevealed, setPosterRevealed] = useState(false)
 
@@ -23,6 +23,6 @@ export function AgentifiedLessonHero({ lessonId, title, poster, videoSrc, captio
       <source src={videoSrc} type="video/mp4" />
       {captionsSrc && <track kind="captions" src={captionsSrc} srcLang="en" label="English" default />}
       Your browser cannot play this video. The read-along transcript is available below.
-    </video> : <Image src={poster} alt={label} width={1280} height={720} sizes="(max-width: 900px) 100vw, 50vw" priority={lessonId === 'L01'} />}
+    </video> : <Image src={poster} alt={altText ?? label} width={1280} height={720} sizes="(max-width: 900px) 100vw, 50vw" priority={lessonId === 'L01'} />}
   </div>
 }
