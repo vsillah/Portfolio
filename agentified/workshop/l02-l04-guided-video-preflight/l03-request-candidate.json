@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_batch_request_candidate_locked",
+  "lesson_id": "L03",
+  "source_base_commit": "739c14fe04ce061be90a491d68312e3aca58f133",
+  "provider_candidate": "HeyGen Avatar IV",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "upload_allowed": false,
+  "generation_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "requested_job_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_spend_cap_usd": 0,
+  "conditional_one_job_cash_ceiling_usd": 3.26,
+  "one_job_candidate_key": "1770864645b1e48795f21ad2d4dad5b39160c1a2d120e58bab16004dd22d825b",
+  "lesson_duration_seconds": 600,
+  "expected_scripted_provider_duration_seconds": 22.654,
+  "actual_provider_duration_seconds": null,
+  "actual_billable_duration_seconds": null,
+  "duration_note": "Expected duration sums exact provisional caption spans only. Provider pacing, source duration, billable duration and final placement are unknown until a separately authorized job and native-source timing audit.",
+  "format_candidate": {
+    "orientation": "landscape",
+    "resolution": "1080p",
+    "source_frame_rate": "preserve_native",
+    "composite_frame_rate": 30
+  },
+  "presenter_windows": [
+    {
+      "scene_id": "L03-01",
+      "reserved_start_seconds": 0,
+      "reserved_end_seconds": 17.037,
+      "presenter_start_seconds": 0,
+      "presenter_end_seconds": 17.037,
+      "expected_scripted_duration_seconds": 17.037,
+      "provider_free_tail_seconds": 0,
+      "narration_exact": "Morgan sees a line in the Harbor Session Option Brief: ‘The room can hold twenty people.’ Morgan asks where the number came from. A raw machine log might answer eventually, after someone searches through hundreds of entries.",
+      "narration_sha256": "de4d8a9b5a8d6a1d8ead641e14307112ee2add65a622b5aab23678fe6f50a055",
+      "caption_cues": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 6.815,
+          "text": "Morgan sees a line in the Harbor Session Option Brief: ‘The room can hold twenty people.’ "
+        },
+        {
+          "start_seconds": 6.815,
+          "end_seconds": 9.844,
+          "text": "Morgan asks where the number came from. "
+        },
+        {
+          "start_seconds": 9.844,
+          "end_seconds": 17.037,
+          "text": "A raw machine log might answer eventually, after someone searches through hundreds of entries. "
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    },
+    {
+      "scene_id": "L03-08",
+      "reserved_start_seconds": 586.383,
+      "reserved_end_seconds": 600,
+      "presenter_start_seconds": 586.383,
+      "presenter_end_seconds": 592,
+      "expected_scripted_duration_seconds": 5.617,
+      "provider_free_tail_seconds": 8,
+      "narration_exact": "Next we will decide what a human correction is allowed to teach the system.",
+      "narration_sha256": "5bf9484717d065814bf0ef2a60cf2d98a75ba3cdded86a9040faea8df9cc5bb9",
+      "caption_cues": [
+        {
+          "start_seconds": 586.383,
+          "end_seconds": 592,
+          "text": "Next we will decide what a human correction is allowed to teach the system."
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    }
+  ],
+  "provider_free_closing_card": {
+    "scene_id": "L03-08",
+    "start_seconds": 592,
+    "end_seconds": 600,
+    "duration_seconds": 8,
+    "audience_copy_exact": [
+      "Operating File v3: trace + sources.",
+      "Stop: unknown source or reviewer."
+    ],
+    "treatment": "provider-free hold of approved ending copy; no presenter footage, generated voice, or new claim"
+  },
+  "one_job_payload_boundary": {
+    "passages": [
+      {
+        "scene_id": "L03-01",
+        "narration_exact": "Morgan sees a line in the Harbor Session Option Brief: ‘The room can hold twenty people.’ Morgan asks where the number came from. A raw machine log might answer eventually, after someone searches through hundreds of entries.",
+        "narration_sha256": "de4d8a9b5a8d6a1d8ead641e14307112ee2add65a622b5aab23678fe6f50a055"
+      },
+      {
+        "scene_id": "L03-08",
+        "narration_exact": "Next we will decide what a human correction is allowed to teach the system.",
+        "narration_sha256": "5bf9484717d065814bf0ef2a60cf2d98a75ba3cdded86a9040faea8df9cc5bb9"
+      }
+    ],
+    "treatment": "Two exact passages in one continuous native source; split at audited sentence boundary and place locally. No third passage or automatic regeneration."
+  },
+  "identity_voice": {
+    "proposed_look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "proposed_voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "proposed_source": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+    "status": "purpose_specific_L02-L04_approval_required",
+    "l01_approval_not_reusable": true,
+    "no_photo_or_cutout_upload_allowed": true
+  },
+  "assets": {
+    "approved_diagram": {
+      "scene_id": "L03-02",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "use": "Four-tier ladder with one “unknown” source parked outside it."
+    },
+    "package_jpg": {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package identity only"
+    },
+    "lesson_cover": {
+      "path": "public/agentified/posters/l03-poster.webp",
+      "sha256": "7a4635b5d14dbf8b299721c5fc8fce4729b9aa20d0e912b8cdea1d5294e7c390",
+      "alt_text": "L03 Trace the work and grade the sources lesson cover: Vambah presents the first receipt diagram.",
+      "media_status": "static-cover; video locked"
+    }
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "trace-and-source-policy",
+      "revision": 3,
+      "status": "draft",
+      "update_exact": "`trace-and-source-policy` → `sources` and `receipt.trace`, revision 3, status `draft`."
+    },
+    "source_ids_scope": "protected synthetic trace only; do not speak IDs or send to provider"
+  },
+  "accessibility": {
+    "caption_source": "agentified/workshop/scene-production/packets/L03.json",
+    "caption_status": "exact text, provisional timing",
+    "transcript": "reconstruct exact scene narration; final rendered transcript audit required",
+    "diagram_text_alternative": "approved plate needs final scene-specific text alternative before publication",
+    "diagram_alt_status": "scene_specific_final_alt_required_before_learner_release",
+    "reading_order": "title, teaching copy, visual, captions",
+    "contrast": "review at delivery resolution",
+    "reduced_motion": "instant cuts; no information depends on animation",
+    "caption_band": "keep clear of presenter and diagram labels in landscape and portrait"
+  },
+  "audio": {
+    "new_audio_path": null,
+    "new_audio_sha256": null,
+    "new_audio_status": "none_generated",
+    "l01_native_source_precedent_sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
+    "l01_native_composite_precedent_sha256": "da85f9e1bf5959dcd55eefb58b58e00233c0bcc674967a2a0835a9b1cd4fe3a5",
+    "ownership": "one speaker at a time; native presenter audio replaces matching narrator span, never layers with it; preserve source frame count, rate, duration and lip sync in reproducible FFmpeg composite"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L03.json",
+      "sha256": "16ea75b11695550dd0aab29adbf077c25ab9b4ee3810caf831c97021bb0d58c3",
+      "use": "approved_production_packet"
+    },
+    {
+      "path": "agentified/workshop/scripts/L03-trace-and-sources.md",
+      "sha256": "3e42459bdad850982094af0de03eda93485d9015bdf884b8cdd0a3abfd3baa7d",
+      "use": "approved_exact_script"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413",
+      "use": "static_cover_map"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+      "use": "approved_visual_register"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
+      "use": "source_register"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+      "use": "curriculum_crosswalk"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "use": "immutable_storyboard_windows"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab",
+      "use": "Operating_File_workbook"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch04-the-trace-harness.md",
+      "sha256": "92bb2c304f4f5b2424089ad13dec78cb61296422f4d72a3aee3debb4dc139916",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch05-data-safety-becomes-source-safety.md",
+      "sha256": "e9fd32865cb7972bfe25386b0717bea95934ddc91a2f934f29735adb0f60b682",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package_identity_only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "use": "approved_L03-02_diagram_only"
+    },
+    {
+      "path": "public/agentified/posters/l03-poster.webp",
+      "sha256": "7a4635b5d14dbf8b299721c5fc8fce4729b9aa20d0e912b8cdea1d5294e7c390",
+      "use": "static_YouTube_style_lesson_cover_only"
+    },
+    {
+      "path": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "sha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "use": "local_static_cover_identity_reference_only"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/avatar-sources/l03-vambah-cutout.png",
+      "sha256": "9819132490ed3b9456779e3c6dcca33841f38a0bb7612b135c7214b366b78245",
+      "use": "local_static_cover_cutout_only"
+    },
+    {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165",
+      "use": "static_cover_logo_only"
+    },
+    {
+      "path": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+      "sha256": "8d9f5a94b0c8b68f23ae099da502de32c151109ca54847d4a43e3ed98d386534",
+      "use": "L01_identity_precedent_not_L02-L04_authority"
+    }
+  ],
+  "boundaries": {
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
+    "rights": "Static cover approval does not authorize talking-avatar or voice use for this lesson. Purpose-specific identity and voice approval required.",
+    "lineage": "lineage_only_excluded"
+  },
+  "execution_gates": [
+    "purpose-specific look and voice consent for L02-L04",
+    "binding quote and enforceable one-job cap for each lesson and aggregate batch",
+    "current balance and credit check without purchase or auto-reload",
+    "final native source split/timing and caption audit",
+    "scene-specific diagram alt text, contrast and reduced-motion review",
+    "separate exact batch execution authorization"
+  ],
+  "request_sha256": "2f81f5cc80b5f985810d4eab46f72dfa7198a1685c8ea0e5fe409b1a8d83b030"
+}

@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_batch_request_candidate_locked",
+  "lesson_id": "L04",
+  "source_base_commit": "739c14fe04ce061be90a491d68312e3aca58f133",
+  "provider_candidate": "HeyGen Avatar IV",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "upload_allowed": false,
+  "generation_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "requested_job_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_spend_cap_usd": 0,
+  "conditional_one_job_cash_ceiling_usd": 3.26,
+  "one_job_candidate_key": "64e7db9e04453c1c19fc93c9ac83ec3355618b2d50c4159cfa7d7472af0c9654",
+  "lesson_duration_seconds": 600,
+  "expected_scripted_provider_duration_seconds": 24.865,
+  "actual_provider_duration_seconds": null,
+  "actual_billable_duration_seconds": null,
+  "duration_note": "Expected duration sums exact provisional caption spans only. Provider pacing, source duration, billable duration and final placement are unknown until a separately authorized job and native-source timing audit.",
+  "format_candidate": {
+    "orientation": "landscape",
+    "resolution": "1080p",
+    "source_frame_rate": "preserve_native",
+    "composite_frame_rate": 30
+  },
+  "presenter_windows": [
+    {
+      "scene_id": "L04-01",
+      "reserved_start_seconds": 0,
+      "reserved_end_seconds": 19.743,
+      "presenter_start_seconds": 0,
+      "presenter_end_seconds": 19.743,
+      "expected_scripted_duration_seconds": 19.743,
+      "provider_free_tail_seconds": 0,
+      "narration_exact": "Morgan reviews the Harbor brief and writes a correction: ‘The facilitator note says available for review. It does not say confirmed to teach.’ The draft is fixed. A week later, another request comes in. Should the agent remember that correction? Yes, perhaps.",
+      "narration_sha256": "66eb77f29c76b0b223af123222775e88ab2c55ff78f795f464e8f6ea778336ab",
+      "caption_cues": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 8.049,
+          "text": "Morgan reviews the Harbor brief and writes a correction: ‘The facilitator note says available for review. "
+        },
+        {
+          "start_seconds": 8.049,
+          "end_seconds": 10.859,
+          "text": "It does not say confirmed to teach.’ "
+        },
+        {
+          "start_seconds": 10.859,
+          "end_seconds": 12.377,
+          "text": "The draft is fixed. "
+        },
+        {
+          "start_seconds": 12.377,
+          "end_seconds": 15.415,
+          "text": "A week later, another request comes in. "
+        },
+        {
+          "start_seconds": 15.415,
+          "end_seconds": 18.68,
+          "text": "Should the agent remember that correction? "
+        },
+        {
+          "start_seconds": 18.68,
+          "end_seconds": 19.743,
+          "text": "Yes, perhaps. "
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    },
+    {
+      "scene_id": "L04-08",
+      "reserved_start_seconds": 591.878,
+      "reserved_end_seconds": 600,
+      "presenter_start_seconds": 591.878,
+      "presenter_end_seconds": 597,
+      "expected_scripted_duration_seconds": 5.122,
+      "provider_free_tail_seconds": 3,
+      "narration_exact": "The next lesson will place these pieces on one operating map.",
+      "narration_sha256": "c77627fb8806786b43a75ff26d55667bcfadf82a57b32e3a546dc0ae9c28c721",
+      "caption_cues": [
+        {
+          "start_seconds": 591.878,
+          "end_seconds": 597,
+          "text": "The next lesson will place these pieces on one operating map."
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    }
+  ],
+  "provider_free_closing_card": {
+    "scene_id": "L04-08",
+    "start_seconds": 597,
+    "end_seconds": 600,
+    "duration_seconds": 3,
+    "audience_copy_exact": [
+      "Operating File v4: memory + routing.",
+      "Stop: self-promotion or unowned route."
+    ],
+    "treatment": "provider-free hold of approved ending copy; no presenter footage, generated voice, or new claim"
+  },
+  "one_job_payload_boundary": {
+    "passages": [
+      {
+        "scene_id": "L04-01",
+        "narration_exact": "Morgan reviews the Harbor brief and writes a correction: ‘The facilitator note says available for review. It does not say confirmed to teach.’ The draft is fixed. A week later, another request comes in. Should the agent remember that correction? Yes, perhaps.",
+        "narration_sha256": "66eb77f29c76b0b223af123222775e88ab2c55ff78f795f464e8f6ea778336ab"
+      },
+      {
+        "scene_id": "L04-08",
+        "narration_exact": "The next lesson will place these pieces on one operating map.",
+        "narration_sha256": "c77627fb8806786b43a75ff26d55667bcfadf82a57b32e3a546dc0ae9c28c721"
+      }
+    ],
+    "treatment": "Two exact passages in one continuous native source; split at audited sentence boundary and place locally. No third passage or automatic regeneration."
+  },
+  "identity_voice": {
+    "proposed_look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "proposed_voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "proposed_source": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+    "status": "purpose_specific_L02-L04_approval_required",
+    "l01_approval_not_reusable": true,
+    "no_photo_or_cutout_upload_allowed": true
+  },
+  "assets": {
+    "approved_diagram": {
+      "scene_id": "L04-04",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "use": "One inbound request forks to eligible preparation role and blocked messaging role, then joins at Morgan review."
+    },
+    "package_jpg": {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package identity only"
+    },
+    "lesson_cover": {
+      "path": "public/agentified/posters/l04-poster.webp",
+      "sha256": "a0ccc99e7f6d1688c535d2e065e2d2c9c2432b4af027be402dde9bf196bca19e",
+      "alt_text": "L04 Turn feedback into governed memory lesson cover: Vambah presents the A.M.I.N.A. inside SAM diagram.",
+      "media_status": "static-cover; video locked"
+    }
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "memory-and-routing-policy",
+      "revision": 4,
+      "status": "draft",
+      "update_exact": "`memory-and-routing-policy` → `memory` and `routing`, revision 4, status `draft`."
+    },
+    "source_ids_scope": "protected synthetic trace only; do not speak IDs or send to provider"
+  },
+  "accessibility": {
+    "caption_source": "agentified/workshop/scene-production/packets/L04.json",
+    "caption_status": "exact text, provisional timing",
+    "transcript": "reconstruct exact scene narration; final rendered transcript audit required",
+    "diagram_text_alternative": "approved plate needs final scene-specific text alternative before publication",
+    "diagram_alt_status": "scene_specific_final_alt_required_before_learner_release",
+    "reading_order": "title, teaching copy, visual, captions",
+    "contrast": "review at delivery resolution",
+    "reduced_motion": "instant cuts; no information depends on animation",
+    "caption_band": "keep clear of presenter and diagram labels in landscape and portrait"
+  },
+  "audio": {
+    "new_audio_path": null,
+    "new_audio_sha256": null,
+    "new_audio_status": "none_generated",
+    "l01_native_source_precedent_sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
+    "l01_native_composite_precedent_sha256": "da85f9e1bf5959dcd55eefb58b58e00233c0bcc674967a2a0835a9b1cd4fe3a5",
+    "ownership": "one speaker at a time; native presenter audio replaces matching narrator span, never layers with it; preserve source frame count, rate, duration and lip sync in reproducible FFmpeg composite"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L04.json",
+      "sha256": "8af7f38df023004c05048282b1789288172172bd69677e547c152d5a1535336c",
+      "use": "approved_production_packet"
+    },
+    {
+      "path": "agentified/workshop/scripts/L04-memory-and-routing.md",
+      "sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
+      "use": "approved_exact_script"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413",
+      "use": "static_cover_map"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+      "use": "approved_visual_register"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
+      "use": "source_register"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+      "use": "curriculum_crosswalk"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "use": "immutable_storyboard_windows"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab",
+      "use": "Operating_File_workbook"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch06-from-feedback-to-memory.md",
+      "sha256": "a75a6d1225e4b7b7c9e9f6ec86a3088f9f07d11ffa67dc69b4e9ccf089ff229b",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch07-the-controller-brain.md",
+      "sha256": "bce93d180625f9ff2d455706ac8d717184d0e39b8434761b028572b3ce03c032",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package_identity_only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "use": "approved_L04-04_diagram_only"
+    },
+    {
+      "path": "public/agentified/posters/l04-poster.webp",
+      "sha256": "a0ccc99e7f6d1688c535d2e065e2d2c9c2432b4af027be402dde9bf196bca19e",
+      "use": "static_YouTube_style_lesson_cover_only"
+    },
+    {
+      "path": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "sha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "use": "local_static_cover_identity_reference_only"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/avatar-sources/l04-vambah-cutout.png",
+      "sha256": "37e7c966f3116c1a378fe3e35aeae9e673abe65a4586873299d3838fc0d1fada",
+      "use": "local_static_cover_cutout_only"
+    },
+    {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165",
+      "use": "static_cover_logo_only"
+    },
+    {
+      "path": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+      "sha256": "8d9f5a94b0c8b68f23ae099da502de32c151109ca54847d4a43e3ed98d386534",
+      "use": "L01_identity_precedent_not_L02-L04_authority"
+    }
+  ],
+  "boundaries": {
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
+    "rights": "Static cover approval does not authorize talking-avatar or voice use for this lesson. Purpose-specific identity and voice approval required.",
+    "lineage": "lineage_only_excluded"
+  },
+  "execution_gates": [
+    "purpose-specific look and voice consent for L02-L04",
+    "binding quote and enforceable one-job cap for each lesson and aggregate batch",
+    "current balance and credit check without purchase or auto-reload",
+    "final native source split/timing and caption audit",
+    "scene-specific diagram alt text, contrast and reduced-motion review",
+    "separate exact batch execution authorization"
+  ],
+  "request_sha256": "a7b9951bcc46a94b982b00da707c00be860c37ef0c14860612b87ab8eca3ded3"
+}
