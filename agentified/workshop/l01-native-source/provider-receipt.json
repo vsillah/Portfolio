@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "lesson_id": "L01",
+  "provider": "HeyGen",
+  "provider_product": "Avatar IV",
+  "status": "completed_review_only_source",
+  "created_at": "2026-11-07T21:21:00Z",
+  "downloaded_at": "2026-11-07T21:28:24Z",
+  "provider_project_id": "ab6f123ddc5147db8ea448c725a19c93",
+  "provider_project_url": "https://app.heygen.com/videos/avatar-video-ab6f123ddc5147db8ea448c725a19c93",
+  "source_commit": "63ad5911294534d111f0696346682cc79c52fdc3",
+  "request_candidate_sha256": "3d36d889ffb65d63e6a6bd4f0b315c00ed25162e329c0303acec09656c5114cb",
+  "execution_authorization": {
+    "authorized_on": "2026-11-07",
+    "authorization_type": "user-annotated one-job quote-gate override",
+    "maximum_wallet_debit_usd": 3.26,
+    "existing_wallet_only": true,
+    "no_retry": true,
+    "scope": "one Agentified L01 review-only job using the prepared exact script, avatar, voice, landscape and 1080p settings"
+  },
+  "identity_binding": {
+    "look_name": "Vambah green sweater",
+    "look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "voice_name": "Vambah green sweater",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "scope": "Agentified L01 review-only source"
+  },
+  "job_controls": {
+    "submitted_jobs": 1,
+    "automatic_retries": 0,
+    "manual_retries": 0,
+    "orientation": "landscape",
+    "resolution": "1080p"
+  },
+  "provider_usage": {
+    "provider_history_duration": "00:19",
+    "billable_duration_seconds": 19,
+    "credit_cost": 15,
+    "credits_remaining": 1314,
+    "credits_used_total_after_job": 286
+  },
+  "wallet": {
+    "currency": "USD",
+    "balance_before": 5.73,
+    "balance_after": 5.73,
+    "wallet_debit": 0.0,
+    "taxes_and_fees_charged_to_wallet": 0.0,
+    "auto_reload_before": false,
+    "auto_reload_after": false
+  },
+  "native_source": {
+    "path": "agentified-l01-heygen-native-source.mp4",
+    "sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
+    "bytes": 11318695,
+    "duration_seconds": 18.242,
+    "video_codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "audio_codec": "aac",
+    "audio_sample_rate": 48000,
+    "audio_channels": 2
+  },
+  "boundaries": {
+    "review_only": true,
+    "provider_free_composite_not_started": true,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "additional_generation_allowed": false
+  }
+}

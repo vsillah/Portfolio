@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "lesson_id": "L01",
+  "request_candidate_sha256": "3d36d889ffb65d63e6a6bd4f0b315c00ed25162e329c0303acec09656c5114cb",
+  "native_source_sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
+  "target_presenter_windows": [
+    {
+      "id": "L01-01",
+      "start_seconds": 0.0,
+      "end_seconds": 19.271,
+      "target_duration_seconds": 19.271
+    },
+    {
+      "id": "L01-08",
+      "start_seconds": 518.84,
+      "end_seconds": 523.0,
+      "target_duration_seconds": 4.16
+    }
+  ],
+  "provider_free_closing_card": {
+    "start_seconds": 523.0,
+    "end_seconds": 540.0,
+    "duration_seconds": 17.0,
+    "status": "preserved"
+  },
+  "duration_reconciliation": {
+    "target_presenter_duration_seconds": 23.431,
+    "provider_history_billable_duration_seconds": 19.0,
+    "native_media_duration_seconds": 18.242,
+    "native_minus_target_seconds": -5.189,
+    "status": "timing_deviation_requires_human_qa"
+  },
+  "passage_order": [
+    "L01-01",
+    "L01-08"
+  ],
+  "composition_gate": {
+    "native_speed_change_allowed": false,
+    "presenter_extension_allowed": false,
+    "retry_allowed": false,
+    "next_action": "Human QA must accept or reject the shorter native timing before any provider-free split or composite."
+  }
+}
