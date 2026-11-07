@@ -274,6 +274,102 @@ describe('YouTube outlier description library', () => {
     ]))
   })
 
+  it('excludes future-dated and undated evidence before it can qualify a cohort', () => {
+    const future = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [
+        packet({
+          id: 'future',
+          description: 'AI license proof with a product walkthrough.',
+          publishedAt: '2026-10-18T12:00:00.000Z',
+        }),
+      ],
+    })
+    const undatedPacket = packet({
+      id: 'undated',
+      description: 'AI license proof with a product walkthrough.',
+      publishedAt: '',
+    })
+    undatedPacket.retrieved_at = ''
+    const undated = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [undatedPacket],
+    })
+
+    expect(future.sources).toEqual([])
+    expect(future.excluded_sources).toEqual([
+      expect.objectContaining({
+        source_id: 'future',
+        reason: 'Evidence date is later than the evaluation time.',
+        gate_decisions: expect.arrayContaining([
+          expect.objectContaining({
+            gate: 'freshness',
+            status: 'failed',
+            observed: '2026-10-18T12:00:00.000Z',
+          }),
+        ]),
+      }),
+    ])
+    expect(undated.sources).toEqual([])
+    expect(undated.excluded_sources).toEqual([
+      expect.objectContaining({
+        source_id: 'undated',
+        reason: 'Publication or retrieval date is missing.',
+        gate_decisions: expect.arrayContaining([
+          expect.objectContaining({ gate: 'freshness', status: 'failed', observed: 'Missing date' }),
+        ]),
+      }),
+    ])
+  })
+
+  it('fails closed when the evaluation time or target topics cannot scope a cohort', () => {
+    const packets = [packet({ id: 'valid', description: 'AI license proof with a product walkthrough.' })]
+    const invalidTime = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: 'not-a-time',
+      targetTopics: ['AI licenses'],
+      researchPackets: packets,
+    })
+    const emptyTopics = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: [],
+      researchPackets: packets,
+    })
+    const stopWordsOnly = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['ai', 'youtube', 'product', 'content'],
+      researchPackets: packets,
+    })
+
+    expect(invalidTime).toMatchObject({
+      status: 'unscored',
+      release_readiness: 'blocked',
+      library_entry_count: 0,
+      sources: [],
+      excluded_sources: [],
+      target_topics: ['licenses'],
+    })
+    expect(invalidTime.blockers).toEqual([
+      'The description-library evaluation time is invalid.',
+      'Only 0 fresh, attributable same-topic outlier description(s) qualified; 3 are required.',
+    ])
+    expect(emptyTopics).toMatchObject({
+      status: 'unscored',
+      release_readiness: 'blocked',
+      sources: [],
+      excluded_sources: [],
+      target_topics: [],
+    })
+    expect(emptyTopics.blockers).toEqual([
+      'No stable target topics were available for description matching.',
+      'Only 0 fresh, attributable same-topic outlier description(s) qualified; 3 are required.',
+    ])
+    expect(stopWordsOnly.target_topics).toEqual([])
+    expect(stopWordsOnly.sources).toEqual([])
+    expect(stopWordsOnly.blockers[0]).toBe('No stable target topics were available for description matching.')
+  })
+
   it('does not treat an internal packet caption as public YouTube description evidence', () => {
     const researchPacket = packet({ id: 'summary-only', description: 'Public description that is deliberately removed.' })
     researchPacket.actor_metadata.source_description = ''
