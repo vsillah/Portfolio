@@ -78,8 +78,8 @@
     {
       "path": "app/agentified/page.tsx",
       "role": "existing public route",
-      "sha256": "99588f14296d71b0db8bd14b07e0319d18045e5492744c11fa4948d317720c9d",
-      "provenance": "repo-local; author/source-map attribution",
+      "sha256": "560b97fbb22f91e0d520aac943800213d70da2cef196f3b2bc8cc975d2539447",
+      "provenance": "repo-local public route; workshop entry link added 2026-11-07; approved manuscript and visual hashes unchanged",
       "rights_status": "already public in Portfolio; workshop reuse review pending",
       "privacy": "public",
       "allowed_workshop_use": "existing-public-reference"

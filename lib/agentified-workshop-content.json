@@ -1,0 +1,987 @@
+{
+  "version": "agentified-l01-l16-de1e01f0",
+  "lessons": [
+    {
+      "id": "L01",
+      "act": "The Harness",
+      "title": "Give the agent a job and a receipt",
+      "outcome": "Define one bounded job and the receipt that would make its work reviewable.",
+      "artifact": "workflow-and-job",
+      "outputs": [
+        "Agent Work Receipt",
+        "Agent Job Description"
+      ],
+      "exercise": "Describe a familiar workflow; mark its owner, inputs, output, and first receipt.",
+      "prompt": "Choose a familiar workflow type. Use invented details. Write the one-sentence agent job; trigger; allowed input references; draft output; human manager; success check; three forbidden actions. Then record the nine receipt fields for an imaginary run. Circle every unknown and assign a human owner. Do not paste a real trace or personal record.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+          "alt": "Split card: job description on left, receipt on right. Highlight “pending” and “source missing.”"
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:05",
+          "spoken": "Friday afternoon. Morgan runs a small community learning program. Someone suggests adding a free digital-skills session next month. There are three notes on the table: a made-up attendance count, a made-up facilitator availability note, and a made-up room-capacity note. An assistant can turn those into a neat recommendation in seconds. But if Morgan asks, ‘Where did this come from?’ a polished paragraph is thin protection. The work needs a trail."
+        },
+        {
+          "from": "1:05",
+          "to": "2:20",
+          "spoken": "Our job today is small: design one preparation role and one receipt. The agent does not decide whether the session happens. It prepares a Session Option Brief for Morgan to review. That distinction matters. If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary. What exactly begins its work? What can it read? What must it hand back? Who owns the outcome? These are ordinary management questions. They become more urgent when a tool can produce work while nobody is watching."
+        },
+        {
+          "from": "2:20",
+          "to": "3:35",
+          "spoken": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared sample inputs.’ The trigger is Morgan's request. The output is a draft brief. The manager is Morgan. The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log. The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending. A useful agent job names the work it finishes and the work it leaves alone."
+        },
+        {
+          "from": "3:35",
+          "to": "4:50",
+          "spoken": "Now attach the receipt. Imagine the brief says the room can hold twenty people. Morgan needs to see which invented note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it. The receipt also records cost or resource use, outcome, and how to pull the draft back. A blank field stays blank and gets an owner. We never fill a gap with a confident guess. The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
+        },
+        {
+          "from": "4:50",
+          "to": "5:45",
+          "spoken": "In our case, approval is ‘pending Morgan.’ The outcome is ‘draft prepared, no session selected.’ The rollback is ‘withdraw the draft from the review folder and mark it superseded.’ If the source for room capacity is missing, mark the brief blocked. A complete-looking card without a source can move bad information faster than an obviously unfinished one. The receipt makes that gap visible before anyone treats the draft as a decision."
+        },
+        {
+          "from": "5:45",
+          "to": "6:05",
+          "spoken": "Take a moment. Picture one workflow in your own work. Keep this exercise on paper or in a local draft. Use invented details. What is the one useful output, and who would have to defend it?"
+        },
+        {
+          "from": "6:05",
+          "to": "8:25",
+          "spoken": "Fill the Job and Receipt boxes. Name the trigger, permitted inputs, output, human manager, success check, and three forbidden actions. Then fill the nine receipt fields for one imaginary run. If you cannot name a source, approval state, or rollback, write ‘unknown’ and the person who must resolve it. Do not open a real system to complete this exercise. The point is to see the shape of the work before asking a tool to do it."
+        },
+        {
+          "from": "8:25",
+          "to": "9:00",
+          "spoken": "Save those two boxes in your Agentified Operating File as a draft. Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper. Next we will name the decision Morgan actually owns."
+        }
+      ]
+    },
+    {
+      "id": "L02",
+      "act": "The Harness",
+      "title": "Start with the decision",
+      "outcome": "Name the human decision the agent prepares and the consequence of a wrong answer.",
+      "artifact": "decision-card",
+      "outputs": [
+        "Decision Card"
+      ],
+      "exercise": "Write a Decision Card with decision owner, alternatives, evidence, and stop condition.",
+      "prompt": "In your same workflow type, name a single choice. Fill: owner of record, alternatives, reversibility, required evidence, what the agent prepares, what it cannot execute, review gate, escalation trigger, and consequence of error. Use invented examples and role names. Leave real policies and live approvals outside the exercise.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
+          "alt": "Decision Card with evidence rows and a visible stale-source warning."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:05",
+          "spoken": "Morgan opens the Session Option Brief. It says the free session is a good idea. The wording sounds settled. Yet the brief has only prepared a comparison. Somebody still has to decide whether the proposal belongs on next month's program agenda. A recommendation can make that decision easier to reach. It cannot quietly become the decision itself."
+        },
+        {
+          "from": "1:05",
+          "to": "2:10",
+          "spoken": "Today we put the decision in the center. Ask one question: ‘Should Morgan propose one free digital-skills session to the program team for next month?’ That is narrower than ‘run a workshop.’ It has a named owner, real alternatives, and a next step that can be held. Morgan can propose the session, request another option, or decline for now. The agent may compare evidence and recommend a path. Morgan owns the call and the explanation."
+        },
+        {
+          "from": "2:10",
+          "to": "3:15",
+          "spoken": "What if the answer is wrong? A false claim about room capacity could waste a facilitator's preparation. A false attendance signal could make the team spend scarce time on a session nobody asked for. Even in this invented case, the wrong number sends work to people who did not choose it. That is why the card records reversibility. Morgan can withdraw an internal proposal. A public announcement or a paid booking would be harder to unwind, and neither is in scope here."
+        },
+        {
+          "from": "3:15",
+          "to": "4:20",
+          "spoken": "List the evidence the owner would need: a current room-capacity note, an attendance summary with a clear time window, and facilitator availability for the proposed date. Each item must have a source ID and freshness check. If one is missing, the brief can show the gap. It cannot turn a guess into a fact. The agent's allowed actions are to read those cleared samples, draft alternatives, and place the brief in a review folder. It may not put a date on a calendar, contact participants, or commit money."
+        },
+        {
+          "from": "4:20",
+          "to": "5:25",
+          "spoken": "Now write the stop condition before you write the best-case path. If the capacity note is stale, if the facilitator has not confirmed availability, or if the sources disagree, mark the recommendation ‘hold for Morgan.’ A confidence score can help triage; it cannot replace the named gate. For this classroom card, we use a simple rule: all three required source IDs must be present and current before a recommendation appears. Even then, Morgan decides."
+        },
+        {
+          "from": "5:25",
+          "to": "5:45",
+          "spoken": "Pause on your own workflow. What choice is a human accountable for after the agent prepares its work?"
+        },
+        {
+          "from": "5:45",
+          "to": "8:05",
+          "spoken": "Fill the Decision Card now. Write the choice, the owner, three alternatives, the evidence, the agent's preparation scope, forbidden execution, and the condition that sends the work back to a person. Add the consequence of a wrong answer. If you find that one card contains three separate decisions, split it. A single approval button cannot make three different responsibilities disappear."
+        },
+        {
+          "from": "8:05",
+          "to": "8:30",
+          "spoken": "Put the card into your Operating File as a draft. Stop if you cannot name one accountable owner or if the agent can approve its own recommendation. In the next lesson, we will make the evidence path readable to that owner."
+        }
+      ]
+    },
+    {
+      "id": "L03",
+      "act": "The Harness",
+      "title": "Trace the work and grade the sources",
+      "outcome": "Specify trace fields and safe source tiers for the same workflow.",
+      "artifact": "trace-and-source-policy",
+      "outputs": [
+        "Trace Harness",
+        "Source Safety Ladder"
+      ],
+      "exercise": "Draw one path from source to artifact to human review; classify each sample source.",
+      "prompt": "Draw `source ID → draft artifact ID → human reviewer`. Answer the five Trace Harness questions. For three invented source types, record tier, attribution, observed date, expiry, permitted read/quote/memory/publish use, and what happens if the source is missing or stale. Keep actual operational data out.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+          "alt": "Four-tier ladder with one “unknown” source parked outside it."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "Morgan sees a line in the fictional Session Option Brief: ‘The room can hold twenty people.’ Morgan asks where the number came from. A raw machine log might answer eventually, after someone searches through hundreds of entries. Morgan needs a shorter trail: the source that carried the number, the date it was checked, what the agent concluded, and the condition that would have stopped the draft. A trace should serve the person accountable for the work."
+        },
+        {
+          "from": "1:10",
+          "to": "2:20",
+          "spoken": "For our paper design, the trace has five questions. What did the agent prepare? What did it read? What would have stopped it? Where is the artifact? Who reviews it? Answer in plain language. ‘Prepared a draft comparison.’ ‘Read sample room note SYN-ROOM-01.’ ‘Would hold if the note expired or conflicted with another source.’ ‘Draft at SYN-BRIEF-01.’ ‘Morgan reviews.’ We can keep technical diagnostics elsewhere. The operator's view needs the load-bearing facts first."
+        },
+        {
+          "from": "2:20",
+          "to": "3:30",
+          "spoken": "Now inspect the source. A real document can still be old. A correct citation can still support a wrong current claim. Before the agent uses a source, record who created it, when it was observed, when it expires, what it may be used for, and where it may travel. In this classroom case all three sample notes are invented. Their IDs help us practice a source contract. They are not evidence of actual attendance, room capacity, or staff availability."
+        },
+        {
+          "from": "3:30",
+          "to": "4:55",
+          "spoken": "The source ladder gives us four useful tiers: public safe, client safe, internal operations, and private. Public safe means cleared for the specific external use. Client safe stays inside that client's context. Internal operations can inform an internal draft but needs a reviewed rewrite before an external claim. Private material needs explicit access authority and stays out of this workshop exercise. A summary inherits the strictest tier of its sources. A missing tier means hold. A public link by itself does not prove that a document is current, accurate, or cleared for reuse."
+        },
+        {
+          "from": "4:55",
+          "to": "5:55",
+          "spoken": "Classify our three invented notes as classroom-only, with no publication permission. The capacity note has an invented date and expires before the next planning cycle. The attendance note is an aggregate fictional count, not a list of people. The facilitator note says only ‘available for review,’ not ‘confirmed to teach.’ That wording changes the recommendation. The brief may say ‘availability unconfirmed.’ It may not say the session is staffed. This is source safety doing practical work: it stops a small mismatch from becoming a confident plan."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. In your own workflow type, which single source would be most dangerous to trust after it goes stale?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Draw the path from source reference to draft to Morgan's review gate. Fill the five trace answers for one imaginary run. Then classify each sample source: tier, owner, observed date, expiry, read use, quote use, memory use, and publish use. If a source has no attribution or is too old for the decision, mark the brief blocked. Do not paste a real customer document, private note, or execution trace into the worksheet. We are designing the gate, not operating it."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save the trace and source policy in your Operating File. The stop condition is a missing source tier, freshness check, artifact reference, or reviewer. Next we will decide what a human correction is allowed to teach the system."
+        }
+      ]
+    },
+    {
+      "id": "L04",
+      "act": "The Harness",
+      "title": "Turn feedback into governed memory",
+      "outcome": "Separate source, event, proposal, approved memory, and controller routing.",
+      "artifact": "memory-and-routing-policy",
+      "outputs": [
+        "Source, Event, Proposal, Memory",
+        "Controller Routing Policy"
+      ],
+      "exercise": "Route one feedback item and reject an unsupported memory proposal.",
+      "prompt": "Use synthetic feedback from the same workflow. Record source ID, event, narrow proposal, evidence, privacy tier, approving human, owner, expiry, revocation path, and status. Reject one unsupported inference in writing. Then draft two controller rows: permitted preparation and a blocked external action. No live memory write or agent route is part of this exercise.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
+          "alt": "One inbound request forks to eligible preparation role and blocked messaging role, then joins at Morgan review."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "Morgan reviews the fictional brief and writes a correction: ‘The facilitator note says available for review. It does not say confirmed to teach.’ The draft is fixed. A week later, another request comes in. Should the agent remember that correction? Yes, perhaps. But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats."
+        },
+        {
+          "from": "1:10",
+          "to": "2:20",
+          "spoken": "Start with the source: Morgan's invented correction, saved as `SYN-FEEDBACK-01`. The event records what happened: Morgan changed a staffing claim in draft `SYN-BRIEF-01`. A proposal then asks whether a narrow rule should be kept: ‘Treat availability as unconfirmed until a separate confirmation record exists.’ That proposal names its source, owner, privacy tier, and review date. It is still only a proposal. An approved memory would require a human to accept the wording, scope, and expiry. In this exercise no memory is approved."
+        },
+        {
+          "from": "2:20",
+          "to": "3:30",
+          "spoken": "Try a second proposal: ‘Morgan dislikes all digital-skills sessions.’ That does not follow from the correction. Reject it. The difference matters. A system that keeps every sentence as a fact will grow confident in things nobody actually said. A good memory process makes a claim traceable and revocable. It also leaves room for ‘we do not know.’ Here, the unsupported proposal is rejected; the narrow one remains pending for Morgan's review. Neither becomes shared memory by default."
+        },
+        {
+          "from": "3:30",
+          "to": "4:45",
+          "spoken": "Now a new fictional request arrives: ‘Prepare a different session option for next month.’ Two preparation roles could respond. One compares session evidence; another drafts participant messages. Which one should touch it? A controller can route the request before either acts. First name the intent: compare an option. Then check eligibility: evidence-comparison role may read the three cleared sample IDs and draft; messaging role is ineligible because no outreach is authorized. Assign one role, record the rule, and route the brief to Morgan. If the request asks for a public announcement, the controller must refuse that path and hand it to Morgan."
+        },
+        {
+          "from": "4:45",
+          "to": "5:55",
+          "spoken": "The controller is not a second decision maker hiding behind a friendly name. It checks written rules and records why a role was selected. It cannot approve memory, authorize outreach, or turn an unconfirmed facilitator into a confirmed one. The routing record is another receipt: request type, applicable rule, selected role, human gate, and fallback. If the rule is missing, the work waits. That pause protects the program from two agents preparing conflicting answers or one agent running beyond its job."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause on your own workflow. Which correction is worth proposing as a reusable rule, and which tempting inference should be rejected?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Walk an invented correction through source, event, proposal, and possible memory. Name the approving human, owner, expiry, and revocation path. Keep the status pending. Then write two routing rows: one permitted preparation request and one request that must stop. Give each a task type, evidence requirement, eligible role, human gate, and fallback. Do not test this against live agents or put a real person's feedback into the exercise."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save both policies as draft sections of your Operating File. Stop if a proposal promotes itself, if a route has no written rule, or if a role can send, spend, or publish without a separate human gate. The next lesson will place these pieces on one operating map."
+        }
+      ]
+    },
+    {
+      "id": "L05",
+      "act": "The Harness",
+      "title": "Map the operating system",
+      "outcome": "Draw where the workflow runs, who approves it, and where evidence lives.",
+      "artifact": "operating-map",
+      "outputs": [
+        "Operating Map"
+      ],
+      "exercise": "Place the job, decision, source, receipt, memory, and owner on one map.",
+      "prompt": "Create an Operating Map with one row per step and columns `trigger | role | tier | handoff | evidence`. Mark where the L01 job, L02 Decision Card, L03 sources and receipt, and L04 pending memory proposal sit. Add explicit closed paths for spending, sending, publication, and live execution. Circle one missing owner or evidence location.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "alt": "Six small labeled markers for job, decision, source, receipt, proposed memory, owner, placed on the map."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:05",
+          "spoken": "Friday arrives at Harbor Learning Circle. Morgan has a draft Session Option Brief and a careful correction from last week. But imagine Morgan is out for an hour. Where is the brief? Which source note did the preparation role read? Who can answer a question about the unconfirmed facilitator? If the answer lives only in Morgan's head, our carefully designed pieces still do not make an operating system. We need one page that shows how the work travels."
+        },
+        {
+          "from": "1:05",
+          "to": "2:15",
+          "spoken": "Start with the real sequence on paper. A request to compare a free digital-skills session enters. A routing rule assigns the evidence-comparison role. That role reads three invented classroom notes and prepares a draft. The draft and its short trace wait for Morgan. Morgan may propose the option to the team, ask for another date, or hold it. The agent has no route to announce, book, buy, or send anything. Draw that sequence before adding another box."
+        },
+        {
+          "from": "2:15",
+          "to": "3:25",
+          "spoken": "Chapter Eight gives the operating map five columns. Trigger: what actually starts this row? Role: who owns this step? Tier: what may that role do? Handoff: who receives the work next, including a refusal? Evidence: where can a human find the record? A blank is useful. If you cannot name the evidence location, write ‘missing.’ A tidy imaginary location would hide the work you still need to design."
+        },
+        {
+          "from": "3:25",
+          "to": "4:40",
+          "spoken": "Put the earlier lessons onto those rows. The job sits at the preparation step. The Decision Card sits with Morgan. Source IDs and expiry checks sit at intake. The receipt and trace travel with the brief. Last week's correction remains a memory proposal, pending Morgan's separate approval. The controller's route is a written rule, not a new decision maker. A new teammate should be able to point to each item without asking who remembers where it went."
+        },
+        {
+          "from": "4:40",
+          "to": "5:50",
+          "spoken": "The workbook also asks where approval, spend checks, public-safe proof, and rollback sit. This classroom workflow has no spending or public export. Mark those as closed paths with an owner, not as empty arrows that imply they might work. Rollback here means Morgan can withdraw a draft recommendation and record why. It does not undo an announcement, because no announcement happens. If your own paper map has a step without a named owner or a return path, circle it. That is the next design task."
+        },
+        {
+          "from": "5:50",
+          "to": "6:15",
+          "spoken": "Pause. Could someone new find the current brief and its source check from this page alone? Name the first missing handoff."
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Build the Operating Map in your Operating File. Use a synthetic version of a workflow you know. Give every row the five columns. Place the job, decision, source, receipt, memory proposal, and human owner. Label closed paths for spending, publication, and external messages. Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. Do not map a real internal stack, copy credentials, or paste a private trace. We are making a design someone can review."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision five as a draft. A map earns its place when its blank cells stay visible and someone owns each repair. Next we will write the permission slip for the preparation role and ask whether that work still deserves a place in the system."
+        }
+      ]
+    },
+    {
+      "id": "L06",
+      "act": "Authority",
+      "title": "Write the permission slip",
+      "outcome": "Bound reads, writes, retention, and the work worth retiring.",
+      "artifact": "permission-and-cull",
+      "outputs": [
+        "Permission Slip",
+        "Quarterly Cull"
+      ],
+      "exercise": "Mark permitted actions and remove one low-value agent task from the map.",
+      "prompt": "Draft a `Permission Slip` with scope, ceiling, reversibility, escalation, expiry, authority rung, source and receipt checks, forbidden actions, retention, owner, and revocation. Then make a `Quarterly Cull` table for two invented roles: proof delivered this quarter, current owner/approver, permission validity, cost or maintenance burden, build again, and proposed disposition. All decisions remain proposals.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+          "alt": "Authority ladder with a fixed marker at “prepare” and closed gates above it."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:05",
+          "spoken": "The Operating Map has a row that says ‘prepare the Session Option Brief.’ Morgan asks a fair question: what is this preparation role actually allowed to read or change? ‘Be careful’ will not answer it. One Friday, the facilitator note says ‘available for review.’ If the agent quietly treats that as permission to confirm a teacher, the map looks orderly while the work crosses a boundary. We need a permission slip someone can inspect before the next draft."
+        },
+        {
+          "from": "1:05",
+          "to": "2:20",
+          "spoken": "Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. For Harbor, scope is three cleared invented notes and a draft brief. The ceiling is preparation only. The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. Escalation names Morgan for missing or conflicting evidence. Expiry sends the proposed slip back for review before the next fictional planning cycle."
+        },
+        {
+          "from": "2:20",
+          "to": "3:30",
+          "spoken": "The workbook asks us to place an action on an authority ladder: prepare, recommend, route, stage, execute. Our role sits at prepare. Its proposed slip also names permitted source IDs, forbidden inputs, the receipt, source checks, an owner, and a revocation path. A source that was cleared last week may expire. A rule written in a prompt is not enough for our paper design; the permission needs to be visible beside the job and decision. This exercise grants no real permission."
+        },
+        {
+          "from": "3:30",
+          "to": "4:45",
+          "spoken": "Now test the value of the work itself. Suppose Harbor also has a second paper role that drafts a daily weather summary for possible workshops. Nobody reads it. It has a clean receipt, but no decision uses it. Chapter Ten calls for a Quarterly Cull: proof delivered, permission current, and would we build it again today? The session brief has a named decision and reviewer, though its value is still only a classroom hypothesis. The weather summary fails the proof test. In this exercise we recommend retirement for human review; we do not delete a trigger or revoke a live tool."
+        },
+        {
+          "from": "4:45",
+          "to": "5:55",
+          "spoken": "A retirement decision needs a person too. If a real agent existed, a human owner would review the evidence, sign the sunset, revoke access, archive governed memory, remove triggers, and record the change. Neglect leaves permissions behind. Here, there is no running agent, no trigger, and no memory to remove. Write the proposed decision and its reason. Keep the external world untouched. The same human discipline governs adding a capability and taking one away."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. Which line in the slip would prevent a well-written brief from turning into an unauthorized announcement?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Write the Permission Slip for the preparation role. Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. Then run the Quarterly Cull on the session brief role and the invented weather-summary role. Use the three tests and record keep, narrow, or retirement proposal. Do not grant a real permission, delete anything, or paste live agent inventories into this exercise."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision six as a draft. A role's permission and its reason to exist both need renewal. Next we will give the work a tighter requirement packet and decide how a small team would share it."
+        }
+      ]
+    },
+    {
+      "id": "L07",
+      "act": "Authority",
+      "title": "Specify the work and the team",
+      "outcome": "Describe requirements, roles, ownership, and failure handoffs.",
+      "artifact": "prd-and-pod",
+      "outputs": [
+        "Agentic PRD Packet",
+        "Pod Model"
+      ],
+      "exercise": "Draft a short PRD and assign each step to a named role and human owner.",
+      "prompt": "Write an `Agentic PRD Packet` with outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal. Add a `Pod Model` with charter, lead, specialists, board, standup, handoff, human owner, and a failure path. All roles are paper labels, not production agent configuration.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+          "alt": "A blocked `SYN-FAC-01` handoff card landing with Morgan instead of the drafter."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:05",
+          "spoken": "Morgan receives a polished Session Option Brief. It compares three notes and says the facilitator is confirmed. That one word is wrong. The source said ‘available for review.’ The preparation role did what an old brief told it to do: ‘Summarize the best session option.’ That sentence left the hardest part in Morgan's head. What counts as ready? Which source is required? When must the work stop? A human colleague might ask. A paper agent design needs those answers written down."
+        },
+        {
+          "from": "1:05",
+          "to": "2:25",
+          "spoken": "Chapter Eleven turns the request into an Agentic PRD Packet. Seven fields carry the load: outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal. The outcome is a comparison Morgan can review, not a session announcement. Scope fences keep the role away from participant messages and calendar changes. The input manifest lists three invented note IDs and their freshness checks. An acceptance test says staffing language must match the facilitator note exactly in meaning. If the note is missing or ambiguous, the escalation is a hold for Morgan."
+        },
+        {
+          "from": "2:25",
+          "to": "3:35",
+          "spoken": "Reversal is modest here. Morgan can return a draft for correction or withdraw it from review. There is no external send to reverse. A test result belongs beside the draft as evidence: source IDs checked, staffing wording checked, review gate present. A failed check does not become a footnote under a confident recommendation. It blocks the handoff. This packet remains a proposed design; writing it does not configure an agent."
+        },
+        {
+          "from": "3:35",
+          "to": "4:45",
+          "spoken": "Now give the work an organization. One role checks sources; one role assembles the comparison; Morgan owns the outcome. If both preparation roles produce separate answers without a common handoff, Morgan gets a small swarm and two versions of the truth. Chapter Twelve's Pod Model asks for a charter, lead, specialists, board, standup, and handoff. For this tiny classroom pod, keep the lead as a preparation coordinator, not an approver. The board is a proposed paper status list. The standup is a short proposed summary of ready and blocked work."
+        },
+        {
+          "from": "4:45",
+          "to": "5:55",
+          "spoken": "The charter is narrow: prepare one evidence-bound option brief for Morgan. The source checker may flag staleness, not repair a source by inventing a newer date. The drafter may compare, not confirm staffing. The coordinator may route a blocked packet to Morgan, not override the block. The board should show who holds the next move. If nobody owns a failed source check, the org chart is decorative. Write that ownership into the handoff now."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. Who would receive the brief if the facilitator note stays unconfirmed? Name the role and the human."
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Draft the seven-field PRD in under a page. Give it two acceptance tests, including the staffing claim, and one explicit failure route. Then sketch the Pod Model: charter, lead, specialists, board, standup, handoff, and human owner. Use role labels and invented IDs. Do not configure production agents, paste a real staff roster, or promote the pod's coordinator into final decision authority."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision seven as a draft. A requirement becomes useful when a new teammate can tell what to prepare and when to stop. A team becomes useful when a blocked packet has one place to land. Next we will test that handoff with three invented cases."
+        }
+      ]
+    },
+    {
+      "id": "L08",
+      "act": "Authority",
+      "title": "Make handoffs testable",
+      "outcome": "Define a handoff contract and a small evaluation set before authority grows.",
+      "artifact": "handoff-and-eval",
+      "outputs": [
+        "Handoff Contract Card",
+        "Evaluation Loop"
+      ],
+      "exercise": "Write input/output checks, then grade three synthetic cases including a failure.",
+      "prompt": "Draft a `Handoff Contract Card`: producer, consumer, payload, preconditions, rejection path, human owner, and evidence pointer. Then write an `Evaluation Loop`: capture fields, rubric version, pass/fail criteria, human sample rule, hold or rollback trigger, and a documented permission decision. Grade three synthetic cases, including a failure. A classroom pass never grants production authority.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+          "alt": "Three-case evaluation grid with pass/fail text and a separate human decision box."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "The Harbor source checker finishes its pass. The drafter receives a note that says, ‘Room okay. Facilitator maybe. Attendance promising.’ It sounds useful. But which room note? When was it checked? What does ‘maybe’ permit the drafter to say? A polished brief built on that note could still be wrong. The problem is at the handoff. Before we add another checker or give the drafter more authority, write down what must cross that edge."
+        },
+        {
+          "from": "1:10",
+          "to": "2:25",
+          "spoken": "Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. Producer: Harbor's source checker. Consumer: brief drafter. Payload: the three invented source IDs, observation and expiry checks, allowed claim for each, open questions, and a trace reference. Preconditions: all IDs are permitted classroom inputs and checked for freshness. Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. Owner: Morgan, who can revise the paper contract. The receiver does not fill a blank by guessing."
+        },
+        {
+          "from": "2:25",
+          "to": "3:35",
+          "spoken": "Try a broken payload on purpose. `SYN-FAC-01` says only ‘available for review,’ but the handoff labels the facilitator confirmed. The receiver must refuse it. The reason is `staffing_claim_unsupported`. The drafter does not quietly edit the source check or send the draft onward. Rejection is a visible outcome, with Morgan as the human fallback. That is the test of a contract: what happens when its promise fails?"
+        },
+        {
+          "from": "3:35",
+          "to": "4:50",
+          "spoken": "Now evaluate the designed workflow. Chapter Fourteen gives four moves: capture, judge, sample, decide. Capture the input IDs, contract and rubric versions, draft, test results, and Morgan's disposition in a privacy-safe classroom record. Judge against a small pass-or-fail rubric. Sample the cases with a human; an automated score can help sort work later, but it cannot become the ground truth. Decide whether to keep the prepare-only design, revise it, or stop it. The score does not grant a send permission."
+        },
+        {
+          "from": "4:50",
+          "to": "5:55",
+          "spoken": "Use three invented cases. Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. Case B: facilitator note stale; fail the freshness check and hold before drafting. Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. Three cases are a classroom starting set, not proof of reliability. If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. Which failed case would a neat-looking dashboard be most likely to hide?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Write the Handoff Contract Card, then grade A, B, and C with a named rubric version. Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. Include a human sample rule and the decision you would recommend from these cases. Keep permission at prepare only, regardless of the score. Use invented evidence; do not submit a real prompt, private record, model trace, or customer case."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision eight as a draft. We have a map, a permission slip, a job packet, a team, and now a contract we can break in a safe exercise. The next review should ask whether the handoff and rubric are clear enough for another person to apply without Morgan explaining them."
+        }
+      ]
+    },
+    {
+      "id": "L09",
+      "act": "Authority",
+      "title": "Measure trust and choose review posture",
+      "outcome": "Track quality, burden, cost, and review strength for the workflow.",
+      "artifact": "metrics-and-review",
+      "outputs": [
+        "Agent Metrics Ladder",
+        "Review Postures"
+      ],
+      "exercise": "Choose measures and assign review posture to low, medium, and high-risk actions.",
+      "prompt": "Build an `Agent Metrics Ladder` with activity, quality, trust or behavior, cost, outcome, and one metric excluded from decisions. For each retained measure, add evidence source, cadence, action threshold, decision, and owner; mark missing baselines `unproven`. Build `Review Postures` for low, medium, and high-risk actions: posture, reviewer evidence, approve/revise/reject/escalate conditions, and trace pointer. Do not infer real performance from the classroom cases.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
+          "alt": "Seven-rung ladder beside a small measure-to-decision card."
+        },
+        {
+          "src": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+          "alt": "Review posture matrix with Morgan's evidence view and a closed external-action gate."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "Harbor Learning Circle has three neat classroom briefs on a table. All three were produced on time. Morgan looks past the count. One brief treats an unconfirmed facilitator as confirmed. Another stopped because the note was stale. The third accurately says the facilitator is still under review. Three drafts tell Morgan very little about whether this work helps the team. Last lesson gave us a contract and three test cases. This lesson asks what we would watch over time, and what Morgan must see before signing a decision."
+        },
+        {
+          "from": "1:10",
+          "to": "2:25",
+          "spoken": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority. A count of briefs belongs low on the ladder. For Harbor, quality asks whether each sentence is supported by a permitted, current source. Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate. Outcome asks whether Morgan could decide with less reconstruction and no hidden staffing claim. Learning asks whether a revised contract reduces the same error in later approved tests. Authority records the human-granted scope; it is not a prize for a high count."
+        },
+        {
+          "from": "2:25",
+          "to": "3:35",
+          "spoken": "The workbook adds cost and trust to the scorecard. Harbor can record invented minutes of Morgan's review and an illustrative preparation cost, but cannot claim real savings. For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer. Write a decision beside each measure. If a measure cannot tell Morgan to keep, revise, narrow, or stop the design, take it off the front page. Three classroom cases are a test exercise, not a performance baseline."
+        },
+        {
+          "from": "3:35",
+          "to": "4:50",
+          "spoken": "Chapter Sixteen asks us to choose a review posture for each action. Pre-action review means the work waits for a human before a side effect. Bounded action means a specifically fenced action may happen inside an already approved scope. Post-action audit checks low-stakes action after it happens, with a way to tighten the fence. In this course, these are design choices on paper. Harbor's brief may be prepared for Morgan; proposing a session, announcing it, booking a room, or spending would need its own explicit human gate. Nothing in our evaluation grants those permissions."
+        },
+        {
+          "from": "4:50",
+          "to": "5:55",
+          "spoken": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes. Make reject and request-revision as visible as approve. The stale facilitator note should land as a hold with a next step, not a green badge. A reviewer who sees only a score will learn to clear a queue. A reviewer who sees the evidence can take responsibility for a decision."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Add an Agent Metrics Ladder and Review Postures card to your Operating File. Name one measure for activity, quality, behavior or trust, cost, and outcome. Give each a source, a review cadence, a named decider, and the decision it could change. Mark any unavailable baseline as unproven. Then classify three Harbor actions: drafting the brief, Morgan's internal review, and a proposed external announcement. For each, state the reviewer view and stop condition. Use only invented cases; do not paste live dashboards or customer results."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision nine as a draft. The scorecard may tell Morgan where to look. It does not sign for Morgan. Next we will put the same discipline around money and the final decision brief."
+        }
+      ]
+    },
+    {
+      "id": "L10",
+      "act": "Authority",
+      "title": "Gate spend and brief the decision",
+      "outcome": "Set a cost ceiling and prepare a human decision with evidence and options.",
+      "artifact": "spend-and-decision-brief",
+      "outputs": [
+        "Spend Envelope",
+        "Decision Brief"
+      ],
+      "exercise": "Build a mock spend envelope and a decision brief that can end in hold.",
+      "prompt": "Draft a `Spend Envelope` for a fictional proposed expense and a `Decision Brief` for the Harbor session choice. The envelope must identify exact amount and currency, counterparty, purpose, execution window, retry limit, source trace, requesting role, approving human, expiry/revocation, and forbidden actions. The brief must offer at least two fairly argued options, the case against its recommendation, reversibility, what would change the recommendation, owner, deadline, and an explicit `hold` disposition. Neither document grants authority.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+          "alt": "Seven-field envelope with a closed `unapproved` gate and expiry line."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month. The room note is current. The attendance note suggests interest. The facilitator is still available for review, not confirmed. A colleague suggests paying for a small printing run to test flyers. The amount sounds minor. Morgan stops at the word ‘paying.’ A recommendation can sit in the brief. A purchase needs a separate human decision. The same paper workflow now has two questions: should Harbor propose the session, and should anyone authorize a specific expense?"
+        },
+        {
+          "from": "1:10",
+          "to": "2:25",
+          "spoken": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. The workbook adds currency, requesting role, forbidden actions, and revocation. Use an invented example: a proposed forty-dollar print test with a named fictional printer and a two-day window. The number is classroom arithmetic, not a quote, budget, or authorization. The envelope is incomplete until the actual approving human can see the evidence and exact terms. It cannot be stretched into a recurring charge or an ‘up to’ range."
+        },
+        {
+          "from": "2:25",
+          "to": "3:35",
+          "spoken": "Harbor's preparation role has no payment authority. It may draft `SYN-SPEND-01`; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. Put a closed gate between the proposed envelope and any dollar-moving verb. If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. If it expires, it stays closed. A prior approval of the session idea would not approve the print order. The approval has to match the action."
+        },
+        {
+          "from": "3:35",
+          "to": "4:50",
+          "spoken": "Now write the decision Morgan actually owns. Chapter Eighteen uses five sections: context, options, recommendation, reversibility, and what would change our mind. Option A is to propose a session subject to facilitator confirmation. Option B is to hold the proposal and gather a fresh staffing commitment. Give B a fair case: it protects Harbor from promising a session it cannot staff. The recommendation can favor A only if the brief clearly carries that condition. Morgan can also choose hold. The agent's framing must leave room for disagreement."
+        },
+        {
+          "from": "4:50",
+          "to": "5:55",
+          "spoken": "Put the spend question on its own line. Even if Morgan favors a conditional session proposal, the mock print request remains held. The brief should name Morgan as decision owner, the fictional deadline, the evidence gap, and what can be reversed. A draft brief can be withdrawn. A flyer sent into the community cannot be pulled back with the same ease. That difference is why preparation and side effects have different gates. An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. Which sentence in the brief would stop ‘available for review’ from becoming ‘confirmed’?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Fill a mock Spend Envelope, then a Decision Brief. Give the envelope an exact illustrative amount, named fictional counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. Mark it unapproved. Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. Keep the facilitator unconfirmed. Do not open a checkout, use a card, call a provider, or publish a session."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision ten as a draft. Morgan has two distinct decisions and the evidence for both. Neither has been exercised. Next we will make the pending work visible without turning a phone notification into a second control room."
+        }
+      ]
+    },
+    {
+      "id": "L11",
+      "act": "The Agentified Organization",
+      "title": "Run the cockpit and unblock lane",
+      "outcome": "Show status, blockers, owner, and the next authorized step in one view.",
+      "artifact": "cockpit-and-unblock",
+      "outputs": [
+        "Mission Control Cockpit",
+        "Unblock Ladder"
+      ],
+      "exercise": "Sketch a cockpit card and a mobile unblock message for the same job.",
+      "prompt": "Create a `Mission Control Cockpit` card and an `Unblock Ladder` for the same fictional Harbor job. The card needs status, blocker, owner, due or age signal, evidence pointer, cost/spend status, next authorized action, recovery, and disposition history. The ladder must distinguish `auto-run`, `notify`, `ask`, and `escalate`, with allowed response, trace event, deep link, and forbidden actions. Mark anything requiring full review as a handoff to the cockpit, not a one-tap mobile approval.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "alt": "Four-rung Unblock Ladder beside a phone-shaped *wireframe*, not an app capture."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "Morgan comes to Harbor's Friday planning table with three open questions. Is the room note still current? Who is checking the facilitator? Did anyone approve the mock print request? If the answers live in three people's heads, Morgan becomes the operating system. We already have receipts, a handoff, a rubric, a review posture, and two held decisions. Put them where a second team member could see the state and take the next authorized step."
+        },
+        {
+          "from": "1:10",
+          "to": "2:25",
+          "spoken": "Chapter Nineteen calls this a cockpit. Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; `SYN-HOLD-01` names Morgan; `SYN-SPEND-01` is unapproved; the next action is to request a current, permitted staffing note. Add owner, age, cost signal, approval queue, and a link to `SYN-TRACE-01`. A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. This is a paper sketch, not a screenshot of a running system."
+        },
+        {
+          "from": "2:25",
+          "to": "3:35",
+          "spoken": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to a fictional coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. There is no need to display individual speed rankings or make a teammate's latency look like failure. The cockpit should reduce guessing, not pressure people into faster approval."
+        },
+        {
+          "from": "3:35",
+          "to": "4:50",
+          "spoken": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate. On a real system, each rung would need a defined authority window and trace. On Harbor's paper design, a status update may be drafted as a notify card. The staffing gap is an ask to Morgan for direction. A proposed announcement or purchase escalates to a separate, named human gate. A mobile card may point Morgan to the full brief and source status. It must never hide a missing note behind an approve button."
+        },
+        {
+          "from": "4:50",
+          "to": "5:55",
+          "spoken": "The phone is a narrow doorway into the cockpit. A good card says what is held, why, who owns it, and where to open the complete evidence. It can invite a comment or route the issue within a previously defined scope. It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure. Every paper disposition returns to the same trace. A small screen does not make a consequential decision smaller."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. Show status, blocker, owner, age, source pointer, next safe step, and decision destination. Assign each message to a ladder rung. Label what can be handled in the sketch and what must open the full review. Include a route for stale evidence and a closed spend gate. Use fictional data only; do not paste a real Slack message, agent run, person, or client record."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision eleven as a draft. The test is simple: can a second person understand why the work is held and who can move it? Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+        }
+      ]
+    },
+    {
+      "id": "L12",
+      "act": "The Agentified Organization",
+      "title": "Prove the work safely",
+      "outcome": "Package scoped proof and test an idea without leaking the underlying record.",
+      "artifact": "proof-and-foundry",
+      "outputs": [
+        "Client-Safe Proof Packet",
+        "Foundry Test"
+      ],
+      "exercise": "Redact a fictional trace and score a mock app concept against the workflow.",
+      "prompt": "Create a `Client-Safe Proof Packet` outline for one fictional Harbor decision with audience, scope, window, capability and delegation boundary, trace references, approval/hold history, spend authority summary, exclusions, export review owner, and ledger metadata. Then create a `Foundry Test` for one adjacent app idea. For each field, name its evidence or mark it `unscored`; include demand, payer/monetization, builder fit, build velocity, differentiation, release readiness, approval gates, the smallest proposed test, and stop condition. Do not substitute a fabricated total score for missing evidence.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+          "alt": "Six-field scoped proof card with a visible inclusion column and exclusion column."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "A fictional Harbor board member asks Morgan what the preparation agent actually did for the proposed session. Morgan could hand over the entire trace. That would reveal source notes and internal deliberation the board member did not request. Morgan could write a polished story from memory. That would be hard to check. We need a smaller packet: enough to show the boundary, the work, the hold, and the human decision, without dragging every underlying record into the room."
+        },
+        {
+          "from": "1:10",
+          "to": "2:25",
+          "spoken": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger. For our invented board reader, scope is one Harbor session-option paper case, across one fictional planning window. Include the permitted job, evidence-status summary, handoff result, `SYN-HOLD-01`, Morgan's paper disposition, and the still-unapproved `SYN-SPEND-01`. Exclude raw source text, prompts, private reasoning, unrelated people, and any actual records. The packet records what is known and what is withheld. It does not certify agent quality or imply a session happened."
+        },
+        {
+          "from": "2:25",
+          "to": "3:35",
+          "spoken": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes. Use placeholder IDs and an invented timestamp label, not a real log. Morgan reviews the proposed proof packet before any sharing. If a field cannot be safely summarized, mark it withheld with a reason. Redaction is a decision, not a blur laid over a screenshot. Here, the export is only a classroom outline; nothing is sent."
+        },
+        {
+          "from": "3:35",
+          "to": "4:50",
+          "spoken": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options. The temptation is to build it because it fits the Harbor story. Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates. The workbook proposes a weighted score out of one hundred. A score is useful only when each field has attributable evidence. Our class has no real market research, payer interview, or release review. Those fields stay unscored. A made-up number would turn an idea into false proof."
+        },
+        {
+          "from": "4:50",
+          "to": "5:55",
+          "spoken": "Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay. Even that is a proposed plan, not a provider call or outreach. No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson. A phone can display the packet and a hold status, but it cannot waive the gate. The valuable outcome may be a decision to shelve the idea. That saves time a rushed build would consume."
+        },
+        {
+          "from": "5:55",
+          "to": "6:15",
+          "spoken": "Pause. What would you leave out of the board packet even if it helped tell a better story?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Draft a Client-Safe Proof Packet outline for the single Harbor planning case. State audience, scope, window, inclusions, exclusions, export review, and ledger fields. Redact the fictional trace in words rather than pasting it. Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition. Use only invented case material. Do not fetch private records, contact a person, create a repo, or generate a public claim."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision twelve as a draft. Harbor now has a way to explain its held work and a way to examine a new idea without pretending either is ready to ship. The Operating File keeps the missing evidence visible. That is what makes the next human decision honest."
+        }
+      ]
+    },
+    {
+      "id": "L13",
+      "act": "The Agentified Organization",
+      "title": "Research with a gate",
+      "outcome": "Record an experiment hypothesis, metric, and proposed next test without automatic promotion.",
+      "artifact": "research-proposal",
+      "outputs": [
+        "AutoResearch Proposal"
+      ],
+      "exercise": "Write one hypothesis and a proposal packet from synthetic results.",
+      "prompt": "Write an `AutoResearch Proposal` for one improvement to your invented workflow. Include title, question, hypothesis, comparison, expected impact, baseline, primary and guardrail metrics, test configuration, touched surface, risk, rollback, promotion recommendation, named approval question, next metric gate, `result_status: not_run`, and an actionable hold reason. The approval question must authorize only a later scoped research action, never a production change.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
+          "alt": "Five-step ladder ending in a closed gate; a separate memory-proposal lane does not connect automatically."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "Morgan opens Harbor's paper planning folder on Friday. The Session Option Brief is still held because no one has confirmed staffing. An idea appears in the margin: perhaps a different brief format would make the next review easier. It is tempting to let the preparation agent change the format and declare an improvement. But Harbor has no baseline for review time, no test plan, and no permission to change the team's process. The honest first artifact is a proposal."
+        },
+        {
+          "from": "1:10",
+          "to": "2:20",
+          "spoken": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. For this classroom case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? The hypothesis needs a comparison and a metric. We could compare two invented brief layouts in a paper exercise. We cannot claim one works better because it looks cleaner to us. The `not_run` state records exactly what is missing."
+        },
+        {
+          "from": "2:20",
+          "to": "3:30",
+          "spoken": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate. Here the baseline is `unknown`, not zero. The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation. No result exists yet. The touched surface would be the paper brief layout only. The rollback is to keep the current layout. No routing default, memory record, or real calendar changes."
+        },
+        {
+          "from": "3:30",
+          "to": "4:40",
+          "spoken": "Morgan owns the review of the proposal because Morgan owns this planning decision. A real experiment would need a fresh, scoped approval and an appropriate participant and privacy plan. This lesson grants none of that. In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test. The agent cannot turn a promising hypothesis into durable memory. A memory proposal would need its own source, scope, expiry, and human decision."
+        },
+        {
+          "from": "4:40",
+          "to": "5:50",
+          "spoken": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.` Then add the next safe step: Morgan reviews whether the question is worth testing at all. If Morgan says no, keep the rejection and its reason. If Morgan says yes, define the test before anyone runs it. Either path teaches Harbor something about its priorities. A silent queue of ideas teaches almost nothing."
+        },
+        {
+          "from": "5:50",
+          "to": "6:15",
+          "spoken": "Pause on your own workflow type. What evidence would make your favorite improvement worth testing?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Draft one AutoResearch Proposal using invented facts. Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. Mark the result `not_run`. Write the reason in plain language and the action Morgan may take after review. Keep the staffing and spend holds visible. Do not run a provider, contact anyone, change a setting, or promote a finding."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision thirteen as a draft. Research begins when a question can survive a gate, not when a dashboard fills with experiments. Harbor has a proposal that someone can inspect, and a clear record that nothing has run."
+        }
+      ]
+    },
+    {
+      "id": "L14",
+      "act": "The Agentified Organization",
+      "title": "Show the board the controls",
+      "outcome": "Explain the workflow, its gate, and its evidence to a skeptical reviewer.",
+      "artifact": "three-panel-demo",
+      "outputs": [
+        "Three-Panel Demo"
+      ],
+      "exercise": "Storyboard three panels: work, authority, and proof.",
+      "prompt": "Make a `Three-Panel Demo` storyboard with queue, trace, and memory. For each panel, write the question it answers, a synthetic evidence reference, what is blocked or rejected, and what remains unknown. Add two reviewer questions, the privacy exclusions, a possible proof export, its audience and review owner, and `not shared` until approved. Keep the original staffing and spend holds and the research `not_run` state visible.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "alt": "A narrow trace with a conspicuous stop before any send or booking node."
+        },
+        {
+          "src": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+          "alt": "Draft rule card beside a closed authority gate and `not shared` proof outline."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "A fictional Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? Morgan brings three paper panels to the table. The first panel shows the queue, including held and rejected work. The second follows one item through its trace. The third shows the rule that governed it. This is a design walkthrough, not a live system demonstration. Morgan is showing what Harbor intends to inspect before it trusts the workflow."
+        },
+        {
+          "from": "1:10",
+          "to": "2:20",
+          "spoken": "Start with the queue. One Session Option Brief is prepared, not proposed to the team. `SYN-HOLD-01` says staffing is unconfirmed. `SYN-SPEND-01` says no spend is approved. `SYN-RESEARCH-01` is `not_run` because its baseline and reviewer protocol are missing. Place the rejections where the reviewer can see them too. A queue that only displays polished outputs hides the decisions that make the operation governable."
+        },
+        {
+          "from": "2:20",
+          "to": "3:30",
+          "spoken": "Open the trace for the held brief. It begins with invented, cleared source references. It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. There is no send or booking event. The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. The absence of an event is part of the answer."
+        },
+        {
+          "from": "3:30",
+          "to": "4:35",
+          "spoken": "Now show memory. Harbor has a proposed local rule: a session cannot move from option to team proposal until a person confirms staffing. In this classroom design, that rule is a draft for Morgan's review. The agent cannot promote it itself, and a single held example cannot become general truth by repetition. Show the rule's owner, scope, source reference, status, and review date. If any are missing, say so."
+        },
+        {
+          "from": "4:35",
+          "to": "5:45",
+          "spoken": "The workbook asks what export a reviewer can take away. Morgan can offer the scoped proof outline from lesson twelve after a separate audience and privacy review. It would contain the boundary, receipt references, decisions, and limitations. It would omit raw notes and unrelated records. For class today, it stays `not shared`. A reviewer may ask whether the agent actually ran. Answer plainly: no. This exercise demonstrates controls on paper; it does not prove production reliability."
+        },
+        {
+          "from": "5:45",
+          "to": "6:15",
+          "spoken": "Pause. Which panel would expose the weakest part of your own proposed workflow first?"
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Storyboard a Three-Panel Demo for your invented workflow. Give each panel a reviewer question and one piece of evidence. Include a blocked or rejected item beside the successful work. In the trace, name the missing event as clearly as the recorded ones. In memory, identify who may approve the rule. Write two likely skeptical questions and honest answers. Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision fourteen as a draft. The board can examine Harbor's proposed controls and its unresolved gaps. Morgan still owns the session decision. Nothing about a clean storyboard lifts the hold."
+        }
+      ]
+    },
+    {
+      "id": "L15",
+      "act": "The Agentified Organization",
+      "title": "Rehearse the agentified day",
+      "outcome": "Walk the bounded job through a day, including a block and a human decision.",
+      "artifact": "six-beat-rehearsal",
+      "outputs": [
+        "Six-Beat Day"
+      ],
+      "exercise": "Rehearse six beats and record what stops when a receipt or approval is missing.",
+      "prompt": "Produce a `Six-Beat Day` brief with brief, route, review, approve, recover, and learn. Each beat needs an item, evidence reference, owner, permissible next step, and stop condition. Include one failure and its version-preserving recovery path. End by answering, “What did I approve today that I should have questioned?” Use only invented activity; the preparation agent cannot grant its own authority.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
+          "alt": "Paper draft A and corrected draft B with a missing source-status field highlighted in text."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:10",
+          "spoken": "It is Friday in the fictional Harbor Learning Circle. Morgan opens a paper brief, not a live dashboard. The preparation agent's job was to compare three invented, cleared sample inputs and draft a Session Option Brief. The first line says prepared, not sent. A second line says staffing is unconfirmed. A third says a research proposal has not run. Morgan's day is not about clearing every row. It is about spending judgment where a decision can change what happens next."
+        },
+        {
+          "from": "1:10",
+          "to": "2:15",
+          "spoken": "The Six-Beat Day begins with a brief. What was prepared? What needs a human? What may be worth learning? Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test. The brief must carry receipts and uncertainty. If it reads like an endless task list, the system has handed burden back to Morgan."
+        },
+        {
+          "from": "2:15",
+          "to": "3:15",
+          "spoken": "Second, route. The staffing question belongs to the program lead and team, not to the preparation agent. A proposed spend belongs in a separate budget decision. The research question belongs to Morgan as owner of the brief format. Route each item to a named person, with a deadline or review window where appropriate. Routing an item to a queue without an owner is a way to lose it politely."
+        },
+        {
+          "from": "3:15",
+          "to": "4:15",
+          "spoken": "Third, review. Morgan reads the brief beside its source-status summary and trace template. One synthetic source is stale for the proposed month. The agent's draft sounds confident anyway. Morgan marks the claim unsupported and keeps `SYN-HOLD-01` in place. Fourth, approve. There is nothing to approve for a team proposal today. Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement."
+        },
+        {
+          "from": "4:15",
+          "to": "5:25",
+          "spoken": "Fifth, recover. Suppose the paper handoff is incomplete: the draft lacks its source-status field. Morgan does not fill the gap by guessing. The recovery choice is to return the brief for a corrected paper draft, preserve the earlier version, and record why. There is no automatic retry or provider call. Sixth, learn. The repeated missing source-status field could become a memory proposal: require that field in future briefs. It stays a proposal until Morgan reviews its source, scope, and expiry. One bad draft does not write policy by itself."
+        },
+        {
+          "from": "5:25",
+          "to": "6:15",
+          "spoken": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned? In this rehearsal the answer is a paper correction, and Morgan can revisit it. The staffing, spend, research, and memory decisions remain distinct. Pause and name the beat in your workflow where a human is most likely to approve too quickly."
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Write a Six-Beat Day brief for your invented workflow. For each beat, name the item, evidence, owner, safe action, and stop condition. Make one thing fail. Show how the operator recovers without hiding the original version. Mark any lesson as a memory proposal rather than an approved rule. Close with the question you would ask after a busy day. Keep the example synthetic; do not open a live account, import a trace, or contact a person."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision fifteen as a draft. Harbor's day ends with a held brief, a visible correction path, and decisions still owned by people. The six beats are useful because they make those boundaries routine."
+        }
+      ]
+    },
+    {
+      "id": "L16",
+      "act": "Synthesis and capstone",
+      "title": "Audit the operating file",
+      "outcome": "Audit the full workflow, identify the weakest gate, and decide whether to keep, shrink, or retire it.",
+      "artifact": "accountability-stack",
+      "outputs": [
+        "Accountability Stack"
+      ],
+      "exercise": "Present the Operating File with missing evidence made visible and an explicit human disposition.",
+      "prompt": "Complete an `Accountability Stack` for the workflow you designed across L01–L15. For each of source, event, proposal, memory, routing, action, approval, cost/spend, export, and rollback, record owner, evidence reference, privacy tier, approval gate, failure mode, and next improvement. Identify the weakest gate. Add a disposition with `keep`, `shrink`, `retire`, or `pending`; named human owner; decision date; reason; next review date; and unresolved evidence. If the human has not decided, leave date blank and status `pending`. This exercise does not authorize a run.",
+      "visuals": [
+        {
+          "src": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
+          "alt": "Harbor hold card nested in the Gate row, with staffing, spend, and research as separate statuses."
+        },
+        {
+          "src": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+          "alt": "Human disposition card showing suggested `shrink` and actual `pending` in separate labeled fields."
+        }
+      ],
+      "segments": [
+        {
+          "from": "0:00",
+          "to": "1:05",
+          "spoken": "At the end of Harbor's fictional Friday, Morgan has a full Operating File. It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal. The file is impressive in one sense: its gaps are visible. Staffing is still unconfirmed. Spend is unapproved. The research test has not run. The board proof has not been shared. The capstone asks whether this design deserves to continue, in what smaller form, and under whose care."
+        },
+        {
+          "from": "1:05",
+          "to": "2:10",
+          "spoken": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review. Who receives the work? What record explains it? Where does a human decide? What may be remembered, and by whom? When will someone revisit the rule? The companion workbook expands these into an Accountability Stack from source through rollback. We will use the larger worksheet to audit the single Harbor workflow, while keeping the five questions as a readable spine."
+        },
+        {
+          "from": "2:10",
+          "to": "3:15",
+          "spoken": "Begin with source and event. Harbor's three sample inputs are invented, with opaque IDs and a source-status field. No raw private record belongs in the learner export. The receipt describes a paper event shape; it does not certify that an agent ran. Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan. A missing approval date stays blank. Do not backfill it to make the stack look complete."
+        },
+        {
+          "from": "3:15",
+          "to": "4:20",
+          "spoken": "Move to routing, action, approval, and cost. The preparation role may draft a Session Option Brief. Morgan owns the session recommendation. A separate owner must review spend. The agent cannot book, send, buy, or turn a proposal into a team rule. We have no evidence that staffing is available, so the next action is still hold. A capstone score cannot lift that hold. It can identify who must decide and what evidence they need."
+        },
+        {
+          "from": "4:20",
+          "to": "5:20",
+          "spoken": "Finish with export and rollback. The proof outline is scoped to an audience and remains `not shared`. If a claim is wrong, Harbor can retain the prior draft, correct the paper brief, and record the reason. If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it. The weakest gate today is staffing confirmation: without it, the brief cannot become a team proposal. That is a useful result, even though nothing launches."
+        },
+        {
+          "from": "5:20",
+          "to": "6:15",
+          "spoken": "Pause. Pick the weakest gate in your own invented workflow. Would you keep the design as a paper trial, shrink its scope, or retire it? Name the human who can make that call and the evidence that person would need. A blank disposition is pending, never consent."
+        },
+        {
+          "from": "6:15",
+          "to": "9:35",
+          "spoken": "Present your Operating File as a one-page audit. Walk source, event, proposal, memory, routing, action, approval, cost, export, and rollback. For each layer, write owner, evidence, privacy tier, gate, failure mode, and next improvement. Mark missing evidence openly. Then write a human disposition field with decision, owner, date, reason, and next review date. You may leave the decision pending. This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+        },
+        {
+          "from": "9:35",
+          "to": "10:00",
+          "spoken": "Save revision sixteen for review. Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format. Only Morgan and the appropriate owners can make that disposition real. The file gives them a way to see what is ready, what is missing, and what must stop."
+        }
+      ]
+    }
+  ]
+}

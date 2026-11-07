@@ -98,6 +98,13 @@ export default function AgentifiedPage() {
 
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
+                href="/agentified/learningplan"
+                className="inline-flex items-center gap-2 rounded-lg bg-radiant-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-imperial-navy transition hover:brightness-110"
+              >
+                <span>Open the workshop</span>
+                <ArrowRight size={15} />
+              </Link>
+              <Link
                 href="/#publications"
                 className="inline-flex items-center gap-2 rounded-full bg-radiant-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] text-imperial-navy transition hover:brightness-110"
               >

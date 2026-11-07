@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { lessons } from '@/lib/accelerated-decision-file'
+import { agentifiedLessons } from '@/lib/agentified-workshop'
 import type { DashboardData, LeadDashboardData } from '@/lib/client-dashboard'
 import AssessmentScoreBreakdown from '@/components/client-dashboard/AssessmentScoreBreakdown'
 import AccountSummarySection from '@/components/client-dashboard/AccountSummarySection'
@@ -78,6 +79,7 @@ function syntheticMember(state: string): MemberData {
 
 export default function MemberDashboardPage() {
   const [data, setData] = useState<MemberData | null>(null)
+  const [agentified, setAgentified] = useState<{ enrollment: { current_lesson_id: string } | null; lessons: { completed_at: string | null }[]; worksheet: { answers: Record<string, string> } | null } | null>(null)
   const [error, setError] = useState('')
   const [previewMode, setPreviewMode] = useState(false)
   useEffect(() => {
@@ -92,6 +94,8 @@ export default function MemberDashboardPage() {
         if (!response.ok) throw new Error('Your dashboard is temporarily unavailable.')
         const result = await response.json()
         if (active) setData(result)
+        const agentifiedResponse = await fetch('/api/agentified/member', { headers: { Authorization: `Bearer ${session.access_token}` }, cache: 'no-store' })
+        if (active && agentifiedResponse.ok) setAgentified(await agentifiedResponse.json())
       } catch { if (active) setError('Your dashboard is temporarily unavailable.') }
     }
     void load()
@@ -108,6 +112,7 @@ export default function MemberDashboardPage() {
           <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Decision File pages started</span><strong className="mt-2 block text-3xl">{pages} / {lessons.length}</strong><p className="mt-2 text-xs text-platinum-white/60">{data.decisionFileCount ? `${data.decisionFileCount} submitted file linked by review` : 'Your worksheet is private until you choose to send it.'}</p><Link className="mt-3 inline-block text-radiant-gold underline" href="/accelerated/decision-file">Open complete Decision File</Link></div>
           <div className="rounded-lg border border-radiant-gold/25 bg-silicon-slate/40 p-5"><span className="text-sm text-platinum-white/65">Continue</span><strong className="mt-2 block text-2xl">{data.enrollment?.current_lesson_id ?? 'L01'}</strong><Link className="mt-3 inline-block text-radiant-gold underline" href="/service-prototypes/accelerated-cohort?view=3">Open learning plan</Link></div>
         </section>
+        {agentified?.enrollment && <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Agentified progress"><h2 className="text-xl font-semibold">Agentified workshop</h2><p className="mt-2 text-sm text-platinum-white/70">{agentified.lessons.filter((item) => item.completed_at).length} / {agentifiedLessons.length} lessons complete · {Object.values(agentified.worksheet?.answers ?? {}).filter((answer) => answer.trim()).length} Operating File pages started</p><div className="mt-3 flex flex-wrap gap-5"><Link className="text-radiant-gold underline" href={`/agentified/learningplan?lesson=${agentified.enrollment.current_lesson_id}`}>Continue {agentified.enrollment.current_lesson_id}</Link><Link className="text-radiant-gold underline" href="/agentified/operating-file">Open Operating File</Link></div></section>}
         <CompletionCredential completedCount={complete} profileName={data.profileName} />
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Assessment"><h2 className="text-xl font-semibold">Assessment</h2>{data.assessment ? <><p className="my-3 text-platinum-white/75">{data.assessment.assessment?.diagnostic_summary ?? 'Your completed assessment is linked to this account.'}</p><AssessmentScoreBreakdown scores={data.assessment.scores.categoryScores} hasFormalAssessment /></> : data.assessmentStatus ? <p className="mt-2 text-platinum-white/65">Completed assessment linked. {data.assessmentStatus.summary ?? 'The report is not available in this dashboard yet.'}</p> : <p className="mt-2 text-platinum-white/65">No completed assessment has been linked to this account. An operator reviews identity before it appears here.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Reviewed recommendations"><h2 className="text-xl font-semibold">Recommended next steps</h2>{data.recommendations.length ? <ul className="mt-3 space-y-4">{data.recommendations.map((item) => <li key={item.id} className="border-t border-radiant-gold/15 pt-4 first:border-0 first:pt-0"><strong>{item.title}</strong><p className="text-sm text-platinum-white/65">{item.rationale}</p><RecommendationAction item={item} preview={previewMode} /></li>)}</ul> : <p className="mt-2 text-platinum-white/65">No operator-reviewed recommendation yet.</p>}</section>
