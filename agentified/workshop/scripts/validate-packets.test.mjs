@@ -6,8 +6,25 @@ import { validatePackets } from './validate-packets.mjs'
 
 const read = (file) => readFileSync(file, 'utf8')
 
-test('L01-L12 satisfy the registered packet contract', () => {
+test('L01-L16 satisfy the registered packet contract', () => {
   assert.deepEqual(validatePackets(), [])
+})
+
+test('L13-L16 source, visual, timing, and disposition omissions fail closed', () => {
+  const errors = validatePackets((file) => {
+    const packet = read(file)
+    switch (path.basename(file)) {
+      case 'L13-research-with-a-gate.md': return packet.replace('../../manuscript/production-draft/chapters/ch23-autoresearch-without-autonomy-theater.md', 'missing-chapter.md')
+      case 'L14-show-the-board-the-controls.md': return packet.replace('agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png', 'missing-visual.png')
+      case 'L15-rehearse-the-agentified-day.md': return packet.replace('| 6:15–9:35 |', '| 6:20–9:35 |')
+      case 'L16-audit-the-operating-file.md': return packet.replace('actual disposition: `pending`', 'actual disposition: `approved`')
+      default: return packet
+    }
+  })
+  assert.match(errors.join('\n'), /L13-research-with-a-gate.md: missing registered source citation/)
+  assert.match(errors.join('\n'), /L14-show-the-board-the-controls.md: missing visual candidate binding/)
+  assert.match(errors.join('\n'), /L15-rehearse-the-agentified-day.md: timed narration/)
+  assert.match(errors.join('\n'), /L16-audit-the-operating-file.md: actual human disposition must remain pending/)
 })
 
 test('L09-L12 source, visual, timing, and authority omissions fail closed', () => {

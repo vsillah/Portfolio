@@ -20,6 +20,10 @@ const filenames = [
   'L10-spend-and-decision-brief.md',
   'L11-cockpit-and-unblock.md',
   'L12-proof-and-foundry.md',
+  'L13-research-with-a-gate.md',
+  'L14-show-the-board-the-controls.md',
+  'L15-rehearse-the-agentified-day.md',
+  'L16-audit-the-operating-file.md',
 ]
 
 export function validatePackets(readPacket = (file) => readFileSync(file, 'utf8')) {
@@ -54,6 +58,13 @@ export function validatePackets(readPacket = (file) => readFileSync(file, 'utf8'
       if (!/prepare.only|preparation.role|preparation agent/i.test(packet)) errors.push(`${filename}: prepare-only authority boundary missing`)
       if (!/hold|unapproved|unscored/i.test(packet)) errors.push(`${filename}: explicit blocked state missing`)
     }
+    if (index >= 12) {
+      if (!/\*\*Claim map for source review:\*\*/.test(packet)) errors.push(`${filename}: source claim map missing`)
+      if (!/not_run|not run|pending/i.test(packet)) errors.push(`${filename}: pending or not-run state missing`)
+      if (!/not shared|no external share|no external sharing/i.test(packet)) errors.push(`${filename}: external sharing boundary missing`)
+      if (!/rights.*pending|rights.*approval pending|rights.*review pending/i.test(packet)) errors.push(`${filename}: visual rights gate missing`)
+      if (index === 15 && !/actual disposition: `pending`/i.test(packet)) errors.push(`${filename}: actual human disposition must remain pending`)
+    }
   }
   return errors
 }
@@ -61,5 +72,5 @@ export function validatePackets(readPacket = (file) => readFileSync(file, 'utf8'
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const errors = validatePackets()
   if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1 }
-  else console.log('L01–L12: registered sources, crosswalk outputs, packet sections, timing, and media boundaries pass.')
+  else console.log('L01–L16: registered sources, crosswalk outputs, packet sections, timing, and media boundaries pass.')
 }
