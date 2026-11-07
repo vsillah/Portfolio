@@ -15,6 +15,7 @@ const sceneForVisual = {
   L01: [4], L02: [4], L03: [2], L04: [4], L05: [4], L06: [3], L07: [5], L08: [5],
   L09: [2, 4], L10: [3], L11: [2], L12: [3], L13: [2], L14: [3, 4], L15: [4], L16: [4, 5],
 }
+const batchFor = (number) => Math.floor((number - 1) / 4) + 1
 const seconds = (clock) => { const [m, s] = clock.split(':').map(Number); return m * 60 + s }
 const captionCues = (narration, start, end) => {
   const text = narration.replace(/^“|”$/g, '')
@@ -55,6 +56,9 @@ export function buildPacket(number) {
     }))
     const lines = audienceLines(onScreen)
     const isExercise = lines.length === 0
+    const captions = captionCues(narration, start, end)
+    const openingHandoff = captions.filter((cue) => cue.end_seconds <= start + 20).at(-1)?.end_seconds ?? captions[0].end_seconds
+    const closingHandoff = captions.find((cue) => cue.start_seconds >= end - 15)?.start_seconds ?? captions.at(-1).start_seconds
     return {
       id: `${id}-${String(index + 1).padStart(2, '0')}`, beat: index + 1,
       start_seconds: start, end_seconds: end, source_time: range,
@@ -64,8 +68,8 @@ export function buildPacket(number) {
       composition: visualBindings.length ? 'approved plate in independent contain region; separate teaching copy' : isExercise ? 'quiet writing timer and blank workspace' : 'synthetic type cards on neutral field',
       approved_visuals: visualBindings,
       motion: visualBindings.length ? 'static hold; no crop, pan, or zoom on plate' : '150 ms opacity entrance on each text card; reduced motion uses instant cut',
-      captions: captionCues(narration, start, end),
-      avatar_window: index === 0 ? { start_seconds: start, end_seconds: Math.min(end, start + 20), state: 'reserved_unfilled' } : index === 7 ? { start_seconds: Math.max(start, end - 15), end_seconds: end, state: 'reserved_unfilled' } : null,
+      captions,
+      avatar_window: index === 0 ? { start_seconds: start, end_seconds: openingHandoff, state: 'reserved_unfilled' } : index === 7 ? { start_seconds: closingHandoff, end_seconds: end, state: 'reserved_unfilled' } : null,
       b_roll: visualBindings.length ? 'approved static plate only; no product, participant, or live system footage' : 'none; synthetic layout only',
       audio_ownership: 'exact scripted narration reserved; no voice rendered; silence after provisional caption span',
       transition: index === 0 ? 'open on static frame' : 'straight cut; no content overlap',
@@ -75,7 +79,8 @@ export function buildPacket(number) {
   })
   const exactNarration = scenes.map((scene) => scene.narration_exact).join('\n')
   return {
-    schema_version: 1, id, title: lesson.title, base_commit: '0eed3e63014390038f4f6550cf0f3971c4b526ee',
+    schema_version: 1, id, title: lesson.title, batch: batchFor(number), base_commit: '0eed3e63014390038f4f6550cf0f3971c4b526ee',
+    package_cover: { path: approved.cover_hold.jpg.path, sha256: approved.cover_hold.jpg.sha256, approval_record: approved.cover_hold.approval.record, use: 'package_identity_only' },
     script_path: scriptPath, script_sha256: sha(read(scriptPath)), narration_sha256: sha(exactNarration),
     approved_visual_packet_sha256: sha(read('agentified/workshop/visual-review/packets.json')),
     source_register_sha256: sha(read('agentified/workshop/source-register.json')),
@@ -85,7 +90,7 @@ export function buildPacket(number) {
     learning_outcome: lesson.learning_outcome, exercise: lesson.exercise, workbook_outputs: lesson.workbook_outputs,
     operating_file: { artifact: lesson.operating_file_artifact, revision: number, status: 'draft', update_exact: script.match(/^\*\*Operating File update:\*\* (.+)$/m)?.[1] ?? '' },
     continuity: { case: 'Harbor Learning Circle', owner: 'Morgan', source_ids: [...new Set(script.match(/SYN-[A-Z0-9-]+/g) ?? [])] },
-    boundaries: { evidence: lesson.evidence_boundary, privacy: 'synthetic Harbor only; no actual participant, client, admin, or private corpus content', authority: 'prepare_only; no live agent, memory promotion, message, booking, spending, or publication', provider_execution: 'disabled', accelerated_sam_media: 'lineage_only_excluded' },
+    boundaries: { evidence: lesson.evidence_boundary, privacy: 'synthetic Harbor only; no actual participant, client, admin, or private corpus content', authority: 'prepare_only; no live agent, memory promotion, message, booking, spending, or publication', provider_execution: 'disabled', customer_release: 'held_pending_editorial_and_final_audio_review', accelerated_sam_media: 'lineage_only_excluded' },
     timing_seconds: scenes.at(-1).end_seconds, scenes,
   }
 }

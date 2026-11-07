@@ -2,12 +2,19 @@
   "schema_version": 1,
   "id": "L05",
   "title": "Map the operating system",
+  "batch": 2,
   "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "package_cover": {
+    "path": "public/agentified-cover.jpg",
+    "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+    "approval_record": "user_choice_use_jpg_delete_svg_2026-11-07",
+    "use": "package_identity_only"
+  },
   "script_path": "agentified/workshop/scripts/L05-operating-map.md",
   "script_sha256": "98882b9679b44ff2c523317581c4a3a243f4bd8a589dfe493aec75902190d36e",
   "narration_sha256": "50089933116dfa701683e021a9735905d3af61d0a5186b3927c2a97eae8ab631",
   "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
-  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "source_register_sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
   "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
   "workbook_source": {
     "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
@@ -48,6 +55,7 @@
     "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
     "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
     "provider_execution": "disabled",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
     "accelerated_sam_media": "lineage_only_excluded"
   },
   "timing_seconds": 600,
@@ -113,7 +121,7 @@
       ],
       "avatar_window": {
         "start_seconds": 0,
-        "end_seconds": 20,
+        "end_seconds": 17.848,
         "state": "reserved_unfilled"
       },
       "b_roll": "none; synthetic layout only",
@@ -567,7 +575,7 @@
         }
       ],
       "avatar_window": {
-        "start_seconds": 585,
+        "start_seconds": 584.59,
         "end_seconds": 600,
         "state": "reserved_unfilled"
       },

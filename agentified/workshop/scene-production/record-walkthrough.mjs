@@ -10,8 +10,11 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 const output = path.join(here, 'qa')
 const revision = process.argv[2]
 if (!/^[0-9a-f]{40}$/.test(revision ?? '')) throw new Error('Pass the exact Git commit SHA')
+const batch = process.argv[3] ?? 'L01-L04'
+const batches = { 'L01-L04': [1, 4], 'L05-L08': [5, 8], 'L09-L12': [9, 12], 'L13-L16': [13, 16] }
+if (!batches[batch]) throw new Error('Choose a four-lesson review batch')
 mkdirSync(output, { recursive: true })
-const base = 'http://127.0.0.1:4173/agentified/workshop/scene-production/review.html'
+const base = process.argv[4] ?? 'http://127.0.0.1:4173/agentified/workshop/scene-production/review.html'
 const browser = await chromium.launch({ headless: true })
 
 async function record(name, viewport, lessons) {
@@ -34,10 +37,11 @@ async function record(name, viewport, lessons) {
   return await video.path()
 }
 
-const desktop = await record('desktop', { width: 1280, height: 800 }, Array.from({ length: 16 }, (_, i) => `L${String(i + 1).padStart(2, '0')}`))
-const mobile = await record('mobile', { width: 390, height: 844 }, ['L04', 'L16'])
+const lessons = Array.from({ length: 4 }, (_, i) => `L${String(batches[batch][0] + i).padStart(2, '0')}`)
+const desktop = await record('desktop', { width: 1280, height: 800 }, lessons)
+const mobile = await record('mobile', { width: 390, height: 844 }, [lessons[0], lessons[3]])
 await browser.close()
-const target = path.join(output, `agentified-scene-walkthrough-${revision.slice(0, 8)}.mp4`)
+const target = path.join(output, `agentified-scene-walkthrough-${batch.toLowerCase()}-${revision.slice(0, 8)}.mp4`)
 execFileSync('ffmpeg', ['-y', '-i', desktop, '-i', mobile, '-filter_complex', '[0:v]scale=1280:800,setsar=1[a];[1:v]scale=390:844:flags=lanczos,pad=1280:844:445:0:#101b27,scale=1280:800,setsar=1[b];[a][b]concat=n=2:v=1:a=0[out]', '-map', '[out]', '-an', '-c:v', 'libx264', '-crf', '23', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', target], { stdio: 'pipe' })
 const probe = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration:stream=codec_name,width,height', '-of', 'json', target]).toString())
 if (Number(probe.format.duration) < 20 || probe.streams[0].codec_name !== 'h264' || probe.streams[0].width !== 1280 || probe.streams[0].height !== 800) throw new Error('Walkthrough encoding validation failed')
