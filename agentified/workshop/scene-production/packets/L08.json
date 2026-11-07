@@ -1,0 +1,562 @@
+{
+  "schema_version": 1,
+  "id": "L08",
+  "title": "Make handoffs testable",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L08-handoff-and-eval.md",
+  "script_sha256": "9a3f53226105aa9f5358d26ab3cce9bf4fed3f65c3da89ad1cc572b6dd7aa345",
+  "narration_sha256": "eaabbb1b3dd97cd785859ab986cfd0d5a43bcb8c1de171d14b4095161306d251",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch13-handoffs-are-product-interfaces.md",
+      "sha256": "282d1f299dfe6cb0b210cecd856181a4fa76957212e4702f4b9eb93fce81de8d"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch14-the-evaluation-loop.md",
+      "sha256": "9ba6cef6861297891ff839d10c5aa87985c721f9d45bb51f2908dcb4dd97f9cd"
+    }
+  ],
+  "learning_outcome": "Define a handoff contract and a small evaluation set before authority grows.",
+  "exercise": "Write input/output checks, then grade three synthetic cases including a failure.",
+  "workbook_outputs": [
+    "Handoff Contract Card",
+    "Evaluation Loop"
+  ],
+  "operating_file": {
+    "artifact": "handoff-and-eval",
+    "revision": 8,
+    "status": "draft",
+    "update_exact": "`handoff-and-eval` → `handoffs` and `evaluation`, revision 8, status `draft`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-FAC-01",
+      "SYN-ROOM-01",
+      "SYN-ATTEND-01",
+      "SYN-TRACE-01",
+      "SYN-HOLD-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Cases are invented; passing a classroom eval grants no production authority.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L08-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“The Harbor source checker finishes its pass. The drafter receives a note that says, ‘Room okay. Facilitator maybe. Attendance promising.’ It sounds useful. But which room note? When was it checked? What does ‘maybe’ permit the drafter to say? A polished brief built on that note could still be wrong. The problem is at the handoff. Before we add another checker or give the drafter more authority, write down what must cross that edge.”",
+      "on_screen_copy_exact": "“A vague handoff can make a polished error.”",
+      "audience_copy": [
+        "A vague handoff can make a polished error."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 3.414,
+          "text": "The Harbor source checker finishes its pass. "
+        },
+        {
+          "start_seconds": 3.414,
+          "end_seconds": 7.283,
+          "text": "The drafter receives a note that says, ‘Room okay. "
+        },
+        {
+          "start_seconds": 7.283,
+          "end_seconds": 8.724,
+          "text": "Facilitator maybe. "
+        },
+        {
+          "start_seconds": 8.724,
+          "end_seconds": 10.469,
+          "text": "Attendance promising.’ "
+        },
+        {
+          "start_seconds": 10.469,
+          "end_seconds": 11.834,
+          "text": "It sounds useful. "
+        },
+        {
+          "start_seconds": 11.834,
+          "end_seconds": 13.428,
+          "text": "But which room note? "
+        },
+        {
+          "start_seconds": 13.428,
+          "end_seconds": 15.021,
+          "text": "When was it checked? "
+        },
+        {
+          "start_seconds": 15.021,
+          "end_seconds": 18.434,
+          "text": "What does ‘maybe’ permit the drafter to say? "
+        },
+        {
+          "start_seconds": 18.434,
+          "end_seconds": 22.834,
+          "text": "A polished brief built on that note could still be wrong. "
+        },
+        {
+          "start_seconds": 22.834,
+          "end_seconds": 25.186,
+          "text": "The problem is at the handoff. "
+        },
+        {
+          "start_seconds": 25.186,
+          "end_seconds": 33,
+          "text": "Before we add another checker or give the drafter more authority, write down what must cross that edge."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L08-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 145,
+      "source_time": "1:10–2:25",
+      "narration_exact": "“Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. Producer: Harbor's source checker. Consumer: brief drafter. Payload: the three invented source IDs, observation and expiry checks, allowed claim for each, open questions, and a trace reference. Preconditions: all IDs are permitted classroom inputs and checked for freshness. Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. Owner: Morgan, who can revise the paper contract. The receiver does not fill a blank by guessing.”",
+      "on_screen_copy_exact": "“Producer / Consumer / Payload / Preconditions / Rejection / Owner.”",
+      "audience_copy": [
+        "Producer / Consumer / Payload / Preconditions / Rejection / Owner."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 78.343,
+          "text": "Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. "
+        },
+        {
+          "start_seconds": 78.343,
+          "end_seconds": 80.624,
+          "text": "Producer: Harbor's source checker. "
+        },
+        {
+          "start_seconds": 80.624,
+          "end_seconds": 82.254,
+          "text": "Consumer: brief drafter. "
+        },
+        {
+          "start_seconds": 82.254,
+          "end_seconds": 90.988,
+          "text": "Payload: the three invented source IDs, observation and expiry checks, allowed claim for each, open questions, and a trace reference. "
+        },
+        {
+          "start_seconds": 90.988,
+          "end_seconds": 96.268,
+          "text": "Preconditions: all IDs are permitted classroom inputs and checked for freshness. "
+        },
+        {
+          "start_seconds": 96.268,
+          "end_seconds": 101.678,
+          "text": "Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. "
+        },
+        {
+          "start_seconds": 101.678,
+          "end_seconds": 104.937,
+          "text": "Owner: Morgan, who can revise the paper contract. "
+        },
+        {
+          "start_seconds": 104.937,
+          "end_seconds": 108,
+          "text": "The receiver does not fill a blank by guessing."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L08-03",
+      "beat": 3,
+      "start_seconds": 145,
+      "end_seconds": 215,
+      "source_time": "2:25–3:35",
+      "narration_exact": "“Try a broken payload on purpose. `SYN-FAC-01` says only ‘available for review,’ but the handoff labels the facilitator confirmed. The receiver must refuse it. The reason is `staffing_claim_unsupported`. The drafter does not quietly edit the source check or send the draft onward. Rejection is a visible outcome, with Morgan as the human fallback. That is the test of a contract: what happens when its promise fails?”",
+      "on_screen_copy_exact": "“Reject: staffing_claim_unsupported.” “Morgan receives hold.”",
+      "audience_copy": [
+        "Reject: staffing_claim_unsupported.",
+        "Morgan receives hold."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 145,
+          "end_seconds": 147.386,
+          "text": "Try a broken payload on purpose. "
+        },
+        {
+          "start_seconds": 147.386,
+          "end_seconds": 154.398,
+          "text": "`SYN-FAC-01` says only ‘available for review,’ but the handoff labels the facilitator confirmed. "
+        },
+        {
+          "start_seconds": 154.398,
+          "end_seconds": 156.494,
+          "text": "The receiver must refuse it. "
+        },
+        {
+          "start_seconds": 156.494,
+          "end_seconds": 159.675,
+          "text": "The reason is `staffing_claim_unsupported`. "
+        },
+        {
+          "start_seconds": 159.675,
+          "end_seconds": 165.241,
+          "text": "The drafter does not quietly edit the source check or send the draft onward. "
+        },
+        {
+          "start_seconds": 165.241,
+          "end_seconds": 170.084,
+          "text": "Rejection is a visible outcome, with Morgan as the human fallback. "
+        },
+        {
+          "start_seconds": 170.084,
+          "end_seconds": 175,
+          "text": "That is the test of a contract: what happens when its promise fails?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L08-04",
+      "beat": 4,
+      "start_seconds": 215,
+      "end_seconds": 290,
+      "source_time": "3:35–4:50",
+      "narration_exact": "“Now evaluate the designed workflow. Chapter Fourteen gives four moves: capture, judge, sample, decide. Capture the input IDs, contract and rubric versions, draft, test results, and Morgan's disposition in a privacy-safe classroom record. Judge against a small pass-or-fail rubric. Sample the cases with a human; an automated score can help sort work later, but it cannot become the ground truth. Decide whether to keep the prepare-only design, revise it, or stop it. The score does not grant a send permission.”",
+      "on_screen_copy_exact": "“Capture → Judge → Human sample → Decide.” “No automatic promotion.”",
+      "audience_copy": [
+        "Capture → Judge → Human sample → Decide.",
+        "No automatic promotion."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 215,
+          "end_seconds": 217.541,
+          "text": "Now evaluate the designed workflow. "
+        },
+        {
+          "start_seconds": 217.541,
+          "end_seconds": 222.271,
+          "text": "Chapter Fourteen gives four moves: capture, judge, sample, decide. "
+        },
+        {
+          "start_seconds": 222.271,
+          "end_seconds": 231.8,
+          "text": "Capture the input IDs, contract and rubric versions, draft, test results, and Morgan's disposition in a privacy-safe classroom record. "
+        },
+        {
+          "start_seconds": 231.8,
+          "end_seconds": 234.835,
+          "text": "Judge against a small pass-or-fail rubric. "
+        },
+        {
+          "start_seconds": 234.835,
+          "end_seconds": 242.953,
+          "text": "Sample the cases with a human; an automated score can help sort work later, but it cannot become the ground truth. "
+        },
+        {
+          "start_seconds": 242.953,
+          "end_seconds": 247.965,
+          "text": "Decide whether to keep the prepare-only design, revise it, or stop it. "
+        },
+        {
+          "start_seconds": 247.965,
+          "end_seconds": 251,
+          "text": "The score does not grant a send permission."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L08-05",
+      "beat": 5,
+      "start_seconds": 290,
+      "end_seconds": 355,
+      "source_time": "4:50–5:55",
+      "narration_exact": "“Use three invented cases. Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. Case B: facilitator note stale; fail the freshness check and hold before drafting. Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. Three cases are a classroom starting set, not proof of reliability. If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission.”",
+      "on_screen_copy_exact": "“A: review. B: hold. C: reject draft.” “Three cases ≠ production proof.”",
+      "audience_copy": [
+        "A: review. B: hold. C: reject draft.",
+        "Three cases ≠ production proof."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-1-1-first-receipt-publication-plate.png",
+          "use": "Three-case evaluation grid with pass/fail text and a separate human decision box."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 290,
+          "end_seconds": 291.83,
+          "text": "Use three invented cases. "
+        },
+        {
+          "start_seconds": 291.83,
+          "end_seconds": 301.259,
+          "text": "Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. "
+        },
+        {
+          "start_seconds": 301.259,
+          "end_seconds": 307.1,
+          "text": "Case B: facilitator note stale; fail the freshness check and hold before drafting. "
+        },
+        {
+          "start_seconds": 307.1,
+          "end_seconds": 314.559,
+          "text": "Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. "
+        },
+        {
+          "start_seconds": 314.559,
+          "end_seconds": 319.344,
+          "text": "Three cases are a classroom starting set, not proof of reliability. "
+        },
+        {
+          "start_seconds": 319.344,
+          "end_seconds": 328,
+          "text": "If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L08-06",
+      "beat": 6,
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "source_time": "5:55–6:15",
+      "narration_exact": "“Pause. Which failed case would a neat-looking dashboard be most likely to hide?”",
+      "on_screen_copy_exact": "“Pause: choose the hidden failure.”",
+      "audience_copy": [
+        "Pause: choose the hidden failure."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 355,
+          "end_seconds": 355.532,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 355.532,
+          "end_seconds": 361,
+          "text": "Which failed case would a neat-looking dashboard be most likely to hide?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L08-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Write the Handoff Contract Card, then grade A, B, and C with a named rubric version. Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. Include a human sample rule and the decision you would recommend from these cases. Keep permission at prepare only, regardless of the score. Use invented evidence; do not submit a real prompt, private record, model trace, or customer case.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Draft a `Handoff Contract Card`: producer, consumer, payload, preconditions, rejection path, human owner, and evidence pointer. Then write an `Evaluation Loop`: capture fields, rubric version, pass/fail criteria, human sample rule, hold or rollback trigger, and a documented permission decision. Grade three synthetic cases, including a failure. A classroom pass never grants production authority.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 381.476,
+          "text": "Write the Handoff Contract Card, then grade A, B, and C with a named rubric version. "
+        },
+        {
+          "start_seconds": 381.476,
+          "end_seconds": 388.79,
+          "text": "Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. "
+        },
+        {
+          "start_seconds": 388.79,
+          "end_seconds": 395.114,
+          "text": "Include a human sample rule and the decision you would recommend from these cases. "
+        },
+        {
+          "start_seconds": 395.114,
+          "end_seconds": 399.533,
+          "text": "Keep permission at prepare only, regardless of the score. "
+        },
+        {
+          "start_seconds": 399.533,
+          "end_seconds": 407,
+          "text": "Use invented evidence; do not submit a real prompt, private record, model trace, or customer case."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L08-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision eight as a draft. We have a map, a permission slip, a job packet, a team, and now a contract we can break in a safe exercise. The next review should ask whether the handoff and rubric are clear enough for another person to apply without Morgan explaining them.”",
+      "on_screen_copy_exact": "“Operating File v8: contract + eval.” “Next gate: editorial and source review.”",
+      "audience_copy": [
+        "Operating File v8: contract + eval.",
+        "Next gate: editorial and source review."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.686,
+          "text": "Save revision eight as a draft. "
+        },
+        {
+          "start_seconds": 577.686,
+          "end_seconds": 586.752,
+          "text": "We have a map, a permission slip, a job packet, a team, and now a contract we can break in a safe exercise. "
+        },
+        {
+          "start_seconds": 586.752,
+          "end_seconds": 598,
+          "text": "The next review should ask whether the handoff and rubric are clear enough for another person to apply without Morgan explaining them."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

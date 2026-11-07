@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "id": "L13",
+  "title": "Research with a gate",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
+  "script_sha256": "bcb2cc6e3d1de7389f8e0b996dfbbcbc032cd9fb02a78ea12bc9a4963e1771dd",
+  "narration_sha256": "19f9ade124051ade61b22a945b081b57c86e34f2d4a9999fcde551b05a4b52e3",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch23-autoresearch-without-autonomy-theater.md",
+      "sha256": "b0d3f4cd85cc407171ccb68894eab7cd1ff824df8f0851910a7994731473817a"
+    }
+  ],
+  "learning_outcome": "Record an experiment hypothesis, metric, and proposed next test without automatic promotion.",
+  "exercise": "Write one hypothesis and a proposal packet from synthetic results.",
+  "workbook_outputs": [
+    "AutoResearch Proposal"
+  ],
+  "operating_file": {
+    "artifact": "research-proposal",
+    "revision": 13,
+    "status": "draft",
+    "update_exact": "`research-proposal` → `research`, revision 13, status `draft`; revision 12's `SYN-HOLD-01`, `SYN-SPEND-01`, and unscored foundry idea stay open."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-HOLD-01",
+      "SYN-SPEND-01",
+      "SYN-RESEARCH-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "No provider calls, autonomous loops, or promotion into durable memory.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L13-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“Morgan opens Harbor's paper planning folder on Friday. The Session Option Brief is still held because no one has confirmed staffing. An idea appears in the margin: perhaps a different brief format would make the next review easier. It is tempting to let the preparation agent change the format and declare an improvement. But Harbor has no baseline for review time, no test plan, and no permission to change the team's process. The honest first artifact is a proposal.”",
+      "on_screen_copy_exact": "“A useful idea is still a proposal.”",
+      "audience_copy": [
+        "A useful idea is still a proposal."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 4.231,
+          "text": "Morgan opens Harbor's paper planning folder on Friday. "
+        },
+        {
+          "start_seconds": 4.231,
+          "end_seconds": 10.231,
+          "text": "The Session Option Brief is still held because no one has confirmed staffing. "
+        },
+        {
+          "start_seconds": 10.231,
+          "end_seconds": 17.846,
+          "text": "An idea appears in the margin: perhaps a different brief format would make the next review easier. "
+        },
+        {
+          "start_seconds": 17.846,
+          "end_seconds": 24.769,
+          "text": "It is tempting to let the preparation agent change the format and declare an improvement. "
+        },
+        {
+          "start_seconds": 24.769,
+          "end_seconds": 32.923,
+          "text": "But Harbor has no baseline for review time, no test plan, and no permission to change the team's process. "
+        },
+        {
+          "start_seconds": 32.923,
+          "end_seconds": 36,
+          "text": "The honest first artifact is a proposal."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L13-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 140,
+      "source_time": "1:10–2:20",
+      "narration_exact": "“Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. For this classroom case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? The hypothesis needs a comparison and a metric. We could compare two invented brief layouts in a paper exercise. We cannot claim one works better because it looks cleaner to us. The `not_run` state records exactly what is missing.”",
+      "on_screen_copy_exact": "“Propose → not_run → gate → trace → approve or discard.”",
+      "audience_copy": [
+        "Propose → not_run → gate → trace → approve or discard."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-3-amina-inside-sam-publication-plate.png",
+          "use": "Five-step ladder ending in a closed gate; a separate memory-proposal lane does not connect automatically."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 77.203,
+          "text": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. "
+        },
+        {
+          "start_seconds": 77.203,
+          "end_seconds": 87.432,
+          "text": "For this classroom case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? "
+        },
+        {
+          "start_seconds": 87.432,
+          "end_seconds": 90.89,
+          "text": "The hypothesis needs a comparison and a metric. "
+        },
+        {
+          "start_seconds": 90.89,
+          "end_seconds": 95.572,
+          "text": "We could compare two invented brief layouts in a paper exercise. "
+        },
+        {
+          "start_seconds": 95.572,
+          "end_seconds": 100.254,
+          "text": "We cannot claim one works better because it looks cleaner to us. "
+        },
+        {
+          "start_seconds": 100.254,
+          "end_seconds": 104,
+          "text": "The `not_run` state records exactly what is missing."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L13-03",
+      "beat": 3,
+      "start_seconds": 140,
+      "end_seconds": 210,
+      "source_time": "2:20–3:30",
+      "narration_exact": "“The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate. Here the baseline is `unknown`, not zero. The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation. No result exists yet. The touched surface would be the paper brief layout only. The rollback is to keep the current layout. No routing default, memory record, or real calendar changes.”",
+      "on_screen_copy_exact": "“Baseline: unknown.” “Metric: correct hold identification.” “Result: not_run.”",
+      "audience_copy": [
+        "Baseline: unknown.",
+        "Metric: correct hold identification.",
+        "Result: not_run."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 140,
+          "end_seconds": 152.584,
+          "text": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate. "
+        },
+        {
+          "start_seconds": 152.584,
+          "end_seconds": 155.457,
+          "text": "Here the baseline is `unknown`, not zero. "
+        },
+        {
+          "start_seconds": 155.457,
+          "end_seconds": 164.416,
+          "text": "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation. "
+        },
+        {
+          "start_seconds": 164.416,
+          "end_seconds": 165.921,
+          "text": "No result exists yet. "
+        },
+        {
+          "start_seconds": 165.921,
+          "end_seconds": 169.887,
+          "text": "The touched surface would be the paper brief layout only. "
+        },
+        {
+          "start_seconds": 169.887,
+          "end_seconds": 172.896,
+          "text": "The rollback is to keep the current layout. "
+        },
+        {
+          "start_seconds": 172.896,
+          "end_seconds": 177,
+          "text": "No routing default, memory record, or real calendar changes."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L13-04",
+      "beat": 4,
+      "start_seconds": 210,
+      "end_seconds": 280,
+      "source_time": "3:30–4:40",
+      "narration_exact": "“Morgan owns the review of the proposal because Morgan owns this planning decision. A real experiment would need a fresh, scoped approval and an appropriate participant and privacy plan. This lesson grants none of that. In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test. The agent cannot turn a promising hypothesis into durable memory. A memory proposal would need its own source, scope, expiry, and human decision.”",
+      "on_screen_copy_exact": "“Morgan reviews the proposal.” “No automatic promotion.”",
+      "audience_copy": [
+        "Morgan reviews the proposal.",
+        "No automatic promotion."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 210,
+          "end_seconds": 216.077,
+          "text": "Morgan owns the review of the proposal because Morgan owns this planning decision. "
+        },
+        {
+          "start_seconds": 216.077,
+          "end_seconds": 223.619,
+          "text": "A real experiment would need a fresh, scoped approval and an appropriate participant and privacy plan. "
+        },
+        {
+          "start_seconds": 223.619,
+          "end_seconds": 226.036,
+          "text": "This lesson grants none of that. "
+        },
+        {
+          "start_seconds": 226.036,
+          "end_seconds": 234.383,
+          "text": "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test. "
+        },
+        {
+          "start_seconds": 234.383,
+          "end_seconds": 239.215,
+          "text": "The agent cannot turn a promising hypothesis into durable memory. "
+        },
+        {
+          "start_seconds": 239.215,
+          "end_seconds": 245,
+          "text": "A memory proposal would need its own source, scope, expiry, and human decision."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L13-05",
+      "beat": 5,
+      "start_seconds": 280,
+      "end_seconds": 350,
+      "source_time": "4:40–5:50",
+      "narration_exact": "“Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.` Then add the next safe step: Morgan reviews whether the question is worth testing at all. If Morgan says no, keep the rejection and its reason. If Morgan says yes, define the test before anyone runs it. Either path teaches Harbor something about its priorities. A silent queue of ideas teaches almost nothing.”",
+      "on_screen_copy_exact": "“Hold reason + owner + next safe step.”",
+      "audience_copy": [
+        "Hold reason + owner + next safe step."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 280,
+          "end_seconds": 290.143,
+          "text": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved."
+        },
+        {
+          "start_seconds": 290.143,
+          "end_seconds": 296.904,
+          "text": "` Then add the next safe step: Morgan reviews whether the question is worth testing at all. "
+        },
+        {
+          "start_seconds": 296.904,
+          "end_seconds": 300.873,
+          "text": "If Morgan says no, keep the rejection and its reason. "
+        },
+        {
+          "start_seconds": 300.873,
+          "end_seconds": 305.209,
+          "text": "If Morgan says yes, define the test before anyone runs it. "
+        },
+        {
+          "start_seconds": 305.209,
+          "end_seconds": 309.546,
+          "text": "Either path teaches Harbor something about its priorities. "
+        },
+        {
+          "start_seconds": 309.546,
+          "end_seconds": 313,
+          "text": "A silent queue of ideas teaches almost nothing."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L13-06",
+      "beat": 6,
+      "start_seconds": 350,
+      "end_seconds": 375,
+      "source_time": "5:50–6:15",
+      "narration_exact": "“Pause on your own workflow type. What evidence would make your favorite improvement worth testing?”",
+      "on_screen_copy_exact": "“Pause: name one missing baseline.”",
+      "audience_copy": [
+        "Pause: name one missing baseline."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 350,
+          "end_seconds": 352.357,
+          "text": "Pause on your own workflow type. "
+        },
+        {
+          "start_seconds": 352.357,
+          "end_seconds": 357,
+          "text": "What evidence would make your favorite improvement worth testing?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L13-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Draft one AutoResearch Proposal using invented facts. Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. Mark the result `not_run`. Write the reason in plain language and the action Morgan may take after review. Keep the staffing and spend holds visible. Do not run a provider, contact anyone, change a setting, or promote a finding.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Write an `AutoResearch Proposal` for one improvement to your invented workflow. Include title, question, hypothesis, comparison, expected impact, baseline, primary and guardrail metrics, test configuration, touched surface, risk, rollback, promotion recommendation, named approval question, next metric gate, `result_status: not_run`, and an actionable hold reason. The approval question must authorize only a later scoped research action, never a production change.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 378.646,
+          "text": "Draft one AutoResearch Proposal using invented facts. "
+        },
+        {
+          "start_seconds": 378.646,
+          "end_seconds": 391.608,
+          "text": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. "
+        },
+        {
+          "start_seconds": 391.608,
+          "end_seconds": 393.43,
+          "text": "Mark the result `not_run`. "
+        },
+        {
+          "start_seconds": 393.43,
+          "end_seconds": 398.831,
+          "text": "Write the reason in plain language and the action Morgan may take after review. "
+        },
+        {
+          "start_seconds": 398.831,
+          "end_seconds": 401.734,
+          "text": "Keep the staffing and spend holds visible. "
+        },
+        {
+          "start_seconds": 401.734,
+          "end_seconds": 407,
+          "text": "Do not run a provider, contact anyone, change a setting, or promote a finding."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L13-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision thirteen as a draft. Research begins when a question can survive a gate, not when a dashboard fills with experiments. Harbor has a proposal that someone can inspect, and a clear record that nothing has run.”",
+      "on_screen_copy_exact": "“Operating File v13: research proposal.” “Next: show the controls.”",
+      "audience_copy": [
+        "Operating File v13: research proposal.",
+        "Next: show the controls."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.705,
+          "text": "Save revision thirteen as a draft. "
+        },
+        {
+          "start_seconds": 577.705,
+          "end_seconds": 585.2,
+          "text": "Research begins when a question can survive a gate, not when a dashboard fills with experiments. "
+        },
+        {
+          "start_seconds": 585.2,
+          "end_seconds": 592,
+          "text": "Harbor has a proposal that someone can inspect, and a clear record that nothing has run."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

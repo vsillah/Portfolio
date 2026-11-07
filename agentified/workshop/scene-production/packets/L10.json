@@ -1,0 +1,566 @@
+{
+  "schema_version": 1,
+  "id": "L10",
+  "title": "Gate spend and brief the decision",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L10-spend-and-decision-brief.md",
+  "script_sha256": "449ab3d2d17557cf74a09276a66fd4ed9fa21a61c65d1f2954a5860d7da7ea71",
+  "narration_sha256": "a8afe2f7250f1fd721ce402bc6f5504b2a138775a21e47cfbbd19389653fb80b",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch17-money-needs-a-gate.md",
+      "sha256": "ebd2ab104a70877c79d735e6eb1c8704f6e274b16038a43464aa32d88580ea7e"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch18-the-decision-theater-rebuilt.md",
+      "sha256": "a0bd5206c4305b58e28beb496c87b159fc4422cd8d01bc9a6955a44bd8e9da85"
+    }
+  ],
+  "learning_outcome": "Set a cost ceiling and prepare a human decision with evidence and options.",
+  "exercise": "Build a mock spend envelope and a decision brief that can end in hold.",
+  "workbook_outputs": [
+    "Spend Envelope",
+    "Decision Brief"
+  ],
+  "operating_file": {
+    "artifact": "spend-and-decision-brief",
+    "revision": 10,
+    "status": "draft",
+    "update_exact": "`spend-and-decision-brief` → `spend` and `decision-brief`, revision 10, status `draft`; revision 9's prepare-only posture remains in force."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-SPEND-01",
+      "SYN-TRACE-01",
+      "SYN-BRIEF-01",
+      "SYN-FAC-01",
+      "SYN-HOLD-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "No payment, provider activation, or real spending; numbers are illustrative.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L10-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“Morgan has a plausible Harbor proposal: add a free digital-skills session next month. The room note is current. The attendance note suggests interest. The facilitator is still available for review, not confirmed. A colleague suggests paying for a small printing run to test flyers. The amount sounds minor. Morgan stops at the word ‘paying.’ A recommendation can sit in the brief. A purchase needs a separate human decision. The same paper workflow now has two questions: should Harbor propose the session, and should anyone authorize a specific expense?”",
+      "on_screen_copy_exact": "“A good recommendation can still cross a money boundary.”",
+      "audience_copy": [
+        "A good recommendation can still cross a money boundary."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 6.209,
+          "text": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month. "
+        },
+        {
+          "start_seconds": 6.209,
+          "end_seconds": 8.087,
+          "text": "The room note is current. "
+        },
+        {
+          "start_seconds": 8.087,
+          "end_seconds": 10.903,
+          "text": "The attendance note suggests interest. "
+        },
+        {
+          "start_seconds": 10.903,
+          "end_seconds": 15.379,
+          "text": "The facilitator is still available for review, not confirmed. "
+        },
+        {
+          "start_seconds": 15.379,
+          "end_seconds": 20.361,
+          "text": "A colleague suggests paying for a small printing run to test flyers. "
+        },
+        {
+          "start_seconds": 20.361,
+          "end_seconds": 22.166,
+          "text": "The amount sounds minor. "
+        },
+        {
+          "start_seconds": 22.166,
+          "end_seconds": 24.693,
+          "text": "Morgan stops at the word ‘paying.’ "
+        },
+        {
+          "start_seconds": 24.693,
+          "end_seconds": 27.509,
+          "text": "A recommendation can sit in the brief. "
+        },
+        {
+          "start_seconds": 27.509,
+          "end_seconds": 30.686,
+          "text": "A purchase needs a separate human decision. "
+        },
+        {
+          "start_seconds": 30.686,
+          "end_seconds": 40,
+          "text": "The same paper workflow now has two questions: should Harbor propose the session, and should anyone authorize a specific expense?"
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L10-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 145,
+      "source_time": "1:10–2:25",
+      "narration_exact": "“Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. The workbook adds currency, requesting role, forbidden actions, and revocation. Use an invented example: a proposed forty-dollar print test with a named fictional printer and a two-day window. The number is classroom arithmetic, not a quote, budget, or authorization. The envelope is incomplete until the actual approving human can see the evidence and exact terms. It cannot be stretched into a recurring charge or an ‘up to’ range.”",
+      "on_screen_copy_exact": "“Amount / Counterparty / Purpose / Window / Retries / Trace / Approval.”",
+      "audience_copy": [
+        "Amount / Counterparty / Purpose / Window / Retries / Trace / Approval."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 78.237,
+          "text": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. "
+        },
+        {
+          "start_seconds": 78.237,
+          "end_seconds": 83.551,
+          "text": "The workbook adds currency, requesting role, forbidden actions, and revocation. "
+        },
+        {
+          "start_seconds": 83.551,
+          "end_seconds": 91.057,
+          "text": "Use an invented example: a proposed forty-dollar print test with a named fictional printer and a two-day window. "
+        },
+        {
+          "start_seconds": 91.057,
+          "end_seconds": 96.039,
+          "text": "The number is classroom arithmetic, not a quote, budget, or authorization. "
+        },
+        {
+          "start_seconds": 96.039,
+          "end_seconds": 102.549,
+          "text": "The envelope is incomplete until the actual approving human can see the evidence and exact terms. "
+        },
+        {
+          "start_seconds": 102.549,
+          "end_seconds": 107,
+          "text": "It cannot be stretched into a recurring charge or an ‘up to’ range."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L10-03",
+      "beat": 3,
+      "start_seconds": 145,
+      "end_seconds": 215,
+      "source_time": "2:25–3:35",
+      "narration_exact": "“Harbor's preparation role has no payment authority. It may draft `SYN-SPEND-01`; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. Put a closed gate between the proposed envelope and any dollar-moving verb. If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. If it expires, it stays closed. A prior approval of the session idea would not approve the print order. The approval has to match the action.”",
+      "on_screen_copy_exact": "“Recommend ≠ execute.” “Changed terms → new review.”",
+      "audience_copy": [
+        "Recommend ≠ execute.",
+        "Changed terms → new review."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "use": "Seven-field envelope with a closed `unapproved` gate and expiry line."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 145,
+          "end_seconds": 148.975,
+          "text": "Harbor's preparation role has no payment authority. "
+        },
+        {
+          "start_seconds": 148.975,
+          "end_seconds": 157.535,
+          "text": "It may draft `SYN-SPEND-01`; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. "
+        },
+        {
+          "start_seconds": 157.535,
+          "end_seconds": 163.344,
+          "text": "Put a closed gate between the proposed envelope and any dollar-moving verb. "
+        },
+        {
+          "start_seconds": 163.344,
+          "end_seconds": 170.223,
+          "text": "If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. "
+        },
+        {
+          "start_seconds": 170.223,
+          "end_seconds": 172.669,
+          "text": "If it expires, it stays closed. "
+        },
+        {
+          "start_seconds": 172.669,
+          "end_seconds": 178.172,
+          "text": "A prior approval of the session idea would not approve the print order. "
+        },
+        {
+          "start_seconds": 178.172,
+          "end_seconds": 181,
+          "text": "The approval has to match the action."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L10-04",
+      "beat": 4,
+      "start_seconds": 215,
+      "end_seconds": 290,
+      "source_time": "3:35–4:50",
+      "narration_exact": "“Now write the decision Morgan actually owns. Chapter Eighteen uses five sections: context, options, recommendation, reversibility, and what would change our mind. Option A is to propose a session subject to facilitator confirmation. Option B is to hold the proposal and gather a fresh staffing commitment. Give B a fair case: it protects Harbor from promising a session it cannot staff. The recommendation can favor A only if the brief clearly carries that condition. Morgan can also choose hold. The agent's framing must leave room for disagreement.”",
+      "on_screen_copy_exact": "“Context / Options / Recommendation / Reversibility / Change our mind.”",
+      "audience_copy": [
+        "Context / Options / Recommendation / Reversibility / Change our mind."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 215,
+          "end_seconds": 218.191,
+          "text": "Now write the decision Morgan actually owns. "
+        },
+        {
+          "start_seconds": 218.191,
+          "end_seconds": 226.558,
+          "text": "Chapter Eighteen uses five sections: context, options, recommendation, reversibility, and what would change our mind. "
+        },
+        {
+          "start_seconds": 226.558,
+          "end_seconds": 231.522,
+          "text": "Option A is to propose a session subject to facilitator confirmation. "
+        },
+        {
+          "start_seconds": 231.522,
+          "end_seconds": 236.698,
+          "text": "Option B is to hold the proposal and gather a fresh staffing commitment. "
+        },
+        {
+          "start_seconds": 236.698,
+          "end_seconds": 242.442,
+          "text": "Give B a fair case: it protects Harbor from promising a session it cannot staff. "
+        },
+        {
+          "start_seconds": 242.442,
+          "end_seconds": 248.185,
+          "text": "The recommendation can favor A only if the brief clearly carries that condition. "
+        },
+        {
+          "start_seconds": 248.185,
+          "end_seconds": 250.242,
+          "text": "Morgan can also choose hold. "
+        },
+        {
+          "start_seconds": 250.242,
+          "end_seconds": 254,
+          "text": "The agent's framing must leave room for disagreement."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L10-05",
+      "beat": 5,
+      "start_seconds": 290,
+      "end_seconds": 355,
+      "source_time": "4:50–5:55",
+      "narration_exact": "“Put the spend question on its own line. Even if Morgan favors a conditional session proposal, the mock print request remains held. The brief should name Morgan as decision owner, the fictional deadline, the evidence gap, and what can be reversed. A draft brief can be withdrawn. A flyer sent into the community cannot be pulled back with the same ease. That difference is why preparation and side effects have different gates. An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation.”",
+      "on_screen_copy_exact": "“Session decision: conditional or hold.” “Print spend: separate hold.”",
+      "audience_copy": [
+        "Session decision: conditional or hold.",
+        "Print spend: separate hold."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 290,
+          "end_seconds": 292.913,
+          "text": "Put the spend question on its own line. "
+        },
+        {
+          "start_seconds": 292.913,
+          "end_seconds": 299.54,
+          "text": "Even if Morgan favors a conditional session proposal, the mock print request remains held. "
+        },
+        {
+          "start_seconds": 299.54,
+          "end_seconds": 307.988,
+          "text": "The brief should name Morgan as decision owner, the fictional deadline, the evidence gap, and what can be reversed. "
+        },
+        {
+          "start_seconds": 307.988,
+          "end_seconds": 310.318,
+          "text": "A draft brief can be withdrawn. "
+        },
+        {
+          "start_seconds": 310.318,
+          "end_seconds": 315.707,
+          "text": "A flyer sent into the community cannot be pulled back with the same ease. "
+        },
+        {
+          "start_seconds": 315.707,
+          "end_seconds": 321.096,
+          "text": "That difference is why preparation and side effects have different gates. "
+        },
+        {
+          "start_seconds": 321.096,
+          "end_seconds": 331,
+          "text": "An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L10-06",
+      "beat": 6,
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "source_time": "5:55–6:15",
+      "narration_exact": "“Pause. Which sentence in the brief would stop ‘available for review’ from becoming ‘confirmed’?”",
+      "on_screen_copy_exact": "“Pause: write the condition.”",
+      "audience_copy": [
+        "Pause: write the condition."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 355,
+          "end_seconds": 355.516,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 355.516,
+          "end_seconds": 362,
+          "text": "Which sentence in the brief would stop ‘available for review’ from becoming ‘confirmed’?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L10-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Fill a mock Spend Envelope, then a Decision Brief. Give the envelope an exact illustrative amount, named fictional counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. Mark it unapproved. Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. Keep the facilitator unconfirmed. Do not open a checkout, use a card, call a provider, or publish a session.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Draft a `Spend Envelope` for a fictional proposed expense and a `Decision Brief` for the Harbor session choice. The envelope must identify exact amount and currency, counterparty, purpose, execution window, retry limit, source trace, requesting role, approving human, expiry/revocation, and forbidden actions. The brief must offer at least two fairly argued options, the case against its recommendation, reversibility, what would change the recommendation, owner, deadline, and an explicit `hold` disposition. Neither document grants authority.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 378.47,
+          "text": "Fill a mock Spend Envelope, then a Decision Brief. "
+        },
+        {
+          "start_seconds": 378.47,
+          "end_seconds": 389.969,
+          "text": "Give the envelope an exact illustrative amount, named fictional counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. "
+        },
+        {
+          "start_seconds": 389.969,
+          "end_seconds": 391.33,
+          "text": "Mark it unapproved. "
+        },
+        {
+          "start_seconds": 391.33,
+          "end_seconds": 400.652,
+          "text": "Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. "
+        },
+        {
+          "start_seconds": 400.652,
+          "end_seconds": 402.965,
+          "text": "Keep the facilitator unconfirmed. "
+        },
+        {
+          "start_seconds": 402.965,
+          "end_seconds": 408,
+          "text": "Do not open a checkout, use a card, call a provider, or publish a session."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L10-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision ten as a draft. Morgan has two distinct decisions and the evidence for both. Neither has been exercised. Next we will make the pending work visible without turning a phone notification into a second control room.”",
+      "on_screen_copy_exact": "“Operating File v10: spend + decision.” “Next: cockpit.”",
+      "audience_copy": [
+        "Operating File v10: spend + decision.",
+        "Next: cockpit."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.257,
+          "text": "Save revision ten as a draft. "
+        },
+        {
+          "start_seconds": 577.257,
+          "end_seconds": 581.845,
+          "text": "Morgan has two distinct decisions and the evidence for both. "
+        },
+        {
+          "start_seconds": 581.845,
+          "end_seconds": 583.951,
+          "text": "Neither has been exercised. "
+        },
+        {
+          "start_seconds": 583.951,
+          "end_seconds": 592,
+          "text": "Next we will make the pending work visible without turning a phone notification into a second control room."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

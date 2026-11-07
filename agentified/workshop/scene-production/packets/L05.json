@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "id": "L05",
+  "title": "Map the operating system",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L05-operating-map.md",
+  "script_sha256": "98882b9679b44ff2c523317581c4a3a243f4bd8a589dfe493aec75902190d36e",
+  "narration_sha256": "50089933116dfa701683e021a9735905d3af61d0a5186b3927c2a97eae8ab631",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch08-the-operating-map.md",
+      "sha256": "d2b2bd1866b3bb02e5c223fd0269c99c5e782defcea8aa1f53bcdb6fb4332758"
+    }
+  ],
+  "learning_outcome": "Draw where the workflow runs, who approves it, and where evidence lives.",
+  "exercise": "Place the job, decision, source, receipt, memory, and owner on one map.",
+  "workbook_outputs": [
+    "Operating Map"
+  ],
+  "operating_file": {
+    "artifact": "operating-map",
+    "revision": 5,
+    "status": "draft",
+    "update_exact": "`operating-map` → `map`, revision 5, status `draft`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-REQUEST-01",
+      "SYN-ROOM-01",
+      "SYN-ATTEND-01",
+      "SYN-FAC-01",
+      "SYN-HOLD-01",
+      "SYN-BRIEF-01",
+      "SYN-PROP-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Use a generic stack; do not reveal Portfolio internal topology or credentials.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L05-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 65,
+      "source_time": "0:00–1:05",
+      "narration_exact": "“Friday arrives at Harbor Learning Circle. Morgan has a draft Session Option Brief and a careful correction from last week. But imagine Morgan is out for an hour. Where is the brief? Which source note did the preparation role read? Who can answer a question about the unconfirmed facilitator? If the answer lives only in Morgan's head, our carefully designed pieces still do not make an operating system. We need one page that shows how the work travels.”",
+      "on_screen_copy_exact": "“One request. One visible path.” “Where would a new teammate look?”",
+      "audience_copy": [
+        "One request. One visible path.",
+        "Where would a new teammate look?"
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 3.245,
+          "text": "Friday arrives at Harbor Learning Circle. "
+        },
+        {
+          "start_seconds": 3.245,
+          "end_seconds": 9.503,
+          "text": "Morgan has a draft Session Option Brief and a careful correction from last week. "
+        },
+        {
+          "start_seconds": 9.503,
+          "end_seconds": 12.517,
+          "text": "But imagine Morgan is out for an hour. "
+        },
+        {
+          "start_seconds": 12.517,
+          "end_seconds": 14.062,
+          "text": "Where is the brief? "
+        },
+        {
+          "start_seconds": 14.062,
+          "end_seconds": 17.848,
+          "text": "Which source note did the preparation role read? "
+        },
+        {
+          "start_seconds": 17.848,
+          "end_seconds": 22.561,
+          "text": "Who can answer a question about the unconfirmed facilitator? "
+        },
+        {
+          "start_seconds": 22.561,
+          "end_seconds": 31.214,
+          "text": "If the answer lives only in Morgan's head, our carefully designed pieces still do not make an operating system. "
+        },
+        {
+          "start_seconds": 31.214,
+          "end_seconds": 35,
+          "text": "We need one page that shows how the work travels."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L05-02",
+      "beat": 2,
+      "start_seconds": 65,
+      "end_seconds": 135,
+      "source_time": "1:05–2:15",
+      "narration_exact": "“Start with the real sequence on paper. A request to compare a free digital-skills session enters. A routing rule assigns the evidence-comparison role. That role reads three invented classroom notes and prepares a draft. The draft and its short trace wait for Morgan. Morgan may propose the option to the team, ask for another date, or hold it. The agent has no route to announce, book, buy, or send anything. Draw that sequence before adding another box.”",
+      "on_screen_copy_exact": "“Request → route → source check → draft + trace → Morgan.” “External action: closed.”",
+      "audience_copy": [
+        "Request → route → source check → draft + trace → Morgan.",
+        "External action: closed."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 65,
+          "end_seconds": 68.007,
+          "text": "Start with the real sequence on paper. "
+        },
+        {
+          "start_seconds": 68.007,
+          "end_seconds": 72.555,
+          "text": "A request to compare a free digital-skills session enters. "
+        },
+        {
+          "start_seconds": 72.555,
+          "end_seconds": 76.641,
+          "text": "A routing rule assigns the evidence-comparison role. "
+        },
+        {
+          "start_seconds": 76.641,
+          "end_seconds": 81.96,
+          "text": "That role reads three invented classroom notes and prepares a draft. "
+        },
+        {
+          "start_seconds": 81.96,
+          "end_seconds": 85.584,
+          "text": "The draft and its short trace wait for Morgan. "
+        },
+        {
+          "start_seconds": 85.584,
+          "end_seconds": 91.52,
+          "text": "Morgan may propose the option to the team, ask for another date, or hold it. "
+        },
+        {
+          "start_seconds": 91.52,
+          "end_seconds": 96.531,
+          "text": "The agent has no route to announce, book, buy, or send anything. "
+        },
+        {
+          "start_seconds": 96.531,
+          "end_seconds": 100,
+          "text": "Draw that sequence before adding another box."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L05-03",
+      "beat": 3,
+      "start_seconds": 135,
+      "end_seconds": 205,
+      "source_time": "2:15–3:25",
+      "narration_exact": "“Chapter Eight gives the operating map five columns. Trigger: what actually starts this row? Role: who owns this step? Tier: what may that role do? Handoff: who receives the work next, including a refusal? Evidence: where can a human find the record? A blank is useful. If you cannot name the evidence location, write ‘missing.’ A tidy imaginary location would hide the work you still need to design.”",
+      "on_screen_copy_exact": "“Trigger / Role / Tier / Handoff / Evidence.” “Unknown → mark the gap.”",
+      "audience_copy": [
+        "Trigger / Role / Tier / Handoff / Evidence.",
+        "Unknown → mark the gap."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 135,
+          "end_seconds": 139.04,
+          "text": "Chapter Eight gives the operating map five columns. "
+        },
+        {
+          "start_seconds": 139.04,
+          "end_seconds": 142.148,
+          "text": "Trigger: what actually starts this row? "
+        },
+        {
+          "start_seconds": 142.148,
+          "end_seconds": 144.168,
+          "text": "Role: who owns this step? "
+        },
+        {
+          "start_seconds": 144.168,
+          "end_seconds": 146.421,
+          "text": "Tier: what may that role do? "
+        },
+        {
+          "start_seconds": 146.421,
+          "end_seconds": 150.927,
+          "text": "Handoff: who receives the work next, including a refusal? "
+        },
+        {
+          "start_seconds": 150.927,
+          "end_seconds": 154.424,
+          "text": "Evidence: where can a human find the record? "
+        },
+        {
+          "start_seconds": 154.424,
+          "end_seconds": 155.9,
+          "text": "A blank is useful. "
+        },
+        {
+          "start_seconds": 155.9,
+          "end_seconds": 160.484,
+          "text": "If you cannot name the evidence location, write ‘missing.’ "
+        },
+        {
+          "start_seconds": 160.484,
+          "end_seconds": 166,
+          "text": "A tidy imaginary location would hide the work you still need to design."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L05-04",
+      "beat": 4,
+      "start_seconds": 205,
+      "end_seconds": 280,
+      "source_time": "3:25–4:40",
+      "narration_exact": "“Put the earlier lessons onto those rows. The job sits at the preparation step. The Decision Card sits with Morgan. Source IDs and expiry checks sit at intake. The receipt and trace travel with the brief. Last week's correction remains a memory proposal, pending Morgan's separate approval. The controller's route is a written rule, not a new decision maker. A new teammate should be able to point to each item without asking who remembers where it went.”",
+      "on_screen_copy_exact": "“Job • decision • source • receipt • proposed memory • owner.”",
+      "audience_copy": [
+        "Job • decision • source • receipt • proposed memory • owner."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-8-1-portfolio-first-stack-publication-plate.png",
+          "use": "Six small labeled markers for job, decision, source, receipt, proposed memory, owner, placed on the map."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 205,
+          "end_seconds": 208.168,
+          "text": "Put the earlier lessons onto those rows. "
+        },
+        {
+          "start_seconds": 208.168,
+          "end_seconds": 211.104,
+          "text": "The job sits at the preparation step. "
+        },
+        {
+          "start_seconds": 211.104,
+          "end_seconds": 213.885,
+          "text": "The Decision Card sits with Morgan. "
+        },
+        {
+          "start_seconds": 213.885,
+          "end_seconds": 217.285,
+          "text": "Source IDs and expiry checks sit at intake. "
+        },
+        {
+          "start_seconds": 217.285,
+          "end_seconds": 220.762,
+          "text": "The receipt and trace travel with the brief. "
+        },
+        {
+          "start_seconds": 220.762,
+          "end_seconds": 227.406,
+          "text": "Last week's correction remains a memory proposal, pending Morgan's separate approval. "
+        },
+        {
+          "start_seconds": 227.406,
+          "end_seconds": 232.66,
+          "text": "The controller's route is a written rule, not a new decision maker. "
+        },
+        {
+          "start_seconds": 232.66,
+          "end_seconds": 240,
+          "text": "A new teammate should be able to point to each item without asking who remembers where it went."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L05-05",
+      "beat": 5,
+      "start_seconds": 280,
+      "end_seconds": 350,
+      "source_time": "4:40–5:50",
+      "narration_exact": "“The workbook also asks where approval, spend checks, public-safe proof, and rollback sit. This classroom workflow has no spending or public export. Mark those as closed paths with an owner, not as empty arrows that imply they might work. Rollback here means Morgan can withdraw a draft recommendation and record why. It does not undo an announcement, because no announcement happens. If your own paper map has a step without a named owner or a return path, circle it. That is the next design task.”",
+      "on_screen_copy_exact": "“Spend: closed.” “Public proof: closed.” “Withdraw draft: Morgan + reason.”",
+      "audience_copy": [
+        "Spend: closed.",
+        "Public proof: closed.",
+        "Withdraw draft: Morgan + reason."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 280,
+          "end_seconds": 286.881,
+          "text": "The workbook also asks where approval, spend checks, public-safe proof, and rollback sit. "
+        },
+        {
+          "start_seconds": 286.881,
+          "end_seconds": 291.316,
+          "text": "This classroom workflow has no spending or public export. "
+        },
+        {
+          "start_seconds": 291.316,
+          "end_seconds": 298.197,
+          "text": "Mark those as closed paths with an owner, not as empty arrows that imply they might work. "
+        },
+        {
+          "start_seconds": 298.197,
+          "end_seconds": 304.237,
+          "text": "Rollback here means Morgan can withdraw a draft recommendation and record why. "
+        },
+        {
+          "start_seconds": 304.237,
+          "end_seconds": 309.36,
+          "text": "It does not undo an announcement, because no announcement happens. "
+        },
+        {
+          "start_seconds": 309.36,
+          "end_seconds": 315.783,
+          "text": "If your own paper map has a step without a named owner or a return path, circle it. "
+        },
+        {
+          "start_seconds": 315.783,
+          "end_seconds": 318,
+          "text": "That is the next design task."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L05-06",
+      "beat": 6,
+      "start_seconds": 350,
+      "end_seconds": 375,
+      "source_time": "5:50–6:15",
+      "narration_exact": "“Pause. Could someone new find the current brief and its source check from this page alone? Name the first missing handoff.”",
+      "on_screen_copy_exact": "“Pause: circle one gap.”",
+      "audience_copy": [
+        "Pause: circle one gap."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 350,
+          "end_seconds": 350.574,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 350.574,
+          "end_seconds": 357.459,
+          "text": "Could someone new find the current brief and its source check from this page alone? "
+        },
+        {
+          "start_seconds": 357.459,
+          "end_seconds": 360,
+          "text": "Name the first missing handoff."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L05-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Build the Operating Map in your Operating File. Use a synthetic version of a workflow you know. Give every row the five columns. Place the job, decision, source, receipt, memory proposal, and human owner. Label closed paths for spending, publication, and external messages. Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. Do not map a real internal stack, copy credentials, or paste a private trace. We are making a design someone can review.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Create an Operating Map with one row per step and columns `trigger | role | tier | handoff | evidence`. Mark where the L01 job, L02 Decision Card, L03 sources and receipt, and L04 pending memory proposal sit. Add explicit closed paths for spending, sending, publication, and live execution. Circle one missing owner or evidence location.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 378.581,
+          "text": "Build the Operating Map in your Operating File. "
+        },
+        {
+          "start_seconds": 378.581,
+          "end_seconds": 382.161,
+          "text": "Use a synthetic version of a workflow you know. "
+        },
+        {
+          "start_seconds": 382.161,
+          "end_seconds": 384.623,
+          "text": "Give every row the five columns. "
+        },
+        {
+          "start_seconds": 384.623,
+          "end_seconds": 390.292,
+          "text": "Place the job, decision, source, receipt, memory proposal, and human owner. "
+        },
+        {
+          "start_seconds": 390.292,
+          "end_seconds": 395.44,
+          "text": "Label closed paths for spending, publication, and external messages. "
+        },
+        {
+          "start_seconds": 395.44,
+          "end_seconds": 403.048,
+          "text": "Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. "
+        },
+        {
+          "start_seconds": 403.048,
+          "end_seconds": 408.867,
+          "text": "Do not map a real internal stack, copy credentials, or paste a private trace. "
+        },
+        {
+          "start_seconds": 408.867,
+          "end_seconds": 412,
+          "text": "We are making a design someone can review."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L05-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision five as a draft. A map earns its place when its blank cells stay visible and someone owns each repair. Next we will write the permission slip for the preparation role and ask whether that work still deserves a place in the system.”",
+      "on_screen_copy_exact": "“Operating File v5: map.” “Next: authority and value.”",
+      "audience_copy": [
+        "Operating File v5: map.",
+        "Next: authority and value."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.541,
+          "text": "Save revision five as a draft. "
+        },
+        {
+          "start_seconds": 577.541,
+          "end_seconds": 584.59,
+          "text": "A map earns its place when its blank cells stay visible and someone owns each repair. "
+        },
+        {
+          "start_seconds": 584.59,
+          "end_seconds": 595,
+          "text": "Next we will write the permission slip for the preparation role and ask whether that work still deserves a place in the system."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

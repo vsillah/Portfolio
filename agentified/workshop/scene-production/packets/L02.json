@@ -1,0 +1,523 @@
+{
+  "schema_version": 1,
+  "id": "L02",
+  "title": "Start with the decision",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L02-decision.md",
+  "script_sha256": "af0c9bb1a2c563cf06dc13f7f8951470b20e408b88f18f7cd95ccda68a58cd70",
+  "narration_sha256": "49df85d0f5e00b8b61764d8a2185d06a9c6f85cc506ab143d885b7733c7e3d3e",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch03-start-with-the-decision.md",
+      "sha256": "68404a5dac0be75e0b280ec9d16b5501d1323859e94e51f22e208508264c74f6"
+    }
+  ],
+  "learning_outcome": "Name the human decision the agent prepares and the consequence of a wrong answer.",
+  "exercise": "Write a Decision Card with decision owner, alternatives, evidence, and stop condition.",
+  "workbook_outputs": [
+    "Decision Card"
+  ],
+  "operating_file": {
+    "artifact": "decision-card",
+    "revision": 2,
+    "status": "draft",
+    "update_exact": "`decision-card` → `workflow.decision`, revision 2, status `draft`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-ROOM-01",
+      "SYN-ATTEND-01",
+      "SYN-FAC-01",
+      "SYN-BRIEF-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Use invented facts; never imply the agent owns the final decision.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 510,
+  "scenes": [
+    {
+      "id": "L02-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 65,
+      "source_time": "0:00–1:05",
+      "narration_exact": "“Morgan opens the Session Option Brief. It says the free session is a good idea. The wording sounds settled. Yet the brief has only prepared a comparison. Somebody still has to decide whether the proposal belongs on next month's program agenda. A recommendation can make that decision easier to reach. It cannot quietly become the decision itself.”",
+      "on_screen_copy_exact": "“Draft brief received.” “Decision still open.”",
+      "audience_copy": [
+        "Draft brief received.",
+        "Decision still open."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 2.931,
+          "text": "Morgan opens the Session Option Brief. "
+        },
+        {
+          "start_seconds": 2.931,
+          "end_seconds": 6.012,
+          "text": "It says the free session is a good idea. "
+        },
+        {
+          "start_seconds": 6.012,
+          "end_seconds": 8.116,
+          "text": "The wording sounds settled. "
+        },
+        {
+          "start_seconds": 8.116,
+          "end_seconds": 11.572,
+          "text": "Yet the brief has only prepared a comparison. "
+        },
+        {
+          "start_seconds": 11.572,
+          "end_seconds": 18.335,
+          "text": "Somebody still has to decide whether the proposal belongs on next month's program agenda. "
+        },
+        {
+          "start_seconds": 18.335,
+          "end_seconds": 22.618,
+          "text": "A recommendation can make that decision easier to reach. "
+        },
+        {
+          "start_seconds": 22.618,
+          "end_seconds": 26,
+          "text": "It cannot quietly become the decision itself."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L02-02",
+      "beat": 2,
+      "start_seconds": 65,
+      "end_seconds": 130,
+      "source_time": "1:05–2:10",
+      "narration_exact": "“Today we put the decision in the center. Ask one question: ‘Should Morgan propose one free digital-skills session to the program team for next month?’ That is narrower than ‘run a workshop.’ It has a named owner, real alternatives, and a next step that can be held. Morgan can propose the session, request another option, or decline for now. The agent may compare evidence and recommend a path. Morgan owns the call and the explanation.”",
+      "on_screen_copy_exact": "“Decision: propose, revise, or hold?” “Owner: Morgan.”",
+      "audience_copy": [
+        "Decision: propose, revise, or hold?",
+        "Owner: Morgan."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 65,
+          "end_seconds": 68.197,
+          "text": "Today we put the decision in the center. "
+        },
+        {
+          "start_seconds": 68.197,
+          "end_seconds": 76.775,
+          "text": "Ask one question: ‘Should Morgan propose one free digital-skills session to the program team for next month?’ "
+        },
+        {
+          "start_seconds": 76.775,
+          "end_seconds": 79.894,
+          "text": "That is narrower than ‘run a workshop.’ "
+        },
+        {
+          "start_seconds": 79.894,
+          "end_seconds": 85.743,
+          "text": "It has a named owner, real alternatives, and a next step that can be held. "
+        },
+        {
+          "start_seconds": 85.743,
+          "end_seconds": 91.67,
+          "text": "Morgan can propose the session, request another option, or decline for now. "
+        },
+        {
+          "start_seconds": 91.67,
+          "end_seconds": 95.803,
+          "text": "The agent may compare evidence and recommend a path. "
+        },
+        {
+          "start_seconds": 95.803,
+          "end_seconds": 99,
+          "text": "Morgan owns the call and the explanation."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L02-03",
+      "beat": 3,
+      "start_seconds": 130,
+      "end_seconds": 195,
+      "source_time": "2:10–3:15",
+      "narration_exact": "“What if the answer is wrong? A false claim about room capacity could waste a facilitator's preparation. A false attendance signal could make the team spend scarce time on a session nobody asked for. Even in this invented case, the wrong number sends work to people who did not choose it. That is why the card records reversibility. Morgan can withdraw an internal proposal. A public announcement or a paid booking would be harder to unwind, and neither is in scope here.”",
+      "on_screen_copy_exact": "“Consequence: staff time and trust.” “Internal proposal: reversible.”",
+      "audience_copy": [
+        "Consequence: staff time and trust.",
+        "Internal proposal: reversible."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 130,
+          "end_seconds": 132.283,
+          "text": "What if the answer is wrong? "
+        },
+        {
+          "start_seconds": 132.283,
+          "end_seconds": 138.187,
+          "text": "A false claim about room capacity could waste a facilitator's preparation. "
+        },
+        {
+          "start_seconds": 138.187,
+          "end_seconds": 145.666,
+          "text": "A false attendance signal could make the team spend scarce time on a session nobody asked for. "
+        },
+        {
+          "start_seconds": 145.666,
+          "end_seconds": 152.672,
+          "text": "Even in this invented case, the wrong number sends work to people who did not choose it. "
+        },
+        {
+          "start_seconds": 152.672,
+          "end_seconds": 156.136,
+          "text": "That is why the card records reversibility. "
+        },
+        {
+          "start_seconds": 156.136,
+          "end_seconds": 159.443,
+          "text": "Morgan can withdraw an internal proposal. "
+        },
+        {
+          "start_seconds": 159.443,
+          "end_seconds": 167,
+          "text": "A public announcement or a paid booking would be harder to unwind, and neither is in scope here."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L02-04",
+      "beat": 4,
+      "start_seconds": 195,
+      "end_seconds": 260,
+      "source_time": "3:15–4:20",
+      "narration_exact": "“List the evidence the owner would need: a current room-capacity note, an attendance summary with a clear time window, and facilitator availability for the proposed date. Each item must have a source ID and freshness check. If one is missing, the brief can show the gap. It cannot turn a guess into a fact. The agent's allowed actions are to read those cleared samples, draft alternatives, and place the brief in a review folder. It may not put a date on a calendar, contact participants, or commit money.”",
+      "on_screen_copy_exact": "“Evidence: capacity • demand • availability.” “Prepare and recommend only.”",
+      "audience_copy": [
+        "Evidence: capacity • demand • availability.",
+        "Prepare and recommend only."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-0-1-sam-trust-layer-publication-plate.png",
+          "use": "Decision Card with evidence rows and a visible stale-source warning."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 195,
+          "end_seconds": 208.492,
+          "text": "List the evidence the owner would need: a current room-capacity note, an attendance summary with a clear time window, and facilitator availability for the proposed date. "
+        },
+        {
+          "start_seconds": 208.492,
+          "end_seconds": 212.698,
+          "text": "Each item must have a source ID and freshness check. "
+        },
+        {
+          "start_seconds": 212.698,
+          "end_seconds": 216.429,
+          "text": "If one is missing, the brief can show the gap. "
+        },
+        {
+          "start_seconds": 216.429,
+          "end_seconds": 219.286,
+          "text": "It cannot turn a guess into a fact. "
+        },
+        {
+          "start_seconds": 219.286,
+          "end_seconds": 229.048,
+          "text": "The agent's allowed actions are to read those cleared samples, draft alternatives, and place the brief in a review folder. "
+        },
+        {
+          "start_seconds": 229.048,
+          "end_seconds": 235,
+          "text": "It may not put a date on a calendar, contact participants, or commit money."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L02-05",
+      "beat": 5,
+      "start_seconds": 260,
+      "end_seconds": 325,
+      "source_time": "4:20–5:25",
+      "narration_exact": "“Now write the stop condition before you write the best-case path. If the capacity note is stale, if the facilitator has not confirmed availability, or if the sources disagree, mark the recommendation ‘hold for Morgan.’ A confidence score can help triage; it cannot replace the named gate. For this classroom card, we use a simple rule: all three required source IDs must be present and current before a recommendation appears. Even then, Morgan decides.”",
+      "on_screen_copy_exact": "“Missing, stale, or conflicting evidence → hold.” “Morgan decides.”",
+      "audience_copy": [
+        "Missing, stale, or conflicting evidence → hold.",
+        "Morgan decides."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 260,
+          "end_seconds": 264.808,
+          "text": "Now write the stop condition before you write the best-case path. "
+        },
+        {
+          "start_seconds": 264.808,
+          "end_seconds": 275.954,
+          "text": "If the capacity note is stale, if the facilitator has not confirmed availability, or if the sources disagree, mark the recommendation ‘hold for Morgan.’ "
+        },
+        {
+          "start_seconds": 275.954,
+          "end_seconds": 281.053,
+          "text": "A confidence score can help triage; it cannot replace the named gate. "
+        },
+        {
+          "start_seconds": 281.053,
+          "end_seconds": 291.106,
+          "text": "For this classroom card, we use a simple rule: all three required source IDs must be present and current before a recommendation appears. "
+        },
+        {
+          "start_seconds": 291.106,
+          "end_seconds": 293,
+          "text": "Even then, Morgan decides."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L02-06",
+      "beat": 6,
+      "start_seconds": 325,
+      "end_seconds": 345,
+      "source_time": "5:25–5:45",
+      "narration_exact": "“Pause on your own workflow. What choice is a human accountable for after the agent prepares its work?”",
+      "on_screen_copy_exact": "“Pause: name the choice.”",
+      "audience_copy": [
+        "Pause: name the choice."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 325,
+          "end_seconds": 327.218,
+          "text": "Pause on your own workflow. "
+        },
+        {
+          "start_seconds": 327.218,
+          "end_seconds": 333,
+          "text": "What choice is a human accountable for after the agent prepares its work?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L02-07",
+      "beat": 7,
+      "start_seconds": 345,
+      "end_seconds": 485,
+      "source_time": "5:45–8:05",
+      "narration_exact": "“Fill the Decision Card now. Write the choice, the owner, three alternatives, the evidence, the agent's preparation scope, forbidden execution, and the condition that sends the work back to a person. Add the consequence of a wrong answer. If you find that one card contains three separate decisions, split it. A single approval button cannot make three different responsibilities disappear.”",
+      "on_screen_copy_exact": "Exercise card below; 2:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "In your same workflow type, name a single choice. Fill: owner of record, alternatives, reversibility, required evidence, what the agent prepares, what it cannot execute, review gate, escalation trigger, and consequence of error. Use invented examples and role names. Leave real policies and live approvals outside the exercise.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 345,
+          "end_seconds": 346.943,
+          "text": "Fill the Decision Card now. "
+        },
+        {
+          "start_seconds": 346.943,
+          "end_seconds": 358.812,
+          "text": "Write the choice, the owner, three alternatives, the evidence, the agent's preparation scope, forbidden execution, and the condition that sends the work back to a person. "
+        },
+        {
+          "start_seconds": 358.812,
+          "end_seconds": 361.519,
+          "text": "Add the consequence of a wrong answer. "
+        },
+        {
+          "start_seconds": 361.519,
+          "end_seconds": 366.447,
+          "text": "If you find that one card contains three separate decisions, split it. "
+        },
+        {
+          "start_seconds": 366.447,
+          "end_seconds": 372,
+          "text": "A single approval button cannot make three different responsibilities disappear."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L02-08",
+      "beat": 8,
+      "start_seconds": 485,
+      "end_seconds": 510,
+      "source_time": "8:05–8:30",
+      "narration_exact": "“Put the card into your Operating File as a draft. Stop if you cannot name one accountable owner or if the agent can approve its own recommendation. In the next lesson, we will make the evidence path readable to that owner.”",
+      "on_screen_copy_exact": "“Operating File v2: decision-card.” “Stop: missing owner or self-approval.”",
+      "audience_copy": [
+        "Operating File v2: decision-card.",
+        "Stop: missing owner or self-approval."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 485,
+          "end_seconds": 489.279,
+          "text": "Put the card into your Operating File as a draft. "
+        },
+        {
+          "start_seconds": 489.279,
+          "end_seconds": 497.667,
+          "text": "Stop if you cannot name one accountable owner or if the agent can approve its own recommendation. "
+        },
+        {
+          "start_seconds": 497.667,
+          "end_seconds": 504,
+          "text": "In the next lesson, we will make the evidence path readable to that owner."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 495,
+        "end_seconds": 510,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

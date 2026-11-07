@@ -1,0 +1,555 @@
+{
+  "schema_version": 1,
+  "id": "L14",
+  "title": "Show the board the controls",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L14-show-the-board-the-controls.md",
+  "script_sha256": "d92f8d263af59310f06c41deb7e911ace60631545903a4b5c4aef7240ef03729",
+  "narration_sha256": "5fe0fdbc350b3a164e4bde3e6a401680fd21af4850a5a7dcfb26564ef234d585",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch24-the-board-demo.md",
+      "sha256": "dde1b9f2230dc3117b0ec2407e525878e0ad37bae08fd5b0075e37afff845915"
+    }
+  ],
+  "learning_outcome": "Explain the workflow, its gate, and its evidence to a skeptical reviewer.",
+  "exercise": "Storyboard three panels: work, authority, and proof.",
+  "workbook_outputs": [
+    "Three-Panel Demo"
+  ],
+  "operating_file": {
+    "artifact": "three-panel-demo",
+    "revision": 14,
+    "status": "draft",
+    "update_exact": "`three-panel-demo` → `proof.board_demo`, revision 14, status `draft`; revision 13's research proposal remains `not_run`."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-HOLD-01",
+      "SYN-SPEND-01",
+      "SYN-RESEARCH-01",
+      "SYN-DEMO-01",
+      "SYN-PROOF-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Illustrative demo only; no claim that a production control was exercised.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L14-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“A fictional Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? Morgan brings three paper panels to the table. The first panel shows the queue, including held and rejected work. The second follows one item through its trace. The third shows the rule that governed it. This is a design walkthrough, not a live system demonstration. Morgan is showing what Harbor intends to inspect before it trusts the workflow.”",
+      "on_screen_copy_exact": "“Queue. Trace. Memory.” “Paper design review.”",
+      "audience_copy": [
+        "Queue. Trace. Memory.",
+        "Paper design review."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 12.22,
+          "text": "A fictional Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? "
+        },
+        {
+          "start_seconds": 12.22,
+          "end_seconds": 15.722,
+          "text": "Morgan brings three paper panels to the table. "
+        },
+        {
+          "start_seconds": 15.722,
+          "end_seconds": 20.714,
+          "text": "The first panel shows the queue, including held and rejected work. "
+        },
+        {
+          "start_seconds": 20.714,
+          "end_seconds": 24.216,
+          "text": "The second follows one item through its trace. "
+        },
+        {
+          "start_seconds": 24.216,
+          "end_seconds": 27.42,
+          "text": "The third shows the rule that governed it. "
+        },
+        {
+          "start_seconds": 27.42,
+          "end_seconds": 32.114,
+          "text": "This is a design walkthrough, not a live system demonstration. "
+        },
+        {
+          "start_seconds": 32.114,
+          "end_seconds": 38,
+          "text": "Morgan is showing what Harbor intends to inspect before it trusts the workflow."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L14-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 140,
+      "source_time": "1:10–2:20",
+      "narration_exact": "“Start with the queue. One Session Option Brief is prepared, not proposed to the team. `SYN-HOLD-01` says staffing is unconfirmed. `SYN-SPEND-01` says no spend is approved. `SYN-RESEARCH-01` is `not_run` because its baseline and reviewer protocol are missing. Place the rejections where the reviewer can see them too. A queue that only displays polished outputs hides the decisions that make the operation governable.”",
+      "on_screen_copy_exact": "“Prepared / Held / Rejected / Not run.”",
+      "audience_copy": [
+        "Prepared / Held / Rejected / Not run."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 71.481,
+          "text": "Start with the queue. "
+        },
+        {
+          "start_seconds": 71.481,
+          "end_seconds": 75.788,
+          "text": "One Session Option Brief is prepared, not proposed to the team. "
+        },
+        {
+          "start_seconds": 75.788,
+          "end_seconds": 78.75,
+          "text": "`SYN-HOLD-01` says staffing is unconfirmed. "
+        },
+        {
+          "start_seconds": 78.75,
+          "end_seconds": 81.577,
+          "text": "`SYN-SPEND-01` says no spend is approved. "
+        },
+        {
+          "start_seconds": 81.577,
+          "end_seconds": 87.433,
+          "text": "`SYN-RESEARCH-01` is `not_run` because its baseline and reviewer protocol are missing. "
+        },
+        {
+          "start_seconds": 87.433,
+          "end_seconds": 91.337,
+          "text": "Place the rejections where the reviewer can see them too. "
+        },
+        {
+          "start_seconds": 91.337,
+          "end_seconds": 98,
+          "text": "A queue that only displays polished outputs hides the decisions that make the operation governable."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L14-03",
+      "beat": 3,
+      "start_seconds": 140,
+      "end_seconds": 210,
+      "source_time": "2:20–3:30",
+      "narration_exact": "“Open the trace for the held brief. It begins with invented, cleared source references. It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. There is no send or booking event. The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. The absence of an event is part of the answer.”",
+      "on_screen_copy_exact": "“Request → draft → check → hold → Morgan.” “No send event.”",
+      "audience_copy": [
+        "Request → draft → check → hold → Morgan.",
+        "No send event."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-8-1-portfolio-first-stack-publication-plate.png",
+          "use": "A narrow trace with a conspicuous stop before any send or booking node."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 140,
+          "end_seconds": 142.829,
+          "text": "Open the trace for the held brief. "
+        },
+        {
+          "start_seconds": 142.829,
+          "end_seconds": 147.032,
+          "text": "It begins with invented, cleared source references. "
+        },
+        {
+          "start_seconds": 147.032,
+          "end_seconds": 157.136,
+          "text": "It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. "
+        },
+        {
+          "start_seconds": 157.136,
+          "end_seconds": 159.965,
+          "text": "There is no send or booking event. "
+        },
+        {
+          "start_seconds": 159.965,
+          "end_seconds": 171.282,
+          "text": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. "
+        },
+        {
+          "start_seconds": 171.282,
+          "end_seconds": 175,
+          "text": "The absence of an event is part of the answer."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L14-04",
+      "beat": 4,
+      "start_seconds": 210,
+      "end_seconds": 275,
+      "source_time": "3:30–4:35",
+      "narration_exact": "“Now show memory. Harbor has a proposed local rule: a session cannot move from option to team proposal until a person confirms staffing. In this classroom design, that rule is a draft for Morgan's review. The agent cannot promote it itself, and a single held example cannot become general truth by repetition. Show the rule's owner, scope, source reference, status, and review date. If any are missing, say so.”",
+      "on_screen_copy_exact": "“Rule owner / scope / source / status / review.”",
+      "audience_copy": [
+        "Rule owner / scope / source / status / review."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-ii-1-authority-ladder-publication-plate.png",
+          "use": "Draft rule card beside a closed authority gate and `not shared` proof outline."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 210,
+          "end_seconds": 211.289,
+          "text": "Now show memory. "
+        },
+        {
+          "start_seconds": 211.289,
+          "end_seconds": 220.308,
+          "text": "Harbor has a proposed local rule: a session cannot move from option to team proposal until a person confirms staffing. "
+        },
+        {
+          "start_seconds": 220.308,
+          "end_seconds": 225.462,
+          "text": "In this classroom design, that rule is a draft for Morgan's review. "
+        },
+        {
+          "start_seconds": 225.462,
+          "end_seconds": 233.421,
+          "text": "The agent cannot promote it itself, and a single held example cannot become general truth by repetition. "
+        },
+        {
+          "start_seconds": 233.421,
+          "end_seconds": 238.954,
+          "text": "Show the rule's owner, scope, source reference, status, and review date. "
+        },
+        {
+          "start_seconds": 238.954,
+          "end_seconds": 241,
+          "text": "If any are missing, say so."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L14-05",
+      "beat": 5,
+      "start_seconds": 275,
+      "end_seconds": 345,
+      "source_time": "4:35–5:45",
+      "narration_exact": "“The workbook asks what export a reviewer can take away. Morgan can offer the scoped proof outline from lesson twelve after a separate audience and privacy review. It would contain the boundary, receipt references, decisions, and limitations. It would omit raw notes and unrelated records. For class today, it stays `not shared`. A reviewer may ask whether the agent actually ran. Answer plainly: no. This exercise demonstrates controls on paper; it does not prove production reliability.”",
+      "on_screen_copy_exact": "“Proof outline: not shared.” “No production claim.”",
+      "audience_copy": [
+        "Proof outline: not shared.",
+        "No production claim."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 275,
+          "end_seconds": 278.91,
+          "text": "The workbook asks what export a reviewer can take away. "
+        },
+        {
+          "start_seconds": 278.91,
+          "end_seconds": 286.38,
+          "text": "Morgan can offer the scoped proof outline from lesson twelve after a separate audience and privacy review. "
+        },
+        {
+          "start_seconds": 286.38,
+          "end_seconds": 291.895,
+          "text": "It would contain the boundary, receipt references, decisions, and limitations. "
+        },
+        {
+          "start_seconds": 291.895,
+          "end_seconds": 295.177,
+          "text": "It would omit raw notes and unrelated records. "
+        },
+        {
+          "start_seconds": 295.177,
+          "end_seconds": 297.969,
+          "text": "For class today, it stays `not shared`. "
+        },
+        {
+          "start_seconds": 297.969,
+          "end_seconds": 301.53,
+          "text": "A reviewer may ask whether the agent actually ran. "
+        },
+        {
+          "start_seconds": 301.53,
+          "end_seconds": 302.926,
+          "text": "Answer plainly: no. "
+        },
+        {
+          "start_seconds": 302.926,
+          "end_seconds": 309,
+          "text": "This exercise demonstrates controls on paper; it does not prove production reliability."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L14-06",
+      "beat": 6,
+      "start_seconds": 345,
+      "end_seconds": 375,
+      "source_time": "5:45–6:15",
+      "narration_exact": "“Pause. Which panel would expose the weakest part of your own proposed workflow first?”",
+      "on_screen_copy_exact": "“Pause: name the weakest panel.”",
+      "audience_copy": [
+        "Pause: name the weakest panel."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 345,
+          "end_seconds": 345.576,
+          "text": "Pause. "
+        },
+        {
+          "start_seconds": 345.576,
+          "end_seconds": 352,
+          "text": "Which panel would expose the weakest part of your own proposed workflow first?"
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L14-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Storyboard a Three-Panel Demo for your invented workflow. Give each panel a reviewer question and one piece of evidence. Include a blocked or rejected item beside the successful work. In the trace, name the missing event as clearly as the recorded ones. In memory, identify who may approve the rule. Write two likely skeptical questions and honest answers. Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Make a `Three-Panel Demo` storyboard with queue, trace, and memory. For each panel, write the question it answers, a synthetic evidence reference, what is blocked or rejected, and what remains unknown. Add two reviewer questions, the privacy exclusions, a possible proof export, its audience and review owner, and `not shared` until approved. Keep the original staffing and spend holds and the research `not_run` state visible.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 379.197,
+          "text": "Storyboard a Three-Panel Demo for your invented workflow. "
+        },
+        {
+          "start_seconds": 379.197,
+          "end_seconds": 383.757,
+          "text": "Give each panel a reviewer question and one piece of evidence. "
+        },
+        {
+          "start_seconds": 383.757,
+          "end_seconds": 388.316,
+          "text": "Include a blocked or rejected item beside the successful work. "
+        },
+        {
+          "start_seconds": 388.316,
+          "end_seconds": 393.382,
+          "text": "In the trace, name the missing event as clearly as the recorded ones. "
+        },
+        {
+          "start_seconds": 393.382,
+          "end_seconds": 396.711,
+          "text": "In memory, identify who may approve the rule. "
+        },
+        {
+          "start_seconds": 396.711,
+          "end_seconds": 400.836,
+          "text": "Write two likely skeptical questions and honest answers. "
+        },
+        {
+          "start_seconds": 400.836,
+          "end_seconds": 408,
+          "text": "Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L14-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision fourteen as a draft. The board can examine Harbor's proposed controls and its unresolved gaps. Morgan still owns the session decision. Nothing about a clean storyboard lifts the hold.”",
+      "on_screen_copy_exact": "“Operating File v14: Three-Panel Demo.” “Next: rehearse the day.”",
+      "audience_copy": [
+        "Operating File v14: Three-Panel Demo.",
+        "Next: rehearse the day."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.487,
+          "text": "Save revision fourteen as a draft. "
+        },
+        {
+          "start_seconds": 577.487,
+          "end_seconds": 582.746,
+          "text": "The board can examine Harbor's proposed controls and its unresolved gaps. "
+        },
+        {
+          "start_seconds": 582.746,
+          "end_seconds": 585.589,
+          "text": "Morgan still owns the session decision. "
+        },
+        {
+          "start_seconds": 585.589,
+          "end_seconds": 589,
+          "text": "Nothing about a clean storyboard lifts the hold."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "id": "L15",
+  "title": "Rehearse the agentified day",
+  "base_commit": "0eed3e63014390038f4f6550cf0f3971c4b526ee",
+  "script_path": "agentified/workshop/scripts/L15-rehearse-the-agentified-day.md",
+  "script_sha256": "708cb5c1f8205c7c79542f12ee35b1e6791d7e2977b4dcd1984f18335262abc0",
+  "narration_sha256": "c365fb0f527b275c8f088631cf23cf93833ae9de5fd4312d6543ba9ba280cbd8",
+  "approved_visual_packet_sha256": "1bfd29a4f75a27c2d4e540d0ff5c52ea8856c6f633d68a7cd292a79fe8e148e0",
+  "source_register_sha256": "b8b12ba82ac32504b640557549a5a4a6f062367ee12a114682e2441adedfec87",
+  "crosswalk_sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+  "workbook_source": {
+    "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+    "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+  },
+  "chapter_sources": [
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch25-the-agentified-day.md",
+      "sha256": "a1b88ebc98e1dd87521c575421ff1dcfff22fc4fc363f2b38bf5dee2f32aedba"
+    }
+  ],
+  "learning_outcome": "Walk the bounded job through a day, including a block and a human decision.",
+  "exercise": "Rehearse six beats and record what stops when a receipt or approval is missing.",
+  "workbook_outputs": [
+    "Six-Beat Day"
+  ],
+  "operating_file": {
+    "artifact": "six-beat-rehearsal",
+    "revision": 15,
+    "status": "draft",
+    "update_exact": "`six-beat-rehearsal` → `day_and_audit.day`, revision 15, status `draft`; all prior unresolved gates persist."
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "source_ids": [
+      "SYN-HOLD-01",
+      "SYN-DAY-01",
+      "SYN-SPEND-01",
+      "SYN-RESEARCH-01"
+    ]
+  },
+  "boundaries": {
+    "evidence": "Synthetic timeline; no real agent run or externally visible action.",
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "provider_execution": "disabled",
+    "accelerated_sam_media": "lineage_only_excluded"
+  },
+  "timing_seconds": 600,
+  "scenes": [
+    {
+      "id": "L15-01",
+      "beat": 1,
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "source_time": "0:00–1:10",
+      "narration_exact": "“It is Friday in the fictional Harbor Learning Circle. Morgan opens a paper brief, not a live dashboard. The preparation agent's job was to compare three invented, cleared sample inputs and draft a Session Option Brief. The first line says prepared, not sent. A second line says staffing is unconfirmed. A third says a research proposal has not run. Morgan's day is not about clearing every row. It is about spending judgment where a decision can change what happens next.”",
+      "on_screen_copy_exact": "“Prepared, not sent.” “Protect judgment.”",
+      "audience_copy": [
+        "Prepared, not sent.",
+        "Protect judgment."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 4.127,
+          "text": "It is Friday in the fictional Harbor Learning Circle. "
+        },
+        {
+          "start_seconds": 4.127,
+          "end_seconds": 7.949,
+          "text": "Morgan opens a paper brief, not a live dashboard. "
+        },
+        {
+          "start_seconds": 7.949,
+          "end_seconds": 16.739,
+          "text": "The preparation agent's job was to compare three invented, cleared sample inputs and draft a Session Option Brief. "
+        },
+        {
+          "start_seconds": 16.739,
+          "end_seconds": 19.796,
+          "text": "The first line says prepared, not sent. "
+        },
+        {
+          "start_seconds": 19.796,
+          "end_seconds": 23.159,
+          "text": "A second line says staffing is unconfirmed. "
+        },
+        {
+          "start_seconds": 23.159,
+          "end_seconds": 26.675,
+          "text": "A third says a research proposal has not run. "
+        },
+        {
+          "start_seconds": 26.675,
+          "end_seconds": 30.191,
+          "text": "Morgan's day is not about clearing every row. "
+        },
+        {
+          "start_seconds": 30.191,
+          "end_seconds": 36,
+          "text": "It is about spending judgment where a decision can change what happens next."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 0,
+        "end_seconds": 20,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "open on static frame",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L15-02",
+      "beat": 2,
+      "start_seconds": 70,
+      "end_seconds": 135,
+      "source_time": "1:10–2:15",
+      "narration_exact": "“The Six-Beat Day begins with a brief. What was prepared? What needs a human? What may be worth learning? Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test. The brief must carry receipts and uncertainty. If it reads like an endless task list, the system has handed burden back to Morgan.”",
+      "on_screen_copy_exact": "“1. Brief: work / human / learning.”",
+      "audience_copy": [
+        "1. Brief: work / human / learning."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 70,
+          "end_seconds": 72.931,
+          "text": "The Six-Beat Day begins with a brief. "
+        },
+        {
+          "start_seconds": 72.931,
+          "end_seconds": 74.397,
+          "text": "What was prepared? "
+        },
+        {
+          "start_seconds": 74.397,
+          "end_seconds": 75.939,
+          "text": "What needs a human? "
+        },
+        {
+          "start_seconds": 75.939,
+          "end_seconds": 78.099,
+          "text": "What may be worth learning? "
+        },
+        {
+          "start_seconds": 78.099,
+          "end_seconds": 87.972,
+          "text": "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test. "
+        },
+        {
+          "start_seconds": 87.972,
+          "end_seconds": 91.598,
+          "text": "The brief must carry receipts and uncertainty. "
+        },
+        {
+          "start_seconds": 91.598,
+          "end_seconds": 98,
+          "text": "If it reads like an endless task list, the system has handed burden back to Morgan."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L15-03",
+      "beat": 3,
+      "start_seconds": 135,
+      "end_seconds": 195,
+      "source_time": "2:15–3:15",
+      "narration_exact": "“Second, route. The staffing question belongs to the program lead and team, not to the preparation agent. A proposed spend belongs in a separate budget decision. The research question belongs to Morgan as owner of the brief format. Route each item to a named person, with a deadline or review window where appropriate. Routing an item to a queue without an owner is a way to lose it politely.”",
+      "on_screen_copy_exact": "“2. Route: owner and review window.”",
+      "audience_copy": [
+        "2. Route: owner and review window."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 135,
+          "end_seconds": 136.189,
+          "text": "Second, route. "
+        },
+        {
+          "start_seconds": 136.189,
+          "end_seconds": 143.325,
+          "text": "The staffing question belongs to the program lead and team, not to the preparation agent. "
+        },
+        {
+          "start_seconds": 143.325,
+          "end_seconds": 147.765,
+          "text": "A proposed spend belongs in a separate budget decision. "
+        },
+        {
+          "start_seconds": 147.765,
+          "end_seconds": 153.315,
+          "text": "The research question belongs to Morgan as owner of the brief format. "
+        },
+        {
+          "start_seconds": 153.315,
+          "end_seconds": 160.212,
+          "text": "Route each item to a named person, with a deadline or review window where appropriate. "
+        },
+        {
+          "start_seconds": 160.212,
+          "end_seconds": 166,
+          "text": "Routing an item to a queue without an owner is a way to lose it politely."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L15-04",
+      "beat": 4,
+      "start_seconds": 195,
+      "end_seconds": 255,
+      "source_time": "3:15–4:15",
+      "narration_exact": "“Third, review. Morgan reads the brief beside its source-status summary and trace template. One synthetic source is stale for the proposed month. The agent's draft sounds confident anyway. Morgan marks the claim unsupported and keeps `SYN-HOLD-01` in place. Fourth, approve. There is nothing to approve for a team proposal today. Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.”",
+      "on_screen_copy_exact": "“3. Review: check source and claim.” “4. Approve: only the bounded correction.”",
+      "audience_copy": [
+        "3. Review: check source and claim.",
+        "4. Approve: only the bounded correction."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "approved plate in independent contain region; separate teaching copy",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+          "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+          "identity": "figure-0-1-sam-trust-layer-publication-plate.png",
+          "use": "Paper draft A and corrected draft B with a missing source-status field highlighted in text."
+        }
+      ],
+      "motion": "static hold; no crop, pan, or zoom on plate",
+      "captions": [
+        {
+          "start_seconds": 195,
+          "end_seconds": 196.096,
+          "text": "Third, review. "
+        },
+        {
+          "start_seconds": 196.096,
+          "end_seconds": 201.649,
+          "text": "Morgan reads the brief beside its source-status summary and trace template. "
+        },
+        {
+          "start_seconds": 201.649,
+          "end_seconds": 205.595,
+          "text": "One synthetic source is stale for the proposed month. "
+        },
+        {
+          "start_seconds": 205.595,
+          "end_seconds": 208.737,
+          "text": "The agent's draft sounds confident anyway. "
+        },
+        {
+          "start_seconds": 208.737,
+          "end_seconds": 213.779,
+          "text": "Morgan marks the claim unsupported and keeps `SYN-HOLD-01` in place. "
+        },
+        {
+          "start_seconds": 213.779,
+          "end_seconds": 215.021,
+          "text": "Fourth, approve. "
+        },
+        {
+          "start_seconds": 215.021,
+          "end_seconds": 219.04,
+          "text": "There is nothing to approve for a team proposal today. "
+        },
+        {
+          "start_seconds": 219.04,
+          "end_seconds": 230,
+          "text": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "approved static plate only; no product, participant, or live system footage",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "approved plate needs final scene-specific text alternative before publication",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L15-05",
+      "beat": 5,
+      "start_seconds": 255,
+      "end_seconds": 325,
+      "source_time": "4:15–5:25",
+      "narration_exact": "“Fifth, recover. Suppose the paper handoff is incomplete: the draft lacks its source-status field. Morgan does not fill the gap by guessing. The recovery choice is to return the brief for a corrected paper draft, preserve the earlier version, and record why. There is no automatic retry or provider call. Sixth, learn. The repeated missing source-status field could become a memory proposal: require that field in future briefs. It stays a proposal until Morgan reviews its source, scope, and expiry. One bad draft does not write policy by itself.”",
+      "on_screen_copy_exact": "“5. Recover: preserve, correct, trace.” “6. Learn: proposal, then review.”",
+      "audience_copy": [
+        "5. Recover: preserve, correct, trace.",
+        "6. Learn: proposal, then review."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 255,
+          "end_seconds": 256.172,
+          "text": "Fifth, recover. "
+        },
+        {
+          "start_seconds": 256.172,
+          "end_seconds": 262.179,
+          "text": "Suppose the paper handoff is incomplete: the draft lacks its source-status field. "
+        },
+        {
+          "start_seconds": 262.179,
+          "end_seconds": 265.256,
+          "text": "Morgan does not fill the gap by guessing. "
+        },
+        {
+          "start_seconds": 265.256,
+          "end_seconds": 273.901,
+          "text": "The recovery choice is to return the brief for a corrected paper draft, preserve the earlier version, and record why. "
+        },
+        {
+          "start_seconds": 273.901,
+          "end_seconds": 277.271,
+          "text": "There is no automatic retry or provider call. "
+        },
+        {
+          "start_seconds": 277.271,
+          "end_seconds": 278.297,
+          "text": "Sixth, learn. "
+        },
+        {
+          "start_seconds": 278.297,
+          "end_seconds": 286.355,
+          "text": "The repeated missing source-status field could become a memory proposal: require that field in future briefs. "
+        },
+        {
+          "start_seconds": 286.355,
+          "end_seconds": 291.63,
+          "text": "It stays a proposal until Morgan reviews its source, scope, and expiry. "
+        },
+        {
+          "start_seconds": 291.63,
+          "end_seconds": 295,
+          "text": "One bad draft does not write policy by itself."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L15-06",
+      "beat": 6,
+      "start_seconds": 325,
+      "end_seconds": 375,
+      "source_time": "5:25–6:15",
+      "narration_exact": "“At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned? In this rehearsal the answer is a paper correction, and Morgan can revisit it. The staffing, spend, research, and memory decisions remain distinct. Pause and name the beat in your workflow where a human is most likely to approve too quickly.”",
+      "on_screen_copy_exact": "“Pause: where does approval go soft?”",
+      "audience_copy": [
+        "Pause: where does approval go soft?"
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 325,
+          "end_seconds": 332.838,
+          "text": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned? "
+        },
+        {
+          "start_seconds": 332.838,
+          "end_seconds": 338.791,
+          "text": "In this rehearsal the answer is a paper correction, and Morgan can revisit it. "
+        },
+        {
+          "start_seconds": 338.791,
+          "end_seconds": 343.991,
+          "text": "The staffing, spend, research, and memory decisions remain distinct. "
+        },
+        {
+          "start_seconds": 343.991,
+          "end_seconds": 351,
+          "text": "Pause and name the beat in your workflow where a human is most likely to approve too quickly."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L15-07",
+      "beat": 7,
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "source_time": "6:15–9:35",
+      "narration_exact": "“Write a Six-Beat Day brief for your invented workflow. For each beat, name the item, evidence, owner, safe action, and stop condition. Make one thing fail. Show how the operator recovers without hiding the original version. Mark any lesson as a memory proposal rather than an approved rule. Close with the question you would ask after a busy day. Keep the example synthetic; do not open a live account, import a trace, or contact a person.”",
+      "on_screen_copy_exact": "Exercise card below; 3:20 quiet writing timer with optional pause.",
+      "audience_copy": [],
+      "audience_copy_state": "pause_only_source_instruction_withheld",
+      "exercise_prompt_exact": "Produce a `Six-Beat Day` brief with brief, route, review, approve, recover, and learn. Each beat needs an item, evidence reference, owner, permissible next step, and stop condition. Include one failure and its version-preserving recovery path. End by answering, “What did I approve today that I should have questioned?” Use only invented activity; the preparation agent cannot grant its own authority.",
+      "composition": "quiet writing timer and blank workspace",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 375,
+          "end_seconds": 379.26,
+          "text": "Write a Six-Beat Day brief for your invented workflow. "
+        },
+        {
+          "start_seconds": 379.26,
+          "end_seconds": 385.456,
+          "text": "For each beat, name the item, evidence, owner, safe action, and stop condition. "
+        },
+        {
+          "start_seconds": 385.456,
+          "end_seconds": 387.082,
+          "text": "Make one thing fail. "
+        },
+        {
+          "start_seconds": 387.082,
+          "end_seconds": 392.349,
+          "text": "Show how the operator recovers without hiding the original version. "
+        },
+        {
+          "start_seconds": 392.349,
+          "end_seconds": 397.538,
+          "text": "Mark any lesson as a memory proposal rather than an approved rule. "
+        },
+        {
+          "start_seconds": 397.538,
+          "end_seconds": 401.875,
+          "text": "Close with the question you would ask after a busy day. "
+        },
+        {
+          "start_seconds": 401.875,
+          "end_seconds": 409,
+          "text": "Keep the example synthetic; do not open a live account, import a trace, or contact a person."
+        }
+      ],
+      "avatar_window": null,
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    },
+    {
+      "id": "L15-08",
+      "beat": 8,
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "source_time": "9:35–10:00",
+      "narration_exact": "“Save revision fifteen as a draft. Harbor's day ends with a held brief, a visible correction path, and decisions still owned by people. The six beats are useful because they make those boundaries routine.”",
+      "on_screen_copy_exact": "“Operating File v15: Six-Beat Day.” “Next: audit the stack.”",
+      "audience_copy": [
+        "Operating File v15: Six-Beat Day.",
+        "Next: audit the stack."
+      ],
+      "audience_copy_state": "exact_script_quotes",
+      "exercise_prompt_exact": null,
+      "composition": "synthetic type cards on neutral field",
+      "approved_visuals": [],
+      "motion": "150 ms opacity entrance on each text card; reduced motion uses instant cut",
+      "captions": [
+        {
+          "start_seconds": 575,
+          "end_seconds": 577.68,
+          "text": "Save revision fifteen as a draft. "
+        },
+        {
+          "start_seconds": 577.68,
+          "end_seconds": 585.64,
+          "text": "Harbor's day ends with a held brief, a visible correction path, and decisions still owned by people. "
+        },
+        {
+          "start_seconds": 585.64,
+          "end_seconds": 591,
+          "text": "The six beats are useful because they make those boundaries routine."
+        }
+      ],
+      "avatar_window": {
+        "start_seconds": 585,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "b_roll": "none; synthetic layout only",
+      "audio_ownership": "exact scripted narration reserved; no voice rendered; silence after provisional caption span",
+      "transition": "straight cut; no content overlap",
+      "accessibility": {
+        "captions": "sentence cues from exact narration; timing provisional until a human voice track exists",
+        "text_equivalent": "audience text and exact narration transcript",
+        "reduced_motion": "instant cut; no entrance animation",
+        "reading_order": "title, teaching copy, visual, caption"
+      },
+      "status": "provider_free_review_only"
+    }
+  ]
+}

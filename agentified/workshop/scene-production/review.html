@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentified lesson animatic</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f8f5ef;background:#101b27}
+    *{box-sizing:border-box} body{margin:0} button,select,input{font:inherit} button,select{border:1px solid #7d9eb4;border-radius:.5rem;background:#1b3040;color:#fff;padding:.55rem .75rem;cursor:pointer} button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #eac878;outline-offset:2px}
+    main{max-width:1500px;margin:auto;padding:clamp(.75rem,2vw,2rem)} header{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;flex-wrap:wrap;margin-bottom:1rem} h1{font-size:clamp(1.3rem,2.5vw,2rem);margin:0} .meta{color:#bdd0dc;font-size:.9rem}
+    #stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(1rem,3vw,3rem);width:100%;aspect-ratio:16/9;padding:clamp(1rem,3vw,3rem);background:#182a37;border:1px solid #496173;border-radius:1rem;overflow:hidden}
+    .teaching{display:flex;flex-direction:column;justify-content:center;min-width:0}.eyebrow{font-size:clamp(.7rem,1.4vw,1rem);letter-spacing:.12em;text-transform:uppercase;color:#f0cb79}.stage-title{font-size:clamp(1.4rem,3.5vw,3.8rem);line-height:1.04;margin:.5rem 0 1rem;overflow-wrap:anywhere}.cards{display:grid;gap:.65rem}.card{padding:clamp(.55rem,1.35vw,1.2rem);border:1px solid #7594a6;border-radius:.6rem;background:#243d4b;font-size:clamp(.9rem,1.6vw,1.55rem);line-height:1.24;overflow-wrap:anywhere}
+    .visual{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;border-radius:.65rem;background:#10212e;padding:.75rem}.visual img{display:block;width:100%;height:100%;max-height:100%;object-fit:contain;object-position:center}.visual.empty{border:1px dashed #68899c}.visual.empty span{font-size:clamp(1rem,2vw,2rem);text-align:center;color:#d9e4e7}.quiet{font-size:clamp(2rem,8vw,7rem);font-variant-numeric:tabular-nums}
+    .caption{margin:.75rem 0;padding:.85rem 1rem;min-height:4.2rem;border-left:4px solid #eac878;background:#1c3040;font-size:clamp(.95rem,1.5vw,1.18rem);line-height:1.4}
+    .controls{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}.controls input[type=range]{flex:1;min-width:150px;accent-color:#eac878}.clock{font-variant-numeric:tabular-nums;min-width:6.6rem;text-align:right}.transcript{margin-top:1rem;color:#d4e0e6;max-width:82ch}.transcript summary{cursor:pointer}.transcript p{line-height:1.5}
+    @media(max-width:900px){#stage{grid-template-columns:1fr 1fr;gap:1rem}.stage-title{font-size:clamp(1.3rem,3vw,2.4rem)}.card{font-size:clamp(.82rem,1.7vw,1.2rem)}}
+    @media(max-width:600px){#stage{aspect-ratio:auto;min-height:700px;grid-template-columns:1fr;grid-template-rows:minmax(0,auto) minmax(430px,1fr);padding:1rem}.teaching{justify-content:start}.stage-title{font-size:clamp(1.25rem,6vw,2rem);margin:.35rem 0}.cards{gap:.35rem}.card{font-size:clamp(.82rem,3.4vw,1rem);padding:.45rem .6rem}.visual{padding:.35rem}.caption{min-height:5rem}.controls select{max-width:100%}}
+    @media(prefers-reduced-motion:no-preference){.card{animation:appear .15s ease-out both}@keyframes appear{from{opacity:0}to{opacity:1}}}
+  </style>
+</head>
+<body>
+<main>
+  <header><h1 id="lesson-title">Agentified lesson animatic</h1><span class="meta" id="lesson-meta">Silent review · source-bound</span></header>
+  <section id="stage" aria-label="Lesson frame">
+    <div class="teaching"><span class="eyebrow" id="scene-label"></span><h2 class="stage-title" id="scene-title"></h2><div class="cards" id="cards"></div></div>
+    <div class="visual empty" id="visual"></div>
+  </section>
+  <div class="caption" id="caption" role="status" aria-live="polite"></div>
+  <nav class="controls" aria-label="Animatic controls">
+    <button id="previous" type="button">Previous</button><button id="play" type="button">Play</button><button id="next" type="button">Next</button>
+    <label>Lesson <select id="lesson"></select></label><label>Speed <select id="speed"><option value="1">1×</option><option value="8">8×</option><option value="16">16×</option></select></label>
+    <input id="seek" type="range" min="0" max="600" value="0" aria-label="Seek lesson"><span class="clock" id="clock">0:00</span>
+  </nav>
+  <details class="transcript"><summary>Read the exact narration for this scene</summary><p id="transcript"></p></details>
+</main>
+<script type="module">
+  const $ = (id) => document.getElementById(id)
+  const query = new URLSearchParams(location.search)
+  const lessonId = /^L(0[1-9]|1[0-6])$/.test(query.get('lesson') || '') ? query.get('lesson') : 'L01'
+  const fmt = (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
+  let packet, time = 0, playing = false, lastTick = performance.now(), lastScene = ''
+  for (let i = 1; i <= 16; i++) { const id = `L${String(i).padStart(2, '0')}`; const option = document.createElement('option'); option.value = id; option.textContent = id; $('lesson').append(option) }
+  $('lesson').value = lessonId
+  $('lesson').onchange = () => { const url = new URL(location.href); url.searchParams.set('lesson', $('lesson').value); location.href = url.toString() }
+  $('speed').value = '8'
+  function render() {
+    if (!packet) return
+    const scene = packet.scenes.find((x) => time >= x.start_seconds && time < x.end_seconds) || packet.scenes.at(-1)
+    if (scene.id !== lastScene) {
+      lastScene = scene.id
+      $('scene-label').textContent = `${packet.id} · ${fmt(scene.start_seconds)}–${fmt(scene.end_seconds)}`
+      $('scene-title').textContent = scene.audience_copy[0] || ''
+      $('cards').replaceChildren()
+      for (const line of scene.audience_copy.slice(1)) { const card = document.createElement('div'); card.className = 'card'; card.textContent = line; $('cards').append(card) }
+      $('visual').replaceChildren()
+      if (scene.approved_visuals.length) {
+        $('visual').classList.remove('empty')
+        const img = document.createElement('img'); img.src = '/' + scene.approved_visuals[0].path; img.alt = `Approved ${scene.approved_visuals[0].identity.replace(/\.png$/, '').replaceAll('-', ' ')} teaching plate`; $('visual').append(img)
+      } else {
+        $('visual').classList.add('empty')
+        if (!scene.audience_copy.length) { const timer = document.createElement('span'); timer.className = 'quiet'; timer.id = 'quiet-clock'; $('visual').append(timer) }
+      }
+      $('transcript').textContent = scene.narration_exact
+    }
+    const cue = scene.captions.find((x) => time >= x.start_seconds && time < x.end_seconds)
+    $('caption').textContent = cue?.text || ''
+    if ($('quiet-clock')) $('quiet-clock').textContent = fmt(Math.max(0, scene.end_seconds - time))
+    $('seek').value = String(Math.floor(time)); $('clock').textContent = `${fmt(time)} / ${fmt(packet.timing_seconds)}`
+  }
+  $('previous').onclick = () => { const i = packet.scenes.findIndex((x) => time >= x.start_seconds && time < x.end_seconds); time = packet.scenes[Math.max(0, i - 1)].start_seconds; render() }
+  $('next').onclick = () => { const i = packet.scenes.findIndex((x) => time >= x.start_seconds && time < x.end_seconds); time = packet.scenes[Math.min(7, i + 1)].start_seconds; render() }
+  $('play').onclick = () => { playing = !playing; $('play').textContent = playing ? 'Pause' : 'Play'; lastTick = performance.now() }
+  $('seek').oninput = () => { time = Number($('seek').value); render() }
+  function tick(now) { if (playing) { time = Math.min(packet.timing_seconds - .01, time + (now - lastTick) / 1000 * Number($('speed').value)); if (time >= packet.timing_seconds - .01) { playing = false; $('play').textContent = 'Play' } render() } lastTick = now; requestAnimationFrame(tick) }
+  fetch(`packets/${lessonId}.json`).then((response) => { if (!response.ok) throw new Error(`Packet ${lessonId} unavailable`); return response.json() }).then(async (value) => {
+    const paths = [...new Set(value.scenes.flatMap((scene) => scene.approved_visuals.map((visual) => visual.path)))]
+    await Promise.all(paths.map(async (path) => { const image = new Image(); image.src = '/' + path; await image.decode() }))
+    packet = value; $('lesson-title').textContent = `${packet.id} · ${packet.title}`; $('lesson-meta').textContent = `Silent review · ${packet.scenes.length} scenes · ${fmt(packet.timing_seconds)}`; $('seek').max = packet.timing_seconds - 1; render(); requestAnimationFrame(tick)
+  }).catch((error) => { $('lesson-title').textContent = error.message })
+</script>
+</body>
+</html>
