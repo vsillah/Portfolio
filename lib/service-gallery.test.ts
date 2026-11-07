@@ -64,6 +64,29 @@ describe('active service gallery coverage', () => {
     expect(resolveServiceGallery(course.id, course.image_url).map((frame) => frame.role)).toEqual(['hero', 'course-preview poster'])
   })
 
+  it('fails closed when the service or its current image is not the bound source', () => {
+    expect(resolveServiceGallery('not-a-service', null)).toEqual([])
+    expect(resolveServiceGallery('not-a-service', undefined)).toEqual([])
+    expect(resolveServiceGallery('not-a-service', '')).toEqual([])
+    expect(resolveServiceGallery('not-a-service', '/other.png')).toEqual([{
+      imageUrl: '/other.png',
+      alt: 'Current service listing image',
+      role: 'hero',
+      status: 'source capture',
+    }])
+
+    const boundId = '5e8d9f3d-8dbe-4380-b566-e284ac95a3c7'
+    const boundFrames = resolveServiceGallery(boundId, '/ReversR_app.png')
+    expect(boundFrames).toHaveLength(2)
+    expect(boundFrames.every((frame) => frame.imageUrl.startsWith('/showcases/'))).toBe(true)
+    expect(resolveServiceGallery(boundId, null)).toEqual([])
+    expect(resolveServiceGallery(boundId, '')).toEqual([])
+    expect(resolveServiceGallery(boundId, ' /ReversR_app.png').map((frame) => frame.imageUrl)).toEqual([' /ReversR_app.png'])
+
+    const advisoryId = 'd1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78'
+    expect(resolveServiceGallery(advisoryId, '/replaced.png').map((frame) => frame.imageUrl)).toEqual(['/replaced.png'])
+  })
+
   it('binds five distinct premium service pairs with specific experiences', () => {
     const slugs = ['inbound-lead-chatbot', 'lead-generation-workflow', 'accelerated-cohort', 'premium-masterclass', 'self-paced-course']
     const titles = ['AI Inbound Lead Chatbot', 'Lead Generation Workflow Agent', 'Accelerated Cohort Workshop', 'Premium AI Masterclass', 'AI Training Course — Self-Paced']

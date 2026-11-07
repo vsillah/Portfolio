@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { approvedVisualReviewContract, approvedVisualStorageUrl, inspectApprovedVisualReviewContract, DARK_CASTLE_SOCIAL_CONTENT_ID, DARK_CASTLE_VISUAL_PATH, DARK_CASTLE_VISUAL_SHA256 } from './social-approved-visual-contract'
+import { approvedVisualReviewContract, approvedVisualStorageUrl, inspectApprovedVisualReviewContract, DARK_CASTLE_SOCIAL_CONTENT_ID, DARK_CASTLE_VISUAL_PATH, DARK_CASTLE_VISUAL_QA_ID, DARK_CASTLE_VISUAL_SHA256 } from './social-approved-visual-contract'
 import { darkCastleVisualQaFixture, darkCastleVisualQaFixtureEnabled } from './social-dark-castle-visual-qa-fixture'
 import { socialCopyVersion } from './social-copy-revision'
 import { projectDeterministicVisualRender } from './social-deterministic-visual'
@@ -16,7 +16,7 @@ describe('Dark Castle corrected visual review contract', () => {
     const item = darkCastleVisualQaFixture('missing')
     expect(item.image_url).toBeNull()
     expect(item.deterministic_visual_render).toMatchObject({ state: 'blocked', code: 'candidate_missing', can_render: false, provider_calls_enabled: false })
-    expect(item.deterministic_visual_render?.recovery_action).toContain('Bind a reviewed contract')
+    expect(item.deterministic_visual_render?.recovery_action).toBe('The current copy has no reviewed visual contract. Keep rendering blocked until the corrected copy and visual decisions are recorded.')
   })
 
   it('keeps the exact production record blocked until a contract is reviewed and bound', () => {
@@ -26,7 +26,7 @@ describe('Dark Castle corrected visual review contract', () => {
     item.image_url = 'https://legacy.example/image.png'
     const projection = projectDeterministicVisualRender({ item, copyVersion: socialCopyVersion(item), storageAvailable: true })
     expect(projection).toMatchObject({ state: 'blocked', code: 'candidate_missing', can_render: false })
-    expect(projection.recovery_action).toContain('Bind a reviewed contract')
+    expect(projection.recovery_action).toBe('The current copy has no reviewed visual contract. Keep rendering blocked until the corrected copy and visual decisions are recorded.')
   })
 
   it('keeps production blocked while the corrected copy still needs approval', () => {
@@ -70,6 +70,90 @@ describe('Dark Castle corrected visual review contract', () => {
     const item = darkCastleVisualQaFixture(state)
     expect(item.deterministic_visual_render).toMatchObject({ state: 'blocked', code: 'asset_stale', can_render: false, provider_calls_enabled: false })
     expect(item.deterministic_visual_render?.recovery_action).toContain('No provider or legacy visual fallback')
+  })
+
+  it('builds only an https storage URL for a 64-character copy version', () => {
+    const version = 'ab'.repeat(32)
+    const assetUrl = `https://portfolio.supabase.co/storage/v1/object/public/social-content/approved-review/${DARK_CASTLE_SOCIAL_CONTENT_ID}/${version}/${DARK_CASTLE_VISUAL_SHA256}.png`
+    expect(approvedVisualStorageUrl(version, 'https://portfolio.supabase.co')).toBe(assetUrl)
+    expect(approvedVisualStorageUrl(version, 'https://user:pass@portfolio.supabase.co/storage/v1')).toBe(assetUrl)
+    for (const [copyVersion, base] of [
+      ['ab'.repeat(31), 'https://portfolio.supabase.co'],
+      ['AB'.repeat(32), 'https://portfolio.supabase.co'],
+      ['gg'.repeat(32), 'https://portfolio.supabase.co'],
+      [`${'a'.repeat(61)}../`, 'https://portfolio.supabase.co'],
+      [version, 'http://portfolio.supabase.co'],
+      [version, ''],
+      [version, 'not a url'],
+      [version, 'javascript:alert(1)'],
+    ] as const) {
+      expect(approvedVisualStorageUrl(copyVersion, base)).toBeNull()
+    }
+  })
+
+  it('treats a missing or non-object contract as unbound', () => {
+    const version = 'a'.repeat(64)
+    for (const ragContext of [null, 'contract', [], { deterministic_visual_review_contract: [] }]) {
+      expect(inspectApprovedVisualReviewContract({
+        id: DARK_CASTLE_VISUAL_QA_ID,
+        image_url: null,
+        rag_context: ragContext,
+      }, version)).toMatchObject({ state: 'missing', contract: null })
+    }
+  })
+
+  it('blocks a corrected candidate whose identity, provider, approval, or release gate does not match', () => {
+    const foreign = darkCastleVisualQaFixture('current')
+    foreign.id = 'not-dark-castle'
+    expect(inspectApprovedVisualReviewContract(foreign, socialCopyVersion(foreign)).state).toBe('blocked')
+
+    const provider = darkCastleVisualQaFixture('current')
+    ;(provider.rag_context as Record<string, any>).deterministic_visual_review_contract.provider = 'heygen'
+    expect(inspectApprovedVisualReviewContract(provider, socialCopyVersion(provider)).state).toBe('blocked')
+
+    const publishable = darkCastleVisualQaFixture('current')
+    ;(publishable.rag_context as Record<string, any>).deterministic_visual_review_contract.external_actions.publish = true
+    expect(inspectApprovedVisualReviewContract(publishable, socialCopyVersion(publishable)).state).toBe('blocked')
+
+    const approvedCopy = darkCastleVisualQaFixture('current')
+    ;(approvedCopy.rag_context as Record<string, any>).deterministic_visual_review_contract.copy_approved_at = '2026-10-23T23:07:32.922112+00:00'
+    expect(inspectApprovedVisualReviewContract(approvedCopy, socialCopyVersion(approvedCopy)).state).toBe('blocked')
+
+    const scheduled = darkCastleVisualQaFixture('current')
+    scheduled.status = 'scheduled'
+    expect(projectDeterministicVisualRender({
+      item: scheduled,
+      copyVersion: socialCopyVersion(scheduled),
+      storageAvailable: true,
+    })).toMatchObject({ state: 'blocked', code: 'copy_not_approved', can_render: false, provider: 'none', provider_calls_enabled: false })
+
+    const locked = darkCastleVisualQaFixture('current')
+    expect(projectDeterministicVisualRender({
+      item: locked,
+      copyVersion: socialCopyVersion(locked),
+      storageAvailable: true,
+      releaseLocked: true,
+    })).toMatchObject({ state: 'blocked', code: 'release_locked', can_render: false, summary: 'Release evidence locks this content version.' })
+
+    const staleLocked = darkCastleVisualQaFixture('stale')
+    expect(projectDeterministicVisualRender({
+      item: staleLocked,
+      copyVersion: socialCopyVersion(staleLocked),
+      storageAvailable: true,
+      releaseLocked: true,
+    }).code).toBe('release_locked')
+
+    const production = darkCastleVisualQaFixture('missing')
+    production.id = DARK_CASTLE_SOCIAL_CONTENT_ID
+    production.status = 'approved'
+    const productionLocked = projectDeterministicVisualRender({
+      item: production,
+      copyVersion: socialCopyVersion(production),
+      storageAvailable: true,
+      releaseLocked: true,
+    })
+    expect(productionLocked).toMatchObject({ state: 'blocked', code: 'release_locked', can_render: false, provider_calls_enabled: false })
+    expect(productionLocked.recovery_action).toContain('Reconcile the schedule')
   })
 
   it('rejects an incomplete source, changed approval, or changed copy version', () => {
