@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "project": "Agentified guided-video learning plan",
+  "authorized_on": "2026-11-07",
+  "provider": "HeyGen",
+  "currency": "USD",
+  "aggregate_cash_cap": 100.0,
+  "cap_includes": [
+    "provider charges",
+    "wallet top-ups",
+    "taxes",
+    "fees"
+  ],
+  "scope": {
+    "lessons": "L01-L16",
+    "purpose": "review-only avatar sources for the approved Agentified learning plan",
+    "existing_credits_first": true,
+    "existing_wallet_first": true,
+    "non_recurring": true
+  },
+  "controls": {
+    "auto_reload_allowed": false,
+    "automatic_retries_allowed": false,
+    "manual_retries_allowed": false,
+    "unapproved_lessons_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "credential_changes_allowed": false,
+    "separate_exact_job_or_batch_binding_required": true,
+    "stop_if_aggregate_cash_cost_exceeds_cap": true,
+    "stop_on_uncertain_provider_result": true
+  },
+  "supersedes": {
+    "cash_cap_usd": 3.26,
+    "scope": "future Agentified HeyGen production after the completed L01 source"
+  },
+  "notes": [
+    "The completed L01 job used 15 plan credits and debited $0.00 from the developer wallet.",
+    "This authorization raises the aggregate project cash ceiling; it does not authorize duplicate jobs or retries.",
+    "Each provider execution remains bound to approved scripts, avatar and voice identity, lesson source hashes, and privacy controls."
+  ]
+}
