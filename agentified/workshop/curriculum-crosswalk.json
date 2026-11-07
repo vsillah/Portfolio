@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "lesson_count": 16,
+  "chapter_count": 26,
+  "visual_policy": "All visuals are candidates pending attribution, rights, and editorial review. A.M.I.N.A. plate needs fresh publication review.",
+  "lessons": [
+    {
+      "lesson": 1,
+      "group": "The Harness",
+      "title": "Give the agent a job and a receipt",
+      "chapters": [
+        1,
+        2
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch01-the-first-receipt.md",
+        "agentified/manuscript/production-draft/chapters/ch02-agents-need-jobs-not-vibes.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Agent Work Receipt",
+        "Agent Job Description"
+      ],
+      "learning_outcome": "Define one bounded job and the receipt that would make its work reviewable.",
+      "exercise": "Describe a familiar workflow; mark its owner, inputs, output, and first receipt.",
+      "operating_file_artifact": "workflow-and-job",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png"
+      ],
+      "evidence_boundary": "Use a synthetic workflow; omit actual prompts, identities, and private work traces.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 2,
+      "group": "The Harness",
+      "title": "Start with the decision",
+      "chapters": [
+        3
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch03-start-with-the-decision.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Decision Card"
+      ],
+      "learning_outcome": "Name the human decision the agent prepares and the consequence of a wrong answer.",
+      "exercise": "Write a Decision Card with decision owner, alternatives, evidence, and stop condition.",
+      "operating_file_artifact": "decision-card",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png"
+      ],
+      "evidence_boundary": "Use invented facts; never imply the agent owns the final decision.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 3,
+      "group": "The Harness",
+      "title": "Trace the work and grade the sources",
+      "chapters": [
+        4,
+        5
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch04-the-trace-harness.md",
+        "agentified/manuscript/production-draft/chapters/ch05-data-safety-becomes-source-safety.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Trace Harness",
+        "Source Safety Ladder"
+      ],
+      "learning_outcome": "Specify trace fields and safe source tiers for the same workflow.",
+      "exercise": "Draw one path from source to artifact to human review; classify each sample source.",
+      "operating_file_artifact": "trace-and-source-policy",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png"
+      ],
+      "evidence_boundary": "Use mock source IDs; keep private corpus and operational trace data outside the course.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 4,
+      "group": "The Harness",
+      "title": "Turn feedback into governed memory",
+      "chapters": [
+        6,
+        7
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch06-from-feedback-to-memory.md",
+        "agentified/manuscript/production-draft/chapters/ch07-the-controller-brain.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Source, Event, Proposal, Memory",
+        "Controller Routing Policy"
+      ],
+      "learning_outcome": "Separate source, event, proposal, approved memory, and controller routing.",
+      "exercise": "Route one feedback item and reject an unsupported memory proposal.",
+      "operating_file_artifact": "memory-and-routing-policy",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png"
+      ],
+      "evidence_boundary": "Use synthetic feedback; Open Brain records are architecture examples, not learner data.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 5,
+      "group": "The Harness",
+      "title": "Map the operating system",
+      "chapters": [
+        8
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch08-the-operating-map.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Operating Map"
+      ],
+      "learning_outcome": "Draw where the workflow runs, who approves it, and where evidence lives.",
+      "exercise": "Place the job, decision, source, receipt, memory, and owner on one map.",
+      "operating_file_artifact": "operating-map",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png"
+      ],
+      "evidence_boundary": "Use a generic stack; do not reveal Portfolio internal topology or credentials.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 6,
+      "group": "Authority",
+      "title": "Write the permission slip",
+      "chapters": [
+        9,
+        10
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch09-the-permission-slip.md",
+        "agentified/manuscript/production-draft/chapters/ch10-the-priority-trap-returns.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Permission Slip",
+        "Quarterly Cull"
+      ],
+      "learning_outcome": "Bound reads, writes, retention, and the work worth retiring.",
+      "exercise": "Mark permitted actions and remove one low-value agent task from the map.",
+      "operating_file_artifact": "permission-and-cull",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png"
+      ],
+      "evidence_boundary": "Treat examples as proposals; no live permission changes or deletion.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 7,
+      "group": "Authority",
+      "title": "Specify the work and the team",
+      "chapters": [
+        11,
+        12
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch11-prds-for-agents.md",
+        "agentified/manuscript/production-draft/chapters/ch12-swarms-need-org-charts.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Agentic PRD Packet",
+        "Pod Model"
+      ],
+      "learning_outcome": "Describe requirements, roles, ownership, and failure handoffs.",
+      "exercise": "Draft a short PRD and assign each step to a named role and human owner.",
+      "operating_file_artifact": "prd-and-pod",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png"
+      ],
+      "evidence_boundary": "Use role labels only; no production agent configuration.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 8,
+      "group": "Authority",
+      "title": "Make handoffs testable",
+      "chapters": [
+        13,
+        14
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch13-handoffs-are-product-interfaces.md",
+        "agentified/manuscript/production-draft/chapters/ch14-the-evaluation-loop.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Handoff Contract Card",
+        "Evaluation Loop"
+      ],
+      "learning_outcome": "Define a handoff contract and a small evaluation set before authority grows.",
+      "exercise": "Write input/output checks, then grade three synthetic cases including a failure.",
+      "operating_file_artifact": "handoff-and-eval",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png"
+      ],
+      "evidence_boundary": "Cases are invented; passing a classroom eval grants no production authority.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 9,
+      "group": "Authority",
+      "title": "Measure trust and choose review posture",
+      "chapters": [
+        15,
+        16
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch15-metrics-that-matter-for-agents.md",
+        "agentified/manuscript/production-draft/chapters/ch16-human-review-is-the-trust-layer.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Agent Metrics Ladder",
+        "Review Postures"
+      ],
+      "learning_outcome": "Track quality, burden, cost, and review strength for the workflow.",
+      "exercise": "Choose measures and assign review posture to low, medium, and high-risk actions.",
+      "operating_file_artifact": "metrics-and-review",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png"
+      ],
+      "evidence_boundary": "Do not use customer metrics or claim a live performance baseline.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 10,
+      "group": "Authority",
+      "title": "Gate spend and brief the decision",
+      "chapters": [
+        17,
+        18
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch17-money-needs-a-gate.md",
+        "agentified/manuscript/production-draft/chapters/ch18-the-decision-theater-rebuilt.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Spend Envelope",
+        "Decision Brief"
+      ],
+      "learning_outcome": "Set a cost ceiling and prepare a human decision with evidence and options.",
+      "exercise": "Build a mock spend envelope and a decision brief that can end in hold.",
+      "operating_file_artifact": "spend-and-decision-brief",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png"
+      ],
+      "evidence_boundary": "No payment, provider activation, or real spending; numbers are illustrative.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 11,
+      "group": "The Agentified Organization",
+      "title": "Run the cockpit and unblock lane",
+      "chapters": [
+        19,
+        20
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch19-mission-control.md",
+        "agentified/manuscript/production-draft/chapters/ch20-slack-is-the-unblock-lane.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Mission Control Cockpit",
+        "Unblock Ladder"
+      ],
+      "learning_outcome": "Show status, blockers, owner, and the next authorized step in one view.",
+      "exercise": "Sketch a cockpit card and a mobile unblock message for the same job.",
+      "operating_file_artifact": "cockpit-and-unblock",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png"
+      ],
+      "evidence_boundary": "No Slack messages or live task records; use fictional status data.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 12,
+      "group": "The Agentified Organization",
+      "title": "Prove the work safely",
+      "chapters": [
+        21,
+        22
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch21-client-safe-proof.md",
+        "agentified/manuscript/production-draft/chapters/ch22-the-mobile-foundry-test.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Client-Safe Proof Packet",
+        "Foundry Test"
+      ],
+      "learning_outcome": "Package scoped proof and test an idea without leaking the underlying record.",
+      "exercise": "Redact a fictional trace and score a mock app concept against the workflow.",
+      "operating_file_artifact": "proof-and-foundry",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png"
+      ],
+      "evidence_boundary": "No client data, private screenshots, or public claims of deployment.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 13,
+      "group": "The Agentified Organization",
+      "title": "Research with a gate",
+      "chapters": [
+        23
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch23-autoresearch-without-autonomy-theater.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "AutoResearch Proposal"
+      ],
+      "learning_outcome": "Record an experiment hypothesis, metric, and proposed next test without automatic promotion.",
+      "exercise": "Write one hypothesis and a proposal packet from synthetic results.",
+      "operating_file_artifact": "research-proposal",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png"
+      ],
+      "evidence_boundary": "No provider calls, autonomous loops, or promotion into durable memory.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 14,
+      "group": "The Agentified Organization",
+      "title": "Show the board the controls",
+      "chapters": [
+        24
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch24-the-board-demo.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Three-Panel Demo"
+      ],
+      "learning_outcome": "Explain the workflow, its gate, and its evidence to a skeptical reviewer.",
+      "exercise": "Storyboard three panels: work, authority, and proof.",
+      "operating_file_artifact": "three-panel-demo",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png"
+      ],
+      "evidence_boundary": "Illustrative demo only; no claim that a production control was exercised.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 15,
+      "group": "The Agentified Organization",
+      "title": "Rehearse the agentified day",
+      "chapters": [
+        25
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch25-the-agentified-day.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Six-Beat Day"
+      ],
+      "learning_outcome": "Walk the bounded job through a day, including a block and a human decision.",
+      "exercise": "Rehearse six beats and record what stops when a receipt or approval is missing.",
+      "operating_file_artifact": "six-beat-rehearsal",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png"
+      ],
+      "evidence_boundary": "Synthetic timeline; no real agent run or externally visible action.",
+      "script_status": "not-started"
+    },
+    {
+      "lesson": 16,
+      "group": "Synthesis and capstone",
+      "title": "Audit the operating file",
+      "chapters": [
+        26
+      ],
+      "chapter_sources": [
+        "agentified/manuscript/production-draft/chapters/ch26-what-comes-next.md"
+      ],
+      "workbook_source": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "workbook_outputs": [
+        "Accountability Stack"
+      ],
+      "learning_outcome": "Audit the full workflow, identify the weakest gate, and decide whether to keep, shrink, or retire it.",
+      "exercise": "Present the Operating File with missing evidence made visible and an explicit human disposition.",
+      "operating_file_artifact": "accountability-stack",
+      "visual_candidates": [
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+        "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png"
+      ],
+      "evidence_boundary": "Capstone is a design review, not approval to deploy, publish, spend, or execute.",
+      "script_status": "not-started"
+    }
+  ]
+}

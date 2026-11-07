@@ -1,0 +1,872 @@
+{
+  "schema_version": 1,
+  "base_commit": "296eeed3242c4c0f6874baffbb02edcd76c76ef2",
+  "policy": "Read-only bindings. A source record does not grant publishing or redistribution rights.",
+  "sources": [
+    {
+      "path": "agentified/agentified-book-blueprint.md",
+      "role": "book blueprint",
+      "sha256": "6b8f08615c0674dbd58ea9f4bf0e9367b60e670d45374bee37d83fda0a9542da",
+      "provenance": "repo-local; author/source-map attribution",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/agentified-production-draft.md",
+      "role": "assembled production manuscript",
+      "sha256": "c70540394d77cf34cb9c5239d0275d8f5351be11ec59e44514ff958ef24c9b76",
+      "provenance": "repo-local; author/source-map attribution",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "role": "canonical companion workbook",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab",
+      "provenance": "repo-local; author/source-map attribution",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/workbook-enhanced/agentified-workbook-enhanced-draft.md",
+      "role": "enhanced review draft",
+      "sha256": "75d1d7fcdddd29a212820e0b20e35ad7cb84e9065adc5822da790eb5646b376a",
+      "provenance": "repo-local; author/source-map attribution",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/visuals/agentified-sam-trust-layer-diagrams.md",
+      "role": "conceptual diagram notes",
+      "sha256": "ce5ac06b20758231ae7d0ff29f483c2e4cdd869ec19cfa0fcc45ac37a520df16",
+      "provenance": "repo-local; author/source-map attribution",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/visuals/source-map.md",
+      "role": "visual provenance map",
+      "sha256": "68cb6536ae9837470e4e8192e64057fb076f44b868ebf893d4f432ba452527c4",
+      "provenance": "repo-local; author/source-map attribution",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+      "role": "inherited SAM source copy",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "provenance": "source-map identifies AmaduTown Drive original; local copy",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "lineage-reference-after-rights-review"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "role": "public cover raster",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "provenance": "existing public route asset; rights review for workshop reuse pending",
+      "rights_status": "already public in Portfolio; workshop reuse review pending",
+      "privacy": "public",
+      "allowed_workshop_use": "existing-public-reference"
+    },
+    {
+      "path": "public/agentified-cover.svg",
+      "role": "public cover vector",
+      "sha256": "6e5be9c44919f21e024adb16bd7a1c5d7506d58e4c08b5de33ab9ffff0c6c954",
+      "provenance": "existing public route asset; rights review for workshop reuse pending",
+      "rights_status": "already public in Portfolio; workshop reuse review pending",
+      "privacy": "public",
+      "allowed_workshop_use": "existing-public-reference"
+    },
+    {
+      "path": "app/agentified/page.tsx",
+      "role": "existing public route",
+      "sha256": "99588f14296d71b0db8bd14b07e0319d18045e5492744c11fa4948d317720c9d",
+      "provenance": "repo-local; author/source-map attribution",
+      "rights_status": "already public in Portfolio; workshop reuse review pending",
+      "privacy": "public",
+      "allowed_workshop_use": "existing-public-reference"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch00-critical-note-on-agent-safety.md",
+      "role": "chapter source",
+      "sha256": "979fca1d3b5139cdc27b2ac33588296c8e0d65f0e80513b341c5b66d353c4653",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch01-the-first-receipt.md",
+      "role": "chapter source",
+      "sha256": "718ad20af6f9c8cfa6d4b8f83c84488b646098aa02503f5febcd9ddd26518590",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch02-agents-need-jobs-not-vibes.md",
+      "role": "chapter source",
+      "sha256": "d2940c61b6eba67800d47e8dc4b5b1dfe420867c1d949afa34244a9894952c52",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch03-start-with-the-decision.md",
+      "role": "chapter source",
+      "sha256": "68404a5dac0be75e0b280ec9d16b5501d1323859e94e51f22e208508264c74f6",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch04-the-trace-harness.md",
+      "role": "chapter source",
+      "sha256": "92bb2c304f4f5b2424089ad13dec78cb61296422f4d72a3aee3debb4dc139916",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch05-data-safety-becomes-source-safety.md",
+      "role": "chapter source",
+      "sha256": "e9fd32865cb7972bfe25386b0717bea95934ddc91a2f934f29735adb0f60b682",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch06-from-feedback-to-memory.md",
+      "role": "chapter source",
+      "sha256": "a75a6d1225e4b7b7c9e9f6ec86a3088f9f07d11ffa67dc69b4e9ccf089ff229b",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch07-the-controller-brain.md",
+      "role": "chapter source",
+      "sha256": "bce93d180625f9ff2d455706ac8d717184d0e39b8434761b028572b3ce03c032",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch08-the-operating-map.md",
+      "role": "chapter source",
+      "sha256": "d2b2bd1866b3bb02e5c223fd0269c99c5e782defcea8aa1f53bcdb6fb4332758",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch09-the-permission-slip.md",
+      "role": "chapter source",
+      "sha256": "e42dfbf5c7692b540a434f376708aaab076ecd167ff7141918ec1ddffe68272b",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch10-the-priority-trap-returns.md",
+      "role": "chapter source",
+      "sha256": "dc4c6f125ca8cff4b34e6433d8fa3ae77bf509e1c834d23393f22361c35994bc",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch11-prds-for-agents.md",
+      "role": "chapter source",
+      "sha256": "81932b42a5773f09989524ba0dbf1cbb9d921cb24b7e6c7fe71e7b0403f17980",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch12-swarms-need-org-charts.md",
+      "role": "chapter source",
+      "sha256": "b6b02fc999951e4e5dcfcd14d3ef468f7475d33d1d8ad96ccba6dcffbbd328fb",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch13-handoffs-are-product-interfaces.md",
+      "role": "chapter source",
+      "sha256": "282d1f299dfe6cb0b210cecd856181a4fa76957212e4702f4b9eb93fce81de8d",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch14-the-evaluation-loop.md",
+      "role": "chapter source",
+      "sha256": "9ba6cef6861297891ff839d10c5aa87985c721f9d45bb51f2908dcb4dd97f9cd",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch15-metrics-that-matter-for-agents.md",
+      "role": "chapter source",
+      "sha256": "d8763146fdfd20a67bfe47a84835d42e29630c3f12c88351aea4974cd2af1f75",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch16-human-review-is-the-trust-layer.md",
+      "role": "chapter source",
+      "sha256": "8c081f8f7d4f04c416e2ec67ff60ae0755dde99246bc8d38fd18248eb3aa7f0a",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch17-money-needs-a-gate.md",
+      "role": "chapter source",
+      "sha256": "ebd2ab104a70877c79d735e6eb1c8704f6e274b16038a43464aa32d88580ea7e",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch18-the-decision-theater-rebuilt.md",
+      "role": "chapter source",
+      "sha256": "a0bd5206c4305b58e28beb496c87b159fc4422cd8d01bc9a6955a44bd8e9da85",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch19-mission-control.md",
+      "role": "chapter source",
+      "sha256": "5b65bd6692814092fffe62fefafe150cf82f4fe6092a37ab78139b18e698e027",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch20-slack-is-the-unblock-lane.md",
+      "role": "chapter source",
+      "sha256": "06a859ee777b258c7cad132878243d40736c9fde996f31bf140601c7c49ebe16",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch21-client-safe-proof.md",
+      "role": "chapter source",
+      "sha256": "fe8fe9a8c8650fd03f92633603f67fab48038d05ebc6a0314202c87446fcab88",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch22-the-mobile-foundry-test.md",
+      "role": "chapter source",
+      "sha256": "8d827d2bb5b6c8c721d464dc73196b605e52fc93aa99fb645c1acb249edc4905",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch23-autoresearch-without-autonomy-theater.md",
+      "role": "chapter source",
+      "sha256": "b0d3f4cd85cc407171ccb68894eab7cd1ff824df8f0851910a7994731473817a",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch24-the-board-demo.md",
+      "role": "chapter source",
+      "sha256": "dde1b9f2230dc3117b0ec2407e525878e0ad37bae08fd5b0075e37afff845915",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch25-the-agentified-day.md",
+      "role": "chapter source",
+      "sha256": "a1b88ebc98e1dd87521c575421ff1dcfff22fc4fc363f2b38bf5dee2f32aedba",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch26-what-comes-next.md",
+      "role": "chapter source",
+      "sha256": "a7abd0cb290e9e074d9a1ee0fd754b235ea4d519cd2aac2601c250946f487aa4",
+      "provenance": "repo-local production draft; assembled manuscript chapter",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "internal-source",
+      "allowed_workshop_use": "read-only-script-source-no-verbatim-export"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-a-sam-trust-engine.png",
+      "role": "rendered visual",
+      "sha256": "529989f8de332f55a436a575bd2ec954bbb72334a7f41b959ff21a45e562b8dc",
+      "provenance": "Codex-generated base plus exact-label compositor; source-map; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "author-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-b-receipt-gate.png",
+      "role": "rendered visual",
+      "sha256": "767e5e792317e0331ce5be6e8d548caa0e842c1222dec8ec63a3cea0670f98c0",
+      "provenance": "Codex-generated base plus exact-label compositor; source-map; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "author-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-c-portfolio-os.png",
+      "role": "rendered visual",
+      "sha256": "c866f510304d14cba1913c1af047d9ec7ebfdacb581c16a2d4ff7540e450b717",
+      "provenance": "Codex-generated base plus exact-label compositor; source-map; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "author-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-0-1-sam-trust-layer.png",
+      "role": "rendered visual",
+      "sha256": "9cc961e1997a8d6d122ffc0f24babd183feab35cb737451befc7cd0375ccaf1d",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-0-1-sam-trust-layer.svg",
+      "role": "rendered visual",
+      "sha256": "9eabdf7dbe3676352b6c683e1ff3b84d65c5927df12871a727a8a037728bf20c",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-1-1-first-receipt.png",
+      "role": "rendered visual",
+      "sha256": "0b0ca25a5bafd3b654791e87975c50b142fb868f25bc4676cf25293b63d2e643",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-1-1-first-receipt.svg",
+      "role": "rendered visual",
+      "sha256": "9cbd9d3c985602d33c1bbbf4c530798eb56949109e0972e930c0c036c459b364",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.png",
+      "role": "rendered visual",
+      "sha256": "13c431b6d548ffbea9012c0c9310a66e7f6a76179d9b929742bfd6639ce32ea3",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.svg",
+      "role": "rendered visual",
+      "sha256": "f614dc97eb72158470e61d1d382051f8fe4a1a5bf5c6840053b2d9324d52bbae",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-8-1-portfolio-first-stack.png",
+      "role": "rendered visual",
+      "sha256": "e516448436cff19f38a31482f0056620505b6ebe662b2505aac5da7754d0ae95",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-8-1-portfolio-first-stack.svg",
+      "role": "rendered visual",
+      "sha256": "0c45b65657457013894225637663608de360277bc140f9d17ab2a6a009932e56",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-ii-1-authority-ladder.png",
+      "role": "rendered visual",
+      "sha256": "c76926fc055ba6e7eb212acebf37e546c569ba22361235abe856accaffeaff4c",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/figure-ii-1-authority-ladder.svg",
+      "role": "rendered visual",
+      "sha256": "bf1d1c5d8058832606e1032317707c50b2ee1b3b7bebbcf8f097160233d5ae92",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "candidate-only-no-publication"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-1-sam-trust-layer-print-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "0c6f1beb8081651aeed9a421d49e2211bc224a5306e9af31cf63aff8cebb62d0",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-1-1-first-receipt-print-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "9a2e7190bb07a6c0df6418b0a5f01b82e0001b7ee4bb2108a816982220b4bc9c",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-3-amina-inside-sam-print-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "99c7b2db82475d680dd27060677a44ecc858a269efdbc05889e80b2605bfa1dc",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-8-1-portfolio-first-stack-print-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "d0828e59e759eb7496693581cc6c1040a7b64c88d2efeab80f869a89523755f0",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-ii-1-authority-ladder-print-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "b5432f94cc8bc0ce374f3d5a57c3b8d90e6ba2b38d18911fd4b6476cffc28335",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-600dpi/figure-0-0-accelerated-sam-loop-grayscale-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "efca29427119bb2afdd6d0eaf9e7b95109c76445517cf5621c535181487a713c",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-600dpi/figure-0-1-sam-trust-layer-grayscale-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "a8bb8c1b0f97419db4b765a05df663b6d04c2d4773871d7132aa41bf4d1bb87b",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-600dpi/figure-1-1-first-receipt-grayscale-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "8be05c8b1bb7bb802e5d8b176ac250a94dfa556c795ed5682b62a10c24abf3d7",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-600dpi/figure-3-amina-inside-sam-grayscale-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "73d3956130b0fc18e7029289e42361215fe2ffe5cca2027229f92d477a79b53b",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-600dpi/figure-8-1-portfolio-first-stack-grayscale-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "4a51bfef20b6cd5e3519e20c3007281644748a2dd8ebc73750318db5c4e3054c",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-600dpi/figure-ii-1-authority-ladder-grayscale-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "e04c757adb3bf8754da22161ff766e01a8faac5200278124d1eef7d1c5d5a11f",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-0-0-accelerated-sam-loop-grayscale-preview.png",
+      "role": "rendered visual",
+      "sha256": "0bca9a46711f5b3b774346b5a80c9f966e28285c279010cb6b93e2f6386be2c9",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-0-1-sam-trust-layer-grayscale-preview.png",
+      "role": "rendered visual",
+      "sha256": "9dbc69be85eb191a20b95aeca5cdd8b4e3ee16209e0fd23aa15f1bc8c2ad9163",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-1-1-first-receipt-grayscale-preview.png",
+      "role": "rendered visual",
+      "sha256": "4b7f244a3f56f938da0f9e477cc287500d18bb592ea93a5b419d31e506679fb7",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-3-amina-inside-sam-grayscale-preview.png",
+      "role": "rendered visual",
+      "sha256": "e31c2260914624a0acc7b7256638273027bc57c89d12a63b43a8f7e8108e5972",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-8-1-portfolio-first-stack-grayscale-preview.png",
+      "role": "rendered visual",
+      "sha256": "74895c1e43fba4d8e89e49874bfd7b90519092b6ac152f06e68ca41ee7e2e420",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-ii-1-authority-ladder-grayscale-preview.png",
+      "role": "rendered visual",
+      "sha256": "cd15e8f72601e8500bf2d6a3424914ed637d19d71d13a2730095d0fa7eaab36c",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/png-600dpi/figure-0-1-sam-trust-layer-monochrome-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "f0b4568c8cf24e0fe5fdfb96d97f96cc2528abc57c6ef7fc2d83e510cb12b0ff",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/png-600dpi/figure-1-1-first-receipt-monochrome-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "8e016a9b7702bdbc573b3d08d1d838f09be793f63db67ea7868c1fe5f173c820",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/png-600dpi/figure-3-amina-inside-sam-monochrome-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "201052e63fecf84c0ab4a9e470a70a904deb9232eb211c5e2b835c36023e0074",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/png-600dpi/figure-8-1-portfolio-first-stack-monochrome-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "567148f89e2b1feaf10a9decd6fdd8c5e39c349a20e70e77096d882c90c80040",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/png-600dpi/figure-ii-1-authority-ladder-monochrome-600dpi.png",
+      "role": "rendered visual",
+      "sha256": "6e3a3401af41c6e571b12c48a44fb483c018ad858952fe25866e3acf0e152e54",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/proofs/agentified-monochrome-figure-proof-6x9.pdf",
+      "role": "rendered visual",
+      "sha256": "d20a78dd9cc0ef493c0ca440511c1f9b2137bd5234dbc11edd4526a9f66d8300",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/review-png/figure-0-1-sam-trust-layer-monochrome-review.png",
+      "role": "rendered visual",
+      "sha256": "8b7e14eff3d85f65addda352c85e2d93c1c65c73748a3affe0ad56636614ba5d",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/review-png/figure-1-1-first-receipt-monochrome-review.png",
+      "role": "rendered visual",
+      "sha256": "c31b2a5d56324fd8dd0faedd3840a3c08413e99a79a295c395453c8b92043337",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/review-png/figure-3-amina-inside-sam-monochrome-review.png",
+      "role": "rendered visual",
+      "sha256": "8d17a627b5534e21fff6f9f6e1949b479f724950b246c5d11b2393afecc24cd3",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/review-png/figure-8-1-portfolio-first-stack-monochrome-review.png",
+      "role": "rendered visual",
+      "sha256": "02d22974d8ebb682c9dc2864591be77b0d7c26a8ebbd7dcf80739c2baaef803e",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/review-png/figure-ii-1-authority-ladder-monochrome-review.png",
+      "role": "rendered visual",
+      "sha256": "f25bbcc64357228cf11dca996872d755614f193d44af26151181b6fa90327b07",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/svg/figure-0-1-sam-trust-layer-monochrome.svg",
+      "role": "rendered visual",
+      "sha256": "097b493f1ebf2f01c9762f3286c2f176c3dbe4a6618e0077ad93f8814f1b719c",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/svg/figure-1-1-first-receipt-monochrome.svg",
+      "role": "rendered visual",
+      "sha256": "b577653036b8834c12458628591de4a0610d004be3a5c6f377de740dab69453f",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/svg/figure-3-amina-inside-sam-monochrome.svg",
+      "role": "rendered visual",
+      "sha256": "f2678d0eaf699df98378248680194cafe4bb59e0ef13279c6e4cbae75bd4ae74",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/svg/figure-8-1-portfolio-first-stack-monochrome.svg",
+      "role": "rendered visual",
+      "sha256": "b2d81e096493dbeba40d7a08f1f7f308f5a1b5627a34934c780f31aeae29ee8a",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/svg/figure-ii-1-authority-ladder-monochrome.svg",
+      "role": "rendered visual",
+      "sha256": "ee12752976bcf13f688e3802de9ce136a5b4fb4cd5396529cff19af81fdef05f",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/tiff-600dpi/figure-0-1-sam-trust-layer-monochrome-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "74ba548bdaaa0302ce62ab0a627cedc46c5db14d10aea5656494424e4aa21f94",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/tiff-600dpi/figure-1-1-first-receipt-monochrome-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "e8f41963e359052290d718f5158b94e80bd43ab9d4c56459f6fa32960215d4a0",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/tiff-600dpi/figure-3-amina-inside-sam-monochrome-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "46b75da443a2acab1ee03cc17b0bee205382a4d09107ef8f513300719603dff8",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/tiff-600dpi/figure-8-1-portfolio-first-stack-monochrome-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "687722791eaa6887c69738a857447196974b8f0bf82e69b8f4437b52af4ebfcb",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/monochrome/tiff-600dpi/figure-ii-1-authority-ladder-monochrome-600dpi.tiff",
+      "role": "rendered visual",
+      "sha256": "b29848d769ac5f46c4a334d37f91e4c2f393865520bee403a09bc7d903f51876",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/print/proofs/agentified-print-figure-proof-6x9.pdf",
+      "role": "rendered visual",
+      "sha256": "3f1704dbd61c9502b2cdacbb744be5a839adc7370311b5d4a44d4aaa61b13858",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "print-review-only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "role": "rendered visual",
+      "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "lesson-visual-candidate-after-author-review"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "role": "rendered visual",
+      "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "lesson-visual-candidate-after-author-review"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "role": "rendered visual",
+      "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "lesson-visual-candidate-after-author-review"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "role": "rendered visual",
+      "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "lesson-visual-candidate-after-author-review"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "role": "rendered visual",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "provenance": "repo-local derivative; agentified/manuscript/visuals/source-map.md",
+      "rights_status": "owned/project-authored lineage recorded; workshop redistribution unapproved",
+      "privacy": "review-candidate",
+      "allowed_workshop_use": "lesson-visual-candidate-after-author-review"
+    }
+  ],
+  "external_source_observations": [
+    {
+      "path": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Accelerated_infographic.png",
+      "status": "named by visual source map; verify file and rights before lesson publication",
+      "allowed_workshop_use": "lineage-reference-only",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "rights_status": "AmaduTown Drive source identified; workshop redistribution review pending",
+      "privacy": "review-candidate"
+    }
+  ]
+}
