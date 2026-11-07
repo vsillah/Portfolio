@@ -101,6 +101,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
     {
       label: 'Configuration',
       items: [
+        { label: 'App Activation', href: '/admin/app-activation' },
         { label: 'Content Hub', href: '/admin/content' },
         { label: 'User Management', href: '/admin/users' },
         { label: 'System Prompts', href: '/admin/prompts' },
