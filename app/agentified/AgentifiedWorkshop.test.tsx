@@ -21,16 +21,18 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.matchMedia = vi.fn().mockReturnValue({ matches: false })
   })
 
-  it('shows each selected cover beside the editable file and retains guest work', async () => {
+  it('shows the approved L01 player and locked later covers beside the editable file, retaining guest work', async () => {
     const { container } = render(<AgentifiedWorkshop mode="plan" />)
-    expect(await screen.findByRole('img', { name: /L01 Give the agent a job and a receipt lesson cover/ })).toHaveAttribute('src', '/agentified/posters/l01-poster.webp')
-    expect(screen.getByText('Video locked')).toBeInTheDocument()
+    expect(await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')).toHaveAttribute('poster', '/agentified/posters/l01-poster.webp')
+    expect(screen.getByText('Video ready · 09:00')).toBeInTheDocument()
     expect(screen.queryByText('9–12 min')).not.toBeInTheDocument()
     expect(screen.getByText('Explore lesson diagram')).toBeInTheDocument()
-    expect(container.querySelector('video')).toBeNull()
+    expect(container.querySelector('video source')).toHaveAttribute('src', '/agentified/lessons/l01/approved-da85f9e1/agentified-l01-native-composite.mp4')
     fireEvent.change(container.querySelector('#answer-L01')!, { target: { value: 'A bounded job with a receipt.' } })
     fireEvent.click(screen.getByRole('button', { name: /Write the permission slip/ }))
     expect(screen.getByRole('img', { name: /L06 Write the permission slip lesson cover/ })).toHaveAttribute('src', '/agentified/posters/l06-poster.webp')
+    expect(container.querySelector('video')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Mark lesson complete' })).toBeDisabled()
     expect(screen.getByRole('link', { name: /Open this page in the full file/ })).toHaveAttribute('href', '/agentified/operating-file#L06')
     fireEvent.click(screen.getByRole('button', { name: /Give the agent a job and a receipt/ }))
     expect(container.querySelector('#answer-L01')).toHaveValue('A bounded job with a receipt.')
