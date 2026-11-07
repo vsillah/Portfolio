@@ -14,6 +14,8 @@ describe('adult activation page', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
     render(<ActivationExperiencePage {...props} />)
     expect(screen.getByText(adultConsent.statement)).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'I confirm I am an adult.' })).toBeDisabled()
+    expect(screen.getByRole('checkbox', { name: /I agree to the contact statement/ })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Send interest for review' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Continue to app' })).toBeDisabled()
     expect(screen.getByText(/Tester activation is closed for now/)).toBeInTheDocument()
@@ -30,6 +32,7 @@ describe('adult activation page', () => {
   it('binds the exact consent version in an enabled interest request', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 202 }))
     render(<ActivationExperiencePage {...props} intakeEnabled />)
+    expect(screen.getByRole('checkbox', { name: 'I confirm I am an adult.' })).toBeEnabled()
     fireEvent.change(screen.getByLabelText('Your email'), { target: { value: 'adult@example.test' } })
     fireEvent.click(screen.getByRole('checkbox', { name: 'I confirm I am an adult.' }))
     fireEvent.click(screen.getByRole('checkbox', { name: /I agree to the contact statement/ }))
