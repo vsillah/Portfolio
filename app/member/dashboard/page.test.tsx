@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import MemberDashboardPage from './page'
 
@@ -16,7 +16,7 @@ vi.mock('@/components/client-dashboard/DocumentsSection', () => ({ default: () =
 vi.mock('@/components/client-dashboard/ReportsSection', () => ({ default: () => null }))
 vi.mock('@/components/client-dashboard/MeetingHistory', () => ({ default: () => null }))
 vi.mock('@/components/member/RecommendationAction', () => ({ default: () => null }))
-vi.mock('@/components/member/CompletionCredential', () => ({ default: () => null }))
+vi.mock('@/components/member/CompletionCredential', () => ({ default: () => <div>Accelerated certificate</div> }))
 
 describe('Member dashboard course loading', () => {
   beforeEach(() => {
@@ -50,5 +50,8 @@ describe('Member dashboard course loading', () => {
     expect(await screen.findByRole('region', { name: 'Agentified progress' })).toBeInTheDocument()
     expect(screen.getByText('Your guest workshop progress has not been linked to this account.')).toBeInTheDocument()
     expect(fetchSpy).not.toHaveBeenCalled()
+    const accelerated = screen.getByRole('region', { name: 'Accelerated course' })
+    expect(within(accelerated).getByText('Accelerated certificate')).toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'Agentified progress' })).queryByText('Accelerated certificate')).not.toBeInTheDocument()
   })
 })
