@@ -7,7 +7,7 @@ const base = process.argv[2] || 'http://localhost:3217'
 const revision = process.argv[3]
 if (!/^[0-9a-f]{40}$/.test(revision || '')) throw new Error('Pass the exact 40-character review commit')
 const url = `${base}/agentified/learningplan?lesson=L01&revision=${revision}`
-const out = path.resolve('docs/qa/agentified-l01-gray-sweater-binding')
+const out = path.resolve('docs/qa/agentified-l01-continuous-narration-binding')
 mkdirSync(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 
@@ -16,7 +16,7 @@ async function inspect(page, label) {
   const video = page.locator('video[aria-label^="L01 "]')
   await video.waitFor({ state: 'visible' })
   const media = await video.evaluate((node) => ({ duration: node.duration, source: node.querySelector('source')?.getAttribute('src'), captions: node.querySelector('track')?.getAttribute('src'), trackDefault: node.querySelector('track')?.default }))
-  if (media.duration !== 540 || !media.source?.includes('corrected-57c29072') || !media.captions?.endsWith('agentified-l01-gray-sweater-captions.vtt') || !media.trackDefault) throw new Error(`${label} media mismatch: ${JSON.stringify(media)}`)
+  if (media.duration !== 540 || !media.source?.includes('corrected-ae0c4d08') || !media.captions?.endsWith('agentified-l01-continuous-narration-captions.vtt') || !media.trackDefault) throw new Error(`${label} media mismatch: ${JSON.stringify(media)}`)
   if (!(await page.getByText('Ready · 09:00').isVisible())) throw new Error(`${label} L01 not ready`)
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2)
   if (overflow) throw new Error(`${label} horizontal overflow`)
