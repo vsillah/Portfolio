@@ -116,7 +116,7 @@ for (const lesson of lessons) {
   filters.push(`${packet.scenes.map((_, i) => `[v${i}]`).join('')}concat=n=${packet.scenes.length}:v=1:a=0[base]`)
   const base = path.join(here, `${lesson.id}-base.mp4`)
   run([...inputs, '-filter_complex', filters.join(';'), '-map', '[base]', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', '-pix_fmt', 'yuv420p', '-r', String(fps), base])
-  const inset = 'chromakey=0x00d96c:0.24:0.08,scale=768:432:force_original_aspect_ratio=decrease,pad=768:432:(ow-iw)/2:(oh-ih)/2:color=black@0,format=rgba'
+  const inset = 'chromakey=0x00d96c:0.18:0.04,despill=type=green:mix=0.4:expand=0.1,scale=768:432:force_original_aspect_ratio=decrease,pad=768:432:(ow-iw)/2:(oh-ih)/2:color=black@0,format=rgba'
   const graph = `[1:v]trim=0:${lesson.split},setpts=PTS-STARTPTS,${inset}[p1];[1:v]trim=${lesson.split}:${lesson.sourceEnd},setpts=PTS-STARTPTS+${secondStart}/TB,${inset}[p2];[0:v][p1]overlay=1048:326:eof_action=pass[v1];[v1][p2]overlay=1048:326:eof_action=pass[v2];[v2]drawbox=x=1038:y=316:w=788:h=452:color=#d8ad43:t=5:enable='between(t,0,${lesson.split})+between(t,${secondStart},${lesson.closingStart})'[vout];[1:a]atrim=0:${lesson.split},asetpts=PTS-STARTPTS[a1];[1:a]atrim=${lesson.split}:${lesson.sourceEnd},asetpts=PTS-STARTPTS,adelay=${Math.round(secondStart * 1000)}|${Math.round(secondStart * 1000)}[a2];anullsrc=r=48000:cl=stereo:d=${lesson.duration}[silence];[silence][a1][a2]amix=inputs=3:duration=longest:normalize=0[aout]`
   const raw = path.join(here, `${lesson.id}-raw.mp4`)
   const output = path.join(here, `agentified-${lesson.id.toLowerCase()}-native-composite.mp4`)
