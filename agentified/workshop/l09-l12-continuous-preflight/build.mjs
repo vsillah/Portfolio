@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkEvidenceTable } from './check-evidence-table.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../../..');
@@ -132,6 +133,7 @@ for (const id of ids) {
 const batch = { schema_version: 1, source_commit: sourceCommit, status: 'provider_free_L09-L12_preflight_validated; execution_blocked', lessons: summary, provider_calls: 0, audio_generated: 0, spend_usd: 0, current_execution_cap_usd: 0, project_budget_path: budgetPath, project_budget_sha256: hash(budgetPath), project_aggregate_cash_ceiling_usd: budget.aggregate_cash_cap, current_balance: null, binding_quotes: null, enforceable_job_caps: null, aggregate_cumulative_spend: null, maximum_later_jobs: 4, retries: 0, rights_status: 'L09-L12 purpose-specific look and voice approval pending', production_binding_allowed: false, customer_release_allowed: false };
 batch.batch_sha256 = sha(JSON.stringify(batch));
 files.push(['batch-manifest.json', batch]);
+if (process.argv.includes('--check')) checkEvidenceTable(readFileSync(path.join(here, 'README.md'), 'utf8'), batch);
 for (const [name, value] of files) {
   const body = `${JSON.stringify(value, null, 2)}\n`;
   const output = path.join(here, name);

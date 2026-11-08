@@ -9,7 +9,7 @@ Run `node agentified/workshop/l09-l12-continuous-preflight/build.mjs --check` to
 | Lesson | Packet SHA-256 | Script SHA-256 | Candidate SHA-256 | Provisional run time | Approved plates | Operating File |
 | --- | --- | --- | --- | ---: | ---: | --- |
 | L09 | `5bbe9c3259a039e1b008fe10d59c2c067aca21f8858f750d6fb1231dcf800f80` | `fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79` | `cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd` | 314 s | 2 | v9 `metrics-and-review` |
-| L10 | `265b07c07604510aee75e39fd0ef658e05cba86f8db01e1b2fd3c41d85f38459` | `689d6c0b2fe4c93a08fcc8043e33ccf30c33b9c4eeec43c5ab2f1db69a` | `19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8` | 307 s | 1 | v10 `spend-and-decision-brief` |
+| L10 | `265b07c07604510aee75e39fd0ef658e05cba86f8db01e1b2fd3c41d85f38459` | `689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a` | `19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8` | 307 s | 1 | v10 `spend-and-decision-brief` |
 | L11 | `1302b2a29c6b0bcec3d1d049bc7b53de25ab9a8d72c3dfa65dc7af368297fde1` | `adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d` | `7a139886e0f6b35daf35bab1b44ab4eb582127cd4aadedbcf59f810011cc74b8` | 307 s | 1 | v11 `cockpit-and-unblock` |
 | L12 | `8ec927a1785e5cc9aa1f910d2c998d704334ba0587d0d803d0cff60d1d9bf84b` | `5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4` | `56498ca2f4748dc058a63ca80efe27e340d3474d0025c4f335e93e1e9d8a15b7` | 306 s | 1 | v12 `proof-and-foundry` |
 
