@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "provider_execution_blocked_pending_exact_authorization",
+  "lesson_id": "L05",
+  "correction_scope": "continuous approved narration and narration-led picture edit while preserving exact native presenter passages",
+  "source_commit": "558cd4669e1d48c74a715a99d23eb9d43f74af8d",
+  "rejected_composite_commit": "50f384462565c7cea60cbce56a5ecd0db303811d",
+  "packet_path": "agentified/workshop/scene-production/packets/L05.json",
+  "packet_sha256": "86aaa74a5227a137ba7287a794410410f268edace44a6fbc0be2b862487c723a",
+  "existing_avatar_request_sha256": "54bcd458518d54755c6bc76ae5fbed365440790548eeb02d299e45e589034099",
+  "provider_candidate": "HeyGen create_speech",
+  "requested_call_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "execution_allowed": false,
+  "spending_allowed": false,
+  "voice": {
+    "id": "4f53988b1c314610b514db98432fd0ef",
+    "engine": "heygen_voice",
+    "purpose": "Agentified L05 review-only off-screen narration correction"
+  },
+  "speech_request": {
+    "input_type": "text",
+    "language": "en",
+    "speed": 1,
+    "text": "Who can answer a question about the unconfirmed facilitator? If the answer lives only in Morgan's head, our carefully designed pieces still do not make an operating system. We need one page that shows how the work travels.\n\nStart with the real sequence on paper. A request to compare a free digital-skills session enters. A routing rule assigns the evidence-comparison role. That role reads the three Harbor course notes and prepares a draft. The draft and its short trace wait for Morgan. Morgan may propose the option to the team, ask for another date, or hold it. The agent has no route to announce, book, buy, or send anything. Draw that sequence before adding another box.\n\nChapter Eight gives the operating map five columns. Trigger: what actually starts this row? Role: who owns this step? Tier: what may that role do? Handoff: who receives the work next, including a refusal? Evidence: where can a human find the record? A blank is useful. If you cannot name the evidence location, write 'missing.' A tidy imaginary location would hide the work you still need to design.\n\nPut the earlier lessons onto those rows. The job sits at the preparation step. The Decision Card sits with Morgan. Source IDs and expiry checks sit at intake. The receipt and trace travel with the brief. Last week's correction remains a memory proposal, pending Morgan's separate approval. The controller's route is a written rule, not a new decision maker. A new teammate should be able to point to each item without asking who remembers where it went.\n\nThe workbook also asks where approval, spend checks, public-safe proof, and rollback sit. This classroom workflow has no spending or public export. Mark those as closed paths with an owner, not as empty arrows that imply they might work. Rollback here means Morgan can withdraw a draft recommendation and record why. It does not undo an announcement, because no announcement happens. If your own paper map has a step without a named owner or a return path, circle it. That is the next design task.\n\nPause. Could someone new find the current brief and its source check from this page alone? Name the first missing handoff.\n\nBuild the Operating Map in your Operating File. Use a fictional or approved example. Do not use private operational data. Give every row the five columns. Place the job, decision, source, receipt, memory proposal, and human owner. Label closed paths for spending, publication, and external messages. Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. We are making a design someone can review.\n\nSave revision five as a draft. A map earns its place when its blank cells stay visible and someone owns each repair.",
+    "text_sha256": "7fe52f75d312b41ce8923c230c052279ec1a17b922093a8320d0fc954af6c8a9",
+    "character_count": 2720,
+    "word_count": 461,
+    "requested_word_timestamps": true
+  },
+  "existing_presenter_audio": {
+    "opening": {
+      "sequence_start": 0,
+      "sequence_end": 11.91
+    },
+    "closing": {
+      "sequence_start": 588.67,
+      "sequence_end": 595
+    },
+    "rule": "Preserve native presenter audio in these windows and never layer synthesized narration over it."
+  },
+  "narration_segments": [
+    {
+      "scene_id": "L05-01",
+      "narration_exact": "Who can answer a question about the unconfirmed facilitator? If the answer lives only in Morgan's head, our carefully designed pieces still do not make an operating system. We need one page that shows how the work travels.",
+      "narration_sha256": "6f8bcf37c0713e34866a1fb0315aebdd9f4152656c3499bac36d8114fc815004"
+    },
+    {
+      "scene_id": "L05-02",
+      "narration_exact": "Start with the real sequence on paper. A request to compare a free digital-skills session enters. A routing rule assigns the evidence-comparison role. That role reads the three Harbor course notes and prepares a draft. The draft and its short trace wait for Morgan. Morgan may propose the option to the team, ask for another date, or hold it. The agent has no route to announce, book, buy, or send anything. Draw that sequence before adding another box.",
+      "narration_sha256": "58098caef01d179d7c10fec1c4024796d1e51c7dc0db5e9a340ad5db15921ecd"
+    },
+    {
+      "scene_id": "L05-03",
+      "narration_exact": "Chapter Eight gives the operating map five columns. Trigger: what actually starts this row? Role: who owns this step? Tier: what may that role do? Handoff: who receives the work next, including a refusal? Evidence: where can a human find the record? A blank is useful. If you cannot name the evidence location, write 'missing.' A tidy imaginary location would hide the work you still need to design.",
+      "narration_sha256": "a7c5a5d4722597e64793294b4bbf607c91b94a443810db6aeef2663d50025009"
+    },
+    {
+      "scene_id": "L05-04",
+      "narration_exact": "Put the earlier lessons onto those rows. The job sits at the preparation step. The Decision Card sits with Morgan. Source IDs and expiry checks sit at intake. The receipt and trace travel with the brief. Last week's correction remains a memory proposal, pending Morgan's separate approval. The controller's route is a written rule, not a new decision maker. A new teammate should be able to point to each item without asking who remembers where it went.",
+      "narration_sha256": "ebedf3b6e0fc28ebdc6a24ffed235d522008718125deff207ff20f2cdc6b4d1a"
+    },
+    {
+      "scene_id": "L05-05",
+      "narration_exact": "The workbook also asks where approval, spend checks, public-safe proof, and rollback sit. This classroom workflow has no spending or public export. Mark those as closed paths with an owner, not as empty arrows that imply they might work. Rollback here means Morgan can withdraw a draft recommendation and record why. It does not undo an announcement, because no announcement happens. If your own paper map has a step without a named owner or a return path, circle it. That is the next design task.",
+      "narration_sha256": "a69e716456dbb93c73c0d40c86f16b2bfcf170018ba41e66aaf52c0b68a7aa7c"
+    },
+    {
+      "scene_id": "L05-06",
+      "narration_exact": "Pause. Could someone new find the current brief and its source check from this page alone? Name the first missing handoff.",
+      "narration_sha256": "1afa85f816f8c2cc69833fec960d71ad1c5fa973870672e93bd12f3947f3732a"
+    },
+    {
+      "scene_id": "L05-07",
+      "narration_exact": "Build the Operating Map in your Operating File. Use a fictional or approved example. Do not use private operational data. Give every row the five columns. Place the job, decision, source, receipt, memory proposal, and human owner. Label closed paths for spending, publication, and external messages. Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason. We are making a design someone can review.",
+      "narration_sha256": "253f12a219eb5c07701873e08f28295524bc73f6616b6b8c97d85f007f67ae6d"
+    },
+    {
+      "scene_id": "L05-08",
+      "narration_exact": "Save revision five as a draft. A map earns its place when its blank cells stay visible and someone owns each repair.",
+      "narration_sha256": "6cb9916468e196e5fffa3d8665bb2f0126b42a50cc62513ac8cab9e87b858ac0"
+    }
+  ],
+  "edit_policy": {
+    "picture_clock": "derive every visual change from the accepted narration timing rather than the rejected fixed ten-minute scene grid",
+    "transition_rule": "change topics only after a sentence-complete spoken handoff; allow a short L-cut when the next visual supports the current sentence",
+    "ordinary_pause_limit_seconds": 2.5,
+    "guided_work_pause_seconds": 45,
+    "guided_work_treatment": "visible countdown and explicit work prompt; optional low-volume rights-cleared music may run only in this bounded pause",
+    "music_under_narration": false,
+    "fixed_ten_minute_runtime_required": false
+  },
+  "stop_conditions": [
+    "source, script, voice, identity or request hash drift",
+    "missing or unreliable timing data",
+    "provider error or uncertain result",
+    "unexpected debit or cumulative project-spend breach",
+    "omitted, repeated or altered narration",
+    "any ordinary narration gap longer than 2.5 seconds",
+    "any topic cut that precedes its sentence-complete spoken handoff"
+  ],
+  "boundaries": {
+    "avatar_generation_allowed": false,
+    "video_generation_allowed": false,
+    "production_binding_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false
+  },
+  "candidate_sha256": "430d9d8621ff77887c79009dca44b122b2e45b1e3f926ce1de025d3cc431fd93"
+}

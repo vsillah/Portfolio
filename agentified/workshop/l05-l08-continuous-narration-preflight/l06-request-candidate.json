@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "provider_execution_blocked_pending_exact_authorization",
+  "lesson_id": "L06",
+  "correction_scope": "continuous approved narration and narration-led picture edit while preserving exact native presenter passages",
+  "source_commit": "558cd4669e1d48c74a715a99d23eb9d43f74af8d",
+  "rejected_composite_commit": "50f384462565c7cea60cbce56a5ecd0db303811d",
+  "packet_path": "agentified/workshop/scene-production/packets/L06.json",
+  "packet_sha256": "60f993e3514e353095f5180d541900553298c0f5d9a773c3fd22dad279f361af",
+  "existing_avatar_request_sha256": "cc6a0cc1320375eb4d8ee3bc22c32bcb3814822c02fefd8e5af901341c52acbc",
+  "provider_candidate": "HeyGen create_speech",
+  "requested_call_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "execution_allowed": false,
+  "spending_allowed": false,
+  "voice": {
+    "id": "4f53988b1c314610b514db98432fd0ef",
+    "engine": "heygen_voice",
+    "purpose": "Agentified L06 review-only off-screen narration correction"
+  },
+  "speech_request": {
+    "input_type": "text",
+    "language": "en",
+    "speed": 1,
+    "text": "One Friday, the facilitator note says 'available for review.' If the agent quietly treats that as permission to confirm a teacher, the map looks orderly while the work crosses a boundary. We need a permission slip someone can inspect before the next draft.\n\nChapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. For Harbor, scope is three cleared course notes and a draft brief. The ceiling is preparation only. The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. Escalation names Morgan for missing or conflicting evidence. Expiry sends the proposed slip back for review before the next course planning cycle.\n\nThe workbook asks us to place an action on an authority ladder: prepare, recommend, route, stage, execute. Our role sits at prepare. Its proposed slip also names permitted source IDs, forbidden inputs, the receipt, source checks, an owner, and a revocation path. A source that was cleared last week may expire. A rule written in a prompt is not enough for our paper design; the permission needs to be visible beside the job and decision. This exercise grants no real permission.\n\nNow test the value of the work itself. Suppose Harbor also has a second paper role that drafts a daily weather summary for possible workshops. Nobody reads it. It has a clean receipt, but no decision uses it. Chapter Ten calls for a Quarterly Cull: proof delivered, permission current, and would we build it again today? The session brief has a named decision and reviewer, though its value is still only a classroom hypothesis. The weather summary fails the proof test. In this exercise we recommend retirement for human review; we do not delete a trigger or revoke a live tool.\n\nA retirement decision needs a person too. If a real agent existed, a human owner would review the evidence, sign the sunset, revoke access, archive governed memory, remove triggers, and record the change. Neglect leaves permissions behind. Here, there is no running agent, no trigger, and no memory to remove. Write the proposed decision and its reason. Keep the external world untouched. The same human discipline governs adding a capability and taking one away.\n\nPause. Which line in the slip would prevent a well-written brief from turning into an unauthorized announcement?\n\nWrite the Permission Slip for the preparation role. Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. Then run the Quarterly Cull on the session brief role and the course weather-summary role. Use the three tests and record keep, narrow, or retirement proposal. Use a fictional or approved example. Do not use private operational data or grant a real permission.\n\nSave revision six as a draft. A role's permission and its reason to exist both need renewal.",
+    "text_sha256": "0932a7841d834f39344f09d6e2965e7adcc791a577dc923bf8da6d64aca59555",
+    "character_count": 3041,
+    "word_count": 498,
+    "requested_word_timestamps": true
+  },
+  "existing_presenter_audio": {
+    "opening": {
+      "sequence_start": 0,
+      "sequence_end": 13.64
+    },
+    "closing": {
+      "sequence_start": 585.033,
+      "sequence_end": 591
+    },
+    "rule": "Preserve native presenter audio in these windows and never layer synthesized narration over it."
+  },
+  "narration_segments": [
+    {
+      "scene_id": "L06-01",
+      "narration_exact": "One Friday, the facilitator note says 'available for review.' If the agent quietly treats that as permission to confirm a teacher, the map looks orderly while the work crosses a boundary. We need a permission slip someone can inspect before the next draft.",
+      "narration_sha256": "e962ff3370ec36bc5526a7b4560cc3eae798aa670e4b843e5da92cfa10252322"
+    },
+    {
+      "scene_id": "L06-02",
+      "narration_exact": "Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry. For Harbor, scope is three cleared course notes and a draft brief. The ceiling is preparation only. The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants. Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone. Escalation names Morgan for missing or conflicting evidence. Expiry sends the proposed slip back for review before the next course planning cycle.",
+      "narration_sha256": "0a394037eb1cb2ff99aee4195f562269456395e42320d973dc7a5ef7c2922fbb"
+    },
+    {
+      "scene_id": "L06-03",
+      "narration_exact": "The workbook asks us to place an action on an authority ladder: prepare, recommend, route, stage, execute. Our role sits at prepare. Its proposed slip also names permitted source IDs, forbidden inputs, the receipt, source checks, an owner, and a revocation path. A source that was cleared last week may expire. A rule written in a prompt is not enough for our paper design; the permission needs to be visible beside the job and decision. This exercise grants no real permission.",
+      "narration_sha256": "4fc4db34397f787124a92221e7d7543cce761ce7757ba00f2052a3b5c05c3eb4"
+    },
+    {
+      "scene_id": "L06-04",
+      "narration_exact": "Now test the value of the work itself. Suppose Harbor also has a second paper role that drafts a daily weather summary for possible workshops. Nobody reads it. It has a clean receipt, but no decision uses it. Chapter Ten calls for a Quarterly Cull: proof delivered, permission current, and would we build it again today? The session brief has a named decision and reviewer, though its value is still only a classroom hypothesis. The weather summary fails the proof test. In this exercise we recommend retirement for human review; we do not delete a trigger or revoke a live tool.",
+      "narration_sha256": "621255c1205b5d9e06f9a99074b33b90f62ca1fc75d78cba4bc0ebc9bb48b862"
+    },
+    {
+      "scene_id": "L06-05",
+      "narration_exact": "A retirement decision needs a person too. If a real agent existed, a human owner would review the evidence, sign the sunset, revoke access, archive governed memory, remove triggers, and record the change. Neglect leaves permissions behind. Here, there is no running agent, no trigger, and no memory to remove. Write the proposed decision and its reason. Keep the external world untouched. The same human discipline governs adding a capability and taking one away.",
+      "narration_sha256": "724d4ff63380a70658581b308656e90141c310ad0df0472fe118ab0989a74057"
+    },
+    {
+      "scene_id": "L06-06",
+      "narration_exact": "Pause. Which line in the slip would prevent a well-written brief from turning into an unauthorized announcement?",
+      "narration_sha256": "ea62bde5d5046a49f7e8298eaf5218e6a2fb9caede49418520fd668940ebe757"
+    },
+    {
+      "scene_id": "L06-07",
+      "narration_exact": "Write the Permission Slip for the preparation role. Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path. Then run the Quarterly Cull on the session brief role and the course weather-summary role. Use the three tests and record keep, narrow, or retirement proposal. Use a fictional or approved example. Do not use private operational data or grant a real permission.",
+      "narration_sha256": "872387affca8ed94a0aa4ae826c396734641ab1f310790010c57b6d3dcc41511"
+    },
+    {
+      "scene_id": "L06-08",
+      "narration_exact": "Save revision six as a draft. A role's permission and its reason to exist both need renewal.",
+      "narration_sha256": "0a8fc0c8eb9c4f038d48a52327fa24c7b1414cf957dc5aba44a3800a13fbe5fe"
+    }
+  ],
+  "edit_policy": {
+    "picture_clock": "derive every visual change from the accepted narration timing rather than the rejected fixed ten-minute scene grid",
+    "transition_rule": "change topics only after a sentence-complete spoken handoff; allow a short L-cut when the next visual supports the current sentence",
+    "ordinary_pause_limit_seconds": 2.5,
+    "guided_work_pause_seconds": 45,
+    "guided_work_treatment": "visible countdown and explicit work prompt; optional low-volume rights-cleared music may run only in this bounded pause",
+    "music_under_narration": false,
+    "fixed_ten_minute_runtime_required": false
+  },
+  "stop_conditions": [
+    "source, script, voice, identity or request hash drift",
+    "missing or unreliable timing data",
+    "provider error or uncertain result",
+    "unexpected debit or cumulative project-spend breach",
+    "omitted, repeated or altered narration",
+    "any ordinary narration gap longer than 2.5 seconds",
+    "any topic cut that precedes its sentence-complete spoken handoff"
+  ],
+  "boundaries": {
+    "avatar_generation_allowed": false,
+    "video_generation_allowed": false,
+    "production_binding_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false
+  },
+  "candidate_sha256": "32b04067a9da47f0a640717e3bffe2afb75ba82734f0cfb7b0c7ed927545f189"
+}
