@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentified L01 continuous narration review</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    body { margin: 0; background: #071f2b; color: #f4f0e6; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 32px auto; }
+    header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
+    h1 { margin: 0; font-family: Georgia, serif; font-size: clamp(28px, 4vw, 52px); font-weight: 500; }
+    p { color: #bdc9ce; line-height: 1.5; }
+    .eyebrow { color: #e1b84f; font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .frame { border: 1px solid #456270; border-top: 3px solid #d6a72e; padding: 16px; background: #0d2b38; }
+    video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #020b10; }
+    dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 16px 0 0; background: #456270; }
+    dl div { background: #0d2b38; padding: 14px; }
+    dt { color: #92a5ad; font-size: 12px; text-transform: uppercase; }
+    dd { margin: 6px 0 0; font-weight: 700; }
+    @media (max-width: 720px) { header { align-items: start; flex-direction: column; } dl { grid-template-columns: 1fr; } main { width: min(100% - 20px, 1180px); margin-top: 18px; } .frame { padding: 8px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">Agentified · L01 · Human QA</div>
+        <h1>Continuous narration composite</h1>
+      </div>
+      <p>Exact approved narration distributed across fixed teaching windows.</p>
+    </header>
+    <section class="frame">
+      <video controls preload="metadata" poster="qa-frames/20.png">
+        <source src="agentified-l01-continuous-narration-composite.mp4" type="video/mp4">
+        <track default kind="captions" srclang="en" label="English" src="agentified-l01-continuous-narration-captions.vtt">
+      </video>
+      <dl>
+        <div><dt>Lesson</dt><dd>L01 · Give the agent a job and a receipt</dd></div>
+        <div><dt>Runtime</dt><dd>09:00</dd></div>
+        <div><dt>Intentional quiet</dt><dd>Guided work only</dd></div>
+      </dl>
+    </section>
+  </main>
+</body>
+</html>
