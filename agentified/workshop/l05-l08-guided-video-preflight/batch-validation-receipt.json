@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_batch_preflight_validated",
+  "source_base_commit": "e51b09b746256e1c6825d249438bcd4a0e6f181e",
+  "lessons": [
+    {
+      "lesson_id": "L05",
+      "title": "Map the operating system",
+      "request_sha256": "a47434ac1067b0007e480e14a6fc669ce0096b66b045efd3e3658f5eb7bdf9eb",
+      "script_sha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
+      "packet_sha256": "86aaa74a5227a137ba7287a794410410f268edace44a6fbc0be2b862487c723a",
+      "poster_sha256": "87a4e7d2e5c13d97eaff908a11c4f4f5a9f45b0e4b2f7b70a513f8053f35a64f",
+      "diagram_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "new_audio_sha256": null,
+      "source_binding_count": 16,
+      "expected_scripted_provider_duration_seconds": 28.258,
+      "closing_card_seconds": 5,
+      "lesson_duration_seconds": 600
+    },
+    {
+      "lesson_id": "L06",
+      "title": "Write the permission slip",
+      "request_sha256": "a80d75cd57e303d8d27005cd4a5bbd7dd353c1562fb0400ec44a95356b78f6f6",
+      "script_sha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
+      "packet_sha256": "60f993e3514e353095f5180d541900553298c0f5d9a773c3fd22dad279f361af",
+      "poster_sha256": "f8a87d3c0a98eacb8018822c7847c641e35b343615015d2ab8e3e2374771b4a9",
+      "diagram_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "new_audio_sha256": null,
+      "source_binding_count": 17,
+      "expected_scripted_provider_duration_seconds": 23.687,
+      "closing_card_seconds": 9,
+      "lesson_duration_seconds": 600
+    },
+    {
+      "lesson_id": "L07",
+      "title": "Specify the work and the team",
+      "request_sha256": "9ca4be37f4fbf51af8d10d7d530899b7b9643d87b28524dd2e492c986c5708b9",
+      "script_sha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
+      "packet_sha256": "fefbdc1e3cf386b7220284ace5ac8c818030f2c8e8b8c94db9c3f7a83e8dcf87",
+      "poster_sha256": "4807b8f696cf07315be7b29e58b674c0a00057ccfc10aa72a3dec93d7eb53571",
+      "diagram_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "new_audio_sha256": null,
+      "source_binding_count": 17,
+      "expected_scripted_provider_duration_seconds": 23.673,
+      "closing_card_seconds": 4,
+      "lesson_duration_seconds": 600
+    },
+    {
+      "lesson_id": "L08",
+      "title": "Make handoffs testable",
+      "request_sha256": "8b0891148ba0c03c5dbe14c7c9066ea66dc5f7be489ad1a7504e76ce2edf074f",
+      "script_sha256": "219060baa998bd6a866e9ff00a6df99d2ccba64b6c5ecd55e9db7cc385df6846",
+      "packet_sha256": "50786f210a2661019764b0dee80c38a189e8d3c8cf530238fd1c8f880a64e436",
+      "poster_sha256": "c63be5ec7aa788f2329b6e9c43dc882abd81523bbdb4accb29906c7f2b7d32bb",
+      "diagram_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "new_audio_sha256": null,
+      "source_binding_count": 17,
+      "expected_scripted_provider_duration_seconds": 29.682,
+      "closing_card_seconds": 2,
+      "lesson_duration_seconds": 600
+    }
+  ],
+  "aggregate_expected_scripted_provider_duration_seconds": 105.3,
+  "aggregate_provider_free_closing_card_seconds": 20,
+  "maximum_jobs_if_later_authorized": 4,
+  "jobs_submitted_now": 0,
+  "cost_cap_evidence": {
+    "project_authorization_path": "agentified/workshop/provider-budget-authorization.json",
+    "project_authorization_sha256": "b1ed10abcfb2fb10ef46940e32f0a5577af671e6309e56edcf06150c34a1fc3c",
+    "authorized_aggregate_cash_cap_usd": 100,
+    "l01_historical_receipt_path": "agentified/workshop/l01-native-source/provider-receipt.json",
+    "l01_historical_receipt_sha256": "4e0f63a4f0d58d68b949549dc969f9f84cd84d99552b88c3990fbbaa4535baf5",
+    "l01_historical_billable_seconds": 19,
+    "l01_historical_credits": 15,
+    "l01_historical_wallet_debit_usd": 0,
+    "current_credits": null,
+    "current_wallet_balance_usd": null,
+    "project_cash_spent_to_date_usd": null,
+    "provider_quote_per_lesson_usd": null,
+    "proposed_later_cash_ceiling_per_lesson_usd": null,
+    "proposed_later_batch_cash_ceiling_usd": null,
+    "current_execution_cash_cap_usd": 0,
+    "cap_enforcement_verified": false,
+    "note": "Historical L01 usage is not a quote for L05-L08 or a complete project ledger. No current provider read occurred. Execution requires fresh binding quotes, current balances and cumulative spend, plus an enforceable per-job and aggregate limit; no credit purchase or auto-reload.",
+    "cap_options": [
+      "Provider-enforced per-job and batch maximum, with one submission per lesson and no retries.",
+      "Prepaid or wallet allocation technically capped to the same amounts, with auto-reload and overage disabled.",
+      "If neither mechanism can be verified before submission, stop without executing."
+    ]
+  },
+  "composite_input": {
+    "base_animatic": "agentified/workshop/scene-production/review.html",
+    "native_source_paths": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "source_audio_hashes": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "one_speaker_at_a_time": true,
+    "preserve_native_source": true,
+    "final_caption_sync_pending": true,
+    "provider_free_closing_cards": true
+  },
+  "rights_status": "blocked_pending_purpose_specific_L05-L08_identity_and_voice_approval",
+  "source_audit": "L05 16, L06 17, L07 17, L08 17 exact source bindings; sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 5-8, privacy and execution boundaries checked",
+  "batch_sha256": "c36d0b3d605be209a7b77b9ee7b935fd29d0a97e4f1f63ced35540e43778c4a5"
+}

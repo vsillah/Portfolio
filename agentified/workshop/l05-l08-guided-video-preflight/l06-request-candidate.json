@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_batch_request_candidate_locked",
+  "lesson_id": "L06",
+  "source_base_commit": "e51b09b746256e1c6825d249438bcd4a0e6f181e",
+  "provider_candidate": "HeyGen Avatar IV",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "upload_allowed": false,
+  "generation_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "requested_job_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_spend_cap_usd": 0,
+  "conditional_one_job_cash_ceiling_usd": null,
+  "one_job_candidate_key": "4437cf2f11f960f48bbc8a4a1017d86dcde0973159bcb7df24d98917e774b77c",
+  "lesson_duration_seconds": 600,
+  "expected_scripted_provider_duration_seconds": 23.687,
+  "actual_provider_duration_seconds": null,
+  "actual_billable_duration_seconds": null,
+  "duration_note": "Expected duration sums exact provisional caption spans only. Provider pacing, source duration, billable duration and final placement are unknown until a separately authorized job and native-source timing audit.",
+  "format_candidate": {
+    "orientation": "landscape",
+    "resolution": "1080p",
+    "source_frame_rate": "preserve_native",
+    "composite_frame_rate": 30
+  },
+  "presenter_windows": [
+    {
+      "scene_id": "L06-01",
+      "reserved_start_seconds": 0,
+      "reserved_end_seconds": 15.437,
+      "presenter_start_seconds": 0,
+      "presenter_end_seconds": 15.437,
+      "expected_scripted_duration_seconds": 15.437,
+      "provider_free_tail_seconds": 0,
+      "narration_exact": "The Operating Map has a row that says ‘prepare the Session Option Brief.’ Morgan asks a fair question: what is this preparation role actually allowed to read or change? ‘Be careful’ will not answer it.",
+      "narration_sha256": "0e157692ee150b57afc95fe531d90d308f3c37e55613fdf862649421c2f33e22",
+      "caption_cues": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 5.655,
+          "text": "The Operating Map has a row that says ‘prepare the Session Option Brief.’ "
+        },
+        {
+          "start_seconds": 5.655,
+          "end_seconds": 12.915,
+          "text": "Morgan asks a fair question: what is this preparation role actually allowed to read or change? "
+        },
+        {
+          "start_seconds": 12.915,
+          "end_seconds": 15.437,
+          "text": "‘Be careful’ will not answer it. "
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    },
+    {
+      "scene_id": "L06-08",
+      "reserved_start_seconds": 582.75,
+      "reserved_end_seconds": 600,
+      "presenter_start_seconds": 582.75,
+      "presenter_end_seconds": 591,
+      "expected_scripted_duration_seconds": 8.25,
+      "provider_free_tail_seconds": 9,
+      "narration_exact": "Next we will give the work a tighter requirement packet and decide how a small team would share it.",
+      "narration_sha256": "785ba0e096ab1dcef84f38a4f07b2a47d27bd0f49197080071e510bae6d04a56",
+      "caption_cues": [
+        {
+          "start_seconds": 582.75,
+          "end_seconds": 591,
+          "text": "Next we will give the work a tighter requirement packet and decide how a small team would share it."
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    }
+  ],
+  "presenter_duration_seconds": 23.687,
+  "provider_free_evidence_card": {
+    "scene_id": "L06-03",
+    "audience_copy_exact": [
+      "Prepare only.",
+      "Source check + receipt + owner."
+    ],
+    "approved_diagram_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+    "approved_diagram_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+    "treatment": "local approved diagram and source-aware audience copy; no provider footage or generated voice"
+  },
+  "provider_free_closing_card": {
+    "scene_id": "L06-08",
+    "start_seconds": 591,
+    "end_seconds": 600,
+    "duration_seconds": 9,
+    "audience_copy_exact": [
+      "Operating File v6: slip + cull.",
+      "Next: requirements and roles."
+    ],
+    "treatment": "provider-free hold of approved ending copy; no presenter footage, generated voice, or new claim"
+  },
+  "one_job_payload_boundary": {
+    "passages": [
+      {
+        "scene_id": "L06-01",
+        "narration_exact": "The Operating Map has a row that says ‘prepare the Session Option Brief.’ Morgan asks a fair question: what is this preparation role actually allowed to read or change? ‘Be careful’ will not answer it.",
+        "narration_sha256": "0e157692ee150b57afc95fe531d90d308f3c37e55613fdf862649421c2f33e22"
+      },
+      {
+        "scene_id": "L06-08",
+        "narration_exact": "Next we will give the work a tighter requirement packet and decide how a small team would share it.",
+        "narration_sha256": "785ba0e096ab1dcef84f38a4f07b2a47d27bd0f49197080071e510bae6d04a56"
+      }
+    ],
+    "treatment": "Two exact passages in one continuous native source; split at audited sentence boundary and place locally. No third passage or automatic regeneration."
+  },
+  "identity_voice": {
+    "selected_look_name": null,
+    "selected_look_id": null,
+    "selected_avatar_group_id": null,
+    "selected_voice_id": null,
+    "source_precedent": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+    "status": "execution_identity_unselected; purpose_specific_L05-L08_approval_required",
+    "l01_approval_not_reusable": true,
+    "no_photo_or_cutout_upload_allowed": true
+  },
+  "assets": {
+    "approved_diagram": {
+      "scene_id": "L06-03",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "Authority ladder with a fixed marker at “prepare” and closed gates above it."
+    },
+    "package_jpg": {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package identity only"
+    },
+    "lesson_cover": {
+      "path": "public/agentified/posters/l06-poster.webp",
+      "sha256": "f8a87d3c0a98eacb8018822c7847c641e35b343615015d2ab8e3e2374771b4a9",
+      "alt_text": "L06 Write the permission slip lesson cover: Vambah presents the authority ladder diagram.",
+      "media_status": "static-cover; video locked"
+    }
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "permission-and-cull",
+      "revision": 6,
+      "status": "draft",
+      "update_exact": "`permission-and-cull` → `authority` and `portfolio-review`, revision 6, status `draft`."
+    },
+    "source_ids_scope": "protected synthetic trace only; do not speak IDs or send to provider"
+  },
+  "accessibility": {
+    "caption_source": "agentified/workshop/scene-production/packets/L06.json",
+    "caption_status": "exact text, provisional timing",
+    "caption_handoff_receipt": {
+      "source_packet_sha256": "60f993e3514e353095f5180d541900553298c0f5d9a773c3fd22dad279f361af",
+      "cue_counts": [
+        {
+          "scene_id": "L06-01",
+          "count": 3,
+          "text_sha256": "0e157692ee150b57afc95fe531d90d308f3c37e55613fdf862649421c2f33e22"
+        },
+        {
+          "scene_id": "L06-08",
+          "count": 1,
+          "text_sha256": "785ba0e096ab1dcef84f38a4f07b2a47d27bd0f49197080071e510bae6d04a56"
+        }
+      ],
+      "final_sync_status": "pending_native_audio"
+    },
+    "transcript": "reconstruct exact scene narration; final rendered transcript audit required",
+    "diagram_text_alternative": "approved plate needs final scene-specific text alternative before publication",
+    "diagram_alt_status": "scene_specific_final_alt_required_before_learner_release",
+    "reading_order": "title, teaching copy, visual, captions",
+    "contrast": "review at delivery resolution",
+    "reduced_motion": "instant cuts; no information depends on animation",
+    "caption_band": "keep clear of presenter and diagram labels in landscape and portrait"
+  },
+  "audio": {
+    "new_audio_path": null,
+    "new_audio_sha256": null,
+    "new_audio_status": "none_generated",
+    "l01_native_source_precedent_sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
+    "l01_native_composite_precedent_sha256": "da85f9e1bf5959dcd55eefb58b58e00233c0bcc674967a2a0835a9b1cd4fe3a5",
+    "ownership": "one speaker at a time; native presenter audio replaces matching narrator span, never layers with it; preserve source frame count, rate, duration and lip sync in reproducible FFmpeg composite"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L06.json",
+      "sha256": "60f993e3514e353095f5180d541900553298c0f5d9a773c3fd22dad279f361af",
+      "use": "approved_production_packet"
+    },
+    {
+      "path": "agentified/workshop/scripts/L06-permission-and-cull.md",
+      "sha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
+      "use": "approved_exact_script"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413",
+      "use": "static_cover_map"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+      "use": "approved_visual_register"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
+      "use": "source_register"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+      "use": "curriculum_crosswalk"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "use": "immutable_storyboard_windows"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab",
+      "use": "Operating_File_workbook"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch09-the-permission-slip.md",
+      "sha256": "e42dfbf5c7692b540a434f376708aaab076ecd167ff7141918ec1ddffe68272b",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch10-the-priority-trap-returns.md",
+      "sha256": "dc4c6f125ca8cff4b34e6433d8fa3ae77bf509e1c834d23393f22361c35994bc",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package_identity_only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "approved_L06-03_diagram_only"
+    },
+    {
+      "path": "public/agentified/posters/l06-poster.webp",
+      "sha256": "f8a87d3c0a98eacb8018822c7847c641e35b343615015d2ab8e3e2374771b4a9",
+      "use": "static_YouTube_style_lesson_cover_only"
+    },
+    {
+      "path": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "sha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "use": "local_static_cover_identity_reference_only"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/avatar-sources/l06-vambah-cutout.png",
+      "sha256": "bfcaff0bbb78b132215cbccd87af1823171e9d7bb24328b68571a5520462eb2a",
+      "use": "local_static_cover_cutout_only"
+    },
+    {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165",
+      "use": "static_cover_logo_only"
+    },
+    {
+      "path": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+      "sha256": "8d9f5a94b0c8b68f23ae099da502de32c151109ca54847d4a43e3ed98d386534",
+      "use": "L01_identity_precedent_not_L05-L08_authority"
+    }
+  ],
+  "boundaries": {
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
+    "rights": "Static cover approval does not authorize talking-avatar or voice use for this lesson. Execution identity remains unselected.",
+    "lineage": "lineage_only_excluded"
+  },
+  "no_retry_record": {
+    "jobs_submitted": 0,
+    "automatic_retries": 0,
+    "manual_retries": 0,
+    "allowed_if_later_authorized": "one submission for this exact request; stop on uncertain outcome"
+  },
+  "execution_gates": [
+    "purpose-specific L05-L08 look and voice consent and selected execution identity",
+    "binding quote and enforceable one-job cap for each lesson and aggregate batch",
+    "current balance and credit check without purchase or auto-reload",
+    "final native source split/timing and caption audit",
+    "scene-specific diagram alt text, contrast and reduced-motion review",
+    "separate exact batch execution authorization"
+  ],
+  "request_sha256": "a80d75cd57e303d8d27005cd4a5bbd7dd353c1562fb0400ec44a95356b78f6f6"
+}
