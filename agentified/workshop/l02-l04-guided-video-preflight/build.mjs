@@ -100,6 +100,8 @@ for (const lessonId of ['L02', 'L03', 'L04']) {
     bound(poster.logo, poster.logoSha256, 'static_cover_logo_only'),
     bound(l01IdentityReceiptPath, fileHash(l01IdentityReceiptPath), 'L01_identity_precedent_not_L02-L04_authority'),
   ];
+  assert(sources.length === 15 + packet.chapter_sources.length, `${lessonId} source inventory count drift`);
+  assert(new Set(sources.map((item) => item.path)).size === sources.length, `${lessonId} duplicate source binding`);
   const expectedDuration = round(windows.reduce((sum, item) => sum + item.expected_scripted_duration_seconds, 0));
   const request = {
     schema_version: 1, status: 'provider_free_batch_request_candidate_locked', lesson_id: lessonId,
@@ -137,8 +139,13 @@ for (const lessonId of ['L02', 'L03', 'L04']) {
     spend_usd: 0, provider_calls: 0, media_generated: 0,
     unresolved: ['L02-L04 purpose-specific identity and voice rights', 'current provider quote, credits and cap control', 'recorded pacing and caption sync', 'final scene-specific diagram alt and native-composite review'],
   };
-  lessons.push({ lesson_id: lessonId, title: packet.title, request_sha256: request.request_sha256, script_sha256: packet.script_sha256, packet_sha256: sources[0].sha256, poster_sha256: poster.outputSha256, diagram_sha256: poster.approvedVisualSha256, new_audio_sha256: null, expected_scripted_provider_duration_seconds: expectedDuration, closing_card_seconds: closingCard.duration_seconds, lesson_duration_seconds: packet.timing_seconds });
+  lessons.push({ lesson_id: lessonId, title: packet.title, request_sha256: request.request_sha256, script_sha256: packet.script_sha256, packet_sha256: sources[0].sha256, poster_sha256: poster.outputSha256, diagram_sha256: poster.approvedVisualSha256, new_audio_sha256: null, source_binding_count: sources.length, expected_scripted_provider_duration_seconds: expectedDuration, closing_card_seconds: closingCard.duration_seconds, lesson_duration_seconds: packet.timing_seconds });
   output.push([`${lessonId.toLowerCase()}-request-candidate.json`, request], [`${lessonId.toLowerCase()}-validation-receipt.json`, receipt]);
+}
+for (const lesson of lessons) {
+  const request = output.find(([name]) => name === `${lesson.lesson_id.toLowerCase()}-request-candidate.json`)?.[1];
+  const receipt = output.find(([name]) => name === `${lesson.lesson_id.toLowerCase()}-validation-receipt.json`)?.[1];
+  assert(request && receipt && lesson.source_binding_count === request.source_bindings.length && receipt.source_binding_count === request.source_bindings.length, `${lesson.lesson_id} receipt/source inventory count mismatch`);
 }
 assert(lessons.map((item) => item.expected_scripted_provider_duration_seconds).join(',') === '24.668,22.654,24.865', 'Provider duration baseline changed');
 assert(lessons.map((item) => item.closing_card_seconds).join(',') === '6,8,3', 'Closing card baseline changed');
@@ -162,7 +169,7 @@ const batch = {
   },
   composite_input: { base_animatic: 'agentified/workshop/scene-production/review.html', native_source_paths: [null, null, null], source_audio_hashes: [null, null, null], one_speaker_at_a_time: true, preserve_native_source: true, final_caption_sync_pending: true, provider_free_closing_cards: true },
   rights_status: 'blocked_pending_purpose_specific_L02-L04_look_and_voice_approval',
-  source_audit: '16 exact source bindings per lesson, sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 2-4, privacy and execution boundaries checked',
+  source_audit: `${lessons.map((item) => `${item.lesson_id} ${item.source_binding_count}`).join(', ')} exact source bindings; sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 2-4, privacy and execution boundaries checked`,
 };
 batch.batch_sha256 = sha(JSON.stringify(batch));
 output.push(['batch-validation-receipt.json', batch]);
