@@ -1,0 +1,35 @@
+1
+00:00:00,000 --> 00:00:01,870
+The Operating Map has a row that says
+
+2
+00:00:01,870 --> 00:00:04,870
+‘prepare the Session Option Brief.’
+
+3
+00:00:05,420 --> 00:00:07,640
+Morgan asks a fair question: what is
+
+4
+00:00:07,700 --> 00:00:09,760
+this preparation role actually allowed
+
+5
+00:00:09,810 --> 00:00:11,110
+to read or change?
+
+6
+00:00:11,110 --> 00:00:13,440
+‘Be careful’ will not answer it.
+
+7
+00:09:45,233 --> 00:09:47,183
+Next we will give the work a tighter
+
+8
+00:09:47,253 --> 00:09:49,303
+requirement packet and decide how a
+
+9
+00:09:49,363 --> 00:09:50,533
+small team would share it.

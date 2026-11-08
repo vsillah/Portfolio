@@ -1,0 +1,2444 @@
+{
+  "schema_version": 1,
+  "lesson_id": "L07",
+  "request_id": "33ec983f99c44df19e856608323e5d8a",
+  "provider_duration_seconds": 187.40244897959184,
+  "local_duration_seconds": 187.402438,
+  "word_timestamps": [
+    {
+      "word": "<start>",
+      "start": 0,
+      "end": 0
+    },
+    {
+      "word": "The",
+      "start": 0.256,
+      "end": 0.384
+    },
+    {
+      "word": "preparation",
+      "start": 0.427,
+      "end": 0.853
+    },
+    {
+      "word": "role",
+      "start": 1.024,
+      "end": 1.1947
+    },
+    {
+      "word": "did",
+      "start": 1.28,
+      "end": 1.4507
+    },
+    {
+      "word": "what",
+      "start": 1.536,
+      "end": 1.664
+    },
+    {
+      "word": "an",
+      "start": 1.707,
+      "end": 1.749
+    },
+    {
+      "word": "old",
+      "start": 1.792,
+      "end": 1.92
+    },
+    {
+      "word": "brief",
+      "start": 2.005,
+      "end": 2.176
+    },
+    {
+      "word": "told",
+      "start": 2.261,
+      "end": 2.432
+    },
+    {
+      "word": "it",
+      "start": 2.475,
+      "end": 2.56
+    },
+    {
+      "word": "to",
+      "start": 2.603,
+      "end": 2.688
+    },
+    {
+      "word": "do:",
+      "start": 2.731,
+      "end": 2.944
+    },
+    {
+      "word": "'Summarize",
+      "start": 3.072,
+      "end": 3.7547
+    },
+    {
+      "word": "the",
+      "start": 3.925,
+      "end": 4.0107
+    },
+    {
+      "word": "best",
+      "start": 4.053,
+      "end": 4.309
+    },
+    {
+      "word": "session",
+      "start": 4.395,
+      "end": 4.565
+    },
+    {
+      "word": "option.'",
+      "start": 4.779,
+      "end": 5.504
+    },
+    {
+      "word": "That",
+      "start": 5.803,
+      "end": 6.016
+    },
+    {
+      "word": "sentence",
+      "start": 6.059,
+      "end": 6.357
+    },
+    {
+      "word": "left",
+      "start": 6.443,
+      "end": 6.5707
+    },
+    {
+      "word": "the",
+      "start": 6.656,
+      "end": 6.6987
+    },
+    {
+      "word": "hardest",
+      "start": 6.741,
+      "end": 7.125
+    },
+    {
+      "word": "part",
+      "start": 7.211,
+      "end": 7.381
+    },
+    {
+      "word": "in",
+      "start": 7.509,
+      "end": 7.5947
+    },
+    {
+      "word": "Morgan's",
+      "start": 7.637,
+      "end": 7.9787
+    },
+    {
+      "word": "head.",
+      "start": 8.021,
+      "end": 8.491
+    },
+    {
+      "word": "What",
+      "start": 8.789,
+      "end": 9.0027
+    },
+    {
+      "word": "counts",
+      "start": 9.045,
+      "end": 9.301
+    },
+    {
+      "word": "as",
+      "start": 9.344,
+      "end": 9.429
+    },
+    {
+      "word": "ready?",
+      "start": 9.515,
+      "end": 9.899
+    },
+    {
+      "word": "Which",
+      "start": 10.155,
+      "end": 10.325
+    },
+    {
+      "word": "source",
+      "start": 10.411,
+      "end": 10.581
+    },
+    {
+      "word": "is",
+      "start": 10.709,
+      "end": 10.7947
+    },
+    {
+      "word": "required?",
+      "start": 10.837,
+      "end": 11.456
+    },
+    {
+      "word": "When",
+      "start": 11.733,
+      "end": 11.904
+    },
+    {
+      "word": "must",
+      "start": 12.032,
+      "end": 12.16
+    },
+    {
+      "word": "the",
+      "start": 12.245,
+      "end": 12.3307
+    },
+    {
+      "word": "work",
+      "start": 12.373,
+      "end": 12.501
+    },
+    {
+      "word": "stop?",
+      "start": 12.544,
+      "end": 13.025
+    },
+    {
+      "word": "A",
+      "start": 13.25,
+      "end": 13.42
+    },
+    {
+      "word": "human",
+      "start": 13.463,
+      "end": 13.6337
+    },
+    {
+      "word": "colleague",
+      "start": 13.762,
+      "end": 14.1457
+    },
+    {
+      "word": "might",
+      "start": 14.231,
+      "end": 14.359
+    },
+    {
+      "word": "ask.",
+      "start": 14.444,
+      "end": 14.828
+    },
+    {
+      "word": "A",
+      "start": 14.999,
+      "end": 15.1697
+    },
+    {
+      "word": "paper",
+      "start": 15.212,
+      "end": 15.383
+    },
+    {
+      "word": "agent",
+      "start": 15.511,
+      "end": 15.8097
+    },
+    {
+      "word": "design",
+      "start": 15.852,
+      "end": 15.98
+    },
+    {
+      "word": "needs",
+      "start": 16.322,
+      "end": 16.535
+    },
+    {
+      "word": "those",
+      "start": 16.663,
+      "end": 16.791
+    },
+    {
+      "word": "answers",
+      "start": 16.876,
+      "end": 17.2177
+    },
+    {
+      "word": "written",
+      "start": 17.303,
+      "end": 17.431
+    },
+    {
+      "word": "down.",
+      "start": 17.559,
+      "end": 18.05
+    },
+    {
+      "word": "Chapter",
+      "start": 18.37,
+      "end": 18.711
+    },
+    {
+      "word": "Eleven",
+      "start": 18.796,
+      "end": 19.0097
+    },
+    {
+      "word": "turns",
+      "start": 19.18,
+      "end": 19.3937
+    },
+    {
+      "word": "the",
+      "start": 19.522,
+      "end": 19.607
+    },
+    {
+      "word": "request",
+      "start": 19.65,
+      "end": 19.9057
+    },
+    {
+      "word": "into",
+      "start": 20.162,
+      "end": 20.2897
+    },
+    {
+      "word": "an",
+      "start": 20.46,
+      "end": 20.503
+    },
+    {
+      "word": "Agentic",
+      "start": 20.588,
+      "end": 21.015
+    },
+    {
+      "word": "PRD",
+      "start": 21.1,
+      "end": 21.5697
+    },
+    {
+      "word": "Packet.",
+      "start": 21.612,
+      "end": 22.264
+    },
+    {
+      "word": "Seven",
+      "start": 22.532,
+      "end": 22.788
+    },
+    {
+      "word": "fields",
+      "start": 22.959,
+      "end": 23.3
+    },
+    {
+      "word": "carry",
+      "start": 23.343,
+      "end": 23.5138
+    },
+    {
+      "word": "the",
+      "start": 23.599,
+      "end": 23.727
+    },
+    {
+      "word": "load:",
+      "start": 23.77,
+      "end": 24.111
+    },
+    {
+      "word": "outcome,",
+      "start": 24.325,
+      "end": 24.922
+    },
+    {
+      "word": "scope",
+      "start": 25.093,
+      "end": 25.391
+    },
+    {
+      "word": "fences,",
+      "start": 25.434,
+      "end": 25.861
+    },
+    {
+      "word": "input",
+      "start": 26.074,
+      "end": 26.628
+    },
+    {
+      "word": "manifest,",
+      "start": 26.671,
+      "end": 27.396
+    },
+    {
+      "word": "acceptance",
+      "start": 27.652,
+      "end": 28.0365
+    },
+    {
+      "word": "tests,",
+      "start": 28.165,
+      "end": 28.613
+    },
+    {
+      "word": "escalation,",
+      "start": 28.719,
+      "end": 29.53
+    },
+    {
+      "word": "owner,",
+      "start": 29.701,
+      "end": 30.404
+    },
+    {
+      "word": "and",
+      "start": 30.554,
+      "end": 30.724
+    },
+    {
+      "word": "reversal.",
+      "start": 30.767,
+      "end": 31.471
+    },
+    {
+      "word": "The",
+      "start": 31.748,
+      "end": 31.8765
+    },
+    {
+      "word": "outcome",
+      "start": 31.919,
+      "end": 32.2605
+    },
+    {
+      "word": "is",
+      "start": 32.389,
+      "end": 32.517
+    },
+    {
+      "word": "a",
+      "start": 32.559,
+      "end": 32.6018
+    },
+    {
+      "word": "comparison",
+      "start": 32.645,
+      "end": 33.0285
+    },
+    {
+      "word": "Morgan",
+      "start": 33.157,
+      "end": 33.3698
+    },
+    {
+      "word": "can",
+      "start": 33.498,
+      "end": 33.6258
+    },
+    {
+      "word": "review,",
+      "start": 33.669,
+      "end": 34.053
+    },
+    {
+      "word": "not",
+      "start": 34.309,
+      "end": 34.565
+    },
+    {
+      "word": "a",
+      "start": 34.607,
+      "end": 34.6925
+    },
+    {
+      "word": "session",
+      "start": 34.735,
+      "end": 34.9058
+    },
+    {
+      "word": "announcement.",
+      "start": 35.077,
+      "end": 35.77
+    },
+    {
+      "word": "Scope",
+      "start": 35.994,
+      "end": 36.3349
+    },
+    {
+      "word": "fences",
+      "start": 36.378,
+      "end": 36.5909
+    },
+    {
+      "word": "keep",
+      "start": 36.847,
+      "end": 37.0176
+    },
+    {
+      "word": "the",
+      "start": 37.103,
+      "end": 37.188
+    },
+    {
+      "word": "role",
+      "start": 37.231,
+      "end": 37.3589
+    },
+    {
+      "word": "away",
+      "start": 37.53,
+      "end": 37.7429
+    },
+    {
+      "word": "from",
+      "start": 37.786,
+      "end": 37.9136
+    },
+    {
+      "word": "participant",
+      "start": 37.956,
+      "end": 38.5109
+    },
+    {
+      "word": "messages",
+      "start": 38.554,
+      "end": 38.8096
+    },
+    {
+      "word": "and",
+      "start": 39.066,
+      "end": 39.236
+    },
+    {
+      "word": "calendar",
+      "start": 39.279,
+      "end": 39.6629
+    },
+    {
+      "word": "changes.",
+      "start": 39.706,
+      "end": 40.239
+    },
+    {
+      "word": "The",
+      "start": 40.559,
+      "end": 40.6869
+    },
+    {
+      "word": "input",
+      "start": 40.73,
+      "end": 41.028
+    },
+    {
+      "word": "manifest",
+      "start": 41.114,
+      "end": 41.54
+    },
+    {
+      "word": "lists",
+      "start": 41.668,
+      "end": 41.967
+    },
+    {
+      "word": "the",
+      "start": 42.01,
+      "end": 42.0949
+    },
+    {
+      "word": "three",
+      "start": 42.138,
+      "end": 42.3509
+    },
+    {
+      "word": "Harbor",
+      "start": 42.479,
+      "end": 42.7349
+    },
+    {
+      "word": "note",
+      "start": 42.82,
+      "end": 42.948
+    },
+    {
+      "word": "references",
+      "start": 43.034,
+      "end": 43.46
+    },
+    {
+      "word": "and",
+      "start": 43.631,
+      "end": 43.972
+    },
+    {
+      "word": "their",
+      "start": 44.058,
+      "end": 44.1856
+    },
+    {
+      "word": "freshness",
+      "start": 44.228,
+      "end": 44.612
+    },
+    {
+      "word": "checks.",
+      "start": 44.698,
+      "end": 45.208
+    },
+    {
+      "word": "An",
+      "start": 45.506,
+      "end": 45.676
+    },
+    {
+      "word": "acceptance",
+      "start": 45.762,
+      "end": 46.1456
+    },
+    {
+      "word": "test",
+      "start": 46.274,
+      "end": 46.444
+    },
+    {
+      "word": "says",
+      "start": 46.572,
+      "end": 46.7
+    },
+    {
+      "word": "staffing",
+      "start": 46.914,
+      "end": 47.5109
+    },
+    {
+      "word": "language",
+      "start": 47.639,
+      "end": 47.8096
+    },
+    {
+      "word": "must",
+      "start": 48.023,
+      "end": 48.3216
+    },
+    {
+      "word": "match",
+      "start": 48.407,
+      "end": 48.62
+    },
+    {
+      "word": "the",
+      "start": 48.706,
+      "end": 48.8336
+    },
+    {
+      "word": "facilitator",
+      "start": 48.876,
+      "end": 49.388
+    },
+    {
+      "word": "note",
+      "start": 49.516,
+      "end": 49.6869
+    },
+    {
+      "word": "exactly",
+      "start": 50.071,
+      "end": 50.4549
+    },
+    {
+      "word": "in",
+      "start": 50.668,
+      "end": 50.7536
+    },
+    {
+      "word": "meaning.",
+      "start": 50.796,
+      "end": 51.18
+    },
+    {
+      "word": "If",
+      "start": 51.394,
+      "end": 51.6496
+    },
+    {
+      "word": "the",
+      "start": 51.692,
+      "end": 51.7776
+    },
+    {
+      "word": "note",
+      "start": 51.82,
+      "end": 51.906
+    },
+    {
+      "word": "is",
+      "start": 51.991,
+      "end": 52.0336
+    },
+    {
+      "word": "missing",
+      "start": 52.076,
+      "end": 52.2896
+    },
+    {
+      "word": "or",
+      "start": 52.588,
+      "end": 52.7589
+    },
+    {
+      "word": "ambiguous,",
+      "start": 52.844,
+      "end": 53.527
+    },
+    {
+      "word": "the",
+      "start": 53.698,
+      "end": 53.8256
+    },
+    {
+      "word": "escalation",
+      "start": 53.868,
+      "end": 54.252
+    },
+    {
+      "word": "is",
+      "start": 54.423,
+      "end": 54.508
+    },
+    {
+      "word": "a",
+      "start": 54.551,
+      "end": 54.5936
+    },
+    {
+      "word": "hold",
+      "start": 54.636,
+      "end": 54.8069
+    },
+    {
+      "word": "for",
+      "start": 54.978,
+      "end": 55.1056
+    },
+    {
+      "word": "Morgan.",
+      "start": 55.148,
+      "end": 55.596
+    },
+    {
+      "word": "Reversal",
+      "start": 55.874,
+      "end": 56.2149
+    },
+    {
+      "word": "is",
+      "start": 56.471,
+      "end": 56.6416
+    },
+    {
+      "word": "modest",
+      "start": 56.727,
+      "end": 57.0256
+    },
+    {
+      "word": "here.",
+      "start": 57.111,
+      "end": 57.505
+    },
+    {
+      "word": "Morgan",
+      "start": 57.771,
+      "end": 58.069
+    },
+    {
+      "word": "can",
+      "start": 58.197,
+      "end": 58.325
+    },
+    {
+      "word": "return",
+      "start": 58.368,
+      "end": 58.496
+    },
+    {
+      "word": "a",
+      "start": 58.667,
+      "end": 58.7949
+    },
+    {
+      "word": "draft",
+      "start": 58.837,
+      "end": 59.136
+    },
+    {
+      "word": "for",
+      "start": 59.221,
+      "end": 59.392
+    },
+    {
+      "word": "correction",
+      "start": 59.435,
+      "end": 59.648
+    },
+    {
+      "word": "or",
+      "start": 59.904,
+      "end": 60.16
+    },
+    {
+      "word": "withdraw",
+      "start": 60.245,
+      "end": 60.6295
+    },
+    {
+      "word": "it",
+      "start": 60.672,
+      "end": 60.7149
+    },
+    {
+      "word": "from",
+      "start": 60.758,
+      "end": 60.8855
+    },
+    {
+      "word": "review.",
+      "start": 60.928,
+      "end": 61.483
+    },
+    {
+      "word": "There",
+      "start": 61.867,
+      "end": 61.9949
+    },
+    {
+      "word": "is",
+      "start": 62.038,
+      "end": 62.2509
+    },
+    {
+      "word": "no",
+      "start": 62.379,
+      "end": 62.5069
+    },
+    {
+      "word": "external",
+      "start": 62.55,
+      "end": 63.0189
+    },
+    {
+      "word": "send",
+      "start": 63.062,
+      "end": 63.2749
+    },
+    {
+      "word": "to",
+      "start": 63.36,
+      "end": 63.4455
+    },
+    {
+      "word": "reverse.",
+      "start": 63.488,
+      "end": 64.043
+    },
+    {
+      "word": "A",
+      "start": 64.341,
+      "end": 64.5549
+    },
+    {
+      "word": "test",
+      "start": 64.597,
+      "end": 64.8109
+    },
+    {
+      "word": "result",
+      "start": 64.939,
+      "end": 65.109
+    },
+    {
+      "word": "belongs",
+      "start": 65.28,
+      "end": 65.5789
+    },
+    {
+      "word": "beside",
+      "start": 65.707,
+      "end": 66.005
+    },
+    {
+      "word": "the",
+      "start": 66.091,
+      "end": 66.176
+    },
+    {
+      "word": "draft",
+      "start": 66.219,
+      "end": 66.4749
+    },
+    {
+      "word": "as",
+      "start": 66.773,
+      "end": 66.9869
+    },
+    {
+      "word": "evidence:",
+      "start": 67.029,
+      "end": 67.648
+    },
+    {
+      "word": "source",
+      "start": 68.011,
+      "end": 68.181
+    },
+    {
+      "word": "IDs",
+      "start": 68.309,
+      "end": 68.6509
+    },
+    {
+      "word": "checked,",
+      "start": 68.779,
+      "end": 69.227
+    },
+    {
+      "word": "staffing",
+      "start": 69.419,
+      "end": 69.8455
+    },
+    {
+      "word": "wording",
+      "start": 69.974,
+      "end": 70.144
+    },
+    {
+      "word": "checked,",
+      "start": 70.272,
+      "end": 70.678
+    },
+    {
+      "word": "review",
+      "start": 70.827,
+      "end": 71.0829
+    },
+    {
+      "word": "gate",
+      "start": 71.254,
+      "end": 71.424
+    },
+    {
+      "word": "present.",
+      "start": 71.467,
+      "end": 71.989
+    },
+    {
+      "word": "A",
+      "start": 72.297,
+      "end": 72.4679
+    },
+    {
+      "word": "failed",
+      "start": 72.51,
+      "end": 72.766
+    },
+    {
+      "word": "check",
+      "start": 72.894,
+      "end": 73.1079
+    },
+    {
+      "word": "does",
+      "start": 73.364,
+      "end": 73.534
+    },
+    {
+      "word": "not",
+      "start": 73.577,
+      "end": 73.7479
+    },
+    {
+      "word": "become",
+      "start": 73.79,
+      "end": 73.8759
+    },
+    {
+      "word": "a",
+      "start": 74.046,
+      "end": 74.1319
+    },
+    {
+      "word": "footnote",
+      "start": 74.174,
+      "end": 74.516
+    },
+    {
+      "word": "under",
+      "start": 74.644,
+      "end": 74.729
+    },
+    {
+      "word": "a",
+      "start": 74.857,
+      "end": 74.8999
+    },
+    {
+      "word": "confident",
+      "start": 74.942,
+      "end": 75.2839
+    },
+    {
+      "word": "recommendation.",
+      "start": 75.412,
+      "end": 76.137
+    },
+    {
+      "word": "It",
+      "start": 76.393,
+      "end": 76.5639
+    },
+    {
+      "word": "blocks",
+      "start": 76.606,
+      "end": 76.862
+    },
+    {
+      "word": "the",
+      "start": 76.99,
+      "end": 77.118
+    },
+    {
+      "word": "handoff.",
+      "start": 77.161,
+      "end": 77.822
+    },
+    {
+      "word": "This",
+      "start": 78.142,
+      "end": 78.313
+    },
+    {
+      "word": "packet",
+      "start": 78.398,
+      "end": 78.7399
+    },
+    {
+      "word": "remains",
+      "start": 78.782,
+      "end": 79.081
+    },
+    {
+      "word": "a",
+      "start": 79.166,
+      "end": 79.2519
+    },
+    {
+      "word": "proposed",
+      "start": 79.294,
+      "end": 79.593
+    },
+    {
+      "word": "design;",
+      "start": 79.721,
+      "end": 80.02
+    },
+    {
+      "word": "writing",
+      "start": 80.233,
+      "end": 80.745
+    },
+    {
+      "word": "it",
+      "start": 80.873,
+      "end": 81.001
+    },
+    {
+      "word": "does",
+      "start": 81.044,
+      "end": 81.1719
+    },
+    {
+      "word": "not",
+      "start": 81.257,
+      "end": 81.4705
+    },
+    {
+      "word": "configure",
+      "start": 81.556,
+      "end": 81.983
+    },
+    {
+      "word": "an",
+      "start": 82.025,
+      "end": 82.0679
+    },
+    {
+      "word": "agent.",
+      "start": 82.111,
+      "end": 82.708
+    },
+    {
+      "word": "Now",
+      "start": 83.049,
+      "end": 83.2625
+    },
+    {
+      "word": "give",
+      "start": 83.305,
+      "end": 83.4759
+    },
+    {
+      "word": "the",
+      "start": 83.519,
+      "end": 83.6039
+    },
+    {
+      "word": "work",
+      "start": 83.647,
+      "end": 83.7745
+    },
+    {
+      "word": "an",
+      "start": 83.86,
+      "end": 83.9025
+    },
+    {
+      "word": "organization.",
+      "start": 83.945,
+      "end": 84.721
+    },
+    {
+      "word": "One",
+      "start": 85.07,
+      "end": 85.3255
+    },
+    {
+      "word": "role",
+      "start": 85.411,
+      "end": 85.5388
+    },
+    {
+      "word": "checks",
+      "start": 85.624,
+      "end": 85.88
+    },
+    {
+      "word": "sources;",
+      "start": 85.923,
+      "end": 86.371
+    },
+    {
+      "word": "one",
+      "start": 86.606,
+      "end": 86.904
+    },
+    {
+      "word": "role",
+      "start": 86.99,
+      "end": 87.16
+    },
+    {
+      "word": "assembles",
+      "start": 87.246,
+      "end": 87.629
+    },
+    {
+      "word": "the",
+      "start": 87.672,
+      "end": 87.757
+    },
+    {
+      "word": "comparison;",
+      "start": 87.8,
+      "end": 88.419
+    },
+    {
+      "word": "Morgan",
+      "start": 88.653,
+      "end": 88.952
+    },
+    {
+      "word": "owns",
+      "start": 89.08,
+      "end": 89.3788
+    },
+    {
+      "word": "the",
+      "start": 89.421,
+      "end": 89.5068
+    },
+    {
+      "word": "outcome.",
+      "start": 89.549,
+      "end": 90.061
+    },
+    {
+      "word": "If",
+      "start": 90.232,
+      "end": 90.616
+    },
+    {
+      "word": "both",
+      "start": 90.659,
+      "end": 90.9148
+    },
+    {
+      "word": "preparation",
+      "start": 91,
+      "end": 91.384
+    },
+    {
+      "word": "roles",
+      "start": 91.597,
+      "end": 91.768
+    },
+    {
+      "word": "produce",
+      "start": 91.896,
+      "end": 92.152
+    },
+    {
+      "word": "separate",
+      "start": 92.28,
+      "end": 92.621
+    },
+    {
+      "word": "answers",
+      "start": 92.664,
+      "end": 93.048
+    },
+    {
+      "word": "without",
+      "start": 93.176,
+      "end": 93.261
+    },
+    {
+      "word": "a",
+      "start": 93.432,
+      "end": 93.517
+    },
+    {
+      "word": "common",
+      "start": 93.56,
+      "end": 93.7308
+    },
+    {
+      "word": "handoff,",
+      "start": 93.859,
+      "end": 94.435
+    },
+    {
+      "word": "Morgan",
+      "start": 94.627,
+      "end": 94.8828
+    },
+    {
+      "word": "gets",
+      "start": 95.053,
+      "end": 95.181
+    },
+    {
+      "word": "a",
+      "start": 95.267,
+      "end": 95.309
+    },
+    {
+      "word": "small",
+      "start": 95.352,
+      "end": 95.608
+    },
+    {
+      "word": "swarm",
+      "start": 95.694,
+      "end": 96.0348
+    },
+    {
+      "word": "and",
+      "start": 96.163,
+      "end": 96.3335
+    },
+    {
+      "word": "two",
+      "start": 96.376,
+      "end": 96.5895
+    },
+    {
+      "word": "versions",
+      "start": 96.632,
+      "end": 97.016
+    },
+    {
+      "word": "of",
+      "start": 97.102,
+      "end": 97.1868
+    },
+    {
+      "word": "the",
+      "start": 97.23,
+      "end": 97.3148
+    },
+    {
+      "word": "truth.",
+      "start": 97.358,
+      "end": 97.836
+    },
+    {
+      "word": "Chapter",
+      "start": 98.101,
+      "end": 98.442
+    },
+    {
+      "word": "Twelve's",
+      "start": 98.485,
+      "end": 98.869
+    },
+    {
+      "word": "Pod",
+      "start": 98.912,
+      "end": 99.125
+    },
+    {
+      "word": "Model",
+      "start": 99.253,
+      "end": 99.466
+    },
+    {
+      "word": "asks",
+      "start": 99.552,
+      "end": 99.8077
+    },
+    {
+      "word": "for",
+      "start": 99.936,
+      "end": 100.064
+    },
+    {
+      "word": "a",
+      "start": 100.106,
+      "end": 100.149
+    },
+    {
+      "word": "charter,",
+      "start": 100.192,
+      "end": 100.682
+    },
+    {
+      "word": "lead,",
+      "start": 100.874,
+      "end": 101.28
+    },
+    {
+      "word": "specialists,",
+      "start": 101.472,
+      "end": 102.154
+    },
+    {
+      "word": "board,",
+      "start": 102.282,
+      "end": 102.773
+    },
+    {
+      "word": "standup,",
+      "start": 102.965,
+      "end": 103.52
+    },
+    {
+      "word": "and",
+      "start": 103.605,
+      "end": 103.733
+    },
+    {
+      "word": "handoff.",
+      "start": 103.776,
+      "end": 104.501
+    },
+    {
+      "word": "For",
+      "start": 104.885,
+      "end": 104.97
+    },
+    {
+      "word": "this",
+      "start": 105.013,
+      "end": 105.098
+    },
+    {
+      "word": "tiny",
+      "start": 105.184,
+      "end": 105.397
+    },
+    {
+      "word": "classroom",
+      "start": 105.525,
+      "end": 105.9517
+    },
+    {
+      "word": "pod,",
+      "start": 105.994,
+      "end": 106.421
+    },
+    {
+      "word": "keep",
+      "start": 106.634,
+      "end": 106.8477
+    },
+    {
+      "word": "the",
+      "start": 106.933,
+      "end": 107.018
+    },
+    {
+      "word": "lead",
+      "start": 107.061,
+      "end": 107.274
+    },
+    {
+      "word": "as",
+      "start": 107.402,
+      "end": 107.53
+    },
+    {
+      "word": "a",
+      "start": 107.573,
+      "end": 107.6157
+    },
+    {
+      "word": "preparation",
+      "start": 107.658,
+      "end": 108.085
+    },
+    {
+      "word": "coordinator,",
+      "start": 108.298,
+      "end": 108.938
+    },
+    {
+      "word": "not",
+      "start": 109.109,
+      "end": 109.322
+    },
+    {
+      "word": "an",
+      "start": 109.408,
+      "end": 109.45
+    },
+    {
+      "word": "approver.",
+      "start": 109.578,
+      "end": 110.133
+    },
+    {
+      "word": "The",
+      "start": 110.474,
+      "end": 110.602
+    },
+    {
+      "word": "board",
+      "start": 110.645,
+      "end": 110.858
+    },
+    {
+      "word": "is",
+      "start": 111.029,
+      "end": 111.157
+    },
+    {
+      "word": "a",
+      "start": 111.2,
+      "end": 111.285
+    },
+    {
+      "word": "proposed",
+      "start": 111.328,
+      "end": 111.669
+    },
+    {
+      "word": "paper",
+      "start": 111.882,
+      "end": 112.053
+    },
+    {
+      "word": "status",
+      "start": 112.224,
+      "end": 112.565
+    },
+    {
+      "word": "list.",
+      "start": 112.65,
+      "end": 113.171
+    },
+    {
+      "word": "The",
+      "start": 113.563,
+      "end": 113.648
+    },
+    {
+      "word": "standup",
+      "start": 113.691,
+      "end": 114.075
+    },
+    {
+      "word": "is",
+      "start": 114.118,
+      "end": 114.203
+    },
+    {
+      "word": "a",
+      "start": 114.246,
+      "end": 114.288
+    },
+    {
+      "word": "short",
+      "start": 114.331,
+      "end": 114.587
+    },
+    {
+      "word": "proposed",
+      "start": 114.672,
+      "end": 115.0137
+    },
+    {
+      "word": "summary",
+      "start": 115.142,
+      "end": 115.3977
+    },
+    {
+      "word": "of",
+      "start": 115.568,
+      "end": 115.696
+    },
+    {
+      "word": "ready",
+      "start": 115.782,
+      "end": 115.995
+    },
+    {
+      "word": "and",
+      "start": 116.123,
+      "end": 116.251
+    },
+    {
+      "word": "blocked",
+      "start": 116.294,
+      "end": 116.5497
+    },
+    {
+      "word": "work.",
+      "start": 116.678,
+      "end": 117.168
+    },
+    {
+      "word": "The",
+      "start": 117.488,
+      "end": 117.5737
+    },
+    {
+      "word": "charter",
+      "start": 117.616,
+      "end": 117.915
+    },
+    {
+      "word": "is",
+      "start": 118,
+      "end": 118.0857
+    },
+    {
+      "word": "narrow:",
+      "start": 118.128,
+      "end": 118.555
+    },
+    {
+      "word": "prepare",
+      "start": 118.683,
+      "end": 118.9817
+    },
+    {
+      "word": "one",
+      "start": 119.067,
+      "end": 119.28
+    },
+    {
+      "word": "evidence-bound",
+      "start": 119.408,
+      "end": 120.1337
+    },
+    {
+      "word": "option",
+      "start": 120.262,
+      "end": 120.5177
+    },
+    {
+      "word": "brief",
+      "start": 120.688,
+      "end": 120.902
+    },
+    {
+      "word": "for",
+      "start": 120.987,
+      "end": 121.115
+    },
+    {
+      "word": "Morgan.",
+      "start": 121.158,
+      "end": 121.67
+    },
+    {
+      "word": "The",
+      "start": 122.011,
+      "end": 122.139
+    },
+    {
+      "word": "source",
+      "start": 122.182,
+      "end": 122.352
+    },
+    {
+      "word": "checker",
+      "start": 122.48,
+      "end": 122.736
+    },
+    {
+      "word": "may",
+      "start": 122.822,
+      "end": 122.9497
+    },
+    {
+      "word": "flag",
+      "start": 122.992,
+      "end": 123.248
+    },
+    {
+      "word": "staleness,",
+      "start": 123.334,
+      "end": 124.016
+    },
+    {
+      "word": "not",
+      "start": 124.23,
+      "end": 124.4857
+    },
+    {
+      "word": "repair",
+      "start": 124.528,
+      "end": 124.784
+    },
+    {
+      "word": "a",
+      "start": 124.87,
+      "end": 124.912
+    },
+    {
+      "word": "source",
+      "start": 124.955,
+      "end": 125.1257
+    },
+    {
+      "word": "by",
+      "start": 125.296,
+      "end": 125.424
+    },
+    {
+      "word": "inventing",
+      "start": 125.467,
+      "end": 125.808
+    },
+    {
+      "word": "a",
+      "start": 125.894,
+      "end": 125.979
+    },
+    {
+      "word": "newer",
+      "start": 126.022,
+      "end": 126.1497
+    },
+    {
+      "word": "date.",
+      "start": 126.235,
+      "end": 126.694
+    },
+    {
+      "word": "The",
+      "start": 126.981,
+      "end": 127.109
+    },
+    {
+      "word": "drafter",
+      "start": 127.152,
+      "end": 127.536
+    },
+    {
+      "word": "may",
+      "start": 127.579,
+      "end": 127.7068
+    },
+    {
+      "word": "compare,",
+      "start": 127.749,
+      "end": 128.325
+    },
+    {
+      "word": "not",
+      "start": 128.517,
+      "end": 128.688
+    },
+    {
+      "word": "confirm",
+      "start": 128.773,
+      "end": 129.1148
+    },
+    {
+      "word": "staffing.",
+      "start": 129.2,
+      "end": 129.904
+    },
+    {
+      "word": "The",
+      "start": 130.267,
+      "end": 130.3948
+    },
+    {
+      "word": "coordinator",
+      "start": 130.437,
+      "end": 130.864
+    },
+    {
+      "word": "may",
+      "start": 130.949,
+      "end": 131.12
+    },
+    {
+      "word": "route",
+      "start": 131.163,
+      "end": 131.376
+    },
+    {
+      "word": "a",
+      "start": 131.419,
+      "end": 131.504
+    },
+    {
+      "word": "blocked",
+      "start": 131.547,
+      "end": 131.8028
+    },
+    {
+      "word": "packet",
+      "start": 131.973,
+      "end": 132.3148
+    },
+    {
+      "word": "to",
+      "start": 132.357,
+      "end": 132.4428
+    },
+    {
+      "word": "Morgan,",
+      "start": 132.485,
+      "end": 132.827
+    },
+    {
+      "word": "not",
+      "start": 132.997,
+      "end": 133.168
+    },
+    {
+      "word": "override",
+      "start": 133.211,
+      "end": 133.5948
+    },
+    {
+      "word": "the",
+      "start": 133.68,
+      "end": 133.765
+    },
+    {
+      "word": "block.",
+      "start": 133.808,
+      "end": 134.277
+    },
+    {
+      "word": "The",
+      "start": 134.576,
+      "end": 134.704
+    },
+    {
+      "word": "board",
+      "start": 134.747,
+      "end": 134.96
+    },
+    {
+      "word": "should",
+      "start": 135.045,
+      "end": 135.173
+    },
+    {
+      "word": "show",
+      "start": 135.216,
+      "end": 135.472
+    },
+    {
+      "word": "who",
+      "start": 135.557,
+      "end": 135.728
+    },
+    {
+      "word": "holds",
+      "start": 135.771,
+      "end": 135.984
+    },
+    {
+      "word": "the",
+      "start": 136.069,
+      "end": 136.197
+    },
+    {
+      "word": "next",
+      "start": 136.24,
+      "end": 136.325
+    },
+    {
+      "word": "move.",
+      "start": 136.453,
+      "end": 136.956
+    },
+    {
+      "word": "If",
+      "start": 137.288,
+      "end": 137.459
+    },
+    {
+      "word": "nobody",
+      "start": 137.544,
+      "end": 137.672
+    },
+    {
+      "word": "owns",
+      "start": 137.928,
+      "end": 138.1417
+    },
+    {
+      "word": "a",
+      "start": 138.184,
+      "end": 138.2697
+    },
+    {
+      "word": "failed",
+      "start": 138.312,
+      "end": 138.483
+    },
+    {
+      "word": "source",
+      "start": 138.611,
+      "end": 138.824
+    },
+    {
+      "word": "check,",
+      "start": 138.952,
+      "end": 139.315
+    },
+    {
+      "word": "the",
+      "start": 139.507,
+      "end": 139.635
+    },
+    {
+      "word": "org",
+      "start": 139.678,
+      "end": 139.848
+    },
+    {
+      "word": "chart",
+      "start": 139.934,
+      "end": 140.104
+    },
+    {
+      "word": "is",
+      "start": 140.232,
+      "end": 140.3177
+    },
+    {
+      "word": "decorative.",
+      "start": 140.403,
+      "end": 141.043
+    },
+    {
+      "word": "Write",
+      "start": 141.342,
+      "end": 141.5977
+    },
+    {
+      "word": "that",
+      "start": 141.683,
+      "end": 141.811
+    },
+    {
+      "word": "ownership",
+      "start": 141.854,
+      "end": 142.2377
+    },
+    {
+      "word": "into",
+      "start": 142.323,
+      "end": 142.451
+    },
+    {
+      "word": "the",
+      "start": 142.536,
+      "end": 142.6217
+    },
+    {
+      "word": "handoff",
+      "start": 142.664,
+      "end": 143.048
+    },
+    {
+      "word": "now.",
+      "start": 143.134,
+      "end": 143.582
+    },
+    {
+      "word": "Pause.",
+      "start": 143.859,
+      "end": 144.328
+    },
+    {
+      "word": "Who",
+      "start": 144.542,
+      "end": 144.883
+    },
+    {
+      "word": "would",
+      "start": 144.926,
+      "end": 144.968
+    },
+    {
+      "word": "receive",
+      "start": 145.011,
+      "end": 145.1817
+    },
+    {
+      "word": "the",
+      "start": 145.352,
+      "end": 145.4377
+    },
+    {
+      "word": "brief",
+      "start": 145.48,
+      "end": 145.736
+    },
+    {
+      "word": "if",
+      "start": 145.907,
+      "end": 146.035
+    },
+    {
+      "word": "the",
+      "start": 146.078,
+      "end": 146.163
+    },
+    {
+      "word": "facilitator",
+      "start": 146.206,
+      "end": 146.7177
+    },
+    {
+      "word": "note",
+      "start": 146.803,
+      "end": 146.9737
+    },
+    {
+      "word": "stays",
+      "start": 147.059,
+      "end": 147.272
+    },
+    {
+      "word": "unconfirmed?",
+      "start": 147.358,
+      "end": 148.275
+    },
+    {
+      "word": "Name",
+      "start": 148.595,
+      "end": 148.808
+    },
+    {
+      "word": "the",
+      "start": 148.894,
+      "end": 148.979
+    },
+    {
+      "word": "role",
+      "start": 149.022,
+      "end": 149.1497
+    },
+    {
+      "word": "and",
+      "start": 149.406,
+      "end": 149.619
+    },
+    {
+      "word": "the",
+      "start": 149.662,
+      "end": 149.747
+    },
+    {
+      "word": "human.",
+      "start": 149.747,
+      "end": 150.188
+    },
+    {
+      "word": "Draft",
+      "start": 150.458,
+      "end": 150.756
+    },
+    {
+      "word": "the",
+      "start": 150.841,
+      "end": 150.9269
+    },
+    {
+      "word": "seven-field",
+      "start": 150.97,
+      "end": 151.4389
+    },
+    {
+      "word": "PRD",
+      "start": 151.524,
+      "end": 151.9935
+    },
+    {
+      "word": "in",
+      "start": 152.121,
+      "end": 152.292
+    },
+    {
+      "word": "under",
+      "start": 152.335,
+      "end": 152.4629
+    },
+    {
+      "word": "a",
+      "start": 152.591,
+      "end": 152.633
+    },
+    {
+      "word": "page.",
+      "start": 152.676,
+      "end": 153.21
+    },
+    {
+      "word": "Give",
+      "start": 153.572,
+      "end": 153.743
+    },
+    {
+      "word": "it",
+      "start": 153.786,
+      "end": 153.828
+    },
+    {
+      "word": "two",
+      "start": 153.913,
+      "end": 154.084
+    },
+    {
+      "word": "acceptance",
+      "start": 154.212,
+      "end": 154.596
+    },
+    {
+      "word": "tests,",
+      "start": 154.681,
+      "end": 155.236
+    },
+    {
+      "word": "including",
+      "start": 155.407,
+      "end": 155.62
+    },
+    {
+      "word": "the",
+      "start": 155.748,
+      "end": 155.7909
+    },
+    {
+      "word": "staffing",
+      "start": 155.833,
+      "end": 156.132
+    },
+    {
+      "word": "claim,",
+      "start": 156.218,
+      "end": 156.58
+    },
+    {
+      "word": "and",
+      "start": 156.73,
+      "end": 157.0709
+    },
+    {
+      "word": "one",
+      "start": 157.113,
+      "end": 157.412
+    },
+    {
+      "word": "explicit",
+      "start": 157.54,
+      "end": 158.0949
+    },
+    {
+      "word": "failure",
+      "start": 158.137,
+      "end": 158.4789
+    },
+    {
+      "word": "route.",
+      "start": 158.522,
+      "end": 158.906
+    },
+    {
+      "word": "Then",
+      "start": 159.119,
+      "end": 159.332
+    },
+    {
+      "word": "sketch",
+      "start": 159.417,
+      "end": 159.716
+    },
+    {
+      "word": "the",
+      "start": 159.844,
+      "end": 159.972
+    },
+    {
+      "word": "Pod",
+      "start": 160.015,
+      "end": 160.185
+    },
+    {
+      "word": "Model:",
+      "start": 160.271,
+      "end": 160.655
+    },
+    {
+      "word": "charter,",
+      "start": 160.826,
+      "end": 161.38
+    },
+    {
+      "word": "lead,",
+      "start": 161.594,
+      "end": 162.02
+    },
+    {
+      "word": "specialists,",
+      "start": 162.233,
+      "end": 162.98
+    },
+    {
+      "word": "board,",
+      "start": 163.172,
+      "end": 163.77
+    },
+    {
+      "word": "standup,",
+      "start": 163.983,
+      "end": 164.644
+    },
+    {
+      "word": "handoff,",
+      "start": 164.751,
+      "end": 165.519
+    },
+    {
+      "word": "and",
+      "start": 165.647,
+      "end": 165.9029
+    },
+    {
+      "word": "human",
+      "start": 165.946,
+      "end": 166.116
+    },
+    {
+      "word": "owner.",
+      "start": 166.202,
+      "end": 166.653
+    },
+    {
+      "word": "Use",
+      "start": 166.891,
+      "end": 167.1468
+    },
+    {
+      "word": "role",
+      "start": 167.232,
+      "end": 167.4028
+    },
+    {
+      "word": "labels",
+      "start": 167.488,
+      "end": 167.7868
+    },
+    {
+      "word": "and",
+      "start": 167.829,
+      "end": 167.9148
+    },
+    {
+      "word": "course",
+      "start": 167.957,
+      "end": 168.128
+    },
+    {
+      "word": "references.",
+      "start": 168.213,
+      "end": 168.917
+    },
+    {
+      "word": "Use",
+      "start": 169.195,
+      "end": 169.365
+    },
+    {
+      "word": "a",
+      "start": 169.408,
+      "end": 169.493
+    },
+    {
+      "word": "fictional",
+      "start": 169.536,
+      "end": 169.877
+    },
+    {
+      "word": "or",
+      "start": 170.048,
+      "end": 170.304
+    },
+    {
+      "word": "approved",
+      "start": 170.389,
+      "end": 170.645
+    },
+    {
+      "word": "example.",
+      "start": 170.816,
+      "end": 171.285
+    },
+    {
+      "word": "Do",
+      "start": 171.541,
+      "end": 171.669
+    },
+    {
+      "word": "not",
+      "start": 171.712,
+      "end": 171.84
+    },
+    {
+      "word": "use",
+      "start": 171.925,
+      "end": 172.096
+    },
+    {
+      "word": "private",
+      "start": 172.181,
+      "end": 172.3948
+    },
+    {
+      "word": "operational",
+      "start": 172.523,
+      "end": 172.864
+    },
+    {
+      "word": "data,",
+      "start": 173.12,
+      "end": 173.504
+    },
+    {
+      "word": "configure",
+      "start": 173.717,
+      "end": 174.144
+    },
+    {
+      "word": "production",
+      "start": 174.187,
+      "end": 174.4428
+    },
+    {
+      "word": "agents,",
+      "start": 174.571,
+      "end": 174.976
+    },
+    {
+      "word": "or",
+      "start": 175.083,
+      "end": 175.296
+    },
+    {
+      "word": "promote",
+      "start": 175.339,
+      "end": 175.637
+    },
+    {
+      "word": "the",
+      "start": 175.723,
+      "end": 175.808
+    },
+    {
+      "word": "pod's",
+      "start": 175.851,
+      "end": 176.192
+    },
+    {
+      "word": "coordinator",
+      "start": 176.235,
+      "end": 176.704
+    },
+    {
+      "word": "into",
+      "start": 176.875,
+      "end": 177.216
+    },
+    {
+      "word": "final",
+      "start": 177.344,
+      "end": 177.6
+    },
+    {
+      "word": "decision",
+      "start": 177.771,
+      "end": 178.0268
+    },
+    {
+      "word": "authority.",
+      "start": 178.197,
+      "end": 178.762
+    },
+    {
+      "word": "Save",
+      "start": 179.028,
+      "end": 179.3696
+    },
+    {
+      "word": "revision",
+      "start": 179.455,
+      "end": 179.668
+    },
+    {
+      "word": "seven",
+      "start": 179.839,
+      "end": 180.095
+    },
+    {
+      "word": "as",
+      "start": 180.266,
+      "end": 180.6496
+    },
+    {
+      "word": "a",
+      "start": 180.692,
+      "end": 180.7776
+    },
+    {
+      "word": "draft.",
+      "start": 180.82,
+      "end": 181.311
+    },
+    {
+      "word": "A",
+      "start": 181.588,
+      "end": 181.844
+    },
+    {
+      "word": "requirement",
+      "start": 181.887,
+      "end": 182.484
+    },
+    {
+      "word": "becomes",
+      "start": 182.527,
+      "end": 182.655
+    },
+    {
+      "word": "useful",
+      "start": 182.868,
+      "end": 183.252
+    },
+    {
+      "word": "when",
+      "start": 183.38,
+      "end": 183.764
+    },
+    {
+      "word": "a",
+      "start": 183.807,
+      "end": 183.8496
+    },
+    {
+      "word": "new",
+      "start": 183.892,
+      "end": 184.063
+    },
+    {
+      "word": "teammate",
+      "start": 184.148,
+      "end": 184.532
+    },
+    {
+      "word": "can",
+      "start": 184.66,
+      "end": 184.788
+    },
+    {
+      "word": "tell",
+      "start": 184.831,
+      "end": 185.0016
+    },
+    {
+      "word": "what",
+      "start": 185.087,
+      "end": 185.3
+    },
+    {
+      "word": "to",
+      "start": 185.343,
+      "end": 185.471
+    },
+    {
+      "word": "prepare",
+      "start": 185.514,
+      "end": 185.812
+    },
+    {
+      "word": "and",
+      "start": 185.983,
+      "end": 186.367
+    },
+    {
+      "word": "when",
+      "start": 186.452,
+      "end": 186.58
+    },
+    {
+      "word": "to",
+      "start": 186.623,
+      "end": 186.751
+    },
+    {
+      "word": "stop.",
+      "start": 186.794,
+      "end": 187.33750566893423
+    },
+    {
+      "word": "<end>",
+      "start": 187.40244897959184,
+      "end": 187.40244897959184
+    }
+  ]
+}

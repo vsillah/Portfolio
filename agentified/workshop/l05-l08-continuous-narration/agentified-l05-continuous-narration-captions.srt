@@ -1,0 +1,268 @@
+1
+00:00:00,000 --> 00:00:01,600
+Friday arrives at Harbor Learning
+
+2
+00:00:01,660 --> 00:00:02,120
+Circle.
+
+3
+00:00:02,370 --> 00:00:04,260
+Morgan has a draft Session Option Brief
+
+4
+00:00:04,320 --> 00:00:05,990
+and a careful correction from last week.
+
+5
+00:00:06,260 --> 00:00:08,010
+But imagine Morgan is out for an hour.
+
+6
+00:00:08,310 --> 00:00:09,150
+Where is the brief?
+
+7
+00:00:09,510 --> 00:00:11,080
+Which source note did the preparation
+
+8
+00:00:11,130 --> 00:00:11,640
+role read?
+
+9
+00:00:12,331 --> 00:00:15,616
+Who can answer a question about the unconfirmed
+facilitator?
+
+10
+00:00:15,872 --> 00:00:21,568
+If the answer lives only in Morgan's head, our
+carefully designed pieces still do not make an
+operating system.
+
+11
+00:00:21,845 --> 00:00:24,592
+We need one page that shows how the work
+travels.
+
+12
+00:00:24,779 --> 00:00:26,614
+Start with the real sequence on paper.
+
+13
+00:00:26,870 --> 00:00:30,241
+A request to compare a free digital-skills
+session enters.
+
+14
+00:00:30,454 --> 00:00:33,462
+A routing rule assigns the evidence-comparison
+role.
+
+15
+00:00:33,782 --> 00:00:37,354
+That role reads the three Harbor course notes
+and prepares a draft.
+
+16
+00:00:37,640 --> 00:00:40,435
+The draft and its short trace wait for Morgan.
+
+17
+00:00:40,798 --> 00:00:45,192
+Morgan may propose the option to the team, ask
+for another date, or hold it.
+
+18
+00:00:45,491 --> 00:00:49,647
+The agent has no route to announce, book, buy,
+or send anything.
+
+19
+00:00:50,048 --> 00:00:52,459
+Draw that sequence before adding another box.
+
+20
+00:00:52,822 --> 00:00:55,766
+Chapter Eight gives the operating map five
+columns.
+
+21
+00:00:55,979 --> 00:00:58,347
+Trigger: what actually starts this row?
+
+22
+00:00:58,624 --> 00:01:00,544
+Role: who owns this step?
+
+23
+00:01:00,843 --> 00:01:02,749
+Tier: what may that role do?
+
+24
+00:01:03,033 --> 00:01:06,745
+Handoff: who receives the work next, including
+a refusal?
+
+25
+00:01:07,044 --> 00:01:09,540
+Evidence: where can a human find the record?
+
+26
+00:01:09,817 --> 00:01:10,991
+A blank is useful.
+
+27
+00:01:11,183 --> 00:01:14,409
+If you cannot name the evidence location, write
+'missing.'
+
+28
+00:01:14,656 --> 00:01:18,304
+A tidy imaginary location would hide the work
+you still need to design.
+
+29
+00:01:18,582 --> 00:01:20,822
+Put the earlier lessons onto those rows.
+
+30
+00:01:21,227 --> 00:01:23,424
+The job sits at the preparation step.
+
+31
+00:01:23,616 --> 00:01:25,451
+The Decision Card sits with Morgan.
+
+32
+00:01:25,750 --> 00:01:28,810
+Source IDs and expiry checks sit at intake.
+
+33
+00:01:29,096 --> 00:01:31,400
+The receipt and trace travel with the brief.
+
+34
+00:01:31,656 --> 00:01:36,136
+Last week's correction remains a memory
+proposal, pending Morgan's separate approval.
+
+35
+00:01:36,478 --> 00:01:39,910
+The controller's route is a written rule, not a
+new decision maker.
+
+36
+00:01:40,227 --> 00:01:45,240
+A new teammate should be able to point to each
+item without asking who remembers where it
+went.
+
+37
+00:01:45,560 --> 00:01:51,674
+The workbook also asks where approval, spend
+checks, public-safe proof, and rollback sit.
+
+38
+00:01:51,985 --> 00:01:55,377
+This classroom workflow has no spending or
+public export.
+
+39
+00:01:55,655 --> 00:02:00,817
+Mark those as closed paths with an owner, not
+as empty arrows that imply they might work.
+
+40
+00:02:01,073 --> 00:02:05,777
+Rollback here means Morgan can withdraw a draft
+recommendation and record why.
+
+41
+00:02:06,042 --> 00:02:09,392
+It does not undo an announcement, because no
+announcement happens.
+
+42
+00:02:09,712 --> 00:02:14,362
+If your own paper map has a step without a
+named owner or a return path, circle it.
+
+43
+00:02:14,618 --> 00:02:16,325
+That is the next design task.
+
+44
+00:02:16,581 --> 00:02:17,255
+Pause.
+
+45
+00:02:17,630 --> 00:02:21,705
+Could someone new find the current brief and
+its source check from this page alone?
+
+46
+00:02:22,110 --> 00:02:23,945
+Name the first missing handoff.
+
+47
+00:02:24,329 --> 00:02:26,676
+Build the Operating Map in your Operating File.
+
+48
+00:02:26,974 --> 00:02:29,161
+Use a fictional or approved example.
+
+49
+00:02:29,512 --> 00:02:32,051
+Do not use private operational data.
+
+50
+00:02:32,371 --> 00:02:34,718
+Give every row the five columns.
+
+51
+00:02:34,974 --> 00:02:40,563
+Place the job, decision, source, receipt,
+memory proposal, and human owner.
+
+52
+00:02:40,862 --> 00:02:45,111
+Label closed paths for spending, publication,
+and external messages.
+
+53
+00:02:45,392 --> 00:02:51,984
+Then trace one failed source check: the note is
+stale, the draft stops, and Morgan receives a
+reason.
+
+54
+00:02:52,304 --> 00:02:54,587
+We are making a design someone can review.
+
+55
+00:03:39,992 --> 00:03:41,971
+Save revision five as a draft.
+
+56
+00:03:42,285 --> 00:03:47,917
+A map earns its place when its blank cells stay
+visible and someone owns each repair.
+
+57
+00:03:48,628 --> 00:03:50,208
+Next we will write the permission slip
+
+58
+00:03:50,258 --> 00:03:52,308
+for the preparation role and ask whether
+
+59
+00:03:52,348 --> 00:03:53,998
+that work still deserves a place in the
+
+60
+00:03:54,038 --> 00:03:54,398
+system.

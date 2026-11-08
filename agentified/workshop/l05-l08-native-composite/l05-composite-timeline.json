@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "lesson_id": "L05",
+  "lesson_duration_seconds": 600,
+  "request_sha256": "54bcd458518d54755c6bc76ae5fbed365440790548eeb02d299e45e589034099",
+  "native_source_sha256": "4fa12be38917aee81f1d90ca965a96254100f2efe24ea64f8886cca51f84b244",
+  "native_source_duration_seconds": 18.24,
+  "native_speed": 1,
+  "source_split_seconds": 11.91,
+  "placements": [
+    {
+      "scene_id": "L05-01",
+      "source_in": 0,
+      "source_out": 11.91,
+      "sequence_start": 0,
+      "sequence_end": 11.91
+    },
+    {
+      "scene_id": "L05-08",
+      "source_in": 11.91,
+      "source_out": 18.24,
+      "sequence_start": 588.67,
+      "sequence_end": 595
+    }
+  ],
+  "provider_free_closing_card": {
+    "start": 595,
+    "end": 600
+  },
+  "presenter_transform": {
+    "x": 1048,
+    "y": 326,
+    "width": 768,
+    "height": 432,
+    "fit": "contain",
+    "border": "solid_gold",
+    "background": "provider_free_textured_studio"
+  }
+}

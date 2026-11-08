@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "four_continuous_narration_composites_ready_for_human_qa",
+  "source_commit": "a260c7593758fd6757ea21ef240a9abc83cc3725",
+  "batch_sha256": "398b0032f735cae199817634f997db89099dbf0c0a9b6c6c123d318c3067eeb1",
+  "jobs_submitted": 4,
+  "retries": 0,
+  "aggregate_credit_cost": 31,
+  "music_used": false,
+  "fixed_ten_minute_padding": false,
+  "lessons": [
+    {
+      "lesson_id": "L05",
+      "composite_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "duration_seconds": 237.687,
+      "exact_credit_debit": 7
+    },
+    {
+      "lesson_id": "L06",
+      "composite_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "duration_seconds": 258.96,
+      "exact_credit_debit": 8
+    },
+    {
+      "lesson_id": "L07",
+      "composite_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "duration_seconds": 251.332,
+      "exact_credit_debit": 8
+    },
+    {
+      "lesson_id": "L08",
+      "composite_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "duration_seconds": 257.68,
+      "exact_credit_debit": 8
+    }
+  ]
+}

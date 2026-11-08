@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "provider_execution_blocked_pending_exact_authorization",
+  "lesson_id": "L08",
+  "correction_scope": "continuous approved narration and narration-led picture edit while preserving exact native presenter passages",
+  "source_commit": "558cd4669e1d48c74a715a99d23eb9d43f74af8d",
+  "rejected_composite_commit": "50f384462565c7cea60cbce56a5ecd0db303811d",
+  "packet_path": "agentified/workshop/scene-production/packets/L08.json",
+  "packet_sha256": "50786f210a2661019764b0dee80c38a189e8d3c8cf530238fd1c8f880a64e436",
+  "existing_avatar_request_sha256": "297bf76b3b3a4179c5ee07fc81039d58351ad10dce12aa01ebddcc3038fcf025",
+  "provider_candidate": "HeyGen create_speech",
+  "requested_call_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "execution_allowed": false,
+  "spending_allowed": false,
+  "voice": {
+    "id": "4f53988b1c314610b514db98432fd0ef",
+    "engine": "heygen_voice",
+    "purpose": "Agentified L08 review-only off-screen narration correction"
+  },
+  "speech_request": {
+    "input_type": "text",
+    "language": "en",
+    "speed": 1,
+    "text": "A polished brief built on that note could still be wrong. The problem is at the handoff. Before we add another checker or give the drafter more authority, write down what must cross that edge.\n\nChapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. Producer: Harbor's source checker. Consumer: brief drafter. Payload: the three course source references, observation and expiry checks, allowed claim for each, open questions, and a trace reference. Preconditions: all references are permitted classroom inputs and checked for freshness. Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. Owner: Morgan, who can revise the paper contract. The receiver does not fill a blank by guessing.\n\nTry a broken payload on purpose. The facilitator note says only 'available for review,' but the handoff labels the facilitator confirmed. The receiver must refuse it. The reason is staffing claim unsupported. The drafter does not quietly edit the source check or send the draft onward. Rejection is a visible outcome, with Morgan as the human fallback. That is the test of a contract: what happens when its promise fails?\n\nNow evaluate the designed workflow. Chapter Fourteen gives four moves: capture, judge, sample, decide. Capture the input IDs, contract and rubric versions, draft, test results, and Morgan's disposition in a privacy-safe classroom record. Judge against a small pass-or-fail rubric. Sample the cases with a human; an automated score can help sort work later, but it cannot become the ground truth. Decide whether to keep the prepare-only design, revise it, or stop it. The score does not grant a send permission.\n\nUse three Harbor cases. Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. Case B: facilitator note stale; fail the freshness check and hold before drafting. Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. Three cases are a classroom starting set, not proof of reliability. If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission.\n\nPause. Which failed case would a neat-looking dashboard be most likely to hide?\n\nWrite the Handoff Contract Card, then grade A, B, and C with a named rubric version. Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. Include a human review rule and the decision you would recommend from these cases. Keep permission at prepare only, regardless of the score. Use a fictional or approved example. Do not use private operational data.\n\nSave revision eight as a draft. We have a map, a permission slip, a job packet, a team, and now a contract we can break in a safe exercise.",
+    "text_sha256": "376a7cf7a301101964b0a44a1f2eab26208f61fd36902d499392010b6fcd3d13",
+    "character_count": 2883,
+    "word_count": 463,
+    "requested_word_timestamps": true
+  },
+  "existing_presenter_audio": {
+    "opening": {
+      "sequence_start": 0,
+      "sequence_end": 13.525
+    },
+    "closing": {
+      "sequence_start": 590.621,
+      "sequence_end": 598
+    },
+    "rule": "Preserve native presenter audio in these windows and never layer synthesized narration over it."
+  },
+  "narration_segments": [
+    {
+      "scene_id": "L08-01",
+      "narration_exact": "A polished brief built on that note could still be wrong. The problem is at the handoff. Before we add another checker or give the drafter more authority, write down what must cross that edge.",
+      "narration_sha256": "50627e3cbf107827d3386e805ad8fc0efc0e89089d31524f6e5b5aa55e56d60c"
+    },
+    {
+      "scene_id": "L08-02",
+      "narration_exact": "Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner. Producer: Harbor's source checker. Consumer: brief drafter. Payload: the three course source references, observation and expiry checks, allowed claim for each, open questions, and a trace reference. Preconditions: all references are permitted classroom inputs and checked for freshness. Rejection path: missing or stale evidence becomes a hold with a reason for Morgan. Owner: Morgan, who can revise the paper contract. The receiver does not fill a blank by guessing.",
+      "narration_sha256": "f72006928751ef8f4391721a19580d59fd96f94f9ab99cdd8b01cfa6dc752f4b"
+    },
+    {
+      "scene_id": "L08-03",
+      "narration_exact": "Try a broken payload on purpose. The facilitator note says only 'available for review,' but the handoff labels the facilitator confirmed. The receiver must refuse it. The reason is staffing claim unsupported. The drafter does not quietly edit the source check or send the draft onward. Rejection is a visible outcome, with Morgan as the human fallback. That is the test of a contract: what happens when its promise fails?",
+      "narration_sha256": "57533fab5702ff215c9f431b0ed5188de1ddc872f5629356a1a08598bc530f29"
+    },
+    {
+      "scene_id": "L08-04",
+      "narration_exact": "Now evaluate the designed workflow. Chapter Fourteen gives four moves: capture, judge, sample, decide. Capture the input IDs, contract and rubric versions, draft, test results, and Morgan's disposition in a privacy-safe classroom record. Judge against a small pass-or-fail rubric. Sample the cases with a human; an automated score can help sort work later, but it cannot become the ground truth. Decide whether to keep the prepare-only design, revise it, or stop it. The score does not grant a send permission.",
+      "narration_sha256": "7d14e60647beca200b9fdee35945b4eef7e66d33deaed704c1bf1b83e8ddf8dd"
+    },
+    {
+      "scene_id": "L08-05",
+      "narration_exact": "Use three Harbor cases. Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan. Case B: facilitator note stale; fail the freshness check and hold before drafting. Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it. Three cases are a classroom starting set, not proof of reliability. If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission.",
+      "narration_sha256": "feda7132dcdf1db0c22d69cd5cb268ea87cfce5490f8534cd9d43e40f9db4a07"
+    },
+    {
+      "scene_id": "L08-06",
+      "narration_exact": "Pause. Which failed case would a neat-looking dashboard be most likely to hide?",
+      "narration_sha256": "ace0896f5c67a26de2478cdecd90c8c4a753155d4be5de2e173a7556a644a77d"
+    },
+    {
+      "scene_id": "L08-07",
+      "narration_exact": "Write the Handoff Contract Card, then grade A, B, and C with a named rubric version. Record a pass or fail for permitted source, freshness, supported claim, and correct human gate. Include a human review rule and the decision you would recommend from these cases. Keep permission at prepare only, regardless of the score. Use a fictional or approved example. Do not use private operational data.",
+      "narration_sha256": "affbf95693024cf0e0051ee0999e76a648cdea885c0d84d23bf5022adc917c5c"
+    },
+    {
+      "scene_id": "L08-08",
+      "narration_exact": "Save revision eight as a draft. We have a map, a permission slip, a job packet, a team, and now a contract we can break in a safe exercise.",
+      "narration_sha256": "4bebb3bd23394d095b55dc82056a5ce33ec03f601fb8b87e7a6bc94f76942957"
+    }
+  ],
+  "edit_policy": {
+    "picture_clock": "derive every visual change from the accepted narration timing rather than the rejected fixed ten-minute scene grid",
+    "transition_rule": "change topics only after a sentence-complete spoken handoff; allow a short L-cut when the next visual supports the current sentence",
+    "ordinary_pause_limit_seconds": 2.5,
+    "guided_work_pause_seconds": 45,
+    "guided_work_treatment": "visible countdown and explicit work prompt; optional low-volume rights-cleared music may run only in this bounded pause",
+    "music_under_narration": false,
+    "fixed_ten_minute_runtime_required": false
+  },
+  "stop_conditions": [
+    "source, script, voice, identity or request hash drift",
+    "missing or unreliable timing data",
+    "provider error or uncertain result",
+    "unexpected debit or cumulative project-spend breach",
+    "omitted, repeated or altered narration",
+    "any ordinary narration gap longer than 2.5 seconds",
+    "any topic cut that precedes its sentence-complete spoken handoff"
+  ],
+  "boundaries": {
+    "avatar_generation_allowed": false,
+    "video_generation_allowed": false,
+    "production_binding_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false
+  },
+  "candidate_sha256": "4b702f78df6ea271ea70a1c1e68783b6a27984be5f5aa5ca711df2c009ea5c38"
+}

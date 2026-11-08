@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "four_narration_calls_blocked_pending_exact_authorization",
+  "source_commit": "558cd4669e1d48c74a715a99d23eb9d43f74af8d",
+  "rejected_composite_commit": "50f384462565c7cea60cbce56a5ecd0db303811d",
+  "call_count": 4,
+  "retries": 0,
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "engine": "heygen_voice",
+  "lessons": [
+    {
+      "lesson_id": "L05",
+      "candidate_sha256": "430d9d8621ff77887c79009dca44b122b2e45b1e3f926ce1de025d3cc431fd93",
+      "speech_text_sha256": "7fe52f75d312b41ce8923c230c052279ec1a17b922093a8320d0fc954af6c8a9",
+      "word_count": 461
+    },
+    {
+      "lesson_id": "L06",
+      "candidate_sha256": "32b04067a9da47f0a640717e3bffe2afb75ba82734f0cfb7b0c7ed927545f189",
+      "speech_text_sha256": "0932a7841d834f39344f09d6e2965e7adcc791a577dc923bf8da6d64aca59555",
+      "word_count": 498
+    },
+    {
+      "lesson_id": "L07",
+      "candidate_sha256": "5f1b708ecb0f91e6360914171cf8ebbea8e89298aeb3af7206141ff1b62f7944",
+      "speech_text_sha256": "479284ac2cc2848c306fc627e549ede99b2c4c7755dcaf75c45b3cc22e5e303e",
+      "word_count": 485
+    },
+    {
+      "lesson_id": "L08",
+      "candidate_sha256": "4b702f78df6ea271ea70a1c1e68783b6a27984be5f5aa5ca711df2c009ea5c38",
+      "speech_text_sha256": "376a7cf7a301101964b0a44a1f2eab26208f61fd36902d499392010b6fcd3d13",
+      "word_count": 463
+    }
+  ],
+  "batch_sha256": "398b0032f735cae199817634f997db89099dbf0c0a9b6c6c123d318c3067eeb1"
+}

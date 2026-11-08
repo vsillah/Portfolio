@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "provider_execution_blocked_pending_exact_authorization",
+  "lesson_id": "L07",
+  "correction_scope": "continuous approved narration and narration-led picture edit while preserving exact native presenter passages",
+  "source_commit": "558cd4669e1d48c74a715a99d23eb9d43f74af8d",
+  "rejected_composite_commit": "50f384462565c7cea60cbce56a5ecd0db303811d",
+  "packet_path": "agentified/workshop/scene-production/packets/L07.json",
+  "packet_sha256": "fefbdc1e3cf386b7220284ace5ac8c818030f2c8e8b8c94db9c3f7a83e8dcf87",
+  "existing_avatar_request_sha256": "f35b6f521276b7b7ee03806f3c58de0acb4236ea90c005859c293ee065a47bcd",
+  "provider_candidate": "HeyGen create_speech",
+  "requested_call_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "execution_allowed": false,
+  "spending_allowed": false,
+  "voice": {
+    "id": "4f53988b1c314610b514db98432fd0ef",
+    "engine": "heygen_voice",
+    "purpose": "Agentified L07 review-only off-screen narration correction"
+  },
+  "speech_request": {
+    "input_type": "text",
+    "language": "en",
+    "speed": 1,
+    "text": "The preparation role did what an old brief told it to do: 'Summarize the best session option.' That sentence left the hardest part in Morgan's head. What counts as ready? Which source is required? When must the work stop? A human colleague might ask. A paper agent design needs those answers written down.\n\nChapter Eleven turns the request into an Agentic PRD Packet. Seven fields carry the load: outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal. The outcome is a comparison Morgan can review, not a session announcement. Scope fences keep the role away from participant messages and calendar changes. The input manifest lists the three Harbor note references and their freshness checks. An acceptance test says staffing language must match the facilitator note exactly in meaning. If the note is missing or ambiguous, the escalation is a hold for Morgan.\n\nReversal is modest here. Morgan can return a draft for correction or withdraw it from review. There is no external send to reverse. A test result belongs beside the draft as evidence: source IDs checked, staffing wording checked, review gate present. A failed check does not become a footnote under a confident recommendation. It blocks the handoff. This packet remains a proposed design; writing it does not configure an agent.\n\nNow give the work an organization. One role checks sources; one role assembles the comparison; Morgan owns the outcome. If both preparation roles produce separate answers without a common handoff, Morgan gets a small swarm and two versions of the truth. Chapter Twelve's Pod Model asks for a charter, lead, specialists, board, standup, and handoff. For this tiny classroom pod, keep the lead as a preparation coordinator, not an approver. The board is a proposed paper status list. The standup is a short proposed summary of ready and blocked work.\n\nThe charter is narrow: prepare one evidence-bound option brief for Morgan. The source checker may flag staleness, not repair a source by inventing a newer date. The drafter may compare, not confirm staffing. The coordinator may route a blocked packet to Morgan, not override the block. The board should show who holds the next move. If nobody owns a failed source check, the org chart is decorative. Write that ownership into the handoff now.\n\nPause. Who would receive the brief if the facilitator note stays unconfirmed? Name the role and the human.\n\nDraft the seven-field PRD in under a page. Give it two acceptance tests, including the staffing claim, and one explicit failure route. Then sketch the Pod Model: charter, lead, specialists, board, standup, handoff, and human owner. Use role labels and course references. Use a fictional or approved example. Do not use private operational data, configure production agents, or promote the pod's coordinator into final decision authority.\n\nSave revision seven as a draft. A requirement becomes useful when a new teammate can tell what to prepare and when to stop.",
+    "text_sha256": "479284ac2cc2848c306fc627e549ede99b2c4c7755dcaf75c45b3cc22e5e303e",
+    "character_count": 2991,
+    "word_count": 485,
+    "requested_word_timestamps": true
+  },
+  "existing_presenter_audio": {
+    "opening": {
+      "sequence_start": 0,
+      "sequence_end": 9.37
+    },
+    "closing": {
+      "sequence_start": 589.89,
+      "sequence_end": 596
+    },
+    "rule": "Preserve native presenter audio in these windows and never layer synthesized narration over it."
+  },
+  "narration_segments": [
+    {
+      "scene_id": "L07-01",
+      "narration_exact": "The preparation role did what an old brief told it to do: 'Summarize the best session option.' That sentence left the hardest part in Morgan's head. What counts as ready? Which source is required? When must the work stop? A human colleague might ask. A paper agent design needs those answers written down.",
+      "narration_sha256": "9b3e224e1b111e14bebfb1a49ac1ad4be3a6fe641ec8c8a999c2ac63dc2ab566"
+    },
+    {
+      "scene_id": "L07-02",
+      "narration_exact": "Chapter Eleven turns the request into an Agentic PRD Packet. Seven fields carry the load: outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal. The outcome is a comparison Morgan can review, not a session announcement. Scope fences keep the role away from participant messages and calendar changes. The input manifest lists the three Harbor note references and their freshness checks. An acceptance test says staffing language must match the facilitator note exactly in meaning. If the note is missing or ambiguous, the escalation is a hold for Morgan.",
+      "narration_sha256": "0a41c289cceb3c226edad30359557fce8dd3662bacecc239f1d79e3a9c5c63d5"
+    },
+    {
+      "scene_id": "L07-03",
+      "narration_exact": "Reversal is modest here. Morgan can return a draft for correction or withdraw it from review. There is no external send to reverse. A test result belongs beside the draft as evidence: source IDs checked, staffing wording checked, review gate present. A failed check does not become a footnote under a confident recommendation. It blocks the handoff. This packet remains a proposed design; writing it does not configure an agent.",
+      "narration_sha256": "053c59cc2405b191cec55eb3ba00fec44b5e47abe86477b54e53b7498b8d29fb"
+    },
+    {
+      "scene_id": "L07-04",
+      "narration_exact": "Now give the work an organization. One role checks sources; one role assembles the comparison; Morgan owns the outcome. If both preparation roles produce separate answers without a common handoff, Morgan gets a small swarm and two versions of the truth. Chapter Twelve's Pod Model asks for a charter, lead, specialists, board, standup, and handoff. For this tiny classroom pod, keep the lead as a preparation coordinator, not an approver. The board is a proposed paper status list. The standup is a short proposed summary of ready and blocked work.",
+      "narration_sha256": "071bbca1f917add6e2e44cb12ec4973c5fdbd1c0d75e899bcc8b10d7a01f7846"
+    },
+    {
+      "scene_id": "L07-05",
+      "narration_exact": "The charter is narrow: prepare one evidence-bound option brief for Morgan. The source checker may flag staleness, not repair a source by inventing a newer date. The drafter may compare, not confirm staffing. The coordinator may route a blocked packet to Morgan, not override the block. The board should show who holds the next move. If nobody owns a failed source check, the org chart is decorative. Write that ownership into the handoff now.",
+      "narration_sha256": "9e9f7b36343f948351c60552b91b5a71a18cb7cb694d3e25ee10c9da5d68fed0"
+    },
+    {
+      "scene_id": "L07-06",
+      "narration_exact": "Pause. Who would receive the brief if the facilitator note stays unconfirmed? Name the role and the human.",
+      "narration_sha256": "589f60eedf66a3303f70be5263d5aeee9fe07934ab5cbab348f0369264addad2"
+    },
+    {
+      "scene_id": "L07-07",
+      "narration_exact": "Draft the seven-field PRD in under a page. Give it two acceptance tests, including the staffing claim, and one explicit failure route. Then sketch the Pod Model: charter, lead, specialists, board, standup, handoff, and human owner. Use role labels and course references. Use a fictional or approved example. Do not use private operational data, configure production agents, or promote the pod's coordinator into final decision authority.",
+      "narration_sha256": "87ee5f0a4809b2cf0b33751d488cfd607783722294006b246d793237d9b54fef"
+    },
+    {
+      "scene_id": "L07-08",
+      "narration_exact": "Save revision seven as a draft. A requirement becomes useful when a new teammate can tell what to prepare and when to stop.",
+      "narration_sha256": "f73def185ceba33e3b5c4f96b27a6231c3549dcf561d30f257a25325af5644b1"
+    }
+  ],
+  "edit_policy": {
+    "picture_clock": "derive every visual change from the accepted narration timing rather than the rejected fixed ten-minute scene grid",
+    "transition_rule": "change topics only after a sentence-complete spoken handoff; allow a short L-cut when the next visual supports the current sentence",
+    "ordinary_pause_limit_seconds": 2.5,
+    "guided_work_pause_seconds": 45,
+    "guided_work_treatment": "visible countdown and explicit work prompt; optional low-volume rights-cleared music may run only in this bounded pause",
+    "music_under_narration": false,
+    "fixed_ten_minute_runtime_required": false
+  },
+  "stop_conditions": [
+    "source, script, voice, identity or request hash drift",
+    "missing or unreliable timing data",
+    "provider error or uncertain result",
+    "unexpected debit or cumulative project-spend breach",
+    "omitted, repeated or altered narration",
+    "any ordinary narration gap longer than 2.5 seconds",
+    "any topic cut that precedes its sentence-complete spoken handoff"
+  ],
+  "boundaries": {
+    "avatar_generation_allowed": false,
+    "video_generation_allowed": false,
+    "production_binding_allowed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false
+  },
+  "candidate_sha256": "5f1b708ecb0f91e6360914171cf8ebbea8e89298aeb3af7206141ff1b62f7944"
+}

@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:01,870
+Morgan receives a polished Session
+
+2
+00:00:01,950 --> 00:00:02,660
+Option Brief.
+
+3
+00:00:02,800 --> 00:00:04,420
+It compares three notes and says the
+
+4
+00:00:04,470 --> 00:00:05,830
+facilitator is confirmed.
+
+5
+00:00:05,930 --> 00:00:07,190
+That one word is wrong.
+
+6
+00:00:07,300 --> 00:00:09,270
+The source said ‘available for review.’
+
+7
+00:00:09,400 --> 00:00:10,980
+A team becomes useful when a blocked
+
+8
+00:00:11,030 --> 00:00:12,530
+packet has one place to land.
+
+9
+00:00:12,640 --> 00:00:14,130
+Next we will test that handoff with
+
+10
+00:00:14,180 --> 00:00:15,210
+three course cases.

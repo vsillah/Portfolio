@@ -1,0 +1,589 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_continuous_narration_composite_ready_for_human_qa",
+  "lesson_id": "L06",
+  "source_commit": "a260c7593758fd6757ea21ef240a9abc83cc3725",
+  "batch_sha256": "398b0032f735cae199817634f997db89099dbf0c0a9b6c6c123d318c3067eeb1",
+  "request_candidate_sha256": "32b04067a9da47f0a640717e3bffe2afb75ba82734f0cfb7b0c7ed927545f189",
+  "speech_text_sha256": "0932a7841d834f39344f09d6e2965e7adcc791a577dc923bf8da6d64aca59555",
+  "provider_request_id": "3d3adb85f71f4519ab584875249a3999",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "exact_credit_debit": 8,
+  "narration_source": {
+    "path": "agentified/workshop/l05-l08-continuous-narration/L06/agentified-l06-continuous-narration-source.mp3",
+    "sha256": "ba3ea1bff778bf93c3e7ba46c080d6a807d7490dc29e100e930d4d08b4de95a9",
+    "duration_seconds": 190.902844
+  },
+  "presenter_source": {
+    "path": "agentified/workshop/l05-l08-native-source/L06/agentified-l06-heygen-native-source.mp4",
+    "sha256": "203ec00bb46a1fb3c167346f896472f414da41ea7d7078f742f0e9870d3f421f",
+    "source_split_seconds": 13.64,
+    "placements": [
+      {
+        "source_start": 0,
+        "source_end": 13.64,
+        "sequence_start": 0,
+        "sequence_end": 13.64
+      },
+      {
+        "source_start": 13.64,
+        "source_end": 19.607,
+        "sequence_start": 249.99284399999996,
+        "sequence_end": 255.95984399999998
+      }
+    ],
+    "background_treatment": "provider_free_textured_studio_reconstruction"
+  },
+  "segment_placements": [
+    {
+      "scene_id": "L06-01",
+      "source_start": 0.213,
+      "source_end": 14.322,
+      "sequence_start": 14.103,
+      "sequence_end": 28.212
+    },
+    {
+      "scene_id": "L06-02",
+      "source_start": 14.749,
+      "source_end": 51.407,
+      "sequence_start": 28.639000000000003,
+      "sequence_end": 65.297
+    },
+    {
+      "scene_id": "L06-03",
+      "source_start": 51.642,
+      "source_end": 83.272,
+      "sequence_start": 65.53200000000001,
+      "sequence_end": 97.162
+    },
+    {
+      "scene_id": "L06-04",
+      "source_start": 83.592,
+      "source_end": 118.382,
+      "sequence_start": 97.482,
+      "sequence_end": 132.272
+    },
+    {
+      "scene_id": "L06-05",
+      "source_start": 118.596,
+      "source_end": 148.475,
+      "sequence_start": 132.486,
+      "sequence_end": 162.365
+    },
+    {
+      "scene_id": "L06-06",
+      "source_start": 148.709,
+      "source_end": 154.89,
+      "sequence_start": 162.599,
+      "sequence_end": 168.77999999999997
+    },
+    {
+      "scene_id": "L06-07",
+      "source_start": 155.125,
+      "source_end": 184.721,
+      "sequence_start": 169.015,
+      "sequence_end": 198.611
+    },
+    {
+      "scene_id": "L06-08",
+      "source_start": 185.084,
+      "source_end": 190.667,
+      "sequence_start": 243.97400000000002,
+      "sequence_end": 249.55700000000004
+    }
+  ],
+  "sentence_placements": [
+    {
+      "scene_id": "L06-01",
+      "text": "One Friday, the facilitator note says 'available for review.'",
+      "source_start": 0.213,
+      "source_end": 4.167,
+      "sequence_start": 14.103,
+      "sequence_end": 18.057000000000002
+    },
+    {
+      "scene_id": "L06-01",
+      "text": "If the agent quietly treats that as permission to confirm a teacher, the map looks orderly while the work crosses a boundary.",
+      "source_start": 4.352,
+      "source_end": 10.745,
+      "sequence_start": 18.242,
+      "sequence_end": 24.634999999999998
+    },
+    {
+      "scene_id": "L06-01",
+      "text": "We need a permission slip someone can inspect before the next draft.",
+      "source_start": 10.909,
+      "source_end": 14.322,
+      "sequence_start": 24.799,
+      "sequence_end": 28.212
+    },
+    {
+      "scene_id": "L06-02",
+      "text": "Chapter Nine names five fields: scope, ceiling, reversibility, escalation, and expiry.",
+      "source_start": 14.749,
+      "source_end": 21.597,
+      "sequence_start": 28.639000000000003,
+      "sequence_end": 35.487
+    },
+    {
+      "scene_id": "L06-02",
+      "text": "For Harbor, scope is three cleared course notes and a draft brief.",
+      "source_start": 21.959,
+      "source_end": 25.74,
+      "sequence_start": 35.849000000000004,
+      "sequence_end": 39.629999999999995
+    },
+    {
+      "scene_id": "L06-02",
+      "text": "The ceiling is preparation only.",
+      "source_start": 26.065,
+      "source_end": 28.177,
+      "sequence_start": 39.955,
+      "sequence_end": 42.067
+    },
+    {
+      "scene_id": "L06-02",
+      "text": "The role cannot change the source notes, approve a memory, book a room, contact a facilitator, or message participants.",
+      "source_start": 28.497,
+      "source_end": 36.125,
+      "sequence_start": 42.387,
+      "sequence_end": 50.015
+    },
+    {
+      "scene_id": "L06-02",
+      "text": "Reversibility means Morgan can withdraw or revise a draft; it does not promise that a public message could be undone.",
+      "source_start": 36.457,
+      "source_end": 42.878,
+      "sequence_start": 50.347,
+      "sequence_end": 56.768
+    },
+    {
+      "scene_id": "L06-02",
+      "text": "Escalation names Morgan for missing or conflicting evidence.",
+      "source_start": 43.07,
+      "source_end": 46.375,
+      "sequence_start": 56.96,
+      "sequence_end": 60.265
+    },
+    {
+      "scene_id": "L06-02",
+      "text": "Expiry sends the proposed slip back for review before the next course planning cycle.",
+      "source_start": 46.778,
+      "source_end": 51.407,
+      "sequence_start": 60.668,
+      "sequence_end": 65.297
+    },
+    {
+      "scene_id": "L06-03",
+      "text": "The workbook asks us to place an action on an authority ladder: prepare, recommend, route, stage, execute.",
+      "source_start": 51.642,
+      "source_end": 59.002,
+      "sequence_start": 65.53200000000001,
+      "sequence_end": 72.892
+    },
+    {
+      "scene_id": "L06-03",
+      "text": "Our role sits at prepare.",
+      "source_start": 59.194,
+      "source_end": 61.419,
+      "sequence_start": 73.084,
+      "sequence_end": 75.309
+    },
+    {
+      "scene_id": "L06-03",
+      "text": "Its proposed slip also names permitted source IDs, forbidden inputs, the receipt, source checks, an owner, and a revocation path.",
+      "source_start": 61.682,
+      "source_end": 69.789,
+      "sequence_start": 75.572,
+      "sequence_end": 83.679
+    },
+    {
+      "scene_id": "L06-03",
+      "text": "A source that was cleared last week may expire.",
+      "source_start": 70.002,
+      "source_end": 72.787,
+      "sequence_start": 83.892,
+      "sequence_end": 86.677
+    },
+    {
+      "scene_id": "L06-03",
+      "text": "A rule written in a prompt is not enough for our paper design; the permission needs to be visible beside the job and decision.",
+      "source_start": 73.096,
+      "source_end": 80.456,
+      "sequence_start": 86.986,
+      "sequence_end": 94.346
+    },
+    {
+      "scene_id": "L06-03",
+      "text": "This exercise grants no real permission.",
+      "source_start": 80.862,
+      "source_end": 83.272,
+      "sequence_start": 94.752,
+      "sequence_end": 97.162
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "Now test the value of the work itself.",
+      "source_start": 83.592,
+      "source_end": 85.733,
+      "sequence_start": 97.482,
+      "sequence_end": 99.623
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "Suppose Harbor also has a second paper role that drafts a daily weather summary for possible workshops.",
+      "source_start": 86.081,
+      "source_end": 91.713,
+      "sequence_start": 99.971,
+      "sequence_end": 105.603
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "Nobody reads it.",
+      "source_start": 91.927,
+      "source_end": 92.865,
+      "sequence_start": 105.81700000000001,
+      "sequence_end": 106.755
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "It has a clean receipt, but no decision uses it.",
+      "source_start": 93.036,
+      "source_end": 95.952,
+      "sequence_start": 106.926,
+      "sequence_end": 109.842
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "Chapter Ten calls for a Quarterly Cull: proof delivered, permission current, and would we build it again today?",
+      "source_start": 96.179,
+      "source_end": 103.433,
+      "sequence_start": 110.069,
+      "sequence_end": 117.32300000000001
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "The session brief has a named decision and reviewer, though its value is still only a classroom hypothesis.",
+      "source_start": 103.859,
+      "source_end": 109.734,
+      "sequence_start": 117.749,
+      "sequence_end": 123.624
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "The weather summary fails the proof test.",
+      "source_start": 109.977,
+      "source_end": 111.982,
+      "sequence_start": 123.867,
+      "sequence_end": 125.872
+    },
+    {
+      "scene_id": "L06-04",
+      "text": "In this exercise we recommend retirement for human review; we do not delete a trigger or revoke a live tool.",
+      "source_start": 112.196,
+      "source_end": 118.382,
+      "sequence_start": 126.086,
+      "sequence_end": 132.272
+    },
+    {
+      "scene_id": "L06-05",
+      "text": "A retirement decision needs a person too.",
+      "source_start": 118.596,
+      "source_end": 120.758,
+      "sequence_start": 132.486,
+      "sequence_end": 134.648
+    },
+    {
+      "scene_id": "L06-05",
+      "text": "If a real agent existed, a human owner would review the evidence, sign the sunset, revoke access, archive governed memory, remove triggers, and record the change.",
+      "source_start": 121,
+      "source_end": 131.069,
+      "sequence_start": 134.89,
+      "sequence_end": 144.959
+    },
+    {
+      "scene_id": "L06-05",
+      "text": "Neglect leaves permissions behind.",
+      "source_start": 131.453,
+      "source_end": 133.511,
+      "sequence_start": 145.34300000000002,
+      "sequence_end": 147.401
+    },
+    {
+      "scene_id": "L06-05",
+      "text": "Here, there is no running agent, no trigger, and no memory to remove.",
+      "source_start": 133.904,
+      "source_end": 138.533,
+      "sequence_start": 147.79399999999998,
+      "sequence_end": 152.423
+    },
+    {
+      "scene_id": "L06-05",
+      "text": "Write the proposed decision and its reason.",
+      "source_start": 138.853,
+      "source_end": 141.307,
+      "sequence_start": 152.743,
+      "sequence_end": 155.197
+    },
+    {
+      "scene_id": "L06-05",
+      "text": "Keep the external world untouched.",
+      "source_start": 141.669,
+      "source_end": 143.717,
+      "sequence_start": 155.55900000000003,
+      "sequence_end": 157.60700000000003
+    },
+    {
+      "scene_id": "L06-05",
+      "text": "The same human discipline governs adding a capability and taking one away.",
+      "source_start": 143.93,
+      "source_end": 148.475,
+      "sequence_start": 157.82,
+      "sequence_end": 162.365
+    },
+    {
+      "scene_id": "L06-06",
+      "text": "Pause.",
+      "source_start": 148.709,
+      "source_end": 149.336,
+      "sequence_start": 162.599,
+      "sequence_end": 163.226
+    },
+    {
+      "scene_id": "L06-06",
+      "text": "Which line in the slip would prevent a well-written brief from turning into an unauthorized announcement?",
+      "source_start": 149.706,
+      "source_end": 154.89,
+      "sequence_start": 163.596,
+      "sequence_end": 168.77999999999997
+    },
+    {
+      "scene_id": "L06-07",
+      "text": "Write the Permission Slip for the preparation role.",
+      "source_start": 155.125,
+      "source_end": 157.728,
+      "sequence_start": 169.015,
+      "sequence_end": 171.618
+    },
+    {
+      "scene_id": "L06-07",
+      "text": "Include each of the five fields, its authority rung, read and write scope, retention rule, source check, receipt, approval owner, review date, and revocation path.",
+      "source_start": 157.985,
+      "source_end": 168.197,
+      "sequence_start": 171.875,
+      "sequence_end": 182.087
+    },
+    {
+      "scene_id": "L06-07",
+      "text": "Then run the Quarterly Cull on the session brief role and the course weather-summary role.",
+      "source_start": 168.51,
+      "source_end": 173.417,
+      "sequence_start": 182.39999999999998,
+      "sequence_end": 187.30700000000002
+    },
+    {
+      "scene_id": "L06-07",
+      "text": "Use the three tests and record keep, narrow, or retirement proposal.",
+      "source_start": 173.758,
+      "source_end": 178.195,
+      "sequence_start": 187.64800000000002,
+      "sequence_end": 192.08499999999998
+    },
+    {
+      "scene_id": "L06-07",
+      "text": "Use a fictional or approved example.",
+      "source_start": 178.494,
+      "source_end": 180.594,
+      "sequence_start": 192.38400000000001,
+      "sequence_end": 194.48399999999998
+    },
+    {
+      "scene_id": "L06-07",
+      "text": "Do not use private operational data or grant a real permission.",
+      "source_start": 180.946,
+      "source_end": 184.721,
+      "sequence_start": 194.836,
+      "sequence_end": 198.611
+    },
+    {
+      "scene_id": "L06-08",
+      "text": "Save revision six as a draft.",
+      "source_start": 185.084,
+      "source_end": 186.833,
+      "sequence_start": 243.97400000000002,
+      "sequence_end": 245.72299999999998
+    },
+    {
+      "scene_id": "L06-08",
+      "text": "A role's permission and its reason to exist both need renewal.",
+      "source_start": 187.132,
+      "source_end": 190.667,
+      "sequence_start": 246.02200000000002,
+      "sequence_end": 249.55700000000004
+    }
+  ],
+  "guided_work_window": {
+    "start": 198.79250000000002,
+    "end": 243.79250000000002,
+    "duration": 45,
+    "purpose": "clearly signposted guided learner work with synchronized countdown"
+  },
+  "narration_audio_spans": [
+    {
+      "source_start": 0,
+      "source_end": 184.9025,
+      "sequence_start": 13.89,
+      "sequence_end": 198.79250000000002
+    },
+    {
+      "source_start": 184.9025,
+      "source_end": 190.902844,
+      "sequence_start": 243.79250000000002,
+      "sequence_end": 249.79284399999997
+    }
+  ],
+  "transition_policy": {
+    "sentence_complete_handoffs": true,
+    "natural_source_pauses_preserved": true,
+    "ordinary_gap_seconds": 0,
+    "full_narration_tail_preserved": true,
+    "closing_handoff_gap_seconds": 0.2,
+    "music_used": false,
+    "fixed_ten_minute_padding": false
+  },
+  "composite": {
+    "path": "agentified/workshop/l05-l08-continuous-narration/agentified-l06-continuous-narration-composite.mp4",
+    "sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+    "duration_seconds": 258.96
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l06-continuous-narration-captions.srt",
+    "srt_sha256": "3a34590be7c31a27eac9f29689ee8024fca54b237b5c46cc9a7f1bd2eddb3af3",
+    "vtt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l06-continuous-narration-captions.vtt",
+    "vtt_sha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba"
+  },
+  "continuity_validation": {
+    "ordinary_silence_limit_seconds": 2.5,
+    "detected_silences": [
+      {
+        "start": 4.988875,
+        "end": 5.526208,
+        "duration": 0.5373329999999994
+      },
+      {
+        "start": 6.940708,
+        "end": 7.469292,
+        "duration": 0.5285840000000004
+      },
+      {
+        "start": 11.126229,
+        "end": 11.683896,
+        "duration": 0.5576670000000004
+      },
+      {
+        "start": 13.50725,
+        "end": 14.197708,
+        "duration": 0.6904579999999996
+      },
+      {
+        "start": 24.56625,
+        "end": 25.121562,
+        "duration": 0.5553120000000007
+      },
+      {
+        "start": 28.171062,
+        "end": 28.690521,
+        "duration": 0.5194590000000012
+      },
+      {
+        "start": 39.611625,
+        "end": 40.162312,
+        "duration": 0.5506870000000035
+      },
+      {
+        "start": 75.320583,
+        "end": 75.851083,
+        "duration": 0.5305000000000035
+      },
+      {
+        "start": 86.687396,
+        "end": 87.231771,
+        "duration": 0.5443749999999881
+      },
+      {
+        "start": 112.742604,
+        "end": 113.281687,
+        "duration": 0.5390830000000051
+      },
+      {
+        "start": 145.026167,
+        "end": 145.556542,
+        "duration": 0.5303750000000207
+      },
+      {
+        "start": 152.470833,
+        "end": 152.98725,
+        "duration": 0.5164169999999899
+      },
+      {
+        "start": 171.578812,
+        "end": 172.136771,
+        "duration": 0.557959000000011
+      },
+      {
+        "start": 182.0615,
+        "end": 182.617208,
+        "duration": 0.5557080000000099
+      },
+      {
+        "start": 187.178479,
+        "end": 187.87225,
+        "duration": 0.6937709999999981
+      },
+      {
+        "start": 194.437417,
+        "end": 195.044771,
+        "duration": 0.6073539999999866
+      },
+      {
+        "start": 198.582937,
+        "end": 244.02625,
+        "duration": 45.44331300000002
+      },
+      {
+        "start": 249.587687,
+        "end": 250.272667,
+        "duration": 0.6849800000000243
+      },
+      {
+        "start": 255.490125,
+        "end": 258.965333,
+        "duration": 3.4752079999999808
+      }
+    ],
+    "allowed_quiet_windows": [
+      {
+        "start": 198.79250000000002,
+        "end": 243.79250000000002,
+        "duration": 45,
+        "purpose": "clearly signposted guided learner work with synchronized countdown",
+        "tolerance": 1.25
+      },
+      {
+        "start": 255.95984399999998,
+        "end": 258.959844,
+        "duration": 3,
+        "purpose": "provider-free close",
+        "tolerance": 0.5
+      }
+    ],
+    "unexpected_silences": [],
+    "status": "pass"
+  },
+  "boundaries": {
+    "provider_calls_after_speech": 0,
+    "learner_playback_changed": false,
+    "narration_rewritten": false,
+    "publication_or_distribution": false
+  }
+}

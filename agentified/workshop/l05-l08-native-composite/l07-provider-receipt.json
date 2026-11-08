@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "status": "completed_once_no_retry",
+  "lesson_id": "L07",
+  "source_commit": "558cd4669e1d48c74a715a99d23eb9d43f74af8d",
+  "batch_sha256": "392593a8132208a7da39d5a5254f0887e72e6c509bf2d640f3a07fa8be291dee",
+  "request_sha256": "f35b6f521276b7b7ee03806f3c58de0acb4236ea90c005859c293ee065a47bcd",
+  "provider": "HeyGen Avatar IV",
+  "job_id": "c3cc7090dde04b9483d9f4d4de6b852b",
+  "look_id": "7275ba9035f94b31ad589dda6532d002",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "submissions": 1,
+  "retries": 0,
+  "provider_usage": {
+    "credits_before": 1271,
+    "credits_after": 1262,
+    "credit_cost": 9,
+    "cash_purchase_usd": 0,
+    "wallet_debit_usd": null,
+    "note": "The account exposed subscription-credit consumption, not a separate cash debit for this job."
+  },
+  "native_source": {
+    "path": "agentified/workshop/l05-l08-native-source/L07/agentified-l07-heygen-native-source.mp4",
+    "sha256": "47e53cd3023c0189530657505952703ac571e9ebbf9cf0042a0986a4f5f52047",
+    "duration_seconds": 15.48
+  },
+  "provider_captions": {
+    "path": "agentified/workshop/l05-l08-native-source/L07/provider-captions.srt",
+    "sha256": "738c238b803a874e4df165448656c5b358494b246fe3be39b7702a0346162038"
+  },
+  "timing_receipt": {
+    "schema_version": 1,
+    "lesson_id": "L07",
+    "lesson_duration_seconds": 600,
+    "request_sha256": "f35b6f521276b7b7ee03806f3c58de0acb4236ea90c005859c293ee065a47bcd",
+    "native_source_sha256": "47e53cd3023c0189530657505952703ac571e9ebbf9cf0042a0986a4f5f52047",
+    "native_source_duration_seconds": 15.48,
+    "native_speed": 1,
+    "source_split_seconds": 9.37,
+    "placements": [
+      {
+        "scene_id": "L07-01",
+        "source_in": 0,
+        "source_out": 9.37,
+        "sequence_start": 0,
+        "sequence_end": 9.37
+      },
+      {
+        "scene_id": "L07-08",
+        "source_in": 9.37,
+        "source_out": 15.48,
+        "sequence_start": 589.89,
+        "sequence_end": 596
+      }
+    ],
+    "provider_free_closing_card": {
+      "start": 596,
+      "end": 600
+    },
+    "presenter_transform": {
+      "x": 1048,
+      "y": 326,
+      "width": 768,
+      "height": 432,
+      "fit": "contain",
+      "border": "solid_gold",
+      "background": "provider_free_textured_studio"
+    }
+  },
+  "background_treatment": {
+    "mode": "provider_free_textured_studio_reconstruction",
+    "key": "colorkey=0x00e868:0.28:0.08",
+    "edge_despill": "green:mix=0.05:expand=0.02",
+    "native_presenter_pixels_preserved": true
+  },
+  "composite": {
+    "path": "agentified/workshop/l05-l08-native-composite/agentified-l07-native-composite.mp4",
+    "sha256": "f14f0fb4209f7931eaca1d4c955ef6695d48fd1c562eebc4c937f969c324e177",
+    "duration_seconds": 600
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l05-l08-native-composite/agentified-l07-native-captions.srt",
+    "srt_sha256": "00d7ca06180e858ccb063a882e84f18814ad4ce93653120fdfaae851bfc64f1e",
+    "vtt_path": "agentified/workshop/l05-l08-native-composite/agentified-l07-native-captions.vtt",
+    "vtt_sha256": "f82dddc6dfa496360c68898ce3e0672886160410b8bdc72a58e9c319197ab7f4"
+  }
+}

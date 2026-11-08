@@ -1,0 +1,55 @@
+1
+00:00:00,000 --> 00:00:01,940
+The Harbor source checker finishes its
+
+2
+00:00:02,000 --> 00:00:02,330
+pass.
+
+3
+00:00:02,390 --> 00:00:04,100
+The drafter receives a note that says,
+
+4
+00:00:04,100 --> 00:00:05,080
+‘Room okay.
+
+5
+00:00:05,320 --> 00:00:06,380
+Facilitator maybe.
+
+6
+00:00:06,540 --> 00:00:08,640
+Attendance promising.’ It sounds useful.
+
+7
+00:00:08,720 --> 00:00:09,720
+But which room note?
+
+8
+00:00:09,970 --> 00:00:10,840
+When was it checked?
+
+9
+00:00:11,160 --> 00:00:13,040
+What does ‘maybe’ permit the drafter to
+
+10
+00:00:13,100 --> 00:00:13,360
+say?
+
+11
+00:00:13,690 --> 00:00:15,350
+The next review should ask whether the
+
+12
+00:00:15,420 --> 00:00:17,280
+handoff and rubric are clear enough for
+
+13
+00:00:17,320 --> 00:00:19,860
+another person to apply without Morgan
+
+14
+00:00:19,910 --> 00:00:20,590
+explaining them.
