@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_batch_preflight_validated",
+  "source_base_commit": "739c14fe04ce061be90a491d68312e3aca58f133",
+  "lessons": [
+    {
+      "lesson_id": "L02",
+      "title": "Start with the decision",
+      "request_sha256": "de34e97b43f42d17b3d2dc621585b6975afc4fb82689a1419b91ccdc976601dd",
+      "script_sha256": "5e589c9ce3ff24923f6f215c5300ac5171799e572d27660d6f4ffc2168b94a9a",
+      "packet_sha256": "70de632db57786df3afe2decbc58828dc54fa3105c36595c2424251b7022a62a",
+      "poster_sha256": "3977814a4731bbcb60dd4d17d22d640c83cbdfad9f434fe348d6aa5fd8eb84a1",
+      "diagram_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "new_audio_sha256": null,
+      "source_binding_count": 16,
+      "expected_scripted_provider_duration_seconds": 24.668,
+      "closing_card_seconds": 6,
+      "lesson_duration_seconds": 510
+    },
+    {
+      "lesson_id": "L03",
+      "title": "Trace the work and grade the sources",
+      "request_sha256": "d24970460a2c6bdb1c32ec4c5a67b34a88b5abe6f36323b6f3c3a61157dc7c47",
+      "script_sha256": "3e42459bdad850982094af0de03eda93485d9015bdf884b8cdd0a3abfd3baa7d",
+      "packet_sha256": "16ea75b11695550dd0aab29adbf077c25ab9b4ee3810caf831c97021bb0d58c3",
+      "poster_sha256": "7a4635b5d14dbf8b299721c5fc8fce4729b9aa20d0e912b8cdea1d5294e7c390",
+      "diagram_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "new_audio_sha256": null,
+      "source_binding_count": 17,
+      "expected_scripted_provider_duration_seconds": 22.654,
+      "closing_card_seconds": 8,
+      "lesson_duration_seconds": 600
+    },
+    {
+      "lesson_id": "L04",
+      "title": "Turn feedback into governed memory",
+      "request_sha256": "2622f607cb1d8529e8ee0a1af63ef4a61df47bbf134b5a7440cf9cc8fed21ece",
+      "script_sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
+      "packet_sha256": "8af7f38df023004c05048282b1789288172172bd69677e547c152d5a1535336c",
+      "poster_sha256": "a0ccc99e7f6d1688c535d2e065e2d2c9c2432b4af027be402dde9bf196bca19e",
+      "diagram_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "new_audio_sha256": null,
+      "source_binding_count": 17,
+      "expected_scripted_provider_duration_seconds": 24.865,
+      "closing_card_seconds": 3,
+      "lesson_duration_seconds": 600
+    }
+  ],
+  "aggregate_expected_scripted_provider_duration_seconds": 72.187,
+  "aggregate_provider_free_closing_card_seconds": 17,
+  "maximum_jobs_if_later_authorized": 3,
+  "jobs_submitted_now": 0,
+  "cost_cap_evidence": {
+    "project_authorization_path": "agentified/workshop/provider-budget-authorization.json",
+    "project_authorization_sha256": "b1ed10abcfb2fb10ef46940e32f0a5577af671e6309e56edcf06150c34a1fc3c",
+    "authorized_aggregate_cash_cap_usd": 100,
+    "l01_historical_receipt_path": "agentified/workshop/l01-native-source/provider-receipt.json",
+    "l01_historical_receipt_sha256": "4e0f63a4f0d58d68b949549dc969f9f84cd84d99552b88c3990fbbaa4535baf5",
+    "l01_historical_billable_seconds": 19,
+    "l01_historical_credits": 15,
+    "l01_historical_wallet_debit_usd": 0,
+    "current_credits": null,
+    "current_wallet_balance_usd": null,
+    "project_cash_spent_to_date_usd": null,
+    "provider_quote_per_lesson_usd": null,
+    "proposed_later_cash_ceiling_per_lesson_usd": 3.26,
+    "proposed_later_batch_cash_ceiling_usd": 9.78,
+    "current_execution_cash_cap_usd": 0,
+    "cap_enforcement_verified": false,
+    "note": "Historical L01 usage is not a quote for L02-L04 or a complete project ledger. No current provider read occurred. Execution requires fresh binding quotes, current balances and cumulative spend, plus an enforceable per-job and aggregate limit; no credit purchase or auto-reload.",
+    "cap_options": [
+      "Provider-enforced per-job and batch maximum, with one submission per lesson and no retries.",
+      "Prepaid or wallet allocation technically capped to the same amounts, with auto-reload and overage disabled.",
+      "If neither mechanism can be verified before submission, stop without executing."
+    ]
+  },
+  "composite_input": {
+    "base_animatic": "agentified/workshop/scene-production/review.html",
+    "native_source_paths": [
+      null,
+      null,
+      null
+    ],
+    "source_audio_hashes": [
+      null,
+      null,
+      null
+    ],
+    "one_speaker_at_a_time": true,
+    "preserve_native_source": true,
+    "final_caption_sync_pending": true,
+    "provider_free_closing_cards": true
+  },
+  "rights_status": "blocked_pending_purpose_specific_L02-L04_look_and_voice_approval",
+  "source_audit": "L02 16, L03 17, L04 17 exact source bindings; sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 2-4, privacy and execution boundaries checked",
+  "batch_sha256": "588e1a0909c94a59941bf9f57d57099ade3d634ad01245cbaef15870c568a67f"
+}

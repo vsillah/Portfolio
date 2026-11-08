@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "validated_provider_free_candidate",
+  "lesson_id": "L02",
+  "request_sha256": "de34e97b43f42d17b3d2dc621585b6975afc4fb82689a1419b91ccdc976601dd",
+  "script_sha256": "5e589c9ce3ff24923f6f215c5300ac5171799e572d27660d6f4ffc2168b94a9a",
+  "packet_sha256": "70de632db57786df3afe2decbc58828dc54fa3105c36595c2424251b7022a62a",
+  "poster_sha256": "3977814a4731bbcb60dd4d17d22d640c83cbdfad9f434fe348d6aa5fd8eb84a1",
+  "diagram_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+  "package_jpg_sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+  "new_audio_sha256": null,
+  "source_binding_count": 16,
+  "expected_scripted_provider_duration_seconds": 24.668,
+  "provider_free_closing_card_seconds": 6,
+  "spend_usd": 0,
+  "provider_calls": 0,
+  "media_generated": 0,
+  "unresolved": [
+    "L02-L04 purpose-specific identity and voice rights",
+    "current provider quote, credits and cap control",
+    "recorded pacing and caption sync",
+    "final scene-specific diagram alt and native-composite review"
+  ]
+}

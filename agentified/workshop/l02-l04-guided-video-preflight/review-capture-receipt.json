@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "code_revision": "467645fa9c607d17b24f8853d84c96a2defae42e",
+  "walkthroughs": [
+    {
+      "viewport": "desktop",
+      "route": "http://127.0.0.1:4173/agentified/workshop/l02-l04-guided-video-preflight/review.html?lesson=L02&state=opening&revision=467645fa9c607d17b24f8853d84c96a2defae42e",
+      "path": "desktop-walkthrough.mp4",
+      "sha256": "197b7e9746715991790f0bb58bda3eb6df6625ee31ace9d55ad3dc7947f0b1f4",
+      "bytes": 1215788,
+      "duration_seconds": 11.6,
+      "codec": "h264",
+      "width": 1280,
+      "height": 800,
+      "states_checked": 12,
+      "privacy": "synthetic packet and approved local assets only"
+    },
+    {
+      "viewport": "mobile",
+      "route": "http://127.0.0.1:4173/agentified/workshop/l02-l04-guided-video-preflight/review.html?lesson=L02&state=opening&revision=467645fa9c607d17b24f8853d84c96a2defae42e",
+      "path": "mobile-walkthrough.mp4",
+      "sha256": "25a7a43e0e61de264af84b18139134b7e244a8be6f112476688380dcb3e047e0",
+      "bytes": 1252931,
+      "duration_seconds": 15.6,
+      "codec": "h264",
+      "width": 390,
+      "height": 844,
+      "states_checked": 12,
+      "privacy": "synthetic packet and approved local assets only"
+    }
+  ],
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "customer_data_used": false,
+  "current_batch_sha256": "588e1a0909c94a59941bf9f57d57099ade3d634ad01245cbaef15870c568a67f",
+  "current_request_sha256": {
+    "L02": "de34e97b43f42d17b3d2dc621585b6975afc4fb82689a1419b91ccdc976601dd",
+    "L03": "d24970460a2c6bdb1c32ec4c5a67b34a88b5abe6f36323b6f3c3a61157dc7c47",
+    "L04": "2622f607cb1d8529e8ee0a1af63ef4a61df47bbf134b5a7440cf9cc8fed21ece"
+  },
+  "identity_rebind_evidence_status": "historical_layout_only; MP4 labels show prior request hashes, not current Gray Sweater candidate identity; no media regenerated"
+}
