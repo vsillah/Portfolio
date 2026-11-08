@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "status": "provider_free_batch_preflight_validated",
-  "source_base_commit": "e51b09b746256e1c6825d249438bcd4a0e6f181e",
+  "source_base_commit": "5dccdea98336b495677b128daff0f0cf9f74b09c",
   "lessons": [
     {
       "lesson_id": "L05",
       "title": "Map the operating system",
-      "request_sha256": "a47434ac1067b0007e480e14a6fc669ce0096b66b045efd3e3658f5eb7bdf9eb",
+      "request_sha256": "54bcd458518d54755c6bc76ae5fbed365440790548eeb02d299e45e589034099",
       "script_sha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
       "packet_sha256": "86aaa74a5227a137ba7287a794410410f268edace44a6fbc0be2b862487c723a",
       "poster_sha256": "87a4e7d2e5c13d97eaff908a11c4f4f5a9f45b0e4b2f7b70a513f8053f35a64f",
@@ -20,7 +20,7 @@
     {
       "lesson_id": "L06",
       "title": "Write the permission slip",
-      "request_sha256": "a80d75cd57e303d8d27005cd4a5bbd7dd353c1562fb0400ec44a95356b78f6f6",
+      "request_sha256": "cc6a0cc1320375eb4d8ee3bc22c32bcb3814822c02fefd8e5af901341c52acbc",
       "script_sha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
       "packet_sha256": "60f993e3514e353095f5180d541900553298c0f5d9a773c3fd22dad279f361af",
       "poster_sha256": "f8a87d3c0a98eacb8018822c7847c641e35b343615015d2ab8e3e2374771b4a9",
@@ -34,7 +34,7 @@
     {
       "lesson_id": "L07",
       "title": "Specify the work and the team",
-      "request_sha256": "9ca4be37f4fbf51af8d10d7d530899b7b9643d87b28524dd2e492c986c5708b9",
+      "request_sha256": "f35b6f521276b7b7ee03806f3c58de0acb4236ea90c005859c293ee065a47bcd",
       "script_sha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
       "packet_sha256": "fefbdc1e3cf386b7220284ace5ac8c818030f2c8e8b8c94db9c3f7a83e8dcf87",
       "poster_sha256": "4807b8f696cf07315be7b29e58b674c0a00057ccfc10aa72a3dec93d7eb53571",
@@ -48,7 +48,7 @@
     {
       "lesson_id": "L08",
       "title": "Make handoffs testable",
-      "request_sha256": "8b0891148ba0c03c5dbe14c7c9066ea66dc5f7be489ad1a7504e76ce2edf074f",
+      "request_sha256": "297bf76b3b3a4179c5ee07fc81039d58351ad10dce12aa01ebddcc3038fcf025",
       "script_sha256": "219060baa998bd6a866e9ff00a6df99d2ccba64b6c5ecd55e9db7cc385df6846",
       "packet_sha256": "50786f210a2661019764b0dee80c38a189e8d3c8cf530238fd1c8f880a64e436",
       "poster_sha256": "c63be5ec7aa788f2329b6e9c43dc882abd81523bbdb4accb29906c7f2b7d32bb",
@@ -109,5 +109,5 @@
   },
   "rights_status": "blocked_pending_purpose_specific_L05-L08_identity_and_voice_approval",
   "source_audit": "L05 16, L06 17, L07 17, L08 17 exact source bindings; sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 5-8, privacy and execution boundaries checked",
-  "batch_sha256": "c36d0b3d605be209a7b77b9ee7b935fd29d0a97e4f1f63ced35540e43778c4a5"
+  "batch_sha256": "392593a8132208a7da39d5a5254f0887e72e6c509bf2d640f3a07fa8be291dee"
 }

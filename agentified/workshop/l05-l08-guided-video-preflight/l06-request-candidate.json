@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "provider_free_batch_request_candidate_locked",
   "lesson_id": "L06",
-  "source_base_commit": "e51b09b746256e1c6825d249438bcd4a0e6f181e",
+  "source_base_commit": "5dccdea98336b495677b128daff0f0cf9f74b09c",
   "provider_candidate": "HeyGen Avatar IV",
   "execution_allowed": false,
   "provider_contact_allowed": false,
@@ -186,7 +186,7 @@
     "new_audio_sha256": null,
     "new_audio_status": "none_generated",
     "l01_native_source_precedent_sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
-    "l01_native_composite_precedent_sha256": "da85f9e1bf5959dcd55eefb58b58e00233c0bcc674967a2a0835a9b1cd4fe3a5",
+    "l01_native_composite_precedent_sha256": "34737c643f7928fe3a7e3e23bcd33d8e4715c0052bac532e5fd43c1e689b25e5",
     "ownership": "one speaker at a time; native presenter audio replaces matching narrator span, never layers with it; preserve source frame count, rate, duration and lip sync in reproducible FFmpeg composite"
   },
   "source_bindings": [
@@ -297,5 +297,5 @@
     "scene-specific diagram alt text, contrast and reduced-motion review",
     "separate exact batch execution authorization"
   ],
-  "request_sha256": "a80d75cd57e303d8d27005cd4a5bbd7dd353c1562fb0400ec44a95356b78f6f6"
+  "request_sha256": "cc6a0cc1320375eb4d8ee3bc22c32bcb3814822c02fefd8e5af901341c52acbc"
 }

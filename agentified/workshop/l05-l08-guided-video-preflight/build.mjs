@@ -47,7 +47,7 @@ const output = [];
 const lessons = [];
 for (const lessonId of ['L05', 'L06', 'L07', 'L08']) {
   const packetPath = `agentified/workshop/scene-production/packets/${lessonId}.json`;
-  assert(fileHash(packetPath) === frozenPacketHashes[lessonId], `${lessonId} packet drift from e51b09b source`);
+  assert(fileHash(packetPath) === frozenPacketHashes[lessonId], `${lessonId} packet drift from bound source`);
   const packet = load(packetPath);
   const poster = map.posters.find((item) => item.lesson === lessonId);
   assert(packet.id === lessonId && poster && packet.scenes.length === 8, `${lessonId} packet or poster missing`);
@@ -114,7 +114,7 @@ for (const lessonId of ['L05', 'L06', 'L07', 'L08']) {
   assert(expectedDuration === frozenDurations[lessonId][0] && closingCard.duration_seconds === frozenDurations[lessonId][1], `${lessonId} timing drift`);
   const request = {
     schema_version: 1, status: 'provider_free_batch_request_candidate_locked', lesson_id: lessonId,
-    source_base_commit: 'e51b09b746256e1c6825d249438bcd4a0e6f181e', provider_candidate: 'HeyGen Avatar IV',
+    source_base_commit: '5dccdea98336b495677b128daff0f0cf9f74b09c', provider_candidate: 'HeyGen Avatar IV',
     execution_allowed: false, provider_contact_allowed: false, upload_allowed: false,
     generation_allowed: false, spend_allowed: false, publication_allowed: false,
     requested_job_limit: 1, automatic_retries: 0, manual_retries: 0, current_spend_cap_usd: 0,
@@ -160,7 +160,7 @@ for (const lesson of lessons) {
   assert(request && receipt && lesson.source_binding_count === request.source_bindings.length && receipt.source_binding_count === request.source_bindings.length, `${lesson.lesson_id} receipt/source inventory count mismatch`);
 }
 const batch = {
-  schema_version: 1, status: 'provider_free_batch_preflight_validated', source_base_commit: 'e51b09b746256e1c6825d249438bcd4a0e6f181e',
+  schema_version: 1, status: 'provider_free_batch_preflight_validated', source_base_commit: '5dccdea98336b495677b128daff0f0cf9f74b09c',
   lessons, aggregate_expected_scripted_provider_duration_seconds: round(lessons.reduce((sum, item) => sum + item.expected_scripted_provider_duration_seconds, 0)),
   aggregate_provider_free_closing_card_seconds: round(lessons.reduce((sum, item) => sum + item.closing_card_seconds, 0)), maximum_jobs_if_later_authorized: 4, jobs_submitted_now: 0,
   cost_cap_evidence: {

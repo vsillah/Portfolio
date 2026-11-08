@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "validated_provider_free_candidate",
   "lesson_id": "L06",
-  "request_sha256": "a80d75cd57e303d8d27005cd4a5bbd7dd353c1562fb0400ec44a95356b78f6f6",
+  "request_sha256": "cc6a0cc1320375eb4d8ee3bc22c32bcb3814822c02fefd8e5af901341c52acbc",
   "script_sha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
   "packet_sha256": "60f993e3514e353095f5180d541900553298c0f5d9a773c3fd22dad279f361af",
   "poster_sha256": "f8a87d3c0a98eacb8018822c7847c641e35b343615015d2ab8e3e2374771b4a9",
