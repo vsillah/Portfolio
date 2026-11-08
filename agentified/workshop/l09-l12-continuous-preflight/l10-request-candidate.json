@@ -1,0 +1,700 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_review_candidate",
+  "lesson_id": "L10",
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "packet_path": "agentified/workshop/scene-production/packets/L10.json",
+  "packet_sha256": "265b07c07604510aee75e39fd0ef658e05cba86f8db01e1b2fd3c41d85f38459",
+  "script_sha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "provider_jobs_submitted": 0,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_execution_cap_usd": 0,
+  "proposed_identity": {
+    "look_name": "Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
+    "offscreen_voice_id": "4f53988b1c314610b514db98432fd0ef",
+    "status": "historical precedent only; L09-L12 purpose-specific rights pending"
+  },
+  "presenter_passages": [
+    {
+      "scene_id": "L10-01",
+      "storyboard_reservation": {
+        "start_seconds": 0,
+        "end_seconds": 15.379,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month. The room note is current. The attendance note suggests interest. The facilitator is still available for review, not confirmed.",
+      "passage_sha256": "019f7fb3a8f33e4f1c8b882015567b30410a9558b3ca575fbc93361d375eab41",
+      "provisional_speech_seconds": 15.379,
+      "caption_count": 4,
+      "native_media_path": null,
+      "native_media_sha256": null
+    },
+    {
+      "scene_id": "L10-08",
+      "storyboard_reservation": {
+        "start_seconds": 583.951,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Next we will make the pending work visible without turning a phone notification into a second control room.",
+      "passage_sha256": "267cfb38a00c89dca0e7ebf4d9d3c4c6c93aa1e6ae39adfa73c16ceed5eb1aed",
+      "provisional_speech_seconds": 8.049,
+      "caption_count": 1,
+      "native_media_path": null,
+      "native_media_sha256": null
+    }
+  ],
+  "offscreen_narration": {
+    "text": "A colleague suggests paying for a small printing run to test flyers. The amount sounds minor. Morgan stops at the word 'paying.' A recommendation can sit in the brief. A purchase needs a separate human decision. The same paper workflow now has two questions: should Harbor propose the session, and should anyone authorize a specific expense?\n\nChapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. The workbook adds currency, requesting role, forbidden actions, and revocation. In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window. The number is classroom arithmetic, not a quote, budget, or authorization. The envelope is incomplete until the actual approving human can see the evidence and exact terms. It cannot be stretched into a recurring charge or an 'up to' range.\n\nHarbor's preparation role has no payment authority. It may draft a spend request; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. Put a closed gate between the proposed envelope and any dollar-moving verb. If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. If it expires, it stays closed. A prior approval of the session idea would not approve the print order. The approval has to match the action.\n\nNow write the decision Morgan actually owns. Chapter Eighteen uses five sections: context, options, recommendation, reversibility, and what would change our mind. Option A is to propose a session subject to facilitator confirmation. Option B is to hold the proposal and gather a fresh staffing commitment. Give B a fair case: it protects Harbor from promising a session it cannot staff. The recommendation can favor A only if the brief clearly carries that condition. Morgan can also choose hold. The agent's framing must leave room for disagreement.\n\nPut the spend question on its own line. Even if Morgan favors a conditional session proposal, the print request remains held. The brief should name Morgan as decision owner, the course deadline, the evidence gap, and what can be reversed. A draft brief can be withdrawn. A flyer sent into the community cannot be pulled back with the same ease. That difference is why preparation and side effects have different gates. An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation.\n\nPause. Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?\n\nFill a Spend Envelope, then a Decision Brief. Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. Mark it unapproved. Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. Keep the facilitator unconfirmed. Use a fictional or approved example. Do not use private operational data, open a checkout, use a card, call a provider, or publish a session.\n\nSave revision ten as a draft. Morgan has two distinct decisions and the evidence for both. Neither has been exercised.",
+    "text_sha256": "2a7ecd227e196a9df464f1c431effcffff5f94c458f64e769400a874f1d47b3b",
+    "word_count": 515,
+    "segments": [
+      {
+        "scene_id": "L10-01",
+        "text": "A colleague suggests paying for a small printing run to test flyers. The amount sounds minor. Morgan stops at the word 'paying.' A recommendation can sit in the brief. A purchase needs a separate human decision. The same paper workflow now has two questions: should Harbor propose the session, and should anyone authorize a specific expense?",
+        "sha256": "ab3ec1f5fe160490fddc2fa524094e8a5204e9a3d16dd34ed7034387ea9d7582"
+      },
+      {
+        "scene_id": "L10-02",
+        "text": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval. The workbook adds currency, requesting role, forbidden actions, and revocation. In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window. The number is classroom arithmetic, not a quote, budget, or authorization. The envelope is incomplete until the actual approving human can see the evidence and exact terms. It cannot be stretched into a recurring charge or an 'up to' range.",
+        "sha256": "ec6fc56c58df392b09742b88d795cc0340911ce280561cb2cf2c4041073a7800"
+      },
+      {
+        "scene_id": "L10-03",
+        "text": "Harbor's preparation role has no payment authority. It may draft a spend request; it cannot place an order, enter a card, increase a cap, or trigger paid API usage. Put a closed gate between the proposed envelope and any dollar-moving verb. If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan. If it expires, it stays closed. A prior approval of the session idea would not approve the print order. The approval has to match the action.",
+        "sha256": "1b46635cfc0ad726c05c6006a11df95be79a4517f45e0cedd7d9008bc13b44e3"
+      },
+      {
+        "scene_id": "L10-04",
+        "text": "Now write the decision Morgan actually owns. Chapter Eighteen uses five sections: context, options, recommendation, reversibility, and what would change our mind. Option A is to propose a session subject to facilitator confirmation. Option B is to hold the proposal and gather a fresh staffing commitment. Give B a fair case: it protects Harbor from promising a session it cannot staff. The recommendation can favor A only if the brief clearly carries that condition. Morgan can also choose hold. The agent's framing must leave room for disagreement.",
+        "sha256": "790c42bbbe8bb714dd3de6b5ae05e40225f5866aa562b109228247a66c4518ef"
+      },
+      {
+        "scene_id": "L10-05",
+        "text": "Put the spend question on its own line. Even if Morgan favors a conditional session proposal, the print request remains held. The brief should name Morgan as decision owner, the course deadline, the evidence gap, and what can be reversed. A draft brief can be withdrawn. A flyer sent into the community cannot be pulled back with the same ease. That difference is why preparation and side effects have different gates. An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation.",
+        "sha256": "c83bf492d249371ba9d619dc2233947e4dff7f31ff7d4ad7c239e8e4a81554d4"
+      },
+      {
+        "scene_id": "L10-06",
+        "text": "Pause. Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?",
+        "sha256": "e974b0ae62f8a4ebce78a3fb5e01dcefad9ffc8704e9a223d74c2547c9bd1463"
+      },
+      {
+        "scene_id": "L10-07",
+        "text": "Fill a Spend Envelope, then a Decision Brief. Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition. Mark it unapproved. Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome. Keep the facilitator unconfirmed. Use a fictional or approved example. Do not use private operational data, open a checkout, use a card, call a provider, or publish a session.",
+        "sha256": "68842534bbc74549b3a2678832ad6883f9c4a7bdedf0370563dc922800177ffe"
+      },
+      {
+        "scene_id": "L10-08",
+        "text": "Save revision ten as a draft. Morgan has two distinct decisions and the evidence for both. Neither has been exercised.",
+        "sha256": "eb610ae3d060d083cc83dec0d7f9f5b5e53708937df8f82877032dbfc3d3e03e"
+      }
+    ],
+    "new_audio_path": null,
+    "new_audio_sha256": null
+  },
+  "timing": {
+    "status": "provisional_cue_derived; native_audio_required",
+    "original_storyboard_seconds": 600,
+    "proposed_continuous_seconds": 307,
+    "spoken_seconds": 254,
+    "ordinary_gap_limit_seconds": 2.5,
+    "actual_native_timing_seconds": null,
+    "no_fixed_ten_minute_padding": true,
+    "cues": [
+      {
+        "scene_id": "L10-01",
+        "speaker": "presenter",
+        "start_seconds": 0,
+        "end_seconds": 6.209,
+        "text": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month.",
+        "source_start_seconds": 0,
+        "source_end_seconds": 6.209
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "presenter",
+        "start_seconds": 6.209,
+        "end_seconds": 8.087,
+        "text": "The room note is current.",
+        "source_start_seconds": 6.209,
+        "source_end_seconds": 8.087
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "presenter",
+        "start_seconds": 8.087,
+        "end_seconds": 10.903,
+        "text": "The attendance note suggests interest.",
+        "source_start_seconds": 8.087,
+        "source_end_seconds": 10.903
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "presenter",
+        "start_seconds": 10.903,
+        "end_seconds": 15.379,
+        "text": "The facilitator is still available for review, not confirmed.",
+        "source_start_seconds": 10.903,
+        "source_end_seconds": 15.379
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 15.379,
+        "end_seconds": 20.361,
+        "text": "A colleague suggests paying for a small printing run to test flyers.",
+        "source_start_seconds": 15.379,
+        "source_end_seconds": 20.361
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 20.361,
+        "end_seconds": 22.166,
+        "text": "The amount sounds minor.",
+        "source_start_seconds": 20.361,
+        "source_end_seconds": 22.166
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 22.166,
+        "end_seconds": 24.693,
+        "text": "Morgan stops at the word ‘paying.’",
+        "source_start_seconds": 22.166,
+        "source_end_seconds": 24.693
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 24.693,
+        "end_seconds": 27.509,
+        "text": "A recommendation can sit in the brief.",
+        "source_start_seconds": 24.693,
+        "source_end_seconds": 27.509
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 27.509,
+        "end_seconds": 30.686,
+        "text": "A purchase needs a separate human decision.",
+        "source_start_seconds": 27.509,
+        "source_end_seconds": 30.686
+      },
+      {
+        "scene_id": "L10-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 30.686,
+        "end_seconds": 40,
+        "text": "The same paper workflow now has two questions: should Harbor propose the session, and should anyone authorize a specific expense?",
+        "source_start_seconds": 30.686,
+        "source_end_seconds": 40
+      },
+      {
+        "scene_id": "L10-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 40,
+        "end_seconds": 48.357,
+        "text": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval.",
+        "source_start_seconds": 70,
+        "source_end_seconds": 78.357
+      },
+      {
+        "scene_id": "L10-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 48.357,
+        "end_seconds": 53.749,
+        "text": "The workbook adds currency, requesting role, forbidden actions, and revocation.",
+        "source_start_seconds": 78.357,
+        "source_end_seconds": 83.749
+      },
+      {
+        "scene_id": "L10-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 53.749,
+        "end_seconds": 60.825,
+        "text": "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window.",
+        "source_start_seconds": 83.749,
+        "source_end_seconds": 90.825
+      },
+      {
+        "scene_id": "L10-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 60.825,
+        "end_seconds": 65.88,
+        "text": "The number is classroom arithmetic, not a quote, budget, or authorization.",
+        "source_start_seconds": 90.825,
+        "source_end_seconds": 95.88
+      },
+      {
+        "scene_id": "L10-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 65.88,
+        "end_seconds": 72.485,
+        "text": "The envelope is incomplete until the actual approving human can see the evidence and exact terms.",
+        "source_start_seconds": 95.88,
+        "source_end_seconds": 102.485
+      },
+      {
+        "scene_id": "L10-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 72.485,
+        "end_seconds": 77,
+        "text": "It cannot be stretched into a recurring charge or an ‘up to’ range.",
+        "source_start_seconds": 102.485,
+        "source_end_seconds": 107
+      },
+      {
+        "scene_id": "L10-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 77,
+        "end_seconds": 81.076,
+        "text": "Harbor's preparation role has no payment authority.",
+        "source_start_seconds": 145,
+        "source_end_seconds": 149.076
+      },
+      {
+        "scene_id": "L10-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 81.076,
+        "end_seconds": 89.934,
+        "text": "It may draft a spend request; it cannot place an order, enter a card, increase a cap, or trigger paid API usage.",
+        "source_start_seconds": 149.076,
+        "source_end_seconds": 157.934
+      },
+      {
+        "scene_id": "L10-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 89.934,
+        "end_seconds": 95.892,
+        "text": "Put a closed gate between the proposed envelope and any dollar-moving verb.",
+        "source_start_seconds": 157.934,
+        "source_end_seconds": 163.892
+      },
+      {
+        "scene_id": "L10-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 95.892,
+        "end_seconds": 102.947,
+        "text": "If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan.",
+        "source_start_seconds": 163.892,
+        "source_end_seconds": 170.947
+      },
+      {
+        "scene_id": "L10-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 102.947,
+        "end_seconds": 105.456,
+        "text": "If it expires, it stays closed.",
+        "source_start_seconds": 170.947,
+        "source_end_seconds": 173.456
+      },
+      {
+        "scene_id": "L10-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 105.456,
+        "end_seconds": 111.1,
+        "text": "A prior approval of the session idea would not approve the print order.",
+        "source_start_seconds": 173.456,
+        "source_end_seconds": 179.1
+      },
+      {
+        "scene_id": "L10-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 111.1,
+        "end_seconds": 114,
+        "text": "The approval has to match the action.",
+        "source_start_seconds": 179.1,
+        "source_end_seconds": 182
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 114,
+        "end_seconds": 117.191,
+        "text": "Now write the decision Morgan actually owns.",
+        "source_start_seconds": 215,
+        "source_end_seconds": 218.191
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 117.191,
+        "end_seconds": 125.558,
+        "text": "Chapter Eighteen uses five sections: context, options, recommendation, reversibility, and what would change our mind.",
+        "source_start_seconds": 218.191,
+        "source_end_seconds": 226.558
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 125.558,
+        "end_seconds": 130.522,
+        "text": "Option A is to propose a session subject to facilitator confirmation.",
+        "source_start_seconds": 226.558,
+        "source_end_seconds": 231.522
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 130.522,
+        "end_seconds": 135.698,
+        "text": "Option B is to hold the proposal and gather a fresh staffing commitment.",
+        "source_start_seconds": 231.522,
+        "source_end_seconds": 236.698
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 135.698,
+        "end_seconds": 141.442,
+        "text": "Give B a fair case: it protects Harbor from promising a session it cannot staff.",
+        "source_start_seconds": 236.698,
+        "source_end_seconds": 242.442
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 141.442,
+        "end_seconds": 147.185,
+        "text": "The recommendation can favor A only if the brief clearly carries that condition.",
+        "source_start_seconds": 242.442,
+        "source_end_seconds": 248.185
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 147.185,
+        "end_seconds": 149.242,
+        "text": "Morgan can also choose hold.",
+        "source_start_seconds": 248.185,
+        "source_end_seconds": 250.242
+      },
+      {
+        "scene_id": "L10-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 149.242,
+        "end_seconds": 153,
+        "text": "The agent's framing must leave room for disagreement.",
+        "source_start_seconds": 250.242,
+        "source_end_seconds": 254
+      },
+      {
+        "scene_id": "L10-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 153,
+        "end_seconds": 155.883,
+        "text": "Put the spend question on its own line.",
+        "source_start_seconds": 290,
+        "source_end_seconds": 292.883
+      },
+      {
+        "scene_id": "L10-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 155.883,
+        "end_seconds": 162.081,
+        "text": "Even if Morgan favors a conditional session proposal, the print request remains held.",
+        "source_start_seconds": 292.883,
+        "source_end_seconds": 299.081
+      },
+      {
+        "scene_id": "L10-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 162.081,
+        "end_seconds": 170.225,
+        "text": "The brief should name Morgan as decision owner, the course deadline, the evidence gap, and what can be reversed.",
+        "source_start_seconds": 299.081,
+        "source_end_seconds": 307.225
+      },
+      {
+        "scene_id": "L10-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 170.225,
+        "end_seconds": 172.532,
+        "text": "A draft brief can be withdrawn.",
+        "source_start_seconds": 307.225,
+        "source_end_seconds": 309.532
+      },
+      {
+        "scene_id": "L10-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 172.532,
+        "end_seconds": 177.865,
+        "text": "A flyer sent into the community cannot be pulled back with the same ease.",
+        "source_start_seconds": 309.532,
+        "source_end_seconds": 314.865
+      },
+      {
+        "scene_id": "L10-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 177.865,
+        "end_seconds": 183.198,
+        "text": "That difference is why preparation and side effects have different gates.",
+        "source_start_seconds": 314.865,
+        "source_end_seconds": 320.198
+      },
+      {
+        "scene_id": "L10-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 183.198,
+        "end_seconds": 193,
+        "text": "An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation.",
+        "source_start_seconds": 320.198,
+        "source_end_seconds": 330
+      },
+      {
+        "scene_id": "L10-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 193,
+        "end_seconds": 193.516,
+        "text": "Pause.",
+        "source_start_seconds": 355,
+        "source_end_seconds": 355.516
+      },
+      {
+        "scene_id": "L10-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 193.516,
+        "end_seconds": 200,
+        "text": "Which sentence in the brief would stop ‘available for review’ from becoming ‘confirmed’?",
+        "source_start_seconds": 355.516,
+        "source_end_seconds": 362
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 200,
+        "end_seconds": 203.129,
+        "text": "Fill a Spend Envelope, then a Decision Brief.",
+        "source_start_seconds": 375,
+        "source_end_seconds": 378.129
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 203.129,
+        "end_seconds": 214.419,
+        "text": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.",
+        "source_start_seconds": 378.129,
+        "source_end_seconds": 389.419
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 214.419,
+        "end_seconds": 215.779,
+        "text": "Mark it unapproved.",
+        "source_start_seconds": 389.419,
+        "source_end_seconds": 390.779
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 215.779,
+        "end_seconds": 225.097,
+        "text": "Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome.",
+        "source_start_seconds": 390.779,
+        "source_end_seconds": 400.097
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 225.097,
+        "end_seconds": 227.41,
+        "text": "Keep the facilitator unconfirmed.",
+        "source_start_seconds": 400.097,
+        "source_end_seconds": 402.41
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 227.41,
+        "end_seconds": 229.926,
+        "text": "Use a fictional or approved example.",
+        "source_start_seconds": 402.41,
+        "source_end_seconds": 404.926
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 229.926,
+        "end_seconds": 237,
+        "text": "Do not use private operational data, open a checkout, use a card, call a provider, or publish a session.",
+        "source_start_seconds": 404.926,
+        "source_end_seconds": 412
+      },
+      {
+        "scene_id": "L10-07",
+        "speaker": "guided_work_pause",
+        "start_seconds": 237,
+        "end_seconds": 282,
+        "text": "Draft a `Spend Envelope` for a fictional proposed expense and a `Decision Brief` for the Harbor session choice. The envelope must identify exact amount and currency, counterparty, purpose, execution window, retry limit, source trace, requesting role, approving human, expiry/revocation, and forbidden actions. The brief must offer at least two fairly argued options, the case against its recommendation, reversibility, what would change the recommendation, owner, deadline, and an explicit `hold` disposition. Neither document grants authority.",
+        "visual": "visible synchronized countdown from 45 to 0; no music"
+      },
+      {
+        "scene_id": "L10-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 282,
+        "end_seconds": 284.257,
+        "text": "Save revision ten as a draft.",
+        "source_start_seconds": 575,
+        "source_end_seconds": 577.257
+      },
+      {
+        "scene_id": "L10-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 284.257,
+        "end_seconds": 288.845,
+        "text": "Morgan has two distinct decisions and the evidence for both.",
+        "source_start_seconds": 577.257,
+        "source_end_seconds": 581.845
+      },
+      {
+        "scene_id": "L10-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 288.845,
+        "end_seconds": 290.951,
+        "text": "Neither has been exercised.",
+        "source_start_seconds": 581.845,
+        "source_end_seconds": 583.951
+      },
+      {
+        "scene_id": "L10-08",
+        "speaker": "presenter",
+        "start_seconds": 290.951,
+        "end_seconds": 299,
+        "text": "Next we will make the pending work visible without turning a phone notification into a second control room.",
+        "source_start_seconds": 583.951,
+        "source_end_seconds": 592
+      }
+    ],
+    "guided_work_pause_seconds": 45,
+    "closing_card": {
+      "scene_id": "L10-08",
+      "start_seconds": 299,
+      "end_seconds": 307,
+      "duration_seconds": 8,
+      "audience_copy_exact": [
+        "Operating File v10: spend + decision.",
+        "Next: cockpit."
+      ],
+      "treatment": "approved provider-free ending copy"
+    },
+    "rule": "Retain exact speech in order; change picture only at a sentence-complete spoken handoff; one speaker at a time; preserve native presenter source frame rate and audio; re-time captions after native recordings."
+  },
+  "visuals": [
+    {
+      "scene_id": "L10-03",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "Seven-field envelope with a closed `unapproved` gate and expiry line.",
+      "text_equivalent": "approved plate needs final scene-specific text alternative before publication"
+    }
+  ],
+  "cover": {
+    "path": "public/agentified/posters/l10-poster.webp",
+    "sha256": "538827665f930aa22b4d5e931c6f6babe4e3d77e3fc88df6a22b21cd0e6fa925",
+    "use": "static poster and internal animatic only; video locked"
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "spend-and-decision-brief",
+      "revision": 10,
+      "status": "draft",
+      "update_exact": "`spend-and-decision-brief` → `spend` and `decision-brief`, revision 10, status `draft`; revision 9's prepare-only posture remains in force."
+    },
+    "chapter_sources": [
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch17-money-needs-a-gate.md",
+        "sha256": "ebd2ab104a70877c79d735e6eb1c8704f6e274b16038a43464aa32d88580ea7e"
+      },
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch18-the-decision-theater-rebuilt.md",
+        "sha256": "a0bd5206c4305b58e28beb496c87b159fc4422cd8d01bc9a6955a44bd8e9da85"
+      }
+    ],
+    "source_ids_policy": "protected synthetic trace only; no source IDs in provider request"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L10.json",
+      "sha256": "265b07c07604510aee75e39fd0ef658e05cba86f8db01e1b2fd3c41d85f38459"
+    },
+    {
+      "path": "agentified/workshop/scripts/L10-spend-and-decision-brief.md",
+      "sha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413"
+    },
+    {
+      "path": "public/agentified/posters/l10-poster.webp",
+      "sha256": "538827665f930aa22b4d5e931c6f6babe4e3d77e3fc88df6a22b21cd0e6fa925"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch17-money-needs-a-gate.md",
+      "sha256": "ebd2ab104a70877c79d735e6eb1c8704f6e274b16038a43464aa32d88580ea7e"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch18-the-decision-theater-rebuilt.md",
+      "sha256": "a0bd5206c4305b58e28beb496c87b159fc4422cd8d01bc9a6955a44bd8e9da85"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+    }
+  ],
+  "gates": [
+    "purpose-specific L09-L12 look and voice approval",
+    "fresh provider quote, balance and enforceable one-job and batch caps",
+    "separate exact execution authorization",
+    "native audio timing and sentence-level edit audit",
+    "caption, diagram alt, mobile/desktop and final MP4 review"
+  ],
+  "stop_conditions": [
+    "source, rights, identity, voice or packet drift",
+    "uncertain job outcome or provider error; no retry",
+    "cost cap uncertainty or unexpected debit",
+    "narration omission, repetition or altered meaning",
+    "ordinary gap over 2.5 seconds",
+    "topic cut before sentence-complete handoff",
+    "visual clipping, label collision or unreadable captions"
+  ],
+  "candidate_sha256": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8"
+}

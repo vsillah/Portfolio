@@ -1,0 +1,684 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_review_candidate",
+  "lesson_id": "L09",
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "packet_path": "agentified/workshop/scene-production/packets/L09.json",
+  "packet_sha256": "5bbe9c3259a039e1b008fe10d59c2c067aca21f8858f750d6fb1231dcf800f80",
+  "script_sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "provider_jobs_submitted": 0,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_execution_cap_usd": 0,
+  "proposed_identity": {
+    "look_name": "Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
+    "offscreen_voice_id": "4f53988b1c314610b514db98432fd0ef",
+    "status": "historical precedent only; L09-L12 purpose-specific rights pending"
+  },
+  "presenter_passages": [
+    {
+      "scene_id": "L09-01",
+      "storyboard_reservation": {
+        "start_seconds": 0,
+        "end_seconds": 17.6,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Harbor Learning Circle has three neat classroom briefs on a table. All three were produced on time. Morgan looks past the count. One brief treats an unconfirmed facilitator as confirmed. Another stopped because the note was stale.",
+      "passage_sha256": "a68537ba3b2103e8cb43bbde691ca75a02f1c8f85bc3d4815c6e172dc47a1a47",
+      "provisional_speech_seconds": 17.6,
+      "caption_count": 5,
+      "native_media_path": null,
+      "native_media_sha256": null
+    },
+    {
+      "scene_id": "L09-08",
+      "storyboard_reservation": {
+        "start_seconds": 584.13,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Next we will put the same discipline around money and the final decision brief.",
+      "passage_sha256": "1fe289ee690f283ed401500fb855b86bb9f7f71fe613871e43428c766bd316ba",
+      "provisional_speech_seconds": 6.87,
+      "caption_count": 1,
+      "native_media_path": null,
+      "native_media_sha256": null
+    }
+  ],
+  "offscreen_narration": {
+    "text": "The third accurately says the facilitator is still under review. Three drafts tell Morgan very little about whether this work helps the team. Last lesson gave us a contract and three test cases. This lesson asks what we would watch over time, and what Morgan must see before signing a decision.\n\nChapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority. A count of briefs belongs low on the ladder. For Harbor, quality asks whether each sentence is supported by a permitted, current source. Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate. Outcome asks whether Morgan could decide with less reconstruction and no hidden staffing claim. Learning asks whether a revised contract reduces the same error in later approved tests. Authority records the human-granted scope; it is not a prize for a high count.\n\nThe workbook adds cost and trust to the scorecard. Harbor can record course minutes for Morgan's review and an illustrative preparation cost, but cannot claim real savings. For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer. Write a decision beside each measure. If a measure cannot tell Morgan to keep, revise, narrow, or stop the design, take it off the front page. Three classroom cases are a test exercise, not a performance baseline.\n\nChapter Sixteen asks us to choose a review posture for each action. Pre-action review means the work waits for a human before a side effect. Bounded action means a specifically fenced action may happen inside an already approved scope. Post-action audit checks low-stakes action after it happens, with a way to tighten the fence. In this course, these are design choices on paper. Harbor's brief may be prepared for Morgan; proposing a session, announcing it, booking a room, or spending would need its own explicit human gate. Nothing in our evaluation grants those permissions.\n\nGive Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes. Make reject and request-revision as visible as approve. The stale facilitator note should land as a hold with a next step, not a green badge. A reviewer who sees only a score will learn to clear a queue. A reviewer who sees the evidence can take responsibility for a decision.\n\nPause. Which number would make Harbor look busy while hiding the unsupported facilitator claim?\n\nAdd an Agent Metrics Ladder and Review Postures card to your Operating File. Name one measure for activity, quality, behavior or trust, cost, and outcome. Give each a source, a review cadence, a named decider, and the decision it could change. Mark any unavailable baseline as unproven. Then classify three Harbor actions: drafting the brief, Morgan's internal review, and a proposed external announcement. For each, state the reviewer view and stop condition. Use a fictional or approved example. Do not use private operational data or paste live dashboards or customer results.\n\nSave revision nine as a draft. The scorecard may tell Morgan where to look. It does not sign for Morgan.",
+    "text_sha256": "00b75719aa0ff721de64a8d40b3baa52f8fa462393f31ca0c2befc0b213a1447",
+    "word_count": 524,
+    "segments": [
+      {
+        "scene_id": "L09-01",
+        "text": "The third accurately says the facilitator is still under review. Three drafts tell Morgan very little about whether this work helps the team. Last lesson gave us a contract and three test cases. This lesson asks what we would watch over time, and what Morgan must see before signing a decision.",
+        "sha256": "538fbc3b80588454f90d6ad60fc616293013cba87450a1583733c52442832873"
+      },
+      {
+        "scene_id": "L09-02",
+        "text": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority. A count of briefs belongs low on the ladder. For Harbor, quality asks whether each sentence is supported by a permitted, current source. Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate. Outcome asks whether Morgan could decide with less reconstruction and no hidden staffing claim. Learning asks whether a revised contract reduces the same error in later approved tests. Authority records the human-granted scope; it is not a prize for a high count.",
+        "sha256": "05aa5b3cf0393f5a1647e3071a2b525de9a4f655e65284da2d7440de2daf495d"
+      },
+      {
+        "scene_id": "L09-03",
+        "text": "The workbook adds cost and trust to the scorecard. Harbor can record course minutes for Morgan's review and an illustrative preparation cost, but cannot claim real savings. For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer. Write a decision beside each measure. If a measure cannot tell Morgan to keep, revise, narrow, or stop the design, take it off the front page. Three classroom cases are a test exercise, not a performance baseline.",
+        "sha256": "7e7db3f54ca9b2c706d129fec5f36e74efa98fc9b09a011d51b1051d98bf886d"
+      },
+      {
+        "scene_id": "L09-04",
+        "text": "Chapter Sixteen asks us to choose a review posture for each action. Pre-action review means the work waits for a human before a side effect. Bounded action means a specifically fenced action may happen inside an already approved scope. Post-action audit checks low-stakes action after it happens, with a way to tighten the fence. In this course, these are design choices on paper. Harbor's brief may be prepared for Morgan; proposing a session, announcing it, booking a room, or spending would need its own explicit human gate. Nothing in our evaluation grants those permissions.",
+        "sha256": "d8f7c29da3104c76c79aabcdc0cfe6ab5c8c8b9416f60ac9da580a6ac39f404d"
+      },
+      {
+        "scene_id": "L09-05",
+        "text": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes. Make reject and request-revision as visible as approve. The stale facilitator note should land as a hold with a next step, not a green badge. A reviewer who sees only a score will learn to clear a queue. A reviewer who sees the evidence can take responsibility for a decision.",
+        "sha256": "b967d3637ec6ecff2ece1e783f94b04846deecf8ab8ca22096f471d67c79373f"
+      },
+      {
+        "scene_id": "L09-06",
+        "text": "Pause. Which number would make Harbor look busy while hiding the unsupported facilitator claim?",
+        "sha256": "92fa944206538d655d387fe3cdf06c9ca730c1a17f08b840170311414ba05c7d"
+      },
+      {
+        "scene_id": "L09-07",
+        "text": "Add an Agent Metrics Ladder and Review Postures card to your Operating File. Name one measure for activity, quality, behavior or trust, cost, and outcome. Give each a source, a review cadence, a named decider, and the decision it could change. Mark any unavailable baseline as unproven. Then classify three Harbor actions: drafting the brief, Morgan's internal review, and a proposed external announcement. For each, state the reviewer view and stop condition. Use a fictional or approved example. Do not use private operational data or paste live dashboards or customer results.",
+        "sha256": "c42d07004db39fc0589a3bd563b562f7d7eb2eb57725eb50f88a8ad40ec8fa4d"
+      },
+      {
+        "scene_id": "L09-08",
+        "text": "Save revision nine as a draft. The scorecard may tell Morgan where to look. It does not sign for Morgan.",
+        "sha256": "8c06dc051be5de6534acd14164c5e647f519da584d25720e9bdd991906acf524"
+      }
+    ],
+    "new_audio_path": null,
+    "new_audio_sha256": null
+  },
+  "timing": {
+    "status": "provisional_cue_derived; native_audio_required",
+    "original_storyboard_seconds": 600,
+    "proposed_continuous_seconds": 314,
+    "spoken_seconds": 260,
+    "ordinary_gap_limit_seconds": 2.5,
+    "actual_native_timing_seconds": null,
+    "no_fixed_ten_minute_padding": true,
+    "cues": [
+      {
+        "scene_id": "L09-01",
+        "speaker": "presenter",
+        "start_seconds": 0,
+        "end_seconds": 5.105,
+        "text": "Harbor Learning Circle has three neat classroom briefs on a table.",
+        "source_start_seconds": 0,
+        "source_end_seconds": 5.105
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "presenter",
+        "start_seconds": 5.105,
+        "end_seconds": 7.619,
+        "text": "All three were produced on time.",
+        "source_start_seconds": 5.105,
+        "source_end_seconds": 7.619
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "presenter",
+        "start_seconds": 7.619,
+        "end_seconds": 9.829,
+        "text": "Morgan looks past the count.",
+        "source_start_seconds": 7.619,
+        "source_end_seconds": 9.829
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "presenter",
+        "start_seconds": 9.829,
+        "end_seconds": 14.248,
+        "text": "One brief treats an unconfirmed facilitator as confirmed.",
+        "source_start_seconds": 9.829,
+        "source_end_seconds": 14.248
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "presenter",
+        "start_seconds": 14.248,
+        "end_seconds": 17.6,
+        "text": "Another stopped because the note was stale.",
+        "source_start_seconds": 14.248,
+        "source_end_seconds": 17.6
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 17.6,
+        "end_seconds": 22.552,
+        "text": "The third accurately says the facilitator is still under review.",
+        "source_start_seconds": 17.6,
+        "source_end_seconds": 22.552
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 22.552,
+        "end_seconds": 28.419,
+        "text": "Three drafts tell Morgan very little about whether this work helps the team.",
+        "source_start_seconds": 22.552,
+        "source_end_seconds": 28.419
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 28.419,
+        "end_seconds": 32.457,
+        "text": "Last lesson gave us a contract and three test cases.",
+        "source_start_seconds": 28.419,
+        "source_end_seconds": 32.457
+      },
+      {
+        "scene_id": "L09-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 32.457,
+        "end_seconds": 40,
+        "text": "This lesson asks what we would watch over time, and what Morgan must see before signing a decision.",
+        "source_start_seconds": 32.457,
+        "source_end_seconds": 40
+      },
+      {
+        "scene_id": "L09-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 40,
+        "end_seconds": 47.567,
+        "text": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority.",
+        "source_start_seconds": 70,
+        "source_end_seconds": 77.567
+      },
+      {
+        "scene_id": "L09-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 47.567,
+        "end_seconds": 50.691,
+        "text": "A count of briefs belongs low on the ladder.",
+        "source_start_seconds": 77.567,
+        "source_end_seconds": 80.691
+      },
+      {
+        "scene_id": "L09-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 50.691,
+        "end_seconds": 57.078,
+        "text": "For Harbor, quality asks whether each sentence is supported by a permitted, current source.",
+        "source_start_seconds": 80.691,
+        "source_end_seconds": 87.078
+      },
+      {
+        "scene_id": "L09-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 57.078,
+        "end_seconds": 63.742,
+        "text": "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate.",
+        "source_start_seconds": 87.078,
+        "source_end_seconds": 93.742
+      },
+      {
+        "scene_id": "L09-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 63.742,
+        "end_seconds": 70.407,
+        "text": "Outcome asks whether Morgan could decide with less reconstruction and no hidden staffing claim.",
+        "source_start_seconds": 93.742,
+        "source_end_seconds": 100.407
+      },
+      {
+        "scene_id": "L09-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 70.407,
+        "end_seconds": 76.585,
+        "text": "Learning asks whether a revised contract reduces the same error in later approved tests.",
+        "source_start_seconds": 100.407,
+        "source_end_seconds": 106.585
+      },
+      {
+        "scene_id": "L09-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 76.585,
+        "end_seconds": 82,
+        "text": "Authority records the human-granted scope; it is not a prize for a high count.",
+        "source_start_seconds": 106.585,
+        "source_end_seconds": 112
+      },
+      {
+        "scene_id": "L09-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 82,
+        "end_seconds": 85.629,
+        "text": "The workbook adds cost and trust to the scorecard.",
+        "source_start_seconds": 145,
+        "source_end_seconds": 148.629
+      },
+      {
+        "scene_id": "L09-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 85.629,
+        "end_seconds": 94.311,
+        "text": "Harbor can record course minutes for Morgan's review and an illustrative preparation cost, but cannot claim real savings.",
+        "source_start_seconds": 148.629,
+        "source_end_seconds": 157.311
+      },
+      {
+        "scene_id": "L09-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 94.311,
+        "end_seconds": 104.843,
+        "text": "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer.",
+        "source_start_seconds": 157.311,
+        "source_end_seconds": 167.843
+      },
+      {
+        "scene_id": "L09-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 104.843,
+        "end_seconds": 107.547,
+        "text": "Write a decision beside each measure.",
+        "source_start_seconds": 167.843,
+        "source_end_seconds": 170.547
+      },
+      {
+        "scene_id": "L09-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 107.547,
+        "end_seconds": 115.019,
+        "text": "If a measure cannot tell Morgan to keep, revise, narrow, or stop the design, take it off the front page.",
+        "source_start_seconds": 170.547,
+        "source_end_seconds": 178.019
+      },
+      {
+        "scene_id": "L09-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 115.019,
+        "end_seconds": 120,
+        "text": "Three classroom cases are a test exercise, not a performance baseline.",
+        "source_start_seconds": 178.019,
+        "source_end_seconds": 183
+      },
+      {
+        "scene_id": "L09-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 120,
+        "end_seconds": 124.933,
+        "text": "Chapter Sixteen asks us to choose a review posture for each action.",
+        "source_start_seconds": 215,
+        "source_end_seconds": 219.933
+      },
+      {
+        "scene_id": "L09-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 124.933,
+        "end_seconds": 130.228,
+        "text": "Pre-action review means the work waits for a human before a side effect.",
+        "source_start_seconds": 219.933,
+        "source_end_seconds": 225.228
+      },
+      {
+        "scene_id": "L09-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 130.228,
+        "end_seconds": 137.119,
+        "text": "Bounded action means a specifically fenced action may happen inside an already approved scope.",
+        "source_start_seconds": 225.228,
+        "source_end_seconds": 232.119
+      },
+      {
+        "scene_id": "L09-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 137.119,
+        "end_seconds": 143.938,
+        "text": "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence.",
+        "source_start_seconds": 232.119,
+        "source_end_seconds": 238.938
+      },
+      {
+        "scene_id": "L09-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 143.938,
+        "end_seconds": 147.637,
+        "text": "In this course, these are design choices on paper.",
+        "source_start_seconds": 238.938,
+        "source_end_seconds": 242.637
+      },
+      {
+        "scene_id": "L09-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 147.637,
+        "end_seconds": 158.301,
+        "text": "Harbor's brief may be prepared for Morgan; proposing a session, announcing it, booking a room, or spending would need its own explicit human gate.",
+        "source_start_seconds": 242.637,
+        "source_end_seconds": 253.301
+      },
+      {
+        "scene_id": "L09-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 158.301,
+        "end_seconds": 162,
+        "text": "Nothing in our evaluation grants those permissions.",
+        "source_start_seconds": 253.301,
+        "source_end_seconds": 257
+      },
+      {
+        "scene_id": "L09-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 162,
+        "end_seconds": 174.023,
+        "text": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+        "source_start_seconds": 290,
+        "source_end_seconds": 302.023
+      },
+      {
+        "scene_id": "L09-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 174.023,
+        "end_seconds": 178.482,
+        "text": "Make reject and request-revision as visible as approve.",
+        "source_start_seconds": 302.023,
+        "source_end_seconds": 306.482
+      },
+      {
+        "scene_id": "L09-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 178.482,
+        "end_seconds": 185.33,
+        "text": "The stale facilitator note should land as a hold with a next step, not a green badge.",
+        "source_start_seconds": 306.482,
+        "source_end_seconds": 313.33
+      },
+      {
+        "scene_id": "L09-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 185.33,
+        "end_seconds": 190.267,
+        "text": "A reviewer who sees only a score will learn to clear a queue.",
+        "source_start_seconds": 313.33,
+        "source_end_seconds": 318.267
+      },
+      {
+        "scene_id": "L09-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 190.267,
+        "end_seconds": 196,
+        "text": "A reviewer who sees the evidence can take responsibility for a decision.",
+        "source_start_seconds": 318.267,
+        "source_end_seconds": 324
+      },
+      {
+        "scene_id": "L09-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 196,
+        "end_seconds": 196.516,
+        "text": "Pause.",
+        "source_start_seconds": 355,
+        "source_end_seconds": 355.516
+      },
+      {
+        "scene_id": "L09-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 196.516,
+        "end_seconds": 203,
+        "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?",
+        "source_start_seconds": 355.516,
+        "source_end_seconds": 362
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 203,
+        "end_seconds": 208.453,
+        "text": "Add an Agent Metrics Ladder and Review Postures card to your Operating File.",
+        "source_start_seconds": 375,
+        "source_end_seconds": 380.453
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 208.453,
+        "end_seconds": 213.976,
+        "text": "Name one measure for activity, quality, behavior or trust, cost, and outcome.",
+        "source_start_seconds": 380.453,
+        "source_end_seconds": 385.976
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 213.976,
+        "end_seconds": 220.278,
+        "text": "Give each a source, a review cadence, a named decider, and the decision it could change.",
+        "source_start_seconds": 385.976,
+        "source_end_seconds": 392.278
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 220.278,
+        "end_seconds": 223.323,
+        "text": "Mark any unavailable baseline as unproven.",
+        "source_start_seconds": 392.278,
+        "source_end_seconds": 395.323
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 223.323,
+        "end_seconds": 231.82,
+        "text": "Then classify three Harbor actions: drafting the brief, Morgan's internal review, and a proposed external announcement.",
+        "source_start_seconds": 395.323,
+        "source_end_seconds": 403.82
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 231.82,
+        "end_seconds": 235.644,
+        "text": "For each, state the reviewer view and stop condition.",
+        "source_start_seconds": 403.82,
+        "source_end_seconds": 407.644
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 235.644,
+        "end_seconds": 238.264,
+        "text": "Use a fictional or approved example.",
+        "source_start_seconds": 407.644,
+        "source_end_seconds": 410.264
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 238.264,
+        "end_seconds": 244,
+        "text": "Do not use private operational data or paste live dashboards or customer results.",
+        "source_start_seconds": 410.264,
+        "source_end_seconds": 416
+      },
+      {
+        "scene_id": "L09-07",
+        "speaker": "guided_work_pause",
+        "start_seconds": 244,
+        "end_seconds": 289,
+        "text": "Build an `Agent Metrics Ladder` with activity, quality, trust or behavior, cost, outcome, and one metric excluded from decisions. For each retained measure, add evidence source, cadence, action threshold, decision, and owner; mark missing baselines `unproven`. Build `Review Postures` for low, medium, and high-risk actions: posture, reviewer evidence, approve/revise/reject/escalate conditions, and trace pointer. Do not infer real performance from the classroom cases.",
+        "visual": "visible synchronized countdown from 45 to 0; no music"
+      },
+      {
+        "scene_id": "L09-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 289,
+        "end_seconds": 291.696,
+        "text": "Save revision nine as a draft.",
+        "source_start_seconds": 575,
+        "source_end_seconds": 577.696
+      },
+      {
+        "scene_id": "L09-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 291.696,
+        "end_seconds": 295.609,
+        "text": "The scorecard may tell Morgan where to look.",
+        "source_start_seconds": 577.696,
+        "source_end_seconds": 581.609
+      },
+      {
+        "scene_id": "L09-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 295.609,
+        "end_seconds": 298.13,
+        "text": "It does not sign for Morgan.",
+        "source_start_seconds": 581.609,
+        "source_end_seconds": 584.13
+      },
+      {
+        "scene_id": "L09-08",
+        "speaker": "presenter",
+        "start_seconds": 298.13,
+        "end_seconds": 305,
+        "text": "Next we will put the same discipline around money and the final decision brief.",
+        "source_start_seconds": 584.13,
+        "source_end_seconds": 591
+      }
+    ],
+    "guided_work_pause_seconds": 45,
+    "closing_card": {
+      "scene_id": "L09-08",
+      "start_seconds": 305,
+      "end_seconds": 314,
+      "duration_seconds": 9,
+      "audience_copy_exact": [
+        "Operating File v9: metrics + review.",
+        "Next: spend and decision."
+      ],
+      "treatment": "approved provider-free ending copy"
+    },
+    "rule": "Retain exact speech in order; change picture only at a sentence-complete spoken handoff; one speaker at a time; preserve native presenter source frame rate and audio; re-time captions after native recordings."
+  },
+  "visuals": [
+    {
+      "scene_id": "L09-02",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "use": "Seven-rung ladder beside a small measure-to-decision card.",
+      "text_equivalent": "approved plate needs final scene-specific text alternative before publication"
+    },
+    {
+      "scene_id": "L09-04",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "Review posture matrix with Morgan's evidence view and a closed external-action gate.",
+      "text_equivalent": "approved plate needs final scene-specific text alternative before publication"
+    }
+  ],
+  "cover": {
+    "path": "public/agentified/posters/l09-poster.webp",
+    "sha256": "65d7112b9e16ed3c9c813a8f9b4c0190a40a1cbe9ec394224636241c23e9fcd5",
+    "use": "static poster and internal animatic only; video locked"
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "metrics-and-review",
+      "revision": 9,
+      "status": "draft",
+      "update_exact": "`metrics-and-review` → `metrics` and `review-postures`, revision 9, status `draft`; retains revision 8's prepare-only boundary."
+    },
+    "chapter_sources": [
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch15-metrics-that-matter-for-agents.md",
+        "sha256": "d8763146fdfd20a67bfe47a84835d42e29630c3f12c88351aea4974cd2af1f75"
+      },
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch16-human-review-is-the-trust-layer.md",
+        "sha256": "8c081f8f7d4f04c416e2ec67ff60ae0755dde99246bc8d38fd18248eb3aa7f0a"
+      }
+    ],
+    "source_ids_policy": "protected synthetic trace only; no source IDs in provider request"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L09.json",
+      "sha256": "5bbe9c3259a039e1b008fe10d59c2c067aca21f8858f750d6fb1231dcf800f80"
+    },
+    {
+      "path": "agentified/workshop/scripts/L09-metrics-and-review.md",
+      "sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413"
+    },
+    {
+      "path": "public/agentified/posters/l09-poster.webp",
+      "sha256": "65d7112b9e16ed3c9c813a8f9b4c0190a40a1cbe9ec394224636241c23e9fcd5"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch15-metrics-that-matter-for-agents.md",
+      "sha256": "d8763146fdfd20a67bfe47a84835d42e29630c3f12c88351aea4974cd2af1f75"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch16-human-review-is-the-trust-layer.md",
+      "sha256": "8c081f8f7d4f04c416e2ec67ff60ae0755dde99246bc8d38fd18248eb3aa7f0a"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+    }
+  ],
+  "gates": [
+    "purpose-specific L09-L12 look and voice approval",
+    "fresh provider quote, balance and enforceable one-job and batch caps",
+    "separate exact execution authorization",
+    "native audio timing and sentence-level edit audit",
+    "caption, diagram alt, mobile/desktop and final MP4 review"
+  ],
+  "stop_conditions": [
+    "source, rights, identity, voice or packet drift",
+    "uncertain job outcome or provider error; no retry",
+    "cost cap uncertainty or unexpected debit",
+    "narration omission, repetition or altered meaning",
+    "ordinary gap over 2.5 seconds",
+    "topic cut before sentence-complete handoff",
+    "visual clipping, label collision or unreadable captions"
+  ],
+  "candidate_sha256": "cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd"
+}

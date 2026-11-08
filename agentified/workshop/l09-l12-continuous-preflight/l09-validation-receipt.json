@@ -1,0 +1,15 @@
+{
+  "lesson_id": "L09",
+  "candidate_sha256": "cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd",
+  "packet_sha256": "5bbe9c3259a039e1b008fe10d59c2c067aca21f8858f750d6fb1231dcf800f80",
+  "script_sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
+  "speech_text_sha256": "00b75719aa0ff721de64a8d40b3baa52f8fa462393f31ca0c2befc0b213a1447",
+  "source_binding_count": 14,
+  "approved_visual_count": 2,
+  "provisional_continuous_seconds": 314,
+  "guided_pause_seconds": 45,
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "spend_usd": 0,
+  "status": "validated_provider_free; execution_blocked"
+}
