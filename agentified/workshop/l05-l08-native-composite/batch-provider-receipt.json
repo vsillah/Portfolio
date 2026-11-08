@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "four_sources_completed_once_no_retry_and_composited_provider_free",
+  "source_commit": "558cd4669e1d48c74a715a99d23eb9d43f74af8d",
+  "batch_sha256": "392593a8132208a7da39d5a5254f0887e72e6c509bf2d640f3a07fa8be291dee",
+  "look_id": "7275ba9035f94b31ad589dda6532d002",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "jobs_submitted": 4,
+  "retries": 0,
+  "credits_before": 1293,
+  "credits_after": 1250,
+  "aggregate_credit_cost": 43,
+  "cash_purchase_usd": 0,
+  "lessons": [
+    {
+      "lesson_id": "L05",
+      "job_id": "309a2d6c5041a38ae482e0754ffdda6e",
+      "request_sha256": "54bcd458518d54755c6bc76ae5fbed365440790548eeb02d299e45e589034099",
+      "credit_cost": 11,
+      "native_source_sha256": "4fa12be38917aee81f1d90ca965a96254100f2efe24ea64f8886cca51f84b244",
+      "composite_sha256": "5dfd073aa0b22fa724cd13ebdb7b43799b1ffe3db5a20ee1d72babba1438d4d1",
+      "native_duration_seconds": 18.24
+    },
+    {
+      "lesson_id": "L06",
+      "job_id": "51d206b2e3785e8dce2fb320fb4c6aec",
+      "request_sha256": "cc6a0cc1320375eb4d8ee3bc22c32bcb3814822c02fefd8e5af901341c52acbc",
+      "credit_cost": 11,
+      "native_source_sha256": "203ec00bb46a1fb3c167346f896472f414da41ea7d7078f742f0e9870d3f421f",
+      "composite_sha256": "6cfdf3fc116838c7c2beff588428b0378414045671a001866a18e189344238ed",
+      "native_duration_seconds": 19.607
+    },
+    {
+      "lesson_id": "L07",
+      "job_id": "c3cc7090dde04b9483d9f4d4de6b852b",
+      "request_sha256": "f35b6f521276b7b7ee03806f3c58de0acb4236ea90c005859c293ee065a47bcd",
+      "credit_cost": 9,
+      "native_source_sha256": "47e53cd3023c0189530657505952703ac571e9ebbf9cf0042a0986a4f5f52047",
+      "composite_sha256": "f14f0fb4209f7931eaca1d4c955ef6695d48fd1c562eebc4c937f969c324e177",
+      "native_duration_seconds": 15.48
+    },
+    {
+      "lesson_id": "L08",
+      "job_id": "76d5248d34be0265512f59385e163415",
+      "request_sha256": "297bf76b3b3a4179c5ee07fc81039d58351ad10dce12aa01ebddcc3038fcf025",
+      "credit_cost": 12,
+      "native_source_sha256": "efc86671550629e2c3f8ebcd1d4f1faebddde80ec27157eab0e00ee0a023d2c8",
+      "composite_sha256": "37ba51a2af088dbdc13a11d71eae478eb66202309de30955f5f746e34c3d068b",
+      "native_duration_seconds": 20.904
+    }
+  ]
+}
