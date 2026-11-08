@@ -1,0 +1,255 @@
+{
+  "schema_version": 3,
+  "status": "provider_free_replacement_candidate_pending_identity_approval",
+  "provider_candidate": "HeyGen",
+  "lesson_id": "L01",
+  "authorized_source_commit": "e51b09b746256e1c6825d249438bcd4a0e6f181e",
+  "correction_scope": "sentence-complete presenter windows plus provider-free closing evidence card",
+  "prior_scene_packet_merge": "db010ebfe7c14a378fb4ff2102af48c1b1954293",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "upload_allowed": false,
+  "avatar_generation_allowed": false,
+  "voice_generation_allowed": false,
+  "publish_allowed": false,
+  "spend_cap_usd": 0,
+  "automatic_retries": 0,
+  "requested_job_limit": 1,
+  "one_job_candidate_key": "3faa39307512c5221086816824a7ff118bc4fc8d635057cc2c9dd558005a9c8f",
+  "lesson_duration_seconds": 540,
+  "presenter_duration_seconds": 23.431,
+  "scripted_speech_span_seconds": 23.431,
+  "conditional_generated_duration_seconds": 23.431,
+  "provider_billable_duration_seconds": null,
+  "duration_note": "Generate only the two exact sentence-complete passages in one continuous source. The expected scripted span is 23.431 seconds before provider pacing. The 17-second L01-08 tail is provider-free and remains inside the unchanged 09:00 lesson.",
+  "format_candidate": {
+    "master": "1920x1080 16:9",
+    "frame_rate": 30,
+    "portrait": "separate 1080x1920 reflow after review"
+  },
+  "presenter_windows": [
+    {
+      "id": "L01-01",
+      "start_seconds": 0,
+      "end_seconds": 19.271,
+      "original_reserved_end_seconds": 19.271,
+      "presenter_duration_seconds": 19.271,
+      "narration_exact": "Friday afternoon. Morgan runs a small community learning program. For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. Someone suggests adding a free digital-skills session next month.",
+      "narration_sha256": "a74e9c21c24d9b6f4b730d66d38458502da809b27446b40dd3b57074183360b1",
+      "caption_cues": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 1.464,
+          "text": "Friday afternoon. "
+        },
+        {
+          "start_seconds": 1.464,
+          "end_seconds": 5.367,
+          "text": "Morgan runs a small community learning program. "
+        },
+        {
+          "start_seconds": 5.367,
+          "end_seconds": 13.904,
+          "text": "For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. "
+        },
+        {
+          "start_seconds": 13.904,
+          "end_seconds": 19.271,
+          "text": "Someone suggests adding a free digital-skills session next month. "
+        }
+      ],
+      "caption_end_seconds": 19.271,
+      "provider_free_tail_seconds": 0,
+      "timing_status": "approved_sentence_complete_presenter_window"
+    },
+    {
+      "id": "L01-08",
+      "start_seconds": 518.84,
+      "end_seconds": 523,
+      "original_reserved_end_seconds": 540,
+      "presenter_duration_seconds": 4.16,
+      "narration_exact": "Next we will name the decision Morgan actually owns.",
+      "narration_sha256": "00cc15136e5f5d627a96371e223d39835886770122d09900f78069ba4793fdac",
+      "caption_cues": [
+        {
+          "start_seconds": 518.84,
+          "end_seconds": 523,
+          "text": "Next we will name the decision Morgan actually owns."
+        }
+      ],
+      "caption_end_seconds": 523,
+      "provider_free_tail_seconds": 17,
+      "timing_status": "approved_sentence_complete_presenter_window"
+    }
+  ],
+  "provider_free_closing_card": {
+    "scene_id": "L01-08",
+    "start_seconds": 523,
+    "end_seconds": 540,
+    "duration_seconds": 17,
+    "treatment": "Hold the approved closing evidence card without presenter footage or generated voice; preserve the existing plate binding, lesson timing, captions and reduced-motion behavior."
+  },
+  "approved_identity_voice_binding": null,
+  "revised_presenter_window_manifest": {
+    "receipt": "presenter-window-manifest.json",
+    "receipt_sha256": "844957755c075731e5ce14630da5ac2346234d54c4368cd141b2195482091394"
+  },
+  "one_job_payload_boundary": {
+    "passages": [
+      {
+        "id": "L01-01",
+        "narration_exact": "Friday afternoon. Morgan runs a small community learning program. For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records. Someone suggests adding a free digital-skills session next month.",
+        "narration_sha256": "a74e9c21c24d9b6f4b730d66d38458502da809b27446b40dd3b57074183360b1"
+      },
+      {
+        "id": "L01-08",
+        "narration_exact": "Next we will name the decision Morgan actually owns.",
+        "narration_sha256": "00cc15136e5f5d627a96371e223d39835886770122d09900f78069ba4793fdac"
+      }
+    ],
+    "treatment": "Submit the two passages as one continuous script in one job, then split and place the native source provider-free at the approved sentence boundaries."
+  },
+  "production": {
+    "composition": "Remove the source background provider-free, preserve the gray-sweater presenter at native speed and aspect ratio, and keep the presenter clear of captions, teaching copy, worksheet fields, and diagram labels.",
+    "plate_use": {
+      "scene": "L01-04",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "alt_text": "First receipt diagram showing a bounded job and the source trail needed to review its output."
+    },
+    "package_cover": {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package identity only; no scene plate use"
+    },
+    "static_poster": {
+      "path": "public/agentified/posters/l01-poster.webp",
+      "sha256": "8939a4387173bd8e6a335e1b8d8e2d50155cfac338cf75292fdf1e594cd5310e",
+      "alt_text": "L01 Give the agent a job and a receipt lesson cover: Vambah presents the first receipt diagram.",
+      "media_status": "static-cover; video locked"
+    },
+    "captions": "Exact packet cues are provisional. Time an independent caption track to the approved final mix; retain full transcript, reading order, contrast and portrait-safe caption band.",
+    "reduced_motion": "Use instant cuts; no required information may depend on motion.",
+    "audio_ownership": "One speaker at a time. If separately approved native presenter audio owns a window, mute the matching narrator span; never layer both. Preserve source MP4 frame rate, frame count, duration and lip sync in reproducible FFmpeg composite."
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L01.json",
+      "sha256": "a293d0882849644dcbf41e9f42d4886a602bc818d6e0c384b17bf010df24b4d6",
+      "use": "production_packet"
+    },
+    {
+      "path": "agentified/workshop/scripts/L01-job-and-receipt.md",
+      "sha256": "c600f29d7fcc6c2a50d3bcb2d07f92a9d0f45225520e300d865c188d75cdaa26",
+      "use": "approved_narration_source"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413",
+      "use": "static_cover_source_map"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+      "use": "approved_visual_register"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
+      "use": "source_register"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+      "use": "curriculum_crosswalk"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab",
+      "use": "workbook_lineage"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch01-the-first-receipt.md",
+      "sha256": "718ad20af6f9c8cfa6d4b8f83c84488b646098aa02503f5febcd9ddd26518590",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch02-agents-need-jobs-not-vibes.md",
+      "sha256": "d2940c61b6eba67800d47e8dc4b5b1dfe420867c1d949afa34244a9894952c52",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package_identity_only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "use": "approved_L01-04_diagram_only"
+    },
+    {
+      "path": "public/agentified/posters/l01-poster.webp",
+      "sha256": "8939a4387173bd8e6a335e1b8d8e2d50155cfac338cf75292fdf1e594cd5310e",
+      "use": "static_locked_poster_only"
+    },
+    {
+      "path": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "sha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "use": "local_static_cover_identity_reference_only"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/avatar-sources/l01-vambah-cutout.png",
+      "sha256": "bdca89faea05f6d729809119d475c9c22c2e6499f893aea61d9a5847f5a36cd2",
+      "use": "local_static_cover_cutout_only"
+    },
+    {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165",
+      "use": "static_cover_logo_only"
+    }
+  ],
+  "boundaries": {
+    "evidence": "Synthetic Harbor Learning Circle and Morgan only; no participant, customer, admin, private chat, or live operational records.",
+    "rights": "The gray-sweater look and avatar-native voice require exact purpose-specific approval for this L01 replacement. Existing L02-L04 approval does not extend to L01.",
+    "lineage": "Accelerated SAM media is reference lineage only and excluded from Agentified output.",
+    "release": "Provider execution, learner playback replacement, publication, and distribution remain blocked pending exact identity approval, one-job execution authority, native-source review, and a corrected composite receipt."
+  },
+  "execution_gates": [
+    "Receive exact purpose-specific approval for the gray-sweater look and avatar-native voice for this L01 replacement only.",
+    "Preserve both exact sentence-complete passages, presenter endpoints, and the provider-free 17-second closing evidence card.",
+    "Verify current wallet balance and auto-reload off before one single-attempt job; no purchase, overage, or retry.",
+    "Fail closed on source, identity, voice, passage, timing, privacy, debit, or output drift.",
+    "Complete native-source, background-removal, caption, accessibility, and final-composite Human QA before changing learner playback."
+  ],
+  "cap_options_for_later_decision": [
+    {
+      "option": "provider_hard_cap",
+      "condition": "Account or API enforces one job, no retry and a maximum total charge before submission; fail closed if unavailable."
+    },
+    {
+      "option": "prepaid_single_job",
+      "condition": "Prepaid balance or single-use allocation is technically restricted to one job and exact capped total; fail closed if renewal or overage is possible."
+    },
+    {
+      "option": "no_execution",
+      "condition": "Use if neither enforceable option exists. A price estimate or manual promise is insufficient."
+    }
+  ],
+  "supersedes_candidate_sha256": "3d36d889ffb65d63e6a6bd4f0b315c00ed25162e329c0303acec09656c5114cb",
+  "replacement_reason": "Replace the visually inconsistent green-sweater presenter and blue source background with the established Agentified gray-sweater treatment.",
+  "proposed_identity_voice_binding": {
+    "status": "pending_exact_l01_approval",
+    "look": {
+      "name": "Vambah Gray Sweater",
+      "id": "7275ba9035f94b31ad589dda6532d002"
+    },
+    "voice": {
+      "name": "Vambah avatar-native voice",
+      "id": "14b592b937744404a4fa7c01aafd7dbe",
+      "type": "avatar-native voice"
+    },
+    "scope": "Agentified L01 replacement review-only source"
+  },
+  "candidate_sha256": "1032ca1c43a7be2d7f33690ff2909c10546c78d0a1138190fce26fe6088972fd"
+}
