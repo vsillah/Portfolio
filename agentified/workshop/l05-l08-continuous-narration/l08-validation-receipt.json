@@ -28,8 +28,8 @@
       {
         "source_start": 13.525,
         "source_end": 20.904,
-        "sequence_start": 247.61862358276633,
-        "sequence_end": 254.99762358276632
+        "sequence_start": 247.29171900000003,
+        "sequence_end": 254.67071900000002
       }
     ],
     "background_treatment": "provider_free_textured_studio_reconstruction"
@@ -39,57 +39,57 @@
       "scene_id": "L08-01",
       "source_start": 0.213,
       "source_end": 11.366,
-      "sequence_start": 13.775,
-      "sequence_end": 24.927999999999997
+      "sequence_start": 13.988,
+      "sequence_end": 25.141
     },
     {
       "scene_id": "L08-02",
       "source_start": 11.639,
       "source_end": 51.839,
-      "sequence_start": 25.278,
-      "sequence_end": 65.478
+      "sequence_start": 25.414,
+      "sequence_end": 65.614
     },
     {
       "scene_id": "L08-03",
       "source_start": 52.073,
       "source_end": 77.523,
-      "sequence_start": 65.82799999999999,
-      "sequence_end": 91.27799999999999
+      "sequence_start": 65.848,
+      "sequence_end": 91.298
     },
     {
       "scene_id": "L08-04",
       "source_start": 77.833,
       "source_end": 111.349,
-      "sequence_start": 91.62799999999999,
-      "sequence_end": 125.14399999999998
+      "sequence_start": 91.608,
+      "sequence_end": 125.12400000000001
     },
     {
       "scene_id": "L08-05",
       "source_start": 111.656,
       "source_end": 147.171,
-      "sequence_start": 125.49399999999997,
-      "sequence_end": 161.00899999999996
+      "sequence_start": 125.43100000000001,
+      "sequence_end": 160.946
     },
     {
       "scene_id": "L08-06",
       "source_start": 147.449,
       "source_end": 152.457,
-      "sequence_start": 161.35899999999995,
-      "sequence_end": 166.3669999999999
+      "sequence_start": 161.22400000000002,
+      "sequence_end": 166.232
     },
     {
       "scene_id": "L08-07",
       "source_start": 152.777,
       "source_end": 178.74,
-      "sequence_start": 166.7169999999999,
-      "sequence_end": 192.6799999999999
+      "sequence_start": 166.552,
+      "sequence_end": 192.51500000000001
     },
     {
       "scene_id": "L08-08",
       "source_start": 179.017,
       "source_end": 188.25562358276645,
-      "sequence_start": 238.0299999999999,
-      "sequence_end": 247.26862358276634
+      "sequence_start": 237.792,
+      "sequence_end": 247.03062358276648
     }
   ],
   "sentence_placements": [
@@ -98,443 +98,445 @@
       "text": "A polished brief built on that note could still be wrong.",
       "source_start": 0.213,
       "source_end": 3.307,
-      "sequence_start": 13.775,
-      "sequence_end": 16.869
+      "sequence_start": 13.988,
+      "sequence_end": 17.082
     },
     {
       "scene_id": "L08-01",
       "text": "The problem is at the handoff.",
       "source_start": 3.541,
       "source_end": 5.525,
-      "sequence_start": 17.102999999999998,
-      "sequence_end": 19.087
+      "sequence_start": 17.316,
+      "sequence_end": 19.3
     },
     {
       "scene_id": "L08-01",
       "text": "Before we add another checker or give the drafter more authority, write down what must cross that edge.",
       "source_start": 5.888,
       "source_end": 11.366,
-      "sequence_start": 19.45,
-      "sequence_end": 24.927999999999997
+      "sequence_start": 19.663,
+      "sequence_end": 25.141
     },
     {
       "scene_id": "L08-02",
       "text": "Chapter Thirteen's Handoff Contract Card has six fields: producer, consumer, payload, preconditions, rejection path, and owner.",
       "source_start": 11.639,
       "source_end": 21.281,
-      "sequence_start": 25.278000000000002,
-      "sequence_end": 34.92
+      "sequence_start": 25.414,
+      "sequence_end": 35.056
     },
     {
       "scene_id": "L08-02",
       "text": "Producer: Harbor's source checker.",
       "source_start": 21.495,
       "source_end": 23.607,
-      "sequence_start": 35.134,
-      "sequence_end": 37.245999999999995
+      "sequence_start": 35.27,
+      "sequence_end": 37.382
     },
     {
       "scene_id": "L08-02",
       "text": "Consumer: brief drafter.",
       "source_start": 23.799,
       "source_end": 25.643,
-      "sequence_start": 37.438,
-      "sequence_end": 39.282
+      "sequence_start": 37.574,
+      "sequence_end": 39.418
     },
     {
       "scene_id": "L08-02",
       "text": "Payload: the three course source references, observation and expiry checks, allowed claim for each, open questions, and a trace reference.",
       "source_start": 25.866,
       "source_end": 35.338,
-      "sequence_start": 39.504999999999995,
-      "sequence_end": 48.977000000000004
+      "sequence_start": 39.641,
+      "sequence_end": 49.113
     },
     {
       "scene_id": "L08-02",
       "text": "Preconditions: all references are permitted classroom inputs and checked for freshness.",
       "source_start": 35.679,
       "source_end": 40.655,
-      "sequence_start": 49.318,
-      "sequence_end": 54.294
+      "sequence_start": 49.454,
+      "sequence_end": 54.43
     },
     {
       "scene_id": "L08-02",
       "text": "Rejection path: missing or stale evidence becomes a hold with a reason for Morgan.",
       "source_start": 40.937,
       "source_end": 45.716,
-      "sequence_start": 54.57600000000001,
-      "sequence_end": 59.355000000000004
+      "sequence_start": 54.711999999999996,
+      "sequence_end": 59.491
     },
     {
       "scene_id": "L08-02",
       "text": "Owner: Morgan, who can revise the paper contract.",
       "source_start": 46.1,
       "source_end": 49.215,
-      "sequence_start": 59.739000000000004,
-      "sequence_end": 62.854
+      "sequence_start": 59.875,
+      "sequence_end": 62.99
     },
     {
       "scene_id": "L08-02",
       "text": "The receiver does not fill a blank by guessing.",
       "source_start": 49.641,
       "source_end": 51.839,
-      "sequence_start": 63.28,
-      "sequence_end": 65.478
+      "sequence_start": 63.416,
+      "sequence_end": 65.614
     },
     {
       "scene_id": "L08-03",
       "text": "Try a broken payload on purpose.",
       "source_start": 52.073,
       "source_end": 54.068,
-      "sequence_start": 65.82799999999997,
-      "sequence_end": 67.82299999999998
+      "sequence_start": 65.848,
+      "sequence_end": 67.843
     },
     {
       "scene_id": "L08-03",
       "text": "The facilitator note says only 'available for review,' but the handoff labels the facilitator confirmed.",
       "source_start": 54.398,
       "source_end": 59.86,
-      "sequence_start": 68.15299999999999,
-      "sequence_end": 73.61499999999998
+      "sequence_start": 68.173,
+      "sequence_end": 73.635
     },
     {
       "scene_id": "L08-03",
       "text": "The receiver must refuse it.",
       "source_start": 60.116,
       "source_end": 62.164,
-      "sequence_start": 73.87099999999998,
-      "sequence_end": 75.91899999999998
+      "sequence_start": 73.891,
+      "sequence_end": 75.93900000000001
     },
     {
       "scene_id": "L08-03",
       "text": "The reason is staffing claim unsupported.",
       "source_start": 62.462,
       "source_end": 65.016,
-      "sequence_start": 76.21699999999998,
-      "sequence_end": 78.77099999999999
+      "sequence_start": 76.23700000000001,
+      "sequence_end": 78.79100000000001
     },
     {
       "scene_id": "L08-03",
       "text": "The drafter does not quietly edit the source check or send the draft onward.",
       "source_start": 65.351,
       "source_end": 69.447,
-      "sequence_start": 79.10599999999997,
-      "sequence_end": 83.20199999999997
+      "sequence_start": 79.126,
+      "sequence_end": 83.22200000000001
     },
     {
       "scene_id": "L08-03",
       "text": "Rejection is a visible outcome, with Morgan as the human fallback.",
       "source_start": 69.66,
       "source_end": 73.5,
-      "sequence_start": 83.41499999999999,
-      "sequence_end": 87.25499999999997
+      "sequence_start": 83.435,
+      "sequence_end": 87.275
     },
     {
       "scene_id": "L08-03",
       "text": "That is the test of a contract: what happens when its promise fails?",
       "source_start": 73.713,
       "source_end": 77.523,
-      "sequence_start": 87.46799999999999,
-      "sequence_end": 91.27799999999999
+      "sequence_start": 87.488,
+      "sequence_end": 91.298
     },
     {
       "scene_id": "L08-04",
       "text": "Now evaluate the designed workflow.",
       "source_start": 77.833,
       "source_end": 80.073,
-      "sequence_start": 91.62799999999999,
-      "sequence_end": 93.86799999999997
+      "sequence_start": 91.608,
+      "sequence_end": 93.848
     },
     {
       "scene_id": "L08-04",
       "text": "Chapter Fourteen gives four moves: capture, judge, sample, decide.",
       "source_start": 80.35,
       "source_end": 85.807,
-      "sequence_start": 94.14499999999998,
-      "sequence_end": 99.602
+      "sequence_start": 94.125,
+      "sequence_end": 99.58200000000001
     },
     {
       "scene_id": "L08-04",
       "text": "Capture the input IDs, contract and rubric versions, draft, test results, and Morgan's disposition in a privacy-safe classroom record.",
       "source_start": 86.186,
       "source_end": 95.167,
-      "sequence_start": 99.981,
-      "sequence_end": 108.96199999999999
+      "sequence_start": 99.96100000000001,
+      "sequence_end": 108.94200000000001
     },
     {
       "scene_id": "L08-04",
       "text": "Judge against a small pass-or-fail rubric.",
       "source_start": 95.53,
       "source_end": 98.208,
-      "sequence_start": 109.32499999999999,
-      "sequence_end": 112.00299999999999
+      "sequence_start": 109.305,
+      "sequence_end": 111.983
     },
     {
       "scene_id": "L08-04",
       "text": "Sample the cases with a human; an automated score can help sort work later, but it cannot become the ground truth.",
       "source_start": 98.497,
       "source_end": 104.599,
-      "sequence_start": 112.292,
-      "sequence_end": 118.39399999999998
+      "sequence_start": 112.272,
+      "sequence_end": 118.37400000000001
     },
     {
       "scene_id": "L08-04",
       "text": "Decide whether to keep the prepare-only design, revise it, or stop it.",
       "source_start": 104.855,
       "source_end": 108.929,
-      "sequence_start": 118.65,
-      "sequence_end": 122.72399999999999
+      "sequence_start": 118.63000000000001,
+      "sequence_end": 122.70400000000001
     },
     {
       "scene_id": "L08-04",
       "text": "The score does not grant a send permission.",
       "source_start": 109.121,
       "source_end": 111.349,
-      "sequence_start": 122.91599999999997,
-      "sequence_end": 125.14399999999998
+      "sequence_start": 122.896,
+      "sequence_end": 125.12400000000001
     },
     {
       "scene_id": "L08-05",
       "text": "Use three Harbor cases.",
       "source_start": 111.656,
       "source_end": 113.022,
-      "sequence_start": 125.49399999999997,
-      "sequence_end": 126.85999999999996
+      "sequence_start": 125.43100000000001,
+      "sequence_end": 126.79700000000001
     },
     {
       "scene_id": "L08-05",
       "text": "Case A: all notes current, facilitator unconfirmed, draft says unconfirmed; pass the source and wording checks, then wait for Morgan.",
       "source_start": 113.278,
       "source_end": 122.548,
-      "sequence_start": 127.11599999999999,
-      "sequence_end": 136.38599999999997
+      "sequence_start": 127.05300000000001,
+      "sequence_end": 136.323
     },
     {
       "scene_id": "L08-05",
       "text": "Case B: facilitator note stale; fail the freshness check and hold before drafting.",
       "source_start": 122.859,
       "source_end": 128.725,
-      "sequence_start": 136.69699999999995,
-      "sequence_end": 142.56299999999996
+      "sequence_start": 136.634,
+      "sequence_end": 142.5
     },
     {
       "scene_id": "L08-05",
       "text": "Case C: notes current, but the draft claims a teacher is confirmed; fail the wording check and return it.",
       "source_start": 129.003,
       "source_end": 135.708,
-      "sequence_start": 142.84099999999995,
-      "sequence_end": 149.546
+      "sequence_start": 142.778,
+      "sequence_end": 149.483
     },
     {
       "scene_id": "L08-05",
       "text": "Three cases are a classroom starting set, not proof of reliability.",
       "source_start": 135.971,
       "source_end": 140.025,
-      "sequence_start": 149.80899999999997,
-      "sequence_end": 153.863
+      "sequence_start": 149.746,
+      "sequence_end": 153.8
     },
     {
       "scene_id": "L08-05",
       "text": "If Morgan's review disagrees with a later automated judge, investigate the judge and rubric before changing any permission.",
       "source_start": 140.281,
       "source_end": 147.171,
-      "sequence_start": 154.11899999999997,
-      "sequence_end": 161.00899999999996
+      "sequence_start": 154.056,
+      "sequence_end": 160.946
     },
     {
       "scene_id": "L08-06",
       "text": "Pause.",
       "source_start": 147.449,
       "source_end": 148.108,
-      "sequence_start": 161.35899999999998,
-      "sequence_end": 162.01799999999997
+      "sequence_start": 161.22400000000002,
+      "sequence_end": 161.883
     },
     {
       "scene_id": "L08-06",
       "text": "Which failed case would a neat-looking dashboard be most likely to hide?",
       "source_start": 148.511,
       "source_end": 152.457,
-      "sequence_start": 162.42099999999994,
-      "sequence_end": 166.3669999999999
+      "sequence_start": 162.286,
+      "sequence_end": 166.232
     },
     {
       "scene_id": "L08-07",
       "text": "Write the Handoff Contract Card, then grade A, B, and C with a named rubric version.",
       "source_start": 152.777,
       "source_end": 158.827,
-      "sequence_start": 166.71699999999993,
-      "sequence_end": 172.76699999999988
+      "sequence_start": 166.552,
+      "sequence_end": 172.602
     },
     {
       "scene_id": "L08-07",
       "text": "Record a pass or fail for permitted source, freshness, supported claim, and correct human gate.",
       "source_start": 159.116,
       "source_end": 165.644,
-      "sequence_start": 173.05599999999993,
-      "sequence_end": 179.5839999999999
+      "sequence_start": 172.89100000000002,
+      "sequence_end": 179.419
     },
     {
       "scene_id": "L08-07",
       "text": "Include a human review rule and the decision you would recommend from these cases.",
       "source_start": 165.9,
       "source_end": 169.856,
-      "sequence_start": 179.83999999999992,
-      "sequence_end": 183.79599999999988
+      "sequence_start": 179.675,
+      "sequence_end": 183.631
     },
     {
       "scene_id": "L08-07",
       "text": "Keep permission at prepare only, regardless of the score.",
       "source_start": 170.185,
       "source_end": 173.684,
-      "sequence_start": 184.12499999999994,
-      "sequence_end": 187.6239999999999
+      "sequence_start": 183.96,
+      "sequence_end": 187.459
     },
     {
       "scene_id": "L08-07",
       "text": "Use a fictional or approved example.",
       "source_start": 173.94,
       "source_end": 176.116,
-      "sequence_start": 187.87999999999994,
-      "sequence_end": 190.05599999999993
+      "sequence_start": 187.715,
+      "sequence_end": 189.89100000000002
     },
     {
       "scene_id": "L08-07",
       "text": "Do not use private operational data.",
       "source_start": 176.415,
       "source_end": 178.74,
-      "sequence_start": 190.3549999999999,
-      "sequence_end": 192.6799999999999
+      "sequence_start": 190.19,
+      "sequence_end": 192.51500000000001
     },
     {
       "scene_id": "L08-08",
       "text": "Save revision eight as a draft.",
       "source_start": 179.017,
       "source_end": 180.948,
-      "sequence_start": 238.02999999999992,
-      "sequence_end": 239.9609999999999
+      "sequence_start": 237.792,
+      "sequence_end": 239.72299999999998
     },
     {
       "scene_id": "L08-08",
       "text": "We have a map, a permission slip, a job packet, a team, and now a contract we can break in a safe exercise.",
       "source_start": 181.258,
       "source_end": 188.25562358276645,
-      "sequence_start": 240.2709999999999,
-      "sequence_end": 247.26862358276634
+      "sequence_start": 240.03300000000004,
+      "sequence_end": 247.03062358276648
     }
   ],
   "guided_work_window": {
-    "start": 193.0299999999999,
-    "end": 238.0299999999999,
+    "start": 192.6535,
+    "end": 237.6535,
     "duration": 45,
-    "purpose": "clearly signposted guided learner work"
+    "purpose": "clearly signposted guided learner work with synchronized countdown"
   },
+  "narration_audio_spans": [
+    {
+      "source_start": 0,
+      "source_end": 178.8785,
+      "sequence_start": 13.775,
+      "sequence_end": 192.6535
+    },
+    {
+      "source_start": 178.8785,
+      "source_end": 188.316719,
+      "sequence_start": 237.6535,
+      "sequence_end": 247.09171900000004
+    }
+  ],
   "transition_policy": {
     "sentence_complete_handoffs": true,
-    "ordinary_gap_seconds": 0.35,
+    "natural_source_pauses_preserved": true,
+    "ordinary_gap_seconds": 0,
+    "full_narration_tail_preserved": true,
+    "closing_handoff_gap_seconds": 0.2,
     "music_used": false,
     "fixed_ten_minute_padding": false
   },
   "composite": {
     "path": "agentified/workshop/l05-l08-continuous-narration/agentified-l08-continuous-narration-composite.mp4",
-    "sha256": "fb8e4dd3fa7c6a19ecc2aed4a1d8d2124b40d60e8b93ca798fdfd6a4954d98f4",
-    "duration_seconds": 258
+    "sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+    "duration_seconds": 257.68
   },
   "captions": {
     "srt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l08-continuous-narration-captions.srt",
-    "srt_sha256": "ff38093b5d5452190db1285d9cfab57f6d9075308a751348749e9232c1cb38cd",
+    "srt_sha256": "bf7c056e311b6312e298bb1994dc5df4001fbcd30c9971296ec871452b20f347",
     "vtt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l08-continuous-narration-captions.vtt",
-    "vtt_sha256": "0fba5da146cc8dc6bb991c98d047acf0b003055c00de51007ad3cf8a2664b355"
+    "vtt_sha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011"
   },
   "continuity_validation": {
     "ordinary_silence_limit_seconds": 2.5,
     "detected_silences": [
       {
-        "start": 24.849354,
-        "end": 25.38125,
-        "duration": 0.5318959999999997
+        "start": 13.431729,
+        "end": 13.933083,
+        "duration": 0.5013539999999992
       },
       {
-        "start": 59.157042,
-        "end": 59.772083,
-        "duration": 0.6150410000000051
+        "start": 18.974958,
+        "end": 19.500604,
+        "duration": 0.5256459999999983
       },
       {
-        "start": 62.79125,
-        "end": 63.373521,
-        "duration": 0.5822709999999987
+        "start": 59.293062,
+        "end": 59.908083,
+        "duration": 0.6150209999999987
       },
       {
-        "start": 65.351583,
-        "end": 65.889708,
-        "duration": 0.5381249999999937
+        "start": 62.92725,
+        "end": 63.509542,
+        "duration": 0.5822920000000025
       },
       {
-        "start": 75.623729,
-        "end": 76.22925,
+        "start": 75.643708,
+        "end": 76.249229,
         "duration": 0.605520999999996
       },
       {
-        "start": 99.518542,
-        "end": 100.028188,
+        "start": 99.498521,
+        "end": 100.008167,
         "duration": 0.5096460000000036
       },
       {
-        "start": 125.017896,
-        "end": 125.557812,
-        "duration": 0.5399160000000052
+        "start": 142.327479,
+        "end": 142.868542,
+        "duration": 0.5410629999999799
       },
       {
-        "start": 142.390479,
-        "end": 142.931542,
-        "duration": 0.5410630000000083
+        "start": 149.337354,
+        "end": 149.856792,
+        "duration": 0.5194380000000081
       },
       {
-        "start": 149.400333,
-        "end": 149.919792,
-        "duration": 0.5194590000000119
+        "start": 161.765625,
+        "end": 162.350958,
+        "duration": 0.5853329999999914
       },
       {
-        "start": 160.896396,
-        "end": 161.437062,
-        "duration": 0.5406659999999874
+        "start": 192.3785,
+        "end": 237.80475,
+        "duration": 45.42625000000001
       },
       {
-        "start": 161.898708,
-        "end": 162.485938,
-        "duration": 0.5872300000000052
+        "start": 246.890167,
+        "end": 247.584271,
+        "duration": 0.69410400000001
       },
       {
-        "start": 166.22025,
-        "end": 166.78875,
-        "duration": 0.5685000000000002
-      },
-      {
-        "start": 192.542771,
-        "end": 238.042229,
-        "duration": 45.499458000000004
-      },
-      {
-        "start": 247.127646,
-        "end": 247.911292,
-        "duration": 0.7836460000000045
-      },
-      {
-        "start": 254.710917,
-        "end": 258.005333,
-        "duration": 3.2944160000000124
+        "start": 254.383896,
+        "end": 257.685333,
+        "duration": 3.3014370000000213
       }
     ],
     "allowed_quiet_windows": [
       {
-        "start": 193.0299999999999,
-        "end": 238.0299999999999,
+        "start": 192.6535,
+        "end": 237.6535,
         "duration": 45,
-        "purpose": "clearly signposted guided learner work",
+        "purpose": "clearly signposted guided learner work with synchronized countdown",
         "tolerance": 1.25
       },
       {
-        "start": 254.99762358276632,
-        "end": 257.9976235827663,
+        "start": 254.67071900000002,
+        "end": 257.670719,
         "duration": 3,
         "purpose": "provider-free close",
         "tolerance": 0.5

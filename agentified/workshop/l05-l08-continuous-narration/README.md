@@ -9,8 +9,9 @@ This package corrects the abrupt topic changes and unplanned dead air in the L05
 - Cash purchases: zero
 - Music: none
 - Fixed ten-minute padding: none
-- Ordinary silence limit: 2.5 seconds
-- Guided work: one clearly labeled 45-second interval per lesson
+- Ordinary transitions: untouched provider audio with natural pauses preserved
+- Narration endings: full source tails preserved beyond the final word timestamp
+- Guided work: one visible, synchronized 45-second countdown per lesson
 - Learner playback: unchanged
 
 Run `node agentified/workshop/l05-l08-continuous-narration/validate.mjs` after rendering. Open `review.html` through a local HTTP server for Human QA.

@@ -28,8 +28,8 @@
       {
         "source_start": 9.37,
         "source_end": 15.48,
-        "sequence_start": 242.4295056689342,
-        "sequence_end": 248.53950566893423
+        "sequence_start": 242.22243799999995,
+        "sequence_end": 248.33243799999997
       }
     ],
     "background_treatment": "provider_free_textured_studio_reconstruction"
@@ -39,57 +39,57 @@
       "scene_id": "L07-01",
       "source_start": 0.256,
       "source_end": 18.05,
-      "sequence_start": 9.62,
-      "sequence_end": 27.414
+      "sequence_start": 9.876,
+      "sequence_end": 27.67
     },
     {
       "scene_id": "L07-02",
       "source_start": 18.37,
       "source_end": 55.596,
-      "sequence_start": 27.764000000000003,
-      "sequence_end": 64.99
+      "sequence_start": 27.990000000000002,
+      "sequence_end": 65.216
     },
     {
       "scene_id": "L07-03",
       "source_start": 55.874,
       "source_end": 82.708,
-      "sequence_start": 65.33999999999999,
-      "sequence_end": 92.174
+      "sequence_start": 65.494,
+      "sequence_end": 92.328
     },
     {
       "scene_id": "L07-04",
       "source_start": 83.049,
       "source_end": 117.168,
-      "sequence_start": 92.524,
-      "sequence_end": 126.643
+      "sequence_start": 92.66900000000001,
+      "sequence_end": 126.78800000000001
     },
     {
       "scene_id": "L07-05",
       "source_start": 117.488,
       "source_end": 143.582,
-      "sequence_start": 126.993,
-      "sequence_end": 153.087
+      "sequence_start": 127.108,
+      "sequence_end": 153.202
     },
     {
       "scene_id": "L07-06",
       "source_start": 143.859,
       "source_end": 150.188,
-      "sequence_start": 153.43699999999998,
-      "sequence_end": 159.766
+      "sequence_start": 153.479,
+      "sequence_end": 159.808
     },
     {
       "scene_id": "L07-07",
       "source_start": 150.458,
       "source_end": 178.762,
-      "sequence_start": 160.11599999999999,
-      "sequence_end": 188.42
+      "sequence_start": 160.078,
+      "sequence_end": 188.382
     },
     {
       "scene_id": "L07-08",
       "source_start": 179.028,
       "source_end": 187.33750566893423,
-      "sequence_start": 233.76999999999998,
-      "sequence_end": 242.07950566893422
+      "sequence_start": 233.64800000000002,
+      "sequence_end": 241.95750566893423
     }
   ],
   "sentence_placements": [
@@ -98,483 +98,475 @@
       "text": "The preparation role did what an old brief told it to do: 'Summarize the best session option.'",
       "source_start": 0.256,
       "source_end": 5.504,
-      "sequence_start": 9.62,
-      "sequence_end": 14.867999999999999
+      "sequence_start": 9.876,
+      "sequence_end": 15.123999999999999
     },
     {
       "scene_id": "L07-01",
       "text": "That sentence left the hardest part in Morgan's head.",
       "source_start": 5.803,
       "source_end": 8.491,
-      "sequence_start": 15.166999999999998,
-      "sequence_end": 17.854999999999997
+      "sequence_start": 15.422999999999998,
+      "sequence_end": 18.110999999999997
     },
     {
       "scene_id": "L07-01",
       "text": "What counts as ready?",
       "source_start": 8.789,
       "source_end": 9.899,
-      "sequence_start": 18.153,
-      "sequence_end": 19.262999999999998
+      "sequence_start": 18.409,
+      "sequence_end": 19.519
     },
     {
       "scene_id": "L07-01",
       "text": "Which source is required?",
       "source_start": 10.155,
       "source_end": 11.456,
-      "sequence_start": 19.519,
-      "sequence_end": 20.82
+      "sequence_start": 19.775,
+      "sequence_end": 21.076
     },
     {
       "scene_id": "L07-01",
       "text": "When must the work stop?",
       "source_start": 11.733,
       "source_end": 13.025,
-      "sequence_start": 21.097,
-      "sequence_end": 22.389
+      "sequence_start": 21.353,
+      "sequence_end": 22.645
     },
     {
       "scene_id": "L07-01",
       "text": "A human colleague might ask.",
       "source_start": 13.25,
       "source_end": 14.828,
-      "sequence_start": 22.613999999999997,
-      "sequence_end": 24.192
+      "sequence_start": 22.869999999999997,
+      "sequence_end": 24.448
     },
     {
       "scene_id": "L07-01",
       "text": "A paper agent design needs those answers written down.",
       "source_start": 14.999,
       "source_end": 18.05,
-      "sequence_start": 24.363,
-      "sequence_end": 27.414
+      "sequence_start": 24.619,
+      "sequence_end": 27.67
     },
     {
       "scene_id": "L07-02",
       "text": "Chapter Eleven turns the request into an Agentic PRD Packet.",
       "source_start": 18.37,
       "source_end": 22.264,
-      "sequence_start": 27.764,
-      "sequence_end": 31.658000000000005
+      "sequence_start": 27.990000000000002,
+      "sequence_end": 31.884
     },
     {
       "scene_id": "L07-02",
       "text": "Seven fields carry the load: outcome, scope fences, input manifest, acceptance tests, escalation, owner, and reversal.",
       "source_start": 22.532,
       "source_end": 31.471,
-      "sequence_start": 31.926000000000005,
-      "sequence_end": 40.864999999999995
+      "sequence_start": 32.152,
+      "sequence_end": 41.091
     },
     {
       "scene_id": "L07-02",
       "text": "The outcome is a comparison Morgan can review, not a session announcement.",
       "source_start": 31.748,
       "source_end": 35.77,
-      "sequence_start": 41.141999999999996,
-      "sequence_end": 45.164
+      "sequence_start": 41.368,
+      "sequence_end": 45.39
     },
     {
       "scene_id": "L07-02",
       "text": "Scope fences keep the role away from participant messages and calendar changes.",
       "source_start": 35.994,
       "source_end": 40.239,
-      "sequence_start": 45.388000000000005,
-      "sequence_end": 49.632999999999996
+      "sequence_start": 45.614,
+      "sequence_end": 49.858999999999995
     },
     {
       "scene_id": "L07-02",
       "text": "The input manifest lists the three Harbor note references and their freshness checks.",
       "source_start": 40.559,
       "source_end": 45.208,
-      "sequence_start": 49.953,
-      "sequence_end": 54.602000000000004
+      "sequence_start": 50.178999999999995,
+      "sequence_end": 54.827999999999996
     },
     {
       "scene_id": "L07-02",
       "text": "An acceptance test says staffing language must match the facilitator note exactly in meaning.",
       "source_start": 45.506,
       "source_end": 51.18,
-      "sequence_start": 54.900000000000006,
-      "sequence_end": 60.574
+      "sequence_start": 55.126,
+      "sequence_end": 60.8
     },
     {
       "scene_id": "L07-02",
       "text": "If the note is missing or ambiguous, the escalation is a hold for Morgan.",
       "source_start": 51.394,
       "source_end": 55.596,
-      "sequence_start": 60.788,
-      "sequence_end": 64.99
+      "sequence_start": 61.013999999999996,
+      "sequence_end": 65.216
     },
     {
       "scene_id": "L07-03",
       "text": "Reversal is modest here.",
       "source_start": 55.874,
       "source_end": 57.505,
-      "sequence_start": 65.34,
-      "sequence_end": 66.971
+      "sequence_start": 65.494,
+      "sequence_end": 67.125
     },
     {
       "scene_id": "L07-03",
       "text": "Morgan can return a draft for correction or withdraw it from review.",
       "source_start": 57.771,
       "source_end": 61.483,
-      "sequence_start": 67.237,
-      "sequence_end": 70.94899999999998
+      "sequence_start": 67.391,
+      "sequence_end": 71.103
     },
     {
       "scene_id": "L07-03",
       "text": "There is no external send to reverse.",
       "source_start": 61.867,
       "source_end": 64.043,
-      "sequence_start": 71.333,
-      "sequence_end": 73.50899999999999
+      "sequence_start": 71.487,
+      "sequence_end": 73.66300000000001
     },
     {
       "scene_id": "L07-03",
       "text": "A test result belongs beside the draft as evidence: source IDs checked, staffing wording checked, review gate present.",
       "source_start": 64.341,
       "source_end": 71.989,
-      "sequence_start": 73.80699999999999,
-      "sequence_end": 81.45500000000001
+      "sequence_start": 73.961,
+      "sequence_end": 81.60900000000001
     },
     {
       "scene_id": "L07-03",
       "text": "A failed check does not become a footnote under a confident recommendation.",
       "source_start": 72.297,
       "source_end": 76.137,
-      "sequence_start": 81.763,
-      "sequence_end": 85.60299999999998
+      "sequence_start": 81.917,
+      "sequence_end": 85.757
     },
     {
       "scene_id": "L07-03",
       "text": "It blocks the handoff.",
       "source_start": 76.393,
       "source_end": 77.822,
-      "sequence_start": 85.85900000000001,
-      "sequence_end": 87.28799999999998
+      "sequence_start": 86.013,
+      "sequence_end": 87.44200000000001
     },
     {
       "scene_id": "L07-03",
       "text": "This packet remains a proposed design; writing it does not configure an agent.",
       "source_start": 78.142,
       "source_end": 82.708,
-      "sequence_start": 87.60799999999998,
-      "sequence_end": 92.174
+      "sequence_start": 87.762,
+      "sequence_end": 92.328
     },
     {
       "scene_id": "L07-04",
       "text": "Now give the work an organization.",
       "source_start": 83.049,
       "source_end": 84.721,
-      "sequence_start": 92.524,
-      "sequence_end": 94.196
+      "sequence_start": 92.66900000000001,
+      "sequence_end": 94.34100000000001
     },
     {
       "scene_id": "L07-04",
       "text": "One role checks sources; one role assembles the comparison; Morgan owns the outcome.",
       "source_start": 85.07,
       "source_end": 90.061,
-      "sequence_start": 94.54499999999999,
-      "sequence_end": 99.536
+      "sequence_start": 94.69,
+      "sequence_end": 99.68100000000001
     },
     {
       "scene_id": "L07-04",
       "text": "If both preparation roles produce separate answers without a common handoff, Morgan gets a small swarm and two versions of the truth.",
       "source_start": 90.232,
       "source_end": 97.836,
-      "sequence_start": 99.707,
-      "sequence_end": 107.311
+      "sequence_start": 99.852,
+      "sequence_end": 107.456
     },
     {
       "scene_id": "L07-04",
       "text": "Chapter Twelve's Pod Model asks for a charter, lead, specialists, board, standup, and handoff.",
       "source_start": 98.101,
       "source_end": 104.501,
-      "sequence_start": 107.576,
-      "sequence_end": 113.976
+      "sequence_start": 107.721,
+      "sequence_end": 114.12100000000001
     },
     {
       "scene_id": "L07-04",
       "text": "For this tiny classroom pod, keep the lead as a preparation coordinator, not an approver.",
       "source_start": 104.885,
       "source_end": 110.133,
-      "sequence_start": 114.35999999999999,
-      "sequence_end": 119.60799999999998
+      "sequence_start": 114.50500000000001,
+      "sequence_end": 119.753
     },
     {
       "scene_id": "L07-04",
       "text": "The board is a proposed paper status list.",
       "source_start": 110.474,
       "source_end": 113.171,
-      "sequence_start": 119.94899999999998,
-      "sequence_end": 122.64599999999999
+      "sequence_start": 120.09400000000001,
+      "sequence_end": 122.79100000000001
     },
     {
       "scene_id": "L07-04",
       "text": "The standup is a short proposed summary of ready and blocked work.",
       "source_start": 113.563,
       "source_end": 117.168,
-      "sequence_start": 123.03799999999998,
-      "sequence_end": 126.643
+      "sequence_start": 123.183,
+      "sequence_end": 126.78800000000001
     },
     {
       "scene_id": "L07-05",
       "text": "The charter is narrow: prepare one evidence-bound option brief for Morgan.",
       "source_start": 117.488,
       "source_end": 121.67,
-      "sequence_start": 126.993,
-      "sequence_end": 131.175
+      "sequence_start": 127.108,
+      "sequence_end": 131.29
     },
     {
       "scene_id": "L07-05",
       "text": "The source checker may flag staleness, not repair a source by inventing a newer date.",
       "source_start": 122.011,
       "source_end": 126.694,
-      "sequence_start": 131.516,
-      "sequence_end": 136.199
+      "sequence_start": 131.631,
+      "sequence_end": 136.314
     },
     {
       "scene_id": "L07-05",
       "text": "The drafter may compare, not confirm staffing.",
       "source_start": 126.981,
       "source_end": 129.904,
-      "sequence_start": 136.486,
-      "sequence_end": 139.409
+      "sequence_start": 136.601,
+      "sequence_end": 139.524
     },
     {
       "scene_id": "L07-05",
       "text": "The coordinator may route a blocked packet to Morgan, not override the block.",
       "source_start": 130.267,
       "source_end": 134.277,
-      "sequence_start": 139.772,
-      "sequence_end": 143.78199999999998
+      "sequence_start": 139.887,
+      "sequence_end": 143.897
     },
     {
       "scene_id": "L07-05",
       "text": "The board should show who holds the next move.",
       "source_start": 134.576,
       "source_end": 136.956,
-      "sequence_start": 144.08099999999996,
-      "sequence_end": 146.46099999999996
+      "sequence_start": 144.196,
+      "sequence_end": 146.576
     },
     {
       "scene_id": "L07-05",
       "text": "If nobody owns a failed source check, the org chart is decorative.",
       "source_start": 137.288,
       "source_end": 141.043,
-      "sequence_start": 146.793,
-      "sequence_end": 150.548
+      "sequence_start": 146.90800000000002,
+      "sequence_end": 150.663
     },
     {
       "scene_id": "L07-05",
       "text": "Write that ownership into the handoff now.",
       "source_start": 141.342,
       "source_end": 143.582,
-      "sequence_start": 150.84700000000004,
-      "sequence_end": 153.087
+      "sequence_start": 150.96200000000002,
+      "sequence_end": 153.202
     },
     {
       "scene_id": "L07-06",
       "text": "Pause.",
       "source_start": 143.859,
       "source_end": 144.328,
-      "sequence_start": 153.43699999999998,
-      "sequence_end": 153.90599999999998
+      "sequence_start": 153.479,
+      "sequence_end": 153.948
     },
     {
       "scene_id": "L07-06",
       "text": "Who would receive the brief if the facilitator note stays unconfirmed?",
       "source_start": 144.542,
       "source_end": 148.275,
-      "sequence_start": 154.11999999999998,
-      "sequence_end": 157.85299999999998
+      "sequence_start": 154.162,
+      "sequence_end": 157.895
     },
     {
       "scene_id": "L07-06",
       "text": "Name the role and the human.",
       "source_start": 148.595,
       "source_end": 150.188,
-      "sequence_start": 158.17299999999997,
-      "sequence_end": 159.766
+      "sequence_start": 158.215,
+      "sequence_end": 159.808
     },
     {
       "scene_id": "L07-07",
       "text": "Draft the seven-field PRD in under a page.",
       "source_start": 150.458,
       "source_end": 153.21,
-      "sequence_start": 160.11599999999996,
-      "sequence_end": 162.86800000000002
+      "sequence_start": 160.078,
+      "sequence_end": 162.83
     },
     {
       "scene_id": "L07-07",
       "text": "Give it two acceptance tests, including the staffing claim, and one explicit failure route.",
       "source_start": 153.572,
       "source_end": 158.906,
-      "sequence_start": 163.23,
-      "sequence_end": 168.564
+      "sequence_start": 163.192,
+      "sequence_end": 168.526
     },
     {
       "scene_id": "L07-07",
       "text": "Then sketch the Pod Model: charter, lead, specialists, board, standup, handoff, and human owner.",
       "source_start": 159.119,
       "source_end": 166.653,
-      "sequence_start": 168.77700000000002,
-      "sequence_end": 176.311
+      "sequence_start": 168.739,
+      "sequence_end": 176.273
     },
     {
       "scene_id": "L07-07",
       "text": "Use role labels and course references.",
       "source_start": 166.891,
       "source_end": 168.917,
-      "sequence_start": 176.54899999999995,
-      "sequence_end": 178.57500000000002
+      "sequence_start": 176.511,
+      "sequence_end": 178.537
     },
     {
       "scene_id": "L07-07",
       "text": "Use a fictional or approved example.",
       "source_start": 169.195,
       "source_end": 171.285,
-      "sequence_start": 178.85299999999998,
-      "sequence_end": 180.94299999999996
+      "sequence_start": 178.815,
+      "sequence_end": 180.905
     },
     {
       "scene_id": "L07-07",
       "text": "Do not use private operational data, configure production agents, or promote the pod's coordinator into final decision authority.",
       "source_start": 171.541,
       "source_end": 178.762,
-      "sequence_start": 181.19899999999998,
-      "sequence_end": 188.42
+      "sequence_start": 181.161,
+      "sequence_end": 188.382
     },
     {
       "scene_id": "L07-08",
       "text": "Save revision seven as a draft.",
       "source_start": 179.028,
       "source_end": 181.311,
-      "sequence_start": 233.77,
-      "sequence_end": 236.05300000000003
+      "sequence_start": 233.64800000000002,
+      "sequence_end": 235.93100000000004
     },
     {
       "scene_id": "L07-08",
       "text": "A requirement becomes useful when a new teammate can tell what to prepare and when to stop.",
       "source_start": 181.588,
       "source_end": 187.33750566893423,
-      "sequence_start": 236.32999999999996,
-      "sequence_end": 242.07950566893422
+      "sequence_start": 236.20799999999997,
+      "sequence_end": 241.95750566893423
     }
   ],
   "guided_work_window": {
-    "start": 188.76999999999998,
-    "end": 233.76999999999998,
+    "start": 188.515,
+    "end": 233.515,
     "duration": 45,
-    "purpose": "clearly signposted guided learner work"
+    "purpose": "clearly signposted guided learner work with synchronized countdown"
   },
+  "narration_audio_spans": [
+    {
+      "source_start": 0,
+      "source_end": 178.89499999999998,
+      "sequence_start": 9.62,
+      "sequence_end": 188.515
+    },
+    {
+      "source_start": 178.89499999999998,
+      "source_end": 187.402438,
+      "sequence_start": 233.515,
+      "sequence_end": 242.02243799999997
+    }
+  ],
   "transition_policy": {
     "sentence_complete_handoffs": true,
-    "ordinary_gap_seconds": 0.35,
+    "natural_source_pauses_preserved": true,
+    "ordinary_gap_seconds": 0,
+    "full_narration_tail_preserved": true,
+    "closing_handoff_gap_seconds": 0.2,
     "music_used": false,
     "fixed_ten_minute_padding": false
   },
   "composite": {
     "path": "agentified/workshop/l05-l08-continuous-narration/agentified-l07-continuous-narration-composite.mp4",
-    "sha256": "4b9cf48a0ac7a18b6398be884992c156058882756ccd80a06165fd456d0836bc",
-    "duration_seconds": 251.539
+    "sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+    "duration_seconds": 251.332
   },
   "captions": {
     "srt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l07-continuous-narration-captions.srt",
-    "srt_sha256": "b42530dadde98df34011effefb90fe725a9558e600537f4bbeb56246cf6d6d6a",
+    "srt_sha256": "fbc2c374929c67f3da7c7097d1c397a29b1f8c5a08c6cb2169f5168206f4b92d",
     "vtt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l07-continuous-narration-captions.vtt",
-    "vtt_sha256": "6a33c1fc64537497fa9a05bbf3b8bb3e84537212cdfd01ac35e235f8e4add724"
+    "vtt_sha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21"
   },
   "continuity_validation": {
     "ordinary_silence_limit_seconds": 2.5,
     "detected_silences": [
       {
-        "start": 14.479375,
-        "end": 15.010375,
+        "start": 14.735375,
+        "end": 15.266375,
         "duration": 0.5310000000000006
       },
       {
-        "start": 17.677062,
-        "end": 18.181354,
-        "duration": 0.5042919999999995
+        "start": 17.933062,
+        "end": 18.437375,
+        "duration": 0.5043129999999998
       },
       {
-        "start": 27.227021,
-        "end": 27.814146,
-        "duration": 0.5871250000000003
+        "start": 54.747896,
+        "end": 55.263542,
+        "duration": 0.5156460000000038
       },
       {
-        "start": 54.521917,
-        "end": 55.037562,
-        "duration": 0.5156449999999992
+        "start": 66.972521,
+        "end": 67.501937,
+        "duration": 0.5294159999999977
       },
       {
-        "start": 64.829125,
-        "end": 65.388458,
-        "duration": 0.5593329999999952
+        "start": 94.238729,
+        "end": 94.775708,
+        "duration": 0.5369789999999881
       },
       {
-        "start": 66.818542,
-        "end": 67.347958,
-        "duration": 0.5294160000000119
+        "start": 122.581979,
+        "end": 123.228208,
+        "duration": 0.6462289999999911
       },
       {
-        "start": 91.966833,
-        "end": 92.529333,
-        "duration": 0.5625
+        "start": 146.44475,
+        "end": 147.014771,
+        "duration": 0.570020999999997
       },
       {
-        "start": 94.093729,
-        "end": 94.630687,
-        "duration": 0.5369579999999985
+        "start": 157.738958,
+        "end": 158.247417,
+        "duration": 0.5084590000000162
       },
       {
-        "start": 122.437,
-        "end": 123.083208,
-        "duration": 0.6462080000000014
+        "start": 188.2395,
+        "end": 233.690354,
+        "duration": 45.45085400000002
       },
       {
-        "start": 146.33925,
-        "end": 146.899792,
-        "duration": 0.5605419999999981
-      },
-      {
-        "start": 152.952458,
-        "end": 153.479625,
-        "duration": 0.5271669999999915
-      },
-      {
-        "start": 157.696958,
-        "end": 158.205437,
-        "duration": 0.5084789999999941
-      },
-      {
-        "start": 159.628938,
-        "end": 160.205396,
-        "duration": 0.5764580000000024
-      },
-      {
-        "start": 188.2775,
-        "end": 233.812333,
-        "duration": 45.53483299999999
-      },
-      {
-        "start": 248.391937,
-        "end": 251.541333,
-        "duration": 3.149395999999996
+        "start": 248.183937,
+        "end": 251.349333,
+        "duration": 3.1653960000000154
       }
     ],
     "allowed_quiet_windows": [
       {
-        "start": 188.76999999999998,
-        "end": 233.76999999999998,
+        "start": 188.515,
+        "end": 233.515,
         "duration": 45,
-        "purpose": "clearly signposted guided learner work",
+        "purpose": "clearly signposted guided learner work with synchronized countdown",
         "tolerance": 1.25
       },
       {
-        "start": 248.53950566893423,
-        "end": 251.53950566893423,
+        "start": 248.33243799999997,
+        "end": 251.33243799999997,
         "duration": 3,
         "purpose": "provider-free close",
         "tolerance": 0.5
