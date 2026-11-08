@@ -2,18 +2,22 @@
 import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import sharp from 'sharp'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(here, '../../..')
 const candidatePath = path.join(root, 'agentified/workshop/l01-continuous-narration-preflight/request-candidate.json')
 const visualSource = path.join(root, 'agentified/workshop/l01-gray-sweater-replacement/agentified-l01-gray-sweater-composite.mp4')
+const presenterSource = path.join(root, 'agentified/workshop/l01-gray-sweater-replacement/agentified-l01-gray-sweater-source.mp4')
 const narrationSource = path.join(here, 'agentified-l01-continuous-narration-source.mp3')
 const captionsPath = path.join(here, 'agentified-l01-continuous-narration-captions.srt')
 const captionsVttPath = path.join(here, 'agentified-l01-continuous-narration-captions.vtt')
 const outputPath = path.join(here, 'agentified-l01-continuous-narration-composite.mp4')
 const receiptPath = path.join(here, 'validation-receipt.json')
+const studioBackdropPath = path.join(tmpdir(), 'agentified-l01-studio-backdrop.png')
 
 const sourceRanges = [
   [0, 16.952],
@@ -189,7 +193,49 @@ const vtt = `WEBVTT\n\n${cues.map(cue => `${stamp(cue.start, true)} --> ${stamp(
 writeFileSync(captionsPath, srt)
 writeFileSync(captionsVttPath, vtt)
 
-const filters = ['[0:a]aformat=sample_rates=48000:channel_layouts=stereo[base]']
+const studioBackdrop = `<svg width="748" height="412" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#163d49"/>
+      <stop offset="0.55" stop-color="#0b2c3b"/>
+      <stop offset="1" stop-color="#061b28"/>
+    </linearGradient>
+    <radialGradient id="light" cx="72%" cy="38%" r="60%">
+      <stop offset="0" stop-color="#315765" stop-opacity="0.55"/>
+      <stop offset="0.55" stop-color="#143947" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#061b28" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="texture">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0.035"/></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="748" height="412" fill="url(#base)"/>
+  <rect width="748" height="412" fill="url(#light)"/>
+  <rect width="748" height="412" filter="url(#texture)" opacity="0.45"/>
+  <path d="M0 335 C180 300 300 355 465 325 C590 300 665 315 748 292 V412 H0Z" fill="#071d28" opacity="0.38"/>
+  <path d="M0 336 C180 301 300 356 465 326 C590 301 665 316 748 293" fill="none" stroke="#4c6a74" stroke-opacity="0.23"/>
+</svg>`
+await sharp(Buffer.from(studioBackdrop)).png().toFile(studioBackdropPath)
+
+const filters = [
+  '[0:a]aformat=sample_rates=48000:channel_layouts=stereo[base]',
+  'color=c=#092433:s=768x432:r=25:d=13.633,format=rgba,drawbox=x=0:y=0:w=iw:h=ih:color=#d8ad43:t=5[frame1]',
+  '[3:v]trim=duration=13.633,setpts=PTS-STARTPTS,scale=748:412[bg1]',
+  '[frame1][bg1]overlay=10:10:eof_action=pass:repeatlast=1[studio1]',
+  '[2:v]trim=0:13.633,setpts=PTS-STARTPTS,colorkey=0x00e868:0.28:0.08,despill=type=green:mix=0.05:expand=0.02,scale=748:412:force_original_aspect_ratio=decrease,pad=748:412:(ow-iw)/2:(oh-ih)/2:color=black@0,format=rgba[p1]',
+  '[studio1][p1]overlay=10:10:eof_action=pass:repeatlast=0,fade=t=in:st=0:d=0.35:alpha=1,fade=t=out:st=13.083:d=0.55:alpha=1[panel1]',
+  'color=c=black@0.0:s=768x432:r=25:d=540,format=rgba[p2blank]',
+  'color=c=#092433:s=768x432:r=25:d=2.753,format=rgba,drawbox=x=0:y=0:w=iw:h=ih:color=#d8ad43:t=5[frame2]',
+  '[3:v]trim=duration=2.753,setpts=PTS-STARTPTS,scale=748:412[bg2]',
+  '[frame2][bg2]overlay=10:10:eof_action=pass:repeatlast=1[studio2]',
+  '[2:v]trim=13.633:16.386,setpts=PTS-STARTPTS,colorkey=0x00e868:0.28:0.08,despill=type=green:mix=0.05:expand=0.02,scale=748:412:force_original_aspect_ratio=decrease,pad=748:412:(ow-iw)/2:(oh-ih)/2:color=black@0,format=rgba[p2]',
+  '[studio2][p2]overlay=10:10:eof_action=pass:repeatlast=0,fade=t=in:st=0:d=0.25:alpha=1,fade=t=out:st=2.453:d=0.3:alpha=1,setpts=PTS+518.84/TB[p2shift]',
+  '[p2blank][p2shift]overlay=0:0:eof_action=pass:repeatlast=0:format=auto[p2track]',
+  '[0:v][panel1]overlay=1048:326:eof_action=pass:repeatlast=0[v1]',
+  '[v1][p2track]overlay=1048:326:eof_action=pass:repeatlast=0:format=auto[vout]',
+]
 const narrationLabels = []
 sentencePlacements.forEach((placement, index) => {
   const label = `n${index + 1}`
@@ -203,10 +249,16 @@ const rawPath = path.join(here, 'composite-raw.mp4')
 run([
   '-i', visualSource,
   '-i', narrationSource,
+  '-i', presenterSource,
+  '-loop', '1', '-i', studioBackdropPath,
   '-filter_complex', filters.join(';'),
-  '-map', '0:v:0',
+  '-map', '[vout]',
   '-map', '[aout]',
-  '-c:v', 'copy',
+  '-c:v', 'libx264',
+  '-preset', 'medium',
+  '-crf', '18',
+  '-pix_fmt', 'yuv420p',
+  '-r', '25',
   '-c:a', 'aac',
   '-b:a', '192k',
   '-ar', '48000',
@@ -264,6 +316,21 @@ writeFileSync(receiptPath, JSON.stringify({
   visual_source: {
     path: path.relative(root, visualSource),
     sha256: sha(visualSource),
+  },
+  presenter_source: {
+    path: path.relative(root, presenterSource),
+    sha256: sha(presenterSource),
+    background_treatment: 'provider_free_studio_reconstruction',
+    treatment_parameters: {
+      key: 'colorkey=0x00e868:0.28:0.08',
+      edge_despill: 'green:mix=0.05:expand=0.02',
+      native_presenter_pixels_preserved: true,
+      source_green_field_removed: true,
+    },
+    placements: [
+      { source_start: 0, source_end: 13.633, sequence_start: 0, sequence_end: 13.633 },
+      { source_start: 13.633, source_end: 16.386, sequence_start: 518.84, sequence_end: 521.593 },
+    ],
   },
   composite: {
     path: path.relative(root, outputPath),

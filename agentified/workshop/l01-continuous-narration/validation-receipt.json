@@ -19,9 +19,34 @@
     "path": "agentified/workshop/l01-gray-sweater-replacement/agentified-l01-gray-sweater-composite.mp4",
     "sha256": "57c2907224e9ac15e304bb4c43b47f8881c8eb09ecab293d02c92d5958b306ce"
   },
+  "presenter_source": {
+    "path": "agentified/workshop/l01-gray-sweater-replacement/agentified-l01-gray-sweater-source.mp4",
+    "sha256": "5b1c3ecb2b741f16105a8695e61f0d2d067ee8988a0626f800e0699d5b4f211c",
+    "background_treatment": "provider_free_studio_reconstruction",
+    "treatment_parameters": {
+      "key": "colorkey=0x00e868:0.28:0.08",
+      "edge_despill": "green:mix=0.05:expand=0.02",
+      "native_presenter_pixels_preserved": true,
+      "source_green_field_removed": true
+    },
+    "placements": [
+      {
+        "source_start": 0,
+        "source_end": 13.633,
+        "sequence_start": 0,
+        "sequence_end": 13.633
+      },
+      {
+        "source_start": 13.633,
+        "source_end": 16.386,
+        "sequence_start": 518.84,
+        "sequence_end": 521.593
+      }
+    ]
+  },
   "composite": {
     "path": "agentified/workshop/l01-continuous-narration/agentified-l01-continuous-narration-composite.mp4",
-    "sha256": "ce4b07a0ebc9a3958bc12f018240bf7a57e05b89fb7fea7c34a9592a63f3bce4",
+    "sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
     "duration_seconds": 540
   },
   "captions": {
