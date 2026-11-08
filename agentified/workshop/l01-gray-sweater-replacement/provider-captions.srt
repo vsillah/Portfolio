@@ -1,0 +1,21 @@
+1
+00:00:00,200 --> 00:00:01,699
+Friday afternoon.
+
+2
+00:00:01,899 --> 00:00:04,458
+Morgan runs a small community learning program.
+
+3
+00:00:04,458 --> 00:00:10,075
+For this course, we’ll follow Harbor Learning Circle, an illustrative
+case built from fictional records.
+
+4
+00:00:10,075 --> 00:00:13,633
+Someone suggests adding a free digital-skills session next month.
+
+5
+00:00:13,633 --> 00:00:16,379
+Next we will name the decision Morgan actually owns.
+
