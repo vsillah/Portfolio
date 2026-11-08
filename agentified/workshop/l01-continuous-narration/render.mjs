@@ -143,15 +143,14 @@ candidate.narration_segments.forEach((segment, index) => {
   const speechDuration = aligned.reduce((sum, sentence) => sum + sentence.source_end - sentence.source_start, 0)
   const availableDuration = segment.sequence_end - segment.sequence_start
   const guidedWorkScene = segment.scene_id === 'L01-07'
-  const gap = guidedWorkScene ? 0.25 : (availableDuration - speechDuration) / (aligned.length + 1)
+  const gap = guidedWorkScene ? 0.25 : (availableDuration - speechDuration) / aligned.length
   if (gap < 0) throw new Error(`${segment.scene_id} narration exceeds its approved window`)
 
   let cursor = segment.sequence_start
   const placed = aligned.map((sentence, sentenceIndex) => {
-    cursor += gap
     const sequenceStart = cursor
     const sequenceEnd = sequenceStart + sentence.source_end - sentence.source_start
-    cursor = sequenceEnd
+    cursor = sequenceEnd + gap
     const placement = {
       scene_id: segment.scene_id,
       sentence_index: sentenceIndex + 1,
