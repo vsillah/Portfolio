@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { agentifiedL01Media as media } from './agentified-l01-media'
+import { expectRenderedFrameHasContent } from './agentified-media-frame-test-helper'
 
 const digest = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex')
 const base = 'agentified/workshop/l01-native-composite/'
@@ -27,5 +28,12 @@ describe('approved Agentified L01 media binding', () => {
       expect(vtt).toContain(cue.start)
     }
     expect((vtt.match(/ --> /g) ?? []).length).toBe(media.spokenCues.length)
+  })
+
+  it('keeps the teaching plate visible outside both presenter windows', () => {
+    const composite = `${base}agentified-l01-native-composite.mp4`
+    for (const timestamp of [14.4, 19.5, 523.2, 528]) {
+      expectRenderedFrameHasContent(composite, timestamp)
+    }
   })
 })

@@ -9,9 +9,9 @@ if (!/^[0-9a-f]{40}$/.test(revision || '')) throw new Error('Pass the exact revi
 const out = path.resolve('docs/qa/agentified-l02-l04-learning-plan')
 mkdirSync(out, { recursive: true })
 const lessons = [
-  ['L02', '23d2adcf', 510, '08:30'],
-  ['L03', 'af79f328', 600, '10:00'],
-  ['L04', 'b17f3106', 600, '10:00'],
+  ['L02', 'e2b5ecbc', 510, '08:30'],
+  ['L03', '8749ae9a', 600, '10:00'],
+  ['L04', '8d0245ff', 600, '10:00'],
 ]
 const browser = await chromium.launch({ headless: true })
 
@@ -20,7 +20,7 @@ async function verify(page, id, hash, duration, display) {
   await video.waitFor({ state: 'visible' })
   await video.evaluate((node) => new Promise((resolve, reject) => { if (node.readyState >= 1) return resolve(); node.addEventListener('loadedmetadata', resolve, { once: true }); node.addEventListener('error', reject, { once: true }) }))
   const media = await video.evaluate((node) => ({ duration: Math.round(node.duration), readyState: node.readyState, source: node.querySelector('source')?.getAttribute('src'), captions: node.querySelector('track')?.getAttribute('src'), trackDefault: node.querySelector('track')?.default }))
-  if (media.duration !== duration || media.readyState < 1 || !media.source?.includes(`approved-${hash}`) || !media.captions?.endsWith('.vtt') || !media.trackDefault) throw new Error(`${id} media mismatch: ${JSON.stringify(media)}`)
+  if (media.duration !== duration || media.readyState < 1 || !media.source?.includes(`corrected-${hash}`) || !media.captions?.endsWith('.vtt') || !media.trackDefault) throw new Error(`${id} media mismatch: ${JSON.stringify(media)}`)
   if (!(await page.getByText(`Ready · ${display}`).isVisible())) throw new Error(`${id} not ready`)
   if (!(await page.locator(`#answer-${id}`).isVisible())) throw new Error(`${id} worksheet missing`)
   if (!(await page.getByText('Spoken audio').isVisible())) await page.getByText(`Read along with ${id} transcript`).click()

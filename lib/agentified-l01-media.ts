@@ -1,9 +1,9 @@
-/** Approved PR #1245 media. This binding must move only with a new reviewed receipt. */
+/** Corrected L01 composite; historical PR #1245 approval remains preserved in its receipt. */
 export const agentifiedL01Media = {
-  video: '/agentified/lessons/l01/approved-da85f9e1/agentified-l01-native-composite.mp4',
-  captions: '/agentified/lessons/l01/approved-da85f9e1/agentified-l01-native-captions.vtt',
+  video: '/agentified/lessons/l01/corrected-34737c64/agentified-l01-native-composite.mp4',
+  captions: '/agentified/lessons/l01/corrected-34737c64/agentified-l01-native-captions.vtt',
   durationSeconds: 540,
-  compositeSha256: 'da85f9e1bf5959dcd55eefb58b58e00233c0bcc674967a2a0835a9b1cd4fe3a5',
+  compositeSha256: '34737c643f7928fe3a7e3e23bcd33d8e4715c0052bac532e5fd43c1e689b25e5',
   srtSha256: 'e778245ead0585e151ae8c354684cb0e7970f950681039958c7b0e70aa4bf1b7',
   vttSha256: '82caf5147d51f4c7aa93350edfdff4009cb3fad6a9d465bfea181ee22598f16c',
   sourceSha256: 'f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0',

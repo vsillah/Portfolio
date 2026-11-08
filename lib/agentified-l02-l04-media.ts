@@ -1,9 +1,9 @@
-/** Approved provider-free L02-L04 composites; keep source hashes bound to these exact assets. */
+/** Corrected provider-free L02-L04 composites; historical approval receipts remain preserved. */
 export const agentifiedL02L04Media = {
   L02: {
-    video: '/agentified/lessons/l02/approved-23d2adcf/agentified-l02-native-composite.mp4',
-    captions: '/agentified/lessons/l02/approved-23d2adcf/agentified-l02-native-captions.vtt',
-    compositeSha256: '23d2adcfab35bae76fecc2c6c816f420aa735d0cf1a209df2dfabe9aab930874',
+    video: '/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4',
+    captions: '/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-captions.vtt',
+    compositeSha256: 'e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae',
     vttSha256: 'eb8b81caf9283e0c5b106b6b404a72c178f50d2c0549bca18c92a4af343219d9',
     durationSeconds: 510,
     spokenCues: [
@@ -16,9 +16,9 @@ export const agentifiedL02L04Media = {
     ],
   },
   L03: {
-    video: '/agentified/lessons/l03/approved-af79f328/agentified-l03-native-composite.mp4',
-    captions: '/agentified/lessons/l03/approved-af79f328/agentified-l03-native-captions.vtt',
-    compositeSha256: 'af79f328560bd88d842cef8ea0a5ec8f587445fb62bb7c5de43a041205f65200',
+    video: '/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4',
+    captions: '/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-captions.vtt',
+    compositeSha256: '8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7',
     vttSha256: 'f548f0a0d2a369dc082261d48eb5aa001e97c48e6cd993d49cb20a0208347bc4',
     durationSeconds: 600,
     spokenCues: [
@@ -29,9 +29,9 @@ export const agentifiedL02L04Media = {
     ],
   },
   L04: {
-    video: '/agentified/lessons/l04/approved-b17f3106/agentified-l04-native-composite.mp4',
-    captions: '/agentified/lessons/l04/approved-b17f3106/agentified-l04-native-captions.vtt',
-    compositeSha256: 'b17f3106b3430c7574cc99babc41033632a71aa1f578acfc1b8c66e072f3457e',
+    video: '/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4',
+    captions: '/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-captions.vtt',
+    compositeSha256: '8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7',
     vttSha256: 'ed98985beb67d616df745399937fa5bcc32b4b7e0267504393f5b2b6e2a4c647',
     durationSeconds: 600,
     spokenCues: [
