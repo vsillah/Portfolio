@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import test from 'node:test';
+import { assertAuthorizationBinding } from './authorization-binding.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const load = (name) => JSON.parse(readFileSync(path.join(here, name), 'utf8'));
@@ -32,4 +33,14 @@ test('stale lesson count fails closed', () => {
   const stale = structuredClone(receipts);
   stale.L03.source_binding_count = 16;
   assert.throws(() => checkCounts(batch, requests, stale), /L03 receipt count/);
+});
+
+test('README authorization binds the derived batch receipt identity', () => {
+  assertAuthorizationBinding(readFileSync(path.join(here, 'README.md'), 'utf8'), batch);
+});
+
+test('stale README authorization hash fails closed', () => {
+  const current = readFileSync(path.join(here, 'README.md'), 'utf8');
+  const stale = current.replace(batch.batch_sha256, '753afcd2f8e1acc3b6f63718abd831927d083f01c2203faab91ff0cf428f0782');
+  assert.throws(() => assertAuthorizationBinding(stale, batch), /README authorization batch identity is stale/);
 });

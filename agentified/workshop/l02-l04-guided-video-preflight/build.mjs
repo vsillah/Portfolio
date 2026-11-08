@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertAuthorizationBinding } from './authorization-binding.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../../..');
@@ -172,6 +173,7 @@ const batch = {
   source_audit: `${lessons.map((item) => `${item.lesson_id} ${item.source_binding_count}`).join(', ')} exact source bindings; sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 2-4, privacy and execution boundaries checked`,
 };
 batch.batch_sha256 = sha(JSON.stringify(batch));
+assertAuthorizationBinding(readFileSync(path.join(here, 'README.md'), 'utf8'), batch);
 output.push(['batch-validation-receipt.json', batch]);
 for (const [name, data] of output) {
   const body = `${JSON.stringify(data, null, 2)}\n`;
