@@ -44,6 +44,13 @@ describe('Agentified lesson media gate', () => {
     expect(onProgress).toHaveBeenCalledWith(600)
   })
 
+  it('records an integer completion position for fractional approved media', () => {
+    const onProgress = vi.fn()
+    const { container } = render(<AgentifiedLessonHero lessonId="L05" title="Map" poster="/agentified/posters/l05-poster.webp" videoSrc="/approved-l05.mp4" durationSeconds={237.687} onProgress={onProgress} />)
+    fireEvent.ended(container.querySelector('video')!)
+    expect(onProgress).toHaveBeenCalledWith(237)
+  })
+
   it('keeps the established 340 ms fade and reduced-motion cut in CSS', () => {
     const css = readFileSync('app/agentified/workshop.module.css', 'utf8')
     expect(css).toMatch(/\.coverStage \.videoReveal\{animation:agentifiedPosterToVideo 340ms ease-out both\}/)
