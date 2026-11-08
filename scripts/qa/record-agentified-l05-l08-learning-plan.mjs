@@ -36,10 +36,13 @@ async function capture(label, width, height) {
     if (Math.abs(media.duration - duration) > 0.03 || !media.source?.includes(`continuous-${hash}`) || !media.captions?.endsWith('.vtt') || !media.defaultCaptions || media.trackMode !== 'showing') throw new Error(`${id} media mismatch: ${JSON.stringify(media)}`)
     if (!(await page.getByText(`Ready · ${display}`).isVisible())) throw new Error(`${id} not ready`)
     if (!(await page.locator(`#answer-${id}`).isVisible())) throw new Error(`${id} worksheet missing`)
-    await page.getByText(`Read along with ${id} transcript`).click()
+    if (!(await page.getByText('Spoken audio').isVisible())) await page.getByText(`Read along with ${id} transcript`).click()
     if (!(await page.getByText('Spoken audio').isVisible())) throw new Error(`${id} transcript missing`)
     if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2)) throw new Error(`${id} horizontal overflow`)
     await video.evaluate((node, time) => new Promise((resolve) => { node.addEventListener('seeked', resolve, { once: true }); node.currentTime = time }), countdown + 3)
+    await video.evaluate((node) => node.play())
+    await page.waitForTimeout(500)
+    await video.evaluate((node) => node.pause())
     await page.screenshot({ path: path.join(out, `${label}-${id.toLowerCase()}-countdown.png`) })
     if (id === 'L05') {
       await video.evaluate((node) => { node.currentTime = 1; return node.play() })
@@ -48,7 +51,7 @@ async function capture(label, width, height) {
       await page.locator('#answer-L05').fill('Synthetic operating map: named owner, source check, and human review.')
       await page.waitForTimeout(350)
     }
-    await page.waitForTimeout(300)
+    await page.waitForTimeout(1200)
   }
   await choose(page, 'L09', narrow)
   if (await page.locator('video').count() || !(await page.getByText('Video locked').isVisible())) throw new Error('L09 lock failed')
