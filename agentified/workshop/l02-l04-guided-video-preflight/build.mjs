@@ -31,6 +31,7 @@ const storyboardWindows = load(storyboardWindowsPath).windows;
 const budget = load(budgetPath);
 const l01Receipt = load(l01ProviderReceiptPath);
 const l01Identity = load(l01IdentityReceiptPath);
+const selectedLook = { name: 'Vambah Gray Sweater', id: '7275ba9035f94b31ad589dda6532d002', avatar_group_id: '5796a337512c43bbbdaa77c1cefc295f' };
 assert(map.baseCommit === 'db010ebfe7c14a378fb4ff2102af48c1b1954293', 'Cover provenance changed');
 assert(budget.aggregate_cash_cap === 100 && budget.controls.separate_exact_job_or_batch_binding_required, 'Budget authority changed');
 assert(l01Receipt.provider_usage.credit_cost === 15 && l01Receipt.wallet.wallet_debit === 0 && l01Receipt.job_controls.submitted_jobs === 1, 'L01 cost precedent changed');
@@ -119,7 +120,7 @@ for (const lessonId of ['L02', 'L03', 'L04']) {
     format_candidate: { orientation: 'landscape', resolution: '1080p', source_frame_rate: 'preserve_native', composite_frame_rate: 30 },
     presenter_windows: windows, provider_free_closing_card: closingCard,
     one_job_payload_boundary: { passages: windows.map((item) => ({ scene_id: item.scene_id, narration_exact: item.narration_exact, narration_sha256: item.narration_sha256 })), treatment: 'Two exact passages in one continuous native source; split at audited sentence boundary and place locally. No third passage or automatic regeneration.' },
-    identity_voice: { proposed_look_id: l01Identity.approval.look.id, proposed_voice_id: l01Identity.approval.voice.id, proposed_source: l01IdentityReceiptPath, status: 'purpose_specific_L02-L04_approval_required', l01_approval_not_reusable: true, no_photo_or_cutout_upload_allowed: true },
+    identity_voice: { proposed_look_name: selectedLook.name, proposed_look_id: selectedLook.id, proposed_avatar_group_id: selectedLook.avatar_group_id, proposed_voice_id: l01Identity.approval.voice.id, proposed_look_source: 'explicit_L02-L04_gray_sweater_selection_2026-11-07', proposed_voice_precedent: l01IdentityReceiptPath, status: 'purpose_specific_L02-L04_approval_required', l01_approval_not_reusable: true, no_photo_or_cutout_upload_allowed: true },
     assets: { approved_diagram: { scene_id: poster.sceneId, path: poster.approvedVisualPath, sha256: poster.approvedVisualSha256, use: visualScene.approved_visuals.find((item) => item.path === poster.approvedVisualPath).use }, package_jpg: { path: packet.package_cover.path, sha256: packet.package_cover.sha256, use: 'package identity only' }, lesson_cover: { path: poster.output, sha256: poster.outputSha256, alt_text: poster.altText, media_status: poster.mediaStatus } },
     continuity: { case: packet.continuity.case, owner: packet.continuity.owner, operating_file: packet.operating_file, source_ids_scope: 'protected synthetic trace only; do not speak IDs or send to provider' },
     accessibility: { caption_source: packetPath, caption_status: 'exact text, provisional timing', transcript: 'reconstruct exact scene narration; final rendered transcript audit required', diagram_text_alternative: visualScene.accessibility.text_equivalent, diagram_alt_status: 'scene_specific_final_alt_required_before_learner_release', reading_order: 'title, teaching copy, visual, captions', contrast: 'review at delivery resolution', reduced_motion: 'instant cuts; no information depends on animation', caption_band: 'keep clear of presenter and diagram labels in landscape and portrait' },
@@ -173,7 +174,10 @@ const batch = {
   source_audit: `${lessons.map((item) => `${item.lesson_id} ${item.source_binding_count}`).join(', ')} exact source bindings; sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 2-4, privacy and execution boundaries checked`,
 };
 batch.batch_sha256 = sha(JSON.stringify(batch));
-assertAuthorizationBinding(readFileSync(path.join(here, 'README.md'), 'utf8'), batch);
+if (process.argv.includes('--check')) {
+  const requests = Object.fromEntries(output.filter(([name]) => name.endsWith('-request-candidate.json')).map(([, request]) => [request.lesson_id, request]));
+  assertAuthorizationBinding(readFileSync(path.join(here, 'README.md'), 'utf8'), batch, requests);
+}
 output.push(['batch-validation-receipt.json', batch]);
 for (const [name, data] of output) {
   const body = `${JSON.stringify(data, null, 2)}\n`;

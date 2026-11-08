@@ -104,9 +104,12 @@
     "treatment": "Two exact passages in one continuous native source; split at audited sentence boundary and place locally. No third passage or automatic regeneration."
   },
   "identity_voice": {
-    "proposed_look_id": "329ae68b92d342f6a4362cc656d486a0",
+    "proposed_look_name": "Vambah Gray Sweater",
+    "proposed_look_id": "7275ba9035f94b31ad589dda6532d002",
+    "proposed_avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
     "proposed_voice_id": "14b592b937744404a4fa7c01aafd7dbe",
-    "proposed_source": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+    "proposed_look_source": "explicit_L02-L04_gray_sweater_selection_2026-11-07",
+    "proposed_voice_precedent": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
     "status": "purpose_specific_L02-L04_approval_required",
     "l01_approval_not_reusable": true,
     "no_photo_or_cutout_upload_allowed": true
@@ -262,5 +265,5 @@
     "scene-specific diagram alt text, contrast and reduced-motion review",
     "separate exact batch execution authorization"
   ],
-  "request_sha256": "2f81f5cc80b5f985810d4eab46f72dfa7198a1685c8ea0e5fe409b1a8d83b030"
+  "request_sha256": "d24970460a2c6bdb1c32ec4c5a67b34a88b5abe6f36323b6f3c3a61157dc7c47"
 }

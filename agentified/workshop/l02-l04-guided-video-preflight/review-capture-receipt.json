@@ -31,5 +31,12 @@
   ],
   "provider_calls": 0,
   "audio_generated": 0,
-  "customer_data_used": false
+  "customer_data_used": false,
+  "current_batch_sha256": "588e1a0909c94a59941bf9f57d57099ade3d634ad01245cbaef15870c568a67f",
+  "current_request_sha256": {
+    "L02": "de34e97b43f42d17b3d2dc621585b6975afc4fb82689a1419b91ccdc976601dd",
+    "L03": "d24970460a2c6bdb1c32ec4c5a67b34a88b5abe6f36323b6f3c3a61157dc7c47",
+    "L04": "2622f607cb1d8529e8ee0a1af63ef4a61df47bbf134b5a7440cf9cc8fed21ece"
+  },
+  "identity_rebind_evidence_status": "historical_layout_only; MP4 labels show prior request hashes, not current Gray Sweater candidate identity; no media regenerated"
 }

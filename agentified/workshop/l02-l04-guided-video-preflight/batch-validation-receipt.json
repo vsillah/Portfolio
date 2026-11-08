@@ -6,7 +6,7 @@
     {
       "lesson_id": "L02",
       "title": "Start with the decision",
-      "request_sha256": "bf66d1b33882045ea88bf6ab959f4ca356680c636207713d30fca537cbe36086",
+      "request_sha256": "de34e97b43f42d17b3d2dc621585b6975afc4fb82689a1419b91ccdc976601dd",
       "script_sha256": "5e589c9ce3ff24923f6f215c5300ac5171799e572d27660d6f4ffc2168b94a9a",
       "packet_sha256": "70de632db57786df3afe2decbc58828dc54fa3105c36595c2424251b7022a62a",
       "poster_sha256": "3977814a4731bbcb60dd4d17d22d640c83cbdfad9f434fe348d6aa5fd8eb84a1",
@@ -20,7 +20,7 @@
     {
       "lesson_id": "L03",
       "title": "Trace the work and grade the sources",
-      "request_sha256": "2f81f5cc80b5f985810d4eab46f72dfa7198a1685c8ea0e5fe409b1a8d83b030",
+      "request_sha256": "d24970460a2c6bdb1c32ec4c5a67b34a88b5abe6f36323b6f3c3a61157dc7c47",
       "script_sha256": "3e42459bdad850982094af0de03eda93485d9015bdf884b8cdd0a3abfd3baa7d",
       "packet_sha256": "16ea75b11695550dd0aab29adbf077c25ab9b4ee3810caf831c97021bb0d58c3",
       "poster_sha256": "7a4635b5d14dbf8b299721c5fc8fce4729b9aa20d0e912b8cdea1d5294e7c390",
@@ -34,7 +34,7 @@
     {
       "lesson_id": "L04",
       "title": "Turn feedback into governed memory",
-      "request_sha256": "a7b9951bcc46a94b982b00da707c00be860c37ef0c14860612b87ab8eca3ded3",
+      "request_sha256": "2622f607cb1d8529e8ee0a1af63ef4a61df47bbf134b5a7440cf9cc8fed21ece",
       "script_sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
       "packet_sha256": "8af7f38df023004c05048282b1789288172172bd69677e547c152d5a1535336c",
       "poster_sha256": "a0ccc99e7f6d1688c535d2e065e2d2c9c2432b4af027be402dde9bf196bca19e",
@@ -93,5 +93,5 @@
   },
   "rights_status": "blocked_pending_purpose_specific_L02-L04_look_and_voice_approval",
   "source_audit": "L02 16, L03 17, L04 17 exact source bindings; sentence-complete passages, storyboard windows, poster and plate rights, Harbor continuity, Operating File revisions 2-4, privacy and execution boundaries checked",
-  "batch_sha256": "42d813b2214433c4177ec2a533c40eb25dcbb26411539f2a8dec8c091628ab35"
+  "batch_sha256": "588e1a0909c94a59941bf9f57d57099ade3d634ad01245cbaef15870c568a67f"
 }

@@ -36,11 +36,23 @@ test('stale lesson count fails closed', () => {
 });
 
 test('README authorization binds the derived batch receipt identity', () => {
-  assertAuthorizationBinding(readFileSync(path.join(here, 'README.md'), 'utf8'), batch);
+  assertAuthorizationBinding(readFileSync(path.join(here, 'README.md'), 'utf8'), batch, requests);
 });
 
 test('stale README authorization hash fails closed', () => {
   const current = readFileSync(path.join(here, 'README.md'), 'utf8');
   const stale = current.replace(batch.batch_sha256, '753afcd2f8e1acc3b6f63718abd831927d083f01c2203faab91ff0cf428f0782');
-  assert.throws(() => assertAuthorizationBinding(stale, batch), /README authorization batch identity is stale/);
+  assert.throws(() => assertAuthorizationBinding(stale, batch, requests), /README authorization batch identity is stale/);
+});
+
+test('prior green sweater look fails closed in every request and authorization', () => {
+  const readme = readFileSync(path.join(here, 'README.md'), 'utf8');
+  const oldLook = '329ae68b92d342f6a4362cc656d486a0';
+  for (const lesson of batch.lessons) {
+    const stale = structuredClone(requests);
+    stale[lesson.lesson_id].identity_voice.proposed_look_id = oldLook;
+    assert.throws(() => assertAuthorizationBinding(readme, batch, stale), new RegExp(`${lesson.lesson_id} look identity drift`));
+  }
+  const staleReadme = readme.replace('7275ba9035f94b31ad589dda6532d002', oldLook);
+  assert.throws(() => assertAuthorizationBinding(staleReadme, batch, requests), /README selected Gray Sweater look binding missing/);
 });
