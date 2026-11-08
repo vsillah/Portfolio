@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "completed_review_only_native_sources",
+  "account": "AmaduTown Portfolio",
+  "source_commit": "903c13f93ecb4d7546b6521b947cf1653eef228e",
+  "look": {
+    "name": "Vambah Gray Sweater",
+    "id": "7275ba9035f94b31ad589dda6532d002"
+  },
+  "voice": {
+    "id": "14b592b937744404a4fa7c01aafd7dbe"
+  },
+  "auto_reload": "off",
+  "wallet_before_usd": 105.73,
+  "wallet_after_usd": 100.88,
+  "aggregate_debit_usd": 4.85,
+  "aggregate_cap_usd": 9.78,
+  "jobs": [
+    {
+      "lesson_id": "L02",
+      "job_id": "93e3f47cc3d0ed5454b14b8fdf776a52",
+      "request_id": "bf6312d1c4574d69a6e086739354e504",
+      "request_sha256": "de34e97b43f42d17b3d2dc621585b6975afc4fb82689a1419b91ccdc976601dd",
+      "debit_usd": 1.62,
+      "provider_duration_label_seconds": 20,
+      "native_duration_seconds": 20.247,
+      "native_sha256": "9e97d0900c288ecde93fd9ce8cd8c3131ceb481853e4bc9b37dfc146a8fa8643",
+      "native_path": "agentified/workshop/l02-l04-native-source/agentified-l02-heygen-native-source.mp4",
+      "retry_count": 0
+    },
+    {
+      "lesson_id": "L03",
+      "job_id": "cf12d4b8bc2037221334a0e5b225dd33",
+      "request_id": "61ced574015d4b799f12feb61dccd0fb",
+      "request_sha256": "d24970460a2c6bdb1c32ec4c5a67b34a88b5abe6f36323b6f3c3a61157dc7c47",
+      "debit_usd": 1.53,
+      "provider_duration_label_seconds": 19,
+      "native_duration_seconds": 19.32,
+      "native_sha256": "8db2154dd46dbdb6c6c941c6d4f1647eeb4e3004ec4ebcbfc6b33ce3504e393e",
+      "native_path": "agentified/workshop/l02-l04-native-source/agentified-l03-heygen-native-source.mp4",
+      "retry_count": 0
+    },
+    {
+      "lesson_id": "L04",
+      "job_id": "e4a7825a0b4ff1d27203c167fff018ed",
+      "request_id": "6958e36b384f4361bd397bada1198b6a",
+      "request_sha256": "2622f607cb1d8529e8ee0a1af63ef4a61df47bbf134b5a7440cf9cc8fed21ece",
+      "debit_usd": 1.7,
+      "provider_duration_label_seconds": 21,
+      "native_duration_seconds": 21.826,
+      "native_sha256": "5c0a1c9af260ffc6020bce189b0d8061dd273e064b41adabd4402e6fc1be93ff",
+      "native_path": "agentified/workshop/l02-l04-native-source/agentified-l04-heygen-native-source.mp4",
+      "retry_count": 0
+    }
+  ]
+}

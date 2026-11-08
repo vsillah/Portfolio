@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "checked_at": "2026-11-08T03:57:42.663Z",
+  "lessons": [
+    {
+      "lesson_id": "L02",
+      "composite_sha256": "532857be8f317665ffe50583d5c28e235b570120fd93eeaaf838f5284b33b250",
+      "duration_seconds": 510,
+      "source_sha256": "9e97d0900c288ecde93fd9ce8cd8c3131ceb481853e4bc9b37dfc146a8fa8643",
+      "retry_count": 0,
+      "debit_usd": 1.62
+    },
+    {
+      "lesson_id": "L03",
+      "composite_sha256": "5a24d9d67119cda029ecebcb746bdbb6fb4659739f7e39d081e6f14c5a99a863",
+      "duration_seconds": 600,
+      "source_sha256": "8db2154dd46dbdb6c6c941c6d4f1647eeb4e3004ec4ebcbfc6b33ce3504e393e",
+      "retry_count": 0,
+      "debit_usd": 1.53
+    },
+    {
+      "lesson_id": "L04",
+      "composite_sha256": "d1f1732842ea5d562bdd0fa975aa8b607fa6b8e7f751485406355f4a14450562",
+      "duration_seconds": 600,
+      "source_sha256": "5c0a1c9af260ffc6020bce189b0d8061dd273e064b41adabd4402e6fc1be93ff",
+      "retry_count": 0,
+      "debit_usd": 1.7
+    }
+  ],
+  "walkthrough": {
+    "path": "agentified/workshop/l02-l04-native-composite/agentified-l02-l04-human-qa-walkthrough.mp4",
+    "sha256": "7a882d3b3ecfd69d54d0e3949e637916725a2235eec9bc66c343576e33a0ad63",
+    "duration_seconds": 46.129
+  }
+}
