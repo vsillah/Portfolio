@@ -376,4 +376,3 @@ rmSync(studioBackdropPath, { force: true })
 rmSync(countdownPath, { force: true })
 rmSync(countdownFrames, { recursive: true, force: true })
 console.log('L05-L08 continuous narration render complete')
-
