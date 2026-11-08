@@ -2,13 +2,13 @@
   "schema_version": 1,
   "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
   "batch_sha256": "c339600cab53a406b01ae80399354bf718e94a36863322f934d795c424aa6ed5",
-  "review_html_sha256": "a3fba4f72497779adc1bf5b111ca0a45eedecc33478e7f6928cbb229fc39c6ac",
+  "review_html_sha256": "90cdad75f2f83fb0c06be98527b27bdae072200663b703634a1aa60298488bd4",
   "walkthroughs": [
     {
       "viewport": "desktop",
       "path": "desktop-walkthrough.mp4",
-      "sha256": "6feb97125a04630463995cda5925edc7e0fac731fe7ef7e331c2008e9bf4a414",
-      "duration_seconds": 13.12,
+      "sha256": "a449abd2e8e1c05bb5c78595df6f32cd072b68ffe9e570511df83e97d17e7963",
+      "duration_seconds": 13.28,
       "codec": "h264",
       "width": 1280,
       "height": 800,
@@ -18,8 +18,8 @@
     {
       "viewport": "mobile",
       "path": "mobile-walkthrough.mp4",
-      "sha256": "d99ba200f5e7f18431f887084f5e04acded61b50328096dfe2c4283d3664be04",
-      "duration_seconds": 13,
+      "sha256": "4fc1ee74e9d1e0e4faa1d573d1a0809092c1c3d8de0031291fa753733e1b6f84",
+      "duration_seconds": 12.96,
       "codec": "h264",
       "width": 390,
       "height": 844,

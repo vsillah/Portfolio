@@ -16,6 +16,11 @@ const sha = (value) => createHash('sha256').update(value).digest('hex');
 const batch = JSON.parse(readFileSync(path.join(here, 'batch-manifest.json')));
 const { batch_sha256: batchHash, ...payload } = batch;
 if (sha(JSON.stringify(payload)) !== batchHash) throw new Error('Batch identity drift');
+for (const lesson of batch.lessons) {
+  const candidate = JSON.parse(readFileSync(path.join(here, `${lesson.lesson_id.toLowerCase()}-request-candidate.json`)));
+  const { candidate_sha256: candidateHash, ...candidatePayload } = candidate;
+  if (sha(JSON.stringify(candidatePayload)) !== candidateHash || candidateHash !== lesson.candidate_sha256) throw new Error(`${lesson.lesson_id} candidate identity drift`);
+}
 const mime = { '.html': 'text/html', '.json': 'application/json', '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg' };
 const server = createServer((req, res) => {
   try {
