@@ -22,8 +22,9 @@
     },
     "walkthrough": {
       "path": "agentified-l01-gray-sweater-walkthrough.mp4",
-      "sha256": "7043677375f4f467a36919cd142dbb4d623e24734aa98b39cecb29dd902e2e06",
-      "duration_seconds": 44.0
+      "sha256": "a28ad78362cb73de16f27c6f7f5bb3fea807f662154232e40878c59e5b30c306",
+      "duration_seconds": 14.24,
+      "scope": "desktop learner binding, face-detail frame, both sentence handoffs, locked lesson, and Operating File return"
     },
     "captions": {
       "srt_sha256": "d459452e5b1168dadd6fb3b813839f28ae24f2c8c067da1fb777a920897ad9fe",
