@@ -15,7 +15,7 @@ Each candidate carries a caption handoff receipt, asset and audio map, source bi
 
 ## Local review
 
-From the repository root, run `python3 -m http.server 4173 --bind 127.0.0.1`. Open `http://127.0.0.1:4173/agentified/workshop/l05-l08-guided-video-preflight/review.html?lesson=L05&state=opening&revision=<code-commit>`. Select L05–L08 and opening, diagram, closing, and closing-card states. The route is an internal silent animatic with no playable lesson media. `node agentified/workshop/l05-l08-guided-video-preflight/record-review.mjs <code-commit>` checks sixteen lesson/state combinations at desktop and mobile widths, decodes approved images, checks overflow and collisions, records privacy-safe MP4s, and writes a capture receipt.
+From the repository root, run `python3 -m http.server 4173 --bind 127.0.0.1`. Open the `route` in `review-capture-receipt.json`; its `candidate` query binds the batch receipt and review HTML by SHA-256. Select L05–L08 and opening, diagram, closing, and closing-card states. The route is an internal silent animatic with no playable lesson media. `node agentified/workshop/l05-l08-guided-video-preflight/record-review.mjs` verifies the batch and four request identities, derives the immutable capture candidate, checks sixteen lesson/state combinations at desktop and mobile widths, decodes approved images, checks overflow and collisions, records privacy-safe MP4s, and writes a capture receipt. The candidate identity remains valid after committing the evidence because it excludes the generated MP4s, screenshots, and receipt.
 
 ## Ready-to-send conditional provider authorization
 

@@ -62,7 +62,7 @@
       get('source').textContent = `${request.lesson_id} · ${request.request_sha256.slice(0,12)}`;
       document.querySelectorAll('[data-lesson]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.lesson === state.lesson)));
       document.querySelectorAll('[data-state]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.state === state.view)));
-      history.replaceState(null, '', `?lesson=${state.lesson}&state=${state.view}&revision=${new URL(location.href).searchParams.get('revision') || 'local'}`);
+      history.replaceState(null, '', `?lesson=${state.lesson}&state=${state.view}&candidate=${new URL(location.href).searchParams.get('candidate') || 'local'}`);
     }
     document.querySelectorAll('[data-lesson]').forEach((button) => button.addEventListener('click', () => { state.lesson = button.dataset.lesson; render(); }));
     document.querySelectorAll('[data-state]').forEach((button) => button.addEventListener('click', () => { state.view = button.dataset.state; render(); }));

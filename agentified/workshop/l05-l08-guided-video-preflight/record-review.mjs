@@ -8,9 +8,25 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const here = path.dirname(fileURLToPath(import.meta.url));
-const revision = process.argv[2];
 const base = process.argv[3] ?? 'http://127.0.0.1:4173';
-if (!/^[0-9a-f]{40}$/.test(revision ?? '')) throw new Error('Pass exact code commit SHA');
+const sha = (value) => createHash('sha256').update(value).digest('hex');
+const batch = JSON.parse(readFileSync(path.join(here, 'batch-validation-receipt.json'), 'utf8'));
+const { batch_sha256: batchHash, ...batchPayload } = batch;
+if (sha(JSON.stringify(batchPayload)) !== batchHash) throw new Error('Batch receipt identity drift');
+const requestHashes = Object.fromEntries(batch.lessons.map((lesson) => [lesson.lesson_id, lesson.request_sha256]));
+for (const lesson of batch.lessons) {
+  const request = JSON.parse(readFileSync(path.join(here, `${lesson.lesson_id.toLowerCase()}-request-candidate.json`), 'utf8'));
+  const { request_sha256: requestHash, ...requestPayload } = request;
+  if (sha(JSON.stringify(requestPayload)) !== requestHash || requestHash !== lesson.request_sha256) throw new Error(`${lesson.lesson_id} request identity drift`);
+}
+const captureIdentity = {
+  schema_version: 1,
+  source_base_commit: batch.source_base_commit,
+  batch_sha256: batchHash,
+  review_html_sha256: sha(readFileSync(path.join(here, 'review.html'))),
+};
+const candidateSha = sha(JSON.stringify(captureIdentity));
+if (process.argv[2] && process.argv[2] !== candidateSha) throw new Error(`Capture candidate drift: expected ${candidateSha}`);
 const url = `${base}/agentified/workshop/l05-l08-guided-video-preflight/review.html`;
 const browser = await chromium.launch({ headless: true });
 const results = [];
@@ -20,8 +36,9 @@ for (const [name, viewport] of [['desktop', { width: 1280, height: 800 }], ['mob
   const errors = [];
   for (const lesson of ['L05', 'L06', 'L07', 'L08']) {
     for (const state of ['opening', 'diagram', 'closing', 'card']) {
-      await page.goto(`${url}?lesson=${lesson}&state=${state}&revision=${revision}`);
+      await page.goto(`${url}?lesson=${lesson}&state=${state}&candidate=${candidateSha}`);
       await page.waitForFunction(([id, view]) => document.querySelector('#scene')?.textContent === `${id}-${view === 'opening' ? '01' : view === 'diagram' ? ({ L05: '04', L06: '03', L07: '05', L08: '05' })[id] : '08'} / ${view.toUpperCase()}`, [lesson, state]);
+      if (new URL(page.url()).searchParams.get('candidate') !== candidateSha || !(await page.locator('#source').textContent())?.includes(requestHashes[lesson].slice(0, 12))) throw new Error(`${lesson} ${state} capture identity drift`);
       await page.locator('#cover').evaluate((image) => image.decode());
       if (state === 'diagram') await page.locator('#visual img').evaluate((image) => image.decode());
       const measured = await page.evaluate(() => {
@@ -58,9 +75,9 @@ for (const [name, viewport] of [['desktop', { width: 1280, height: 800 }], ['mob
   const probe = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration:stream=codec_name,width,height', '-of', 'json', mp4]));
   if (probe.streams[0].codec_name !== 'h264' || probe.streams[0].width !== viewport.width || probe.streams[0].height !== viewport.height || Number(probe.format.duration) < 9) throw new Error(`${name} MP4 failed validation`);
   const body = readFileSync(mp4);
-  results.push({ viewport: name, route: `${url}?lesson=L05&state=opening&revision=${revision}`, path: path.basename(mp4), sha256: createHash('sha256').update(body).digest('hex'), bytes: body.length, duration_seconds: Number(probe.format.duration), codec: 'h264', width: viewport.width, height: viewport.height, states_checked: 16, privacy: 'synthetic packet and approved local assets only' });
+  results.push({ viewport: name, route: `${url}?lesson=L05&state=opening&candidate=${candidateSha}`, path: path.basename(mp4), sha256: sha(body), bytes: body.length, duration_seconds: Number(probe.format.duration), codec: 'h264', width: viewport.width, height: viewport.height, states_checked: 16, privacy: 'synthetic packet and approved local assets only' });
   rmSync(webm);
 }
 await browser.close();
-writeFileSync(path.join(here, 'review-capture-receipt.json'), `${JSON.stringify({ schema_version: 1, code_revision: revision, walkthroughs: results, provider_calls: 0, audio_generated: 0, customer_data_used: false }, null, 2)}\n`);
+writeFileSync(path.join(here, 'review-capture-receipt.json'), `${JSON.stringify({ schema_version: 1, capture_candidate_sha256: candidateSha, capture_identity: captureIdentity, walkthroughs: results, provider_calls: 0, audio_generated: 0, customer_data_used: false }, null, 2)}\n`);
 console.log(results.map((item) => `${item.viewport}: ${item.duration_seconds.toFixed(1)}s, ${item.sha256}`).join('\n'));
