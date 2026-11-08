@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_batch_request_candidate_locked",
+  "lesson_id": "L07",
+  "source_base_commit": "5dccdea98336b495677b128daff0f0cf9f74b09c",
+  "provider_candidate": "HeyGen Avatar IV",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "upload_allowed": false,
+  "generation_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "requested_job_limit": 1,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_spend_cap_usd": 0,
+  "conditional_one_job_cash_ceiling_usd": null,
+  "one_job_candidate_key": "c63f684680251891b2501e350d680ba99c2a7f8915366a8be094669896d35efe",
+  "lesson_duration_seconds": 600,
+  "expected_scripted_provider_duration_seconds": 23.673,
+  "actual_provider_duration_seconds": null,
+  "actual_billable_duration_seconds": null,
+  "duration_note": "Expected duration sums exact provisional caption spans only. Provider pacing, source duration, billable duration and final placement are unknown until a separately authorized job and native-source timing audit.",
+  "format_candidate": {
+    "orientation": "landscape",
+    "resolution": "1080p",
+    "source_frame_rate": "preserve_native",
+    "composite_frame_rate": 30
+  },
+  "presenter_windows": [
+    {
+      "scene_id": "L07-01",
+      "reserved_start_seconds": 0,
+      "reserved_end_seconds": 13.173,
+      "presenter_start_seconds": 0,
+      "presenter_end_seconds": 13.173,
+      "expected_scripted_duration_seconds": 13.173,
+      "provider_free_tail_seconds": 0,
+      "narration_exact": "Morgan receives a polished Session Option Brief. It compares three notes and says the facilitator is confirmed. That one word is wrong. The source said ‘available for review.’",
+      "narration_sha256": "84febd50950478ae57c988b2f9a19faf4b6a8d4f2ca6d18c7c197b301fab936f",
+      "caption_cues": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 3.667,
+          "text": "Morgan receives a polished Session Option Brief. "
+        },
+        {
+          "start_seconds": 3.667,
+          "end_seconds": 8.383,
+          "text": "It compares three notes and says the facilitator is confirmed. "
+        },
+        {
+          "start_seconds": 8.383,
+          "end_seconds": 10.179,
+          "text": "That one word is wrong. "
+        },
+        {
+          "start_seconds": 10.179,
+          "end_seconds": 13.173,
+          "text": "The source said ‘available for review.’ "
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    },
+    {
+      "scene_id": "L07-08",
+      "reserved_start_seconds": 585.5,
+      "reserved_end_seconds": 600,
+      "presenter_start_seconds": 585.5,
+      "presenter_end_seconds": 596,
+      "expected_scripted_duration_seconds": 10.5,
+      "provider_free_tail_seconds": 4,
+      "narration_exact": "A team becomes useful when a blocked packet has one place to land. Next we will test that handoff with three course cases.",
+      "narration_sha256": "2ac0b2e50c987edfc9d34ff21c4bba7a8fa8330d3f16abb96350d323f6197e6f",
+      "caption_cues": [
+        {
+          "start_seconds": 585.5,
+          "end_seconds": 591.266,
+          "text": "A team becomes useful when a blocked packet has one place to land. "
+        },
+        {
+          "start_seconds": 591.266,
+          "end_seconds": 596,
+          "text": "Next we will test that handoff with three course cases."
+        }
+      ],
+      "audio_ownership": "presenter audio only in this exact span if separately authorized; mute overlapping narrator audio"
+    }
+  ],
+  "presenter_duration_seconds": 23.673,
+  "provider_free_evidence_card": {
+    "scene_id": "L07-05",
+    "audience_copy_exact": [
+      "Source checker → drafter → coordinator → Morgan.",
+      "Block owner: Morgan."
+    ],
+    "approved_diagram_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+    "approved_diagram_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+    "treatment": "local approved diagram and source-aware audience copy; no provider footage or generated voice"
+  },
+  "provider_free_closing_card": {
+    "scene_id": "L07-08",
+    "start_seconds": 596,
+    "end_seconds": 600,
+    "duration_seconds": 4,
+    "audience_copy_exact": [
+      "Operating File v7: PRD + pod.",
+      "Next: handoff and evaluation."
+    ],
+    "treatment": "provider-free hold of approved ending copy; no presenter footage, generated voice, or new claim"
+  },
+  "one_job_payload_boundary": {
+    "passages": [
+      {
+        "scene_id": "L07-01",
+        "narration_exact": "Morgan receives a polished Session Option Brief. It compares three notes and says the facilitator is confirmed. That one word is wrong. The source said ‘available for review.’",
+        "narration_sha256": "84febd50950478ae57c988b2f9a19faf4b6a8d4f2ca6d18c7c197b301fab936f"
+      },
+      {
+        "scene_id": "L07-08",
+        "narration_exact": "A team becomes useful when a blocked packet has one place to land. Next we will test that handoff with three course cases.",
+        "narration_sha256": "2ac0b2e50c987edfc9d34ff21c4bba7a8fa8330d3f16abb96350d323f6197e6f"
+      }
+    ],
+    "treatment": "Two exact passages in one continuous native source; split at audited sentence boundary and place locally. No third passage or automatic regeneration."
+  },
+  "identity_voice": {
+    "selected_look_name": null,
+    "selected_look_id": null,
+    "selected_avatar_group_id": null,
+    "selected_voice_id": null,
+    "source_precedent": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+    "status": "execution_identity_unselected; purpose_specific_L05-L08_approval_required",
+    "l01_approval_not_reusable": true,
+    "no_photo_or_cutout_upload_allowed": true
+  },
+  "assets": {
+    "approved_diagram": {
+      "scene_id": "L07-05",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "A blocked `SYN-FAC-01` handoff card landing with Morgan instead of the drafter."
+    },
+    "package_jpg": {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package identity only"
+    },
+    "lesson_cover": {
+      "path": "public/agentified/posters/l07-poster.webp",
+      "sha256": "4807b8f696cf07315be7b29e58b674c0a00057ccfc10aa72a3dec93d7eb53571",
+      "alt_text": "L07 Specify the work and the team lesson cover: Vambah presents the authority ladder diagram.",
+      "media_status": "static-cover; video locked"
+    }
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "prd-and-pod",
+      "revision": 7,
+      "status": "draft",
+      "update_exact": "`prd-and-pod` → `requirements` and `team`, revision 7, status `draft`."
+    },
+    "source_ids_scope": "protected synthetic trace only; do not speak IDs or send to provider"
+  },
+  "accessibility": {
+    "caption_source": "agentified/workshop/scene-production/packets/L07.json",
+    "caption_status": "exact text, provisional timing",
+    "caption_handoff_receipt": {
+      "source_packet_sha256": "fefbdc1e3cf386b7220284ace5ac8c818030f2c8e8b8c94db9c3f7a83e8dcf87",
+      "cue_counts": [
+        {
+          "scene_id": "L07-01",
+          "count": 4,
+          "text_sha256": "84febd50950478ae57c988b2f9a19faf4b6a8d4f2ca6d18c7c197b301fab936f"
+        },
+        {
+          "scene_id": "L07-08",
+          "count": 2,
+          "text_sha256": "2ac0b2e50c987edfc9d34ff21c4bba7a8fa8330d3f16abb96350d323f6197e6f"
+        }
+      ],
+      "final_sync_status": "pending_native_audio"
+    },
+    "transcript": "reconstruct exact scene narration; final rendered transcript audit required",
+    "diagram_text_alternative": "approved plate needs final scene-specific text alternative before publication",
+    "diagram_alt_status": "scene_specific_final_alt_required_before_learner_release",
+    "reading_order": "title, teaching copy, visual, captions",
+    "contrast": "review at delivery resolution",
+    "reduced_motion": "instant cuts; no information depends on animation",
+    "caption_band": "keep clear of presenter and diagram labels in landscape and portrait"
+  },
+  "audio": {
+    "new_audio_path": null,
+    "new_audio_sha256": null,
+    "new_audio_status": "none_generated",
+    "l01_native_source_precedent_sha256": "f98f0208620f4085d0eb05322e969ee912a0b5b02222ca8da4871a7a43320fa0",
+    "l01_native_composite_precedent_sha256": "34737c643f7928fe3a7e3e23bcd33d8e4715c0052bac532e5fd43c1e689b25e5",
+    "ownership": "one speaker at a time; native presenter audio replaces matching narrator span, never layers with it; preserve source frame count, rate, duration and lip sync in reproducible FFmpeg composite"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L07.json",
+      "sha256": "fefbdc1e3cf386b7220284ace5ac8c818030f2c8e8b8c94db9c3f7a83e8dcf87",
+      "use": "approved_production_packet"
+    },
+    {
+      "path": "agentified/workshop/scripts/L07-prd-and-pod.md",
+      "sha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
+      "use": "approved_exact_script"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413",
+      "use": "static_cover_map"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934",
+      "use": "approved_visual_register"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851",
+      "use": "source_register"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e",
+      "use": "curriculum_crosswalk"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "use": "immutable_storyboard_windows"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab",
+      "use": "Operating_File_workbook"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch11-prds-for-agents.md",
+      "sha256": "81932b42a5773f09989524ba0dbf1cbb9d921cb24b7e6c7fe71e7b0403f17980",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch12-swarms-need-org-charts.md",
+      "sha256": "b6b02fc999951e4e5dcfcd14d3ef468f7475d33d1d8ad96ccba6dcffbbd328fb",
+      "use": "chapter_lineage"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+      "use": "package_identity_only"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "approved_L07-05_diagram_only"
+    },
+    {
+      "path": "public/agentified/posters/l07-poster.webp",
+      "sha256": "4807b8f696cf07315be7b29e58b674c0a00057ccfc10aa72a3dec93d7eb53571",
+      "use": "static_YouTube_style_lesson_cover_only"
+    },
+    {
+      "path": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "sha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "use": "local_static_cover_identity_reference_only"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/avatar-sources/l07-vambah-cutout.png",
+      "sha256": "09a2479fe146262d2b3b13efd5d8f9c13f038ccb2d24edfc9e4049331d2e2582",
+      "use": "local_static_cover_cutout_only"
+    },
+    {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165",
+      "use": "static_cover_logo_only"
+    },
+    {
+      "path": "agentified/workshop/l01-guided-video-preflight/identity-voice-use-approval-receipt.json",
+      "sha256": "8d9f5a94b0c8b68f23ae099da502de32c151109ca54847d4a43e3ed98d386534",
+      "use": "L01_identity_precedent_not_L05-L08_authority"
+    }
+  ],
+  "boundaries": {
+    "privacy": "synthetic Harbor only; no actual participant, client, admin, or private corpus content",
+    "authority": "prepare_only; no live agent, memory promotion, message, booking, spending, or publication",
+    "customer_release": "held_pending_editorial_and_final_audio_review",
+    "rights": "Static cover approval does not authorize talking-avatar or voice use for this lesson. Execution identity remains unselected.",
+    "lineage": "lineage_only_excluded"
+  },
+  "no_retry_record": {
+    "jobs_submitted": 0,
+    "automatic_retries": 0,
+    "manual_retries": 0,
+    "allowed_if_later_authorized": "one submission for this exact request; stop on uncertain outcome"
+  },
+  "execution_gates": [
+    "purpose-specific L05-L08 look and voice consent and selected execution identity",
+    "binding quote and enforceable one-job cap for each lesson and aggregate batch",
+    "current balance and credit check without purchase or auto-reload",
+    "final native source split/timing and caption audit",
+    "scene-specific diagram alt text, contrast and reduced-motion review",
+    "separate exact batch execution authorization"
+  ],
+  "request_sha256": "f35b6f521276b7b7ee03806f3c58de0acb4236ea90c005859c293ee065a47bcd"
+}

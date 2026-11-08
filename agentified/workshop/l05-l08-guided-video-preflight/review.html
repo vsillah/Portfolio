@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agentified L05–L08 provider-free preflight</title>
+  <style>
+    :root{color-scheme:dark;background:#081b28;color:#f5eddd;font-family:Arial,sans-serif}*{box-sizing:border-box}
+    body{margin:0;padding:28px;background:radial-gradient(circle at top,#183d4b,#081b28 65%)}main{max-width:1280px;margin:auto}
+    header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:20px}h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(1.7rem,4vw,3.2rem);margin:2px 0}h2{font-size:clamp(1.8rem,3vw,2.8rem);margin:0 0 16px}
+    p{line-height:1.45}.eyebrow{letter-spacing:.14em;text-transform:uppercase;color:#e2bc63;font-size:.75rem;font-weight:700}.status{border:1px solid #c79b43;border-radius:50px;padding:8px 14px;color:#f4ce77;font-size:.8rem;font-weight:700;white-space:nowrap}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 18px}.controls button{flex:0 0 auto;background:#10374a;color:#f5eddd;border:1px solid #67838c;border-radius:6px;padding:10px 14px;font:inherit;cursor:pointer}.controls button[aria-pressed=true]{background:#d9ae59;color:#102331;border-color:#d9ae59;font-weight:700}.controls button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+    .stage{aspect-ratio:16/9;min-height:520px;display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:34px;background:linear-gradient(130deg,#0a2636,#102a38 70%,#263b3c);border:1px solid #68808a;box-shadow:0 28px 60px #0007;overflow:hidden}
+    .copy{display:flex;flex-direction:column;justify-content:center;min-width:0}.copy p{font-size:clamp(1rem,1.65vw,1.45rem);margin:.35rem 0}.copy .sub{font-size:clamp(.8rem,1.1vw,1rem);color:#c3d1d2}.visual{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;border:1px solid #677d7e;background:#112b35;padding:14px}.visual img{display:block;width:100%;height:100%;max-height:460px;object-fit:contain}.visual .placeholder{padding:26px;text-align:center;border:1px dashed #bfaa76;color:#dfc995;line-height:1.4}.visual .placeholder strong{display:block;font-size:1.2rem;margin-bottom:10px}
+    .caption{margin-top:14px;border-left:3px solid #d9ae59;background:#102d3b;padding:12px 18px;min-height:75px;line-height:1.45}.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.fact{border:1px solid #466574;padding:12px;background:#0c2634;font-size:.82rem}.fact b{display:block;color:#dfbc73;margin-bottom:5px}.cover{width:84px;height:47px;object-fit:contain;border:1px solid #69818a;vertical-align:middle;margin-right:9px}.lessonline{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    @media(max-width:760px){body{padding:14px}header{align-items:flex-start;flex-direction:column}.stage{aspect-ratio:auto;min-height:640px;grid-template-columns:1fr;grid-template-rows:auto minmax(200px,1fr);gap:16px;padding:18px}.visual img{max-height:300px}.facts{grid-template-columns:1fr 1fr}.copy p{font-size:1.1rem}.controls button{padding:8px 11px}.controls span[aria-hidden]{display:none}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <header><div><div class="eyebrow">AmaduTown / Agentified / internal review</div><h1>L05–L08 guided-video preflight</h1><p>Silent storyboard and native-composite inputs</p></div><span class="status">PROVIDER-FREE · VIDEO LOCKED</span></header>
+    <nav class="controls" aria-label="Lesson and state"><button data-lesson="L05">L05</button><button data-lesson="L06">L06</button><button data-lesson="L07">L07</button><button data-lesson="L08">L08</button><span aria-hidden="true">│</span><button data-state="opening">Opening</button><button data-state="diagram">Diagram</button><button data-state="closing">Closing</button><button data-state="card">Closing card</button></nav>
+    <section class="stage" aria-label="Silent review frame"><div class="copy"><div class="lessonline"><img id="cover" class="cover" alt=""><span id="scene" class="eyebrow"></span></div><h2 id="title"></h2><div id="teaching"></div><p class="sub" id="time"></p></div><div class="visual" id="visual"></div></section>
+    <div class="caption" id="caption" aria-label="Exact script passage"></div>
+    <div class="facts"><div class="fact"><b>Source</b><span id="source"></span></div><div class="fact"><b>Audio</b>No new audio; one speaker per window</div><div class="fact"><b>Rights</b>L05–L08 look and voice approval pending</div><div class="fact"><b>Release</b>Review only; playback and publication held</div></div>
+  </main>
+  <script>
+    const state = { lesson: new URL(location.href).searchParams.get('lesson') || 'L05', view: new URL(location.href).searchParams.get('state') || 'opening' };
+    const get = (id) => document.getElementById(id);
+    const cache = new Map();
+    async function load(id) {
+      if (!cache.has(id)) cache.set(id, Promise.all([
+        fetch(`${id.toLowerCase()}-request-candidate.json`).then((response) => response.json()),
+        fetch(`/agentified/workshop/scene-production/packets/${id}.json`).then((response) => response.json()),
+      ]));
+      return cache.get(id);
+    }
+    async function render() {
+      const [request, packet] = await load(state.lesson);
+      const intro = packet.scenes[0], visualScene = packet.scenes.find((item) => item.approved_visuals.length), close = packet.scenes.at(-1);
+      const scene = state.view === 'opening' ? intro : state.view === 'diagram' ? visualScene : close;
+      const visual = get('visual'); visual.replaceChildren();
+      get('title').textContent = packet.title;
+      get('scene').textContent = `${scene.id} / ${state.view.toUpperCase()}`;
+      get('teaching').replaceChildren(...(state.view === 'card' ? request.provider_free_closing_card.audience_copy_exact : scene.audience_copy).map((line) => { const p = document.createElement('p'); p.textContent = line; return p; }));
+      get('cover').src = `/${request.assets.lesson_cover.path}`; get('cover').alt = request.assets.lesson_cover.alt_text;
+      const window = state.view === 'opening' ? request.presenter_windows[0] : request.presenter_windows[1];
+      const clock = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2,'0')}:${(seconds % 60).toFixed(3).padStart(6,'0')}`;
+      if (state.view === 'diagram') {
+        const img = document.createElement('img'); img.src = `/${request.assets.approved_diagram.path}`; img.alt = request.assets.approved_diagram.use; visual.append(img);
+        get('time').textContent = `Approved plate · ${visualScene.source_time}`;
+        get('caption').textContent = `Exact approved diagram use: ${request.assets.approved_diagram.use}`;
+      } else {
+        const placeholder = document.createElement('div'); placeholder.className = 'placeholder';
+        const strong = document.createElement('strong'); strong.textContent = state.view === 'card' ? 'Provider-free closing evidence card' : 'Presenter reservation · no media generated';
+        placeholder.append(strong, document.createTextNode(state.view === 'card' ? 'Approved ending copy only. No presenter footage or generated voice.' : 'Native source remains unfilled. Final position and captions require audio review.'));
+        visual.append(placeholder);
+        get('time').textContent = state.view === 'card' ? `${clock(request.provider_free_closing_card.start_seconds)}–${clock(request.provider_free_closing_card.end_seconds)} · ${request.provider_free_closing_card.duration_seconds}s card` : `${clock(window.presenter_start_seconds)}–${clock(window.presenter_end_seconds)} · ${window.expected_scripted_duration_seconds}s scripted span`;
+        get('caption').textContent = state.view === 'card' ? 'No new narration in this tail. The last approved sentence has ended.' : window.narration_exact;
+      }
+      get('source').textContent = `${request.lesson_id} · ${request.request_sha256.slice(0,12)}`;
+      document.querySelectorAll('[data-lesson]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.lesson === state.lesson)));
+      document.querySelectorAll('[data-state]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.state === state.view)));
+      history.replaceState(null, '', `?lesson=${state.lesson}&state=${state.view}&candidate=${new URL(location.href).searchParams.get('candidate') || 'local'}`);
+    }
+    document.querySelectorAll('[data-lesson]').forEach((button) => button.addEventListener('click', () => { state.lesson = button.dataset.lesson; render(); }));
+    document.querySelectorAll('[data-state]').forEach((button) => button.addEventListener('click', () => { state.view = button.dataset.state; render(); }));
+    render().catch((error) => { get('caption').textContent = `Review load failed: ${error.message}`; });
+  </script>
+</body>
+</html>

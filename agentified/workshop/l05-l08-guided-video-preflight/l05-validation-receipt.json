@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "validated_provider_free_candidate",
+  "lesson_id": "L05",
+  "request_sha256": "54bcd458518d54755c6bc76ae5fbed365440790548eeb02d299e45e589034099",
+  "script_sha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
+  "packet_sha256": "86aaa74a5227a137ba7287a794410410f268edace44a6fbc0be2b862487c723a",
+  "poster_sha256": "87a4e7d2e5c13d97eaff908a11c4f4f5a9f45b0e4b2f7b70a513f8053f35a64f",
+  "diagram_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+  "package_jpg_sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce",
+  "new_audio_sha256": null,
+  "source_binding_count": 16,
+  "expected_scripted_provider_duration_seconds": 28.258,
+  "provider_free_closing_card_seconds": 5,
+  "spend_usd": 0,
+  "provider_calls": 0,
+  "media_generated": 0,
+  "unresolved": [
+    "L05-L08 purpose-specific identity and voice rights",
+    "current provider quote, credits and cap control",
+    "recorded pacing and caption sync",
+    "final scene-specific diagram alt and native-composite review"
+  ]
+}
