@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "status": "completed_once_no_retry",
+  "lesson_id": "L08",
+  "source_commit": "a260c7593758fd6757ea21ef240a9abc83cc3725",
+  "batch_sha256": "398b0032f735cae199817634f997db89099dbf0c0a9b6c6c123d318c3067eeb1",
+  "request_sha256": "4b702f78df6ea271ea70a1c1e68783b6a27984be5f5aa5ca711df2c009ea5c38",
+  "provider": "HeyGen create_speech",
+  "requested_engine": "heygen_voice",
+  "returned_engine": "orca",
+  "request_id": "14a0bf6bfd924d3c9ee36a237bc3eda2",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "submissions": 1,
+  "retries": 0,
+  "provider_usage": {
+    "credits_before": 1227,
+    "credits_after": 1219,
+    "exact_credit_debit": 8,
+    "authorized_max_credits": 10,
+    "cash_purchase_usd": 0
+  },
+  "source": {
+    "path": "agentified/workshop/l05-l08-continuous-narration/L08/agentified-l08-continuous-narration-source.mp3",
+    "sha256": "5a14c2fd2c3fffb1e9cad2fd7c6637c0863d5dab60bb0df0aafd0dcad5cb06f1",
+    "duration_seconds": 188.316719
+  }
+}
+

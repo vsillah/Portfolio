@@ -1,0 +1,203 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:01.870
+Morgan receives a polished Session
+
+00:00:01.950 --> 00:00:02.660
+Option Brief.
+
+00:00:02.800 --> 00:00:04.420
+It compares three notes and says the
+
+00:00:04.470 --> 00:00:05.830
+facilitator is confirmed.
+
+00:00:05.930 --> 00:00:07.190
+That one word is wrong.
+
+00:00:07.300 --> 00:00:09.270
+The source said ‘available for review.’
+
+00:00:09.620 --> 00:00:14.868
+The preparation role did what an old brief told
+it to do: 'Summarize the best session option.'
+
+00:00:15.167 --> 00:00:17.855
+That sentence left the hardest part in Morgan's
+head.
+
+00:00:18.153 --> 00:00:19.263
+What counts as ready?
+
+00:00:19.519 --> 00:00:20.820
+Which source is required?
+
+00:00:21.097 --> 00:00:22.389
+When must the work stop?
+
+00:00:22.614 --> 00:00:24.192
+A human colleague might ask.
+
+00:00:24.363 --> 00:00:27.414
+A paper agent design needs those answers
+written down.
+
+00:00:27.764 --> 00:00:31.658
+Chapter Eleven turns the request into an
+Agentic PRD Packet.
+
+00:00:31.926 --> 00:00:40.865
+Seven fields carry the load: outcome, scope
+fences, input manifest, acceptance tests,
+escalation, owner, and reversal.
+
+00:00:41.142 --> 00:00:45.164
+The outcome is a comparison Morgan can review,
+not a session announcement.
+
+00:00:45.388 --> 00:00:49.633
+Scope fences keep the role away from
+participant messages and calendar changes.
+
+00:00:49.953 --> 00:00:54.602
+The input manifest lists the three Harbor note
+references and their freshness checks.
+
+00:00:54.900 --> 00:01:00.574
+An acceptance test says staffing language must
+match the facilitator note exactly in meaning.
+
+00:01:00.788 --> 00:01:04.990
+If the note is missing or ambiguous, the
+escalation is a hold for Morgan.
+
+00:01:05.340 --> 00:01:06.971
+Reversal is modest here.
+
+00:01:07.237 --> 00:01:10.949
+Morgan can return a draft for correction or
+withdraw it from review.
+
+00:01:11.333 --> 00:01:13.509
+There is no external send to reverse.
+
+00:01:13.807 --> 00:01:21.455
+A test result belongs beside the draft as
+evidence: source IDs checked, staffing wording
+checked, review gate present.
+
+00:01:21.763 --> 00:01:25.603
+A failed check does not become a footnote under
+a confident recommendation.
+
+00:01:25.859 --> 00:01:27.288
+It blocks the handoff.
+
+00:01:27.608 --> 00:01:32.174
+This packet remains a proposed design; writing
+it does not configure an agent.
+
+00:01:32.524 --> 00:01:34.196
+Now give the work an organization.
+
+00:01:34.545 --> 00:01:39.536
+One role checks sources; one role assembles the
+comparison; Morgan owns the outcome.
+
+00:01:39.707 --> 00:01:47.311
+If both preparation roles produce separate
+answers without a common handoff, Morgan gets a
+small swarm and two versions of the truth.
+
+00:01:47.576 --> 00:01:53.976
+Chapter Twelve's Pod Model asks for a charter,
+lead, specialists, board, standup, and handoff.
+
+00:01:54.360 --> 00:01:59.608
+For this tiny classroom pod, keep the lead as a
+preparation coordinator, not an approver.
+
+00:01:59.949 --> 00:02:02.646
+The board is a proposed paper status list.
+
+00:02:03.038 --> 00:02:06.643
+The standup is a short proposed summary of
+ready and blocked work.
+
+00:02:06.993 --> 00:02:11.175
+The charter is narrow: prepare one
+evidence-bound option brief for Morgan.
+
+00:02:11.516 --> 00:02:16.199
+The source checker may flag staleness, not
+repair a source by inventing a newer date.
+
+00:02:16.486 --> 00:02:19.409
+The drafter may compare, not confirm staffing.
+
+00:02:19.772 --> 00:02:23.782
+The coordinator may route a blocked packet to
+Morgan, not override the block.
+
+00:02:24.081 --> 00:02:26.461
+The board should show who holds the next move.
+
+00:02:26.793 --> 00:02:30.548
+If nobody owns a failed source check, the org
+chart is decorative.
+
+00:02:30.847 --> 00:02:33.087
+Write that ownership into the handoff now.
+
+00:02:33.437 --> 00:02:33.906
+Pause.
+
+00:02:34.120 --> 00:02:37.853
+Who would receive the brief if the facilitator
+note stays unconfirmed?
+
+00:02:38.173 --> 00:02:39.766
+Name the role and the human.
+
+00:02:40.116 --> 00:02:42.868
+Draft the seven-field PRD in under a page.
+
+00:02:43.230 --> 00:02:48.564
+Give it two acceptance tests, including the
+staffing claim, and one explicit failure route.
+
+00:02:48.777 --> 00:02:56.311
+Then sketch the Pod Model: charter, lead,
+specialists, board, standup, handoff, and human
+owner.
+
+00:02:56.549 --> 00:02:58.575
+Use role labels and course references.
+
+00:02:58.853 --> 00:03:00.943
+Use a fictional or approved example.
+
+00:03:01.199 --> 00:03:08.420
+Do not use private operational data, configure
+production agents, or promote the pod's
+coordinator into final decision authority.
+
+00:03:53.770 --> 00:03:56.053
+Save revision seven as a draft.
+
+00:03:56.330 --> 00:04:02.080
+A requirement becomes useful when a new
+teammate can tell what to prepare and when to
+stop.
+
+00:04:02.460 --> 00:04:04.040
+A team becomes useful when a blocked
+
+00:04:04.090 --> 00:04:05.590
+packet has one place to land.
+
+00:04:05.700 --> 00:04:07.190
+Next we will test that handoff with
+
+00:04:07.240 --> 00:04:08.270
+three course cases.

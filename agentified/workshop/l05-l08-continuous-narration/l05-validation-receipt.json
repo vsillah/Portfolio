@@ -1,0 +1,608 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_continuous_narration_composite_ready_for_human_qa",
+  "lesson_id": "L05",
+  "source_commit": "a260c7593758fd6757ea21ef240a9abc83cc3725",
+  "batch_sha256": "398b0032f735cae199817634f997db89099dbf0c0a9b6c6c123d318c3067eeb1",
+  "request_candidate_sha256": "430d9d8621ff77887c79009dca44b122b2e45b1e3f926ce1de025d3cc431fd93",
+  "speech_text_sha256": "7fe52f75d312b41ce8923c230c052279ec1a17b922093a8320d0fc954af6c8a9",
+  "provider_request_id": "6d6bca11c8d84670830ca94be95f9450",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "exact_credit_debit": 7,
+  "narration_source": {
+    "path": "agentified/workshop/l05-l08-continuous-narration/L05/agentified-l05-continuous-narration-source.mp3",
+    "sha256": "b7f77b83dd8d5b20bc1c7390cbb0dd5ed955c44702660a67aca38e7116e8cfe0",
+    "duration_seconds": 170.997531
+  },
+  "presenter_source": {
+    "path": "agentified/workshop/l05-l08-native-source/L05/agentified-l05-heygen-native-source.mp4",
+    "sha256": "4fa12be38917aee81f1d90ca965a96254100f2efe24ea64f8886cca51f84b244",
+    "source_split_seconds": 11.91,
+    "placements": [
+      {
+        "source_start": 0,
+        "source_end": 11.91,
+        "sequence_start": 0,
+        "sequence_end": 11.91
+      },
+      {
+        "source_start": 11.91,
+        "source_end": 18.24,
+        "sequence_start": 228.35262131519264,
+        "sequence_end": 234.68262131519265
+      }
+    ],
+    "background_treatment": "provider_free_textured_studio_reconstruction"
+  },
+  "segment_placements": [
+    {
+      "scene_id": "L05-01",
+      "source_start": 0.171,
+      "source_end": 12.432,
+      "sequence_start": 12.16,
+      "sequence_end": 24.421
+    },
+    {
+      "scene_id": "L05-02",
+      "source_start": 12.619,
+      "source_end": 40.299,
+      "sequence_start": 24.771,
+      "sequence_end": 52.45099999999999
+    },
+    {
+      "scene_id": "L05-03",
+      "source_start": 40.662,
+      "source_end": 66.144,
+      "sequence_start": 52.800999999999995,
+      "sequence_end": 78.28299999999999
+    },
+    {
+      "scene_id": "L05-04",
+      "source_start": 66.422,
+      "source_end": 93.08,
+      "sequence_start": 78.63299999999998,
+      "sequence_end": 105.29099999999997
+    },
+    {
+      "scene_id": "L05-05",
+      "source_start": 93.4,
+      "source_end": 124.165,
+      "sequence_start": 105.64099999999996,
+      "sequence_end": 136.40599999999998
+    },
+    {
+      "scene_id": "L05-06",
+      "source_start": 124.421,
+      "source_end": 131.785,
+      "sequence_start": 136.75599999999997,
+      "sequence_end": 144.11999999999995
+    },
+    {
+      "scene_id": "L05-07",
+      "source_start": 132.169,
+      "source_end": 162.427,
+      "sequence_start": 144.46999999999994,
+      "sequence_end": 174.72799999999992
+    },
+    {
+      "scene_id": "L05-08",
+      "source_start": 162.832,
+      "source_end": 170.75662131519275,
+      "sequence_start": 220.07799999999992,
+      "sequence_end": 228.00262131519264
+    }
+  ],
+  "sentence_placements": [
+    {
+      "scene_id": "L05-01",
+      "text": "Who can answer a question about the unconfirmed facilitator?",
+      "source_start": 0.171,
+      "source_end": 3.456,
+      "sequence_start": 12.16,
+      "sequence_end": 15.445
+    },
+    {
+      "scene_id": "L05-01",
+      "text": "If the answer lives only in Morgan's head, our carefully designed pieces still do not make an operating system.",
+      "source_start": 3.712,
+      "source_end": 9.408,
+      "sequence_start": 15.701,
+      "sequence_end": 21.397
+    },
+    {
+      "scene_id": "L05-01",
+      "text": "We need one page that shows how the work travels.",
+      "source_start": 9.685,
+      "source_end": 12.432,
+      "sequence_start": 21.674,
+      "sequence_end": 24.421
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "Start with the real sequence on paper.",
+      "source_start": 12.619,
+      "source_end": 14.454,
+      "sequence_start": 24.771,
+      "sequence_end": 26.606
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "A request to compare a free digital-skills session enters.",
+      "source_start": 14.71,
+      "source_end": 18.081,
+      "sequence_start": 26.862000000000002,
+      "sequence_end": 30.233000000000004
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "A routing rule assigns the evidence-comparison role.",
+      "source_start": 18.294,
+      "source_end": 21.302,
+      "sequence_start": 30.445999999999998,
+      "sequence_end": 33.454
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "That role reads the three Harbor course notes and prepares a draft.",
+      "source_start": 21.622,
+      "source_end": 25.194,
+      "sequence_start": 33.774,
+      "sequence_end": 37.346000000000004
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "The draft and its short trace wait for Morgan.",
+      "source_start": 25.48,
+      "source_end": 28.275,
+      "sequence_start": 37.632000000000005,
+      "sequence_end": 40.427
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "Morgan may propose the option to the team, ask for another date, or hold it.",
+      "source_start": 28.638,
+      "source_end": 33.032,
+      "sequence_start": 40.790000000000006,
+      "sequence_end": 45.184
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "The agent has no route to announce, book, buy, or send anything.",
+      "source_start": 33.331,
+      "source_end": 37.487,
+      "sequence_start": 45.483000000000004,
+      "sequence_end": 49.639
+    },
+    {
+      "scene_id": "L05-02",
+      "text": "Draw that sequence before adding another box.",
+      "source_start": 37.888,
+      "source_end": 40.299,
+      "sequence_start": 50.04,
+      "sequence_end": 52.45099999999999
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "Chapter Eight gives the operating map five columns.",
+      "source_start": 40.662,
+      "source_end": 43.606,
+      "sequence_start": 52.800999999999995,
+      "sequence_end": 55.745
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "Trigger: what actually starts this row?",
+      "source_start": 43.819,
+      "source_end": 46.187,
+      "sequence_start": 55.958000000000006,
+      "sequence_end": 58.326
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "Role: who owns this step?",
+      "source_start": 46.464,
+      "source_end": 48.384,
+      "sequence_start": 58.60299999999999,
+      "sequence_end": 60.523
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "Tier: what may that role do?",
+      "source_start": 48.683,
+      "source_end": 50.589,
+      "sequence_start": 60.821999999999996,
+      "sequence_end": 62.72799999999999
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "Handoff: who receives the work next, including a refusal?",
+      "source_start": 50.873,
+      "source_end": 54.585,
+      "sequence_start": 63.01199999999999,
+      "sequence_end": 66.72399999999999
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "Evidence: where can a human find the record?",
+      "source_start": 54.884,
+      "source_end": 57.38,
+      "sequence_start": 67.023,
+      "sequence_end": 69.519
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "A blank is useful.",
+      "source_start": 57.657,
+      "source_end": 58.831,
+      "sequence_start": 69.79599999999999,
+      "sequence_end": 70.97
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "If you cannot name the evidence location, write 'missing.'",
+      "source_start": 59.023,
+      "source_end": 62.249,
+      "sequence_start": 71.162,
+      "sequence_end": 74.388
+    },
+    {
+      "scene_id": "L05-03",
+      "text": "A tidy imaginary location would hide the work you still need to design.",
+      "source_start": 62.496,
+      "source_end": 66.144,
+      "sequence_start": 74.63499999999999,
+      "sequence_end": 78.28299999999999
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "Put the earlier lessons onto those rows.",
+      "source_start": 66.422,
+      "source_end": 68.662,
+      "sequence_start": 78.63299999999998,
+      "sequence_end": 80.87299999999999
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "The job sits at the preparation step.",
+      "source_start": 69.067,
+      "source_end": 71.264,
+      "sequence_start": 81.27799999999999,
+      "sequence_end": 83.475
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "The Decision Card sits with Morgan.",
+      "source_start": 71.456,
+      "source_end": 73.291,
+      "sequence_start": 83.667,
+      "sequence_end": 85.50199999999998
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "Source IDs and expiry checks sit at intake.",
+      "source_start": 73.59,
+      "source_end": 76.65,
+      "sequence_start": 85.80099999999999,
+      "sequence_end": 88.86099999999999
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "The receipt and trace travel with the brief.",
+      "source_start": 76.936,
+      "source_end": 79.24,
+      "sequence_start": 89.14699999999999,
+      "sequence_end": 91.451
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "Last week's correction remains a memory proposal, pending Morgan's separate approval.",
+      "source_start": 79.496,
+      "source_end": 83.976,
+      "sequence_start": 91.70699999999997,
+      "sequence_end": 96.18699999999998
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "The controller's route is a written rule, not a new decision maker.",
+      "source_start": 84.318,
+      "source_end": 87.75,
+      "sequence_start": 96.52899999999997,
+      "sequence_end": 99.96099999999998
+    },
+    {
+      "scene_id": "L05-04",
+      "text": "A new teammate should be able to point to each item without asking who remembers where it went.",
+      "source_start": 88.067,
+      "source_end": 93.08,
+      "sequence_start": 100.27799999999999,
+      "sequence_end": 105.29099999999997
+    },
+    {
+      "scene_id": "L05-05",
+      "text": "The workbook also asks where approval, spend checks, public-safe proof, and rollback sit.",
+      "source_start": 93.4,
+      "source_end": 99.514,
+      "sequence_start": 105.64099999999996,
+      "sequence_end": 111.75499999999997
+    },
+    {
+      "scene_id": "L05-05",
+      "text": "This classroom workflow has no spending or public export.",
+      "source_start": 99.825,
+      "source_end": 103.217,
+      "sequence_start": 112.06599999999995,
+      "sequence_end": 115.45799999999994
+    },
+    {
+      "scene_id": "L05-05",
+      "text": "Mark those as closed paths with an owner, not as empty arrows that imply they might work.",
+      "source_start": 103.495,
+      "source_end": 108.657,
+      "sequence_start": 115.73599999999996,
+      "sequence_end": 120.89799999999994
+    },
+    {
+      "scene_id": "L05-05",
+      "text": "Rollback here means Morgan can withdraw a draft recommendation and record why.",
+      "source_start": 108.913,
+      "source_end": 113.617,
+      "sequence_start": 121.15399999999997,
+      "sequence_end": 125.85799999999998
+    },
+    {
+      "scene_id": "L05-05",
+      "text": "It does not undo an announcement, because no announcement happens.",
+      "source_start": 113.882,
+      "source_end": 117.232,
+      "sequence_start": 126.12299999999996,
+      "sequence_end": 129.47299999999996
+    },
+    {
+      "scene_id": "L05-05",
+      "text": "If your own paper map has a step without a named owner or a return path, circle it.",
+      "source_start": 117.552,
+      "source_end": 122.202,
+      "sequence_start": 129.79299999999998,
+      "sequence_end": 134.44299999999996
+    },
+    {
+      "scene_id": "L05-05",
+      "text": "That is the next design task.",
+      "source_start": 122.458,
+      "source_end": 124.165,
+      "sequence_start": 134.69899999999996,
+      "sequence_end": 136.40599999999998
+    },
+    {
+      "scene_id": "L05-06",
+      "text": "Pause.",
+      "source_start": 124.421,
+      "source_end": 125.095,
+      "sequence_start": 136.75599999999997,
+      "sequence_end": 137.43
+    },
+    {
+      "scene_id": "L05-06",
+      "text": "Could someone new find the current brief and its source check from this page alone?",
+      "source_start": 125.47,
+      "source_end": 129.545,
+      "sequence_start": 137.805,
+      "sequence_end": 141.87999999999994
+    },
+    {
+      "scene_id": "L05-06",
+      "text": "Name the first missing handoff.",
+      "source_start": 129.95,
+      "source_end": 131.785,
+      "sequence_start": 142.28499999999997,
+      "sequence_end": 144.11999999999995
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "Build the Operating Map in your Operating File.",
+      "source_start": 132.169,
+      "source_end": 134.516,
+      "sequence_start": 144.46999999999994,
+      "sequence_end": 146.81699999999992
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "Use a fictional or approved example.",
+      "source_start": 134.814,
+      "source_end": 137.001,
+      "sequence_start": 147.11499999999992,
+      "sequence_end": 149.30199999999994
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "Do not use private operational data.",
+      "source_start": 137.352,
+      "source_end": 139.891,
+      "sequence_start": 149.65299999999993,
+      "sequence_end": 152.19199999999992
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "Give every row the five columns.",
+      "source_start": 140.211,
+      "source_end": 142.558,
+      "sequence_start": 152.51199999999992,
+      "sequence_end": 154.8589999999999
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "Place the job, decision, source, receipt, memory proposal, and human owner.",
+      "source_start": 142.814,
+      "source_end": 148.403,
+      "sequence_start": 155.11499999999992,
+      "sequence_end": 160.70399999999992
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "Label closed paths for spending, publication, and external messages.",
+      "source_start": 148.702,
+      "source_end": 152.951,
+      "sequence_start": 161.0029999999999,
+      "sequence_end": 165.25199999999992
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "Then trace one failed source check: the note is stale, the draft stops, and Morgan receives a reason.",
+      "source_start": 153.232,
+      "source_end": 159.824,
+      "sequence_start": 165.53299999999993,
+      "sequence_end": 172.12499999999997
+    },
+    {
+      "scene_id": "L05-07",
+      "text": "We are making a design someone can review.",
+      "source_start": 160.144,
+      "source_end": 162.427,
+      "sequence_start": 172.4449999999999,
+      "sequence_end": 174.72799999999992
+    },
+    {
+      "scene_id": "L05-08",
+      "text": "Save revision five as a draft.",
+      "source_start": 162.832,
+      "source_end": 164.811,
+      "sequence_start": 220.07799999999992,
+      "sequence_end": 222.0569999999999
+    },
+    {
+      "scene_id": "L05-08",
+      "text": "A map earns its place when its blank cells stay visible and someone owns each repair.",
+      "source_start": 165.125,
+      "source_end": 170.75662131519275,
+      "sequence_start": 222.37099999999992,
+      "sequence_end": 228.00262131519264
+    }
+  ],
+  "guided_work_window": {
+    "start": 175.07799999999992,
+    "end": 220.07799999999992,
+    "duration": 45,
+    "purpose": "clearly signposted guided learner work"
+  },
+  "transition_policy": {
+    "sentence_complete_handoffs": true,
+    "ordinary_gap_seconds": 0.35,
+    "music_used": false,
+    "fixed_ten_minute_padding": false
+  },
+  "composite": {
+    "path": "agentified/workshop/l05-l08-continuous-narration/agentified-l05-continuous-narration-composite.mp4",
+    "sha256": "837d4ac51fd842655abba76e5ba7d23adc87598c0ea054d191692ab1765a06d4",
+    "duration_seconds": 237.682
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l05-continuous-narration-captions.srt",
+    "srt_sha256": "916a0a1e12261df2688531f4856c58a82e8f20dfd3ccfc42f862c46680077e3b",
+    "vtt_path": "agentified/workshop/l05-l08-continuous-narration/agentified-l05-continuous-narration-captions.vtt",
+    "vtt_sha256": "7cb7129680e5d640aa269d5238fd4ddfc83a50990ffa0a99a5cc8528b7845871"
+  },
+  "continuity_validation": {
+    "ordinary_silence_limit_seconds": 2.5,
+    "detected_silences": [
+      {
+        "start": 11.705375,
+        "end": 12.3275,
+        "duration": 0.6221250000000005
+      },
+      {
+        "start": 24.343667,
+        "end": 24.963062,
+        "duration": 0.6193950000000008
+      },
+      {
+        "start": 58.276312,
+        "end": 58.78725,
+        "duration": 0.510938000000003
+      },
+      {
+        "start": 66.719417,
+        "end": 67.279062,
+        "duration": 0.5596449999999891
+      },
+      {
+        "start": 74.262604,
+        "end": 74.8455,
+        "duration": 0.5828960000000052
+      },
+      {
+        "start": 80.824708,
+        "end": 81.48225,
+        "duration": 0.6575419999999923
+      },
+      {
+        "start": 88.847979,
+        "end": 89.406896,
+        "duration": 0.5589170000000081
+      },
+      {
+        "start": 111.768271,
+        "end": 112.285958,
+        "duration": 0.5176869999999951
+      },
+      {
+        "start": 136.411,
+        "end": 137.011646,
+        "duration": 0.6006460000000118
+      },
+      {
+        "start": 137.496833,
+        "end": 138.062542,
+        "duration": 0.5657089999999982
+      },
+      {
+        "start": 144.054062,
+        "end": 144.674208,
+        "duration": 0.6201460000000054
+      },
+      {
+        "start": 149.321229,
+        "end": 149.887729,
+        "duration": 0.5665000000000191
+      },
+      {
+        "start": 174.723167,
+        "end": 220.138062,
+        "duration": 45.414895
+      },
+      {
+        "start": 228.007521,
+        "end": 228.706333,
+        "duration": 0.6988120000000038
+      },
+      {
+        "start": 234.623854,
+        "end": 237.696,
+        "duration": 3.0721460000000036
+      }
+    ],
+    "allowed_quiet_windows": [
+      {
+        "start": 175.07799999999992,
+        "end": 220.07799999999992,
+        "duration": 45,
+        "purpose": "clearly signposted guided learner work",
+        "tolerance": 1.25
+      },
+      {
+        "start": 234.68262131519265,
+        "end": 237.68262131519265,
+        "duration": 3,
+        "purpose": "provider-free close",
+        "tolerance": 0.5
+      }
+    ],
+    "unexpected_silences": [],
+    "status": "pass"
+  },
+  "boundaries": {
+    "provider_calls_after_speech": 0,
+    "learner_playback_changed": false,
+    "narration_rewritten": false,
+    "publication_or_distribution": false
+  }
+}

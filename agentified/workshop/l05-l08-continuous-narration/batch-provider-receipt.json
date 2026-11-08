@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "four_narration_sources_completed_once_no_retry",
+  "source_commit": "a260c7593758fd6757ea21ef240a9abc83cc3725",
+  "batch_sha256": "398b0032f735cae199817634f997db89099dbf0c0a9b6c6c123d318c3067eeb1",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "requested_engine": "heygen_voice",
+  "jobs_submitted": 4,
+  "retries": 0,
+  "credits_before": 1250,
+  "credits_after": 1219,
+  "aggregate_credit_cost": 31,
+  "authorized_aggregate_cap": 40,
+  "cash_purchase_usd": 0,
+  "lessons": [
+    {
+      "lesson_id": "L05",
+      "credit_cost": 7,
+      "request_id": "6d6bca11c8d84670830ca94be95f9450",
+      "source_sha256": "b7f77b83dd8d5b20bc1c7390cbb0dd5ed955c44702660a67aca38e7116e8cfe0",
+      "duration_seconds": 170.997531
+    },
+    {
+      "lesson_id": "L06",
+      "credit_cost": 8,
+      "request_id": "3d3adb85f71f4519ab584875249a3999",
+      "source_sha256": "ba3ea1bff778bf93c3e7ba46c080d6a807d7490dc29e100e930d4d08b4de95a9",
+      "duration_seconds": 190.902844
+    },
+    {
+      "lesson_id": "L07",
+      "credit_cost": 8,
+      "request_id": "33ec983f99c44df19e856608323e5d8a",
+      "source_sha256": "4fa2d1c9abb2ff6a6e9059e8ea9ca188474e77195c2a779326568ce05f79e4b5",
+      "duration_seconds": 187.402438
+    },
+    {
+      "lesson_id": "L08",
+      "credit_cost": 8,
+      "request_id": "14a0bf6bfd924d3c9ee36a237bc3eda2",
+      "source_sha256": "5a14c2fd2c3fffb1e9cad2fd7c6637c0863d5dab60bb0df0aafd0dcad5cb06f1",
+      "duration_seconds": 188.316719
+    }
+  ]
+}
+

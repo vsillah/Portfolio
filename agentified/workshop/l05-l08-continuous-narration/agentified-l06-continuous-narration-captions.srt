@@ -1,0 +1,241 @@
+1
+00:00:00,000 --> 00:00:01,870
+The Operating Map has a row that says
+
+2
+00:00:01,870 --> 00:00:04,870
+‘prepare the Session Option Brief.’
+
+3
+00:00:05,420 --> 00:00:07,640
+Morgan asks a fair question: what is
+
+4
+00:00:07,700 --> 00:00:09,760
+this preparation role actually allowed
+
+5
+00:00:09,810 --> 00:00:11,110
+to read or change?
+
+6
+00:00:11,110 --> 00:00:13,440
+‘Be careful’ will not answer it.
+
+7
+00:00:13,890 --> 00:00:17,844
+One Friday, the facilitator note says
+'available for review.'
+
+8
+00:00:18,029 --> 00:00:24,422
+If the agent quietly treats that as permission
+to confirm a teacher, the map looks orderly
+while the work crosses a boundary.
+
+9
+00:00:24,586 --> 00:00:27,999
+We need a permission slip someone can inspect
+before the next draft.
+
+10
+00:00:28,349 --> 00:00:35,197
+Chapter Nine names five fields: scope, ceiling,
+reversibility, escalation, and expiry.
+
+11
+00:00:35,559 --> 00:00:39,340
+For Harbor, scope is three cleared course notes
+and a draft brief.
+
+12
+00:00:39,665 --> 00:00:41,777
+The ceiling is preparation only.
+
+13
+00:00:42,097 --> 00:00:49,725
+The role cannot change the source notes,
+approve a memory, book a room, contact a
+facilitator, or message participants.
+
+14
+00:00:50,057 --> 00:00:56,478
+Reversibility means Morgan can withdraw or
+revise a draft; it does not promise that a
+public message could be undone.
+
+15
+00:00:56,670 --> 00:00:59,975
+Escalation names Morgan for missing or
+conflicting evidence.
+
+16
+00:01:00,378 --> 00:01:05,007
+Expiry sends the proposed slip back for review
+before the next course planning cycle.
+
+17
+00:01:05,357 --> 00:01:12,717
+The workbook asks us to place an action on an
+authority ladder: prepare, recommend, route,
+stage, execute.
+
+18
+00:01:12,909 --> 00:01:15,134
+Our role sits at prepare.
+
+19
+00:01:15,397 --> 00:01:23,504
+Its proposed slip also names permitted source
+IDs, forbidden inputs, the receipt, source
+checks, an owner, and a revocation path.
+
+20
+00:01:23,717 --> 00:01:26,502
+A source that was cleared last week may expire.
+
+21
+00:01:26,811 --> 00:01:34,171
+A rule written in a prompt is not enough for
+our paper design; the permission needs to be
+visible beside the job and decision.
+
+22
+00:01:34,577 --> 00:01:36,987
+This exercise grants no real permission.
+
+23
+00:01:37,337 --> 00:01:39,478
+Now test the value of the work itself.
+
+24
+00:01:39,826 --> 00:01:45,458
+Suppose Harbor also has a second paper role
+that drafts a daily weather summary for
+possible workshops.
+
+25
+00:01:45,672 --> 00:01:46,610
+Nobody reads it.
+
+26
+00:01:46,781 --> 00:01:49,697
+It has a clean receipt, but no decision uses
+it.
+
+27
+00:01:49,924 --> 00:01:57,178
+Chapter Ten calls for a Quarterly Cull: proof
+delivered, permission current, and would we
+build it again today?
+
+28
+00:01:57,604 --> 00:02:03,479
+The session brief has a named decision and
+reviewer, though its value is still only a
+classroom hypothesis.
+
+29
+00:02:03,722 --> 00:02:05,727
+The weather summary fails the proof test.
+
+30
+00:02:05,941 --> 00:02:12,127
+In this exercise we recommend retirement for
+human review; we do not delete a trigger or
+revoke a live tool.
+
+31
+00:02:12,477 --> 00:02:14,639
+A retirement decision needs a person too.
+
+32
+00:02:14,881 --> 00:02:24,950
+If a real agent existed, a human owner would
+review the evidence, sign the sunset, revoke
+access, archive governed memory, remove
+triggers, and record the change.
+
+33
+00:02:25,334 --> 00:02:27,392
+Neglect leaves permissions behind.
+
+34
+00:02:27,785 --> 00:02:32,414
+Here, there is no running agent, no trigger,
+and no memory to remove.
+
+35
+00:02:32,734 --> 00:02:35,188
+Write the proposed decision and its reason.
+
+36
+00:02:35,550 --> 00:02:37,598
+Keep the external world untouched.
+
+37
+00:02:37,811 --> 00:02:42,356
+The same human discipline governs adding a
+capability and taking one away.
+
+38
+00:02:42,706 --> 00:02:43,333
+Pause.
+
+39
+00:02:43,703 --> 00:02:48,887
+Which line in the slip would prevent a
+well-written brief from turning into an
+unauthorized announcement?
+
+40
+00:02:49,237 --> 00:02:51,840
+Write the Permission Slip for the preparation
+role.
+
+41
+00:02:52,097 --> 00:03:02,309
+Include each of the five fields, its authority
+rung, read and write scope, retention rule,
+source check, receipt, approval owner, review
+date, and revocation path.
+
+42
+00:03:02,622 --> 00:03:07,529
+Then run the Quarterly Cull on the session
+brief role and the course weather-summary role.
+
+43
+00:03:07,870 --> 00:03:12,307
+Use the three tests and record keep, narrow, or
+retirement proposal.
+
+44
+00:03:12,606 --> 00:03:14,706
+Use a fictional or approved example.
+
+45
+00:03:15,058 --> 00:03:18,833
+Do not use private operational data or grant a
+real permission.
+
+46
+00:04:04,183 --> 00:04:05,932
+Save revision six as a draft.
+
+47
+00:04:06,231 --> 00:04:09,766
+A role's permission and its reason to exist
+both need renewal.
+
+48
+00:04:10,316 --> 00:04:12,266
+Next we will give the work a tighter
+
+49
+00:04:12,336 --> 00:04:14,386
+requirement packet and decide how a
+
+50
+00:04:14,446 --> 00:04:15,616
+small team would share it.
