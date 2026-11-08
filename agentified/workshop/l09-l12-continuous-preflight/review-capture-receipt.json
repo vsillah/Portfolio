@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "batch_sha256": "c339600cab53a406b01ae80399354bf718e94a36863322f934d795c424aa6ed5",
+  "review_html_sha256": "90cdad75f2f83fb0c06be98527b27bdae072200663b703634a1aa60298488bd4",
+  "walkthroughs": [
+    {
+      "viewport": "desktop",
+      "path": "desktop-walkthrough.mp4",
+      "sha256": "a449abd2e8e1c05bb5c78595df6f32cd072b68ffe9e570511df83e97d17e7963",
+      "duration_seconds": 13.28,
+      "codec": "h264",
+      "width": 1280,
+      "height": 800,
+      "states_checked": 16,
+      "countdowns_verified": 4
+    },
+    {
+      "viewport": "mobile",
+      "path": "mobile-walkthrough.mp4",
+      "sha256": "4fc1ee74e9d1e0e4faa1d573d1a0809092c1c3d8de0031291fa753733e1b6f84",
+      "duration_seconds": 12.96,
+      "codec": "h264",
+      "width": 390,
+      "height": 844,
+      "states_checked": 16,
+      "countdowns_verified": 4
+    }
+  ],
+  "provider_calls": 0,
+  "generated_audio": 0,
+  "spend_usd": 0,
+  "privacy": "synthetic approved packet text and local plates only"
+}

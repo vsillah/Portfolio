@@ -1,0 +1,610 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_review_candidate",
+  "lesson_id": "L11",
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "packet_path": "agentified/workshop/scene-production/packets/L11.json",
+  "packet_sha256": "1302b2a29c6b0bcec3d1d049bc7b53de25ab9a8d72c3dfa65dc7af368297fde1",
+  "script_sha256": "adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "provider_jobs_submitted": 0,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_execution_cap_usd": 0,
+  "proposed_identity": {
+    "look_name": "Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
+    "offscreen_voice_id": "4f53988b1c314610b514db98432fd0ef",
+    "status": "historical precedent only; L09-L12 purpose-specific rights pending"
+  },
+  "presenter_passages": [
+    {
+      "scene_id": "L11-01",
+      "storyboard_reservation": {
+        "start_seconds": 0,
+        "end_seconds": 19.666,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Morgan comes to Harbor's Friday planning table with three open questions. Is the room note still current? Who is checking the facilitator? Did anyone approve the print request? If the answers live in three people's heads, Morgan becomes the operating system.",
+      "passage_sha256": "93baf863506baf3d19c2d8a5a8e7c99a83d1fb8991f0c464d9345be36cb744d0",
+      "provisional_speech_seconds": 19.666,
+      "caption_count": 5,
+      "native_media_path": null,
+      "native_media_sha256": null
+    },
+    {
+      "scene_id": "L11-08",
+      "storyboard_reservation": {
+        "start_seconds": 585.979,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build.",
+      "passage_sha256": "12796a1cb3e3b0a3b92d326cc05e68c8fc871f36739c6328185d01dc6b78aaf8",
+      "provisional_speech_seconds": 10.021,
+      "caption_count": 1,
+      "native_media_path": null,
+      "native_media_sha256": null
+    }
+  ],
+  "offscreen_narration": {
+    "text": "We already have receipts, a handoff, a rubric, a review posture, and two held decisions. Put them where a second team member could see the state and take the next authorized step.\n\nChapter Nineteen calls this a cockpit. Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note. Add owner, age, cost signal, approval queue, and a link to the source trace. A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. This is a paper sketch, not a screenshot of a running system.\n\nUse the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. There is no need to display individual speed rankings or make a teammate's latency look like failure. The cockpit should reduce guessing, not pressure people into faster approval.\n\nChapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate. On a real system, each rung would need a defined authority window and trace. On Harbor's paper design, a status update may be drafted as a notify card. The staffing gap is an ask to Morgan for direction. A proposed announcement or purchase escalates to a separate, named human gate. A mobile card may point Morgan to the full brief and source status. It must never hide a missing note behind an approve button.\n\nThe phone is a narrow doorway into the cockpit. A good card says what is held, why, who owns it, and where to open the complete evidence. It can invite a comment or route the issue within a previously defined scope. It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure. Every paper disposition returns to the same trace. A small screen does not make a consequential decision smaller.\n\nPause. If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?\n\nSketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. Show status, blocker, owner, age, source pointer, next safe step, and decision destination. Assign each message to a ladder rung. Label what can be handled in the sketch and what must open the full review. Include a route for stale evidence and a closed spend gate. Use a fictional or approved example. Do not use private operational data or paste a real message, agent run, person, or client record.\n\nSave revision eleven as a draft. The test is simple: can a second person understand why the work is held and who can move it?",
+    "text_sha256": "48b21361d4e21af8e942db81e72f074ce267a8847303e6f0d5a3fb30914cd351",
+    "word_count": 509,
+    "segments": [
+      {
+        "scene_id": "L11-01",
+        "text": "We already have receipts, a handoff, a rubric, a review posture, and two held decisions. Put them where a second team member could see the state and take the next authorized step.",
+        "sha256": "36a128df4a69b821f8f2fbe508ce5e4daa81229a341d710d62c633de9c5c54bb"
+      },
+      {
+        "scene_id": "L11-02",
+        "text": "Chapter Nineteen calls this a cockpit. Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note. Add owner, age, cost signal, approval queue, and a link to the source trace. A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path. This is a paper sketch, not a screenshot of a running system.",
+        "sha256": "683663335af0a0a0f2a5825826e5d9a7661667d15dd81c3e8427988b18d11a1f"
+      },
+      {
+        "scene_id": "L11-03",
+        "text": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed. For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold. There is no need to display individual speed rankings or make a teammate's latency look like failure. The cockpit should reduce guessing, not pressure people into faster approval.",
+        "sha256": "213059483df93c495d2c067f59c758cea30b1844389329b87396730e1c3832c0"
+      },
+      {
+        "scene_id": "L11-04",
+        "text": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate. On a real system, each rung would need a defined authority window and trace. On Harbor's paper design, a status update may be drafted as a notify card. The staffing gap is an ask to Morgan for direction. A proposed announcement or purchase escalates to a separate, named human gate. A mobile card may point Morgan to the full brief and source status. It must never hide a missing note behind an approve button.",
+        "sha256": "5eea960f21d55dc2e1ff54598b8a4bed7bf9fb10dd3490366eed110fee9dc8a5"
+      },
+      {
+        "scene_id": "L11-05",
+        "text": "The phone is a narrow doorway into the cockpit. A good card says what is held, why, who owns it, and where to open the complete evidence. It can invite a comment or route the issue within a previously defined scope. It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure. Every paper disposition returns to the same trace. A small screen does not make a consequential decision smaller.",
+        "sha256": "8d46da9892e1e8e94b23d0c65d07b12d0ea1a8908e3a24730d8f3bd843ccc78a"
+      },
+      {
+        "scene_id": "L11-06",
+        "text": "Pause. If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?",
+        "sha256": "7b2166c9c9b2931ad90197fbc967b56c7ce40eabb971fe31dab46b71ca522bc2"
+      },
+      {
+        "scene_id": "L11-07",
+        "text": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief. Show status, blocker, owner, age, source pointer, next safe step, and decision destination. Assign each message to a ladder rung. Label what can be handled in the sketch and what must open the full review. Include a route for stale evidence and a closed spend gate. Use a fictional or approved example. Do not use private operational data or paste a real message, agent run, person, or client record.",
+        "sha256": "2559cc0862780a3ad55fa69b8d88b24147a6098fa6baed675a056b11869c37ea"
+      },
+      {
+        "scene_id": "L11-08",
+        "text": "Save revision eleven as a draft. The test is simple: can a second person understand why the work is held and who can move it?",
+        "sha256": "482fa71c559ea5954db9b02df6159030cf72bd7668b5ac3dfa87d5d08d015d6b"
+      }
+    ],
+    "new_audio_path": null,
+    "new_audio_sha256": null
+  },
+  "timing": {
+    "status": "provisional_cue_derived; native_audio_required",
+    "original_storyboard_seconds": 600,
+    "proposed_continuous_seconds": 307,
+    "spoken_seconds": 258,
+    "ordinary_gap_limit_seconds": 2.5,
+    "actual_native_timing_seconds": null,
+    "no_fixed_ten_minute_padding": true,
+    "cues": [
+      {
+        "scene_id": "L11-01",
+        "speaker": "presenter",
+        "start_seconds": 0,
+        "end_seconds": 5.619,
+        "text": "Morgan comes to Harbor's Friday planning table with three open questions.",
+        "source_start_seconds": 0,
+        "source_end_seconds": 5.619
+      },
+      {
+        "scene_id": "L11-01",
+        "speaker": "presenter",
+        "start_seconds": 5.619,
+        "end_seconds": 8.049,
+        "text": "Is the room note still current?",
+        "source_start_seconds": 5.619,
+        "source_end_seconds": 8.049
+      },
+      {
+        "scene_id": "L11-01",
+        "speaker": "presenter",
+        "start_seconds": 8.049,
+        "end_seconds": 10.554,
+        "text": "Who is checking the facilitator?",
+        "source_start_seconds": 8.049,
+        "source_end_seconds": 10.554
+      },
+      {
+        "scene_id": "L11-01",
+        "speaker": "presenter",
+        "start_seconds": 10.554,
+        "end_seconds": 13.44,
+        "text": "Did anyone approve the print request?",
+        "source_start_seconds": 10.554,
+        "source_end_seconds": 13.44
+      },
+      {
+        "scene_id": "L11-01",
+        "speaker": "presenter",
+        "start_seconds": 13.44,
+        "end_seconds": 19.666,
+        "text": "If the answers live in three people's heads, Morgan becomes the operating system.",
+        "source_start_seconds": 13.44,
+        "source_end_seconds": 19.666
+      },
+      {
+        "scene_id": "L11-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 19.666,
+        "end_seconds": 26.296,
+        "text": "We already have receipts, a handoff, a rubric, a review posture, and two held decisions.",
+        "source_start_seconds": 19.666,
+        "source_end_seconds": 26.296
+      },
+      {
+        "scene_id": "L11-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 26.296,
+        "end_seconds": 33,
+        "text": "Put them where a second team member could see the state and take the next authorized step.",
+        "source_start_seconds": 26.296,
+        "source_end_seconds": 33
+      },
+      {
+        "scene_id": "L11-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 33,
+        "end_seconds": 36.048,
+        "text": "Chapter Nineteen calls this a cockpit.",
+        "source_start_seconds": 70,
+        "source_end_seconds": 73.048
+      },
+      {
+        "scene_id": "L11-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 36.048,
+        "end_seconds": 55.43,
+        "text": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+        "source_start_seconds": 73.048,
+        "source_end_seconds": 92.43
+      },
+      {
+        "scene_id": "L11-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 55.43,
+        "end_seconds": 61.448,
+        "text": "Add owner, age, cost signal, approval queue, and a link to the source trace.",
+        "source_start_seconds": 92.43,
+        "source_end_seconds": 98.448
+      },
+      {
+        "scene_id": "L11-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 61.448,
+        "end_seconds": 72.233,
+        "text": "A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path.",
+        "source_start_seconds": 98.448,
+        "source_end_seconds": 109.233
+      },
+      {
+        "scene_id": "L11-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 72.233,
+        "end_seconds": 77,
+        "text": "This is a paper sketch, not a screenshot of a running system.",
+        "source_start_seconds": 109.233,
+        "source_end_seconds": 114
+      },
+      {
+        "scene_id": "L11-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 77,
+        "end_seconds": 87.47,
+        "text": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed.",
+        "source_start_seconds": 145,
+        "source_end_seconds": 155.47
+      },
+      {
+        "scene_id": "L11-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 87.47,
+        "end_seconds": 101.894,
+        "text": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold.",
+        "source_start_seconds": 155.47,
+        "source_end_seconds": 169.894
+      },
+      {
+        "scene_id": "L11-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 101.894,
+        "end_seconds": 109.362,
+        "text": "There is no need to display individual speed rankings or make a teammate's latency look like failure.",
+        "source_start_seconds": 169.894,
+        "source_end_seconds": 177.362
+      },
+      {
+        "scene_id": "L11-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 109.362,
+        "end_seconds": 115,
+        "text": "The cockpit should reduce guessing, not pressure people into faster approval.",
+        "source_start_seconds": 177.362,
+        "source_end_seconds": 183
+      },
+      {
+        "scene_id": "L11-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 115,
+        "end_seconds": 120.942,
+        "text": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate.",
+        "source_start_seconds": 215,
+        "source_end_seconds": 220.942
+      },
+      {
+        "scene_id": "L11-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 120.942,
+        "end_seconds": 126.963,
+        "text": "On a real system, each rung would need a defined authority window and trace.",
+        "source_start_seconds": 220.942,
+        "source_end_seconds": 226.963
+      },
+      {
+        "scene_id": "L11-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 126.963,
+        "end_seconds": 132.827,
+        "text": "On Harbor's paper design, a status update may be drafted as a notify card.",
+        "source_start_seconds": 226.963,
+        "source_end_seconds": 232.827
+      },
+      {
+        "scene_id": "L11-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 132.827,
+        "end_seconds": 136.893,
+        "text": "The staffing gap is an ask to Morgan for direction.",
+        "source_start_seconds": 232.827,
+        "source_end_seconds": 236.893
+      },
+      {
+        "scene_id": "L11-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 136.893,
+        "end_seconds": 143.07,
+        "text": "A proposed announcement or purchase escalates to a separate, named human gate.",
+        "source_start_seconds": 236.893,
+        "source_end_seconds": 243.07
+      },
+      {
+        "scene_id": "L11-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 143.07,
+        "end_seconds": 148.387,
+        "text": "A mobile card may point Morgan to the full brief and source status.",
+        "source_start_seconds": 243.07,
+        "source_end_seconds": 248.387
+      },
+      {
+        "scene_id": "L11-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 148.387,
+        "end_seconds": 153,
+        "text": "It must never hide a missing note behind an approve button.",
+        "source_start_seconds": 248.387,
+        "source_end_seconds": 253
+      },
+      {
+        "scene_id": "L11-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 153,
+        "end_seconds": 156.815,
+        "text": "The phone is a narrow doorway into the cockpit.",
+        "source_start_seconds": 290,
+        "source_end_seconds": 293.815
+      },
+      {
+        "scene_id": "L11-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 156.815,
+        "end_seconds": 163.967,
+        "text": "A good card says what is held, why, who owns it, and where to open the complete evidence.",
+        "source_start_seconds": 293.815,
+        "source_end_seconds": 300.967
+      },
+      {
+        "scene_id": "L11-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 163.967,
+        "end_seconds": 170.166,
+        "text": "It can invite a comment or route the issue within a previously defined scope.",
+        "source_start_seconds": 300.967,
+        "source_end_seconds": 307.166
+      },
+      {
+        "scene_id": "L11-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 170.166,
+        "end_seconds": 180.02,
+        "text": "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure.",
+        "source_start_seconds": 307.166,
+        "source_end_seconds": 317.02
+      },
+      {
+        "scene_id": "L11-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 180.02,
+        "end_seconds": 184.073,
+        "text": "Every paper disposition returns to the same trace.",
+        "source_start_seconds": 317.02,
+        "source_end_seconds": 321.073
+      },
+      {
+        "scene_id": "L11-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 184.073,
+        "end_seconds": 189,
+        "text": "A small screen does not make a consequential decision smaller.",
+        "source_start_seconds": 321.073,
+        "source_end_seconds": 326
+      },
+      {
+        "scene_id": "L11-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 189,
+        "end_seconds": 189.558,
+        "text": "Pause.",
+        "source_start_seconds": 355,
+        "source_end_seconds": 355.558
+      },
+      {
+        "scene_id": "L11-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 189.558,
+        "end_seconds": 198,
+        "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?",
+        "source_start_seconds": 355.558,
+        "source_end_seconds": 364
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 198,
+        "end_seconds": 206.231,
+        "text": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief.",
+        "source_start_seconds": 375,
+        "source_end_seconds": 383.231
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 206.231,
+        "end_seconds": 213.308,
+        "text": "Show status, blocker, owner, age, source pointer, next safe step, and decision destination.",
+        "source_start_seconds": 383.231,
+        "source_end_seconds": 390.308
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 213.308,
+        "end_seconds": 216.231,
+        "text": "Assign each message to a ladder rung.",
+        "source_start_seconds": 390.308,
+        "source_end_seconds": 393.231
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 216.231,
+        "end_seconds": 222.077,
+        "text": "Label what can be handled in the sketch and what must open the full review.",
+        "source_start_seconds": 393.231,
+        "source_end_seconds": 399.077
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 222.077,
+        "end_seconds": 226.692,
+        "text": "Include a route for stale evidence and a closed spend gate.",
+        "source_start_seconds": 399.077,
+        "source_end_seconds": 403.692
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 226.692,
+        "end_seconds": 229.538,
+        "text": "Use a fictional or approved example.",
+        "source_start_seconds": 403.692,
+        "source_end_seconds": 406.538
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 229.538,
+        "end_seconds": 237,
+        "text": "Do not use private operational data or paste a real message, agent run, person, or client record.",
+        "source_start_seconds": 406.538,
+        "source_end_seconds": 414
+      },
+      {
+        "scene_id": "L11-07",
+        "speaker": "guided_work_pause",
+        "start_seconds": 237,
+        "end_seconds": 282,
+        "text": "Create a `Mission Control Cockpit` card and an `Unblock Ladder` for the same fictional Harbor job. The card needs status, blocker, owner, due or age signal, evidence pointer, cost/spend status, next authorized action, recovery, and disposition history. The ladder must distinguish `auto-run`, `notify`, `ask`, and `escalate`, with allowed response, trace event, deep link, and forbidden actions. Mark anything requiring full review as a handoff to the cockpit, not a one-tap mobile approval.",
+        "visual": "visible synchronized countdown from 45 to 0; no music"
+      },
+      {
+        "scene_id": "L11-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 282,
+        "end_seconds": 284.876,
+        "text": "Save revision eleven as a draft.",
+        "source_start_seconds": 575,
+        "source_end_seconds": 577.876
+      },
+      {
+        "scene_id": "L11-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 284.876,
+        "end_seconds": 292.979,
+        "text": "The test is simple: can a second person understand why the work is held and who can move it?",
+        "source_start_seconds": 577.876,
+        "source_end_seconds": 585.979
+      },
+      {
+        "scene_id": "L11-08",
+        "speaker": "presenter",
+        "start_seconds": 292.979,
+        "end_seconds": 303,
+        "text": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build.",
+        "source_start_seconds": 585.979,
+        "source_end_seconds": 596
+      }
+    ],
+    "guided_work_pause_seconds": 45,
+    "closing_card": {
+      "scene_id": "L11-08",
+      "start_seconds": 303,
+      "end_seconds": 307,
+      "duration_seconds": 4,
+      "audience_copy_exact": [
+        "Operating File v11: cockpit + unblock.",
+        "Next: scoped proof."
+      ],
+      "treatment": "approved provider-free ending copy"
+    },
+    "rule": "Retain exact speech in order; change picture only at a sentence-complete spoken handoff; one speaker at a time; preserve native presenter source frame rate and audio; re-time captions after native recordings."
+  },
+  "visuals": [
+    {
+      "scene_id": "L11-02",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "use": "Four-rung Unblock Ladder beside a phone-shaped *wireframe*, not an app capture.",
+      "text_equivalent": "approved plate needs final scene-specific text alternative before publication"
+    }
+  ],
+  "cover": {
+    "path": "public/agentified/posters/l11-poster.webp",
+    "sha256": "2140de4f66c273e89ff5dfa0f8d0f308fd36c7372dc60ad393d93924179ff7c8",
+    "use": "static poster and internal animatic only; video locked"
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "cockpit-and-unblock",
+      "revision": 11,
+      "status": "draft",
+      "update_exact": "`cockpit-and-unblock` → `cockpit` and `unblock-ladder`, revision 11, status `draft`; carries forward the prepare-only authority and held staffing and spend decisions."
+    },
+    "chapter_sources": [
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch19-mission-control.md",
+        "sha256": "5b65bd6692814092fffe62fefafe150cf82f4fe6092a37ab78139b18e698e027"
+      },
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch20-slack-is-the-unblock-lane.md",
+        "sha256": "06a859ee777b258c7cad132878243d40736c9fde996f31bf140601c7c49ebe16"
+      }
+    ],
+    "source_ids_policy": "protected synthetic trace only; no source IDs in provider request"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L11.json",
+      "sha256": "1302b2a29c6b0bcec3d1d049bc7b53de25ab9a8d72c3dfa65dc7af368297fde1"
+    },
+    {
+      "path": "agentified/workshop/scripts/L11-cockpit-and-unblock.md",
+      "sha256": "adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413"
+    },
+    {
+      "path": "public/agentified/posters/l11-poster.webp",
+      "sha256": "2140de4f66c273e89ff5dfa0f8d0f308fd36c7372dc60ad393d93924179ff7c8"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch19-mission-control.md",
+      "sha256": "5b65bd6692814092fffe62fefafe150cf82f4fe6092a37ab78139b18e698e027"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch20-slack-is-the-unblock-lane.md",
+      "sha256": "06a859ee777b258c7cad132878243d40736c9fde996f31bf140601c7c49ebe16"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4"
+    }
+  ],
+  "gates": [
+    "purpose-specific L09-L12 look and voice approval",
+    "fresh provider quote, balance and enforceable one-job and batch caps",
+    "separate exact execution authorization",
+    "native audio timing and sentence-level edit audit",
+    "caption, diagram alt, mobile/desktop and final MP4 review"
+  ],
+  "stop_conditions": [
+    "source, rights, identity, voice or packet drift",
+    "uncertain job outcome or provider error; no retry",
+    "cost cap uncertainty or unexpected debit",
+    "narration omission, repetition or altered meaning",
+    "ordinary gap over 2.5 seconds",
+    "topic cut before sentence-complete handoff",
+    "visual clipping, label collision or unreadable captions"
+  ],
+  "candidate_sha256": "7a139886e0f6b35daf35bab1b44ab4eb582127cd4aadedbcf59f810011cc74b8"
+}

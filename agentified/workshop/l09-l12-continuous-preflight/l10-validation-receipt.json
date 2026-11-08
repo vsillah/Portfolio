@@ -1,0 +1,15 @@
+{
+  "lesson_id": "L10",
+  "candidate_sha256": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8",
+  "packet_sha256": "265b07c07604510aee75e39fd0ef658e05cba86f8db01e1b2fd3c41d85f38459",
+  "script_sha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a",
+  "speech_text_sha256": "2a7ecd227e196a9df464f1c431effcffff5f94c458f64e769400a874f1d47b3b",
+  "source_binding_count": 13,
+  "approved_visual_count": 1,
+  "provisional_continuous_seconds": 307,
+  "guided_pause_seconds": 45,
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "spend_usd": 0,
+  "status": "validated_provider_free; execution_blocked"
+}
