@@ -4,8 +4,8 @@
   "recorded_on": "2026-11-08",
   "status": "human_direction",
   "previous_treatment": "provider-free background removal",
-  "approved_treatment": "provider-free chroma key into the approved teal teaching panel",
-  "reason": "The provider returned a chroma-green field rather than a realistic background. The immutable source remains unchanged; only the review composite removes the green field.",
+  "approved_treatment": "provider-free conservative chroma key into the approved teal teaching panel",
+  "reason": "The provider returned a chroma-green field rather than a realistic background. The immutable source remains unchanged. A version-bound similarity of 0.065 and blend of 0.08 remove the field without making facial detail partially transparent.",
   "scope": "Agentified L01 Gray Sweater replacement source and provider-free composite only",
   "unchanged": [
     "approved narration",

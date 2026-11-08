@@ -19,7 +19,17 @@ describe('approved Agentified L01 media binding', () => {
     expect(timeline.lesson_duration_seconds).toBe(media.durationSeconds)
     expect(timeline.native_speed).toBe(1)
     expect(timeline.approved_closing_card).toEqual({ start: 523, end: 540 })
-    expect(timeline.source_background.treatment).toBe('provider_free_chroma_key')
+    expect(timeline.source_background).toMatchObject({
+      treatment: 'provider_free_conservative_chroma_key',
+      similarity: 0.065,
+      blend: 0.08,
+    })
+    expect(timeline.transitions).toEqual({
+      treatment: 'provider_free_crossfade',
+      opening_fade_seconds: 0.35,
+      handoff_fade_seconds: 0.55,
+      closing_fade_seconds: 0.3,
+    })
   })
 
   it('keeps the read-along spoken cues aligned with the approved VTT', () => {

@@ -43,8 +43,16 @@
     "fit": "contain",
     "border": "solid_gold"
   },
+  "transitions": {
+    "treatment": "provider_free_crossfade",
+    "opening_fade_seconds": 0.35,
+    "handoff_fade_seconds": 0.55,
+    "closing_fade_seconds": 0.3
+  },
   "source_background": {
-    "treatment": "provider_free_chroma_key",
-    "reason": "The provider returned a chroma-green field rather than a realistic background; the native source remains unchanged while the composite keys the field into the approved teal teaching panel."
+    "treatment": "provider_free_conservative_chroma_key",
+    "similarity": 0.065,
+    "blend": 0.08,
+    "reason": "A conservative, version-bound key removes the provider green field while preserving native facial detail. The source remains unchanged."
   }
 }

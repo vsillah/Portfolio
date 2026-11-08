@@ -14,7 +14,7 @@
     },
     "composite": {
       "path": "agentified-l01-gray-sweater-composite.mp4",
-      "sha256": "bec9f2910b638bae91c3ba11c61a9ff1a7175ad5639d713a629b4c21553c7345",
+      "sha256": "57c2907224e9ac15e304bb4c43b47f8881c8eb09ecab293d02c92d5958b306ce",
       "duration_seconds": 540.0,
       "width": 1920,
       "height": 1080,
@@ -39,10 +39,12 @@
     "native_speed": "pass",
     "sentence_complete_handoffs": "pass",
     "presenter_windows": "pass",
-    "provider_free_chroma_key": "pass",
+    "provider_free_conservative_chroma_key": "pass",
+    "facial_detail_preserved": "pass",
+    "sentence_handoff_crossfades": "pass",
     "instructional_content_unobscured": "pass",
     "approved_closing_card_preserved": "pass",
-    "learner_playback_unchanged": "pass"
+    "learner_binding_candidate_versioned": "pass"
   },
   "boundaries": {
     "review_only": true,
