@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "status": "validated_provider_free_preflight_only",
+  "provider_calls": 0,
+  "media_generated": 0,
+  "spend_usd": 0,
+  "candidate_sha256": "86587e8fbbf8673d18138603b5d4de825f2d7125acdced35cb686728c742e34d",
+  "checks": {
+    "exact_approved_narration": true,
+    "existing_presenter_passages_excluded": true,
+    "one_speech_call": true,
+    "request_under_character_limit": true,
+    "version_bound_placements": true,
+    "intentional_quiet_work_preserved": true,
+    "execution_blocked": true
+  }
+}

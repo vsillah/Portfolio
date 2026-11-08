@@ -1,0 +1,265 @@
+1
+00:00:00,200 --> 00:00:01,699
+Friday afternoon.
+
+2
+00:00:01,899 --> 00:00:04,458
+Morgan runs a small community learning program.
+
+3
+00:00:04,458 --> 00:00:10,075
+For this course, we’ll follow Harbor Learning
+Circle, an illustrative case built from
+fictional records.
+
+4
+00:00:10,075 --> 00:00:13,633
+Someone suggests adding a free digital-skills
+session next month.
+
+5
+00:00:13,633 --> 00:00:20,272
+Three notes are on the table: an attendance
+count, a facilitator availability note, and a
+room-capacity note.
+
+6
+00:00:27,155 --> 00:00:31,252
+An assistant can turn those into a neat
+recommendation in seconds.
+
+7
+00:00:38,135 --> 00:00:40,769
+But if Morgan asks, ‘Where did this come from?’
+
+8
+00:00:47,652 --> 00:00:50,044
+a polished paragraph is thin protection.
+
+9
+00:00:56,927 --> 00:00:58,117
+The work needs a trail.
+
+10
+00:01:05,000 --> 00:01:09,595
+Our job today is small: design one preparation
+role and one receipt.
+
+11
+00:01:13,612 --> 00:01:16,553
+The agent does not decide whether the session
+happens.
+
+12
+00:01:20,570 --> 00:01:23,527
+It prepares a Session Option Brief for Morgan
+to review.
+
+13
+00:01:27,544 --> 00:01:29,160
+That distinction matters.
+
+14
+00:01:33,178 --> 00:01:38,853
+If we give the system a loose command like ‘run
+the workshop program,’ we have no useful
+boundary.
+
+15
+00:01:42,870 --> 00:01:44,882
+What exactly begins its work?
+
+16
+00:01:48,899 --> 00:01:50,111
+What can it read?
+
+17
+00:01:54,128 --> 00:01:55,770
+What must it hand back?
+
+18
+00:01:59,787 --> 00:02:01,270
+Who owns the outcome?
+
+19
+00:02:05,287 --> 00:02:07,865
+These are ordinary management questions.
+
+20
+00:02:11,882 --> 00:02:15,983
+They become more urgent when a tool can produce
+work while nobody is watching.
+
+21
+00:02:20,000 --> 00:02:29,597
+Write the job in one sentence: ‘When Morgan
+requests a monthly session review, prepare one
+brief comparing a proposed free session against
+the three cleared inputs.’
+
+22
+00:02:35,374 --> 00:02:37,641
+The trigger is Morgan's request.
+
+23
+00:02:43,418 --> 00:02:45,642
+The output is a draft brief.
+
+24
+00:02:51,419 --> 00:02:52,313
+The manager is Morgan.
+
+25
+00:02:58,090 --> 00:03:05,869
+The measure is whether Morgan can check the
+claim and source for every recommendation
+without chasing the agent through a log.
+
+26
+00:03:11,646 --> 00:03:18,074
+The forbidden actions are just as plain: no
+booking, no announcement, no message to
+participants, no spending.
+
+27
+00:03:23,851 --> 00:03:29,223
+A useful agent job names the work it finishes
+and the work it leaves alone.
+
+28
+00:03:35,000 --> 00:03:36,906
+Now attach the receipt.
+
+29
+00:03:43,257 --> 00:03:46,397
+Imagine the brief says the room can hold twenty
+people.
+
+30
+00:03:52,748 --> 00:04:01,202
+Morgan needs to see which note supplied that
+number, when the brief was prepared, what the
+agent actually did, and whether anyone approved
+it.
+
+31
+00:04:07,553 --> 00:04:13,271
+The receipt also records cost or resource use,
+outcome, and how to pull the draft back.
+
+32
+00:04:19,622 --> 00:04:21,531
+A blank field stays blank and gets an owner.
+
+33
+00:04:27,882 --> 00:04:31,696
+We never fill a gap with a confident guess.
+
+34
+00:04:38,047 --> 00:04:43,649
+The first receipt is a handoff a busy person
+can understand; the engineering log can remain
+behind it.
+
+35
+00:04:50,000 --> 00:04:53,255
+In our case, approval is ‘pending Morgan.’
+
+36
+00:04:57,795 --> 00:05:00,189
+The outcome is ‘draft prepared, no session
+selected.’
+
+37
+00:05:04,729 --> 00:05:11,568
+The rollback is ‘withdraw the draft from the
+review folder and mark it superseded.’
+
+38
+00:05:16,109 --> 00:05:20,101
+If the source for room capacity is missing,
+mark the brief blocked.
+
+39
+00:05:24,641 --> 00:05:31,454
+A complete-looking card without a source can
+move bad information faster than an obviously
+unfinished one.
+
+40
+00:05:35,995 --> 00:05:40,460
+The receipt makes that gap visible before
+anyone treats the draft as a decision.
+
+41
+00:05:45,000 --> 00:05:46,017
+Take a moment.
+
+42
+00:05:46,826 --> 00:05:49,353
+Picture one workflow in your own work.
+
+43
+00:05:50,162 --> 00:05:53,297
+Keep this exercise on paper or in a local
+draft.
+
+44
+00:05:54,106 --> 00:05:56,619
+Use a fictional or approved example.
+
+45
+00:05:57,428 --> 00:05:59,976
+Do not use private operational data.
+
+46
+00:06:00,785 --> 00:06:04,191
+What is the one useful output, and who would
+have to defend it?
+
+47
+00:06:05,000 --> 00:06:07,478
+Fill the Job and Receipt boxes.
+
+48
+00:06:07,728 --> 00:06:12,380
+Name the trigger, permitted inputs, output,
+human manager, success check, and three
+forbidden actions.
+
+49
+00:06:12,630 --> 00:06:15,859
+Then fill the nine receipt fields for one
+imaginary run.
+
+50
+00:06:16,109 --> 00:06:24,064
+If you cannot name a source, approval state, or
+rollback, write ‘unknown’ and the person who
+must resolve it.
+
+51
+00:06:24,314 --> 00:06:27,240
+Do not open a real system to complete this
+exercise.
+
+52
+00:06:27,490 --> 00:06:34,545
+The point is to see the shape of the work
+before asking a tool to do it.
+
+53
+00:08:25,000 --> 00:08:28,925
+Save those two boxes in your Agentified
+Operating File as a draft.
+
+54
+00:08:30,820 --> 00:08:36,945
+Your stop condition is simple: if the owner,
+source, or review gate is missing, the draft
+stays on paper.
+
+55
+00:08:38,840 --> 00:08:41,586
+Next we will name the decision Morgan actually
+owns.

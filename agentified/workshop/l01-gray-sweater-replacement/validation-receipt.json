@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "lesson_id": "L01",
+  "status": "human_qa_candidate",
+  "validated_on": "2026-11-08",
+  "source_commit": "e51b09b746256e1c6825d249438bcd4a0e6f181e",
+  "request_candidate_sha256": "1032ca1c43a7be2d7f33690ff2909c10546c78d0a1138190fce26fe6088972fd",
+  "provider_project_id": "8df044c8183a484081610477bf3a6f6c",
+  "artifacts": {
+    "native_source": {
+      "path": "agentified-l01-gray-sweater-source.mp4",
+      "sha256": "5b1c3ecb2b741f16105a8695e61f0d2d067ee8988a0626f800e0699d5b4f211c",
+      "duration_seconds": 16.386
+    },
+    "composite": {
+      "path": "agentified-l01-gray-sweater-composite.mp4",
+      "sha256": "57c2907224e9ac15e304bb4c43b47f8881c8eb09ecab293d02c92d5958b306ce",
+      "duration_seconds": 540.0,
+      "width": 1920,
+      "height": 1080,
+      "frame_rate": "25/1"
+    },
+    "walkthrough": {
+      "path": "agentified-l01-gray-sweater-walkthrough.mp4",
+      "sha256": "a28ad78362cb73de16f27c6f7f5bb3fea807f662154232e40878c59e5b30c306",
+      "duration_seconds": 14.24,
+      "scope": "desktop learner binding, face-detail frame, both sentence handoffs, locked lesson, and Operating File return"
+    },
+    "captions": {
+      "srt_sha256": "d459452e5b1168dadd6fb3b813839f28ae24f2c8c067da1fb777a920897ad9fe",
+      "vtt_sha256": "b40b954f06a6aed2305b0389002718a8de576a8be8746f3de5a9b93d177f5ae0",
+      "cue_count": 5
+    }
+  },
+  "checks": {
+    "single_provider_job": "pass",
+    "provider_retry_count_zero": "pass",
+    "wallet_debit_within_cap": "pass",
+    "gray_sweater_identity": "pass",
+    "native_speed": "pass",
+    "sentence_complete_handoffs": "pass",
+    "presenter_windows": "pass",
+    "provider_free_conservative_chroma_key": "pass",
+    "facial_detail_preserved": "pass",
+    "sentence_handoff_crossfades": "pass",
+    "instructional_content_unobscured": "pass",
+    "approved_closing_card_preserved": "pass",
+    "learner_binding_candidate_versioned": "pass"
+  },
+  "boundaries": {
+    "review_only": true,
+    "provider_calls_after_source_generation": 0,
+    "production_binding_authorized": false,
+    "publication_authorized": false,
+    "distribution_authorized": false
+  }
+}

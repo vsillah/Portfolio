@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "lesson_id": "L01",
+  "provider": "HeyGen",
+  "provider_product": "Avatar IV",
+  "status": "completed_review_only_source",
+  "created_at": "2026-11-08T10:37:00Z",
+  "downloaded_at": "2026-11-08T10:42:00Z",
+  "provider_project_id": "8df044c8183a484081610477bf3a6f6c",
+  "provider_project_url": "https://app.heygen.com/videos/avatar-video-8df044c8183a484081610477bf3a6f6c",
+  "source_commit": "e51b09b746256e1c6825d249438bcd4a0e6f181e",
+  "request_candidate_sha256": "1032ca1c43a7be2d7f33690ff2909c10546c78d0a1138190fce26fe6088972fd",
+  "execution_authorization": {
+    "authorized_on": "2026-11-08",
+    "authorization_type": "purpose-specific response-annotation approval plus action-time submission confirmation",
+    "maximum_wallet_debit_usd": 3.26,
+    "existing_wallet_only": true,
+    "no_retry": true,
+    "submitted_jobs": 1
+  },
+  "identity_binding": {
+    "look_name": "Vambah Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "voice_name": "Vambah Gray Sweater avatar-native voice",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "scope": "one Agentified L01 replacement review-only source"
+  },
+  "job_controls": {
+    "orientation": "landscape",
+    "requested_resolution": "1080p",
+    "automatic_retries": 0,
+    "manual_retries": 0
+  },
+  "wallet": {
+    "currency": "USD",
+    "balance_before": 100.88,
+    "balance_after": 100.88,
+    "wallet_debit": 0.0,
+    "auto_reload_before": false,
+    "auto_reload_after": false
+  },
+  "native_source": {
+    "path": "agentified-l01-gray-sweater-source.mp4",
+    "sha256": "5b1c3ecb2b741f16105a8695e61f0d2d067ee8988a0626f800e0699d5b4f211c",
+    "bytes": 14083696,
+    "duration_seconds": 16.386,
+    "video_codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": "25/1",
+    "audio_codec": "aac",
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "provider_background": "chroma-green field retained in immutable source; keyed provider-free in composite"
+  },
+  "provider_captions": {
+    "path": "provider-captions.srt",
+    "sha256": "8ed6f21c03d4a320d9e5ce5b3d0a3285445666c744cd2c859c007ba8382befdf",
+    "last_spoken_cue_end_seconds": 16.379
+  },
+  "boundaries": {
+    "review_only": true,
+    "learner_playback_changed": false,
+    "publication_allowed": false,
+    "distribution_allowed": false,
+    "additional_generation_allowed": false
+  }
+}
+

@@ -42,15 +42,15 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
 
 
   it.each([
-    ['L02', '23d2adcf', 510, '08:30'],
-    ['L03', 'af79f328', 600, '10:00'],
-    ['L04', 'b17f3106', 600, '10:00'],
+    ['L02', 'e2b5ecbc', 510, '08:30'],
+    ['L03', '8749ae9a', 600, '10:00'],
+    ['L04', '8d0245ff', 600, '10:00'],
   ])('opens %s directly with captions, transcript, worksheet and guest resume', async (id, hash, duration, display) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', expect.stringContaining(`approved-${hash}/agentified-${id.toLowerCase()}-native-composite.mp4`))
-    expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`approved-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`))
+    expect(video.querySelector('source')).toHaveAttribute('src', expect.stringContaining(`corrected-${hash}/agentified-${id.toLowerCase()}-native-composite.mp4`))
+    expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`corrected-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`))
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
@@ -76,8 +76,8 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     const { container } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
     expect(video).toHaveAttribute('poster', '/agentified/posters/l01-poster.webp')
-    expect(video.querySelector('source')).toHaveAttribute('src', '/agentified/lessons/l01/approved-da85f9e1/agentified-l01-native-composite.mp4')
-    expect(video.querySelector('track')).toHaveAttribute('src', '/agentified/lessons/l01/approved-da85f9e1/agentified-l01-native-captions.vtt')
+    expect(video.querySelector('source')).toHaveAttribute('src', '/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4')
+    expect(video.querySelector('track')).toHaveAttribute('src', '/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-captions.vtt')
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText('Ready · 09:00')).toBeInTheDocument()
     fireEvent.click(screen.getByText('Read along with L01 transcript'))

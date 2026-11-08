@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "human_qa_candidate",
+  "scope": "Agentified L01-L04 presenter-to-teaching-card continuity correction",
+  "root_cause": "A late-start presenter overlay replaced the base teaching plate with uniform frames outside its active interval.",
+  "provider_calls": 0,
+  "additional_spend_usd": 0,
+  "historical_approval_receipts_preserved": true,
+  "walkthrough": {
+    "path": "agentified/workshop/agentified-l01-l04-handoff-correction-walkthrough.mp4",
+    "sha256": "9025c6b7d463481422b4a19ce056e93c36f209be1636ad5886a203b6745fdcd8",
+    "duration_seconds": 79,
+    "purpose": "Shows every corrected presenter-to-teaching-card and closing-card handoff."
+  },
+  "lessons": [
+    {
+      "lesson_id": "L01",
+      "composite_sha256": "34737c643f7928fe3a7e3e23bcd33d8e4715c0052bac532e5fd43c1e689b25e5",
+      "sampled_handoff_seconds": [14.4, 19.5, 523.2, 528]
+    },
+    {
+      "lesson_id": "L02",
+      "composite_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "sampled_handoff_seconds": [16.9, 30, 504.2, 507]
+    },
+    {
+      "lesson_id": "L03",
+      "composite_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "sampled_handoff_seconds": [14.8, 30, 592.2, 597]
+    },
+    {
+      "lesson_id": "L04",
+      "composite_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "sampled_handoff_seconds": [18.3, 30, 597.2, 599]
+    }
+  ],
+  "checks": {
+    "teaching_plate_continuity": "pass",
+    "closing_card_continuity": "pass",
+    "source_clips_unchanged": "pass",
+    "narration_and_timing_unchanged": "pass",
+    "captions_unchanged": "pass"
+  }
+}

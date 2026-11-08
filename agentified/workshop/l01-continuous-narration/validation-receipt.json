@@ -1,0 +1,904 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_composite_ready_for_human_qa",
+  "lesson_id": "L01",
+  "request_candidate_sha256": "86587e8fbbf8673d18138603b5d4de825f2d7125acdced35cb686728c742e34d",
+  "speech_text_sha256": "861ff1331c665146228888c6ec092a2184b71c44906c25fee9fd8d908ec4560e",
+  "provider_request_id": "6f37737b78bc4401953600004895c256",
+  "requested_engine": "heygen_voice",
+  "returned_engine": "orca",
+  "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+  "exact_credit_debit": 8,
+  "cash_purchase": 0,
+  "provider_duration_seconds": 196.31020408163266,
+  "narration_source": {
+    "path": "agentified/workshop/l01-continuous-narration/agentified-l01-continuous-narration-source.mp3",
+    "sha256": "45ab02f0ade43d57c51d2d634991cf8f9616b31299fa611b872e5c50978362c6"
+  },
+  "visual_source": {
+    "path": "agentified/workshop/l01-gray-sweater-replacement/agentified-l01-gray-sweater-composite.mp4",
+    "sha256": "57c2907224e9ac15e304bb4c43b47f8881c8eb09ecab293d02c92d5958b306ce"
+  },
+  "presenter_source": {
+    "path": "agentified/workshop/l01-gray-sweater-replacement/agentified-l01-gray-sweater-source.mp4",
+    "sha256": "5b1c3ecb2b741f16105a8695e61f0d2d067ee8988a0626f800e0699d5b4f211c",
+    "background_treatment": "provider_free_studio_reconstruction",
+    "treatment_parameters": {
+      "key": "colorkey=0x00e868:0.28:0.08",
+      "edge_despill": "green:mix=0.05:expand=0.02",
+      "native_presenter_pixels_preserved": true,
+      "source_green_field_removed": true
+    },
+    "placements": [
+      {
+        "source_start": 0,
+        "source_end": 13.633,
+        "sequence_start": 0,
+        "sequence_end": 13.633
+      },
+      {
+        "source_start": 13.633,
+        "source_end": 16.386,
+        "sequence_start": 518.84,
+        "sequence_end": 521.593
+      }
+    ]
+  },
+  "composite": {
+    "path": "agentified/workshop/l01-continuous-narration/agentified-l01-continuous-narration-composite.mp4",
+    "sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+    "duration_seconds": 540
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l01-continuous-narration/agentified-l01-continuous-narration-captions.srt",
+    "srt_sha256": "230f80cf22faeaecc821a26f2813f8d5893fcafbd5b6fdef592b3d60d69584f3",
+    "vtt_path": "agentified/workshop/l01-continuous-narration/agentified-l01-continuous-narration-captions.vtt",
+    "vtt_sha256": "fa4a57dc243a420648e58aaa21c1ceb57a9b967296c22baed4946d612e928fbd"
+  },
+  "preserved_presenter_audio": {
+    "opening": {
+      "sequence_start": 0,
+      "sequence_end": 13.633
+    },
+    "closing": {
+      "sequence_start": 518.84,
+      "sequence_end": 521.593
+    },
+    "rule": "Preserve native presenter audio in these windows. Never layer synthesized narration over it."
+  },
+  "narration_placements": [
+    {
+      "scene_id": "L01-01",
+      "available_start": 13.633,
+      "available_end": 65,
+      "first_sentence_start": 13.633,
+      "last_sentence_end": 58.117,
+      "sentence_count": 5,
+      "distributed_gap_seconds": 6.883000000000001
+    },
+    {
+      "scene_id": "L01-02",
+      "available_start": 65,
+      "available_end": 140,
+      "first_sentence_start": 65,
+      "last_sentence_end": 135.98281818181817,
+      "sentence_count": 11,
+      "distributed_gap_seconds": 4.017181818181818
+    },
+    {
+      "scene_id": "L01-03",
+      "available_start": 140,
+      "available_end": 215,
+      "first_sentence_start": 140,
+      "last_sentence_end": 209.22299999999996,
+      "sentence_count": 7,
+      "distributed_gap_seconds": 5.777000000000001
+    },
+    {
+      "scene_id": "L01-04",
+      "available_start": 215,
+      "available_end": 290,
+      "first_sentence_start": 215,
+      "last_sentence_end": 283.64928571428567,
+      "sentence_count": 7,
+      "distributed_gap_seconds": 6.350714285714283
+    },
+    {
+      "scene_id": "L01-05",
+      "available_start": 290,
+      "available_end": 345,
+      "first_sentence_start": 290,
+      "last_sentence_end": 340.45950000000005,
+      "sentence_count": 6,
+      "distributed_gap_seconds": 4.540499999999999
+    },
+    {
+      "scene_id": "L01-06",
+      "available_start": 345,
+      "available_end": 365,
+      "first_sentence_start": 345,
+      "last_sentence_end": 364.1910000000001,
+      "sentence_count": 6,
+      "distributed_gap_seconds": 0.8090000000000023
+    },
+    {
+      "scene_id": "L01-07",
+      "available_start": 365,
+      "available_end": 505,
+      "first_sentence_start": 365,
+      "last_sentence_end": 394.54499999999985,
+      "sentence_count": 6,
+      "distributed_gap_seconds": 0.25
+    },
+    {
+      "scene_id": "L01-08",
+      "available_start": 505,
+      "available_end": 518.84,
+      "first_sentence_start": 505,
+      "last_sentence_end": 516.945,
+      "sentence_count": 2,
+      "distributed_gap_seconds": 1.8950000000000244
+    }
+  ],
+  "sentence_placements": [
+    {
+      "scene_id": "L01-01",
+      "sentence_index": 1,
+      "text": "Three notes are on the table: an attendance count, a facilitator availability note, and a room-capacity note.",
+      "source_start": 0,
+      "source_end": 6.639172,
+      "sequence_start": 13.633,
+      "sequence_end": 20.272171999999998,
+      "alignment_delta_seconds": 0.6353386666666667
+    },
+    {
+      "scene_id": "L01-01",
+      "sentence_index": 2,
+      "text": "An assistant can turn those into a neat recommendation in seconds.",
+      "source_start": 6.639172,
+      "source_end": 10.736292500000001,
+      "sequence_start": 27.155172,
+      "sequence_end": 31.252292499999996,
+      "alignment_delta_seconds": 0.8476258333333337
+    },
+    {
+      "scene_id": "L01-01",
+      "sentence_index": 3,
+      "text": "But if Morgan asks, ‘Where did this come from?’",
+      "source_start": 10.736292500000001,
+      "source_end": 13.3697055,
+      "sequence_start": 38.1352925,
+      "sequence_end": 40.768705499999996,
+      "alignment_delta_seconds": 0.3025388333333332
+    },
+    {
+      "scene_id": "L01-01",
+      "sentence_index": 4,
+      "text": "a polished paragraph is thin protection.",
+      "source_start": 13.3697055,
+      "source_end": 15.7623015,
+      "sequence_start": 47.6517055,
+      "sequence_end": 50.044301499999996,
+      "alignment_delta_seconds": 0.5761348333333327
+    },
+    {
+      "scene_id": "L01-01",
+      "sentence_index": 5,
+      "text": "The work needs a trail.",
+      "source_start": 15.7623015,
+      "source_end": 16.952,
+      "sequence_start": 56.9273015,
+      "sequence_end": 58.117,
+      "alignment_delta_seconds": null
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 1,
+      "text": "Our job today is small: design one preparation role and one receipt.",
+      "source_start": 17.187,
+      "source_end": 21.7820065,
+      "sequence_start": 65,
+      "sequence_end": 69.5950065,
+      "alignment_delta_seconds": 0.4407143651685388
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 2,
+      "text": "The agent does not decide whether the session happens.",
+      "source_start": 21.7820065,
+      "source_end": 24.7223465,
+      "sequence_start": 73.61218831818181,
+      "sequence_end": 76.5525283181818,
+      "alignment_delta_seconds": 0.2653352640449427
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 3,
+      "text": "It prepares a Session Option Brief for Morgan to review.",
+      "source_start": 24.7223465,
+      "source_end": 27.679354,
+      "sequence_start": 80.56971013636362,
+      "sequence_end": 83.52671763636363,
+      "alignment_delta_seconds": -0.2395673483146048
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 4,
+      "text": "That distinction matters.",
+      "source_start": 27.679354,
+      "source_end": 29.2958505,
+      "sequence_start": 87.54389945454545,
+      "sequence_end": 89.16039595454545,
+      "alignment_delta_seconds": 0.3383561179775292
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 5,
+      "text": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "source_start": 29.2958505,
+      "source_end": 34.9708275,
+      "sequence_start": 93.17757777272726,
+      "sequence_end": 98.85255477272725,
+      "alignment_delta_seconds": -0.21810508426966635
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 6,
+      "text": "What exactly begins its work?",
+      "source_start": 34.9708275,
+      "source_end": 36.9826415,
+      "sequence_start": 102.86973659090907,
+      "sequence_end": 104.88155059090907,
+      "alignment_delta_seconds": 0.06275385955056123
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 7,
+      "text": "What can it read?",
+      "source_start": 36.9826415,
+      "source_end": 38.1950115,
+      "sequence_start": 108.89873240909088,
+      "sequence_end": 110.11110240909088,
+      "alignment_delta_seconds": -0.10964018539325338
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 8,
+      "text": "What must it hand back?",
+      "source_start": 38.1950115,
+      "source_end": 39.836723500000005,
+      "sequence_start": 114.1282842272727,
+      "sequence_end": 115.76999622727271,
+      "alignment_delta_seconds": -0.1988832415730286
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 9,
+      "text": "Who owns the outcome?",
+      "source_start": 39.836723500000005,
+      "source_end": 41.3197505,
+      "sequence_start": 119.78717804545454,
+      "sequence_end": 121.27020504545453,
+      "alignment_delta_seconds": -0.1006202865168504
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 10,
+      "text": "These are ordinary management questions.",
+      "source_start": 41.3197505,
+      "source_end": 43.897596,
+      "sequence_start": 125.28738686363636,
+      "sequence_end": 127.86523236363635,
+      "alignment_delta_seconds": 0.7462701573033712
+    },
+    {
+      "scene_id": "L01-02",
+      "sentence_index": 11,
+      "text": "They become more urgent when a tool can produce work while nobody is watching.",
+      "source_start": 43.897596,
+      "source_end": 47.998,
+      "sequence_start": 131.88241418181818,
+      "sequence_end": 135.98281818181817,
+      "alignment_delta_seconds": null
+    },
+    {
+      "scene_id": "L01-03",
+      "sentence_index": 1,
+      "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "source_start": 48.309,
+      "source_end": 57.90551,
+      "sequence_start": 140,
+      "sequence_end": 149.59651,
+      "alignment_delta_seconds": 0.037084468085105016
+    },
+    {
+      "scene_id": "L01-03",
+      "sentence_index": 2,
+      "text": "The trigger is Morgan's request.",
+      "source_start": 57.90551,
+      "source_end": 60.172506,
+      "sequence_start": 155.37351,
+      "sequence_end": 157.64050600000002,
+      "alignment_delta_seconds": 0.4657294042553133
+    },
+    {
+      "scene_id": "L01-03",
+      "sentence_index": 3,
+      "text": "The output is a draft brief.",
+      "source_start": 60.172506,
+      "source_end": 62.3967005,
+      "sequence_start": 163.417506,
+      "sequence_end": 165.6417005,
+      "alignment_delta_seconds": 0.4839026276595746
+    },
+    {
+      "scene_id": "L01-03",
+      "sentence_index": 4,
+      "text": "The manager is Morgan.",
+      "source_start": 62.3967005,
+      "source_end": 63.290532999999996,
+      "sequence_start": 171.4187005,
+      "sequence_end": 172.31253299999997,
+      "alignment_delta_seconds": -0.09294572340425589
+    },
+    {
+      "scene_id": "L01-03",
+      "sentence_index": 5,
+      "text": "The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log.",
+      "source_start": 63.290532999999996,
+      "source_end": 71.0695015,
+      "sequence_start": 178.08953299999996,
+      "sequence_end": 185.86850149999998,
+      "alignment_delta_seconds": -0.035051691489371706
+    },
+    {
+      "scene_id": "L01-03",
+      "sentence_index": 6,
+      "text": "The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending.",
+      "source_start": 71.0695015,
+      "source_end": 77.497506,
+      "sequence_start": 191.64550149999997,
+      "sequence_end": 198.07350599999995,
+      "alignment_delta_seconds": 0.14255919148935448
+    },
+    {
+      "scene_id": "L01-03",
+      "sentence_index": 7,
+      "text": "A useful agent job names the work it finishes and the work it leaves alone.",
+      "source_start": 77.497506,
+      "source_end": 82.87,
+      "sequence_start": 203.85050599999994,
+      "sequence_end": 209.22299999999996,
+      "alignment_delta_seconds": null
+    },
+    {
+      "scene_id": "L01-04",
+      "sentence_index": 1,
+      "text": "Now attach the receipt.",
+      "source_start": 83.084,
+      "source_end": 84.989898,
+      "sequence_start": 215,
+      "sequence_end": 216.90589799999998,
+      "alignment_delta_seconds": 0.5483424444444438
+    },
+    {
+      "scene_id": "L01-04",
+      "sentence_index": 2,
+      "text": "Imagine the brief says the room can hold twenty people.",
+      "source_start": 84.989898,
+      "source_end": 88.1302725,
+      "sequence_start": 223.25661228571425,
+      "sequence_end": 226.39698678571426,
+      "alignment_delta_seconds": 0.2948280555555556
+    },
+    {
+      "scene_id": "L01-04",
+      "sentence_index": 3,
+      "text": "Morgan needs to see which note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it.",
+      "source_start": 88.1302725,
+      "source_end": 96.58439899999999,
+      "sequence_start": 232.74770107142854,
+      "sequence_end": 241.2018275714285,
+      "alignment_delta_seconds": 0.6036212222222161
+    },
+    {
+      "scene_id": "L01-04",
+      "sentence_index": 4,
+      "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "source_start": 96.58439899999999,
+      "source_end": 102.30280049999999,
+      "sequence_start": 247.55254185714278,
+      "sequence_end": 253.27094335714278,
+      "alignment_delta_seconds": 0.891800499999988
+    },
+    {
+      "scene_id": "L01-04",
+      "sentence_index": 5,
+      "text": "A blank field stays blank and gets an owner.",
+      "source_start": 102.30280049999999,
+      "source_end": 104.212007,
+      "sequence_start": 259.6216576428571,
+      "sequence_end": 261.5308641428571,
+      "alignment_delta_seconds": -0.25349300000000596
+    },
+    {
+      "scene_id": "L01-04",
+      "sentence_index": 6,
+      "text": "We never fill a gap with a confident guess.",
+      "source_start": 104.212007,
+      "source_end": 108.0268825,
+      "sequence_start": 267.8815784285714,
+      "sequence_end": 271.6964539285714,
+      "alignment_delta_seconds": 0.506882499999989
+    },
+    {
+      "scene_id": "L01-04",
+      "sentence_index": 7,
+      "text": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.",
+      "source_start": 108.0268825,
+      "source_end": 113.629,
+      "sequence_start": 278.04716821428565,
+      "sequence_end": 283.64928571428567,
+      "alignment_delta_seconds": null
+    },
+    {
+      "scene_id": "L01-05",
+      "sentence_index": 1,
+      "text": "In our case, approval is ‘pending Morgan.’",
+      "source_start": 113.863,
+      "source_end": 117.117846,
+      "sequence_start": 290,
+      "sequence_end": 293.254846,
+      "alignment_delta_seconds": 0.5182403661971904
+    },
+    {
+      "scene_id": "L01-05",
+      "sentence_index": 2,
+      "text": "The outcome is ‘draft prepared, no session selected.’",
+      "source_start": 117.117846,
+      "source_end": 119.511485,
+      "sequence_start": 297.795346,
+      "sequence_end": 300.188985,
+      "alignment_delta_seconds": -0.21566992957747289
+    },
+    {
+      "scene_id": "L01-05",
+      "sentence_index": 3,
+      "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "source_start": 119.511485,
+      "source_end": 126.35020399999999,
+      "sequence_start": 304.729485,
+      "sequence_end": 311.56820400000004,
+      "alignment_delta_seconds": 1.14983780281689
+    },
+    {
+      "scene_id": "L01-05",
+      "sentence_index": 4,
+      "text": "If the source for room capacity is missing, mark the brief blocked.",
+      "source_start": 126.35020399999999,
+      "source_end": 130.342177,
+      "sequence_start": 316.10870400000005,
+      "sequence_end": 320.100677,
+      "alignment_delta_seconds": 0.45048685915492115
+    },
+    {
+      "scene_id": "L01-05",
+      "sentence_index": 5,
+      "text": "A complete-looking card without a source can move bad information faster than an obviously unfinished one.",
+      "source_start": 130.342177,
+      "source_end": 137.1554195,
+      "sequence_start": 324.641177,
+      "sequence_end": 331.45441950000003,
+      "alignment_delta_seconds": 1.0086307676056094
+    },
+    {
+      "scene_id": "L01-05",
+      "sentence_index": 6,
+      "text": "The receipt makes that gap visible before anyone treats the draft as a decision.",
+      "source_start": 137.1554195,
+      "source_end": 141.62,
+      "sequence_start": 335.99491950000004,
+      "sequence_end": 340.45950000000005,
+      "alignment_delta_seconds": null
+    },
+    {
+      "scene_id": "L01-06",
+      "sentence_index": 1,
+      "text": "Take a moment.",
+      "source_start": 141.983,
+      "source_end": 142.999592,
+      "sequence_start": 345,
+      "sequence_end": 346.016592,
+      "alignment_delta_seconds": 0.006858666666659019
+    },
+    {
+      "scene_id": "L01-06",
+      "sentence_index": 2,
+      "text": "Picture one workflow in your own work.",
+      "source_start": 142.999592,
+      "source_end": 145.526633,
+      "sequence_start": 346.82559200000003,
+      "sequence_end": 349.352633,
+      "alignment_delta_seconds": 0.1778552222222345
+    },
+    {
+      "scene_id": "L01-06",
+      "sentence_index": 3,
+      "text": "Keep this exercise on paper or in a local draft.",
+      "source_start": 145.526633,
+      "source_end": 148.66175750000002,
+      "sequence_start": 350.16163300000005,
+      "sequence_end": 353.29675750000007,
+      "alignment_delta_seconds": -0.05279805555554162
+    },
+    {
+      "scene_id": "L01-06",
+      "sentence_index": 4,
+      "text": "Use a fictional or approved example.",
+      "source_start": 148.66175750000002,
+      "source_end": 151.17452400000002,
+      "sequence_start": 354.1057575000001,
+      "sequence_end": 356.6185240000001,
+      "alignment_delta_seconds": 0.4405017777777971
+    },
+    {
+      "scene_id": "L01-06",
+      "sentence_index": 5,
+      "text": "Do not use private operational data.",
+      "source_start": 151.17452400000002,
+      "source_end": 153.722914,
+      "sequence_start": 357.4275240000001,
+      "sequence_end": 359.9759140000001,
+      "alignment_delta_seconds": 0.9694251111111214
+    },
+    {
+      "scene_id": "L01-06",
+      "sentence_index": 6,
+      "text": "What is the one useful output, and who would have to defend it?",
+      "source_start": 153.722914,
+      "source_end": 157.129,
+      "sequence_start": 360.78491400000013,
+      "sequence_end": 364.1910000000001,
+      "alignment_delta_seconds": null
+    },
+    {
+      "scene_id": "L01-07",
+      "sentence_index": 1,
+      "text": "Fill the Job and Receipt boxes.",
+      "source_start": 157.373,
+      "source_end": 159.85051049999998,
+      "sequence_start": 365,
+      "sequence_end": 367.47751049999994,
+      "alignment_delta_seconds": 0.24369471052631297
+    },
+    {
+      "scene_id": "L01-07",
+      "sentence_index": 2,
+      "text": "Name the trigger, permitted inputs, output, human manager, success check, and three forbidden actions.",
+      "source_start": 159.85051049999998,
+      "source_end": 164.5029705,
+      "sequence_start": 367.72751049999994,
+      "sequence_end": 372.37997049999996,
+      "alignment_delta_seconds": -0.31608213157895193
+    },
+    {
+      "scene_id": "L01-07",
+      "sentence_index": 3,
+      "text": "Then fill the nine receipt fields for one imaginary run.",
+      "source_start": 164.5029705,
+      "source_end": 167.7318705,
+      "sequence_start": 372.62997049999996,
+      "sequence_end": 375.8588704999999,
+      "alignment_delta_seconds": -0.8102084473684101
+    },
+    {
+      "scene_id": "L01-07",
+      "sentence_index": 4,
+      "text": "If you cannot name a source, approval state, or rollback, write ‘unknown’ and the person who must resolve it.",
+      "source_start": 167.7318705,
+      "source_end": 175.68731300000002,
+      "sequence_start": 376.1088704999999,
+      "sequence_end": 384.06431299999986,
+      "alignment_delta_seconds": 0.07148405263160384
+    },
+    {
+      "scene_id": "L01-07",
+      "sentence_index": 5,
+      "text": "Do not open a real system to complete this exercise.",
+      "source_start": 175.68731300000002,
+      "source_end": 178.61276650000002,
+      "sequence_start": 384.31431299999986,
+      "sequence_end": 387.23976649999986,
+      "alignment_delta_seconds": -0.7260887631578612
+    },
+    {
+      "scene_id": "L01-07",
+      "sentence_index": 6,
+      "text": "The point is to see the shape of the work before asking a tool to do it.",
+      "source_start": 178.61276650000002,
+      "source_end": 185.668,
+      "sequence_start": 387.48976649999986,
+      "sequence_end": 394.54499999999985,
+      "alignment_delta_seconds": null
+    },
+    {
+      "scene_id": "L01-08",
+      "sentence_index": 1,
+      "text": "Save those two boxes in your Agentified Operating File as a draft.",
+      "source_start": 186.031,
+      "source_end": 189.955873,
+      "sequence_start": 505,
+      "sequence_end": 508.924873,
+      "alignment_delta_seconds": 0.0345504193548436
+    },
+    {
+      "scene_id": "L01-08",
+      "sentence_index": 2,
+      "text": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "source_start": 189.955873,
+      "source_end": 196.081,
+      "sequence_start": 510.81987300000003,
+      "sequence_end": 516.945,
+      "alignment_delta_seconds": null
+    }
+  ],
+  "quiet_window": {
+    "scene_id": "L01-07",
+    "start": 394.54499999999985,
+    "end": 505,
+    "purpose": "guided learner work"
+  },
+  "continuity_validation": {
+    "maximum_unexpected_silence_seconds": 12,
+    "detected_silences_over_three_seconds": [
+      {
+        "start": 20.000792,
+        "end": 27.430896,
+        "center": 23.715844,
+        "duration": 7.430104
+      },
+      {
+        "start": 31.106083,
+        "end": 38.290854,
+        "center": 34.698468500000004,
+        "duration": 7.184771000000001
+      },
+      {
+        "start": 40.486292,
+        "end": 47.938063,
+        "center": 44.212177499999996,
+        "duration": 7.451771000000001
+      },
+      {
+        "start": 49.966187,
+        "end": 57.024812,
+        "center": 53.495499499999994,
+        "duration": 7.058624999999999
+      },
+      {
+        "start": 58.120396,
+        "end": 65.092875,
+        "center": 61.6066355,
+        "duration": 6.972479000000007
+      },
+      {
+        "start": 69.452438,
+        "end": 73.765062,
+        "center": 71.60875,
+        "duration": 4.312624
+      },
+      {
+        "start": 76.326354,
+        "end": 80.810521,
+        "center": 78.56843749999999,
+        "duration": 4.484166999999999
+      },
+      {
+        "start": 83.364312,
+        "end": 87.721896,
+        "center": 85.543104,
+        "duration": 4.357584000000003
+      },
+      {
+        "start": 89.053146,
+        "end": 93.287521,
+        "center": 91.1703335,
+        "duration": 4.234375
+      },
+      {
+        "start": 98.5515,
+        "end": 103.183479,
+        "center": 100.8674895,
+        "duration": 4.631979000000001
+      },
+      {
+        "start": 104.660542,
+        "end": 109.130021,
+        "center": 106.89528150000001,
+        "duration": 4.469478999999993
+      },
+      {
+        "start": 109.847396,
+        "end": 114.395083,
+        "center": 112.1212395,
+        "duration": 4.547686999999996
+      },
+      {
+        "start": 115.530125,
+        "end": 120.036,
+        "center": 117.7830625,
+        "duration": 4.505875000000003
+      },
+      {
+        "start": 121.02075,
+        "end": 125.547542,
+        "center": 123.284146,
+        "duration": 4.526792
+      },
+      {
+        "start": 127.731687,
+        "end": 132.026208,
+        "center": 129.87894749999998,
+        "duration": 4.294521000000003
+      },
+      {
+        "start": 135.981937,
+        "end": 140.267937,
+        "center": 138.124937,
+        "duration": 4.286000000000001
+      },
+      {
+        "start": 149.394833,
+        "end": 155.585875,
+        "center": 152.490354,
+        "duration": 6.191041999999982
+      },
+      {
+        "start": 157.523271,
+        "end": 163.536229,
+        "center": 160.52974999999998,
+        "duration": 6.012957999999998
+      },
+      {
+        "start": 165.384396,
+        "end": 171.692187,
+        "center": 168.5382915,
+        "duration": 6.30779099999998
+      },
+      {
+        "start": 172.261604,
+        "end": 178.156708,
+        "center": 175.209156,
+        "duration": 5.8951040000000035
+      },
+      {
+        "start": 185.603083,
+        "end": 191.925771,
+        "center": 188.764427,
+        "duration": 6.322687999999999
+      },
+      {
+        "start": 197.957875,
+        "end": 203.977021,
+        "center": 200.967448,
+        "duration": 6.019146000000006
+      },
+      {
+        "start": 209.226937,
+        "end": 215.201021,
+        "center": 212.213979,
+        "duration": 5.974084000000005
+      },
+      {
+        "start": 216.674104,
+        "end": 223.505042,
+        "center": 220.089573,
+        "duration": 6.830938000000003
+      },
+      {
+        "start": 226.195021,
+        "end": 232.865187,
+        "center": 229.530104,
+        "duration": 6.670165999999995
+      },
+      {
+        "start": 240.914792,
+        "end": 247.850292,
+        "center": 244.382542,
+        "duration": 6.9354999999999905
+      },
+      {
+        "start": 253.067813,
+        "end": 259.803208,
+        "center": 256.43551049999996,
+        "duration": 6.735394999999983
+      },
+      {
+        "start": 261.383854,
+        "end": 268.039354,
+        "center": 264.71160399999997,
+        "duration": 6.655500000000018
+      },
+      {
+        "start": 271.448333,
+        "end": 278.305708,
+        "center": 274.87702049999996,
+        "duration": 6.8573749999999905
+      },
+      {
+        "start": 283.558292,
+        "end": 290.076708,
+        "center": 286.8175,
+        "duration": 6.518416000000002
+      },
+      {
+        "start": 293.098521,
+        "end": 297.987021,
+        "center": 295.542771,
+        "duration": 4.888500000000022
+      },
+      {
+        "start": 300.098958,
+        "end": 304.843292,
+        "center": 302.47112500000003,
+        "duration": 4.744334000000038
+      },
+      {
+        "start": 311.381229,
+        "end": 316.307354,
+        "center": 313.8442915,
+        "duration": 4.926124999999956
+      },
+      {
+        "start": 319.838604,
+        "end": 324.914146,
+        "center": 322.376375,
+        "duration": 5.075542000000041
+      },
+      {
+        "start": 331.215979,
+        "end": 336.243229,
+        "center": 333.729604,
+        "duration": 5.027249999999981
+      },
+      {
+        "start": 340.390167,
+        "end": 345.23175,
+        "center": 342.81095849999997,
+        "duration": 4.841582999999957
+      },
+      {
+        "start": 394.348896,
+        "end": 505.041042,
+        "center": 449.694969,
+        "duration": 110.69214599999998
+      },
+      {
+        "start": 521.4175,
+        "end": 540.010667,
+        "center": 530.7140835,
+        "duration": 18.593166999999994
+      }
+    ],
+    "allowed_quiet_windows": [
+      {
+        "start": 394.54499999999985,
+        "end": 505.25,
+        "purpose": "guided learner work"
+      },
+      {
+        "start": 521.35,
+        "end": 540.1,
+        "purpose": "provider-free closing evidence card"
+      }
+    ],
+    "unexpected_long_silences": [],
+    "status": "pass"
+  },
+  "boundaries": {
+    "provider_calls_after_speech": 0,
+    "narration_rewritten": false,
+    "production_binding_changed": false,
+    "publication_or_distribution": false
+  }
+}

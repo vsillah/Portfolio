@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "lesson_id": "L01",
+  "request_candidate_sha256": "1032ca1c43a7be2d7f33690ff2909c10546c78d0a1138190fce26fe6088972fd",
+  "native_source_sha256": "5b1c3ecb2b741f16105a8695e61f0d2d067ee8988a0626f800e0699d5b4f211c",
+  "source_passages": [
+    {
+      "id": "L01-01",
+      "source_start_seconds": 0.0,
+      "source_end_seconds": 13.633,
+      "sequence_start_seconds": 0.0,
+      "sequence_end_seconds": 13.633
+    },
+    {
+      "id": "L01-08",
+      "source_start_seconds": 13.633,
+      "source_end_seconds": 16.386,
+      "sequence_start_seconds": 518.84,
+      "sequence_end_seconds": 521.593
+    }
+  ],
+  "approved_presenter_windows": [
+    {
+      "id": "L01-01",
+      "start_seconds": 0.0,
+      "end_seconds": 19.271
+    },
+    {
+      "id": "L01-08",
+      "start_seconds": 518.84,
+      "end_seconds": 523.0
+    }
+  ],
+  "provider_free_evidence": [
+    {
+      "start_seconds": 13.633,
+      "end_seconds": 19.271
+    },
+    {
+      "start_seconds": 521.593,
+      "end_seconds": 540.0
+    }
+  ],
+  "provider_free_closing_card": {
+    "start_seconds": 523.0,
+    "end_seconds": 540.0,
+    "status": "preserved"
+  },
+  "validation": {
+    "provider_caption_boundary_used": true,
+    "native_speed": 1.0,
+    "sentence_complete_handoffs": true,
+    "background_treatment": "provider-free chroma key into approved teal teaching panel",
+    "retry_count": 0
+  }
+}
