@@ -44,8 +44,11 @@ try {
     const page = await context.newPage()
     const video = await inspect(page, label)
     if (record) {
+      await video.evaluate((node) => { node.currentTime = 9.5; return node.play() })
+      await page.waitForTimeout(4500)
+      await video.evaluate((node) => { node.pause(); node.currentTime = 518.5 })
       await video.evaluate((node) => node.play())
-      await page.waitForTimeout(1800)
+      await page.waitForTimeout(3500)
       await video.evaluate((node) => node.pause())
       await page.getByText('Read along with L01 transcript').click()
       if (!(await page.getByText('Spoken audio').isVisible())) throw new Error(`${label} transcript missing`)
