@@ -37,6 +37,13 @@ describe('Agentified lesson media gate', () => {
     expect(screen.getByRole('img', { name: 'L02 Decision lesson cover' })).toBeInTheDocument()
   })
 
+  it('records the selected lesson duration when playback ends', () => {
+    const onProgress = vi.fn()
+    const { container } = render(<AgentifiedLessonHero lessonId="L03" title="Sources" poster="/agentified/posters/l03-poster.webp" videoSrc="/approved-l03.mp4" durationSeconds={600} onProgress={onProgress} />)
+    fireEvent.ended(container.querySelector('video')!)
+    expect(onProgress).toHaveBeenCalledWith(600)
+  })
+
   it('keeps the established 340 ms fade and reduced-motion cut in CSS', () => {
     const css = readFileSync('app/agentified/workshop.module.css', 'utf8')
     expect(css).toMatch(/\.coverStage \.videoReveal\{animation:agentifiedPosterToVideo 340ms ease-out both\}/)
