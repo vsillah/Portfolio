@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "status": "approved_caption_only_correction_completed",
+  "lesson_id": "L13",
+  "pr_number": 1257,
+  "corrected_from_commit": "579b1e1d9982f7f90b95be9983a87b0ee54e41d9",
+  "request_sha256": "ca8117572b7e862a9dcdd15b1b901886cfe1068dbc2be487c6cde6f17cb84876",
+  "authorization": {
+    "mechanism": "response_annotation",
+    "source_message_id": "msg_03aad1e9d96279fd016af1a8adf4c087d2a3d6c021ef689cc7",
+    "annotation_index": 1,
+    "scope": "restore_omitted_l13_caption_passage_and_remux_existing_streams_only"
+  },
+  "restored_passage": {
+    "text": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`",
+    "source_start_seconds": 108.32,
+    "source_end_seconds": 116.853,
+    "sequence_start_seconds": 120.74,
+    "sequence_end_seconds": 129.273
+  },
+  "before": {
+    "srt_sha256": "489f13998c5919641e176242799a471f43e9982b1bfc76f2617b13c4def3945c",
+    "vtt_sha256": "39345dd457bfd8b89dec0b13e7a6c51102cdfec8fd25da707eea86cbad70d903",
+    "composite_sha256": "ca7f8f89c350787ba02af25a7b20e25db8766a7dd3dd03c108de0f01620a249e"
+  },
+  "after": {
+    "srt_sha256": "150123d892f2e77b0a37748e65dea274f05b4600d3349c66bb398350304d8cd3",
+    "vtt_sha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+    "composite_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f"
+  },
+  "stream_copy_proof": {
+    "video_codec": "h264",
+    "video_stream_sha256_before": "6ae64a73ea621864ed34ce1ca63d7221b5040463df1a6337f5d1c3442fdaa161",
+    "video_stream_sha256_after": "6ae64a73ea621864ed34ce1ca63d7221b5040463df1a6337f5d1c3442fdaa161",
+    "audio_codec": "aac",
+    "audio_stream_sha256_before": "fb94d2a78e10cdcfd837f633b34dd8727c45cd59808735fa5e96c8ea205386ad",
+    "audio_stream_sha256_after": "fb94d2a78e10cdcfd837f633b34dd8727c45cd59808735fa5e96c8ea205386ad"
+  },
+  "human_qa_walkthrough": {
+    "path": "agentified/workshop/l13-l16-native-composite/agentified-l13-caption-correction-walkthrough.mp4",
+    "sha256": "03e3b0c3bba60b07b1e4b5cbcd29032fdebcbdda436d65455adb899fae9354da",
+    "duration_seconds": 22,
+    "privacy_safe": true
+  },
+  "provider_calls": 0,
+  "spend_usd": 0,
+  "preserved": [
+    "video_stream",
+    "audio_stream",
+    "narration",
+    "timing",
+    "presenter_footage",
+    "instructional_plates",
+    "countdown",
+    "provider_sources",
+    "L14_L16_artifacts"
+  ],
+  "corrected_on": "2026-11-09"
+}

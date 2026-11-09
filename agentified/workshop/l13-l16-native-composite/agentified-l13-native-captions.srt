@@ -1,0 +1,195 @@
+1
+00:00:00,260 --> 00:00:01,920
+Morgan opens Harbor's paper planning
+
+2
+00:00:02,050 --> 00:00:03,180
+folder on Friday.
+
+3
+00:00:03,500 --> 00:00:05,160
+The Session Option Brief is still held
+
+4
+00:00:05,380 --> 00:00:07,230
+because no one has confirmed staffing.
+
+5
+00:00:07,510 --> 00:00:09,810
+An idea appears in the margin: perhaps a
+
+6
+00:00:09,860 --> 00:00:11,310
+different brief format would make the
+
+7
+00:00:11,350 --> 00:00:12,300
+next review easier.
+
+8
+00:00:12,676 --> 00:00:16,900
+It is tempting to let the preparation agent change the format and declare an improvement.
+
+9
+00:00:17,327 --> 00:00:23,343
+But Harbor has no baseline for review time, no test plan, and no permission to change the team's process.
+
+10
+00:00:23,979 --> 00:00:26,198
+The honest first artifact is a proposal.
+
+11
+00:00:26,667 --> 00:00:33,792
+Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard.
+
+12
+00:00:34,449 --> 00:00:41,531
+For the Harbor case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster?
+
+13
+00:00:42,257 --> 00:00:44,689
+The hypothesis needs a comparison and a metric.
+
+14
+00:00:45,220 --> 00:00:48,121
+We could compare two course brief layouts in a paper exercise.
+
+15
+00:00:48,846 --> 00:00:52,004
+We cannot claim one works better because it looks cleaner to us.
+
+16
+00:00:52,601 --> 00:00:55,887
+The `not_run` state records exactly what is missing.
+
+17
+00:00:56,587 --> 00:01:08,278
+The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate.
+
+18
+00:01:08,747 --> 00:01:10,838
+Here the baseline is `unknown`, not zero.
+
+19
+00:01:11,577 --> 00:01:18,020
+The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation.
+
+20
+00:01:18,617 --> 00:01:19,769
+No result exists yet.
+
+21
+00:01:20,239 --> 00:01:22,713
+The touched surface would be the paper brief layout only.
+
+22
+00:01:23,417 --> 00:01:25,593
+The rollback is to keep the current layout.
+
+23
+00:01:25,891 --> 00:01:29,646
+No routing default, memory record, or real calendar changes.
+
+24
+00:01:30,371 --> 00:01:34,339
+Morgan owns the review of the proposal because Morgan owns this planning decision.
+
+25
+00:01:34,954 --> 00:01:40,629
+A real experiment would need a fresh, scoped approval and an appropriate participant and privacy plan.
+
+26
+00:01:41,183 --> 00:01:42,719
+This lesson grants none of that.
+
+27
+00:01:43,307 --> 00:01:50,048
+In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test.
+
+28
+00:01:50,688 --> 00:01:54,358
+The agent cannot turn a promising hypothesis into durable memory.
+
+29
+00:01:54,980 --> 00:01:59,844
+A memory proposal would need its own source, scope, expiry, and human decision.
+
+30
+00:02:00,740 --> 00:02:09,273
+Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`
+
+31
+00:02:09,927 --> 00:02:13,895
+Then add the next safe step: Morgan reviews whether the question is worth testing at all.
+
+32
+00:02:14,279 --> 00:02:17,266
+If Morgan says no, keep the rejection and its reason.
+
+33
+00:02:17,735 --> 00:02:21,063
+If Morgan says yes, define the test before anyone runs it.
+
+34
+00:02:21,511 --> 00:02:24,071
+Either path teaches Harbor something about its priorities.
+
+35
+00:02:24,583 --> 00:02:27,015
+A silent queue of ideas teaches almost nothing.
+
+36
+00:02:27,655 --> 00:02:29,148
+Pause on your own workflow type.
+
+37
+00:02:29,533 --> 00:02:32,306
+What evidence would make your favorite improvement worth testing?
+
+38
+00:02:32,886 --> 00:02:34,764
+Draft one AutoResearch Proposal.
+
+39
+00:02:35,190 --> 00:02:48,801
+Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.
+
+40
+00:02:49,447 --> 00:02:51,330
+Mark the result `not_run`.
+
+41
+00:02:51,879 --> 00:02:55,549
+Write the reason in plain language and the action Morgan may take after review.
+
+42
+00:02:56,189 --> 00:02:58,237
+Keep the staffing and spend holds visible.
+
+43
+00:02:58,621 --> 00:03:00,455
+Use a fictional or approved example.
+
+44
+00:03:01,113 --> 00:03:53,025
+Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.
+
+45
+00:03:53,579 --> 00:03:55,414
+Save revision thirteen as a draft.
+
+46
+00:03:56,040 --> 00:04:01,075
+Research begins when a question can survive a gate, not when a dashboard fills with experiments.
+
+47
+00:04:01,797 --> 00:04:03,807
+Harbor has a proposal that someone can
+
+48
+00:04:03,847 --> 00:04:06,157
+inspect, and a clear record that nothing
+
+49
+00:04:06,327 --> 00:04:07,007
+has run.

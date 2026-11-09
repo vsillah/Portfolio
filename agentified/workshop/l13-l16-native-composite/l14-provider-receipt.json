@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "status": "presenter_and_narration_completed_once_no_retry_and_composited_provider_free",
+  "lesson_id": "L14",
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "batch_sha256": "18b3a6bfa3ee1dc6fadedb2cc969a312e8a9acf935bfb50684ad0d812b0cb194",
+  "request_sha256": "93414761a5a5a49ebc6068bf72ef5f0055418030f27ec57abe0fafe4f9781e6b",
+  "provider": "HeyGen Avatar IV plus HeyGen narration",
+  "presenter_job_id": "ad857f05cc75c54a48f7d1e143639625",
+  "look_id": "7275ba9035f94b31ad589dda6532d002",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "provider_calls": 2,
+  "retries": 0,
+  "execution_authorization_receipt": {
+    "path": "agentified/workshop/l13-l16-native-composite/execution-authorization-receipt.json",
+    "sha256": "0a4342bf657955f0ea8540afe862a26c73d57195986e730067ac8ccdca87032c",
+    "request_sha256": "93414761a5a5a49ebc6068bf72ef5f0055418030f27ec57abe0fafe4f9781e6b"
+  },
+  "provider_usage": {
+    "presenter_credit_cost": 9,
+    "narration_credit_cost": 1,
+    "lesson_credit_cost": 10,
+    "account_balance_after_lesson": 747,
+    "cash_purchase_usd": 0
+  },
+  "presenter_source": {
+    "path": "agentified/workshop/l13-l16-native-source/L14/agentified-l14-heygen-presenter-source.mp4",
+    "sha256": "be74d3587485413f63ec7741db443d3a79121c325ad5f9731def5144cd6ae4fe",
+    "duration_seconds": 15.426,
+    "subtitle_path": "agentified/workshop/l13-l16-native-source/L14/agentified-l14-heygen-presenter-source.srt",
+    "subtitle_sha256": "3cb7cee130413c1b653f0525af805f91dd5d1407eed7d876c21729945d8ef10b"
+  },
+  "narration_source": {
+    "path": "agentified/workshop/l13-l16-native-source/L14/agentified-l14-heygen-narration.wav",
+    "sha256": "5fca9f57f83ba22023b1b5c255ff1ae7dddb7044aac5d4df097df747d3544f9c",
+    "duration_seconds": 170.487,
+    "text_sha256": "5dbd66cfa1904d70b998f590d37bbac513776904f722d2681948c250fa249034",
+    "timing_path": "agentified/workshop/l13-l16-native-source/L14/narration-word-timing.json",
+    "timing_sha256": "8d2f85b9c79ab2b3d068ec28306ba511eaf4d0474693a9a88258d65834c49727"
+  },
+  "timing_receipt": {
+    "schema_version": 1,
+    "lesson_id": "L14",
+    "request_sha256": "93414761a5a5a49ebc6068bf72ef5f0055418030f27ec57abe0fafe4f9781e6b",
+    "presenter_source_duration_seconds": 15.426,
+    "narration_source_duration_seconds": 170.487,
+    "native_speed": 1,
+    "output_duration_seconds": 241.763,
+    "presenter_windows": [
+      {
+        "scene_id": "L14-01",
+        "source_in": 0,
+        "source_out": 11.91,
+        "sequence_start": 0,
+        "sequence_end": 11.91
+      },
+      {
+        "scene_id": "L14-08",
+        "source_in": 12.06,
+        "source_out": 15.426,
+        "sequence_start": 227.397,
+        "sequence_end": 230.763
+      }
+    ],
+    "narration_window": {
+      "sequence_start": 11.91,
+      "source_pause_split": 160.502,
+      "source_duration": 170.487
+    },
+    "guided_work_countdown": {
+      "source_split_seconds": 160.502,
+      "sequence_start": 172.412,
+      "sequence_end": 217.412,
+      "seconds": 45
+    },
+    "provider_free_closing_card": {
+      "start": 230.763,
+      "end": 241.763,
+      "overlay_on_final_presenter_passage": false
+    },
+    "sentence_alignment": {
+      "engine": "HeyGen native word timing plus exact-script global alignment",
+      "distance": 2,
+      "expected_words": 463,
+      "observed_words": 464
+    },
+    "presenter_transform": {
+      "x": 1048,
+      "y": 326,
+      "width": 768,
+      "height": 432,
+      "fit": "contain",
+      "border": "solid_gold",
+      "background": "provider_free_textured_studio"
+    }
+  },
+  "background_treatment": {
+    "mode": "provider_free_textured_studio_reconstruction",
+    "key": "colorkey=0x00e868:0.28:0.08",
+    "edge_despill": "green:mix=0.05:expand=0.02",
+    "native_presenter_pixels_preserved": true
+  },
+  "composite": {
+    "path": "agentified/workshop/l13-l16-native-composite/agentified-l14-native-composite.mp4",
+    "sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+    "duration_seconds": 241.762
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l13-l16-native-composite/agentified-l14-native-captions.srt",
+    "srt_sha256": "f69745e89fa4d9ccb71abccfa9b7ded07809beea373c68a35eb016d30182b0fa",
+    "vtt_path": "agentified/workshop/l13-l16-native-composite/agentified-l14-native-captions.vtt",
+    "vtt_sha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446"
+  }
+}

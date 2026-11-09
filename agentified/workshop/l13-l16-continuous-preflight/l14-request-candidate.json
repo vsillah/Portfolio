@@ -1,0 +1,766 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_review_candidate",
+  "lesson_id": "L14",
+  "title": "Show the board the controls",
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "packet_path": "agentified/workshop/scene-production/packets/L14.json",
+  "packet_sha256": "4388dbb260c9a9f1a5253777f3b9657c72cebb46f5098d7ad60f41b3c4f552ce",
+  "script_sha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "provider_jobs_submitted": 0,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_execution_cap_usd": 0,
+  "proposed_identity": {
+    "look_name": "Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
+    "offscreen_voice_id": "4f53988b1c314610b514db98432fd0ef",
+    "status": "historical precedent only; L13-L16 purpose-specific rights pending"
+  },
+  "presenter_passages": [
+    {
+      "scene_id": "L14-01",
+      "storyboard_reservation": {
+        "start_seconds": 0,
+        "end_seconds": 15.722,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "A Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? Morgan brings three paper panels to the table.",
+      "passage_sha256": "e11b8774658c0eb7e893d3cb4dd33d6477068e7e44679840c2aa09e93e0e4a9b",
+      "provisional_speech_seconds": 15.722,
+      "caption_count": 2,
+      "native_media_path": null,
+      "native_media_sha256": null
+    },
+    {
+      "scene_id": "L14-08",
+      "storyboard_reservation": {
+        "start_seconds": 585.589,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Nothing about a clean storyboard lifts the hold.",
+      "passage_sha256": "9d0f6501d54e13a8f16c32bd616eb088b3b6a325dae6bb95286b1149effd09f8",
+      "provisional_speech_seconds": 3.411,
+      "caption_count": 1,
+      "native_media_path": null,
+      "native_media_sha256": null
+    }
+  ],
+  "offscreen_narration": {
+    "text": "The first panel shows the queue, including held and rejected work. The second follows one item through its trace. The third shows the rule that governed it. This is a design walkthrough, not a live system demonstration. Morgan is showing what Harbor intends to inspect before it trusts the workflow.\n\nStart with the queue. One Session Option Brief is prepared, not proposed to the team. The staffing hold says staffing is unconfirmed. The print request says no spend is approved. The research proposal is not run because its baseline and reviewer protocol are missing. Place the rejections where the reviewer can see them too. A queue that only displays polished outputs hides the decisions that make the operation governable.\n\nOpen the trace for the held brief. It begins with cleared Harbor source references. It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. There is no send or booking event. The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. The absence of an event is part of the answer.\n\nNow show memory. Harbor has a proposed local rule: a session cannot move from option to team proposal until a person confirms staffing. In this classroom design, that rule is a draft for Morgan's review. The agent cannot promote it itself, and a single held example cannot become general truth by repetition. Show the rule's owner, scope, source reference, status, and review date. If any are missing, say so.\n\nThe workbook asks what export a reviewer can take away. Morgan can offer the scoped proof outline from lesson twelve after a separate audience and privacy review. It would contain the boundary, receipt references, decisions, and limitations. It would omit raw notes and unrelated records. For class today, it stays `not shared`. A reviewer may ask whether the agent actually ran. Answer plainly: no. This exercise demonstrates controls on paper; it does not prove production reliability.\n\nPause. Which panel would expose the weakest part of your own proposed workflow first?\n\nStoryboard a Three-Panel Demo for your workflow. Give each panel a reviewer question and one piece of evidence. Include a blocked or rejected item beside the successful work. In the trace, name the missing event as clearly as the recorded ones. In memory, identify who may approve the rule. Write two likely skeptical questions and honest answers. Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing. Use a fictional or approved example. Do not use private operational data.\n\nSave revision fourteen as a draft. The board can examine Harbor's proposed controls and its unresolved gaps. Morgan still owns the session decision.",
+    "text_sha256": "5dbd66cfa1904d70b998f590d37bbac513776904f722d2681948c250fa249034",
+    "word_count": 463,
+    "segments": [
+      {
+        "scene_id": "L14-01",
+        "text": "The first panel shows the queue, including held and rejected work. The second follows one item through its trace. The third shows the rule that governed it. This is a design walkthrough, not a live system demonstration. Morgan is showing what Harbor intends to inspect before it trusts the workflow.",
+        "sha256": "66e2a85ea8ab2253b08f5b180696d1f18b044edc4fc847e31fabd573e2504de4"
+      },
+      {
+        "scene_id": "L14-02",
+        "text": "Start with the queue. One Session Option Brief is prepared, not proposed to the team. The staffing hold says staffing is unconfirmed. The print request says no spend is approved. The research proposal is not run because its baseline and reviewer protocol are missing. Place the rejections where the reviewer can see them too. A queue that only displays polished outputs hides the decisions that make the operation governable.",
+        "sha256": "dc27483cf06ae92f99f4911d38730cb040432a941299f390c869b5999895907d"
+      },
+      {
+        "scene_id": "L14-03",
+        "text": "Open the trace for the held brief. It begins with cleared Harbor source references. It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. There is no send or booking event. The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. The absence of an event is part of the answer.",
+        "sha256": "d39279796d0a349340b493c923dc720b2425ef241b02e9235da2c02883ac3644"
+      },
+      {
+        "scene_id": "L14-04",
+        "text": "Now show memory. Harbor has a proposed local rule: a session cannot move from option to team proposal until a person confirms staffing. In this classroom design, that rule is a draft for Morgan's review. The agent cannot promote it itself, and a single held example cannot become general truth by repetition. Show the rule's owner, scope, source reference, status, and review date. If any are missing, say so.",
+        "sha256": "d17c769610cdb5c48b887653d143947d373390c08644cbb5b758d5e651ba57a1"
+      },
+      {
+        "scene_id": "L14-05",
+        "text": "The workbook asks what export a reviewer can take away. Morgan can offer the scoped proof outline from lesson twelve after a separate audience and privacy review. It would contain the boundary, receipt references, decisions, and limitations. It would omit raw notes and unrelated records. For class today, it stays `not shared`. A reviewer may ask whether the agent actually ran. Answer plainly: no. This exercise demonstrates controls on paper; it does not prove production reliability.",
+        "sha256": "bb69b5550d9231562a3d32346732f457fee0c31f7fbb75b3b0cb03943d624884"
+      },
+      {
+        "scene_id": "L14-06",
+        "text": "Pause. Which panel would expose the weakest part of your own proposed workflow first?",
+        "sha256": "08726ce0e014c7548e2d2eff95758df433a2481c9339d42d64e2aef47af35bc1"
+      },
+      {
+        "scene_id": "L14-07",
+        "text": "Storyboard a Three-Panel Demo for your workflow. Give each panel a reviewer question and one piece of evidence. Include a blocked or rejected item beside the successful work. In the trace, name the missing event as clearly as the recorded ones. In memory, identify who may approve the rule. Write two likely skeptical questions and honest answers. Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing. Use a fictional or approved example. Do not use private operational data.",
+        "sha256": "75242da475136ec86fb3935b0094f8862b6a377011d1d3b037777d37f92e2df0"
+      },
+      {
+        "scene_id": "L14-08",
+        "text": "Save revision fourteen as a draft. The board can examine Harbor's proposed controls and its unresolved gaps. Morgan still owns the session decision.",
+        "sha256": "046ee2fcab217ded4a9ad08883b1f1b64b3bb1ff35f5a56ab660c40af66dbd5f"
+      }
+    ],
+    "new_audio_path": null,
+    "new_audio_sha256": null
+  },
+  "timing": {
+    "status": "provisional_cue_derived; native_audio_required",
+    "original_storyboard_seconds": 600,
+    "proposed_continuous_seconds": 284,
+    "spoken_seconds": 228,
+    "ordinary_gap_limit_seconds": 2.5,
+    "actual_native_timing_seconds": null,
+    "no_fixed_ten_minute_padding": true,
+    "cues": [
+      {
+        "scene_id": "L14-01",
+        "speaker": "presenter",
+        "start_seconds": 0,
+        "end_seconds": 12.046,
+        "text": "A Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? ",
+        "source_start_seconds": 0,
+        "source_end_seconds": 12.046
+      },
+      {
+        "scene_id": "L14-01",
+        "speaker": "presenter",
+        "start_seconds": 12.046,
+        "end_seconds": 15.722,
+        "text": "Morgan brings three paper panels to the table. ",
+        "source_start_seconds": 12.046,
+        "source_end_seconds": 15.722
+      },
+      {
+        "scene_id": "L14-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 15.722,
+        "end_seconds": 20.714,
+        "text": "The first panel shows the queue, including held and rejected work. ",
+        "source_start_seconds": 15.722,
+        "source_end_seconds": 20.714
+      },
+      {
+        "scene_id": "L14-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 20.714,
+        "end_seconds": 24.216,
+        "text": "The second follows one item through its trace. ",
+        "source_start_seconds": 20.714,
+        "source_end_seconds": 24.216
+      },
+      {
+        "scene_id": "L14-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 24.216,
+        "end_seconds": 27.42,
+        "text": "The third shows the rule that governed it. ",
+        "source_start_seconds": 24.216,
+        "source_end_seconds": 27.42
+      },
+      {
+        "scene_id": "L14-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 27.42,
+        "end_seconds": 32.114,
+        "text": "This is a design walkthrough, not a live system demonstration. ",
+        "source_start_seconds": 27.42,
+        "source_end_seconds": 32.114
+      },
+      {
+        "scene_id": "L14-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 32.114,
+        "end_seconds": 38,
+        "text": "Morgan is showing what Harbor intends to inspect before it trusts the workflow.",
+        "source_start_seconds": 32.114,
+        "source_end_seconds": 38
+      },
+      {
+        "scene_id": "L14-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 38,
+        "end_seconds": 39.605,
+        "text": "Start with the queue. ",
+        "source_start_seconds": 70,
+        "source_end_seconds": 71.605
+      },
+      {
+        "scene_id": "L14-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 39.605,
+        "end_seconds": 44.273,
+        "text": "One Session Option Brief is prepared, not proposed to the team. ",
+        "source_start_seconds": 71.605,
+        "source_end_seconds": 76.273
+      },
+      {
+        "scene_id": "L14-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 44.273,
+        "end_seconds": 47.774,
+        "text": "The staffing hold says staffing is unconfirmed. ",
+        "source_start_seconds": 76.273,
+        "source_end_seconds": 79.774
+      },
+      {
+        "scene_id": "L14-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 47.774,
+        "end_seconds": 51.056,
+        "text": "The print request says no spend is approved. ",
+        "source_start_seconds": 79.774,
+        "source_end_seconds": 83.056
+      },
+      {
+        "scene_id": "L14-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 51.056,
+        "end_seconds": 57.548,
+        "text": "The research proposal is not run because its baseline and reviewer protocol are missing. ",
+        "source_start_seconds": 83.056,
+        "source_end_seconds": 89.548
+      },
+      {
+        "scene_id": "L14-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 57.548,
+        "end_seconds": 61.779,
+        "text": "Place the rejections where the reviewer can see them too. ",
+        "source_start_seconds": 89.548,
+        "source_end_seconds": 93.779
+      },
+      {
+        "scene_id": "L14-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 61.779,
+        "end_seconds": 69,
+        "text": "A queue that only displays polished outputs hides the decisions that make the operation governable.",
+        "source_start_seconds": 93.779,
+        "source_end_seconds": 101
+      },
+      {
+        "scene_id": "L14-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 69,
+        "end_seconds": 71.849,
+        "text": "Open the trace for the held brief. ",
+        "source_start_seconds": 140,
+        "source_end_seconds": 142.849
+      },
+      {
+        "scene_id": "L14-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 71.849,
+        "end_seconds": 75.837,
+        "text": "It begins with cleared Harbor source references. ",
+        "source_start_seconds": 142.849,
+        "source_end_seconds": 146.837
+      },
+      {
+        "scene_id": "L14-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 75.837,
+        "end_seconds": 86.012,
+        "text": "It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner. ",
+        "source_start_seconds": 146.837,
+        "source_end_seconds": 157.012
+      },
+      {
+        "scene_id": "L14-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 86.012,
+        "end_seconds": 88.86,
+        "text": "There is no send or booking event. ",
+        "source_start_seconds": 157.012,
+        "source_end_seconds": 159.86
+      },
+      {
+        "scene_id": "L14-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 88.86,
+        "end_seconds": 100.256,
+        "text": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log. ",
+        "source_start_seconds": 159.86,
+        "source_end_seconds": 171.256
+      },
+      {
+        "scene_id": "L14-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 100.256,
+        "end_seconds": 104,
+        "text": "The absence of an event is part of the answer.",
+        "source_start_seconds": 171.256,
+        "source_end_seconds": 175
+      },
+      {
+        "scene_id": "L14-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 104,
+        "end_seconds": 105.289,
+        "text": "Now show memory. ",
+        "source_start_seconds": 210,
+        "source_end_seconds": 211.289
+      },
+      {
+        "scene_id": "L14-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 105.289,
+        "end_seconds": 114.308,
+        "text": "Harbor has a proposed local rule: a session cannot move from option to team proposal until a person confirms staffing. ",
+        "source_start_seconds": 211.289,
+        "source_end_seconds": 220.308
+      },
+      {
+        "scene_id": "L14-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 114.308,
+        "end_seconds": 119.462,
+        "text": "In this classroom design, that rule is a draft for Morgan's review. ",
+        "source_start_seconds": 220.308,
+        "source_end_seconds": 225.462
+      },
+      {
+        "scene_id": "L14-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 119.462,
+        "end_seconds": 127.421,
+        "text": "The agent cannot promote it itself, and a single held example cannot become general truth by repetition. ",
+        "source_start_seconds": 225.462,
+        "source_end_seconds": 233.421
+      },
+      {
+        "scene_id": "L14-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 127.421,
+        "end_seconds": 132.954,
+        "text": "Show the rule's owner, scope, source reference, status, and review date. ",
+        "source_start_seconds": 233.421,
+        "source_end_seconds": 238.954
+      },
+      {
+        "scene_id": "L14-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 132.954,
+        "end_seconds": 135,
+        "text": "If any are missing, say so.",
+        "source_start_seconds": 238.954,
+        "source_end_seconds": 241
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 135,
+        "end_seconds": 138.91,
+        "text": "The workbook asks what export a reviewer can take away. ",
+        "source_start_seconds": 275,
+        "source_end_seconds": 278.91
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 138.91,
+        "end_seconds": 146.38,
+        "text": "Morgan can offer the scoped proof outline from lesson twelve after a separate audience and privacy review. ",
+        "source_start_seconds": 278.91,
+        "source_end_seconds": 286.38
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 146.38,
+        "end_seconds": 151.895,
+        "text": "It would contain the boundary, receipt references, decisions, and limitations. ",
+        "source_start_seconds": 286.38,
+        "source_end_seconds": 291.895
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 151.895,
+        "end_seconds": 155.177,
+        "text": "It would omit raw notes and unrelated records. ",
+        "source_start_seconds": 291.895,
+        "source_end_seconds": 295.177
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 155.177,
+        "end_seconds": 157.969,
+        "text": "For class today, it stays `not shared`. ",
+        "source_start_seconds": 295.177,
+        "source_end_seconds": 297.969
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 157.969,
+        "end_seconds": 161.53,
+        "text": "A reviewer may ask whether the agent actually ran. ",
+        "source_start_seconds": 297.969,
+        "source_end_seconds": 301.53
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 161.53,
+        "end_seconds": 162.926,
+        "text": "Answer plainly: no. ",
+        "source_start_seconds": 301.53,
+        "source_end_seconds": 302.926
+      },
+      {
+        "scene_id": "L14-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 162.926,
+        "end_seconds": 169,
+        "text": "This exercise demonstrates controls on paper; it does not prove production reliability.",
+        "source_start_seconds": 302.926,
+        "source_end_seconds": 309
+      },
+      {
+        "scene_id": "L14-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 169,
+        "end_seconds": 169.576,
+        "text": "Pause. ",
+        "source_start_seconds": 345,
+        "source_end_seconds": 345.576
+      },
+      {
+        "scene_id": "L14-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 169.576,
+        "end_seconds": 176,
+        "text": "Which panel would expose the weakest part of your own proposed workflow first?",
+        "source_start_seconds": 345.576,
+        "source_end_seconds": 352
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 176,
+        "end_seconds": 179.574,
+        "text": "Storyboard a Three-Panel Demo for your workflow. ",
+        "source_start_seconds": 375,
+        "source_end_seconds": 378.574
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 179.574,
+        "end_seconds": 184.169,
+        "text": "Give each panel a reviewer question and one piece of evidence. ",
+        "source_start_seconds": 378.574,
+        "source_end_seconds": 383.169
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 184.169,
+        "end_seconds": 188.764,
+        "text": "Include a blocked or rejected item beside the successful work. ",
+        "source_start_seconds": 383.169,
+        "source_end_seconds": 387.764
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 188.764,
+        "end_seconds": 193.869,
+        "text": "In the trace, name the missing event as clearly as the recorded ones. ",
+        "source_start_seconds": 387.764,
+        "source_end_seconds": 392.869
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 193.869,
+        "end_seconds": 197.225,
+        "text": "In memory, identify who may approve the rule. ",
+        "source_start_seconds": 392.869,
+        "source_end_seconds": 396.225
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 197.225,
+        "end_seconds": 201.382,
+        "text": "Write two likely skeptical questions and honest answers. ",
+        "source_start_seconds": 396.225,
+        "source_end_seconds": 400.382
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 201.382,
+        "end_seconds": 208.676,
+        "text": "Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing. ",
+        "source_start_seconds": 400.382,
+        "source_end_seconds": 407.676
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 208.676,
+        "end_seconds": 211.374,
+        "text": "Use a fictional or approved example. ",
+        "source_start_seconds": 407.676,
+        "source_end_seconds": 410.374
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 211.374,
+        "end_seconds": 214,
+        "text": "Do not use private operational data.",
+        "source_start_seconds": 410.374,
+        "source_end_seconds": 413
+      },
+      {
+        "scene_id": "L14-07",
+        "speaker": "guided_work_pause",
+        "start_seconds": 214,
+        "end_seconds": 259,
+        "text": "Make a `Three-Panel Demo` storyboard with queue, trace, and memory. For each panel, write the question it answers, a synthetic evidence reference, what is blocked or rejected, and what remains unknown. Add two reviewer questions, the privacy exclusions, a possible proof export, its audience and review owner, and `not shared` until approved. Keep the original staffing and spend holds and the research `not_run` state visible.",
+        "visual": "visible synchronized countdown from 45 to 0; no music"
+      },
+      {
+        "scene_id": "L14-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 259,
+        "end_seconds": 261.487,
+        "text": "Save revision fourteen as a draft. ",
+        "source_start_seconds": 575,
+        "source_end_seconds": 577.487
+      },
+      {
+        "scene_id": "L14-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 261.487,
+        "end_seconds": 266.746,
+        "text": "The board can examine Harbor's proposed controls and its unresolved gaps. ",
+        "source_start_seconds": 577.487,
+        "source_end_seconds": 582.746
+      },
+      {
+        "scene_id": "L14-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 266.746,
+        "end_seconds": 269.589,
+        "text": "Morgan still owns the session decision. ",
+        "source_start_seconds": 582.746,
+        "source_end_seconds": 585.589
+      },
+      {
+        "scene_id": "L14-08",
+        "speaker": "presenter",
+        "start_seconds": 269.589,
+        "end_seconds": 273,
+        "text": "Nothing about a clean storyboard lifts the hold.",
+        "source_start_seconds": 585.589,
+        "source_end_seconds": 589
+      }
+    ],
+    "guided_work_pause_seconds": 45,
+    "closing_card": {
+      "scene_id": "L14-08",
+      "start_seconds": 273,
+      "end_seconds": 284,
+      "duration_seconds": 11,
+      "overlay_on_final_presenter_passage": false,
+      "audience_copy_exact": [
+        "Operating File v14: Three-Panel Demo.",
+        "Next: rehearse the day."
+      ],
+      "treatment": "approved ending copy in provider-free card; L16 overlaps final spoken passage without padding"
+    },
+    "rule": "Retain exact speech in order; change picture only at a sentence-complete spoken handoff; one speaker at a time; preserve native presenter source frame rate and audio; re-time captions after native recordings."
+  },
+  "scenes": [
+    {
+      "scene_id": "L14-01",
+      "audience_copy_exact": [
+        "Queue. Trace. Memory.",
+        "Paper design review."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L14-02",
+      "audience_copy_exact": [
+        "Prepared / Held / Rejected / Not run."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L14-03",
+      "audience_copy_exact": [
+        "Request → draft → check → hold → Morgan.",
+        "No send event."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L14-04",
+      "audience_copy_exact": [
+        "Rule owner / scope / source / status / review."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L14-05",
+      "audience_copy_exact": [
+        "Proof outline: not shared.",
+        "No production claim."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L14-06",
+      "audience_copy_exact": [
+        "Pause: name the weakest panel."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L14-07",
+      "audience_copy_exact": [],
+      "exercise_prompt_exact": "Make a `Three-Panel Demo` storyboard with queue, trace, and memory. For each panel, write the question it answers, a synthetic evidence reference, what is blocked or rejected, and what remains unknown. Add two reviewer questions, the privacy exclusions, a possible proof export, its audience and review owner, and `not shared` until approved. Keep the original staffing and spend holds and the research `not_run` state visible.",
+      "guided_display_copy_exact": [
+        "Storyboard a Three-Panel Demo for your workflow.",
+        "Give each panel a reviewer question and one piece of evidence."
+      ]
+    },
+    {
+      "scene_id": "L14-08",
+      "audience_copy_exact": [
+        "Operating File v14: Three-Panel Demo.",
+        "Next: rehearse the day."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    }
+  ],
+  "visuals": [
+    {
+      "scene_id": "L14-03",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "use": "A narrow trace with a conspicuous stop before any send or booking node.",
+      "text_equivalent": "Portfolio-first operating stack: Open Brain, Harness, Agent roles, and Mission Control feed a controls layer. A public-safe proof branch is separated from raw private logs.",
+      "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+      "treatment": "full plate in contain region; approved audience copy separate and readable at mobile width"
+    },
+    {
+      "scene_id": "L14-04",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "Draft rule card beside a closed authority gate and `not shared` proof outline.",
+      "text_equivalent": "Authority ladder climbs from Prepare to Recommend, Route, Stage, and Execute. Side labels require a rollback path, human gate, source check, and receipt before authority rises.",
+      "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+      "treatment": "full plate in contain region; approved audience copy separate and readable at mobile width"
+    }
+  ],
+  "cover": {
+    "path": "public/agentified/posters/l14-poster.webp",
+    "sha256": "131e86fd77ce2e2934e0769bc150393c9f9baa108c95b956c51c94c76c5df605",
+    "use": "static poster and internal animatic only; video locked"
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "three-panel-demo",
+      "revision": 14,
+      "status": "draft",
+      "update_exact": "`three-panel-demo` → `proof.board_demo`, revision 14, status `draft`; revision 13's research proposal remains `not_run`."
+    },
+    "chapter_sources": [
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch24-the-board-demo.md",
+        "sha256": "dde1b9f2230dc3117b0ec2407e525878e0ad37bae08fd5b0075e37afff845915"
+      }
+    ],
+    "source_ids_policy": "protected synthetic trace only; no source IDs in provider request"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L14.json",
+      "sha256": "4388dbb260c9a9f1a5253777f3b9657c72cebb46f5098d7ad60f41b3c4f552ce"
+    },
+    {
+      "path": "agentified/workshop/scripts/L14-show-the-board-the-controls.md",
+      "sha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413"
+    },
+    {
+      "path": "public/agentified/posters/l14-poster.webp",
+      "sha256": "131e86fd77ce2e2934e0769bc150393c9f9baa108c95b956c51c94c76c5df605"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0"
+    },
+    {
+      "path": "app/agentified/AgentifiedWorkshop.tsx",
+      "sha256": "0eaad4eb91ae457b55a6aac66b2e929c8aa01ea17504977abc297f9b5ce6f7f6"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch24-the-board-demo.md",
+      "sha256": "dde1b9f2230dc3117b0ec2407e525878e0ad37bae08fd5b0075e37afff845915"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+    }
+  ],
+  "gates": [
+    "purpose-specific L13-L16 look and voice approval",
+    "fresh provider quote, balance and enforceable one-job and batch caps",
+    "separate exact execution authorization",
+    "native audio timing and sentence-level edit audit",
+    "caption, diagram alt, mobile/desktop and final MP4 review"
+  ],
+  "stop_conditions": [
+    "source, rights, identity, voice or packet drift",
+    "uncertain job outcome or provider error; no retry",
+    "cost cap uncertainty or unexpected debit",
+    "narration omission, repetition or altered meaning",
+    "ordinary gap over 2.5 seconds",
+    "topic cut before sentence-complete handoff",
+    "visual clipping, label collision or unreadable captions"
+  ],
+  "candidate_sha256": "93414761a5a5a49ebc6068bf72ef5f0055418030f27ec57abe0fafe4f9781e6b"
+}

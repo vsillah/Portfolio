@@ -1,0 +1,2591 @@
+{
+  "schema_version": 1,
+  "provider": "HeyGen create_speech_without_player",
+  "lesson_id": "L16",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "engine": "heygen_voice",
+  "submitted_text_sha256": "e14c1b2ca67b5d3c21b72c6c1d7ed21a379b524fbc4c48c592f5f17361e58060",
+  "duration_seconds": 197.00201814058957,
+  "original_words": [
+    {
+      "text": "The",
+      "start_time": 0.256,
+      "end_time": 0.384
+    },
+    {
+      "text": "file",
+      "start_time": 0.427,
+      "end_time": 0.6827
+    },
+    {
+      "text": "is",
+      "start_time": 0.811,
+      "end_time": 0.896
+    },
+    {
+      "text": "impressive",
+      "start_time": 0.939,
+      "end_time": 1.408
+    },
+    {
+      "text": "in",
+      "start_time": 1.451,
+      "end_time": 1.493
+    },
+    {
+      "text": "one",
+      "start_time": 1.536,
+      "end_time": 1.7067
+    },
+    {
+      "text": "sense",
+      "start_time": 1.792,
+      "end_time": 2.005
+    },
+    {
+      "text": "its",
+      "start_time": 2.517,
+      "end_time": 2.645
+    },
+    {
+      "text": "gaps",
+      "start_time": 2.731,
+      "end_time": 2.9867
+    },
+    {
+      "text": "are",
+      "start_time": 3.115,
+      "end_time": 3.2
+    },
+    {
+      "text": "visible",
+      "start_time": 3.243,
+      "end_time": 3.456
+    },
+    {
+      "text": "Staffing",
+      "start_time": 3.925,
+      "end_time": 4.352
+    },
+    {
+      "text": "is",
+      "start_time": 4.437,
+      "end_time": 4.5227
+    },
+    {
+      "text": "still",
+      "start_time": 4.565,
+      "end_time": 4.7787
+    },
+    {
+      "text": "unconfirmed",
+      "start_time": 4.821,
+      "end_time": 5.419
+    },
+    {
+      "text": "Spend",
+      "start_time": 5.803,
+      "end_time": 6.101
+    },
+    {
+      "text": "is",
+      "start_time": 6.272,
+      "end_time": 6.357
+    },
+    {
+      "text": "unapproved",
+      "start_time": 6.4,
+      "end_time": 6.827
+    },
+    {
+      "text": "The",
+      "start_time": 7.296,
+      "end_time": 7.424
+    },
+    {
+      "text": "research",
+      "start_time": 7.467,
+      "end_time": 7.765
+    },
+    {
+      "text": "test",
+      "start_time": 7.893,
+      "end_time": 8.1067
+    },
+    {
+      "text": "has",
+      "start_time": 8.192,
+      "end_time": 8.277
+    },
+    {
+      "text": "not",
+      "start_time": 8.363,
+      "end_time": 8.533
+    },
+    {
+      "text": "run",
+      "start_time": 8.661,
+      "end_time": 8.832
+    },
+    {
+      "text": "The",
+      "start_time": 9.216,
+      "end_time": 9.344
+    },
+    {
+      "text": "board",
+      "start_time": 9.387,
+      "end_time": 9.557
+    },
+    {
+      "text": "proof",
+      "start_time": 9.685,
+      "end_time": 9.8987
+    },
+    {
+      "text": "has",
+      "start_time": 9.984,
+      "end_time": 10.069
+    },
+    {
+      "text": "not",
+      "start_time": 10.112,
+      "end_time": 10.325
+    },
+    {
+      "text": "been",
+      "start_time": 10.411,
+      "end_time": 10.496
+    },
+    {
+      "text": "shared",
+      "start_time": 10.581,
+      "end_time": 10.837
+    },
+    {
+      "text": "The",
+      "start_time": 11.338,
+      "end_time": 11.4238
+    },
+    {
+      "text": "capstone",
+      "start_time": 11.466,
+      "end_time": 11.9358
+    },
+    {
+      "text": "asks",
+      "start_time": 12.021,
+      "end_time": 12.3198
+    },
+    {
+      "text": "whether",
+      "start_time": 12.491,
+      "end_time": 12.618
+    },
+    {
+      "text": "this",
+      "start_time": 12.746,
+      "end_time": 12.874
+    },
+    {
+      "text": "design",
+      "start_time": 12.96,
+      "end_time": 13.0878
+    },
+    {
+      "text": "deserves",
+      "start_time": 13.386,
+      "end_time": 13.685
+    },
+    {
+      "text": "to",
+      "start_time": 13.771,
+      "end_time": 13.8985
+    },
+    {
+      "text": "continue",
+      "start_time": 13.941,
+      "end_time": 14.283
+    },
+    {
+      "text": "in",
+      "start_time": 14.794,
+      "end_time": 14.965
+    },
+    {
+      "text": "what",
+      "start_time": 15.008,
+      "end_time": 15.1358
+    },
+    {
+      "text": "smaller",
+      "start_time": 15.221,
+      "end_time": 15.477
+    },
+    {
+      "text": "form",
+      "start_time": 15.605,
+      "end_time": 15.861
+    },
+    {
+      "text": "and",
+      "start_time": 16.288,
+      "end_time": 16.501
+    },
+    {
+      "text": "under",
+      "start_time": 16.544,
+      "end_time": 16.7145
+    },
+    {
+      "text": "whose",
+      "start_time": 16.8,
+      "end_time": 16.9705
+    },
+    {
+      "text": "care",
+      "start_time": 17.099,
+      "end_time": 17.312
+    },
+    {
+      "text": "Chapter",
+      "start_time": 17.952,
+      "end_time": 18.293
+    },
+    {
+      "text": "Twenty",
+      "start_time": 18.336,
+      "end_time": 18.506
+    },
+    {
+      "text": "Six",
+      "start_time": 18.592,
+      "end_time": 18.8478
+    },
+    {
+      "text": "names",
+      "start_time": 18.976,
+      "end_time": 19.189
+    },
+    {
+      "text": "five",
+      "start_time": 19.36,
+      "end_time": 19.6585
+    },
+    {
+      "text": "operating",
+      "start_time": 19.829,
+      "end_time": 20.213
+    },
+    {
+      "text": "questions",
+      "start_time": 20.341,
+      "end_time": 20.555
+    },
+    {
+      "text": "route",
+      "start_time": 21.323,
+      "end_time": 21.664
+    },
+    {
+      "text": "log",
+      "start_time": 21.92,
+      "end_time": 22.261
+    },
+    {
+      "text": "gate",
+      "start_time": 22.773,
+      "end_time": 23.072
+    },
+    {
+      "text": "memory",
+      "start_time": 23.413,
+      "end_time": 23.925
+    },
+    {
+      "text": "review",
+      "start_time": 24.309,
+      "end_time": 24.48
+    },
+    {
+      "text": "Who",
+      "start_time": 25.12,
+      "end_time": 25.3758
+    },
+    {
+      "text": "receives",
+      "start_time": 25.419,
+      "end_time": 25.717
+    },
+    {
+      "text": "the",
+      "start_time": 25.802,
+      "end_time": 25.8878
+    },
+    {
+      "text": "work",
+      "start_time": 25.93,
+      "end_time": 26.058
+    },
+    {
+      "text": "What",
+      "start_time": 26.502,
+      "end_time": 26.715
+    },
+    {
+      "text": "record",
+      "start_time": 26.758,
+      "end_time": 26.9288
+    },
+    {
+      "text": "explains",
+      "start_time": 27.057,
+      "end_time": 27.4408
+    },
+    {
+      "text": "it",
+      "start_time": 27.526,
+      "end_time": 27.697
+    },
+    {
+      "text": "Where",
+      "start_time": 28.081,
+      "end_time": 28.2515
+    },
+    {
+      "text": "does",
+      "start_time": 28.294,
+      "end_time": 28.38
+    },
+    {
+      "text": "a",
+      "start_time": 28.422,
+      "end_time": 28.4648
+    },
+    {
+      "text": "human",
+      "start_time": 28.508,
+      "end_time": 28.678
+    },
+    {
+      "text": "decide",
+      "start_time": 28.806,
+      "end_time": 28.977
+    },
+    {
+      "text": "What",
+      "start_time": 29.617,
+      "end_time": 29.9155
+    },
+    {
+      "text": "may",
+      "start_time": 29.958,
+      "end_time": 30.086
+    },
+    {
+      "text": "be",
+      "start_time": 30.129,
+      "end_time": 30.214
+    },
+    {
+      "text": "remembered",
+      "start_time": 30.257,
+      "end_time": 30.683
+    },
+    {
+      "text": "and",
+      "start_time": 30.939,
+      "end_time": 31.067
+    },
+    {
+      "text": "by",
+      "start_time": 31.11,
+      "end_time": 31.238
+    },
+    {
+      "text": "whom",
+      "start_time": 31.281,
+      "end_time": 31.409
+    },
+    {
+      "text": "When",
+      "start_time": 31.878,
+      "end_time": 32.0915
+    },
+    {
+      "text": "will",
+      "start_time": 32.177,
+      "end_time": 32.3048
+    },
+    {
+      "text": "someone",
+      "start_time": 32.347,
+      "end_time": 32.518
+    },
+    {
+      "text": "revisit",
+      "start_time": 32.689,
+      "end_time": 33.03
+    },
+    {
+      "text": "the",
+      "start_time": 33.158,
+      "end_time": 33.243
+    },
+    {
+      "text": "rule",
+      "start_time": 33.286,
+      "end_time": 33.457
+    },
+    {
+      "text": "The",
+      "start_time": 34.097,
+      "end_time": 34.182
+    },
+    {
+      "text": "companion",
+      "start_time": 34.225,
+      "end_time": 34.651
+    },
+    {
+      "text": "workbook",
+      "start_time": 34.737,
+      "end_time": 35.078
+    },
+    {
+      "text": "expands",
+      "start_time": 35.163,
+      "end_time": 35.675
+    },
+    {
+      "text": "these",
+      "start_time": 35.761,
+      "end_time": 35.8888
+    },
+    {
+      "text": "into",
+      "start_time": 36.059,
+      "end_time": 36.1448
+    },
+    {
+      "text": "an",
+      "start_time": 36.316,
+      "end_time": 36.358
+    },
+    {
+      "text": "Accountability",
+      "start_time": 36.401,
+      "end_time": 36.9128
+    },
+    {
+      "text": "Stack",
+      "start_time": 37.126,
+      "end_time": 37.382
+    },
+    {
+      "text": "from",
+      "start_time": 37.51,
+      "end_time": 37.5955
+    },
+    {
+      "text": "source",
+      "start_time": 37.681,
+      "end_time": 37.9368
+    },
+    {
+      "text": "through",
+      "start_time": 38.193,
+      "end_time": 38.3208
+    },
+    {
+      "text": "rollback",
+      "start_time": 38.364,
+      "end_time": 38.748
+    },
+    {
+      "text": "We",
+      "start_time": 39.359,
+      "end_time": 39.5728
+    },
+    {
+      "text": "will",
+      "start_time": 39.615,
+      "end_time": 39.743
+    },
+    {
+      "text": "use",
+      "start_time": 39.786,
+      "end_time": 39.9568
+    },
+    {
+      "text": "the",
+      "start_time": 40.042,
+      "end_time": 40.17
+    },
+    {
+      "text": "larger",
+      "start_time": 40.213,
+      "end_time": 40.554
+    },
+    {
+      "text": "worksheet",
+      "start_time": 40.639,
+      "end_time": 41.1088
+    },
+    {
+      "text": "to",
+      "start_time": 41.151,
+      "end_time": 41.279
+    },
+    {
+      "text": "audit",
+      "start_time": 41.322,
+      "end_time": 41.6208
+    },
+    {
+      "text": "the",
+      "start_time": 41.663,
+      "end_time": 41.7488
+    },
+    {
+      "text": "single",
+      "start_time": 41.791,
+      "end_time": 42.0048
+    },
+    {
+      "text": "Harbor",
+      "start_time": 42.175,
+      "end_time": 42.431
+    },
+    {
+      "text": "workflow",
+      "start_time": 42.474,
+      "end_time": 42.944
+    },
+    {
+      "text": "while",
+      "start_time": 43.242,
+      "end_time": 43.4555
+    },
+    {
+      "text": "keeping",
+      "start_time": 43.498,
+      "end_time": 43.6688
+    },
+    {
+      "text": "the",
+      "start_time": 43.797,
+      "end_time": 43.8395
+    },
+    {
+      "text": "five",
+      "start_time": 43.882,
+      "end_time": 44.138
+    },
+    {
+      "text": "questions",
+      "start_time": 44.266,
+      "end_time": 44.4795
+    },
+    {
+      "text": "as",
+      "start_time": 44.778,
+      "end_time": 44.949
+    },
+    {
+      "text": "a",
+      "start_time": 44.992,
+      "end_time": 45.034
+    },
+    {
+      "text": "readable",
+      "start_time": 45.077,
+      "end_time": 45.3328
+    },
+    {
+      "text": "spine",
+      "start_time": 45.461,
+      "end_time": 45.76
+    },
+    {
+      "text": "Begin",
+      "start_time": 46.485,
+      "end_time": 46.783
+    },
+    {
+      "text": "with",
+      "start_time": 46.869,
+      "end_time": 46.954
+    },
+    {
+      "text": "source",
+      "start_time": 47.039,
+      "end_time": 47.2528
+    },
+    {
+      "text": "and",
+      "start_time": 47.381,
+      "end_time": 47.5088
+    },
+    {
+      "text": "event",
+      "start_time": 47.551,
+      "end_time": 47.722
+    },
+    {
+      "text": "Harbor's",
+      "start_time": 48.149,
+      "end_time": 48.618
+    },
+    {
+      "text": "three",
+      "start_time": 48.661,
+      "end_time": 48.831
+    },
+    {
+      "text": "course",
+      "start_time": 48.917,
+      "end_time": 49.087
+    },
+    {
+      "text": "inputs",
+      "start_time": 49.215,
+      "end_time": 49.642
+    },
+    {
+      "text": "use",
+      "start_time": 49.727,
+      "end_time": 49.898
+    },
+    {
+      "text": "opaque",
+      "start_time": 49.941,
+      "end_time": 50.3248
+    },
+    {
+      "text": "references",
+      "start_time": 50.41,
+      "end_time": 50.8368
+    },
+    {
+      "text": "and",
+      "start_time": 51.093,
+      "end_time": 51.221
+    },
+    {
+      "text": "a",
+      "start_time": 51.264,
+      "end_time": 51.306
+    },
+    {
+      "text": "source",
+      "start_time": 51.349,
+      "end_time": 51.52
+    },
+    {
+      "text": "status",
+      "start_time": 51.648,
+      "end_time": 51.946
+    },
+    {
+      "text": "field",
+      "start_time": 51.989,
+      "end_time": 52.16
+    },
+    {
+      "text": "No",
+      "start_time": 52.774,
+      "end_time": 52.987
+    },
+    {
+      "text": "raw",
+      "start_time": 53.073,
+      "end_time": 53.243
+    },
+    {
+      "text": "private",
+      "start_time": 53.371,
+      "end_time": 53.627
+    },
+    {
+      "text": "record",
+      "start_time": 53.755,
+      "end_time": 53.926
+    },
+    {
+      "text": "belongs",
+      "start_time": 54.139,
+      "end_time": 54.4808
+    },
+    {
+      "text": "in",
+      "start_time": 54.609,
+      "end_time": 54.651
+    },
+    {
+      "text": "the",
+      "start_time": 54.694,
+      "end_time": 54.7368
+    },
+    {
+      "text": "learner",
+      "start_time": 54.779,
+      "end_time": 55.035
+    },
+    {
+      "text": "export",
+      "start_time": 55.121,
+      "end_time": 55.547
+    },
+    {
+      "text": "The",
+      "start_time": 56.102,
+      "end_time": 56.1448
+    },
+    {
+      "text": "receipt",
+      "start_time": 56.187,
+      "end_time": 56.5288
+    },
+    {
+      "text": "describes",
+      "start_time": 56.614,
+      "end_time": 56.998
+    },
+    {
+      "text": "a",
+      "start_time": 57.041,
+      "end_time": 57.126
+    },
+    {
+      "text": "paper",
+      "start_time": 57.169,
+      "end_time": 57.339
+    },
+    {
+      "text": "event",
+      "start_time": 57.595,
+      "end_time": 57.723
+    },
+    {
+      "text": "shape",
+      "start_time": 57.809,
+      "end_time": 58.022
+    },
+    {
+      "text": "it",
+      "start_time": 58.321,
+      "end_time": 58.534
+    },
+    {
+      "text": "does",
+      "start_time": 58.577,
+      "end_time": 58.7048
+    },
+    {
+      "text": "not",
+      "start_time": 58.747,
+      "end_time": 59.003
+    },
+    {
+      "text": "certify",
+      "start_time": 59.089,
+      "end_time": 59.387
+    },
+    {
+      "text": "that",
+      "start_time": 59.643,
+      "end_time": 59.771
+    },
+    {
+      "text": "an",
+      "start_time": 59.814,
+      "end_time": 59.8568
+    },
+    {
+      "text": "agent",
+      "start_time": 59.899,
+      "end_time": 60.198
+    },
+    {
+      "text": "ran",
+      "start_time": 60.283,
+      "end_time": 60.454
+    },
+    {
+      "text": "Next",
+      "start_time": 61.034,
+      "end_time": 61.29
+    },
+    {
+      "text": "proposal",
+      "start_time": 61.674,
+      "end_time": 62.2286
+    },
+    {
+      "text": "and",
+      "start_time": 62.271,
+      "end_time": 62.399
+    },
+    {
+      "text": "memory",
+      "start_time": 62.442,
+      "end_time": 62.655
+    },
+    {
+      "text": "the",
+      "start_time": 63.295,
+      "end_time": 63.3806
+    },
+    {
+      "text": "staffing",
+      "start_time": 63.423,
+      "end_time": 63.7646
+    },
+    {
+      "text": "rule",
+      "start_time": 63.935,
+      "end_time": 64.1059
+    },
+    {
+      "text": "and",
+      "start_time": 64.319,
+      "end_time": 64.447
+    },
+    {
+      "text": "source",
+      "start_time": 64.49,
+      "end_time": 64.703
+    },
+    {
+      "text": "status",
+      "start_time": 64.874,
+      "end_time": 65.1299
+    },
+    {
+      "text": "rule",
+      "start_time": 65.215,
+      "end_time": 65.3859
+    },
+    {
+      "text": "are",
+      "start_time": 65.514,
+      "end_time": 65.599
+    },
+    {
+      "text": "proposals",
+      "start_time": 65.642,
+      "end_time": 66.1966
+    },
+    {
+      "text": "until",
+      "start_time": 66.282,
+      "end_time": 66.4099
+    },
+    {
+      "text": "Morgan",
+      "start_time": 66.581,
+      "end_time": 66.8366
+    },
+    {
+      "text": "approves",
+      "start_time": 67.007,
+      "end_time": 67.263
+    },
+    {
+      "text": "a",
+      "start_time": 67.349,
+      "end_time": 67.391
+    },
+    {
+      "text": "local",
+      "start_time": 67.434,
+      "end_time": 67.6046
+    },
+    {
+      "text": "plan",
+      "start_time": 67.733,
+      "end_time": 67.946
+    },
+    {
+      "text": "A",
+      "start_time": 68.373,
+      "end_time": 68.543
+    },
+    {
+      "text": "missing",
+      "start_time": 68.586,
+      "end_time": 68.7139
+    },
+    {
+      "text": "approval",
+      "start_time": 68.927,
+      "end_time": 69.1406
+    },
+    {
+      "text": "date",
+      "start_time": 69.311,
+      "end_time": 69.439
+    },
+    {
+      "text": "stays",
+      "start_time": 69.567,
+      "end_time": 69.7806
+    },
+    {
+      "text": "blank",
+      "start_time": 69.823,
+      "end_time": 70.079
+    },
+    {
+      "text": "Do",
+      "start_time": 70.506,
+      "end_time": 70.719
+    },
+    {
+      "text": "not",
+      "start_time": 70.762,
+      "end_time": 71.0179
+    },
+    {
+      "text": "backfill",
+      "start_time": 71.103,
+      "end_time": 71.5726
+    },
+    {
+      "text": "it",
+      "start_time": 71.615,
+      "end_time": 71.7006
+    },
+    {
+      "text": "to",
+      "start_time": 71.743,
+      "end_time": 71.8286
+    },
+    {
+      "text": "make",
+      "start_time": 71.871,
+      "end_time": 71.9566
+    },
+    {
+      "text": "the",
+      "start_time": 71.999,
+      "end_time": 72.0846
+    },
+    {
+      "text": "stack",
+      "start_time": 72.127,
+      "end_time": 72.3406
+    },
+    {
+      "text": "look",
+      "start_time": 72.426,
+      "end_time": 72.5539
+    },
+    {
+      "text": "complete",
+      "start_time": 72.597,
+      "end_time": 72.725
+    },
+    {
+      "text": "Move",
+      "start_time": 73.427,
+      "end_time": 73.6828
+    },
+    {
+      "text": "to",
+      "start_time": 73.725,
+      "end_time": 73.853
+    },
+    {
+      "text": "routing",
+      "start_time": 73.896,
+      "end_time": 74.152
+    },
+    {
+      "text": "action",
+      "start_time": 74.493,
+      "end_time": 74.792
+    },
+    {
+      "text": "approval",
+      "start_time": 75.389,
+      "end_time": 75.688
+    },
+    {
+      "text": "and",
+      "start_time": 76.072,
+      "end_time": 76.2
+    },
+    {
+      "text": "cost",
+      "start_time": 76.285,
+      "end_time": 76.499
+    },
+    {
+      "text": "The",
+      "start_time": 77.096,
+      "end_time": 77.181
+    },
+    {
+      "text": "preparation",
+      "start_time": 77.224,
+      "end_time": 77.608
+    },
+    {
+      "text": "role",
+      "start_time": 77.822,
+      "end_time": 77.992
+    },
+    {
+      "text": "may",
+      "start_time": 78.12,
+      "end_time": 78.248
+    },
+    {
+      "text": "draft",
+      "start_time": 78.291,
+      "end_time": 78.504
+    },
+    {
+      "text": "a",
+      "start_time": 78.632,
+      "end_time": 78.675
+    },
+    {
+      "text": "Session",
+      "start_time": 78.718,
+      "end_time": 78.9735
+    },
+    {
+      "text": "Option",
+      "start_time": 79.102,
+      "end_time": 79.2295
+    },
+    {
+      "text": "Brief",
+      "start_time": 79.4,
+      "end_time": 79.656
+    },
+    {
+      "text": "Morgan",
+      "start_time": 80.083,
+      "end_time": 80.3388
+    },
+    {
+      "text": "owns",
+      "start_time": 80.467,
+      "end_time": 80.7228
+    },
+    {
+      "text": "the",
+      "start_time": 80.766,
+      "end_time": 80.8935
+    },
+    {
+      "text": "session",
+      "start_time": 80.936,
+      "end_time": 81.064
+    },
+    {
+      "text": "recommendation",
+      "start_time": 81.235,
+      "end_time": 81.704
+    },
+    {
+      "text": "A",
+      "start_time": 82.131,
+      "end_time": 82.2588
+    },
+    {
+      "text": "separate",
+      "start_time": 82.302,
+      "end_time": 82.6428
+    },
+    {
+      "text": "owner",
+      "start_time": 82.686,
+      "end_time": 82.8988
+    },
+    {
+      "text": "must",
+      "start_time": 82.984,
+      "end_time": 83.112
+    },
+    {
+      "text": "review",
+      "start_time": 83.24,
+      "end_time": 83.3255
+    },
+    {
+      "text": "spend",
+      "start_time": 83.539,
+      "end_time": 83.752
+    },
+    {
+      "text": "The",
+      "start_time": 84.411,
+      "end_time": 84.539
+    },
+    {
+      "text": "agent",
+      "start_time": 84.582,
+      "end_time": 84.88
+    },
+    {
+      "text": "cannot",
+      "start_time": 84.966,
+      "end_time": 85.0939
+    },
+    {
+      "text": "book",
+      "start_time": 85.307,
+      "end_time": 85.563
+    },
+    {
+      "text": "send",
+      "start_time": 85.947,
+      "end_time": 86.246
+    },
+    {
+      "text": "buy",
+      "start_time": 86.715,
+      "end_time": 86.971
+    },
+    {
+      "text": "or",
+      "start_time": 87.398,
+      "end_time": 87.6539
+    },
+    {
+      "text": "turn",
+      "start_time": 87.697,
+      "end_time": 87.91
+    },
+    {
+      "text": "a",
+      "start_time": 87.953,
+      "end_time": 87.995
+    },
+    {
+      "text": "proposal",
+      "start_time": 88.038,
+      "end_time": 88.507
+    },
+    {
+      "text": "into",
+      "start_time": 88.55,
+      "end_time": 88.6779
+    },
+    {
+      "text": "a",
+      "start_time": 88.806,
+      "end_time": 88.8485
+    },
+    {
+      "text": "team",
+      "start_time": 88.891,
+      "end_time": 89.0619
+    },
+    {
+      "text": "rule",
+      "start_time": 89.19,
+      "end_time": 89.318
+    },
+    {
+      "text": "We",
+      "start_time": 89.787,
+      "end_time": 89.9579
+    },
+    {
+      "text": "have",
+      "start_time": 90.001,
+      "end_time": 90.043
+    },
+    {
+      "text": "no",
+      "start_time": 90.129,
+      "end_time": 90.299
+    },
+    {
+      "text": "evidence",
+      "start_time": 90.342,
+      "end_time": 90.5979
+    },
+    {
+      "text": "that",
+      "start_time": 90.811,
+      "end_time": 90.939
+    },
+    {
+      "text": "staffing",
+      "start_time": 90.982,
+      "end_time": 91.323
+    },
+    {
+      "text": "is",
+      "start_time": 91.451,
+      "end_time": 91.5365
+    },
+    {
+      "text": "available",
+      "start_time": 91.622,
+      "end_time": 91.793
+    },
+    {
+      "text": "so",
+      "start_time": 92.305,
+      "end_time": 92.475
+    },
+    {
+      "text": "the",
+      "start_time": 92.518,
+      "end_time": 92.5605
+    },
+    {
+      "text": "next",
+      "start_time": 92.603,
+      "end_time": 92.731
+    },
+    {
+      "text": "action",
+      "start_time": 92.859,
+      "end_time": 93.0299
+    },
+    {
+      "text": "is",
+      "start_time": 93.243,
+      "end_time": 93.3285
+    },
+    {
+      "text": "still",
+      "start_time": 93.371,
+      "end_time": 93.5419
+    },
+    {
+      "text": "hold",
+      "start_time": 93.627,
+      "end_time": 93.755
+    },
+    {
+      "text": "A",
+      "start_time": 94.182,
+      "end_time": 94.3525
+    },
+    {
+      "text": "capstone",
+      "start_time": 94.395,
+      "end_time": 94.8645
+    },
+    {
+      "text": "score",
+      "start_time": 94.95,
+      "end_time": 95.163
+    },
+    {
+      "text": "cannot",
+      "start_time": 95.376,
+      "end_time": 95.5899
+    },
+    {
+      "text": "lift",
+      "start_time": 95.888,
+      "end_time": 96.059
+    },
+    {
+      "text": "that",
+      "start_time": 96.144,
+      "end_time": 96.272
+    },
+    {
+      "text": "hold",
+      "start_time": 96.358,
+      "end_time": 96.486
+    },
+    {
+      "text": "It",
+      "start_time": 97.094,
+      "end_time": 97.18
+    },
+    {
+      "text": "can",
+      "start_time": 97.222,
+      "end_time": 97.3077
+    },
+    {
+      "text": "identify",
+      "start_time": 97.393,
+      "end_time": 97.734
+    },
+    {
+      "text": "who",
+      "start_time": 97.99,
+      "end_time": 98.2037
+    },
+    {
+      "text": "must",
+      "start_time": 98.246,
+      "end_time": 98.417
+    },
+    {
+      "text": "decide",
+      "start_time": 98.545,
+      "end_time": 98.7157
+    },
+    {
+      "text": "and",
+      "start_time": 99.142,
+      "end_time": 99.313
+    },
+    {
+      "text": "what",
+      "start_time": 99.356,
+      "end_time": 99.569
+    },
+    {
+      "text": "evidence",
+      "start_time": 99.654,
+      "end_time": 99.825
+    },
+    {
+      "text": "they",
+      "start_time": 100.038,
+      "end_time": 100.166
+    },
+    {
+      "text": "need",
+      "start_time": 100.209,
+      "end_time": 100.38
+    },
+    {
+      "text": "Finish",
+      "start_time": 100.849,
+      "end_time": 101.105
+    },
+    {
+      "text": "with",
+      "start_time": 101.19,
+      "end_time": 101.2757
+    },
+    {
+      "text": "export",
+      "start_time": 101.318,
+      "end_time": 101.7877
+    },
+    {
+      "text": "and",
+      "start_time": 101.916,
+      "end_time": 102.0437
+    },
+    {
+      "text": "rollback",
+      "start_time": 102.086,
+      "end_time": 102.47
+    },
+    {
+      "text": "The",
+      "start_time": 102.982,
+      "end_time": 103.0677
+    },
+    {
+      "text": "proof",
+      "start_time": 103.11,
+      "end_time": 103.281
+    },
+    {
+      "text": "outline",
+      "start_time": 103.366,
+      "end_time": 103.7077
+    },
+    {
+      "text": "is",
+      "start_time": 103.836,
+      "end_time": 103.921
+    },
+    {
+      "text": "scoped",
+      "start_time": 103.964,
+      "end_time": 104.2197
+    },
+    {
+      "text": "to",
+      "start_time": 104.348,
+      "end_time": 104.39
+    },
+    {
+      "text": "an",
+      "start_time": 104.433,
+      "end_time": 104.4757
+    },
+    {
+      "text": "audience",
+      "start_time": 104.518,
+      "end_time": 104.689
+    },
+    {
+      "text": "and",
+      "start_time": 104.988,
+      "end_time": 105.2437
+    },
+    {
+      "text": "remains",
+      "start_time": 105.286,
+      "end_time": 105.585
+    },
+    {
+      "text": "not",
+      "start_time": 105.756,
+      "end_time": 105.926
+    },
+    {
+      "text": "shared",
+      "start_time": 106.012,
+      "end_time": 106.2677
+    },
+    {
+      "text": "If",
+      "start_time": 106.972,
+      "end_time": 107.0998
+    },
+    {
+      "text": "a",
+      "start_time": 107.142,
+      "end_time": 107.185
+    },
+    {
+      "text": "claim",
+      "start_time": 107.228,
+      "end_time": 107.441
+    },
+    {
+      "text": "is",
+      "start_time": 107.526,
+      "end_time": 107.569
+    },
+    {
+      "text": "wrong",
+      "start_time": 107.612,
+      "end_time": 107.825
+    },
+    {
+      "text": "Harbor",
+      "start_time": 108.209,
+      "end_time": 108.55
+    },
+    {
+      "text": "can",
+      "start_time": 108.593,
+      "end_time": 108.721
+    },
+    {
+      "text": "retain",
+      "start_time": 108.764,
+      "end_time": 109.062
+    },
+    {
+      "text": "the",
+      "start_time": 109.19,
+      "end_time": 109.2758
+    },
+    {
+      "text": "prior",
+      "start_time": 109.318,
+      "end_time": 109.5318
+    },
+    {
+      "text": "draft",
+      "start_time": 109.702,
+      "end_time": 109.958
+    },
+    {
+      "text": "correct",
+      "start_time": 110.428,
+      "end_time": 110.641
+    },
+    {
+      "text": "the",
+      "start_time": 110.769,
+      "end_time": 110.854
+    },
+    {
+      "text": "paper",
+      "start_time": 110.897,
+      "end_time": 111.0678
+    },
+    {
+      "text": "brief",
+      "start_time": 111.196,
+      "end_time": 111.409
+    },
+    {
+      "text": "and",
+      "start_time": 111.665,
+      "end_time": 112.006
+    },
+    {
+      "text": "record",
+      "start_time": 112.049,
+      "end_time": 112.177
+    },
+    {
+      "text": "the",
+      "start_time": 112.39,
+      "end_time": 112.518
+    },
+    {
+      "text": "reason",
+      "start_time": 112.561,
+      "end_time": 112.689
+    },
+    {
+      "text": "If",
+      "start_time": 113.585,
+      "end_time": 113.713
+    },
+    {
+      "text": "a",
+      "start_time": 113.756,
+      "end_time": 113.798
+    },
+    {
+      "text": "local",
+      "start_time": 113.841,
+      "end_time": 114.0118
+    },
+    {
+      "text": "rule",
+      "start_time": 114.14,
+      "end_time": 114.353
+    },
+    {
+      "text": "later",
+      "start_time": 114.524,
+      "end_time": 114.694
+    },
+    {
+      "text": "causes",
+      "start_time": 114.822,
+      "end_time": 115.206
+    },
+    {
+      "text": "harm",
+      "start_time": 115.249,
+      "end_time": 115.59
+    },
+    {
+      "text": "a",
+      "start_time": 115.932,
+      "end_time": 116.1878
+    },
+    {
+      "text": "named",
+      "start_time": 116.23,
+      "end_time": 116.529
+    },
+    {
+      "text": "owner",
+      "start_time": 116.7,
+      "end_time": 116.998
+    },
+    {
+      "text": "must",
+      "start_time": 117.084,
+      "end_time": 117.254
+    },
+    {
+      "text": "be",
+      "start_time": 117.34,
+      "end_time": 117.4678
+    },
+    {
+      "text": "able",
+      "start_time": 117.51,
+      "end_time": 117.5958
+    },
+    {
+      "text": "to",
+      "start_time": 117.681,
+      "end_time": 117.809
+    },
+    {
+      "text": "narrow",
+      "start_time": 117.852,
+      "end_time": 118.321
+    },
+    {
+      "text": "revoke",
+      "start_time": 118.662,
+      "end_time": 119.046
+    },
+    {
+      "text": "or",
+      "start_time": 119.302,
+      "end_time": 119.5158
+    },
+    {
+      "text": "retire",
+      "start_time": 119.601,
+      "end_time": 119.985
+    },
+    {
+      "text": "it",
+      "start_time": 120.07,
+      "end_time": 120.156
+    },
+    {
+      "text": "The",
+      "start_time": 120.642,
+      "end_time": 120.812
+    },
+    {
+      "text": "weakest",
+      "start_time": 120.855,
+      "end_time": 121.1538
+    },
+    {
+      "text": "gate",
+      "start_time": 121.197,
+      "end_time": 121.4098
+    },
+    {
+      "text": "today",
+      "start_time": 121.453,
+      "end_time": 121.5805
+    },
+    {
+      "text": "is",
+      "start_time": 121.837,
+      "end_time": 122.007
+    },
+    {
+      "text": "staffing",
+      "start_time": 122.05,
+      "end_time": 122.4338
+    },
+    {
+      "text": "confirmation",
+      "start_time": 122.519,
+      "end_time": 123.031
+    },
+    {
+      "text": "without",
+      "start_time": 123.501,
+      "end_time": 123.6285
+    },
+    {
+      "text": "it",
+      "start_time": 123.842,
+      "end_time": 123.97
+    },
+    {
+      "text": "the",
+      "start_time": 124.269,
+      "end_time": 124.439
+    },
+    {
+      "text": "brief",
+      "start_time": 124.482,
+      "end_time": 124.695
+    },
+    {
+      "text": "cannot",
+      "start_time": 124.781,
+      "end_time": 124.951
+    },
+    {
+      "text": "become",
+      "start_time": 125.293,
+      "end_time": 125.3778
+    },
+    {
+      "text": "a",
+      "start_time": 125.591,
+      "end_time": 125.6338
+    },
+    {
+      "text": "team",
+      "start_time": 125.677,
+      "end_time": 125.847
+    },
+    {
+      "text": "proposal",
+      "start_time": 125.89,
+      "end_time": 126.317
+    },
+    {
+      "text": "That",
+      "start_time": 126.701,
+      "end_time": 126.829
+    },
+    {
+      "text": "is",
+      "start_time": 126.871,
+      "end_time": 126.9138
+    },
+    {
+      "text": "a",
+      "start_time": 126.957,
+      "end_time": 127.0418
+    },
+    {
+      "text": "useful",
+      "start_time": 127.085,
+      "end_time": 127.383
+    },
+    {
+      "text": "result",
+      "start_time": 127.511,
+      "end_time": 127.682
+    },
+    {
+      "text": "even",
+      "start_time": 128.023,
+      "end_time": 128.279
+    },
+    {
+      "text": "though",
+      "start_time": 128.364,
+      "end_time": 128.4925
+    },
+    {
+      "text": "nothing",
+      "start_time": 128.535,
+      "end_time": 128.663
+    },
+    {
+      "text": "launches",
+      "start_time": 128.834,
+      "end_time": 129.175
+    },
+    {
+      "text": "Pause",
+      "start_time": 129.559,
+      "end_time": 129.815
+    },
+    {
+      "text": "Pick",
+      "start_time": 130.626,
+      "end_time": 130.839
+    },
+    {
+      "text": "the",
+      "start_time": 130.882,
+      "end_time": 130.967
+    },
+    {
+      "text": "weakest",
+      "start_time": 131.01,
+      "end_time": 131.3085
+    },
+    {
+      "text": "gate",
+      "start_time": 131.394,
+      "end_time": 131.565
+    },
+    {
+      "text": "in",
+      "start_time": 131.607,
+      "end_time": 131.65
+    },
+    {
+      "text": "your",
+      "start_time": 131.692,
+      "end_time": 131.7778
+    },
+    {
+      "text": "workflow",
+      "start_time": 131.821,
+      "end_time": 132.204
+    },
+    {
+      "text": "Would",
+      "start_time": 132.652,
+      "end_time": 132.822
+    },
+    {
+      "text": "you",
+      "start_time": 132.865,
+      "end_time": 132.95
+    },
+    {
+      "text": "keep",
+      "start_time": 132.993,
+      "end_time": 133.1636
+    },
+    {
+      "text": "the",
+      "start_time": 133.206,
+      "end_time": 133.334
+    },
+    {
+      "text": "design",
+      "start_time": 133.377,
+      "end_time": 133.505
+    },
+    {
+      "text": "as",
+      "start_time": 133.804,
+      "end_time": 133.889
+    },
+    {
+      "text": "a",
+      "start_time": 133.932,
+      "end_time": 134.017
+    },
+    {
+      "text": "paper",
+      "start_time": 134.06,
+      "end_time": 134.1876
+    },
+    {
+      "text": "trial",
+      "start_time": 134.316,
+      "end_time": 134.7
+    },
+    {
+      "text": "shrink",
+      "start_time": 135.041,
+      "end_time": 135.3396
+    },
+    {
+      "text": "its",
+      "start_time": 135.382,
+      "end_time": 135.4676
+    },
+    {
+      "text": "scope",
+      "start_time": 135.553,
+      "end_time": 135.809
+    },
+    {
+      "text": "or",
+      "start_time": 136.108,
+      "end_time": 136.3636
+    },
+    {
+      "text": "retire",
+      "start_time": 136.406,
+      "end_time": 136.7476
+    },
+    {
+      "text": "it",
+      "start_time": 136.833,
+      "end_time": 136.918
+    },
+    {
+      "text": "Name",
+      "start_time": 137.473,
+      "end_time": 137.7716
+    },
+    {
+      "text": "the",
+      "start_time": 137.857,
+      "end_time": 137.942
+    },
+    {
+      "text": "human",
+      "start_time": 137.985,
+      "end_time": 138.198
+    },
+    {
+      "text": "who",
+      "start_time": 138.369,
+      "end_time": 138.497
+    },
+    {
+      "text": "can",
+      "start_time": 138.54,
+      "end_time": 138.625
+    },
+    {
+      "text": "make",
+      "start_time": 138.668,
+      "end_time": 138.7956
+    },
+    {
+      "text": "that",
+      "start_time": 138.838,
+      "end_time": 139.009
+    },
+    {
+      "text": "call",
+      "start_time": 139.052,
+      "end_time": 139.3076
+    },
+    {
+      "text": "and",
+      "start_time": 139.521,
+      "end_time": 139.606
+    },
+    {
+      "text": "the",
+      "start_time": 139.649,
+      "end_time": 139.6916
+    },
+    {
+      "text": "evidence",
+      "start_time": 139.734,
+      "end_time": 139.9476
+    },
+    {
+      "text": "that",
+      "start_time": 140.161,
+      "end_time": 140.289
+    },
+    {
+      "text": "person",
+      "start_time": 140.332,
+      "end_time": 140.502
+    },
+    {
+      "text": "would",
+      "start_time": 140.673,
+      "end_time": 140.801
+    },
+    {
+      "text": "need",
+      "start_time": 140.844,
+      "end_time": 140.972
+    },
+    {
+      "text": "Use",
+      "start_time": 141.569,
+      "end_time": 141.7396
+    },
+    {
+      "text": "a",
+      "start_time": 141.782,
+      "end_time": 141.8676
+    },
+    {
+      "text": "fictional",
+      "start_time": 141.91,
+      "end_time": 142.2516
+    },
+    {
+      "text": "or",
+      "start_time": 142.422,
+      "end_time": 142.678
+    },
+    {
+      "text": "approved",
+      "start_time": 142.764,
+      "end_time": 143.0196
+    },
+    {
+      "text": "example",
+      "start_time": 143.19,
+      "end_time": 143.446
+    },
+    {
+      "text": "Do",
+      "start_time": 143.958,
+      "end_time": 144.086
+    },
+    {
+      "text": "not",
+      "start_time": 144.129,
+      "end_time": 144.385
+    },
+    {
+      "text": "use",
+      "start_time": 144.47,
+      "end_time": 144.598
+    },
+    {
+      "text": "private",
+      "start_time": 144.726,
+      "end_time": 144.897
+    },
+    {
+      "text": "operational",
+      "start_time": 145.025,
+      "end_time": 145.409
+    },
+    {
+      "text": "data",
+      "start_time": 145.622,
+      "end_time": 145.793
+    },
+    {
+      "text": "A",
+      "start_time": 146.368,
+      "end_time": 146.5388
+    },
+    {
+      "text": "blank",
+      "start_time": 146.581,
+      "end_time": 146.7948
+    },
+    {
+      "text": "disposition",
+      "start_time": 146.88,
+      "end_time": 147.264
+    },
+    {
+      "text": "is",
+      "start_time": 147.477,
+      "end_time": 147.52
+    },
+    {
+      "text": "pending",
+      "start_time": 147.563,
+      "end_time": 147.776
+    },
+    {
+      "text": "never",
+      "start_time": 148.245,
+      "end_time": 148.4588
+    },
+    {
+      "text": "consent",
+      "start_time": 148.587,
+      "end_time": 148.928
+    },
+    {
+      "text": "Present",
+      "start_time": 149.44,
+      "end_time": 149.8668
+    },
+    {
+      "text": "your",
+      "start_time": 149.909,
+      "end_time": 149.9948
+    },
+    {
+      "text": "Operating",
+      "start_time": 150.037,
+      "end_time": 150.421
+    },
+    {
+      "text": "File",
+      "start_time": 150.549,
+      "end_time": 150.805
+    },
+    {
+      "text": "as",
+      "start_time": 150.976,
+      "end_time": 151.061
+    },
+    {
+      "text": "a",
+      "start_time": 151.104,
+      "end_time": 151.1468
+    },
+    {
+      "text": "one",
+      "start_time": 151.189,
+      "end_time": 151.403
+    },
+    {
+      "text": "page",
+      "start_time": 151.488,
+      "end_time": 151.701
+    },
+    {
+      "text": "audit",
+      "start_time": 151.829,
+      "end_time": 152.043
+    },
+    {
+      "text": "Walk",
+      "start_time": 152.512,
+      "end_time": 152.768
+    },
+    {
+      "text": "source",
+      "start_time": 152.853,
+      "end_time": 153.067
+    },
+    {
+      "text": "event",
+      "start_time": 153.664,
+      "end_time": 153.877
+    },
+    {
+      "text": "proposal",
+      "start_time": 154.347,
+      "end_time": 154.859
+    },
+    {
+      "text": "memory",
+      "start_time": 155.243,
+      "end_time": 155.584
+    },
+    {
+      "text": "routing",
+      "start_time": 156.011,
+      "end_time": 156.395
+    },
+    {
+      "text": "action",
+      "start_time": 156.693,
+      "end_time": 157.077
+    },
+    {
+      "text": "approval",
+      "start_time": 157.717,
+      "end_time": 158.016
+    },
+    {
+      "text": "cost",
+      "start_time": 158.528,
+      "end_time": 158.741
+    },
+    {
+      "text": "export",
+      "start_time": 159.211,
+      "end_time": 159.765
+    },
+    {
+      "text": "and",
+      "start_time": 160.021,
+      "end_time": 160.2348
+    },
+    {
+      "text": "rollback",
+      "start_time": 160.277,
+      "end_time": 160.619
+    },
+    {
+      "text": "For",
+      "start_time": 161.141,
+      "end_time": 161.354
+    },
+    {
+      "text": "each",
+      "start_time": 161.397,
+      "end_time": 161.525
+    },
+    {
+      "text": "layer",
+      "start_time": 161.61,
+      "end_time": 161.909
+    },
+    {
+      "text": "write",
+      "start_time": 162.293,
+      "end_time": 162.4638
+    },
+    {
+      "text": "owner",
+      "start_time": 162.592,
+      "end_time": 162.89
+    },
+    {
+      "text": "evidence",
+      "start_time": 163.189,
+      "end_time": 163.488
+    },
+    {
+      "text": "privacy",
+      "start_time": 164,
+      "end_time": 164.341
+    },
+    {
+      "text": "tier",
+      "start_time": 164.469,
+      "end_time": 164.725
+    },
+    {
+      "text": "gate",
+      "start_time": 165.152,
+      "end_time": 165.45
+    },
+    {
+      "text": "failure",
+      "start_time": 165.877,
+      "end_time": 166.3038
+    },
+    {
+      "text": "mode",
+      "start_time": 166.389,
+      "end_time": 166.56
+    },
+    {
+      "text": "and",
+      "start_time": 166.901,
+      "end_time": 167.029
+    },
+    {
+      "text": "next",
+      "start_time": 167.072,
+      "end_time": 167.242
+    },
+    {
+      "text": "improvement",
+      "start_time": 167.413,
+      "end_time": 167.84
+    },
+    {
+      "text": "Mark",
+      "start_time": 168.181,
+      "end_time": 168.394
+    },
+    {
+      "text": "missing",
+      "start_time": 168.65,
+      "end_time": 168.821
+    },
+    {
+      "text": "evidence",
+      "start_time": 168.992,
+      "end_time": 169.162
+    },
+    {
+      "text": "openly",
+      "start_time": 169.376,
+      "end_time": 169.674
+    },
+    {
+      "text": "Then",
+      "start_time": 170.272,
+      "end_time": 170.485
+    },
+    {
+      "text": "write",
+      "start_time": 170.613,
+      "end_time": 170.741
+    },
+    {
+      "text": "a",
+      "start_time": 170.826,
+      "end_time": 170.9118
+    },
+    {
+      "text": "human",
+      "start_time": 170.954,
+      "end_time": 171.125
+    },
+    {
+      "text": "disposition",
+      "start_time": 171.253,
+      "end_time": 171.722
+    },
+    {
+      "text": "field",
+      "start_time": 171.936,
+      "end_time": 172.149
+    },
+    {
+      "text": "with",
+      "start_time": 172.32,
+      "end_time": 172.4478
+    },
+    {
+      "text": "decision",
+      "start_time": 172.533,
+      "end_time": 172.832
+    },
+    {
+      "text": "owner",
+      "start_time": 173.258,
+      "end_time": 173.642
+    },
+    {
+      "text": "date",
+      "start_time": 174.026,
+      "end_time": 174.24
+    },
+    {
+      "text": "reason",
+      "start_time": 174.666,
+      "end_time": 174.922
+    },
+    {
+      "text": "and",
+      "start_time": 175.349,
+      "end_time": 175.605
+    },
+    {
+      "text": "next",
+      "start_time": 175.648,
+      "end_time": 175.7758
+    },
+    {
+      "text": "review",
+      "start_time": 175.946,
+      "end_time": 176.0318
+    },
+    {
+      "text": "date",
+      "start_time": 176.245,
+      "end_time": 176.373
+    },
+    {
+      "text": "You",
+      "start_time": 177.025,
+      "end_time": 177.1529
+    },
+    {
+      "text": "may",
+      "start_time": 177.196,
+      "end_time": 177.323
+    },
+    {
+      "text": "leave",
+      "start_time": 177.366,
+      "end_time": 177.579
+    },
+    {
+      "text": "the",
+      "start_time": 177.622,
+      "end_time": 177.7075
+    },
+    {
+      "text": "decision",
+      "start_time": 177.75,
+      "end_time": 177.9635
+    },
+    {
+      "text": "pending",
+      "start_time": 178.134,
+      "end_time": 178.305
+    },
+    {
+      "text": "This",
+      "start_time": 178.902,
+      "end_time": 179.0729
+    },
+    {
+      "text": "is",
+      "start_time": 179.115,
+      "end_time": 179.2009
+    },
+    {
+      "text": "a",
+      "start_time": 179.244,
+      "end_time": 179.329
+    },
+    {
+      "text": "design",
+      "start_time": 179.371,
+      "end_time": 179.414
+    },
+    {
+      "text": "review",
+      "start_time": 179.713,
+      "end_time": 179.798
+    },
+    {
+      "text": "do",
+      "start_time": 180.268,
+      "end_time": 180.438
+    },
+    {
+      "text": "not",
+      "start_time": 180.481,
+      "end_time": 180.694
+    },
+    {
+      "text": "deploy",
+      "start_time": 180.822,
+      "end_time": 181.121
+    },
+    {
+      "text": "publish",
+      "start_time": 181.505,
+      "end_time": 181.931
+    },
+    {
+      "text": "spend",
+      "start_time": 182.273,
+      "end_time": 182.614
+    },
+    {
+      "text": "contact",
+      "start_time": 183.169,
+      "end_time": 183.4675
+    },
+    {
+      "text": "anyone",
+      "start_time": 183.766,
+      "end_time": 183.937
+    },
+    {
+      "text": "or",
+      "start_time": 184.321,
+      "end_time": 184.619
+    },
+    {
+      "text": "run",
+      "start_time": 184.705,
+      "end_time": 184.875
+    },
+    {
+      "text": "an",
+      "start_time": 184.918,
+      "end_time": 184.9609
+    },
+    {
+      "text": "agent",
+      "start_time": 185.004,
+      "end_time": 185.302
+    },
+    {
+      "text": "because",
+      "start_time": 185.345,
+      "end_time": 185.5155
+    },
+    {
+      "text": "a",
+      "start_time": 185.558,
+      "end_time": 185.643
+    },
+    {
+      "text": "worksheet",
+      "start_time": 185.686,
+      "end_time": 186.07
+    },
+    {
+      "text": "is",
+      "start_time": 186.113,
+      "end_time": 186.155
+    },
+    {
+      "text": "complete",
+      "start_time": 186.198,
+      "end_time": 186.326
+    },
+    {
+      "text": "Save",
+      "start_time": 186.966,
+      "end_time": 187.222
+    },
+    {
+      "text": "revision",
+      "start_time": 187.35,
+      "end_time": 187.5635
+    },
+    {
+      "text": "sixteen",
+      "start_time": 187.734,
+      "end_time": 188.246
+    },
+    {
+      "text": "for",
+      "start_time": 188.332,
+      "end_time": 188.459
+    },
+    {
+      "text": "review",
+      "start_time": 188.502,
+      "end_time": 188.63
+    },
+    {
+      "text": "Morgan's",
+      "start_time": 189.294,
+      "end_time": 189.8059
+    },
+    {
+      "text": "safest",
+      "start_time": 189.849,
+      "end_time": 190.1899
+    },
+    {
+      "text": "current",
+      "start_time": 190.318,
+      "end_time": 190.531
+    },
+    {
+      "text": "recommendation",
+      "start_time": 190.617,
+      "end_time": 191.1286
+    },
+    {
+      "text": "is",
+      "start_time": 191.385,
+      "end_time": 191.5126
+    },
+    {
+      "text": "to",
+      "start_time": 191.598,
+      "end_time": 191.683
+    },
+    {
+      "text": "keep",
+      "start_time": 191.726,
+      "end_time": 191.8539
+    },
+    {
+      "text": "the",
+      "start_time": 191.897,
+      "end_time": 191.9819
+    },
+    {
+      "text": "paper",
+      "start_time": 192.025,
+      "end_time": 192.195
+    },
+    {
+      "text": "design",
+      "start_time": 192.281,
+      "end_time": 192.451
+    },
+    {
+      "text": "and",
+      "start_time": 192.793,
+      "end_time": 192.963
+    },
+    {
+      "text": "shrink",
+      "start_time": 193.006,
+      "end_time": 193.3046
+    },
+    {
+      "text": "the",
+      "start_time": 193.39,
+      "end_time": 193.5179
+    },
+    {
+      "text": "next",
+      "start_time": 193.561,
+      "end_time": 193.6459
+    },
+    {
+      "text": "test",
+      "start_time": 193.774,
+      "end_time": 193.987
+    },
+    {
+      "text": "to",
+      "start_time": 194.158,
+      "end_time": 194.2006
+    },
+    {
+      "text": "staffing",
+      "start_time": 194.243,
+      "end_time": 194.5846
+    },
+    {
+      "text": "evidence",
+      "start_time": 194.67,
+      "end_time": 194.8406
+    },
+    {
+      "text": "and",
+      "start_time": 195.097,
+      "end_time": 195.267
+    },
+    {
+      "text": "a",
+      "start_time": 195.31,
+      "end_time": 195.3526
+    },
+    {
+      "text": "reviewed",
+      "start_time": 195.395,
+      "end_time": 195.7366
+    },
+    {
+      "text": "brief",
+      "start_time": 195.822,
+      "end_time": 196.035
+    },
+    {
+      "text": "format",
+      "start_time": 196.078,
+      "end_time": 196.462
+    }
+  ]
+}

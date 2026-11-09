@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "status": "immutable_source_reservations; native_media_unfilled",
+  "lessons": [
+    {
+      "lesson_id": "L13",
+      "packet_sha256": "f7308be394a1d1a85053201e448bd1ed18d03306f20a28fef9890fa88fca8f56",
+      "reservation_source_path": "agentified/workshop/scene-production/presenter-windows.json",
+      "reservation_source_sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "windows": [
+        {
+          "scene_id": "L13-01",
+          "storyboard_reservation": {
+            "start_seconds": 0,
+            "end_seconds": 17.846,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "Morgan opens Harbor's paper planning folder on Friday. The Session Option Brief is still held because no one has confirmed staffing. An idea appears in the margin: perhaps a different brief format would make the next review easier.",
+          "passage_sha256": "b62a238f79d0eae96af49b5ba915f7a811c3dde77d9e7ecd01c25d0f57377dfd",
+          "provisional_speech_seconds": 17.846,
+          "caption_count": 3,
+          "native_media_path": null,
+          "native_media_sha256": null
+        },
+        {
+          "scene_id": "L13-08",
+          "storyboard_reservation": {
+            "start_seconds": 585.2,
+            "end_seconds": 600,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "Harbor has a proposal that someone can inspect, and a clear record that nothing has run.",
+          "passage_sha256": "bc42311c31d906207f216da1c4c1cc1ab47e2a12a2159a01c4f0848c4697b47f",
+          "provisional_speech_seconds": 6.8,
+          "caption_count": 1,
+          "native_media_path": null,
+          "native_media_sha256": null
+        }
+      ]
+    },
+    {
+      "lesson_id": "L14",
+      "packet_sha256": "4388dbb260c9a9f1a5253777f3b9657c72cebb46f5098d7ad60f41b3c4f552ce",
+      "reservation_source_path": "agentified/workshop/scene-production/presenter-windows.json",
+      "reservation_source_sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "windows": [
+        {
+          "scene_id": "L14-01",
+          "storyboard_reservation": {
+            "start_seconds": 0,
+            "end_seconds": 15.722,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "A Harbor board reviewer asks Morgan a fair question: what happens when the preparation agent produces a brief that looks ready, but the evidence is thin? Morgan brings three paper panels to the table.",
+          "passage_sha256": "e11b8774658c0eb7e893d3cb4dd33d6477068e7e44679840c2aa09e93e0e4a9b",
+          "provisional_speech_seconds": 15.722,
+          "caption_count": 2,
+          "native_media_path": null,
+          "native_media_sha256": null
+        },
+        {
+          "scene_id": "L14-08",
+          "storyboard_reservation": {
+            "start_seconds": 585.589,
+            "end_seconds": 600,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "Nothing about a clean storyboard lifts the hold.",
+          "passage_sha256": "9d0f6501d54e13a8f16c32bd616eb088b3b6a325dae6bb95286b1149effd09f8",
+          "provisional_speech_seconds": 3.411,
+          "caption_count": 1,
+          "native_media_path": null,
+          "native_media_sha256": null
+        }
+      ]
+    },
+    {
+      "lesson_id": "L15",
+      "packet_sha256": "cf4fe7cbafcb46ade700360765d775301a5fd0d14ada1f37fb9f75154680236c",
+      "reservation_source_path": "agentified/workshop/scene-production/presenter-windows.json",
+      "reservation_source_sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "windows": [
+        {
+          "scene_id": "L15-01",
+          "storyboard_reservation": {
+            "start_seconds": 0,
+            "end_seconds": 19.796,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "It is Friday at Harbor Learning Circle. Morgan opens a paper brief, not a live dashboard. The preparation agent's job was to compare three cleared course inputs and draft a Session Option Brief. The first line says prepared, not sent.",
+          "passage_sha256": "c39319d3f37de1f9e0f22155eff7510961cadbfb696ce0e83f72b508b94c3f26",
+          "provisional_speech_seconds": 19.796,
+          "caption_count": 4,
+          "native_media_path": null,
+          "native_media_sha256": null
+        },
+        {
+          "scene_id": "L15-08",
+          "storyboard_reservation": {
+            "start_seconds": 585.64,
+            "end_seconds": 600,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "The six beats are useful because they make those boundaries routine.",
+          "passage_sha256": "b63a6f9744a1c678ca94935096e271c912fdd92896a57db6d670cce2cf1a47f2",
+          "provisional_speech_seconds": 5.36,
+          "caption_count": 1,
+          "native_media_path": null,
+          "native_media_sha256": null
+        }
+      ]
+    },
+    {
+      "lesson_id": "L16",
+      "packet_sha256": "1002cce78b604a1d118791f07a9c98cd7accd55e532ab1d4a0f5eb2a5fdcf2e1",
+      "reservation_source_path": "agentified/workshop/scene-production/presenter-windows.json",
+      "reservation_source_sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0",
+      "windows": [
+        {
+          "scene_id": "L16-01",
+          "storyboard_reservation": {
+            "start_seconds": 0,
+            "end_seconds": 17.029,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "At the end of Harbor's Friday, Morgan has a full Operating File. It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal.",
+          "passage_sha256": "a311d686d2e6252b25bd2d84d437d881b86a66b8b2f7a4e727df1aee22dc35aa",
+          "provisional_speech_seconds": 17.029,
+          "caption_count": 2,
+          "native_media_path": null,
+          "native_media_sha256": null
+        },
+        {
+          "scene_id": "L16-08",
+          "storyboard_reservation": {
+            "start_seconds": 588.293,
+            "end_seconds": 600,
+            "state": "reserved_unfilled"
+          },
+          "passage_exact": "Only Morgan and the appropriate owners can make that disposition real. The file gives them a way to see what is ready, what is missing, and what must stop.",
+          "passage_sha256": "b24148ff60b1b698b46ee55c3c32096ad1da759fcf487509e7d332d0162e8c9b",
+          "provisional_speech_seconds": 11.707,
+          "caption_count": 2,
+          "native_media_path": null,
+          "native_media_sha256": null
+        }
+      ]
+    }
+  ],
+  "manifest_sha256": "ebccd6a729944f00cfa0e77e10ce7f771735b0106b95b4348611931003e91dc9"
+}

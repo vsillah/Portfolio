@@ -1,0 +1,699 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_review_candidate",
+  "lesson_id": "L13",
+  "title": "Research with a gate",
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "packet_path": "agentified/workshop/scene-production/packets/L13.json",
+  "packet_sha256": "f7308be394a1d1a85053201e448bd1ed18d03306f20a28fef9890fa88fca8f56",
+  "script_sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "provider_jobs_submitted": 0,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_execution_cap_usd": 0,
+  "proposed_identity": {
+    "look_name": "Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
+    "offscreen_voice_id": "4f53988b1c314610b514db98432fd0ef",
+    "status": "historical precedent only; L13-L16 purpose-specific rights pending"
+  },
+  "presenter_passages": [
+    {
+      "scene_id": "L13-01",
+      "storyboard_reservation": {
+        "start_seconds": 0,
+        "end_seconds": 17.846,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Morgan opens Harbor's paper planning folder on Friday. The Session Option Brief is still held because no one has confirmed staffing. An idea appears in the margin: perhaps a different brief format would make the next review easier.",
+      "passage_sha256": "b62a238f79d0eae96af49b5ba915f7a811c3dde77d9e7ecd01c25d0f57377dfd",
+      "provisional_speech_seconds": 17.846,
+      "caption_count": 3,
+      "native_media_path": null,
+      "native_media_sha256": null
+    },
+    {
+      "scene_id": "L13-08",
+      "storyboard_reservation": {
+        "start_seconds": 585.2,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Harbor has a proposal that someone can inspect, and a clear record that nothing has run.",
+      "passage_sha256": "bc42311c31d906207f216da1c4c1cc1ab47e2a12a2159a01c4f0848c4697b47f",
+      "provisional_speech_seconds": 6.8,
+      "caption_count": 1,
+      "native_media_path": null,
+      "native_media_sha256": null
+    }
+  ],
+  "offscreen_narration": {
+    "text": "It is tempting to let the preparation agent change the format and declare an improvement. But Harbor has no baseline for review time, no test plan, and no permission to change the team's process. The honest first artifact is a proposal.\n\nChapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. For the Harbor case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? The hypothesis needs a comparison and a metric. We could compare two course brief layouts in a paper exercise. We cannot claim one works better because it looks cleaner to us. The `not_run` state records exactly what is missing.\n\nThe workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate. Here the baseline is `unknown`, not zero. The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation. No result exists yet. The touched surface would be the paper brief layout only. The rollback is to keep the current layout. No routing default, memory record, or real calendar changes.\n\nMorgan owns the review of the proposal because Morgan owns this planning decision. A real experiment would need a fresh, scoped approval and an appropriate participant and privacy plan. This lesson grants none of that. In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test. The agent cannot turn a promising hypothesis into durable memory. A memory proposal would need its own source, scope, expiry, and human decision.\n\nWrite a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.` Then add the next safe step: Morgan reviews whether the question is worth testing at all. If Morgan says no, keep the rejection and its reason. If Morgan says yes, define the test before anyone runs it. Either path teaches Harbor something about its priorities. A silent queue of ideas teaches almost nothing.\n\nPause on your own workflow type. What evidence would make your favorite improvement worth testing?\n\nDraft one AutoResearch Proposal. Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. Mark the result `not_run`. Write the reason in plain language and the action Morgan may take after review. Keep the staffing and spend holds visible. Use a fictional or approved example. Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.\n\nSave revision thirteen as a draft. Research begins when a question can survive a gate, not when a dashboard fills with experiments.",
+    "text_sha256": "26fbae66aadb6d71446376c3c18f247c87b19297a09eacfe392946337d4030b4",
+    "word_count": 465,
+    "segments": [
+      {
+        "scene_id": "L13-01",
+        "text": "It is tempting to let the preparation agent change the format and declare an improvement. But Harbor has no baseline for review time, no test plan, and no permission to change the team's process. The honest first artifact is a proposal.",
+        "sha256": "95f0a416ff860850402d70833855fde41c132357975520e6166f8a8444e076fa"
+      },
+      {
+        "scene_id": "L13-02",
+        "text": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. For the Harbor case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? The hypothesis needs a comparison and a metric. We could compare two course brief layouts in a paper exercise. We cannot claim one works better because it looks cleaner to us. The `not_run` state records exactly what is missing.",
+        "sha256": "2e7271e17691d4c865fdd660f02612178591aa8c8fe306ab2cb07b71dd3b6833"
+      },
+      {
+        "scene_id": "L13-03",
+        "text": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate. Here the baseline is `unknown`, not zero. The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation. No result exists yet. The touched surface would be the paper brief layout only. The rollback is to keep the current layout. No routing default, memory record, or real calendar changes.",
+        "sha256": "25dbb389e860e937777f5ef2e4a692b51ca720c293e54595d8dc95467a3a2df4"
+      },
+      {
+        "scene_id": "L13-04",
+        "text": "Morgan owns the review of the proposal because Morgan owns this planning decision. A real experiment would need a fresh, scoped approval and an appropriate participant and privacy plan. This lesson grants none of that. In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test. The agent cannot turn a promising hypothesis into durable memory. A memory proposal would need its own source, scope, expiry, and human decision.",
+        "sha256": "6b53aea25a70f0d9959a79a634bb1f919ed7a54b870fce322215ba45c92fad50"
+      },
+      {
+        "scene_id": "L13-05",
+        "text": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.` Then add the next safe step: Morgan reviews whether the question is worth testing at all. If Morgan says no, keep the rejection and its reason. If Morgan says yes, define the test before anyone runs it. Either path teaches Harbor something about its priorities. A silent queue of ideas teaches almost nothing.",
+        "sha256": "e203823d009914e6dd0a3060a97bca8e1ddecb15eb7e6bd41c0b2f277a06d3eb"
+      },
+      {
+        "scene_id": "L13-06",
+        "text": "Pause on your own workflow type. What evidence would make your favorite improvement worth testing?",
+        "sha256": "8694e3d613128cdd67ab51c31f8a34c97b2fc24dc3c4fffe1e838fbc618b79e5"
+      },
+      {
+        "scene_id": "L13-07",
+        "text": "Draft one AutoResearch Proposal. Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. Mark the result `not_run`. Write the reason in plain language and the action Morgan may take after review. Keep the staffing and spend holds visible. Use a fictional or approved example. Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.",
+        "sha256": "957f4ea78fdcbd0e8c786ad58a1efbc9a98b4c03b9695a275779253d303854bc"
+      },
+      {
+        "scene_id": "L13-08",
+        "text": "Save revision thirteen as a draft. Research begins when a question can survive a gate, not when a dashboard fills with experiments.",
+        "sha256": "8fd761a48c01667aaf63437b83ae2c6ce453877c283d8ff8b5c3076ef2975f27"
+      }
+    ],
+    "new_audio_path": null,
+    "new_audio_sha256": null
+  },
+  "timing": {
+    "status": "provisional_cue_derived; native_audio_required",
+    "original_storyboard_seconds": 600,
+    "proposed_continuous_seconds": 287,
+    "spoken_seconds": 234,
+    "ordinary_gap_limit_seconds": 2.5,
+    "actual_native_timing_seconds": null,
+    "no_fixed_ten_minute_padding": true,
+    "cues": [
+      {
+        "scene_id": "L13-01",
+        "speaker": "presenter",
+        "start_seconds": 0,
+        "end_seconds": 4.231,
+        "text": "Morgan opens Harbor's paper planning folder on Friday. ",
+        "source_start_seconds": 0,
+        "source_end_seconds": 4.231
+      },
+      {
+        "scene_id": "L13-01",
+        "speaker": "presenter",
+        "start_seconds": 4.231,
+        "end_seconds": 10.231,
+        "text": "The Session Option Brief is still held because no one has confirmed staffing. ",
+        "source_start_seconds": 4.231,
+        "source_end_seconds": 10.231
+      },
+      {
+        "scene_id": "L13-01",
+        "speaker": "presenter",
+        "start_seconds": 10.231,
+        "end_seconds": 17.846,
+        "text": "An idea appears in the margin: perhaps a different brief format would make the next review easier. ",
+        "source_start_seconds": 10.231,
+        "source_end_seconds": 17.846
+      },
+      {
+        "scene_id": "L13-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 17.846,
+        "end_seconds": 24.769,
+        "text": "It is tempting to let the preparation agent change the format and declare an improvement. ",
+        "source_start_seconds": 17.846,
+        "source_end_seconds": 24.769
+      },
+      {
+        "scene_id": "L13-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 24.769,
+        "end_seconds": 32.923,
+        "text": "But Harbor has no baseline for review time, no test plan, and no permission to change the team's process. ",
+        "source_start_seconds": 24.769,
+        "source_end_seconds": 32.923
+      },
+      {
+        "scene_id": "L13-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 32.923,
+        "end_seconds": 36,
+        "text": "The honest first artifact is a proposal.",
+        "source_start_seconds": 32.923,
+        "source_end_seconds": 36
+      },
+      {
+        "scene_id": "L13-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 36,
+        "end_seconds": 43.296,
+        "text": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard. ",
+        "source_start_seconds": 70,
+        "source_end_seconds": 77.296
+      },
+      {
+        "scene_id": "L13-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 43.296,
+        "end_seconds": 53.365,
+        "text": "For the Harbor case, the proposed question is narrow: would a brief that puts staffing evidence first help Morgan identify a hold faster? ",
+        "source_start_seconds": 77.296,
+        "source_end_seconds": 87.365
+      },
+      {
+        "scene_id": "L13-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 53.365,
+        "end_seconds": 56.867,
+        "text": "The hypothesis needs a comparison and a metric. ",
+        "source_start_seconds": 87.365,
+        "source_end_seconds": 90.867
+      },
+      {
+        "scene_id": "L13-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 56.867,
+        "end_seconds": 61.464,
+        "text": "We could compare two course brief layouts in a paper exercise. ",
+        "source_start_seconds": 90.867,
+        "source_end_seconds": 95.464
+      },
+      {
+        "scene_id": "L13-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 61.464,
+        "end_seconds": 66.206,
+        "text": "We cannot claim one works better because it looks cleaner to us. ",
+        "source_start_seconds": 95.464,
+        "source_end_seconds": 100.206
+      },
+      {
+        "scene_id": "L13-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 66.206,
+        "end_seconds": 70,
+        "text": "The `not_run` state records exactly what is missing.",
+        "source_start_seconds": 100.206,
+        "source_end_seconds": 104
+      },
+      {
+        "scene_id": "L13-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 70,
+        "end_seconds": 82.584,
+        "text": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate. ",
+        "source_start_seconds": 140,
+        "source_end_seconds": 152.584
+      },
+      {
+        "scene_id": "L13-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 82.584,
+        "end_seconds": 85.457,
+        "text": "Here the baseline is `unknown`, not zero. ",
+        "source_start_seconds": 152.584,
+        "source_end_seconds": 155.457
+      },
+      {
+        "scene_id": "L13-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 85.457,
+        "end_seconds": 94.416,
+        "text": "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation. ",
+        "source_start_seconds": 155.457,
+        "source_end_seconds": 164.416
+      },
+      {
+        "scene_id": "L13-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 94.416,
+        "end_seconds": 95.921,
+        "text": "No result exists yet. ",
+        "source_start_seconds": 164.416,
+        "source_end_seconds": 165.921
+      },
+      {
+        "scene_id": "L13-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 95.921,
+        "end_seconds": 99.887,
+        "text": "The touched surface would be the paper brief layout only. ",
+        "source_start_seconds": 165.921,
+        "source_end_seconds": 169.887
+      },
+      {
+        "scene_id": "L13-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 99.887,
+        "end_seconds": 102.896,
+        "text": "The rollback is to keep the current layout. ",
+        "source_start_seconds": 169.887,
+        "source_end_seconds": 172.896
+      },
+      {
+        "scene_id": "L13-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 102.896,
+        "end_seconds": 107,
+        "text": "No routing default, memory record, or real calendar changes.",
+        "source_start_seconds": 172.896,
+        "source_end_seconds": 177
+      },
+      {
+        "scene_id": "L13-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 107,
+        "end_seconds": 113.077,
+        "text": "Morgan owns the review of the proposal because Morgan owns this planning decision. ",
+        "source_start_seconds": 210,
+        "source_end_seconds": 216.077
+      },
+      {
+        "scene_id": "L13-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 113.077,
+        "end_seconds": 120.619,
+        "text": "A real experiment would need a fresh, scoped approval and an appropriate participant and privacy plan. ",
+        "source_start_seconds": 216.077,
+        "source_end_seconds": 223.619
+      },
+      {
+        "scene_id": "L13-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 120.619,
+        "end_seconds": 123.036,
+        "text": "This lesson grants none of that. ",
+        "source_start_seconds": 223.619,
+        "source_end_seconds": 226.036
+      },
+      {
+        "scene_id": "L13-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 123.036,
+        "end_seconds": 131.383,
+        "text": "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test. ",
+        "source_start_seconds": 226.036,
+        "source_end_seconds": 234.383
+      },
+      {
+        "scene_id": "L13-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 131.383,
+        "end_seconds": 136.215,
+        "text": "The agent cannot turn a promising hypothesis into durable memory. ",
+        "source_start_seconds": 234.383,
+        "source_end_seconds": 239.215
+      },
+      {
+        "scene_id": "L13-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 136.215,
+        "end_seconds": 142,
+        "text": "A memory proposal would need its own source, scope, expiry, and human decision.",
+        "source_start_seconds": 239.215,
+        "source_end_seconds": 245
+      },
+      {
+        "scene_id": "L13-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 142,
+        "end_seconds": 152.143,
+        "text": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.",
+        "source_start_seconds": 280,
+        "source_end_seconds": 290.143
+      },
+      {
+        "scene_id": "L13-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 152.143,
+        "end_seconds": 158.904,
+        "text": "` Then add the next safe step: Morgan reviews whether the question is worth testing at all. ",
+        "source_start_seconds": 290.143,
+        "source_end_seconds": 296.904
+      },
+      {
+        "scene_id": "L13-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 158.904,
+        "end_seconds": 162.873,
+        "text": "If Morgan says no, keep the rejection and its reason. ",
+        "source_start_seconds": 296.904,
+        "source_end_seconds": 300.873
+      },
+      {
+        "scene_id": "L13-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 162.873,
+        "end_seconds": 167.209,
+        "text": "If Morgan says yes, define the test before anyone runs it. ",
+        "source_start_seconds": 300.873,
+        "source_end_seconds": 305.209
+      },
+      {
+        "scene_id": "L13-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 167.209,
+        "end_seconds": 171.546,
+        "text": "Either path teaches Harbor something about its priorities. ",
+        "source_start_seconds": 305.209,
+        "source_end_seconds": 309.546
+      },
+      {
+        "scene_id": "L13-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 171.546,
+        "end_seconds": 175,
+        "text": "A silent queue of ideas teaches almost nothing.",
+        "source_start_seconds": 309.546,
+        "source_end_seconds": 313
+      },
+      {
+        "scene_id": "L13-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 175,
+        "end_seconds": 177.357,
+        "text": "Pause on your own workflow type. ",
+        "source_start_seconds": 350,
+        "source_end_seconds": 352.357
+      },
+      {
+        "scene_id": "L13-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 177.357,
+        "end_seconds": 182,
+        "text": "What evidence would make your favorite improvement worth testing?",
+        "source_start_seconds": 352.357,
+        "source_end_seconds": 357
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 182,
+        "end_seconds": 184.221,
+        "text": "Draft one AutoResearch Proposal. ",
+        "source_start_seconds": 375,
+        "source_end_seconds": 377.221
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 184.221,
+        "end_seconds": 197.144,
+        "text": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate. ",
+        "source_start_seconds": 377.221,
+        "source_end_seconds": 390.144
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 197.144,
+        "end_seconds": 198.962,
+        "text": "Mark the result `not_run`. ",
+        "source_start_seconds": 390.144,
+        "source_end_seconds": 391.962
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 198.962,
+        "end_seconds": 204.346,
+        "text": "Write the reason in plain language and the action Morgan may take after review. ",
+        "source_start_seconds": 391.962,
+        "source_end_seconds": 397.346
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 204.346,
+        "end_seconds": 207.24,
+        "text": "Keep the staffing and spend holds visible. ",
+        "source_start_seconds": 397.346,
+        "source_end_seconds": 400.24
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 207.24,
+        "end_seconds": 209.731,
+        "text": "Use a fictional or approved example. ",
+        "source_start_seconds": 400.24,
+        "source_end_seconds": 402.731
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 209.731,
+        "end_seconds": 217,
+        "text": "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.",
+        "source_start_seconds": 402.731,
+        "source_end_seconds": 410
+      },
+      {
+        "scene_id": "L13-07",
+        "speaker": "guided_work_pause",
+        "start_seconds": 217,
+        "end_seconds": 262,
+        "text": "Write an `AutoResearch Proposal` for one improvement to your invented workflow. Include title, question, hypothesis, comparison, expected impact, baseline, primary and guardrail metrics, test configuration, touched surface, risk, rollback, promotion recommendation, named approval question, next metric gate, `result_status: not_run`, and an actionable hold reason. The approval question must authorize only a later scoped research action, never a production change.",
+        "visual": "visible synchronized countdown from 45 to 0; no music"
+      },
+      {
+        "scene_id": "L13-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 262,
+        "end_seconds": 264.705,
+        "text": "Save revision thirteen as a draft. ",
+        "source_start_seconds": 575,
+        "source_end_seconds": 577.705
+      },
+      {
+        "scene_id": "L13-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 264.705,
+        "end_seconds": 272.2,
+        "text": "Research begins when a question can survive a gate, not when a dashboard fills with experiments. ",
+        "source_start_seconds": 577.705,
+        "source_end_seconds": 585.2
+      },
+      {
+        "scene_id": "L13-08",
+        "speaker": "presenter",
+        "start_seconds": 272.2,
+        "end_seconds": 279,
+        "text": "Harbor has a proposal that someone can inspect, and a clear record that nothing has run.",
+        "source_start_seconds": 585.2,
+        "source_end_seconds": 592
+      }
+    ],
+    "guided_work_pause_seconds": 45,
+    "closing_card": {
+      "scene_id": "L13-08",
+      "start_seconds": 279,
+      "end_seconds": 287,
+      "duration_seconds": 8,
+      "overlay_on_final_presenter_passage": false,
+      "audience_copy_exact": [
+        "Operating File v13: research proposal.",
+        "Next: show the controls."
+      ],
+      "treatment": "approved ending copy in provider-free card; L16 overlaps final spoken passage without padding"
+    },
+    "rule": "Retain exact speech in order; change picture only at a sentence-complete spoken handoff; one speaker at a time; preserve native presenter source frame rate and audio; re-time captions after native recordings."
+  },
+  "scenes": [
+    {
+      "scene_id": "L13-01",
+      "audience_copy_exact": [
+        "A useful idea is still a proposal."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L13-02",
+      "audience_copy_exact": [
+        "Propose → not_run → gate → trace → approve or discard."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L13-03",
+      "audience_copy_exact": [
+        "Baseline: unknown.",
+        "Metric: correct hold identification.",
+        "Result: not_run."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L13-04",
+      "audience_copy_exact": [
+        "Morgan reviews the proposal.",
+        "No automatic promotion."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L13-05",
+      "audience_copy_exact": [
+        "Hold reason + owner + next safe step."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L13-06",
+      "audience_copy_exact": [
+        "Pause: name one missing baseline."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L13-07",
+      "audience_copy_exact": [],
+      "exercise_prompt_exact": "Write an `AutoResearch Proposal` for one improvement to your invented workflow. Include title, question, hypothesis, comparison, expected impact, baseline, primary and guardrail metrics, test configuration, touched surface, risk, rollback, promotion recommendation, named approval question, next metric gate, `result_status: not_run`, and an actionable hold reason. The approval question must authorize only a later scoped research action, never a production change.",
+      "guided_display_copy_exact": [
+        "Draft one AutoResearch Proposal.",
+        "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate."
+      ]
+    },
+    {
+      "scene_id": "L13-08",
+      "audience_copy_exact": [
+        "Operating File v13: research proposal.",
+        "Next: show the controls."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    }
+  ],
+  "visuals": [
+    {
+      "scene_id": "L13-02",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "use": "Five-step ladder ending in a closed gate; a separate memory-proposal lane does not connect automatically.",
+      "text_equivalent": "A.M.I.N.A. inside SAM diagram: Signals, Alignment, and Momentum surround Align, Map, Instrument, Negotiate, and Audit. Three lower panels read Ask, Act, and Attest.",
+      "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+      "treatment": "full plate in contain region; approved audience copy separate and readable at mobile width"
+    }
+  ],
+  "cover": {
+    "path": "public/agentified/posters/l13-poster.webp",
+    "sha256": "2a1d91534183932dd2c3c0ec8ca01dfd37c14518cab0ccf23dec74fc25d3bda8",
+    "use": "static poster and internal animatic only; video locked"
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "research-proposal",
+      "revision": 13,
+      "status": "draft",
+      "update_exact": "`research-proposal` → `research`, revision 13, status `draft`; revision 12's `SYN-HOLD-01`, `SYN-SPEND-01`, and unscored foundry idea stay open."
+    },
+    "chapter_sources": [
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch23-autoresearch-without-autonomy-theater.md",
+        "sha256": "b0d3f4cd85cc407171ccb68894eab7cd1ff824df8f0851910a7994731473817a"
+      }
+    ],
+    "source_ids_policy": "protected synthetic trace only; no source IDs in provider request"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L13.json",
+      "sha256": "f7308be394a1d1a85053201e448bd1ed18d03306f20a28fef9890fa88fca8f56"
+    },
+    {
+      "path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
+      "sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413"
+    },
+    {
+      "path": "public/agentified/posters/l13-poster.webp",
+      "sha256": "2a1d91534183932dd2c3c0ec8ca01dfd37c14518cab0ccf23dec74fc25d3bda8"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0"
+    },
+    {
+      "path": "app/agentified/AgentifiedWorkshop.tsx",
+      "sha256": "0eaad4eb91ae457b55a6aac66b2e929c8aa01ea17504977abc297f9b5ce6f7f6"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch23-autoresearch-without-autonomy-theater.md",
+      "sha256": "b0d3f4cd85cc407171ccb68894eab7cd1ff824df8f0851910a7994731473817a"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd"
+    }
+  ],
+  "gates": [
+    "purpose-specific L13-L16 look and voice approval",
+    "fresh provider quote, balance and enforceable one-job and batch caps",
+    "separate exact execution authorization",
+    "native audio timing and sentence-level edit audit",
+    "caption, diagram alt, mobile/desktop and final MP4 review"
+  ],
+  "stop_conditions": [
+    "source, rights, identity, voice or packet drift",
+    "uncertain job outcome or provider error; no retry",
+    "cost cap uncertainty or unexpected debit",
+    "narration omission, repetition or altered meaning",
+    "ordinary gap over 2.5 seconds",
+    "topic cut before sentence-complete handoff",
+    "visual clipping, label collision or unreadable captions"
+  ],
+  "candidate_sha256": "ca8117572b7e862a9dcdd15b1b901886cfe1068dbc2be487c6cde6f17cb84876"
+}

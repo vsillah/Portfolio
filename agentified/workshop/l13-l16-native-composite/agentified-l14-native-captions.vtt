@@ -1,0 +1,163 @@
+WEBVTT
+
+00:00:00.210 --> 00:00:02.180
+A Harbor board reviewer asks Morgan a
+
+00:00:02.220 --> 00:00:04.220
+fair question: what happens when the
+
+00:00:04.270 --> 00:00:06.360
+preparation agent produces a brief that
+
+00:00:06.400 --> 00:00:08.880
+looks ready, but the evidence is thin?
+
+00:00:09.300 --> 00:00:11.310
+Morgan brings three paper panels to the
+
+00:00:11.350 --> 00:00:11.790
+table.
+
+00:00:12.209 --> 00:00:15.793
+The first panel shows the queue, including held and rejected work.
+
+00:00:16.347 --> 00:00:18.566
+The second follows one item through its trace.
+
+00:00:19.121 --> 00:00:21.041
+The third shows the rule that governed it.
+
+00:00:21.553 --> 00:00:24.753
+This is a design walkthrough, not a live system demonstration.
+
+00:00:25.206 --> 00:00:28.960
+Morgan is showing what Harbor intends to inspect before it trusts the workflow.
+
+00:00:29.302 --> 00:00:29.942
+Start with the queue.
+
+00:00:30.326 --> 00:00:33.654
+One Session Option Brief is prepared, not proposed to the team.
+
+00:00:34.123 --> 00:00:36.384
+The staffing hold says staffing is unconfirmed.
+
+00:00:36.956 --> 00:00:38.961
+The print request says no spend is approved.
+
+00:00:39.473 --> 00:00:43.484
+The research proposal is not run because its baseline and reviewer protocol are missing.
+
+00:00:44.252 --> 00:00:46.513
+Place the rejections where the reviewer can see them too.
+
+00:00:47.011 --> 00:00:52.302
+A queue that only displays polished outputs hides the decisions that make the operation governable.
+
+00:00:52.814 --> 00:00:54.521
+Open the trace for the held brief.
+
+00:00:54.990 --> 00:00:57.251
+It begins with cleared Harbor source references.
+
+00:00:57.922 --> 00:01:04.962
+It records the preparation agent's draft, the check that found the staffing gap, the hold, and Morgan as the decision owner.
+
+00:01:05.687 --> 00:01:07.308
+There is no send or booking event.
+
+00:01:07.884 --> 00:01:15.223
+The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log.
+
+00:01:15.863 --> 00:01:17.783
+The absence of an event is part of the answer.
+
+00:01:18.338 --> 00:01:19.276
+Now show memory.
+
+00:01:19.851 --> 00:01:26.593
+Harbor has a proposed local rule: a session cannot move from option to team proposal until a person confirms staffing.
+
+00:01:27.062 --> 00:01:30.561
+In this classroom design, that rule is a draft for Morgan's review.
+
+00:01:31.312 --> 00:01:36.901
+The agent cannot promote it itself, and a single held example cannot become general truth by repetition.
+
+00:01:37.626 --> 00:01:42.149
+Show the rule's owner, scope, source reference, status, and review date.
+
+00:01:42.405 --> 00:01:44.197
+If any are missing, say so.
+
+00:01:44.726 --> 00:01:47.628
+The workbook asks what export a reviewer can take away.
+
+00:01:48.054 --> 00:01:53.516
+Morgan can offer the scoped proof outline from lesson twelve after a separate audience and privacy review.
+
+00:01:54.229 --> 00:01:59.007
+It would contain the boundary, receipt references, decisions, and limitations.
+
+00:01:59.690 --> 00:02:02.250
+It would omit raw notes and unrelated records.
+
+00:02:02.847 --> 00:02:04.895
+For class today, it stays `not shared`.
+
+00:02:05.364 --> 00:02:07.839
+A reviewer may ask whether the agent actually ran.
+
+00:02:08.367 --> 00:02:09.624
+Answer plainly: no.
+
+00:02:09.775 --> 00:02:14.895
+This exercise demonstrates controls on paper; it does not prove production reliability.
+
+00:02:15.407 --> 00:02:15.869
+Pause.
+
+00:02:16.054 --> 00:02:20.015
+Which panel would expose the weakest part of your own proposed workflow first?
+
+00:02:20.713 --> 00:02:23.017
+Storyboard a Three-Panel Demo for your workflow.
+
+00:02:23.444 --> 00:02:26.601
+Give each panel a reviewer question and one piece of evidence.
+
+00:02:27.113 --> 00:02:30.185
+Include a blocked or rejected item beside the successful work.
+
+00:02:30.807 --> 00:02:34.647
+In the trace, name the missing event as clearly as the recorded ones.
+
+00:02:35.202 --> 00:02:37.719
+In memory, identify who may approve the rule.
+
+00:02:38.189 --> 00:02:41.218
+Write two likely skeptical questions and honest answers.
+
+00:02:41.830 --> 00:02:47.462
+Decide what a reviewer may receive, what stays withheld, and who reviews the export before sharing.
+
+00:02:47.889 --> 00:02:49.809
+Use a fictional or approved example.
+
+00:02:50.449 --> 00:03:37.412
+Do not use private operational data.
+
+00:03:37.924 --> 00:03:39.886
+Save revision fourteen as a draft.
+
+00:03:40.539 --> 00:03:44.294
+The board can examine Harbor's proposed controls and its unresolved gaps.
+
+00:03:45.147 --> 00:03:46.854
+Morgan still owns the session decision.
+
+00:03:47.397 --> 00:03:49.957
+Nothing about a clean storyboard lifts
+
+00:03:49.997 --> 00:03:50.687
+the hold.

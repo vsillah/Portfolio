@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "lesson_id": "L16",
+  "request_sha256": "2a9fc51f0bdaa64401b57a10d3beac2989d51286187fc5fd11525ed2bb16b314",
+  "presenter_source_duration_seconds": 25.367,
+  "narration_source_duration_seconds": 197.002,
+  "native_speed": 1,
+  "output_duration_seconds": 267.309,
+  "presenter_windows": [
+    {
+      "scene_id": "L16-01",
+      "source_in": 0,
+      "source_out": 16.26,
+      "sequence_start": 0,
+      "sequence_end": 16.26
+    },
+    {
+      "scene_id": "L16-08",
+      "source_in": 16.32,
+      "source_out": 25.367,
+      "sequence_start": 258.262,
+      "sequence_end": 267.309
+    }
+  ],
+  "narration_window": {
+    "sequence_start": 16.26,
+    "source_pause_split": 186.326,
+    "source_duration": 197.002
+  },
+  "guided_work_countdown": {
+    "source_split_seconds": 186.326,
+    "sequence_start": 202.586,
+    "sequence_end": 247.586,
+    "seconds": 45
+  },
+  "provider_free_closing_card": {
+    "start": 258.262,
+    "end": 267.309,
+    "overlay_on_final_presenter_passage": true
+  },
+  "sentence_alignment": {
+    "engine": "HeyGen native word timing plus exact-script global alignment",
+    "distance": 8,
+    "expected_words": 512,
+    "observed_words": 516
+  },
+  "presenter_transform": {
+    "x": 1048,
+    "y": 326,
+    "width": 768,
+    "height": 432,
+    "fit": "contain",
+    "border": "solid_gold",
+    "background": "provider_free_textured_studio"
+  }
+}
