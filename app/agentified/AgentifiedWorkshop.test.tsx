@@ -23,7 +23,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.matchMedia = vi.fn().mockReturnValue({ matches: false })
   })
 
-  it.each([['L01', 540], ['L05', 237.687], ['L09', 272.84]] as const)('restores claimed member playback for %s without claiming guest progress', async (id, duration) => {
+  it.each([['L01', 540], ['L05', 237.687], ['L09', 272.84], ['L13', 255.243]] as const)('restores claimed member playback for %s without claiming guest progress', async (id, duration) => {
     vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: { access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.invalid', user_metadata: {} } } }, error: null } as Awaited<ReturnType<typeof supabase.auth.getSession>>)
     vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => ({ ok: true, json: async () => init?.method === 'POST' ? { revision: 5 } : { enrollment: { revision: 4, current_lesson_id: id, updated_at: new Date().toISOString() }, worksheet: null, lessons: [{ lesson_id: id, video_seconds: 73, completed_at: null }] } })))
     const { container } = render(<AgentifiedWorkshop mode="plan" />)
@@ -136,7 +136,38 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     resumed.unmount()
   })
 
-  it('shows approved L01 video directly, keeps L13-L16 locked, and retains guest work', async () => {
+  it.each([
+    ['L13', 'c84cc008', 255.243, '04:15'],
+    ['L14', 'de258e9b', 241.762, '04:01'],
+    ['L15', '80fb2855', 255.386, '04:15'],
+    ['L16', 'e890f6a9', 267.309, '04:27'],
+  ])('opens %s approved composite with captions, transcript, worksheet, and resume', async (id, hash, duration, display) => {
+    window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
+    const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
+    expect(video.querySelector('source')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-composite.mp4`)
+    expect(video.querySelector('track')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`)
+    expect(video.querySelector('track')).toHaveAttribute('default')
+    expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
+    fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
+    expect(screen.getByText('Spoken audio')).toBeInTheDocument()
+    expect(container.querySelectorAll('details p').length).toBeGreaterThan(35)
+    fireEvent.change(container.querySelector(`#answer-${id}`)!, { target: { value: `${id} evidence` } })
+    Object.defineProperty(video, 'currentTime', { configurable: true, value: 75 })
+    fireEvent.timeUpdate(video)
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(AGENTIFIED_GUEST_KEY)!).videoSeconds[id]).toBe(75))
+    expect(screen.getByRole('link', { name: /Open this page in the full file/ })).toHaveAttribute('href', `/agentified/operating-file#${id}`)
+    unmount()
+    const resumed = render(<AgentifiedWorkshop mode="plan" />)
+    const resumedVideo = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
+    Object.defineProperty(resumedVideo, 'duration', { configurable: true, value: duration })
+    fireEvent.loadedMetadata(resumedVideo)
+    expect((resumedVideo as HTMLVideoElement).currentTime).toBe(75)
+    expect(resumed.container.querySelector(`#answer-${id}`)).toHaveValue(`${id} evidence`)
+    resumed.unmount()
+  })
+
+  it('shows approved L01 video directly, activates L13, and retains guest work', async () => {
     const { container } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
     expect(video).toHaveAttribute('poster', '/agentified/posters/l01-poster.webp')
@@ -153,9 +184,9 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     await waitFor(() => expect(JSON.parse(localStorage.getItem(AGENTIFIED_GUEST_KEY)!).videoSeconds.L01).toBe(65))
     fireEvent.change(container.querySelector('#answer-L01')!, { target: { value: 'A bounded job with a receipt.' } })
     fireEvent.click(screen.getByRole('button', { name: /Research with a gate/ }))
-    expect(screen.getByRole('img', { name: /L13 .* lesson cover/ })).toHaveAttribute('src', '/agentified/posters/l13-poster.webp')
-    expect(screen.getByText('Video locked')).toBeInTheDocument()
-    expect(container.querySelector('video')).toBeNull()
+    expect(screen.getByLabelText('L13 Research with a gate guided video')).toHaveAttribute('poster', '/agentified/posters/l13-poster.webp')
+    expect(screen.getByText('Ready · 04:15')).toBeInTheDocument()
+    expect(container.querySelector('video')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Open this page in the full file/ })).toHaveAttribute('href', '/agentified/operating-file#L13')
     fireEvent.click(screen.getByRole('button', { name: /Give the agent a job and a receipt/ }))
     expect(container.querySelector('#answer-L01')).toHaveValue('A bounded job with a receipt.')
