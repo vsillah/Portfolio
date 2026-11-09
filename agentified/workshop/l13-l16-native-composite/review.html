@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agentified L13-L16 Human QA</title>
+  <style>
+    :root{color-scheme:dark;--ink:#f7f2e8;--muted:#b8c4c8;--gold:#d9aa3c;--panel:#0b2d3a;--line:#42616b}*{box-sizing:border-box}body{margin:0;background:#071f2a;color:var(--ink);font:16px/1.5 system-ui,sans-serif}.shell{max-width:1320px;margin:auto;padding:32px 24px 64px}header{border-bottom:1px solid var(--gold);padding-bottom:20px;margin-bottom:28px}h1{font:700 clamp(28px,4vw,52px)/1.08 Georgia,serif;margin:0 0 10px}p{color:var(--muted);margin:0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.lesson{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}.lesson h2{margin:0 0 12px;font-size:20px;letter-spacing:0}.meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-top:12px}.meta span{border:1px solid var(--line);border-radius:999px;padding:4px 9px}video{width:100%;aspect-ratio:16/9;background:#061822;border:1px solid var(--gold)}@media(max-width:760px){.shell{padding:20px 12px 48px}.grid{grid-template-columns:1fr}.lesson{padding:12px}}
+  </style>
+</head>
+<body><main class="shell"><header><h1>Agentified L13-L16 native composites</h1><p>Review-only provider sources, continuous narration, sentence-complete presenter passages, instructional plates, and synchronized guided-work countdowns.</p></header><section class="grid" id="lessons"></section></main>
+<script>
+const data=[['13','Research with a gate','255.243','11'],['14','Show the board the controls','241.762','10'],['15','Rehearse the agentified day','255.386','12'],['16','Audit the operating file','267.309','15']];
+document.querySelector('#lessons').innerHTML=data.map(([id,title,duration,credits])=>`<article class="lesson"><h2>L${id} · ${title}</h2><video controls preload="metadata"><source src="agentified-l${id}-native-composite.mp4" type="video/mp4"><track default kind="captions" srclang="en" label="English" src="agentified-l${id}-native-captions.vtt"></video><div class="meta"><span>${duration}s</span><span>${credits} credits</span><span>zero retries</span><span>learner playback locked</span></div></article>`).join('');
+</script></body></html>
