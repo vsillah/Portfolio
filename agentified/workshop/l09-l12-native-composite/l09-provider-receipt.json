@@ -11,6 +11,11 @@
   "voice_id": "4f53988b1c314610b514db98432fd0ef",
   "submissions": 1,
   "retries": 0,
+  "execution_authorization_receipt": {
+    "path": "agentified/workshop/l09-l12-native-composite/execution-authorization-receipt.json",
+    "sha256": "a3401459019b02c36e08d9a84b5880acdf781fddc29c0c61a9d187870edc910d",
+    "request_sha256": "cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd"
+  },
   "provider_usage": {
     "credit_cost": 114,
     "account_balance_after_batch": 768,
