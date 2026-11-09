@@ -46,7 +46,7 @@ describe('contextual member catalog', () => {
     fireEvent.click(within(screen.getByTestId('catalog-grid')).getAllByRole('button', { name: 'Request Quote' })[1])
     expect(mocks.addService).toHaveBeenCalledTimes(1)
     expect(screen.getByText(/This alternative is a request for review/)).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Send for operator review' }).hasAttribute('disabled')).toBe(true)
+    expect(screen.getByRole('button', { name: 'Send for review' }).hasAttribute('disabled')).toBe(true)
     expect(screen.getAllByRole('link', { name: 'View details' })[0].getAttribute('href')).toMatch(/fromQuote=1203/)
   })
 
@@ -76,8 +76,8 @@ describe('contextual member catalog', () => {
   it('locks the reviewed quote action after submission', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...synthetic, submitted: true }) }))
     render(<MemberQuoteForm />)
-    await screen.findByText(/Your quote context is with an operator/)
+    await screen.findByText(/Your quote request is in review/)
     expect(within(screen.getByTestId('reviewed-offer')).getByRole('button', { name: 'Request Quote' }).hasAttribute('disabled')).toBe(true)
-    expect(screen.getByText('Already sent for operator review')).toBeTruthy()
+    expect(screen.getByText('Already sent for review')).toBeTruthy()
   })
 })

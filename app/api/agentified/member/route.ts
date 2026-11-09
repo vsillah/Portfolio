@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAuthError, verifyAuth } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AGENTIFIED_VERSION, validateAgentifiedState } from '@/lib/agentified-workshop'
+import { loadWorkshopMemberAssessment } from '@/lib/workshop-member-assessment'
 
 export const dynamic = 'force-dynamic'
 const headers = { 'Cache-Control': 'private, no-store' }
@@ -18,7 +19,12 @@ export async function GET(request: NextRequest) {
     supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,answers,updated_at').eq('user_id', userId).eq('content_version', AGENTIFIED_VERSION).maybeSingle(),
   ])
   if (enrollment.error || lessons.error || worksheet.error) return fail('Member progress is unavailable.', 503)
-  return NextResponse.json({ version: AGENTIFIED_VERSION, enrollment: enrollment.data, lessons: lessons.data ?? [], worksheet: worksheet.data }, { headers })
+  let workflow
+  try { workflow = await loadWorkshopMemberAssessment(userId, AGENTIFIED_VERSION) }
+  catch { return fail('Member assessment is temporarily unavailable.', 503) }
+  return NextResponse.json({ version: AGENTIFIED_VERSION, enrollment: enrollment.data, lessons: lessons.data ?? [], worksheet: worksheet.data,
+    operatingFileCount: workflow.intakeCount, assessmentStatus: workflow.assessmentStatus,
+    assessment: workflow.assessment, recommendations: workflow.recommendations }, { headers })
 }
 
 export async function POST(request: NextRequest) {

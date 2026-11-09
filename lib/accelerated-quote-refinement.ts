@@ -74,7 +74,7 @@ const patterns: Record<QuoteDimension, Array<[string, RegExp]>> = {
   ],
 }
 
-export function deriveQuoteContext(worksheetAnswers: Record<string, string>): DerivedContext {
+export function deriveQuoteContext(worksheetAnswers: Record<string, string>, workshop: 'accelerated' | 'agentified' = 'accelerated'): DerivedContext {
   const facts: DerivedContext['facts'] = {}
   const sourceFields = Object.entries(worksheetAnswers).filter(([field, answer]) =>
     lessonIds.has(field) && typeof answer === 'string' && answer.trim()).map(([field]) => field).sort()
@@ -95,12 +95,18 @@ export function deriveQuoteContext(worksheetAnswers: Record<string, string>): De
     }
     if (matches.length && matches.every((item) => item.value === matches[0].value)) facts[question.id] = matches[0]
   }
-  const summary = [
+  const summaryFields = workshop === 'agentified' ? [
+    ['L02', 'A decision card is documented'],
+    ['L03', 'Source safety is documented'],
+    ['L09', 'A review posture is documented'],
+    ['L16', 'An accountability audit is documented'],
+  ] : [
     ['L02', 'A priority decision is documented'],
     ['L03', 'An evidence gap is documented'],
     ['L09', 'Decision roles are documented'],
     ['L16', 'A next action is documented'],
-  ].filter(([field]) => sourceFields.includes(field)).map(([field, label]) => `${label} (${field})`)
+  ]
+  const summary = summaryFields.filter(([field]) => sourceFields.includes(field)).map(([field, label]) => `${label} (${field})`)
   return { facts, summary, sourceFields }
 }
 

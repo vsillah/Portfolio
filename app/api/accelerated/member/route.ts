@@ -4,7 +4,9 @@ import { verifyAuth, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { DECISION_FILE_VERSION } from '@/lib/accelerated-decision-file'
 import { validateLearningState } from '@/lib/accelerated-member-progress'
-import { getDashboardByProjectId, getDashboardByToken } from '@/lib/client-dashboard'
+import { getDashboardByProjectId } from '@/lib/client-dashboard'
+import { loadWorkshopMemberAssessment } from '@/lib/workshop-member-assessment'
+import { AGENTIFIED_VERSION } from '@/lib/agentified-workshop'
 
 export const dynamic = 'force-dynamic'
 const headers = { 'Cache-Control': 'private, no-store' }
@@ -15,52 +17,45 @@ async function identity(request: NextRequest) {
   return isAuthError(result) ? null : result.user.id
 }
 
-async function loadRecommendations(userId: string) {
-  const current = await supabaseAdmin.from('accelerated_member_recommendations')
-    .select('id,offer_kind,offer_id,title,rationale,reviewed_at,approved_price,approved_is_quote_based,approved_is_print_on_demand,approved_variant_prices')
-    .eq('user_id', userId).eq('review_status', 'approved')
-  // Production may not yet have the staging-only commerce migration. Keep the
-  // read-only dashboard available and withhold purchase actions until rollout.
-  if (current.error?.code === '42703') {
-    return supabaseAdmin.from('accelerated_member_recommendations')
-      .select('id,offer_kind,offer_id,title,rationale,reviewed_at')
-      .eq('user_id', userId).eq('review_status', 'approved')
-  }
+async function loadMemberships(userId: string) {
+  const current = await supabaseAdmin.from('verified_client_project_memberships')
+    .select('client_project_id,workshop_intake_id').eq('user_id', userId)
+  if (current.error?.code === '42703') return supabaseAdmin.from('verified_client_project_memberships')
+    .select('client_project_id').eq('user_id', userId)
   return current
 }
 
 export async function GET(request: NextRequest) {
   const userId = await identity(request)
   if (!userId) return fail('Sign in to view member progress.', 401)
-  const [profile, enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders] = await Promise.all([
+  const [profile, enrollment, lessonRows, worksheet, memberships, orders] = await Promise.all([
     supabaseAdmin.from('user_profiles').select('full_name').eq('id', userId).maybeSingle(),
     supabaseAdmin.from('accelerated_member_enrollments').select('current_lesson_id,revision,updated_at').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
     supabaseAdmin.from('accelerated_member_lessons').select('lesson_id,completed_at,video_seconds').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION),
     supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,answers,updated_at').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
-    supabaseAdmin.from('diagnostic_audits').select('id,status,diagnostic_summary').eq('user_id', userId).eq('status', 'completed').order('id', { ascending: false }).limit(1),
-    supabaseAdmin.from('verified_client_project_memberships').select('client_project_id').eq('user_id', userId),
-    loadRecommendations(userId),
-    supabaseAdmin.from('accelerated_decision_file_owners').select('intake_id').eq('user_id', userId),
+    loadMemberships(userId),
     supabaseAdmin.from('orders').select('id,status,final_amount,created_at,order_items(id,quantity,price_at_purchase,products(title),services(title))')
       .eq('user_id', userId).order('created_at', { ascending: false }).limit(30),
   ])
-  if ([profile, enrollment, lessonRows, worksheet, audits, memberships, recommendations, ownedFiles, orders].some((item) => item.error)) return fail('Member data is temporarily unavailable.', 503)
-  // Existing token projection is reused server-side. The token is never sent to the member.
-  let assessment = null
-  const audit = audits.data?.[0]
-  if (audit) {
-    const access = await supabaseAdmin.from('client_dashboard_access').select('access_token').eq('diagnostic_audit_id', audit.id).eq('is_active', true).limit(1).maybeSingle()
-    if (!access.error && access.data?.access_token) {
-      const projected = await getDashboardByToken(access.data.access_token)
-      if (!projected.error && projected.stage === 'lead') assessment = projected.data
-    }
-  }
+  if ([profile, enrollment, lessonRows, worksheet, memberships, orders].some((item) => item.error)) return fail('Member data is temporarily unavailable.', 503)
+  let workflow
+  try { workflow = await loadWorkshopMemberAssessment(userId, DECISION_FILE_VERSION) }
+  catch { return fail('Member assessment is temporarily unavailable.', 503) }
   const projects = []
   const projectMeetings: Record<string, unknown[]> = {}
+  const projectWorkshops: Record<string, 'accelerated' | 'agentified'> = {}
   for (const member of memberships.data ?? []) {
     const projected = await getDashboardByProjectId(member.client_project_id)
     if (!projected.error && projected.stage === 'client' && projected.data) {
       projects.push(projected.data)
+      if (member.workshop_intake_id) {
+        const source = await supabaseAdmin.from('accelerated_decision_file_intakes')
+          .select('content_version').eq('id', member.workshop_intake_id).maybeSingle()
+        if (source.error) return fail('Project workshop identity is temporarily unavailable.', 503)
+        if (source.data?.content_version === DECISION_FILE_VERSION) projectWorkshops[member.client_project_id] = 'accelerated'
+        else if (source.data?.content_version === AGENTIFIED_VERSION) projectWorkshops[member.client_project_id] = 'agentified'
+        else return fail('Project workshop identity is unavailable.', 503)
+      }
       const meetings = await supabaseAdmin.from('meeting_records')
         .select('id,meeting_type,meeting_date,duration_minutes,structured_notes,key_decisions,action_items,open_questions,recording_url')
         .eq('client_project_id', member.client_project_id).order('meeting_date', { ascending: false }).limit(50)
@@ -74,12 +69,13 @@ export async function GET(request: NextRequest) {
     enrollment: enrollment.data,
     lessons: lessonRows.data ?? [],
     worksheet: worksheet.data,
-    decisionFileCount: ownedFiles.data?.length ?? 0,
-    assessmentStatus: audit ? { status: audit.status, summary: audit.diagnostic_summary } : null,
-    assessment,
-    recommendations: recommendations.data ?? [],
+    decisionFileCount: workflow.intakeCount,
+    assessmentStatus: workflow.assessmentStatus,
+    assessment: workflow.assessment,
+    recommendations: workflow.recommendations,
     orders: orders.data ?? [],
     projects,
+    projectWorkshops,
     projectMeetings,
   }, { headers })
 }

@@ -12,7 +12,7 @@ import { projectQuoteOffers, quoteQuestions, type DerivedContext, type QuoteAnsw
   type QuoteDimension } from '@/lib/accelerated-quote-refinement'
 
 type Question = typeof quoteQuestions[number]
-type Context = { orderId: number; title: string; summary: string[]; derivedFacts: DerivedContext['facts'];
+type Context = { orderId: number; workshop?: 'accelerated' | 'agentified'; title: string; summary: string[]; derivedFacts: DerivedContext['facts'];
   questions: Question[]; offers: QuoteOffer[]; answers: QuoteAnswers; revision: number; refinementId: string | null; submitted?: boolean;
   reviewedOfferId: string; requestedOfferId: string }
 
@@ -103,7 +103,7 @@ export default function MemberQuoteForm() {
   const card = (offer: QuoteOffer) => offer.catalog ? <motion.div key={`${offer.kind}:${offer.id}`} layout initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.94 }} transition={{ duration: 0.18 }} className="min-w-0">
     {offer.kind === 'product' ? <ProductCard product={offer.catalog as Product} onAddToCart={addProduct} viewDetailsHref={detailHref(offer)} />
       : <ServiceCard service={offer.catalog as Service} onAddToCart={addService} onRequestQuote={requestQuote} viewDetailsHref={detailHref(offer)}
-          actionDisabledReason={status === 'sent' && offer.quoteBased ? 'Already sent for operator review' : undefined} />}
+          actionDisabledReason={status === 'sent' && offer.quoteBased ? 'Already sent for review' : undefined} />}
   </motion.div> : null
 
   async function save() {
@@ -144,9 +144,9 @@ export default function MemberQuoteForm() {
       <Link className="inline-flex min-h-11 items-center text-sm text-radiant-gold underline" href="/member/dashboard">Back to member dashboard</Link>
       {context && <Link href="/checkout" className="text-sm text-radiant-gold underline">Cart ({cartCount})</Link>}
     </div>
-    <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-radiant-gold">Accelerated · reviewed quote</p>
+    <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-radiant-gold">{context?.workshop === 'agentified' ? 'Agentified' : 'Accelerated'} · reviewed quote</p>
     <h1 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">Find your fit</h1>
-    <p className="mt-2 text-sm text-platinum-white/70">Your Decision File sets the starting point. Refine the active catalog below.</p>
+    <p className="mt-2 text-sm text-platinum-white/70">Your {context?.workshop === 'agentified' ? 'Operating File' : 'Decision File'} sets the starting point. Refine the active catalog below.</p>
     {status === 'loading' && <p className="mt-8" role="status">Loading your quote catalog…</p>}
     {status === 'error' && <div className="mt-8 rounded-lg border border-amber-400/40 p-5" role="alert"><p>{error}</p><Link className="mt-3 inline-block text-radiant-gold underline" href="/member/dashboard">Open member dashboard</Link></div>}
     {context && <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,245px)_minmax(0,1fr)]">
@@ -157,10 +157,10 @@ export default function MemberQuoteForm() {
         </details>
         <div className="hidden rounded-lg border border-white/20 bg-silicon-slate/40 p-4 lg:block">
           <h2 className="font-heading text-lg font-semibold">Refine options</h2>
-          <p className="mt-1 text-xs text-platinum-white/65">Only unanswered Decision File questions.</p>
+          <p className="mt-1 text-xs text-platinum-white/65">Only unanswered {context.workshop === 'agentified' ? 'Operating File' : 'Decision File'} questions.</p>
           <div className="mt-4 space-y-4">{questionFields('desktop')}</div>
         </div>
-        <details className="mt-3 text-xs text-platinum-white/70"><summary className="cursor-pointer">Decision File context</summary>
+        <details className="mt-3 text-xs text-platinum-white/70"><summary className="cursor-pointer">{context.workshop === 'agentified' ? 'Operating File' : 'Decision File'} context</summary>
           <ul className="mt-2 list-inside list-disc space-y-1">{context.summary.map((item) => <li key={item}>{item}</li>)}</ul>
         </details>
       </aside>
@@ -171,13 +171,13 @@ export default function MemberQuoteForm() {
         </div>
         <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3" data-testid="catalog-grid">
         {reviewed && <div className="min-w-0 rounded-xl border-2 border-radiant-gold/70 bg-radiant-gold/10 p-3" data-testid="reviewed-offer">
-          <p className="mb-2 text-sm font-semibold text-radiant-gold">Your operator-reviewed recommendation · pinned</p>
-          {projection?.excluded.some((offer) => offer.id === reviewed.id) && <p className="mb-2 text-sm text-amber-200">Your current answers differ from this recommendation. An operator must review the fit.</p>}
+          <p className="mb-2 text-sm font-semibold text-radiant-gold">Your reviewed recommendation · pinned</p>
+          {projection?.excluded.some((offer) => offer.id === reviewed.id) && <p className="mb-2 text-sm text-amber-200">Your current answers differ from this recommendation. The fit needs another review.</p>}
           {card(reviewed)}
         </div>}
         {status !== 'sent' && <AnimatePresence mode="popLayout">{alternatives.map((offer) => card(offer))}</AnimatePresence>}
         </div>
-        {status === 'sent' ? <div className="mt-5 rounded-lg border border-green-400/40 p-5" role="status">Your quote context is with an operator. The reviewed recommendation stays in place until they review any requested alternative.</div> : <>
+        {status === 'sent' ? <div className="mt-5 rounded-lg border border-green-400/40 p-5" role="status">Your quote request is in review. The current recommendation stays in place while we review any requested alternative.</div> : <>
           {projection?.status === 'no_match' && <div className="mt-5 rounded-lg border border-amber-400/40 p-4 text-sm" role="status">
             No other option fits every answer. Review your filters or show the full catalog; your recommendation remains pinned.
             <button type="button" onClick={() => setShowAll(true)} className="ml-2 text-radiant-gold underline">Show all options</button>
@@ -188,15 +188,15 @@ export default function MemberQuoteForm() {
             <ul className="mt-2 space-y-1">{projection.excluded.map((offer) => <li key={offer.kind + offer.id}>{offer.title}: {offer.reasons.join('; ')}</li>)}</ul>
           </details>}
           <div id="quote-review-action" className="mt-6 rounded-lg border border-radiant-gold/30 bg-silicon-slate/40 p-4">
-            <h3 className="font-semibold">Request operator review</h3>
+            <h3 className="font-semibold">Request a quote review</h3>
             <p className="mt-1 text-sm text-platinum-white/70">Quote order #{context.orderId} · {context.offers.find((offer) => offer.id === requestedOfferId)?.title ?? context.title}</p>
             {requestedOfferId !== context.reviewedOfferId && <p className="mt-1 text-sm text-amber-200">This alternative is a request for review. Your approved recommendation has not changed.</p>}
             {error && <p role="alert" className="mt-3 text-sm text-amber-200">{error}</p>}
             <div className="mt-4 flex flex-wrap gap-3">
               <button type="button" onClick={() => void save()} disabled={preview || status !== 'ready' || !dirty && !!refinementId} className="min-h-11 rounded-md border border-radiant-gold px-5 py-2 font-semibold text-radiant-gold disabled:opacity-50">{preview ? 'Preview only' : status === 'saving' ? 'Saving…' : 'Save context'}</button>
-              <button type="button" onClick={() => void send()} disabled={preview || status !== 'ready' || dirty || !refinementId || projection?.status === 'no_match'} className="min-h-11 rounded-md bg-radiant-gold px-5 py-2 font-semibold text-imperial-navy disabled:opacity-50">{status === 'sending' ? 'Sending…' : 'Send for operator review'}</button>
+              <button type="button" onClick={() => void send()} disabled={preview || status !== 'ready' || dirty || !refinementId || projection?.status === 'no_match'} className="min-h-11 rounded-md bg-radiant-gold px-5 py-2 font-semibold text-imperial-navy disabled:opacity-50">{status === 'sending' ? 'Sending…' : 'Send for review'}</button>
             </div>
-            <p className="mt-2 text-xs text-platinum-white/60">Operator review comes before any price or project start. No payment is due.</p>
+            <p className="mt-2 text-xs text-platinum-white/60">We will review the scope before confirming a price or starting a project. No payment is due.</p>
           </div>
         </>}
       </main>
