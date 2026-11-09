@@ -12,7 +12,10 @@ const root = path.resolve(here, '../../..')
 const audit = JSON.parse(readFileSync(path.join(here,'audit-boundaries.json'),'utf8'))
 const visuals = JSON.parse(readFileSync(path.join(here,'visual-receipts.json'),'utf8'))
 const briefs = JSON.parse(readFileSync(path.join(here,'semantic-briefs.json'),'utf8'))
+const cropSafety = JSON.parse(readFileSync(path.join(here,'crop-safety.json'),'utf8'))
+const safetyById = new Map(cropSafety.scenes.map(scene=>[scene.scene_id,scene]))
 const composites = JSON.parse(readFileSync(path.join(here,'composite-receipts.json'),'utf8'))
+const framesOnly = process.argv.includes('--frames-only')
 const sha = file => createHash('sha256').update(readFileSync(file)).digest('hex')
 const probe = file => JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','stream=codec_type,codec_name,r_frame_rate:format=duration','-of','json',file],{encoding:'utf8'}))
 const streamHash = (file,stream) => execFileSync('ffmpeg',['-v','error','-i',file,'-map',`0:${stream}:0`,'-c','copy','-f','hash','-'],{encoding:'utf8'}).trim()
@@ -20,7 +23,11 @@ assert.equal(audit.rows.length,128,'all 128 source scene positions need an audit
 assert.equal(visuals.frames.length,128,'all 128 scene positions need artwork')
 assert.equal(briefs.scenes.length,128,'all 128 positions need semantic briefs')
 assert.equal(visuals.schema_version,2,'semantic visual receipt schema required')
-assert.equal(composites.composites.length,16,'all 16 bound videos need review composites')
+assert.equal(safetyById.size,cropSafety.scenes.length,'duplicate crop-safety receipt')
+assert.equal(safetyById.size,briefs.scenes.filter(scene=>scene.approved_plate).length,'every approved plate needs crop-safety review')
+assert.deepEqual(cropSafety.rendered_plate_px,[600,130,1280,850],'plate viewport changed without crop-safety review')
+assert(cropSafety.feather_px>=40,'plate edge feather reduced')
+if (!framesOnly) assert.equal(composites.composites.length,16,'all 16 bound videos need review composites')
 const visualIds = new Set()
 const briefIds = new Set()
 const wordCount = value => value.trim().split(/\s+/).length
@@ -54,9 +61,21 @@ for (const frame of visuals.frames) {
   assert.equal(Boolean(frame.approved_plate_rendered_px),Boolean(brief.approved_plate),`${frame.scene_id}: approved plate presence drift`)
   if (brief.approved_plate) {
     const plate=frame.approved_plate_rendered_px
+    const safety=safetyById.get(frame.scene_id)
+    assert(safety?.focus&&safety?.edge_risk,`${frame.scene_id}: incomplete crop-safety receipt`)
     assert(plate.width>=1200 && plate.height>=800,`${frame.scene_id}: approved plate reduced below legible size`)
     assert(plate.source_crop_px[2]>=1500 && plate.source_crop_px[3]>=1000,`${frame.scene_id}: approved plate crop too small`)
     assert.deepEqual(plate.source_crop_px,brief.approved_plate.crop_source_px,`${frame.scene_id}: approved plate crop drift`)
+    assert.deepEqual(plate.crop_safety?.insets_px,safety.insets_px,`${frame.scene_id}: edge mask drift`)
+    assert.equal(plate.crop_safety?.feather_px,cropSafety.feather_px,`${frame.scene_id}: edge feather drift`)
+    assert(plate.crop_safety?.mask_sha256,`${frame.scene_id}: missing edge mask hash`)
+    const [left,top,right,bottom]=safety.insets_px
+    assert([left,top,right,bottom].every(inset=>Number.isInteger(inset)&&inset>=40),`${frame.scene_id}: unsafe plate inset`)
+    const samples=[[600+Math.floor(left/2),500],[1880-Math.ceil(right/2),500],[1282,130+Math.floor(top/2)],[1282,980-Math.ceil(bottom/2)]]
+    for(const [x,y] of samples){
+      const pixel=await sharp(image).extract({left:x,top:y,width:1,height:1}).removeAlpha().raw().toBuffer()
+      assert(pixel[0]<26&&pixel[1]<48&&pixel[2]<63,`${frame.scene_id}: unmasked plate edge at ${x},${y}`)
+    }
   }
   assert(frame.display_copy?.length,`${frame.scene_id}: missing visible copy receipt`)
   for (const copy of frame.display_copy) {
@@ -76,7 +95,7 @@ for (const row of audit.rows) {
   }
 }
 let verified = 0
-for (let n=1;n<=16 && !process.argv.includes('--frames-only');n++) {
+for (let n=1;n<=16 && !framesOnly;n++) {
   const id=`L${String(n).padStart(2,'0')}`
   const source=path.join(root,audit.rows.find(row=>row.scene_id===`${id}-01`).video_path)
   const output=path.join(here,'composites',`${id}-illustrated-review.mp4`)

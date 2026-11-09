@@ -70,7 +70,7 @@
     {
       "scene_id": "L01-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-04.png",
-      "frame_sha256": "31c0210d3113b2a3ce81cd099c7ec326aabca1dbf2d3877bca553d6992fbc3ed",
+      "frame_sha256": "8aadcab8e66da13febed93f6fcdcd7d73928465330df9c3c8deb0f9193768286",
       "visual_family": "L01-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
       "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
@@ -85,7 +85,19 @@
           350,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "nine receipt fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
       },
       "display_copy": [
         "The receipt follows every action.",
@@ -255,7 +267,7 @@
     {
       "scene_id": "L02-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-04.png",
-      "frame_sha256": "75e9d3bfa3996b9fcef5eb56385843ab470996b5bf86dc48f35cd4c5ca53cb00",
+      "frame_sha256": "a0c01639e11679a24bf70a3e007afac1e27f56834615cc7f3a6bf5917a8611aa",
       "visual_family": "L02-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
       "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
@@ -270,7 +282,19 @@
           300,
           2100,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            65,
+            55,
+            45,
+            75
+          ],
+          "feather_px": 40,
+          "focus": "receipt, gate, and evaluation",
+          "edge_risk": "neighboring decorative borders",
+          "mask_sha256": "1e8dd3f1b37edc8c01f5bcdd44c07b9fa54b0c8a04e37f102f53f9dcbf23d57e"
+        }
       },
       "display_copy": [
         "Capacity needs evidence.",
@@ -396,7 +420,7 @@
     {
       "scene_id": "L03-02",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-02.png",
-      "frame_sha256": "0c43ca525396bd75a17766d68535a66dd86a2f9c59f0cc412c7ff41e780e0912",
+      "frame_sha256": "d7cdb97de769162bd07c089e9f6fb172f00c2020809aff5d17b80fdccf469252",
       "visual_family": "L03-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
       "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
@@ -411,7 +435,19 @@
           350,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "agent, source, and artifact fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
       },
       "display_copy": [
         "Show how the claim was prepared.",
@@ -625,7 +661,7 @@
     {
       "scene_id": "L04-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-04.png",
-      "frame_sha256": "dc6ed744aeaf793d98fb00b1e1827be3f5a3e4eb09bcc13c0981dcfc41be4369",
+      "frame_sha256": "78a6b81702b6902811d40380738b36388003b77f7e8a0dadcf20b1fb3961fa26",
       "visual_family": "L04-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
       "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
@@ -640,7 +676,19 @@
           500,
           2300,
           1600
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            320,
+            70,
+            300,
+            220
+          ],
+          "feather_px": 40,
+          "focus": "Signals plate",
+          "edge_risk": "Momentum and Alignment labels at opposite edges and partial lower ring",
+          "mask_sha256": "c26b3758de41f56a410d08f3454a23bbdb9b87a4469f2a2e0b5aebaafeabb983"
+        }
       },
       "display_copy": [
         "Keep messaging outside the route.",
@@ -810,7 +858,7 @@
     {
       "scene_id": "L05-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-04.png",
-      "frame_sha256": "942044e901b840282aa9b72607f0492ddae4517d2f787d2fd2534728f35967b1",
+      "frame_sha256": "4ca5d14a76cc3df09dbad25d8a569270cc6b105104bd9dbebe2721145dd3e081",
       "visual_family": "L05-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
       "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
@@ -825,7 +873,19 @@
           300,
           2100,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            100,
+            40,
+            130,
+            100
+          ],
+          "feather_px": 40,
+          "focus": "Open Brain and Harness plates",
+          "edge_risk": "third panel starts at right edge",
+          "mask_sha256": "9113573c21defec0e2c8e7a329a74b584e62a19c3e11519a50e9fd7e12afc74c"
+        }
       },
       "display_copy": [
         "Connect job, source, and receipt.",
@@ -973,7 +1033,7 @@
     {
       "scene_id": "L06-03",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-03.png",
-      "frame_sha256": "c3333e9134905f449bb85a2f14a1b790b912ace09f79af292352abb12d12684a",
+      "frame_sha256": "3d8dcec08c8da382e6b3109a3e241c002da6fb1934129397e5ca8afe1c54cbfa",
       "visual_family": "L06-operating-artifact:plate:bottom",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
       "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
@@ -988,7 +1048,19 @@
           3050,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            190,
+            70,
+            140
+          ],
+          "feather_px": 40,
+          "focus": "Recommend and Prepare boundary",
+          "edge_risk": "neighboring blank ladder rung at top and bottom",
+          "mask_sha256": "b0b95da87279cd324eea3faa79ec0c439d222b0535ad4ea672b09d14d011aafa"
+        }
       },
       "display_copy": [
         "Source check before action.",
@@ -1202,7 +1274,7 @@
     {
       "scene_id": "L07-05",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-05.png",
-      "frame_sha256": "b5dd935b5a8ef7062f06e85a28e266dffbf6ae202779f19d92f38b1de8d5924f",
+      "frame_sha256": "438954e807bd6d0f9a2c1636a2b01991af471f051d83e37ab6ca96cb6416132b",
       "visual_family": "L07-operating-artifact:plate:middle",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
       "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
@@ -1217,7 +1289,19 @@
           1750,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            240,
+            70,
+            190
+          ],
+          "feather_px": 40,
+          "focus": "Route rung and receiver path",
+          "edge_risk": "Stage and adjacent rung fragments",
+          "mask_sha256": "9e49b7a673955ad870a0d145d1e5d48bf74c2bece927ac9afb126fe36ad73172"
+        }
       },
       "display_copy": [
         "Name each receiver.",
@@ -1387,7 +1471,7 @@
     {
       "scene_id": "L08-05",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-05.png",
-      "frame_sha256": "885da1326e0779a3fb8e05a2f41a4751b4126617ad5293ad00e72eb559cd33a2",
+      "frame_sha256": "9e14616d8b845e6b6ee0b40c2b9ea21066c5398ccaa375954ba8812e108af2ea",
       "visual_family": "L08-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
       "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
@@ -1402,7 +1486,19 @@
           350,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "receipt outcome and rollback fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
       },
       "display_copy": [
         "Three cases are not production proof.",
@@ -1506,7 +1602,7 @@
     {
       "scene_id": "L09-02",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-02.png",
-      "frame_sha256": "039e5bb66589b48f71e5dadebc2dc4bf94fcf1926bdba104a62d5cd657752baa",
+      "frame_sha256": "75e1a6a752ff710b3203d96a9ff7716ce82af4681ee4c69f670ca64ec3a436b5",
       "visual_family": "L09-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
       "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
@@ -1521,7 +1617,19 @@
           300,
           2100,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            65,
+            55,
+            45,
+            75
+          ],
+          "feather_px": 40,
+          "focus": "receipt, gate, and evaluation",
+          "edge_risk": "neighboring decorative borders",
+          "mask_sha256": "1e8dd3f1b37edc8c01f5bcdd44c07b9fa54b0c8a04e37f102f53f9dcbf23d57e"
+        }
       },
       "display_copy": [
         "Measure the path to authority.",
@@ -1561,7 +1669,7 @@
     {
       "scene_id": "L09-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-04.png",
-      "frame_sha256": "6e4395e0c5aae2a6bcc0e386e75eeedec4654226b3bdcd6001f98d698d87f350",
+      "frame_sha256": "c3b9bf560f4440c9a2925589537ac5c0b88b397a702560c5a174b8dbb0de1f8d",
       "visual_family": "L09-operating-artifact:plate:top",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
       "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
@@ -1576,7 +1684,19 @@
           1050,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            145,
+            70,
+            190
+          ],
+          "feather_px": 40,
+          "focus": "Stage rung and human review",
+          "edge_risk": "cut adjacent rung label at top and receiver panel below",
+          "mask_sha256": "4f25282cba490bc5615473aee26538c054b50e5c4b3bc029efba4453f74c3145"
+        }
       },
       "display_copy": [
         "Prepare the draft for Morgan.",
@@ -1724,7 +1844,7 @@
     {
       "scene_id": "L10-03",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-03.png",
-      "frame_sha256": "5ed6260a38ac2047112fe04886a2a06103c8b9eb5650507c2678372f739b7d6d",
+      "frame_sha256": "beca1283fd816611b2dea0c5656998f5bb97600345d4c7540fb1d9476c2805b0",
       "visual_family": "L10-operating-artifact:plate:top",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
       "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
@@ -1739,7 +1859,19 @@
           250,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            80,
+            70,
+            120
+          ],
+          "feather_px": 40,
+          "focus": "Execute gate",
+          "edge_risk": "neighboring rung at left and bottom",
+          "mask_sha256": "02972479505b7f261f694edb855ff88e9613968d1f2f2111f7cef6a897d9a553"
+        }
       },
       "display_copy": [
         "Changed terms need new review.",
@@ -1887,7 +2019,7 @@
     {
       "scene_id": "L11-02",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-02.png",
-      "frame_sha256": "63eb1d6d45eb7ad5b72f297f4b7d7fa46705aed891cb4d9626c2d3beeb8797dd",
+      "frame_sha256": "194ef1a128425ae7b63fbf809b1ce1a19c2403f788be2b96431ecd1215711b6b",
       "visual_family": "L11-operating-artifact:plate:right",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
       "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
@@ -1902,7 +2034,19 @@
           250,
           2100,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            130,
+            55,
+            60,
+            220
+          ],
+          "feather_px": 40,
+          "focus": "agent roles and Mission Control",
+          "edge_risk": "public-proof panel at lower edge",
+          "mask_sha256": "27997b671838b6aefce4e4b8551ad2d851acb99903d14ffcdd9d00d358764264"
+        }
       },
       "display_copy": [
         "Put the blocker beside the owner.",
@@ -2094,7 +2238,7 @@
     {
       "scene_id": "L12-03",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-03.png",
-      "frame_sha256": "080c686e25a8e3f10a1e8130fcfb36128c9cf5e14c19e1308bbd04aba3673312",
+      "frame_sha256": "c6cebe114080521fa4de758c52f3b60883c0be9573c846925693ccc3d3b28dfa",
       "visual_family": "L12-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
       "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
@@ -2109,7 +2253,19 @@
           350,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "receipt artifact and approval fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
       },
       "display_copy": [
         "Withhold unrelated raw records.",
@@ -2257,7 +2413,7 @@
     {
       "scene_id": "L13-02",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-02.png",
-      "frame_sha256": "eceb65defdb58bb3141d3bf4eb90b4bbab27b837f1bb79e74041bc7aa510515b",
+      "frame_sha256": "e8f2212dcac1a237ad5f50340ff6d8d3d92ac1a4ab4c7d3aa87f428097a5f11d",
       "visual_family": "L13-operating-artifact:plate:bottom",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
       "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
@@ -2272,7 +2428,19 @@
           2150,
           2300,
           1600
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            80,
+            45,
+            160,
+            300
+          ],
+          "feather_px": 40,
+          "focus": "Map, Instrument, and Negotiate",
+          "edge_risk": "next label begins with a clipped A at right and partial lower cards",
+          "mask_sha256": "958e41ae027e75802d7621a867e35ea539299768d9b9194057ec3d1917cc3e3d"
+        }
       },
       "display_copy": [
         "Trace before any run.",
@@ -2464,7 +2632,7 @@
     {
       "scene_id": "L14-03",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-03.png",
-      "frame_sha256": "5625e042b966c22bcf5003189a5965db4f7fef8beeceae04aeae5e11705137df",
+      "frame_sha256": "2ceee6643be80135f466ee367469cfd27f875190e667802b78c2501538daab15",
       "visual_family": "L14-operating-artifact:plate:right",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
       "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
@@ -2479,7 +2647,19 @@
           700,
           2100,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            390,
+            290,
+            220,
+            230
+          ],
+          "feather_px": 40,
+          "focus": "controls and review instruments",
+          "edge_risk": "partial agent-role banners above, first icon at left, and raw-proof panel below",
+          "mask_sha256": "7c47ce5f109127090d1ae69fa06d52b646039d38497b53dce0361527401746f0"
+        }
       },
       "display_copy": [
         "Stop before any send.",
@@ -2497,7 +2677,7 @@
     {
       "scene_id": "L14-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-04.png",
-      "frame_sha256": "5ee7cc02d7a84ce6b3e930b54913831f50dbb78c4dbce0c8fec40fe04b6b405c",
+      "frame_sha256": "69b364399a854e6c738d762b5a0d29fbd85b217beff96e039cd5ea95f833b042",
       "visual_family": "L14-operating-artifact:plate:middle",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
       "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
@@ -2512,7 +2692,19 @@
           1750,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            240,
+            70,
+            190
+          ],
+          "feather_px": 40,
+          "focus": "Route rung and rule owner",
+          "edge_risk": "Stage and adjacent rung fragments",
+          "mask_sha256": "9e49b7a673955ad870a0d145d1e5d48bf74c2bece927ac9afb126fe36ad73172"
+        }
       },
       "display_copy": [
         "Put a rule owner on the trace.",
@@ -2682,7 +2874,7 @@
     {
       "scene_id": "L15-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-04.png",
-      "frame_sha256": "2d56a41ac68c28a98f01bf905f4fcd4e0b49dad89cc8bd1aa7fdbe2f77c0a472",
+      "frame_sha256": "ca8e159c9c83de1127457652f774e1241e3538032f2fecc40fd00f93a6410b51",
       "visual_family": "L15-operating-artifact:plate:center",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
       "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
@@ -2697,7 +2889,19 @@
           300,
           2100,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            65,
+            55,
+            45,
+            75
+          ],
+          "feather_px": 40,
+          "focus": "source and human gate",
+          "edge_risk": "neighboring decorative borders",
+          "mask_sha256": "1e8dd3f1b37edc8c01f5bcdd44c07b9fa54b0c8a04e37f102f53f9dcbf23d57e"
+        }
       },
       "display_copy": [
         "Check the source before approval.",
@@ -2867,7 +3071,7 @@
     {
       "scene_id": "L16-04",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-04.png",
-      "frame_sha256": "0bbb89869097e43e3a64be849189c04d2f4cb27d8a7c50803a8ceca36a2cee0f",
+      "frame_sha256": "9f179c38c96462c39612faa0399a91392201648aac3eb4f22dca3766c5fbb989",
       "visual_family": "L16-operating-artifact:plate:bottom",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
       "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
@@ -2882,7 +3086,19 @@
           2150,
           2300,
           1600
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            80,
+            45,
+            160,
+            300
+          ],
+          "feather_px": 40,
+          "focus": "Map, Instrument, and Negotiate",
+          "edge_risk": "next label at right and partial lower panels",
+          "mask_sha256": "958e41ae027e75802d7621a867e35ea539299768d9b9194057ec3d1917cc3e3d"
+        }
       },
       "display_copy": [
         "Prepare only while gates hold.",
@@ -2900,7 +3116,7 @@
     {
       "scene_id": "L16-05",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-05.png",
-      "frame_sha256": "8be18e18cb65391acc5650719847092c456bb80d50bfa98bd99653ea87130f3e",
+      "frame_sha256": "2e0e961b712805c70a2a9f5954759901976b5b0da1a67424dc5c2a9fdb8f7394",
       "visual_family": "L16-operating-artifact:plate:bottom",
       "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
       "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
@@ -2915,7 +3131,19 @@
           2000,
           2200,
           1500
-        ]
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            200,
+            70,
+            110
+          ],
+          "feather_px": 40,
+          "focus": "Route and rollback readiness",
+          "edge_risk": "adjacent ladder rung at top and left",
+          "mask_sha256": "acc2dd75ba564f1118317ffbb4bc4c85ad80a53d2543c5d8012217f50cc3f92c"
+        }
       },
       "display_copy": [
         "Keep the export sealed.",

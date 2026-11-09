@@ -7,7 +7,7 @@
       "source_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
       "source_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L01-illustrated-review.mp4",
-      "output_sha256": "9e0231b127593418b7753ce6b3927bd6e801de0c6b2a8cab971aa9efc5c3e90d",
+      "output_sha256": "7365b3dca329faaf035e9e59c99a51fd437ad944e2c6a57e5192542b1f64d6ea",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -16,7 +16,7 @@
       "source_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
       "source_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L02-illustrated-review.mp4",
-      "output_sha256": "054a8a87fb2cedfce695417ed4eae302bd34ea8844fdfe46705f5471b0fb917b",
+      "output_sha256": "32ae36cbe142aef0fe403b8b5a2ee28d338205a465007956edf6f19392886488",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -25,7 +25,7 @@
       "source_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
       "source_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L03-illustrated-review.mp4",
-      "output_sha256": "5796bf654a69d78621752561d7f475d4c8b58b622c9cb29dba938fb1751118ef",
+      "output_sha256": "124d2b2c72e8ec331aebb6c80c702293b0a593e2f6c27eed280196b196c2b2a1",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -34,7 +34,7 @@
       "source_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
       "source_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L04-illustrated-review.mp4",
-      "output_sha256": "bb026dcd9710d257861f3dccc0e40a556e9129db4066c8bd2b6993008283b817",
+      "output_sha256": "3993bb619f6e011f62bdcbf064b4365d730339ed7a917c03f7d5424fbe884f9c",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -43,7 +43,7 @@
       "source_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
       "source_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L05-illustrated-review.mp4",
-      "output_sha256": "87fe388922899400566e111bcf3e2478e22267557c5f3e9b7bab9d17fded116b",
+      "output_sha256": "b28c0e2478559122fb8e610c00d1e48418279b9e318b6839d3c7e2b5b6a4759c",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -52,7 +52,7 @@
       "source_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
       "source_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L06-illustrated-review.mp4",
-      "output_sha256": "8253ed80e1ec1be3ea3601a5c3e3d538efdbf3df44bcf1183a78107656ca0580",
+      "output_sha256": "d6a18bb2163380c58d07b4a522af76e47c9250329aab8858d9880c073d51404a",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -61,7 +61,7 @@
       "source_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
       "source_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L07-illustrated-review.mp4",
-      "output_sha256": "02d6b50be7c559f0d29505f7321736ae13bea19a1843af308776328b4c69aab2",
+      "output_sha256": "48b3ca355b0bc198aa2130af324085a8df68f225ad1c0ef2d5e4009bceba89b7",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -70,7 +70,7 @@
       "source_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
       "source_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L08-illustrated-review.mp4",
-      "output_sha256": "31e2a5ba042b0a91da3c908bd72e0352b8da167208c964ad1edda178d9299283",
+      "output_sha256": "1917140ce49410ebe456ae0d432fdd07dc57a35b6c1e1064e24f1f84623f7a6d",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -79,7 +79,7 @@
       "source_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
       "source_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L09-illustrated-review.mp4",
-      "output_sha256": "1809f01db8ad326907b94ba886e2d2fa3b815f791de17ac50d0091e7738fa0cc",
+      "output_sha256": "5aff01214f8d174cf924fd89cbc9ff189968f54f182fb191a90330780977356a",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -88,7 +88,7 @@
       "source_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
       "source_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L10-illustrated-review.mp4",
-      "output_sha256": "e823b7aa8e7a58444383e26cd9171c3e3976a0c8d842833d3a69e644cc93978b",
+      "output_sha256": "892db666b8168da43b06b3d8071fb42b709d9f37ec8cc936dade4d59372448bd",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -97,7 +97,7 @@
       "source_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
       "source_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L11-illustrated-review.mp4",
-      "output_sha256": "3c266288a0f05e64ab5a543f6713adb1aa84c22b81f101cbeaa5c08cdf5fb6f8",
+      "output_sha256": "040f282fa9982f71b56f6bdd4f128b57114fa7c167f159a3b0eb5e21e3a7f643",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -106,7 +106,7 @@
       "source_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
       "source_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L12-illustrated-review.mp4",
-      "output_sha256": "4615498cdc03b3b03f32531ebb5ef9cfd2c22d03ed00a9ed194c66c35b372f04",
+      "output_sha256": "6053307528de11cb6e2b1edd09d5f0ebb830764e4532e53ea0fcc22f8d16fc84",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -115,7 +115,7 @@
       "source_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
       "source_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L13-illustrated-review.mp4",
-      "output_sha256": "54c94dd2a3cad1cd37515e8dd2e0c58df8bcb36d55e6fb41e46f7b46896fa147",
+      "output_sha256": "e9228c7ee9d200ec53f67d30dd987b3befb345fa5ef6c94601576e50fd42943f",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -124,7 +124,7 @@
       "source_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
       "source_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L14-illustrated-review.mp4",
-      "output_sha256": "3c5d9efe9c56d040f313df114eddf61fa66ae6a46edac70e053e929eefa419c9",
+      "output_sha256": "40994408a0b4974eb725f49671dbc10ca4a74b287571161c963bdc97b637737a",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -133,7 +133,7 @@
       "source_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
       "source_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L15-illustrated-review.mp4",
-      "output_sha256": "150a7301849f92a105e3f19675a1c9f1b8b5facae087227c5d185daf3c4a4697",
+      "output_sha256": "5aeaf5df83e033aed4d4740f0be974077a899784cc19566e8898480867f0bc8d",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     },
@@ -142,7 +142,7 @@
       "source_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
       "source_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L16-illustrated-review.mp4",
-      "output_sha256": "311ad31e933d3d20c69e5585dec5a7b79a5e92f9964e1d24375cb5919696e49a",
+      "output_sha256": "43ce6b0052132a20c4c33d9ecaed73d425b3659014460d290a72d687a160eec3",
       "scene_count": 8,
       "release_state": "unbound review candidate"
     }
