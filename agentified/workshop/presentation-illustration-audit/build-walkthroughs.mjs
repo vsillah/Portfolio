@@ -21,7 +21,7 @@ for(const mode of ['desktop','mobile']){
   const files=[]
   for(let i=0;i<samples.length;i++){
     const sample=samples[i],source=path.join(here,'composites',`${sample.id}-illustrated-review.mp4`),output=path.join(segments,`${mode}-${String(i).padStart(2,'0')}.mp4`)
-    const vf=mode==='desktop'?'scale=1280:720:flags=lanczos,format=yuv420p':'split[a][b];[a]scale=720:405:flags=lanczos[full];[b]crop=1080:760:730:160,scale=720:507:flags=lanczos[detail];color=c=#071b2a:s=720x1280:r=25[bg];[bg][full]overlay=0:150[top];[top][detail]overlay=0:580,format=yuv420p'
+    const vf=mode==='desktop'?'scale=1280:720:flags=lanczos,format=yuv420p':'split[a][b];[a]scale=720:405:flags=lanczos[full];[b]crop=720:507:1200:160[detail];color=c=#071b2a:s=720x1280:r=25[bg];[bg][full]overlay=0:150[top];[top][detail]overlay=0:580,format=yuv420p'
     const args=['-hide_banner','-loglevel','error','-y','-ss',String(sample.time),'-i',source,'-t',String(sample.duration),'-an','-vf',vf,'-r','25','-c:v','libx264','-preset','veryfast','-crf','20',output]
     execFileSync('ffmpeg',args,{stdio:'inherit'})
     files.push(output)
