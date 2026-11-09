@@ -1,0 +1,11 @@
+{
+  "source_path": "assets/l01-paper-source-table-v1.png",
+  "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+  "output_sha256": "03ae79eb53a7f3f0bd6c8f8fb516a7f1c8a1d8b47434880ab3acebd88d7aceae",
+  "source_type": "original project-local generated illustration",
+  "source_rights": "user-authorized Agentified L01 remediation only",
+  "source_prompt_path": "assets/l01-paper-source-table-v1.prompt.txt",
+  "accessibility_text": "Three paper source notes for attendance, facilitator availability, and room capacity connect to a proposed brief through a visible gold evidence trail.",
+  "scene_id": "L01-01",
+  "representative_timestamp_seconds": 37
+}

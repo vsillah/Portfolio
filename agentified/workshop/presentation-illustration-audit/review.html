@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agentified illustrated composite review</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071b2a;color:#f2e8d4;font:16px/1.4 system-ui,sans-serif}header{padding:22px max(22px,calc((100vw - 1300px)/2));border-bottom:1px solid #526a72}h1{font-size:clamp(24px,3vw,40px);margin:0 0 5px}p{margin:0;color:#bbced1}main{max-width:1300px;margin:auto;padding:24px}nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}button{background:#143746;color:#f2e8d4;border:1px solid #bfa45e;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}button[aria-current=true]{background:#d6ae59;color:#102735}video{display:block;width:100%;aspect-ratio:16/9;background:#000;border:1px solid #ad9154;border-radius:8px}section{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}small{color:#b4c9cf}
+</style>
+<header><h1>Agentified presentation review</h1><p>Illustrated, unbound composites for lessons 01–16</p></header>
+<main><nav aria-label="Choose lesson" id="lessons"></nav><video id="player" controls preload="metadata" playsinline aria-label="Selected Agentified lesson composite"></video><section><strong id="selected">Lesson 01</strong><small>Review build: f0931f38 source binding · local visual candidate</small></section></main>
+<script>
+const nav=document.querySelector('#lessons'),player=document.querySelector('#player'),selected=document.querySelector('#selected');
+function show(n,preserveTime=false){const id=`L${String(n).padStart(2,'0')}`;player.src=`composites/${id}-illustrated-review.mp4`;selected.textContent=`Lesson ${String(n).padStart(2,'0')}`;for(const b of nav.querySelectorAll('button'))b.setAttribute('aria-current',b.dataset.n===String(n));const url=new URL(location.href);url.searchParams.set('lesson',id.toLowerCase());if(!preserveTime)url.searchParams.delete('time');history.replaceState(null,'',url)}
+for(let n=1;n<=16;n++){const b=document.createElement('button');b.textContent=`${String(n).padStart(2,'0')}`;b.dataset.n=String(n);b.addEventListener('click',()=>show(n));nav.append(b)}
+const params=new URLSearchParams(location.search),initial=Number(params.get('lesson')?.slice(1)),time=Number(params.get('time'));
+if(time>0)player.addEventListener('loadedmetadata',()=>{player.currentTime=time},{once:true});
+show(initial>=1&&initial<=16?initial:1,true)
+</script></html>

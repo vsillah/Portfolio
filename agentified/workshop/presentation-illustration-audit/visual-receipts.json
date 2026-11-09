@@ -1,0 +1,2285 @@
+{
+  "schema_version": 1,
+  "source_commit": "f0931f3860e042507ee5aba83f220eb57cfd3eb5",
+  "frames": [
+    {
+      "scene_id": "L01-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-01.png",
+      "frame_sha256": "03ae79eb53a7f3f0bd6c8f8fb516a7f1c8a1d8b47434880ab3acebd88d7aceae",
+      "visual_family": "paper-source editorial illustration",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "user-authorized original Agentified L01 remediation",
+      "display_copy": [
+        "A suggestion needs a source.",
+        "Harbor Learning Circle"
+      ],
+      "accessibility_text": "Three paper source notes for attendance, facilitator availability, and room capacity connect to a proposed brief through a visible gold evidence trail."
+    },
+    {
+      "scene_id": "L01-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Give the agent a job and a receipt teaching artifact: Job: prepare one Session Option Brief; Owner: Morgan, program lead.",
+      "frame_sha256": "a3ac68f824d6e0da89a0c5cf70c6ca9d6079f897db0810968184faa6319aaf73",
+      "display_copy": [
+        "Give the agent a job and a receipt",
+        "Job: prepare one Session Option Brief.",
+        "Owner: Morgan, program lead.",
+        "Job: prepare one Session Option Brief",
+        "Owner: Morgan, program lead"
+      ]
+    },
+    {
+      "scene_id": "L01-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Give the agent a job and a receipt teaching artifact: Trigger; cleared inputs; draft brief.",
+      "frame_sha256": "13b12eed0c68d827ff8978f7fe14b42a283143c7dd779d47964b8744775f648d",
+      "display_copy": [
+        "Give the agent a job and a receipt",
+        "Trigger",
+        "No booking • no announcement • no spending.",
+        "Trigger",
+        "cleared inputs",
+        "draft brief",
+        "Morgan",
+        "No booking"
+      ]
+    },
+    {
+      "scene_id": "L01-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Give the agent a job and a receipt diagram illustrating Receipt: intent, agent, source.",
+      "frame_sha256": "34f1f280ddd059dfe13a98d16913b0c676fe4c7229e701589c4250e6bac8c234",
+      "display_copy": [
+        "Give the agent a job and a receipt",
+        "Receipt: intent",
+        "Receipt: intent",
+        "agent",
+        "source",
+        "action",
+        "artifact"
+      ]
+    },
+    {
+      "scene_id": "L01-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Give the agent a job and a receipt teaching artifact: Approval: pending; Missing source; hold.",
+      "frame_sha256": "1a64d4e7ba83c0bdba42190414de0bdd895c529e81832c1add64d7c7104216d8",
+      "display_copy": [
+        "Give the agent a job and a receipt",
+        "Approval: pending.",
+        "Missing source then hold.",
+        "Approval: pending",
+        "Missing source",
+        "hold"
+      ]
+    },
+    {
+      "scene_id": "L01-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Give the agent a job and a receipt teaching artifact: Pause: choose one workflow type; Take a moment; Picture one workflow in your.",
+      "frame_sha256": "644e4a0f7bfcd6563182d1125da64c4aec2e69476216308c9c1b7af78bf0b8d6",
+      "display_copy": [
+        "Give the agent a job and a receipt",
+        "Pause: choose one workflow type.",
+        "Pause: choose one workflow type",
+        "Take a moment",
+        "Picture one workflow in your",
+        "Keep this exercise on paper"
+      ]
+    },
+    {
+      "scene_id": "L01-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Give the agent a job and a receipt teaching artifact: Fill the Job and Receipt; Name the trigger, permitted inputs; Then fill the nine receipt.",
+      "frame_sha256": "0099fae17ecddd4dfb5e3dc0ebdc3d21857388e9d23f79f42ec62f1186bbce5e",
+      "display_copy": [
+        "Give the agent a job and a receipt",
+        "Give the agent a job and a receipt",
+        "Fill the Job and Receipt",
+        "Name the trigger, permitted inputs",
+        "Then fill the nine receipt"
+      ]
+    },
+    {
+      "scene_id": "L01-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Give the agent a job and a receipt teaching artifact: Operating File v1: workflow and receipt; Stop: missing owner, source, or gate.",
+      "frame_sha256": "9ffb0eeb086726dbfe4492ad49fbcb33258ce765c5901f72961e939ee9dd5ed8",
+      "display_copy": [
+        "Give the agent a job and a receipt",
+        "Operating File v1: workflow and receipt.",
+        "Stop: missing owner, source, or gate.",
+        "Operating File v1: workflow and receipt",
+        "Stop: missing owner, source, or gate"
+      ]
+    },
+    {
+      "scene_id": "L02-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Start with the decision teaching artifact: Draft brief received; Decision still open.",
+      "frame_sha256": "3e956907682a4e0a0104f9f9efbd977b223954ba72ca83e84b5a611727e4edb2",
+      "display_copy": [
+        "Start with the decision",
+        "Draft brief received.",
+        "Decision still open.",
+        "Draft brief received",
+        "Decision still open"
+      ]
+    },
+    {
+      "scene_id": "L02-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Start with the decision teaching artifact: Decision: propose, revise, or hold?; Owner: Morgan.",
+      "frame_sha256": "8cb6f415721793ffb1ded6b53df1ca6eee5f09c665b6014f60b06cfbc7aa00a1",
+      "display_copy": [
+        "Start with the decision",
+        "Decision: propose, revise, or hold?",
+        "Owner: Morgan.",
+        "Decision: propose, revise, or hold?",
+        "Owner: Morgan"
+      ]
+    },
+    {
+      "scene_id": "L02-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Start with the decision teaching artifact: Consequence: staff time and trust; Internal proposal: reversible.",
+      "frame_sha256": "ce016dd2f60ef7283e3f0546aeecfd65fdf7d4d28c8ba4b8cd4fe3cd422b7274",
+      "display_copy": [
+        "Start with the decision",
+        "Consequence: staff time and trust.",
+        "Consequence: staff time and trust",
+        "Internal proposal: reversible"
+      ]
+    },
+    {
+      "scene_id": "L02-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Start with the decision diagram illustrating Evidence: capacity, demand, availability.",
+      "frame_sha256": "7d6c1190a83ae25603d357da70fe196a21d6daa19a4b6ed4c42255027418cb49",
+      "display_copy": [
+        "Start with the decision",
+        "Evidence: capacity",
+        "Prepare and recommend only.",
+        "Evidence: capacity",
+        "demand",
+        "availability",
+        "Prepare and recommend only"
+      ]
+    },
+    {
+      "scene_id": "L02-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Start with the decision teaching artifact: Missing, stale, or conflicting evidence; hold; Morgan decides.",
+      "frame_sha256": "ba6c8129cac01b0787b78f996b62ac4f59c11db40b6c02d67986d526f5357d10",
+      "display_copy": [
+        "Start with the decision",
+        "Missing, stale, or conflicting evidence",
+        "Morgan decides.",
+        "Missing, stale, or conflicting evidence",
+        "hold",
+        "Morgan decides"
+      ]
+    },
+    {
+      "scene_id": "L02-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Start with the decision teaching artifact: Pause: name the choice; Pause on your own workflow; What choice is a human.",
+      "frame_sha256": "24f886facfcc1b1c920dfd2bb97191c190c92ef9005da5ff67b58e86b89abf5c",
+      "display_copy": [
+        "Start with the decision",
+        "Pause: name the choice.",
+        "Pause: name the choice",
+        "Pause on your own workflow",
+        "What choice is a human"
+      ]
+    },
+    {
+      "scene_id": "L02-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Start with the decision teaching artifact: Fill the Decision Card now; Write the choice, the owner; Add the consequence of a.",
+      "frame_sha256": "815a6e862b14f253f3d81cc176d0e4bed9a044e3bbfe550ed6a14c0091343e6b",
+      "display_copy": [
+        "Start with the decision",
+        "Start with the decision",
+        "Fill the Decision Card now",
+        "Write the choice, the owner",
+        "Add the consequence of a"
+      ]
+    },
+    {
+      "scene_id": "L02-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Start with the decision teaching artifact: Operating File v2: decision-card; Stop: missing owner or self-approval.",
+      "frame_sha256": "68633aa2550a0aed6f36a7d22b9935c6933323ecde1e6f1839e31ff2096a8d9f",
+      "display_copy": [
+        "Start with the decision",
+        "Operating File v2: decision-card.",
+        "Stop: missing owner or self-approval.",
+        "Operating File v2: decision-card",
+        "Stop: missing owner or self-approval"
+      ]
+    },
+    {
+      "scene_id": "L03-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Trace the work and grade the sources teaching artifact: Claim: room capacity = 20; Can Morgan defend it?.",
+      "frame_sha256": "200d1bf01dee0d6bce13e9f61c41b6b63f07e14433c2c76d054741bebca0b145",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "Claim: room capacity = 20.",
+        "Can Morgan defend it?",
+        "Claim: room capacity = 20",
+        "Can Morgan defend it?"
+      ]
+    },
+    {
+      "scene_id": "L03-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-02.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Trace the work and grade the sources diagram illustrating Prepared, Read, Stop rule.",
+      "frame_sha256": "9355e93c6ae0202fca0ad5a1bef9ad1e68f805ac70b5798f50310f4d50326c83",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "Prepared",
+        "Prepared",
+        "Read",
+        "Stop rule",
+        "Artifact",
+        "Reviewer"
+      ]
+    },
+    {
+      "scene_id": "L03-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Trace the work and grade the sources teaching artifact: Citation and freshness and permitted use; Course records only.",
+      "frame_sha256": "78866ab33aaa4d9a384d3303983dc3d8882353846d0dbd1a566f21a2c1baab33",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "Citation and freshness and permitted use.",
+        "Course records only.",
+        "Citation and freshness and permitted use",
+        "Course records only"
+      ]
+    },
+    {
+      "scene_id": "L03-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Trace the work and grade the sources teaching artifact: public safe; client safe; internal ops.",
+      "frame_sha256": "17982f61178cd8312d83572f5e664e9817503a73cf3c9aa4a9bf4bf3ef62bde2",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "public safe",
+        "Unknown tier then hold.",
+        "public safe",
+        "client safe",
+        "internal ops",
+        "private",
+        "Unknown tier"
+      ]
+    },
+    {
+      "scene_id": "L03-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Trace the work and grade the sources teaching artifact: Availability unconfirmed; no staffing claim.",
+      "frame_sha256": "a53c336ea05bcd910fbfcd5721e58ef6d1cc91be5c3b9cf8de7b96931c13b4e9",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "Availability unconfirmed",
+        "Availability unconfirmed",
+        "no staffing claim"
+      ]
+    },
+    {
+      "scene_id": "L03-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Trace the work and grade the sources teaching artifact: Pause: choose one source type; Pause; In your own workflow type.",
+      "frame_sha256": "32c120fc51c7797c5107845771676ad8c629b3785ac49f2cf1554132fac5515c",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "Pause: choose one source type.",
+        "Pause: choose one source type",
+        "Pause",
+        "In your own workflow type"
+      ]
+    },
+    {
+      "scene_id": "L03-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Trace the work and grade the sources teaching artifact: Draw the path from source; Fill the five trace answers; Then classify each source: tier.",
+      "frame_sha256": "dc70e10d7fee4a6482b58b9854fe8b6eaab5a9b499144bae1a874f434d739fd9",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "Trace the work and grade the sources",
+        "Draw the path from source",
+        "Fill the five trace answers",
+        "Then classify each source: tier"
+      ]
+    },
+    {
+      "scene_id": "L03-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Trace the work and grade the sources teaching artifact: Operating File v3: trace and sources; Stop: unknown source or reviewer.",
+      "frame_sha256": "311aad1f2d586955017daead09c67b501c8c52025bb4a6a5bde2edff4d20063b",
+      "display_copy": [
+        "Trace the work and grade the sources",
+        "Operating File v3: trace and sources.",
+        "Stop: unknown source or reviewer.",
+        "Operating File v3: trace and sources",
+        "Stop: unknown source or reviewer"
+      ]
+    },
+    {
+      "scene_id": "L04-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Turn feedback into governed memory teaching artifact: Correction received; What may persist?.",
+      "frame_sha256": "fe47ffe8bf56c8a011063c614ac855fa209bdb113eca02781b79f832c5db8155",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Correction received.",
+        "What may persist?",
+        "Correction received",
+        "What may persist?"
+      ]
+    },
+    {
+      "scene_id": "L04-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Turn feedback into governed memory teaching artifact: Source; Event; Proposal.",
+      "frame_sha256": "30aebdd0f78eb63208219841165dd1a25f6d32d81e70ad647d0fa9b32a346b96",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Source",
+        "Current state: proposal only.",
+        "Source",
+        "Event",
+        "Proposal",
+        "Human approval",
+        "Memory"
+      ]
+    },
+    {
+      "scene_id": "L04-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Turn feedback into governed memory teaching artifact: Narrow proposal: pending; Unsupported inference: rejected.",
+      "frame_sha256": "3463f3babca38057189062c5024d25a3047170bfd2c8b7e65d38125ba2c0fbb2",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Narrow proposal: pending.",
+        "Unsupported inference: rejected.",
+        "Narrow proposal: pending",
+        "Unsupported inference: rejected"
+      ]
+    },
+    {
+      "scene_id": "L04-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3600x4500",
+      "accessibility_text": "Approved Turn feedback into governed memory diagram illustrating Intent, Eligibility, Assignment.",
+      "frame_sha256": "61b96367bada0e639466daa6c3abadef03e8cd7791f4203f5c891532c395a5b9",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Intent",
+        "No message route.",
+        "Intent",
+        "Eligibility",
+        "Assignment",
+        "Evidence",
+        "No message route"
+      ]
+    },
+    {
+      "scene_id": "L04-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Turn feedback into governed memory teaching artifact: Controller routes by written rule; Missing rule; human fallback.",
+      "frame_sha256": "f1783ade3b1a50fb9eb02b09da79e051b28383a740293aabb86e3311c0676799",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Controller routes by written rule.",
+        "Missing rule then human fallback.",
+        "Controller routes by written rule",
+        "Missing rule",
+        "human fallback"
+      ]
+    },
+    {
+      "scene_id": "L04-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Turn feedback into governed memory teaching artifact: Pause: one correction, one rejected inference; Pause on your own workflow; Which correction is worth proposing.",
+      "frame_sha256": "2bd2577959b670ed38218747d23eb1d2b9024bcaa9d093bc533099a9a8f5a18a",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Pause: one correction, one rejected inference.",
+        "Pause: one correction, one rejected inference",
+        "Pause on your own workflow",
+        "Which correction is worth proposing"
+      ]
+    },
+    {
+      "scene_id": "L04-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Turn feedback into governed memory teaching artifact: Walk a correction through source; Name the approving human, owner; Keep the status pending.",
+      "frame_sha256": "0a8685ecb47a71556c0f1d2d88d7c75011eeed414ef94a76901a3874f31cf3bb",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Turn feedback into governed memory",
+        "Walk a correction through source",
+        "Name the approving human, owner",
+        "Keep the status pending"
+      ]
+    },
+    {
+      "scene_id": "L04-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Turn feedback into governed memory teaching artifact: Operating File v4: memory and routing; Stop: self-promotion or unowned route.",
+      "frame_sha256": "fa0b47c6c386914477a9fd5d9fb66d98369f1081d2e54dcb10238426e73ad8ff",
+      "display_copy": [
+        "Turn feedback into governed memory",
+        "Operating File v4: memory and routing.",
+        "Stop: self-promotion or unowned route.",
+        "Operating File v4: memory and routing",
+        "Stop: self-promotion or unowned route"
+      ]
+    },
+    {
+      "scene_id": "L05-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Map the operating system teaching artifact: One request. One visible path; Where would a new teammate look?.",
+      "frame_sha256": "b9621f3718392c50d97987bb61ed5116e4284082f44a1632ff9f4c239b3f8fd2",
+      "display_copy": [
+        "Map the operating system",
+        "One request. One visible path.",
+        "Where would a new teammate look?",
+        "One request. One visible path",
+        "Where would a new teammate look?"
+      ]
+    },
+    {
+      "scene_id": "L05-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Map the operating system teaching artifact: Request; route; source check.",
+      "frame_sha256": "09e23dd309ee3cbd23a9be5f09b65c177053979f5c6ba85513f5f99dde308c00",
+      "display_copy": [
+        "Map the operating system",
+        "Request",
+        "External action: closed.",
+        "Request",
+        "route",
+        "source check",
+        "draft and trace",
+        "Morgan"
+      ]
+    },
+    {
+      "scene_id": "L05-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Map the operating system teaching artifact: Trigger; Role; Tier.",
+      "frame_sha256": "a0b00f70525c2261ab41d60c5e03a3036373516a74e64a6b2dd27f4d5b02de59",
+      "display_copy": [
+        "Map the operating system",
+        "Trigger",
+        "Unknown then mark the gap.",
+        "Trigger",
+        "Role",
+        "Tier",
+        "Handoff",
+        "Evidence"
+      ]
+    },
+    {
+      "scene_id": "L05-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Map the operating system diagram illustrating Job, decision, source.",
+      "frame_sha256": "43ab566b3824688be943e82a94cd8f3df1ff54c54b50c20f2e6b799476444754",
+      "display_copy": [
+        "Map the operating system",
+        "Job",
+        "Job",
+        "decision",
+        "source",
+        "receipt",
+        "proposed memory"
+      ]
+    },
+    {
+      "scene_id": "L05-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Map the operating system teaching artifact: Spend: closed; Public proof: closed; Withdraw draft: Morgan and reason.",
+      "frame_sha256": "bc81217fd1bc6f8d20dd19715a02a5445cc3eb59fe3a008b4f140e37b8513f35",
+      "display_copy": [
+        "Map the operating system",
+        "Spend: closed.",
+        "Public proof: closed. Withdraw draft: Morgan and reason.",
+        "Spend: closed",
+        "Public proof: closed",
+        "Withdraw draft: Morgan and reason"
+      ]
+    },
+    {
+      "scene_id": "L05-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Map the operating system teaching artifact: Pause: circle one gap; Pause; Could someone new find the.",
+      "frame_sha256": "1c80a0aa690613bf5175be854f1405daa73919069cd65bf01be6dcf0d0eb71bf",
+      "display_copy": [
+        "Map the operating system",
+        "Pause: circle one gap.",
+        "Pause: circle one gap",
+        "Pause",
+        "Could someone new find the",
+        "Name the first missing handoff"
+      ]
+    },
+    {
+      "scene_id": "L05-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Map the operating system teaching artifact: Build the Operating Map in; Use a fictional or approved; Do not use private operational.",
+      "frame_sha256": "73696305efea0060f8b28929245b3f36e9d3f3d1f3cd407a9047ccb3b183d437",
+      "display_copy": [
+        "Map the operating system",
+        "Map the operating system",
+        "Build the Operating Map in",
+        "Use a fictional or approved",
+        "Do not use private operational"
+      ]
+    },
+    {
+      "scene_id": "L05-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Map the operating system teaching artifact: Operating File v5: map; Next: authority and value.",
+      "frame_sha256": "55c2df5184a4005135fcc4573fb66cbafe7df53c0a378c954fca551663f2ccf2",
+      "display_copy": [
+        "Map the operating system",
+        "Operating File v5: map.",
+        "Next: authority and value.",
+        "Operating File v5: map",
+        "Next: authority and value"
+      ]
+    },
+    {
+      "scene_id": "L06-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Write the permission slip teaching artifact: What may this role read, prepare, retain, and hand off?; The Operating Map has a; ’ Morgan asks a fair.",
+      "frame_sha256": "63500c7872ad2f955a67061e6ec5879a78162eae9243c13a8eff37f833be92a8",
+      "display_copy": [
+        "Write the permission slip",
+        "What may this role read, prepare, retain, and hand off?",
+        "What may this role read, prepare, retain, and hand off?",
+        "The Operating Map has a",
+        "’ Morgan asks a fair",
+        "‘Be careful’ will not answer"
+      ]
+    },
+    {
+      "scene_id": "L06-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Write the permission slip teaching artifact: Scope; Ceiling; Reversibility.",
+      "frame_sha256": "ebacf122baa501d6a7183d8b3209764f4e48ba6aba7b9546f67e737bb4634f17",
+      "display_copy": [
+        "Write the permission slip",
+        "Scope",
+        "Scope",
+        "Ceiling",
+        "Reversibility",
+        "Escalation",
+        "Expiry"
+      ]
+    },
+    {
+      "scene_id": "L06-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-03.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3000x4700",
+      "accessibility_text": "Approved Write the permission slip diagram illustrating Prepare only, Source check and receipt and owner.",
+      "frame_sha256": "ddf074c50514caf939b62c99b82d4b9a0d93dfe8e03cb056faff9eb59047f0ca",
+      "display_copy": [
+        "Write the permission slip",
+        "Prepare only.",
+        "Source check and receipt and owner.",
+        "Prepare only",
+        "Source check and receipt and owner"
+      ]
+    },
+    {
+      "scene_id": "L06-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Write the permission slip teaching artifact: Proof? Current permission? Build again?; Weather summary: review retirement.",
+      "frame_sha256": "c0422c4acf1485d760e7a005141c0aeefafeece5a27ef094c57429889da76ec0",
+      "display_copy": [
+        "Write the permission slip",
+        "Proof? Current permission? Build again?",
+        "Weather summary: review retirement.",
+        "Proof? Current permission? Build again?",
+        "Weather summary: review retirement"
+      ]
+    },
+    {
+      "scene_id": "L06-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Write the permission slip teaching artifact: Proposal; human owner; documented disposition.",
+      "frame_sha256": "c3aba229e9e3b357f845b1c9c81ed48218cd0dd3213c821265761d5aa84a6b3b",
+      "display_copy": [
+        "Write the permission slip",
+        "Proposal",
+        "Proposal",
+        "human owner",
+        "documented disposition"
+      ]
+    },
+    {
+      "scene_id": "L06-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Write the permission slip teaching artifact: Pause: point to the boundary; Pause; Which line in the slip.",
+      "frame_sha256": "71e3f32a6181feea1a8d08a8544a9a0b1a64669e1043ea30660d0ef05d63a8e0",
+      "display_copy": [
+        "Write the permission slip",
+        "Pause: point to the boundary.",
+        "Pause: point to the boundary",
+        "Pause",
+        "Which line in the slip"
+      ]
+    },
+    {
+      "scene_id": "L06-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Write the permission slip teaching artifact: Write the Permission Slip for; Include each of the five; Then run the Quarterly Cull.",
+      "frame_sha256": "46ba7efffa548aff7feb0e65826f33071bb76273368a07536335b10041db58c5",
+      "display_copy": [
+        "Write the permission slip",
+        "Write the permission slip",
+        "Write the Permission Slip for",
+        "Include each of the five",
+        "Then run the Quarterly Cull"
+      ]
+    },
+    {
+      "scene_id": "L06-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Write the permission slip teaching artifact: Operating File v6: slip and cull; Next: requirements and roles.",
+      "frame_sha256": "4a5e0d24b982ca727fe07cbeab1b8c84034f026930b6ef02b7bd2ac1e2a8ee16",
+      "display_copy": [
+        "Write the permission slip",
+        "Operating File v6: slip and cull.",
+        "Next: requirements and roles.",
+        "Operating File v6: slip and cull",
+        "Next: requirements and roles"
+      ]
+    },
+    {
+      "scene_id": "L07-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Specify the work and the team teaching artifact: Polished draft. Wrong staffing claim; What did the requirement omit?.",
+      "frame_sha256": "f6153501f9b1ebe8ec5e45019a5b489a658c5357d921beea44689c50fd3b5392",
+      "display_copy": [
+        "Specify the work and the team",
+        "Polished draft. Wrong staffing claim.",
+        "What did the requirement omit?",
+        "Polished draft. Wrong staffing claim",
+        "What did the requirement omit?"
+      ]
+    },
+    {
+      "scene_id": "L07-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Specify the work and the team teaching artifact: Outcome; Scope; Inputs.",
+      "frame_sha256": "cce39c1162ba78fd9487b5b26b7af0275331ce741e91632e81a9b641890323e7",
+      "display_copy": [
+        "Specify the work and the team",
+        "Outcome",
+        "Outcome",
+        "Scope",
+        "Inputs",
+        "Tests",
+        "Escalation"
+      ]
+    },
+    {
+      "scene_id": "L07-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Specify the work and the team teaching artifact: Failed test; hold; Draft withdrawal: Morgan.",
+      "frame_sha256": "763517beb083eb468087586db044867f96cb556c06679ae4caa3f5aa5e17b467",
+      "display_copy": [
+        "Specify the work and the team",
+        "Failed test",
+        "Draft withdrawal: Morgan.",
+        "Failed test",
+        "hold",
+        "Draft withdrawal: Morgan"
+      ]
+    },
+    {
+      "scene_id": "L07-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Specify the work and the team teaching artifact: Small pod: one outcome, clear handoffs; Human owner: Morgan.",
+      "frame_sha256": "d0fc4810a9671420f581372a165c06df61469b4f3072cee5a8bb5c1e6386f98b",
+      "display_copy": [
+        "Specify the work and the team",
+        "Small pod: one outcome, clear handoffs.",
+        "Human owner: Morgan.",
+        "Small pod: one outcome, clear handoffs",
+        "Human owner: Morgan"
+      ]
+    },
+    {
+      "scene_id": "L07-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-05.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3000x4700",
+      "accessibility_text": "Approved Specify the work and the team diagram illustrating Source checker, drafter, coordinator.",
+      "frame_sha256": "a3b44af2d7a1884fb0eb5ad1f34fe3f085b785a11c36ce91d04af72192d172c8",
+      "display_copy": [
+        "Specify the work and the team",
+        "Source checker",
+        "Block owner: Morgan.",
+        "Source checker",
+        "drafter",
+        "coordinator",
+        "Morgan",
+        "Block owner: Morgan"
+      ]
+    },
+    {
+      "scene_id": "L07-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Specify the work and the team teaching artifact: Pause: name the receiver; Pause; Who would receive the brief.",
+      "frame_sha256": "d5859ec1e7c8f041d0f7918a21b52f2bf2ad661325688aa18f0e5857f421f365",
+      "display_copy": [
+        "Specify the work and the team",
+        "Pause: name the receiver.",
+        "Pause: name the receiver",
+        "Pause",
+        "Who would receive the brief",
+        "Name the role and the"
+      ]
+    },
+    {
+      "scene_id": "L07-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Specify the work and the team teaching artifact: Draft the seven-field PRD in; Give it two acceptance tests; Then sketch the Pod Model.",
+      "frame_sha256": "29c265207ed2eec36178dde434564628ea071913462350369522082e15c52fdb",
+      "display_copy": [
+        "Specify the work and the team",
+        "Specify the work and the team",
+        "Draft the seven-field PRD in",
+        "Give it two acceptance tests",
+        "Then sketch the Pod Model"
+      ]
+    },
+    {
+      "scene_id": "L07-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Specify the work and the team teaching artifact: Operating File v7: PRD and pod; Next: handoff and evaluation.",
+      "frame_sha256": "739b03825a1e0b78e99ad93cacd2ddcb79564fc8fd2066b98907eaafde957675",
+      "display_copy": [
+        "Specify the work and the team",
+        "Operating File v7: PRD and pod.",
+        "Next: handoff and evaluation.",
+        "Operating File v7: PRD and pod",
+        "Next: handoff and evaluation"
+      ]
+    },
+    {
+      "scene_id": "L08-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Make handoffs testable teaching artifact: A vague handoff can make a polished error; The Harbor source checker finishes; The drafter receives a note.",
+      "frame_sha256": "55eaf2126c39fc91ff9cfde7e04613384424846d1dcfac703755f2b22125b591",
+      "display_copy": [
+        "Make handoffs testable",
+        "A vague handoff can make a polished error.",
+        "A vague handoff can make a polished error",
+        "The Harbor source checker finishes",
+        "The drafter receives a note",
+        "Facilitator maybe"
+      ]
+    },
+    {
+      "scene_id": "L08-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Make handoffs testable teaching artifact: Producer; Consumer; Payload.",
+      "frame_sha256": "dd7ac631aaac095f3eef3bee30c99148993e13cea51954c660f382b7ecc40126",
+      "display_copy": [
+        "Make handoffs testable",
+        "Producer",
+        "Producer",
+        "Consumer",
+        "Payload",
+        "Preconditions",
+        "Rejection"
+      ]
+    },
+    {
+      "scene_id": "L08-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Make handoffs testable teaching artifact: Reject: staffing claim unsupported; Morgan receives hold.",
+      "frame_sha256": "b7b62e53092c178d581c88d333b528bede5b43ed113367acfb124d8c0d38c3b1",
+      "display_copy": [
+        "Make handoffs testable",
+        "Reject: staffing claim unsupported",
+        "Morgan receives hold.",
+        "Reject: staffing claim unsupported",
+        "Morgan receives hold"
+      ]
+    },
+    {
+      "scene_id": "L08-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Make handoffs testable teaching artifact: Capture; Judge; Human sample.",
+      "frame_sha256": "af0fe29ff3d26790366170342cfbbb1c263b011a492199deac733a21f0ee1d41",
+      "display_copy": [
+        "Make handoffs testable",
+        "Capture",
+        "No automatic promotion.",
+        "Capture",
+        "Judge",
+        "Human sample",
+        "Decide",
+        "No automatic promotion"
+      ]
+    },
+    {
+      "scene_id": "L08-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-05.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Make handoffs testable diagram illustrating A: review. B: hold. C: reject draft, Three cases is not production proof.",
+      "frame_sha256": "567f3c1d0b0c1b3c2316b8484fdba83ac8db736c3c9c1fd25bf904fe3f2b571a",
+      "display_copy": [
+        "Make handoffs testable",
+        "A: review. B: hold. C: reject draft.",
+        "Three cases is not production proof.",
+        "A: review. B: hold. C: reject draft",
+        "Three cases is not production proof"
+      ]
+    },
+    {
+      "scene_id": "L08-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Make handoffs testable teaching artifact: Pause: choose the hidden failure; Pause; Which failed case would a.",
+      "frame_sha256": "2de79b618a3eff98b6f6d595ce3ae5a71e508fb66cd6013568d49577bfe5e549",
+      "display_copy": [
+        "Make handoffs testable",
+        "Pause: choose the hidden failure.",
+        "Pause: choose the hidden failure",
+        "Pause",
+        "Which failed case would a"
+      ]
+    },
+    {
+      "scene_id": "L08-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Make handoffs testable teaching artifact: Write the Handoff Contract Card; Record a pass or fail; Include a human review rule.",
+      "frame_sha256": "cab743fd7bd00969c15ebd246d24f6e16ffdf44b9e9d5bdced99a13a76c6a9ee",
+      "display_copy": [
+        "Make handoffs testable",
+        "Make handoffs testable",
+        "Write the Handoff Contract Card",
+        "Record a pass or fail",
+        "Include a human review rule"
+      ]
+    },
+    {
+      "scene_id": "L08-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Make handoffs testable teaching artifact: Operating File v8: contract and eval; Next gate: editorial and source review.",
+      "frame_sha256": "e64f0c5e196439f1362f76b65fdba5b380caa68b2825e137983cffe2b2da5406",
+      "display_copy": [
+        "Make handoffs testable",
+        "Operating File v8: contract and eval.",
+        "Next gate: editorial and source review.",
+        "Operating File v8: contract and eval",
+        "Next gate: editorial and source review"
+      ]
+    },
+    {
+      "scene_id": "L09-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Measure trust and choose review posture teaching artifact: Three drafts. One supported. One held. One wrong; Harbor Learning Circle has three; All three were produced on.",
+      "frame_sha256": "bb1ca0756f40417252d980bf578102ecbaa6667db2e3ae526a2ab7e3f6ce5509",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Three drafts. One supported. One held. One wrong.",
+        "Three drafts. One supported. One held. One wrong",
+        "Harbor Learning Circle has three",
+        "All three were produced on",
+        "Morgan looks past the count"
+      ]
+    },
+    {
+      "scene_id": "L09-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-02.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Measure trust and choose review posture diagram illustrating Activity, Output, Quality.",
+      "frame_sha256": "7258de8f7a052867f95e44bd409005ddc7ec2ebc0f2aef360e416f5a44624700",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Activity",
+        "Activity",
+        "Output",
+        "Quality",
+        "Behavior",
+        "Outcome"
+      ]
+    },
+    {
+      "scene_id": "L09-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Measure trust and choose review posture teaching artifact: Measure; decision; named decider.",
+      "frame_sha256": "764a4e63b466bda47e9c1bae67e929b73f72a9f5b300a63f6b4672ddf61f0904",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Measure",
+        "No live baseline.",
+        "Measure",
+        "decision",
+        "named decider",
+        "No live baseline"
+      ]
+    },
+    {
+      "scene_id": "L09-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3000x4700",
+      "accessibility_text": "Approved Measure trust and choose review posture diagram illustrating Prepare: draft for Morgan, Side effect: separate human gate.",
+      "frame_sha256": "f5e8c7fdba9eb5f6fe3ad992885e8c13a8230a31f23314a1a12848666a078b85",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Prepare: draft for Morgan.",
+        "Side effect: separate human gate.",
+        "Prepare: draft for Morgan",
+        "Side effect: separate human gate"
+      ]
+    },
+    {
+      "scene_id": "L09-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Measure trust and choose review posture teaching artifact: Evidence; uncertainty; consequence.",
+      "frame_sha256": "2da394e50386dd8e23435b178da9a91afbd0ed66b6f297c7fd4c3c6aba14e9a7",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Evidence",
+        "Evidence",
+        "uncertainty",
+        "consequence",
+        "disposition"
+      ]
+    },
+    {
+      "scene_id": "L09-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Measure trust and choose review posture teaching artifact: Pause: cross out one vanity metric; Pause; Which number would make Harbor.",
+      "frame_sha256": "17cd64f803db7fdd18738edf9b1813304a753c55f31ecabfb3f897742ff69b3d",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Pause: cross out one vanity metric.",
+        "Pause: cross out one vanity metric",
+        "Pause",
+        "Which number would make Harbor"
+      ]
+    },
+    {
+      "scene_id": "L09-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Measure trust and choose review posture teaching artifact: Add an Agent Metrics Ladder; Name one measure for activity; Give each a source, a.",
+      "frame_sha256": "bc25d8cfb3f6c0a9aae65b815a934ecc7c27411e9421016bd83a02dfd6968107",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Measure trust and choose review posture",
+        "Add an Agent Metrics Ladder",
+        "Name one measure for activity",
+        "Give each a source, a"
+      ]
+    },
+    {
+      "scene_id": "L09-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Measure trust and choose review posture teaching artifact: Operating File v9: metrics and review; Next: spend and decision.",
+      "frame_sha256": "a733b67cd211a52f4b64ba127471ca8901f6814d104591afecd1fa81d90ba1fa",
+      "display_copy": [
+        "Measure trust and choose review posture",
+        "Operating File v9: metrics and review.",
+        "Next: spend and decision.",
+        "Operating File v9: metrics and review",
+        "Next: spend and decision"
+      ]
+    },
+    {
+      "scene_id": "L10-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Gate spend and brief the decision teaching artifact: A good recommendation can still cross a money boundary; Morgan has a plausible Harbor; The room note is current.",
+      "frame_sha256": "8de9492f4bf4350bb9240d8edf89c899dab461bd4b3358b059826debf0510669",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "A good recommendation can still cross a money boundary.",
+        "A good recommendation can still cross a money boundary",
+        "Morgan has a plausible Harbor",
+        "The room note is current",
+        "The attendance note suggests interest"
+      ]
+    },
+    {
+      "scene_id": "L10-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Gate spend and brief the decision teaching artifact: Amount; Counterparty; Purpose.",
+      "frame_sha256": "553c89c5a3f052cd1ebfdf2a129eeec30b5c9ad0639e696d448f42ded521c94e",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "Amount",
+        "Amount",
+        "Counterparty",
+        "Purpose",
+        "Window",
+        "Retries"
+      ]
+    },
+    {
+      "scene_id": "L10-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-03.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3000x4700",
+      "accessibility_text": "Approved Gate spend and brief the decision diagram illustrating Recommend is not execute, Changed terms, new review.",
+      "frame_sha256": "2c2f289f2645b9bc7f72c3bb5e36f6152d41b6ed72c338322c544606830d3583",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "Recommend is not execute.",
+        "Changed terms then new review.",
+        "Recommend is not execute",
+        "Changed terms",
+        "new review"
+      ]
+    },
+    {
+      "scene_id": "L10-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Gate spend and brief the decision teaching artifact: Context; Options; Recommendation.",
+      "frame_sha256": "b13e141e2bb9cc549999c8b359281134619b752063fb9456c8367d5dddc478b2",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "Context",
+        "Context",
+        "Options",
+        "Recommendation",
+        "Reversibility",
+        "Change our mind"
+      ]
+    },
+    {
+      "scene_id": "L10-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Gate spend and brief the decision teaching artifact: Session decision: conditional or hold; Print spend: separate hold.",
+      "frame_sha256": "32fc6a38e865bd9d31d07ecf6e9ce1c03fb3d2788e7945dbba502cea4a96e4e1",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "Session decision: conditional or hold.",
+        "Print spend: separate hold.",
+        "Session decision: conditional or hold",
+        "Print spend: separate hold"
+      ]
+    },
+    {
+      "scene_id": "L10-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Gate spend and brief the decision teaching artifact: Pause: write the condition; Pause; Which sentence in the brief.",
+      "frame_sha256": "f0d8064199b9d074e53f836ea74a55e5ec0187503dddc8d751dc88d70f09e524",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "Pause: write the condition.",
+        "Pause: write the condition",
+        "Pause",
+        "Which sentence in the brief"
+      ]
+    },
+    {
+      "scene_id": "L10-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Gate spend and brief the decision teaching artifact: Fill a Spend Envelope, then; Give the envelope an exact; Mark it unapproved.",
+      "frame_sha256": "e469783dccc64b6949b5b0b3dcd209ffcc23a3acff39a8fdcdd7ebfdf9271aea",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "Gate spend and brief the decision",
+        "Fill a Spend Envelope, then",
+        "Give the envelope an exact",
+        "Mark it unapproved"
+      ]
+    },
+    {
+      "scene_id": "L10-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Gate spend and brief the decision teaching artifact: Operating File v10: spend and decision; Next: cockpit.",
+      "frame_sha256": "4ac8af919207bf58d6d2274941d8f633ca0e401770d23c4aee5b8128e3a93f05",
+      "display_copy": [
+        "Gate spend and brief the decision",
+        "Operating File v10: spend and decision.",
+        "Next: cockpit.",
+        "Operating File v10: spend and decision",
+        "Next: cockpit"
+      ]
+    },
+    {
+      "scene_id": "L11-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Run the cockpit and unblock lane teaching artifact: One job. Three questions. One readable state; Morgan comes to Harbor's Friday; Is the room note still.",
+      "frame_sha256": "c5805ac2717dcb1a380db49c6df19869444e09ceae4775f56b07cb338f743211",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "One job. Three questions. One readable state.",
+        "One job. Three questions. One readable state",
+        "Morgan comes to Harbor's Friday",
+        "Is the room note still",
+        "Who is checking the facilitator"
+      ]
+    },
+    {
+      "scene_id": "L11-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-02.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Run the cockpit and unblock lane diagram illustrating Status, Blocker, Owner.",
+      "frame_sha256": "d034fea6f0a0302b510d31287273034d6ebf4e091ad7f78acb9c1c8d2da73029",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "Status",
+        "Status",
+        "Blocker",
+        "Owner",
+        "Next safe step",
+        "Trace"
+      ]
+    },
+    {
+      "scene_id": "L11-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Run the cockpit and unblock lane teaching artifact: Scan; Sort; Signal.",
+      "frame_sha256": "105dbb37deb2b0095b042a19f3172e22487bfba5f5277734584cb901c1333cb6",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "Scan",
+        "Scan",
+        "Sort",
+        "Signal",
+        "Step in"
+      ]
+    },
+    {
+      "scene_id": "L11-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Run the cockpit and unblock lane teaching artifact: Notify: status; Ask: staffing direction; Escalate: external action.",
+      "frame_sha256": "6d1c13ee898b734ab1a32dee85ea07ad4b736984334ac4a6347626c3c70671b2",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "Notify: status.",
+        "Ask: staffing direction. Escalate: external action.",
+        "Notify: status",
+        "Ask: staffing direction",
+        "Escalate: external action"
+      ]
+    },
+    {
+      "scene_id": "L11-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Run the cockpit and unblock lane teaching artifact: Mobile card; full trace; No shortcut around the gate.",
+      "frame_sha256": "66d92ca2f364fcfffea5cffc770dcc2ef525ab60b75af1dcef9b8cc30662f9c9",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "Mobile card",
+        "No shortcut around the gate.",
+        "Mobile card",
+        "full trace",
+        "No shortcut around the gate"
+      ]
+    },
+    {
+      "scene_id": "L11-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Run the cockpit and unblock lane teaching artifact: Pause: find one missing field; Pause; If Morgan handed this sketch.",
+      "frame_sha256": "d653d0ab6f37ce3ebc39a031d7b6f7f7b6cb90b9880cef554fb9ca950984807e",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "Pause: find one missing field.",
+        "Pause: find one missing field",
+        "Pause",
+        "If Morgan handed this sketch"
+      ]
+    },
+    {
+      "scene_id": "L11-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Run the cockpit and unblock lane teaching artifact: Sketch one Mission Control Cockpit; Show status, blocker, owner, age; Assign each message to a.",
+      "frame_sha256": "1ef11244af16f8cbb9062aa06692386496f58906600794eb2332f6dc1f4a9f04",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "Run the cockpit and unblock lane",
+        "Sketch one Mission Control Cockpit",
+        "Show status, blocker, owner, age",
+        "Assign each message to a"
+      ]
+    },
+    {
+      "scene_id": "L11-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Run the cockpit and unblock lane teaching artifact: Operating File v11: cockpit and unblock; Next: scoped proof.",
+      "frame_sha256": "8116a4a57692f3a09d24ceb6e69fc37b4b5231e7ee887f68673faf8d31491c83",
+      "display_copy": [
+        "Run the cockpit and unblock lane",
+        "Operating File v11: cockpit and unblock.",
+        "Next: scoped proof.",
+        "Operating File v11: cockpit and unblock",
+        "Next: scoped proof"
+      ]
+    },
+    {
+      "scene_id": "L12-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Prove the work safely teaching artifact: Show the work. Bound the view; A Harbor board member asks; Morgan could hand over the.",
+      "frame_sha256": "57dae96bb24269c0bde3bd550ad4e65df3aea0c82d54574f2b6001c15727d6c2",
+      "display_copy": [
+        "Prove the work safely",
+        "Show the work. Bound the view.",
+        "Show the work. Bound the view",
+        "A Harbor board member asks",
+        "Morgan could hand over the",
+        "That would reveal source notes"
+      ]
+    },
+    {
+      "scene_id": "L12-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Prove the work safely teaching artifact: Audience; Scope; Window.",
+      "frame_sha256": "a65b0b082cdda2b6e1648ea714b24128a3385d796af99ee591e32c7b9bf6dceb",
+      "display_copy": [
+        "Prove the work safely",
+        "Audience",
+        "Audience",
+        "Scope",
+        "Window",
+        "Exclusions",
+        "Export"
+      ]
+    },
+    {
+      "scene_id": "L12-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-03.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Prove the work safely diagram illustrating Include: scoped receipts and decision, Withhold: raw and unrelated records.",
+      "frame_sha256": "907ac4edbeedc2b64538e2a90f24a63cb4ef45225bfd6a9bfd6b75f93b341bcb",
+      "display_copy": [
+        "Prove the work safely",
+        "Include: scoped receipts and decision.",
+        "Withhold: raw and unrelated records.",
+        "Include: scoped receipts and decision",
+        "Withhold: raw and unrelated records"
+      ]
+    },
+    {
+      "scene_id": "L12-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Prove the work safely teaching artifact: Idea; evidence; packet.",
+      "frame_sha256": "ae1846c424740539b1dfad360cc7e5bca9df471bfaaf03dc3cfc723230af1e89",
+      "display_copy": [
+        "Prove the work safely",
+        "Idea",
+        "Missing evidence: unscored.",
+        "Idea",
+        "evidence",
+        "packet",
+        "human gate",
+        "Missing evidence: unscored"
+      ]
+    },
+    {
+      "scene_id": "L12-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Prove the work safely teaching artifact: Next: proposed research review; No build authority.",
+      "frame_sha256": "e08e9b6b33e726372c949c951eaf3a285a0ecdae9a06bf096a2d3c002a38d409",
+      "display_copy": [
+        "Prove the work safely",
+        "Next: proposed research review.",
+        "No build authority.",
+        "Next: proposed research review",
+        "No build authority"
+      ]
+    },
+    {
+      "scene_id": "L12-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Prove the work safely teaching artifact: Pause: write one exclusion; Pause; What would you leave out.",
+      "frame_sha256": "3e02c1797d2ef281ba50d4631712de64cb1cb700d7579701ab14e2cfa43bdbb0",
+      "display_copy": [
+        "Prove the work safely",
+        "Pause: write one exclusion.",
+        "Pause: write one exclusion",
+        "Pause",
+        "What would you leave out"
+      ]
+    },
+    {
+      "scene_id": "L12-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Prove the work safely teaching artifact: Draft a Client-Safe Proof Packet; State audience, scope, window, inclusions; Redact the course trace in.",
+      "frame_sha256": "5cede3b6414e11ef23507361b96894831f54831f0731e088aa2a134790606df1",
+      "display_copy": [
+        "Prove the work safely",
+        "Prove the work safely",
+        "Draft a Client-Safe Proof Packet",
+        "State audience, scope, window, inclusions",
+        "Redact the course trace in"
+      ]
+    },
+    {
+      "scene_id": "L12-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Prove the work safely teaching artifact: Operating File v12: proof and foundry; Next: gated research design.",
+      "frame_sha256": "ca26655915f2c2efcb76871bc3c52ff673b343b0f17f5dec06e992353bfae792",
+      "display_copy": [
+        "Prove the work safely",
+        "Operating File v12: proof and foundry.",
+        "Next: gated research design.",
+        "Operating File v12: proof and foundry",
+        "Next: gated research design"
+      ]
+    },
+    {
+      "scene_id": "L13-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Research with a gate teaching artifact: A useful idea is still a proposal; Morgan opens Harbor's paper planning; The Session Option Brief is.",
+      "frame_sha256": "c3c11f8c79c7a852d504c2c1a099a206755a4cfeff315999cead1b4483f461d0",
+      "display_copy": [
+        "Research with a gate",
+        "A useful idea is still a proposal.",
+        "A useful idea is still a proposal",
+        "Morgan opens Harbor's paper planning",
+        "The Session Option Brief is",
+        "An idea appears in the"
+      ]
+    },
+    {
+      "scene_id": "L13-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-02.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3600x4500",
+      "accessibility_text": "Approved Research with a gate diagram illustrating Propose, not run, gate.",
+      "frame_sha256": "4d1c1c6b958109e887e48ffb030d90f29cc2fd3729fac6532e91617ec3d57326",
+      "display_copy": [
+        "Research with a gate",
+        "Propose",
+        "Propose",
+        "not run",
+        "gate",
+        "trace",
+        "approve or discard"
+      ]
+    },
+    {
+      "scene_id": "L13-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Research with a gate teaching artifact: Baseline: unknown; Metric: correct hold identification; Result: not run.",
+      "frame_sha256": "533e0824d9beb7547a66a330351a7f5883b4c14dd90209f7d1ca115532e44a64",
+      "display_copy": [
+        "Research with a gate",
+        "Baseline: unknown.",
+        "Metric: correct hold identification. Result: not run.",
+        "Baseline: unknown",
+        "Metric: correct hold identification",
+        "Result: not run"
+      ]
+    },
+    {
+      "scene_id": "L13-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-04.png",
+      "visual_family": "editorial paper diagram 4",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Research with a gate teaching artifact: Morgan reviews the proposal; No automatic promotion.",
+      "frame_sha256": "5548b1dea449da0a8be659c71a7171f0c3e6bbe021421c14e6fdfcc4c097d67a",
+      "display_copy": [
+        "Research with a gate",
+        "Morgan reviews the proposal.",
+        "No automatic promotion.",
+        "Morgan reviews the proposal",
+        "No automatic promotion"
+      ]
+    },
+    {
+      "scene_id": "L13-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Research with a gate teaching artifact: Hold reason and owner and next safe step; Write a not run reason; Then add the next safe.",
+      "frame_sha256": "42099a1a83ac4bf6fbbb96206ad49d7e68b06c9013170b8a4ad44e72faf62117",
+      "display_copy": [
+        "Research with a gate",
+        "Hold reason and owner and next safe step.",
+        "Hold reason and owner and next safe step",
+        "Write a not run reason",
+        "Then add the next safe",
+        "If Morgan says no, keep"
+      ]
+    },
+    {
+      "scene_id": "L13-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Research with a gate teaching artifact: Pause: name one missing baseline; Pause on your own workflow; What evidence would make your.",
+      "frame_sha256": "ae1de31e293fdac6e4b2d4914007474696599c0f35a540cf1d74d7cc7adaec51",
+      "display_copy": [
+        "Research with a gate",
+        "Pause: name one missing baseline.",
+        "Pause: name one missing baseline",
+        "Pause on your own workflow",
+        "What evidence would make your"
+      ]
+    },
+    {
+      "scene_id": "L13-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Research with a gate teaching artifact: Draft one AutoResearch Proposal; Name the question, hypothesis, comparison; Mark the result not run.",
+      "frame_sha256": "9da57aa3941f87a7bb8737efc638c1267aa9166e703669ddf3496a51427a5191",
+      "display_copy": [
+        "Research with a gate",
+        "Research with a gate",
+        "Draft one AutoResearch Proposal",
+        "Name the question, hypothesis, comparison",
+        "Mark the result not run"
+      ]
+    },
+    {
+      "scene_id": "L13-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Research with a gate teaching artifact: Operating File v13: research proposal; Next: show the controls.",
+      "frame_sha256": "5b6f12ad9614849134abdcb8f9d965f08648f4bb5702af5656c54e08dff90ae6",
+      "display_copy": [
+        "Research with a gate",
+        "Operating File v13: research proposal.",
+        "Next: show the controls.",
+        "Operating File v13: research proposal",
+        "Next: show the controls"
+      ]
+    },
+    {
+      "scene_id": "L14-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Show the board the controls teaching artifact: Queue. Trace. Memory; Paper design review.",
+      "frame_sha256": "8f83e7205b8090fcb4de3cf2a143c861f12c9a434361031c8e2dfe20a6372eaa",
+      "display_copy": [
+        "Show the board the controls",
+        "Queue. Trace. Memory.",
+        "Paper design review.",
+        "Queue. Trace. Memory",
+        "Paper design review"
+      ]
+    },
+    {
+      "scene_id": "L14-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Show the board the controls teaching artifact: Prepared; Held; Rejected.",
+      "frame_sha256": "25e7999aaea2d2de420c01a18bd70a935dbd81d35197f53849a2f80c1d811f27",
+      "display_copy": [
+        "Show the board the controls",
+        "Prepared",
+        "Prepared",
+        "Held",
+        "Rejected",
+        "Not run"
+      ]
+    },
+    {
+      "scene_id": "L14-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-03.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Show the board the controls diagram illustrating Request, draft, check.",
+      "frame_sha256": "04fe527ee2a424c4bfa26b1207cb87aee831260501116f8d7dfdf19e62029ab1",
+      "display_copy": [
+        "Show the board the controls",
+        "Request",
+        "No send event.",
+        "Request",
+        "draft",
+        "check",
+        "hold",
+        "Morgan"
+      ]
+    },
+    {
+      "scene_id": "L14-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3000x4700",
+      "accessibility_text": "Approved Show the board the controls diagram illustrating Rule owner, scope, source.",
+      "frame_sha256": "f588ade6e29031cba82687e65ccf8f01aa07ed002fc42aa54bb84ed46d4b1438",
+      "display_copy": [
+        "Show the board the controls",
+        "Rule owner",
+        "Rule owner",
+        "scope",
+        "source",
+        "status",
+        "review"
+      ]
+    },
+    {
+      "scene_id": "L14-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Show the board the controls teaching artifact: Proof outline: not shared; No production claim.",
+      "frame_sha256": "f44ebc9247bab784275c41bb00cecb8c275c088b9cf77d2dbde300d1b7d6e04d",
+      "display_copy": [
+        "Show the board the controls",
+        "Proof outline: not shared.",
+        "No production claim.",
+        "Proof outline: not shared",
+        "No production claim"
+      ]
+    },
+    {
+      "scene_id": "L14-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Show the board the controls teaching artifact: Pause: name the weakest panel; Pause; Which panel would expose the.",
+      "frame_sha256": "155c6dbc059a176486916dc30b253a5806f44dbf0d0b61b2402f073b70488ee9",
+      "display_copy": [
+        "Show the board the controls",
+        "Pause: name the weakest panel.",
+        "Pause: name the weakest panel",
+        "Pause",
+        "Which panel would expose the"
+      ]
+    },
+    {
+      "scene_id": "L14-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Show the board the controls teaching artifact: Storyboard a Three-Panel Demo for; Give each panel a reviewer; Include a blocked or rejected.",
+      "frame_sha256": "b0ac6aae6ab54e4c3213852f3edb65bc8dd593926f57eebfee264265a565d731",
+      "display_copy": [
+        "Show the board the controls",
+        "Show the board the controls",
+        "Storyboard a Three-Panel Demo for",
+        "Give each panel a reviewer",
+        "Include a blocked or rejected"
+      ]
+    },
+    {
+      "scene_id": "L14-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Show the board the controls teaching artifact: Operating File v14: Three-Panel Demo; Next: rehearse the day.",
+      "frame_sha256": "3d0712b1af2c244d6b249813e1aea334b216f8214e98f8942dbc9bf9e1d9e1fe",
+      "display_copy": [
+        "Show the board the controls",
+        "Operating File v14: Three-Panel Demo.",
+        "Next: rehearse the day.",
+        "Operating File v14: Three-Panel Demo",
+        "Next: rehearse the day"
+      ]
+    },
+    {
+      "scene_id": "L15-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Rehearse the agentified day teaching artifact: Prepared, not sent; Protect judgment.",
+      "frame_sha256": "396b1104a00cdaae562d6d38e111e338be82cce4d2a0c549bf6cc8810d17325a",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "Prepared, not sent.",
+        "Protect judgment.",
+        "Prepared, not sent",
+        "Protect judgment"
+      ]
+    },
+    {
+      "scene_id": "L15-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Rehearse the agentified day teaching artifact: 1. Brief: work; human; learning.",
+      "frame_sha256": "cb9e059f766ed35cb3f22351233b05c85aca614180aaee204f6e91a05a3c4324",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "1. Brief: work",
+        "1. Brief: work",
+        "human",
+        "learning"
+      ]
+    },
+    {
+      "scene_id": "L15-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Rehearse the agentified day teaching artifact: 2. Route: owner and review window; Second, route; The staffing question belongs to.",
+      "frame_sha256": "27d858a38a9b6d23f6c9c21ad32992b1325954ec9f6029d83a0498cef00347d2",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "2. Route: owner and review window.",
+        "2. Route: owner and review window",
+        "Second, route",
+        "The staffing question belongs to",
+        "A proposed spend belongs in"
+      ]
+    },
+    {
+      "scene_id": "L15-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "4000x2500",
+      "accessibility_text": "Approved Rehearse the agentified day diagram illustrating 3. Review: check source and claim, 4. Approve: only the bounded correction.",
+      "frame_sha256": "565f76c36b65c945182fb429c25ba135f3ab07b8b057b327998111e7cafa28b0",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "3. Review: check source and claim.",
+        "4. Approve: only the bounded correction.",
+        "3. Review: check source and claim",
+        "4. Approve: only the bounded correction"
+      ]
+    },
+    {
+      "scene_id": "L15-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-05.png",
+      "visual_family": "editorial paper diagram 5",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Rehearse the agentified day teaching artifact: 5. Recover: preserve, correct, trace; 6. Learn: proposal, then review.",
+      "frame_sha256": "07a1367844aa429ee55b52c49b051c034ef377651ce8946d73f5844c7c7f09ed",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "Recover. Learn.",
+        "5. Recover: preserve, correct, trace",
+        "6. Learn: proposal, then review"
+      ]
+    },
+    {
+      "scene_id": "L15-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Rehearse the agentified day teaching artifact: Pause: where does approval go soft?; At day's end, Morgan asks; In this rehearsal the answer.",
+      "frame_sha256": "45c9094c831f1bc8611db282990baefd27528bc9621e9351294b88e0ac3c2c06",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "Pause: where does approval go soft?",
+        "Pause: where does approval go soft?",
+        "At day's end, Morgan asks",
+        "In this rehearsal the answer",
+        "The staffing, spend, research, and"
+      ]
+    },
+    {
+      "scene_id": "L15-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Rehearse the agentified day teaching artifact: Write a Six-Beat Day brief; For each beat, name the; Make one thing fail.",
+      "frame_sha256": "dfb877a65973aa20e4267518f3f05f6b05bd8e0317019c2220cab08bdc40d923",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "Rehearse the agentified day",
+        "Write a Six-Beat Day brief",
+        "For each beat, name the",
+        "Make one thing fail"
+      ]
+    },
+    {
+      "scene_id": "L15-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Rehearse the agentified day teaching artifact: Operating File v15: Six-Beat Day; Next: audit the stack.",
+      "frame_sha256": "0734e21b6fc112c3b81b914e8afeb98eff679c1bf44afd0df4ad1c5328394c4e",
+      "display_copy": [
+        "Rehearse the agentified day",
+        "Operating File v15: Six-Beat Day.",
+        "Next: audit the stack.",
+        "Operating File v15: Six-Beat Day",
+        "Next: audit the stack"
+      ]
+    },
+    {
+      "scene_id": "L16-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-01.png",
+      "visual_family": "editorial paper diagram 1",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Audit the operating file teaching artifact: Capstone: inspect the gaps; At the end of Harbor's; It contains a job, sources.",
+      "frame_sha256": "09cd07140cca8c05d3b28081f6896a24abb7f9f26a690712a2863fb49dac88eb",
+      "display_copy": [
+        "Audit the operating file",
+        "Capstone: inspect the gaps.",
+        "Capstone: inspect the gaps",
+        "At the end of Harbor's",
+        "It contains a job, sources",
+        "The file is impressive in"
+      ]
+    },
+    {
+      "scene_id": "L16-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-02.png",
+      "visual_family": "editorial paper diagram 2",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Audit the operating file teaching artifact: Route; Log; Gate.",
+      "frame_sha256": "7064a5f7b2d6659929fa7a3fbb82364672e7a2a25012106db54d689f2045fe1a",
+      "display_copy": [
+        "Audit the operating file",
+        "Route",
+        "Route",
+        "Log",
+        "Gate",
+        "Memory",
+        "Review"
+      ]
+    },
+    {
+      "scene_id": "L16-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-03.png",
+      "visual_family": "editorial paper diagram 3",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Audit the operating file teaching artifact: Source status. Receipt shape. Proposal status; Begin with source and event; Harbor's three course inputs use.",
+      "frame_sha256": "479e71553d5dc84c3e2ed281a303b7d07afea7c612b3c15c5b6756cc6de9e5b8",
+      "display_copy": [
+        "Audit the operating file",
+        "Source status. Receipt shape. Proposal status.",
+        "Source status. Receipt shape. Proposal status",
+        "Begin with source and event",
+        "Harbor's three course inputs use",
+        "No raw private record belongs"
+      ]
+    },
+    {
+      "scene_id": "L16-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-04.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3600x4500",
+      "accessibility_text": "Approved Audit the operating file diagram illustrating Prepare only, Hold: staffing and spend.",
+      "frame_sha256": "953e82eaf65ec2b63401542bb456565f895d88a4fb1c210fe38a95a4f4c045d5",
+      "display_copy": [
+        "Audit the operating file",
+        "Prepare only.",
+        "Hold: staffing and spend.",
+        "Prepare only",
+        "Hold: staffing and spend"
+      ]
+    },
+    {
+      "scene_id": "L16-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-05.png",
+      "visual_family": "integrated approved publication plate",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this bound Agentified lesson use",
+      "source_dimensions": "3000x4700",
+      "accessibility_text": "Approved Audit the operating file diagram illustrating Export: not shared, Rollback: preserve and correct.",
+      "frame_sha256": "9feef39cef5c27b43369f4a92377c808603433a527f8cdb72d255b8062b35c77",
+      "display_copy": [
+        "Audit the operating file",
+        "Export: not shared.",
+        "Rollback: preserve and correct.",
+        "Export: not shared",
+        "Rollback: preserve and correct"
+      ]
+    },
+    {
+      "scene_id": "L16-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-06.png",
+      "visual_family": "editorial paper diagram 6",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Audit the operating file teaching artifact: Keep; Shrink; Retire.",
+      "frame_sha256": "c1bd385b29c2f38e088a4481cf8a772cd0bd7d9826f5f4eda52c33c49df01280",
+      "display_copy": [
+        "Audit the operating file",
+        "Keep, shrink, or retire?",
+        "Keep",
+        "Shrink",
+        "Retire",
+        "Name the reason"
+      ]
+    },
+    {
+      "scene_id": "L16-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-07.png",
+      "visual_family": "editorial paper diagram 7",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Audit the operating file teaching artifact: Present your Operating File as; Walk source, event, proposal, memory; For each layer, write owner.",
+      "frame_sha256": "59f0ec7bd9db2056bca79a98322eb62e9d76052a1dc42d7dde0a49cfb7815e46",
+      "display_copy": [
+        "Audit the operating file",
+        "Audit the operating file",
+        "Present your Operating File as",
+        "Walk source, event, proposal, memory",
+        "For each layer, write owner"
+      ]
+    },
+    {
+      "scene_id": "L16-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-08.png",
+      "visual_family": "editorial paper diagram 8",
+      "source_path": null,
+      "source_sha256": null,
+      "source_rights": "original project-local vector illustration for Agentified remediation",
+      "accessibility_text": "Illustrated Audit the operating file teaching artifact: Operating File v16: audit pending; Next: human editorial and source review.",
+      "frame_sha256": "fd74b5b7dd52a7a45c3e8a356939216dec5a9857e2d6157c82928ea90363367a",
+      "display_copy": [
+        "Audit the operating file",
+        "Operating File v16: audit pending.",
+        "Next: human editorial and source review.",
+        "Operating File v16: audit pending",
+        "Next: human editorial and source review"
+      ]
+    }
+  ]
+}

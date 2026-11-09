@@ -1,0 +1,2441 @@
+{
+  "schema_version": 1,
+  "source_commit": "f0931f3860e042507ee5aba83f220eb57cfd3eb5",
+  "rows": [
+    {
+      "scene_id": "L01-01",
+      "start_seconds": 0,
+      "end_seconds": 65,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 32.5,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "A suggestion needs a source.",
+        "Illustrative case: Harbor Learning Circle."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L01-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L01-02",
+      "start_seconds": 65,
+      "end_seconds": 140,
+      "boundary_sample_seconds": 66.5,
+      "midpoint_sample_seconds": 102.5,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Job: prepare one Session Option Brief.",
+        "Owner: Morgan, program lead."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L01-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L01-03",
+      "start_seconds": 140,
+      "end_seconds": 215,
+      "boundary_sample_seconds": 141.5,
+      "midpoint_sample_seconds": 177.5,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Trigger → cleared inputs → draft brief → Morgan.",
+        "No booking • no announcement • no spending."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L01-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L01-04",
+      "start_seconds": 215,
+      "end_seconds": 290,
+      "boundary_sample_seconds": 216.5,
+      "midpoint_sample_seconds": 252.5,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669"
+        }
+      ],
+      "audience_copy": [
+        "Receipt: intent • agent • source • action • artifact • approval • cost • outcome • rollback."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L01-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L01-05",
+      "start_seconds": 290,
+      "end_seconds": 345,
+      "boundary_sample_seconds": 291.5,
+      "midpoint_sample_seconds": 317.5,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Approval: pending.",
+        "Missing source → hold."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L01-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L01-06",
+      "start_seconds": 345,
+      "end_seconds": 365,
+      "boundary_sample_seconds": 346.5,
+      "midpoint_sample_seconds": 355,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: choose one workflow type."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L01-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L01-07",
+      "start_seconds": 365,
+      "end_seconds": 505,
+      "boundary_sample_seconds": 366.5,
+      "midpoint_sample_seconds": 435,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L01-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L01-08",
+      "start_seconds": 505,
+      "end_seconds": 540,
+      "boundary_sample_seconds": 506.5,
+      "midpoint_sample_seconds": 522.5,
+      "video_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "video_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "source_lib": "lib/agentified-l01-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v1: workflow + receipt.",
+        "Stop: missing owner, source, or gate."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L01-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L01-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-01",
+      "start_seconds": 0,
+      "end_seconds": 65,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 32.5,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Draft brief received.",
+        "Decision still open."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L02-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-02",
+      "start_seconds": 65,
+      "end_seconds": 130,
+      "boundary_sample_seconds": 66.5,
+      "midpoint_sample_seconds": 97.5,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Decision: propose, revise, or hold?",
+        "Owner: Morgan."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L02-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-03",
+      "start_seconds": 130,
+      "end_seconds": 195,
+      "boundary_sample_seconds": 131.5,
+      "midpoint_sample_seconds": 162.5,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Consequence: staff time and trust.",
+        "Internal proposal: reversible."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L02-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-04",
+      "start_seconds": 195,
+      "end_seconds": 260,
+      "boundary_sample_seconds": 196.5,
+      "midpoint_sample_seconds": 227.5,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1"
+        }
+      ],
+      "audience_copy": [
+        "Evidence: capacity • demand • availability.",
+        "Prepare and recommend only."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L02-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-05",
+      "start_seconds": 260,
+      "end_seconds": 325,
+      "boundary_sample_seconds": 261.5,
+      "midpoint_sample_seconds": 292.5,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Missing, stale, or conflicting evidence → hold.",
+        "Morgan decides."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L02-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-06",
+      "start_seconds": 325,
+      "end_seconds": 345,
+      "boundary_sample_seconds": 326.5,
+      "midpoint_sample_seconds": 335,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: name the choice."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L02-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-07",
+      "start_seconds": 345,
+      "end_seconds": 485,
+      "boundary_sample_seconds": 346.5,
+      "midpoint_sample_seconds": 415,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L02-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L02-08",
+      "start_seconds": 485,
+      "end_seconds": 510,
+      "boundary_sample_seconds": 486.5,
+      "midpoint_sample_seconds": 497.5,
+      "video_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "video_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v2: decision-card.",
+        "Stop: missing owner or self-approval."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L02-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L02-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-01",
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 35,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Claim: room capacity = 20.",
+        "Can Morgan defend it?"
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L03-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-02",
+      "start_seconds": 70,
+      "end_seconds": 140,
+      "boundary_sample_seconds": 71.5,
+      "midpoint_sample_seconds": 105,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669"
+        }
+      ],
+      "audience_copy": [
+        "Prepared • Read • Stop rule • Artifact • Reviewer."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L03-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-03",
+      "start_seconds": 140,
+      "end_seconds": 210,
+      "boundary_sample_seconds": 141.5,
+      "midpoint_sample_seconds": 175,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Citation + freshness + permitted use.",
+        "Course records only."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L03-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-04",
+      "start_seconds": 210,
+      "end_seconds": 295,
+      "boundary_sample_seconds": 211.5,
+      "midpoint_sample_seconds": 252.5,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "public_safe / client_safe / internal_ops / private.",
+        "Unknown tier → hold."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L03-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-05",
+      "start_seconds": 295,
+      "end_seconds": 355,
+      "boundary_sample_seconds": 296.5,
+      "midpoint_sample_seconds": 325,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Availability unconfirmed → no staffing claim."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L03-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-06",
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "boundary_sample_seconds": 356.5,
+      "midpoint_sample_seconds": 365,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: choose one source type."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L03-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-07",
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "boundary_sample_seconds": 376.5,
+      "midpoint_sample_seconds": 475,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L03-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L03-08",
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "boundary_sample_seconds": 576.5,
+      "midpoint_sample_seconds": 587.5,
+      "video_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "video_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v3: trace + sources.",
+        "Stop: unknown source or reviewer."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L03-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L03-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-01",
+      "start_seconds": 0,
+      "end_seconds": 70,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 35,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Correction received.",
+        "What may persist?"
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L04-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-02",
+      "start_seconds": 70,
+      "end_seconds": 140,
+      "boundary_sample_seconds": 71.5,
+      "midpoint_sample_seconds": 105,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Source → Event → Proposal → Human approval → Memory.",
+        "Current state: proposal only."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L04-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-03",
+      "start_seconds": 140,
+      "end_seconds": 210,
+      "boundary_sample_seconds": 141.5,
+      "midpoint_sample_seconds": 175,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Narrow proposal: pending.",
+        "Unsupported inference: rejected."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L04-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-04",
+      "start_seconds": 210,
+      "end_seconds": 285,
+      "boundary_sample_seconds": 211.5,
+      "midpoint_sample_seconds": 247.5,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd"
+        }
+      ],
+      "audience_copy": [
+        "Intent → Eligibility → Assignment → Evidence.",
+        "No message route."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L04-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-05",
+      "start_seconds": 285,
+      "end_seconds": 355,
+      "boundary_sample_seconds": 286.5,
+      "midpoint_sample_seconds": 320,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Controller routes by written rule.",
+        "Missing rule → human fallback."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L04-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-06",
+      "start_seconds": 355,
+      "end_seconds": 375,
+      "boundary_sample_seconds": 356.5,
+      "midpoint_sample_seconds": 365,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: one correction, one rejected inference."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L04-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-07",
+      "start_seconds": 375,
+      "end_seconds": 575,
+      "boundary_sample_seconds": 376.5,
+      "midpoint_sample_seconds": 475,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L04-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L04-08",
+      "start_seconds": 575,
+      "end_seconds": 600,
+      "boundary_sample_seconds": 576.5,
+      "midpoint_sample_seconds": 587.5,
+      "video_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "video_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "source_lib": "lib/agentified-l02-l04-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v4: memory + routing.",
+        "Stop: self-promotion or unowned route."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L04-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L04-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-01",
+      "start_seconds": 0,
+      "end_seconds": 24.779,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 12.389,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "One request. One visible path.",
+        "Where would a new teammate look?"
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L05-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-02",
+      "start_seconds": 24.779,
+      "end_seconds": 52.822,
+      "boundary_sample_seconds": 26.279,
+      "midpoint_sample_seconds": 38.8,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Request → route → source check → draft + trace → Morgan.",
+        "External action: closed."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L05-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-03",
+      "start_seconds": 52.822,
+      "end_seconds": 78.582,
+      "boundary_sample_seconds": 54.322,
+      "midpoint_sample_seconds": 65.702,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Trigger / Role / Tier / Handoff / Evidence.",
+        "Unknown → mark the gap."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L05-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-04",
+      "start_seconds": 78.582,
+      "end_seconds": 105.56,
+      "boundary_sample_seconds": 80.082,
+      "midpoint_sample_seconds": 92.071,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4"
+        }
+      ],
+      "audience_copy": [
+        "Job • decision • source • receipt • proposed memory • owner."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L05-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-05",
+      "start_seconds": 105.56,
+      "end_seconds": 136.581,
+      "boundary_sample_seconds": 107.06,
+      "midpoint_sample_seconds": 121.071,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Spend: closed.",
+        "Public proof: closed.",
+        "Withdraw draft: Morgan + reason."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L05-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-06",
+      "start_seconds": 136.581,
+      "end_seconds": 144.329,
+      "boundary_sample_seconds": 138.081,
+      "midpoint_sample_seconds": 140.455,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: circle one gap."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L05-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-07",
+      "start_seconds": 144.329,
+      "end_seconds": 219.992,
+      "boundary_sample_seconds": 145.829,
+      "midpoint_sample_seconds": 182.16,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L05-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L05-08",
+      "start_seconds": 219.992,
+      "end_seconds": 237.687,
+      "boundary_sample_seconds": 221.492,
+      "midpoint_sample_seconds": 228.839,
+      "video_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "video_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v5: map.",
+        "Next: authority and value."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L05-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L05-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-01",
+      "start_seconds": 0,
+      "end_seconds": 28.639,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 14.32,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "What may this role read, prepare, retain, and hand off?"
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L06-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-02",
+      "start_seconds": 28.639,
+      "end_seconds": 65.532,
+      "boundary_sample_seconds": 30.139,
+      "midpoint_sample_seconds": 47.086,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Scope / Ceiling / Reversibility / Escalation / Expiry."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L06-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-03",
+      "start_seconds": 65.532,
+      "end_seconds": 97.482,
+      "boundary_sample_seconds": 67.032,
+      "midpoint_sample_seconds": 81.507,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+        }
+      ],
+      "audience_copy": [
+        "Prepare only.",
+        "Source check + receipt + owner."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L06-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-04",
+      "start_seconds": 97.482,
+      "end_seconds": 132.486,
+      "boundary_sample_seconds": 98.982,
+      "midpoint_sample_seconds": 114.984,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Proof? Current permission? Build again?",
+        "Weather summary: review retirement."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L06-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-05",
+      "start_seconds": 132.486,
+      "end_seconds": 162.599,
+      "boundary_sample_seconds": 133.986,
+      "midpoint_sample_seconds": 147.542,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Proposal → human owner → documented disposition."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L06-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-06",
+      "start_seconds": 162.599,
+      "end_seconds": 169.015,
+      "boundary_sample_seconds": 164.099,
+      "midpoint_sample_seconds": 165.807,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: point to the boundary."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L06-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-07",
+      "start_seconds": 169.015,
+      "end_seconds": 243.974,
+      "boundary_sample_seconds": 170.515,
+      "midpoint_sample_seconds": 206.495,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L06-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L06-08",
+      "start_seconds": 243.974,
+      "end_seconds": 258.96,
+      "boundary_sample_seconds": 245.474,
+      "midpoint_sample_seconds": 251.467,
+      "video_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "video_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v6: slip + cull.",
+        "Next: requirements and roles."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L06-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L06-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-01",
+      "start_seconds": 0,
+      "end_seconds": 27.99,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 13.995,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Polished draft. Wrong staffing claim.",
+        "What did the requirement omit?"
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L07-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-02",
+      "start_seconds": 27.99,
+      "end_seconds": 65.494,
+      "boundary_sample_seconds": 29.49,
+      "midpoint_sample_seconds": 46.742,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Outcome • Scope • Inputs • Tests • Escalation • Owner • Reversal."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L07-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-03",
+      "start_seconds": 65.494,
+      "end_seconds": 92.669,
+      "boundary_sample_seconds": 66.994,
+      "midpoint_sample_seconds": 79.082,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Failed test → hold.",
+        "Draft withdrawal: Morgan."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L07-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-04",
+      "start_seconds": 92.669,
+      "end_seconds": 127.108,
+      "boundary_sample_seconds": 94.169,
+      "midpoint_sample_seconds": 109.889,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Small pod: one outcome, clear handoffs.",
+        "Human owner: Morgan."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L07-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-05",
+      "start_seconds": 127.108,
+      "end_seconds": 153.479,
+      "boundary_sample_seconds": 128.608,
+      "midpoint_sample_seconds": 140.293,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+        }
+      ],
+      "audience_copy": [
+        "Source checker → drafter → coordinator → Morgan.",
+        "Block owner: Morgan."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L07-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-06",
+      "start_seconds": 153.479,
+      "end_seconds": 160.078,
+      "boundary_sample_seconds": 154.979,
+      "midpoint_sample_seconds": 156.779,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: name the receiver."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L07-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-07",
+      "start_seconds": 160.078,
+      "end_seconds": 233.648,
+      "boundary_sample_seconds": 161.578,
+      "midpoint_sample_seconds": 196.863,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L07-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L07-08",
+      "start_seconds": 233.648,
+      "end_seconds": 251.332,
+      "boundary_sample_seconds": 235.148,
+      "midpoint_sample_seconds": 242.49,
+      "video_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "video_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v7: PRD + pod.",
+        "Next: handoff and evaluation."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L07-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L07-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-01",
+      "start_seconds": 0,
+      "end_seconds": 25.414,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 12.707,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "A vague handoff can make a polished error."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L08-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-02",
+      "start_seconds": 25.414,
+      "end_seconds": 65.848,
+      "boundary_sample_seconds": 26.914,
+      "midpoint_sample_seconds": 45.631,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Producer / Consumer / Payload / Preconditions / Rejection / Owner."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L08-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-03",
+      "start_seconds": 65.848,
+      "end_seconds": 91.608,
+      "boundary_sample_seconds": 67.348,
+      "midpoint_sample_seconds": 78.728,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Reject: staffing_claim_unsupported.",
+        "Morgan receives hold."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L08-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-04",
+      "start_seconds": 91.608,
+      "end_seconds": 125.431,
+      "boundary_sample_seconds": 93.108,
+      "midpoint_sample_seconds": 108.52,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Capture → Judge → Human sample → Decide.",
+        "No automatic promotion."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L08-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-05",
+      "start_seconds": 125.431,
+      "end_seconds": 161.224,
+      "boundary_sample_seconds": 126.931,
+      "midpoint_sample_seconds": 143.328,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669"
+        }
+      ],
+      "audience_copy": [
+        "A: review. B: hold. C: reject draft.",
+        "Three cases ≠ production proof."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L08-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-06",
+      "start_seconds": 161.224,
+      "end_seconds": 166.552,
+      "boundary_sample_seconds": 162.724,
+      "midpoint_sample_seconds": 163.888,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: choose the hidden failure."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L08-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-07",
+      "start_seconds": 166.552,
+      "end_seconds": 237.792,
+      "boundary_sample_seconds": 168.052,
+      "midpoint_sample_seconds": 202.172,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L08-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L08-08",
+      "start_seconds": 237.792,
+      "end_seconds": 257.68,
+      "boundary_sample_seconds": 239.292,
+      "midpoint_sample_seconds": 247.736,
+      "video_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "video_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "source_lib": "lib/agentified-l05-l08-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v8: contract + eval.",
+        "Next gate: editorial and source review."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L08-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L08-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-01",
+      "start_seconds": 0,
+      "end_seconds": 31.82,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 15.91,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Three drafts. One supported. One held. One wrong."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L09-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-02",
+      "start_seconds": 31.82,
+      "end_seconds": 69.72,
+      "boundary_sample_seconds": 33.32,
+      "midpoint_sample_seconds": 50.77,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1"
+        }
+      ],
+      "audience_copy": [
+        "Activity → Output → Quality → Behavior → Outcome → Learning → Authority."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L09-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-03",
+      "start_seconds": 69.72,
+      "end_seconds": 103.02,
+      "boundary_sample_seconds": 71.22,
+      "midpoint_sample_seconds": 86.37,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Measure → decision → named decider.",
+        "No live baseline."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L09-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-04",
+      "start_seconds": 103.02,
+      "end_seconds": 138.08,
+      "boundary_sample_seconds": 104.52,
+      "midpoint_sample_seconds": 120.55,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+        }
+      ],
+      "audience_copy": [
+        "Prepare: draft for Morgan.",
+        "Side effect: separate human gate."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L09-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-05",
+      "start_seconds": 138.08,
+      "end_seconds": 164.3,
+      "boundary_sample_seconds": 139.58,
+      "midpoint_sample_seconds": 151.19,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Evidence / uncertainty / consequence / disposition."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L09-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-06",
+      "start_seconds": 164.3,
+      "end_seconds": 170.52,
+      "boundary_sample_seconds": 165.8,
+      "midpoint_sample_seconds": 167.41,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: cross out one vanity metric."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L09-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-07",
+      "start_seconds": 170.52,
+      "end_seconds": 253.06,
+      "boundary_sample_seconds": 172.02,
+      "midpoint_sample_seconds": 211.79,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L09-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L09-08",
+      "start_seconds": 253.06,
+      "end_seconds": 272.84,
+      "boundary_sample_seconds": 254.56,
+      "midpoint_sample_seconds": 262.95,
+      "video_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "video_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v9: metrics + review.",
+        "Next: spend and decision."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L09-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L09-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-01",
+      "start_seconds": 0,
+      "end_seconds": 33.7,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 16.85,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "A good recommendation can still cross a money boundary."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L10-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-02",
+      "start_seconds": 33.7,
+      "end_seconds": 69,
+      "boundary_sample_seconds": 35.2,
+      "midpoint_sample_seconds": 51.35,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Amount / Counterparty / Purpose / Window / Retries / Trace / Approval."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L10-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-03",
+      "start_seconds": 69,
+      "end_seconds": 98.9,
+      "boundary_sample_seconds": 70.5,
+      "midpoint_sample_seconds": 83.95,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+        }
+      ],
+      "audience_copy": [
+        "Recommend ≠ execute.",
+        "Changed terms → new review."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L10-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-04",
+      "start_seconds": 98.9,
+      "end_seconds": 134.44,
+      "boundary_sample_seconds": 100.4,
+      "midpoint_sample_seconds": 116.67,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Context / Options / Recommendation / Reversibility / Change our mind."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L10-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-05",
+      "start_seconds": 134.44,
+      "end_seconds": 165.56,
+      "boundary_sample_seconds": 135.94,
+      "midpoint_sample_seconds": 150,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Session decision: conditional or hold.",
+        "Print spend: separate hold."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L10-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-06",
+      "start_seconds": 165.56,
+      "end_seconds": 171.04,
+      "boundary_sample_seconds": 167.06,
+      "midpoint_sample_seconds": 168.3,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: write the condition."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L10-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-07",
+      "start_seconds": 171.04,
+      "end_seconds": 252.62,
+      "boundary_sample_seconds": 172.54,
+      "midpoint_sample_seconds": 211.83,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L10-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L10-08",
+      "start_seconds": 252.62,
+      "end_seconds": 274.28,
+      "boundary_sample_seconds": 254.12,
+      "midpoint_sample_seconds": 263.45,
+      "video_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "video_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v10: spend + decision.",
+        "Next: cockpit."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L10-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L10-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-01",
+      "start_seconds": 0,
+      "end_seconds": 26.08,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 13.04,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "One job. Three questions. One readable state."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L11-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-02",
+      "start_seconds": 26.08,
+      "end_seconds": 61.66,
+      "boundary_sample_seconds": 27.58,
+      "midpoint_sample_seconds": 43.87,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4"
+        }
+      ],
+      "audience_copy": [
+        "Status / Blocker / Owner / Next safe step / Trace."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L11-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-03",
+      "start_seconds": 61.66,
+      "end_seconds": 91.52,
+      "boundary_sample_seconds": 63.16,
+      "midpoint_sample_seconds": 76.59,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Scan → Sort → Signal → Step in."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L11-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-04",
+      "start_seconds": 91.52,
+      "end_seconds": 122.02,
+      "boundary_sample_seconds": 93.02,
+      "midpoint_sample_seconds": 106.77,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Notify: status.",
+        "Ask: staffing direction.",
+        "Escalate: external action."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L11-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-05",
+      "start_seconds": 122.02,
+      "end_seconds": 149.38,
+      "boundary_sample_seconds": 123.52,
+      "midpoint_sample_seconds": 135.7,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Mobile card → full trace.",
+        "No shortcut around the gate."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L11-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-06",
+      "start_seconds": 149.38,
+      "end_seconds": 156.12,
+      "boundary_sample_seconds": 150.88,
+      "midpoint_sample_seconds": 152.75,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: find one missing field."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L11-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-07",
+      "start_seconds": 156.12,
+      "end_seconds": 234.84,
+      "boundary_sample_seconds": 157.62,
+      "midpoint_sample_seconds": 195.48,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L11-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L11-08",
+      "start_seconds": 234.84,
+      "end_seconds": 252.92,
+      "boundary_sample_seconds": 236.34,
+      "midpoint_sample_seconds": 243.88,
+      "video_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "video_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v11: cockpit + unblock.",
+        "Next: scoped proof."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L11-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L11-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-01",
+      "start_seconds": 0,
+      "end_seconds": 27.3,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 13.65,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Show the work. Bound the view."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L12-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-02",
+      "start_seconds": 27.3,
+      "end_seconds": 66.36,
+      "boundary_sample_seconds": 28.8,
+      "midpoint_sample_seconds": 46.83,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Audience / Scope / Window / Exclusions / Export / Ledger."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L12-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-03",
+      "start_seconds": 66.36,
+      "end_seconds": 96.54,
+      "boundary_sample_seconds": 67.86,
+      "midpoint_sample_seconds": 81.45,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+          "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669"
+        }
+      ],
+      "audience_copy": [
+        "Include: scoped receipts and decision.",
+        "Withhold: raw and unrelated records."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L12-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-04",
+      "start_seconds": 96.54,
+      "end_seconds": 134.06,
+      "boundary_sample_seconds": 98.04,
+      "midpoint_sample_seconds": 115.3,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Idea → evidence → packet → human gate.",
+        "Missing evidence: unscored."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L12-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-05",
+      "start_seconds": 134.06,
+      "end_seconds": 163.44,
+      "boundary_sample_seconds": 135.56,
+      "midpoint_sample_seconds": 148.75,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Next: proposed research review.",
+        "No build authority."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L12-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-06",
+      "start_seconds": 163.44,
+      "end_seconds": 168.86,
+      "boundary_sample_seconds": 164.94,
+      "midpoint_sample_seconds": 166.15,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: write one exclusion."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L12-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-07",
+      "start_seconds": 168.86,
+      "end_seconds": 250.08,
+      "boundary_sample_seconds": 170.36,
+      "midpoint_sample_seconds": 209.47,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L12-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L12-08",
+      "start_seconds": 250.08,
+      "end_seconds": 268.12,
+      "boundary_sample_seconds": 251.58,
+      "midpoint_sample_seconds": 259.1,
+      "video_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "video_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "source_lib": "lib/agentified-l09-l12-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v12: proof + foundry.",
+        "Next: gated research design."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L12-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L12-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-01",
+      "start_seconds": 0,
+      "end_seconds": 26.667,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 13.334,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "A useful idea is still a proposal."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L13-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-02",
+      "start_seconds": 26.667,
+      "end_seconds": 56.587,
+      "boundary_sample_seconds": 28.167,
+      "midpoint_sample_seconds": 41.627,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd"
+        }
+      ],
+      "audience_copy": [
+        "Propose → not_run → gate → trace → approve or discard."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L13-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-03",
+      "start_seconds": 56.587,
+      "end_seconds": 90.371,
+      "boundary_sample_seconds": 58.087,
+      "midpoint_sample_seconds": 73.479,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Baseline: unknown.",
+        "Metric: correct hold identification.",
+        "Result: not_run."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L13-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-04",
+      "start_seconds": 90.371,
+      "end_seconds": 120.74,
+      "boundary_sample_seconds": 91.871,
+      "midpoint_sample_seconds": 105.555,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Morgan reviews the proposal.",
+        "No automatic promotion."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L13-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-05",
+      "start_seconds": 120.74,
+      "end_seconds": 147.655,
+      "boundary_sample_seconds": 122.24,
+      "midpoint_sample_seconds": 134.197,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Hold reason + owner + next safe step."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L13-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-06",
+      "start_seconds": 147.655,
+      "end_seconds": 152.886,
+      "boundary_sample_seconds": 149.155,
+      "midpoint_sample_seconds": 150.27,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: name one missing baseline."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L13-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-07",
+      "start_seconds": 152.886,
+      "end_seconds": 233.579,
+      "boundary_sample_seconds": 154.386,
+      "midpoint_sample_seconds": 193.233,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L13-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L13-08",
+      "start_seconds": 233.579,
+      "end_seconds": 255.243,
+      "boundary_sample_seconds": 235.079,
+      "midpoint_sample_seconds": 244.411,
+      "video_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "video_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v13: research proposal.",
+        "Next: show the controls."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L13-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L13-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-01",
+      "start_seconds": 0,
+      "end_seconds": 29.302,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 14.651,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Queue. Trace. Memory.",
+        "Paper design review."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L14-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-02",
+      "start_seconds": 29.302,
+      "end_seconds": 52.814,
+      "boundary_sample_seconds": 30.802,
+      "midpoint_sample_seconds": 41.058,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Prepared / Held / Rejected / Not run."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L14-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-03",
+      "start_seconds": 52.814,
+      "end_seconds": 78.338,
+      "boundary_sample_seconds": 54.314,
+      "midpoint_sample_seconds": 65.576,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+          "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4"
+        }
+      ],
+      "audience_copy": [
+        "Request → draft → check → hold → Morgan.",
+        "No send event."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L14-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-04",
+      "start_seconds": 78.338,
+      "end_seconds": 104.726,
+      "boundary_sample_seconds": 79.838,
+      "midpoint_sample_seconds": 91.532,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+        }
+      ],
+      "audience_copy": [
+        "Rule owner / scope / source / status / review."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L14-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-05",
+      "start_seconds": 104.726,
+      "end_seconds": 135.407,
+      "boundary_sample_seconds": 106.226,
+      "midpoint_sample_seconds": 120.067,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Proof outline: not shared.",
+        "No production claim."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L14-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-06",
+      "start_seconds": 135.407,
+      "end_seconds": 140.713,
+      "boundary_sample_seconds": 136.907,
+      "midpoint_sample_seconds": 138.06,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: name the weakest panel."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L14-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-07",
+      "start_seconds": 140.713,
+      "end_seconds": 217.924,
+      "boundary_sample_seconds": 142.213,
+      "midpoint_sample_seconds": 179.319,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L14-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L14-08",
+      "start_seconds": 217.924,
+      "end_seconds": 241.762,
+      "boundary_sample_seconds": 219.424,
+      "midpoint_sample_seconds": 229.843,
+      "video_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "video_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v14: Three-Panel Demo.",
+        "Next: rehearse the day."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L14-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L14-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-01",
+      "start_seconds": 0,
+      "end_seconds": 28.782,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 14.391,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Prepared, not sent.",
+        "Protect judgment."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L15-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-02",
+      "start_seconds": 28.782,
+      "end_seconds": 51.109,
+      "boundary_sample_seconds": 30.282,
+      "midpoint_sample_seconds": 39.946,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "1. Brief: work / human / learning."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L15-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-03",
+      "start_seconds": 51.109,
+      "end_seconds": 74.662,
+      "boundary_sample_seconds": 52.609,
+      "midpoint_sample_seconds": 62.886,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "2. Route: owner and review window."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L15-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-04",
+      "start_seconds": 74.662,
+      "end_seconds": 103.33,
+      "boundary_sample_seconds": 76.162,
+      "midpoint_sample_seconds": 88.996,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+          "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1"
+        }
+      ],
+      "audience_copy": [
+        "3. Review: check source and claim.",
+        "4. Approve: only the bounded correction."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L15-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-05",
+      "start_seconds": 103.33,
+      "end_seconds": 138.578,
+      "boundary_sample_seconds": 104.83,
+      "midpoint_sample_seconds": 120.954,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "5. Recover: preserve, correct, trace.",
+        "6. Learn: proposal, then review."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L15-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-06",
+      "start_seconds": 138.578,
+      "end_seconds": 159.671,
+      "boundary_sample_seconds": 140.078,
+      "midpoint_sample_seconds": 149.125,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: where does approval go soft?"
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L15-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-07",
+      "start_seconds": 159.671,
+      "end_seconds": 234.444,
+      "boundary_sample_seconds": 161.171,
+      "midpoint_sample_seconds": 197.058,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L15-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L15-08",
+      "start_seconds": 234.444,
+      "end_seconds": 255.386,
+      "boundary_sample_seconds": 235.944,
+      "midpoint_sample_seconds": 244.915,
+      "video_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "video_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v15: Six-Beat Day.",
+        "Next: audit the stack."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L15-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L15-08-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-01",
+      "start_seconds": 0,
+      "end_seconds": 34.212,
+      "boundary_sample_seconds": 1.5,
+      "midpoint_sample_seconds": 17.106,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Capstone: inspect the gaps."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L16-01-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-01-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-02",
+      "start_seconds": 34.212,
+      "end_seconds": 62.745,
+      "boundary_sample_seconds": 35.712,
+      "midpoint_sample_seconds": 48.478,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Route / Log / Gate / Memory / Review."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L16-02-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-02-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-03",
+      "start_seconds": 62.745,
+      "end_seconds": 89.687,
+      "boundary_sample_seconds": 64.245,
+      "midpoint_sample_seconds": 76.216,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Source status. Receipt shape. Proposal status."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L16-03-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-03-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-04",
+      "start_seconds": 89.687,
+      "end_seconds": 117.109,
+      "boundary_sample_seconds": 91.187,
+      "midpoint_sample_seconds": 103.398,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+          "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd"
+        }
+      ],
+      "audience_copy": [
+        "Prepare only.",
+        "Hold: staffing and spend."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L16-04-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-04-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-05",
+      "start_seconds": 117.109,
+      "end_seconds": 145.819,
+      "boundary_sample_seconds": 118.609,
+      "midpoint_sample_seconds": 131.464,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+          "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+        }
+      ],
+      "audience_copy": [
+        "Export: not shared.",
+        "Rollback: preserve and correct."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L16-05-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-05-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-06",
+      "start_seconds": 145.819,
+      "end_seconds": 165.7,
+      "boundary_sample_seconds": 147.319,
+      "midpoint_sample_seconds": 155.76,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Pause: keep / shrink / retire?"
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L16-06-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-06-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-07",
+      "start_seconds": 165.7,
+      "end_seconds": 248.226,
+      "boundary_sample_seconds": 167.2,
+      "midpoint_sample_seconds": 206.963,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [],
+      "frames": {
+        "boundary": "frames/boundaries/L16-07-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-07-midpoint.jpg"
+      }
+    },
+    {
+      "scene_id": "L16-08",
+      "start_seconds": 248.226,
+      "end_seconds": 267.309,
+      "boundary_sample_seconds": 249.726,
+      "midpoint_sample_seconds": 257.768,
+      "video_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "video_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "source_lib": "lib/agentified-l13-l16-media.ts",
+      "approved_visuals": [],
+      "audience_copy": [
+        "Operating File v16: audit pending.",
+        "Next: human editorial and source review."
+      ],
+      "frames": {
+        "boundary": "frames/boundaries/L16-08-boundary.jpg",
+        "midpoint": "frames/boundaries/L16-08-midpoint.jpg"
+      }
+    }
+  ]
+}

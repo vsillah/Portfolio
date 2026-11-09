@@ -1,0 +1,204 @@
+{
+  "samples": [
+    {
+      "id": "L01",
+      "time": 37,
+      "duration": 3,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L01",
+      "time": 252.5,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L02",
+      "time": 62,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L02",
+      "time": 227.5,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L03",
+      "time": 67,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L03",
+      "time": 252.5,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L04",
+      "time": 67,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L04",
+      "time": 247.5,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L05",
+      "time": 21.779,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L05",
+      "time": 92.071,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L06",
+      "time": 25.639,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L06",
+      "time": 114.984,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L07",
+      "time": 24.99,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L07",
+      "time": 109.889,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L08",
+      "time": 22.414,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L08",
+      "time": 108.52,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L09",
+      "time": 28.82,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L09",
+      "time": 120.55,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L10",
+      "time": 30.700000000000003,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L10",
+      "time": 116.67,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L11",
+      "time": 23.08,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L11",
+      "time": 106.77,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L12",
+      "time": 24.3,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L12",
+      "time": 115.3,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L13",
+      "time": 23.667,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L13",
+      "time": 105.555,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L14",
+      "time": 26.302,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L14",
+      "time": 91.532,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L15",
+      "time": 25.782,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L15",
+      "time": 88.996,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L16",
+      "time": 31.212000000000003,
+      "duration": 1.5,
+      "kind": "opening visual"
+    },
+    {
+      "id": "L16",
+      "time": 103.398,
+      "duration": 1.5,
+      "kind": "instructional scene"
+    },
+    {
+      "id": "L09",
+      "time": 218.06,
+      "duration": 1.5,
+      "kind": "protected countdown"
+    }
+  ],
+  "mobile_treatment": "review-only full frame plus magnified right-side artwork; source lesson mobile playback remains 16:9",
+  "audio": "silent visual comparison; source lesson composites retain unchanged audio"
+}
