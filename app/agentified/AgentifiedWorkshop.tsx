@@ -12,10 +12,11 @@ import { AgentifiedLessonHero } from './AgentifiedLessonHero'
 import { agentifiedL01Media } from '@/lib/agentified-l01-media'
 import { agentifiedL02L04Media } from '@/lib/agentified-l02-l04-media'
 import { agentifiedL05L08Media } from '@/lib/agentified-l05-l08-media'
+import { agentifiedL09L12Media } from '@/lib/agentified-l09-l12-media'
 
 type Mode = 'plan' | 'file'
 const lessonById = (id: string) => agentifiedLessons.find((lesson) => lesson.id === id) ?? agentifiedLessons[0]
-const approvedMedia = { L01: agentifiedL01Media, ...agentifiedL02L04Media, ...agentifiedL05L08Media }
+const approvedMedia = { L01: agentifiedL01Media, ...agentifiedL02L04Media, ...agentifiedL05L08Media, ...agentifiedL09L12Media }
 const mediaFor = (id: string) => approvedMedia[id as keyof typeof approvedMedia]
 const newState = (worksheetId: string): AgentifiedState => ({ version: AGENTIFIED_VERSION, worksheet: emptyAgentifiedDraft(worksheetId), completed: [], videoSeconds: {}, currentLessonId: 'L01', updatedAt: new Date().toISOString() })
 

@@ -1,0 +1,133 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:06.080
+A Harbor board member asks Morgan what the preparation agent actually did for the proposed session.
+
+00:00:06.960 --> 00:00:08.720
+Morgan could hand over the entire trace.
+
+00:00:09.200 --> 00:00:13.820
+That would reveal source notes and internal deliberation the board member did not request.
+
+00:00:14.620 --> 00:00:16.600
+Morgan could write a polished story from memory.
+
+00:00:17.100 --> 00:00:18.160
+That would be hard to check.
+
+00:00:18.680 --> 00:00:27.300
+We need a smaller packet: enough to show the boundary, the work, the hold, and the human decision, without dragging every underlying record into the room.
+
+00:00:27.300 --> 00:00:35.960
+Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger.
+
+00:00:36.500 --> 00:00:42.240
+For the Harbor board reader, scope is one session-option paper case across one course planning window.
+
+00:00:42.840 --> 00:00:52.400
+Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request.
+
+00:00:52.920 --> 00:00:59.120
+Exclude raw source text, prompts, private reasoning, unrelated people, and any actual records.
+
+00:00:59.520 --> 00:01:01.900
+The packet records what is known and what is withheld.
+
+00:01:02.360 --> 00:01:05.900
+It does not certify agent quality or imply a session happened.
+
+00:01:06.360 --> 00:01:15.880
+The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes.
+
+00:01:16.500 --> 00:01:20.040
+Use course references and a course timestamp label, not a real log.
+
+00:01:20.600 --> 00:01:23.500
+Morgan reviews the proposed proof packet before any sharing.
+
+00:01:24.000 --> 00:01:27.620
+If a field cannot be safely summarized, mark it withheld with a reason.
+
+00:01:28.360 --> 00:01:31.540
+Redaction is a decision, not a blur laid over a screenshot.
+
+00:01:32.180 --> 00:01:35.960
+Here, the export is only a classroom outline; nothing is sent.
+
+00:01:36.540 --> 00:01:42.740
+The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options.
+
+00:01:43.140 --> 00:01:45.960
+The temptation is to build it because it fits the Harbor story.
+
+00:01:45.960 --> 00:01:56.840
+Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates.
+
+00:01:57.420 --> 00:02:00.140
+The workbook proposes a weighted score out of one hundred.
+
+00:02:00.600 --> 00:02:04.020
+A score is useful only when each field has attributable evidence.
+
+00:02:04.500 --> 00:02:08.640
+Our class has no real market research, payer interview, or release review.
+
+00:02:09.020 --> 00:02:10.660
+Those fields stay unscored.
+
+00:02:11.080 --> 00:02:14.060
+A number without evidence would turn an idea into false proof.
+
+00:02:14.060 --> 00:02:21.040
+Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay.
+
+00:02:21.540 --> 00:02:25.000
+Even that is a proposed plan, not a provider call or outreach.
+
+00:02:25.440 --> 00:02:32.760
+No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson.
+
+00:02:33.240 --> 00:02:37.460
+A phone can display the packet and a hold status, but it cannot waive the gate.
+
+00:02:37.820 --> 00:02:40.820
+The valuable outcome may be a decision to shelve the idea.
+
+00:02:41.100 --> 00:02:43.440
+That saves time a rushed build would consume.
+
+00:02:43.440 --> 00:02:44.280
+Pause.
+
+00:02:44.920 --> 00:02:48.120
+What would you leave out of the board packet even if it helped tell a better story?
+
+00:02:48.860 --> 00:02:52.240
+Draft a Client-Safe Proof Packet outline for the Harbor planning case.
+
+00:02:52.820 --> 00:02:59.320
+State audience, scope, window, inclusions, exclusions, export review, and ledger fields.
+
+00:02:59.780 --> 00:03:02.780
+Redact the course trace in words rather than pasting it.
+
+00:03:03.120 --> 00:03:15.720
+Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition.
+
+00:03:16.120 --> 00:03:18.100
+Use a fictional or approved example.
+
+00:03:18.760 --> 00:03:24.540
+Do not use private operational data, contact a person, create a repo, or generate a public claim.
+
+00:04:10.080 --> 00:04:11.820
+Save revision twelve as a draft.
+
+00:04:12.640 --> 00:04:18.820
+Harbor now has a way to explain its held work and a way to examine a new idea without pretending either is ready to ship.
+
+00:04:19.380 --> 00:04:21.980
+The Operating File keeps the missing evidence visible.
+
+00:04:21.980 --> 00:04:24.600
+That is what makes the next human decision honest.
