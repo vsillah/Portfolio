@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "four_sources_completed_once_no_retry_and_composited_provider_free",
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "batch_sha256": "c339600cab53a406b01ae80399354bf718e94a36863322f934d795c424aa6ed5",
+  "look_id": "7275ba9035f94b31ad589dda6532d002",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "jobs_submitted": 4,
+  "retries": 0,
+  "account_balance_after_batch": 768,
+  "cash_purchase_usd": 0,
+  "exact_known_credit_cost": 114,
+  "credit_cost_disclosure": "L09 exact debit was exposed. L10-L12 per-job debit values were not exposed by the provider connector and are intentionally not inferred.",
+  "lessons": [
+    {
+      "lesson_id": "L09",
+      "job_id": "6621f0b631213c2ed0574a3a8a790d91",
+      "request_sha256": "cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd",
+      "native_source_sha256": "690e7a4f1c645999531f9c3ac6c86d05f10358da265e39f598a373d5c430e365",
+      "composite_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "output_duration_seconds": 272.84,
+      "credit_cost": 114
+    },
+    {
+      "lesson_id": "L10",
+      "job_id": "ce566c1d43d38666e24de7716f8fc270",
+      "request_sha256": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8",
+      "native_source_sha256": "dfc8b28b72719b5ff903fe9c6d7b520a6716732c413ebc98b50449b80e18aa91",
+      "composite_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "output_duration_seconds": 274.28,
+      "credit_cost": null
+    },
+    {
+      "lesson_id": "L11",
+      "job_id": "b3388fddea1f31b76cd04dcc5071b026",
+      "request_sha256": "7a139886e0f6b35daf35bab1b44ab4eb582127cd4aadedbcf59f810011cc74b8",
+      "native_source_sha256": "6883cb02be903c6613de24fb52b9db78d63e762d55f48ef033e0b09ffa5ea482",
+      "composite_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "output_duration_seconds": 252.92,
+      "credit_cost": null
+    },
+    {
+      "lesson_id": "L12",
+      "job_id": "c48607af323bb39a7d643df9d9ec2435",
+      "request_sha256": "56498ca2f4748dc058a63ca80efe27e340d3474d0025c4f335e93e1e9d8a15b7",
+      "native_source_sha256": "83f196cc60bef391471a1f160849f4e595af070306cb2179b0afad0748d5507b",
+      "composite_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "output_duration_seconds": 268.12,
+      "credit_cost": null
+    }
+  ]
+}

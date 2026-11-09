@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "status": "completed_once_no_retry_and_composited_provider_free",
+  "lesson_id": "L09",
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "batch_sha256": "c339600cab53a406b01ae80399354bf718e94a36863322f934d795c424aa6ed5",
+  "request_sha256": "cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd",
+  "provider": "HeyGen Avatar IV",
+  "job_id": "6621f0b631213c2ed0574a3a8a790d91",
+  "look_id": "7275ba9035f94b31ad589dda6532d002",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "submissions": 1,
+  "retries": 0,
+  "provider_usage": {
+    "credit_cost": 114,
+    "account_balance_after_batch": 768,
+    "cash_purchase_usd": 0,
+    "note": "Exact debit observed for L09."
+  },
+  "native_source": {
+    "path": "agentified/workshop/l09-l12-native-source/L09/agentified-l09-heygen-native-source.mp4",
+    "sha256": "690e7a4f1c645999531f9c3ac6c86d05f10358da265e39f598a373d5c430e365",
+    "duration_seconds": 218.84
+  },
+  "word_timing": {
+    "path": "agentified/workshop/l09-l12-native-source/L09/word-timing.json",
+    "sha256": "a6902a37f8adcfdf48cabc1827288e2bfcc67578f790d2e8a6fb5f3c8235166d",
+    "generated_provider_free": true
+  },
+  "timing_receipt": {
+    "schema_version": 1,
+    "lesson_id": "L09",
+    "request_sha256": "cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd",
+    "native_source_sha256": "690e7a4f1c645999531f9c3ac6c86d05f10358da265e39f598a373d5c430e365",
+    "native_source_duration_seconds": 218.84,
+    "native_speed": 1,
+    "output_duration_seconds": 272.84,
+    "presenter_windows": [
+      {
+        "scene_id": "L09-01",
+        "source_in": 0,
+        "source_out": 13.38,
+        "sequence_start": 0,
+        "sequence_end": 13.38
+      },
+      {
+        "scene_id": "L09-08",
+        "source_in": 214.38,
+        "source_out": 218.84,
+        "sequence_start": 259.38,
+        "sequence_end": 263.84
+      }
+    ],
+    "guided_work_countdown": {
+      "source_split_seconds": 208.06,
+      "sequence_start": 208.06,
+      "sequence_end": 253.06,
+      "seconds": 45
+    },
+    "provider_free_closing_card": {
+      "start": 263.84,
+      "end": 272.84
+    },
+    "sentence_alignment": {
+      "engine": "faster-whisper small.en plus exact-script global alignment",
+      "distance": 19,
+      "expected_words": 575,
+      "observed_words": 582
+    },
+    "presenter_transform": {
+      "x": 1048,
+      "y": 326,
+      "width": 768,
+      "height": 432,
+      "fit": "contain",
+      "border": "solid_gold",
+      "background": "provider_free_textured_studio"
+    },
+    "l10_mobile_diagram_treatment": null
+  },
+  "background_treatment": {
+    "mode": "provider_free_textured_studio_reconstruction",
+    "key": "colorkey=0x00e868:0.28:0.08",
+    "edge_despill": "green:mix=0.05:expand=0.02",
+    "native_presenter_pixels_preserved": true
+  },
+  "composite": {
+    "path": "agentified/workshop/l09-l12-native-composite/agentified-l09-native-composite.mp4",
+    "sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+    "duration_seconds": 272.84
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l09-l12-native-composite/agentified-l09-native-captions.srt",
+    "srt_sha256": "d17b61ba26633c510bb9479520800488ef5570c2f4230d86cf1d88f19a3797d3",
+    "vtt_path": "agentified/workshop/l09-l12-native-composite/agentified-l09-native-captions.vtt",
+    "vtt_sha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d"
+  }
+}

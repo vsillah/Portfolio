@@ -1,0 +1,203 @@
+1
+00:00:00,000 --> 00:00:04,920
+Morgan has a plausible Harbor proposal: add a free digital-skills session next month.
+
+2
+00:00:05,660 --> 00:00:06,700
+The room note is current.
+
+3
+00:00:07,240 --> 00:00:08,960
+The attendance note suggests interest.
+
+4
+00:00:09,520 --> 00:00:12,640
+The facilitator is still available for review, not confirmed.
+
+5
+00:00:13,180 --> 00:00:16,320
+A colleague suggests paying for a small printing run to test flyers.
+
+6
+00:00:16,820 --> 00:00:17,960
+The amount sounds minor.
+
+7
+00:00:18,440 --> 00:00:20,100
+Morgan stops at the word 'paying.'
+
+8
+00:00:20,580 --> 00:00:22,200
+A recommendation can sit in the brief.
+
+9
+00:00:22,540 --> 00:00:24,680
+A purchase needs a separate human decision.
+
+10
+00:00:25,240 --> 00:00:32,780
+The same paper workflow now has two questions: should Harbor propose the session, and should anyone authorize a specific expense?
+
+11
+00:00:33,700 --> 00:00:41,880
+Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval.
+
+12
+00:00:42,460 --> 00:00:46,880
+The workbook adds currency, requesting role, forbidden actions, and revocation.
+
+13
+00:00:47,580 --> 00:00:53,500
+In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window.
+
+14
+00:00:53,900 --> 00:00:58,460
+The number is classroom arithmetic, not a quote, budget, or authorization.
+
+15
+00:00:58,940 --> 00:01:04,340
+The envelope is incomplete until the actual approving human can see the evidence and exact terms.
+
+16
+00:01:04,620 --> 00:01:08,240
+It cannot be stretched into a recurring charge or an 'up to' range.
+
+17
+00:01:09,000 --> 00:01:11,220
+Harbor's preparation role has no payment authority.
+
+18
+00:01:11,760 --> 00:01:19,100
+It may draft a spend request; it cannot place an order, enter a card, increase a cap, or trigger paid API usage.
+
+19
+00:01:19,680 --> 00:01:23,540
+Put a closed gate between the proposed envelope and any dollar-moving verb.
+
+20
+00:01:24,160 --> 00:01:29,380
+If the cost, vendor, window, or evidence changes, the paper envelope goes back to Morgan.
+
+21
+00:01:29,860 --> 00:01:31,920
+If it expires, it stays closed.
+
+22
+00:01:32,620 --> 00:01:35,820
+A prior approval of the session idea would not approve the print order.
+
+23
+00:01:36,280 --> 00:01:38,300
+The approval has to match the action.
+
+24
+00:01:38,900 --> 00:01:40,900
+Now write the decision Morgan actually owns.
+
+25
+00:01:41,900 --> 00:01:49,740
+Chapter Eighteen uses five sections: context, options, recommendation, reversibility, and what would change our mind.
+
+26
+00:01:50,740 --> 00:01:54,480
+Option A is to propose a session subject to facilitator confirmation.
+
+27
+00:01:55,200 --> 00:01:59,320
+Option B is to hold the proposal and gather a fresh staffing commitment.
+
+28
+00:02:00,040 --> 00:02:04,700
+Give B a fair case: it protects Harbor from promising a session it cannot staff.
+
+29
+00:02:05,260 --> 00:02:09,300
+The recommendation can favor A only if the brief clearly carries that condition.
+
+30
+00:02:10,060 --> 00:02:11,160
+Morgan can also choose hold.
+
+31
+00:02:11,640 --> 00:02:13,960
+The agent's framing must leave room for disagreement.
+
+32
+00:02:14,440 --> 00:02:16,320
+Put the spend question on its own line.
+
+33
+00:02:16,860 --> 00:02:21,200
+Even if Morgan favors a conditional session proposal, the print request remains held.
+
+34
+00:02:21,600 --> 00:02:27,280
+The brief should name Morgan as decision owner, the course deadline, the evidence gap, and what can be reversed.
+
+35
+00:02:27,800 --> 00:02:29,260
+A draft brief can be withdrawn.
+
+36
+00:02:29,880 --> 00:02:33,400
+A flyer sent into the community cannot be pulled back with the same ease.
+
+37
+00:02:34,020 --> 00:02:37,740
+That difference is why preparation and side effects have different gates.
+
+38
+00:02:38,380 --> 00:02:44,720
+An honest decision brief makes the strongest alternative visible and tells the reviewer what evidence would overturn the recommendation.
+
+39
+00:02:45,560 --> 00:02:45,820
+Pause.
+
+40
+00:02:46,680 --> 00:02:50,420
+Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?
+
+41
+00:02:51,040 --> 00:02:53,200
+Fill a Spend Envelope, then a Decision Brief.
+
+42
+00:02:53,660 --> 00:03:05,000
+Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.
+
+43
+00:03:04,360 --> 00:03:06,300
+Mark it unapproved.
+
+44
+00:03:06,900 --> 00:03:15,300
+Give the brief two real options, a fair case for the rejected option, a recommendation, reversibility, evidence gap, and a hold outcome.
+
+45
+00:03:15,900 --> 00:03:17,460
+Keep the facilitator unconfirmed.
+
+46
+00:03:17,740 --> 00:03:19,780
+Use a fictional or approved example.
+
+47
+00:03:20,460 --> 00:03:27,120
+Do not use private operational data, open a checkout, use a card, call a provider, or publish a session.
+
+48
+00:04:12,620 --> 00:04:14,340
+Save revision ten as a draft.
+
+49
+00:04:14,920 --> 00:04:17,920
+Morgan has two distinct decisions and the evidence for both.
+
+50
+00:04:18,520 --> 00:04:19,640
+Neither has been exercised.
+
+51
+00:04:20,380 --> 00:04:26,020
+Next we will make the pending work visible without turning a phone notification into a second control room.
