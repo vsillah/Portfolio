@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "lesson_id": "L02",
+      "theme": "three-way decision brief",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-9c9b5134-333b-40d2-ad13-457e803f7e13.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L03",
+      "theme": "room-capacity source trace",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-b8de1d1a-abff-4508-b548-e022ff78215c.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L04",
+      "theme": "correction to governed memory",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-dd977965-8fb3-4780-98d4-8250db5153dc.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L05",
+      "theme": "one-request operating path",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-4819e1c3-9b98-46c5-ae8d-e6035be62efc.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L06",
+      "theme": "permission slip and closed execution gate",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-e8775bd5-b82e-406f-aa3e-0752a191e871.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L07",
+      "theme": "requirements and team handoffs",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-34636fc7-5f85-4982-bad9-573a6b542a76.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L08",
+      "theme": "testable handoff contract",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-438e633a-8612-47f8-adb3-d121737af28b.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L09",
+      "theme": "evidence-weighted review",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-1b6253dd-7e58-4995-ba66-5fcad018ec12.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L10",
+      "theme": "spend authority boundary",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-ee1ef85c-fa03-4753-9c4a-afc1212d8d5c.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L11",
+      "theme": "operator cockpit",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-786c1197-6457-4ad5-8d2a-f31040455242.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L12",
+      "theme": "scoped proof packet",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-cffcfcb3-cd11-4bfd-892b-e3b7a8df3b74.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L13",
+      "theme": "gated research proposal",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-a1bd3d1f-4057-410e-915b-0b52847a8484.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L14",
+      "theme": "board queue trace and memory",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-09a50f67-921e-48cb-a693-67b5731710fe.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L15",
+      "theme": "six-beat human workday",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-c4c25d4c-cef9-4ee3-9fa5-2495b3ea14b1.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    },
+    {
+      "lesson_id": "L16",
+      "theme": "Operating File audit gaps",
+      "source_generated_path": "/Users/vambahsillah/.codex/generated_images/01a1b606-a48d-7181-b1a1-ff7b17670046/exec-a28d6e64-a78c-4527-abe2-55db6bedc405.png",
+      "project_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
+      "sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
+      "rights": "original generated lesson illustration; project-local review use",
+      "status": "accepted after visual review"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "purpose": "Keep adjacent publication-plate labels and borders out of the approved scene crop without changing its bound source or claim.",
+  "rendered_plate_px": [600, 130, 1280, 850],
+  "feather_px": 40,
+  "scenes": [
+    {"scene_id":"L01-04","insets_px":[150,40,190,180],"focus":"nine receipt fields","edge_risk":"adjacent human-gate label at right and receipt banner below"},
+    {"scene_id":"L02-04","insets_px":[65,55,45,75],"focus":"receipt, gate, and evaluation","edge_risk":"neighboring decorative borders"},
+    {"scene_id":"L03-02","insets_px":[150,40,190,180],"focus":"agent, source, and artifact fields","edge_risk":"adjacent human-gate label at right and receipt banner below"},
+    {"scene_id":"L04-04","insets_px":[320,70,300,220],"focus":"Signals plate","edge_risk":"Momentum and Alignment labels at opposite edges and partial lower ring"},
+    {"scene_id":"L05-04","insets_px":[100,40,130,100],"focus":"Open Brain and Harness plates","edge_risk":"third panel starts at right edge"},
+    {"scene_id":"L06-03","insets_px":[170,190,70,140],"focus":"Recommend and Prepare boundary","edge_risk":"neighboring blank ladder rung at top and bottom"},
+    {"scene_id":"L07-05","insets_px":[170,240,70,190],"focus":"Route rung and receiver path","edge_risk":"Stage and adjacent rung fragments"},
+    {"scene_id":"L08-05","insets_px":[150,40,190,180],"focus":"receipt outcome and rollback fields","edge_risk":"adjacent human-gate label at right and receipt banner below"},
+    {"scene_id":"L09-02","insets_px":[65,55,45,75],"focus":"receipt, gate, and evaluation","edge_risk":"neighboring decorative borders"},
+    {"scene_id":"L09-04","insets_px":[170,145,70,190],"focus":"Stage rung and human review","edge_risk":"cut adjacent rung label at top and receiver panel below"},
+    {"scene_id":"L10-03","insets_px":[170,80,70,120],"focus":"Execute gate","edge_risk":"neighboring rung at left and bottom"},
+    {"scene_id":"L11-02","insets_px":[130,55,60,220],"focus":"agent roles and Mission Control","edge_risk":"public-proof panel at lower edge"},
+    {"scene_id":"L12-03","insets_px":[150,40,190,180],"focus":"receipt artifact and approval fields","edge_risk":"adjacent human-gate label at right and receipt banner below"},
+    {"scene_id":"L13-02","insets_px":[80,45,160,300],"focus":"Map, Instrument, and Negotiate","edge_risk":"next label begins with a clipped A at right and partial lower cards"},
+    {"scene_id":"L14-03","insets_px":[390,290,220,230],"focus":"controls and review instruments","edge_risk":"partial agent-role banners above, first icon at left, and raw-proof panel below"},
+    {"scene_id":"L14-04","insets_px":[170,240,70,190],"focus":"Route rung and rule owner","edge_risk":"Stage and adjacent rung fragments"},
+    {"scene_id":"L15-04","insets_px":[65,55,45,75],"focus":"source and human gate","edge_risk":"neighboring decorative borders"},
+    {"scene_id":"L16-04","insets_px":[80,45,160,300],"focus":"Map, Instrument, and Negotiate","edge_risk":"next label at right and partial lower panels"},
+    {"scene_id":"L16-05","insets_px":[170,200,70,110],"focus":"Route and rollback readiness","edge_risk":"adjacent ladder rung at top and left"}
+  ]
+}

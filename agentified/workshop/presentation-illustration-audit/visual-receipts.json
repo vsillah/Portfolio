@@ -1,0 +1,3228 @@
+{
+  "schema_version": 2,
+  "source_commit": "f0931f3860e042507ee5aba83f220eb57cfd3eb5",
+  "frames": [
+    {
+      "scene_id": "L01-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-01.png",
+      "frame_sha256": "03ae79eb53a7f3f0bd6c8f8fb516a7f1c8a1d8b47434880ab3acebd88d7aceae",
+      "visual_family": "L01-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A suggestion needs a source.",
+        "Harbor Learning Circle"
+      ],
+      "accessibility_text": "Three records feed one brief. Visual: Attendance, availability, and room notes tied to a blank brief.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Three records feed one brief.",
+      "brief_sha256": "29badc89abfca668d5498b6a4ab2871cb647f3a8508f07cfe94b636578735bb4"
+    },
+    {
+      "scene_id": "L01-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-02.png",
+      "frame_sha256": "b2e8df3b154028e0d00936363f64c218c105ae0e2c31b4780a502a462adf1562",
+      "visual_family": "L01-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Give Morgan one scoped job.",
+        "Prepare one brief",
+        "Morgan decides"
+      ],
+      "accessibility_text": "The agent prepares; Morgan owns the choice. Visual: Job slip beside the still-open brief.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The agent prepares; Morgan owns the choice.",
+      "brief_sha256": "a3bf842408d9566033e74a6430d9508394ab9041179816a3408d38a2ddfe7f65"
+    },
+    {
+      "scene_id": "L01-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-03.png",
+      "frame_sha256": "528246867de87416047f810052e0632e54e9c17b3d97ae4bbec4b2d474ce243c",
+      "visual_family": "L01-operating-artifact:boundary:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "The brief stops at Morgan.",
+        "Draft only",
+        "No external action"
+      ],
+      "accessibility_text": "Preparation cannot book, announce, or spend. Visual: Three closed action doors beyond the draft.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Preparation cannot book, announce, or spend.",
+      "brief_sha256": "fca3e81dcacd0f99c098e1973e61734153e79eb12f350c28420d29d3ddd64da3"
+    },
+    {
+      "scene_id": "L01-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-04.png",
+      "frame_sha256": "8aadcab8e66da13febed93f6fcdcd7d73928465330df9c3c8deb0f9193768286",
+      "visual_family": "L01-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          900,
+          350,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "nine receipt fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
+      },
+      "display_copy": [
+        "The receipt follows every action.",
+        "Receipt fields",
+        "Human gate"
+      ],
+      "accessibility_text": "Evidence travels with work. Visual: Approved first-receipt plate focused on its nine fields.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Evidence travels with work.",
+      "brief_sha256": "4ca27dc4ef35f9c032c48b996339d890e4a8c10b93297b5dae1b4b93067fa52a"
+    },
+    {
+      "scene_id": "L01-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-05.png",
+      "frame_sha256": "47202722ff0ecb97b184053d79bcb96430c512d09aa8fd002e2f6f176c201cdd",
+      "visual_family": "L01-operating-artifact:hold:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Missing source means hold.",
+        "Source missing",
+        "Decision held"
+      ],
+      "accessibility_text": "One absent source blocks approval. Visual: Unfilled evidence slot on the brief.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "One absent source blocks approval.",
+      "brief_sha256": "96f2629e942031b6528ffa372ebf23ad464ff72be715dc2333076762930fda0e"
+    },
+    {
+      "scene_id": "L01-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-06.png",
+      "frame_sha256": "369b243adda5cc52704a943c7924599261eca69594287a7a9d010c67246df0f5",
+      "visual_family": "L01-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose a workflow worth tracing.",
+        "Choose one job",
+        "Name its owner"
+      ],
+      "accessibility_text": "Start with a job whose result can be reviewed. Visual: Three possible workflow slips beside the source table.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Start with a job whose result can be reviewed.",
+      "brief_sha256": "ac5718f927958b8b4124a30a5ca00c3ca2a4b0027ffb412c6e1ee4c3ba361d6f"
+    },
+    {
+      "scene_id": "L01-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-07.png",
+      "frame_sha256": "ab5d59c04584162e7820a3ae336df4013f28f749f89edcba5ca56fc9f59fdcd1",
+      "visual_family": "L01-operating-artifact:worksheet:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Draft the Job and Receipt.",
+        "Job",
+        "Receipt"
+      ],
+      "accessibility_text": "A learner fills a real operating artifact. Visual: Job-and-receipt worksheet over the source table.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A learner fills a real operating artifact.",
+      "brief_sha256": "77cc355f7af19d50eb19eb04931177bdf682d46ba4a1b92216843c7ac6e2ff6d"
+    },
+    {
+      "scene_id": "L01-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-08.png",
+      "frame_sha256": "ed2a96ef7a7c4a9f5d38f1b9b67a5b8f9dbe36860521ac09ecada961afd83a04",
+      "visual_family": "L01-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the job and receipt together.",
+        "Workflow",
+        "Receipt"
+      ],
+      "accessibility_text": "The first Operating File has two useful parts. Visual: Two-tab Operating File binder over the source table.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The first Operating File has two useful parts.",
+      "brief_sha256": "87d0934918eeb322ad1fb8a11c7609d542540c1d819cea3c18b901ec94db6c92"
+    },
+    {
+      "scene_id": "L02-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-01.png",
+      "frame_sha256": "20d9ba1097f5fe2107fd242a65e38978234405ef2fcc06d001d9421d25e314a2",
+      "visual_family": "L02-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A draft is not a decision."
+      ],
+      "accessibility_text": "The brief arrives with three paths still open. Visual: Three decision folders beside a blank brief.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The brief arrives with three paths still open.",
+      "brief_sha256": "69d5e262b3b859ec05fa4e6863ecd1aac87019c39c3ef5a954c3e89364d9c620"
+    },
+    {
+      "scene_id": "L02-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-02.png",
+      "frame_sha256": "795aed268854d854882d6f7bf53b0b4f9afa080146f5af176aa9e654aa492464",
+      "visual_family": "L02-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Morgan can propose, revise, or hold.",
+        "Propose",
+        "Revise or hold"
+      ],
+      "accessibility_text": "A human owns the three-way choice. Visual: Green, amber, and red decision folders.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A human owns the three-way choice.",
+      "brief_sha256": "36556c7f28243ee0b30e366811e884bcb9d036f99a53bb6b714f490bc95e3acc"
+    },
+    {
+      "scene_id": "L02-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-03.png",
+      "frame_sha256": "958568aa553126376655319d182c5b89b1efd5aa0cf31a989f006c75adc816a7",
+      "visual_family": "L02-operating-artifact:compare:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Staff time and trust are at stake.",
+        "Staff time",
+        "Trust"
+      ],
+      "accessibility_text": "A reversible proposal still carries consequences. Visual: The marked-up folder under a time-and-trust scale.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A reversible proposal still carries consequences.",
+      "brief_sha256": "10fe5a711e65549db06bc4bebd0d51ef2b85e3bb03061f5e83107477194f7e09"
+    },
+    {
+      "scene_id": "L02-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-04.png",
+      "frame_sha256": "a0c01639e11679a24bf70a3e007afac1e27f56834615cc7f3a6bf5917a8611aa",
+      "visual_family": "L02-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          950,
+          300,
+          2100,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            65,
+            55,
+            45,
+            75
+          ],
+          "feather_px": 40,
+          "focus": "receipt, gate, and evaluation",
+          "edge_risk": "neighboring decorative borders",
+          "mask_sha256": "1e8dd3f1b37edc8c01f5bcdd44c07b9fa54b0c8a04e37f102f53f9dcbf23d57e"
+        }
+      },
+      "display_copy": [
+        "Capacity needs evidence.",
+        "Capacity",
+        "Human gate"
+      ],
+      "accessibility_text": "A recommendation rests on current records. Visual: Approved trust-layer plate focused on source and gate.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A recommendation rests on current records.",
+      "brief_sha256": "d60d100f767f34bfb199c41856cf69197c2adb3371f10281370039a017885a14"
+    },
+    {
+      "scene_id": "L02-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-05.png",
+      "frame_sha256": "bfed3e363d90939e327f6b872a9d0e69f1fda227f218b965cf9a5bef38ce7850",
+      "visual_family": "L02-operating-artifact:hold:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Conflicting evidence means hold.",
+        "Conflicting source",
+        "Morgan decides"
+      ],
+      "accessibility_text": "A polished brief can remain closed. Visual: Red hold folder beside the unresolved record.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A polished brief can remain closed.",
+      "brief_sha256": "72c6e76e4a5f5e99d5843fdeac5f15bae4b3cdfdab38fa535afddcc158868ddb"
+    },
+    {
+      "scene_id": "L02-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-06.png",
+      "frame_sha256": "8474b18d8d6fabd7dc3d1ac0b965d19ed122a139ae3eda5fd052ed772eb65b61",
+      "visual_family": "L02-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name the choice before acting.",
+        "Propose",
+        "Hold"
+      ],
+      "accessibility_text": "The learner must commit to one review posture. Visual: Three physical decision folders as an exercise.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner must commit to one review posture.",
+      "brief_sha256": "61b6f2ba8d78e76b9bad1e353ed94d33d5446b5974551dabb089b3608199697e"
+    },
+    {
+      "scene_id": "L02-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-07.png",
+      "frame_sha256": "6028aaee9bb7084b66e5169bc3f305b0407a79bc2742ee2f129a1162c73ba27e",
+      "visual_family": "L02-operating-artifact:worksheet:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the decision card.",
+        "Owner",
+        "Consequence"
+      ],
+      "accessibility_text": "Owner, consequence, and evidence share one page. Visual: Decision worksheet over the three folders.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Owner, consequence, and evidence share one page.",
+      "brief_sha256": "cca359aa6bcef3d451e16ef05a16ecce502f9bc92fd70a7f50b14800baabb96b"
+    },
+    {
+      "scene_id": "L02-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-08.png",
+      "frame_sha256": "509ab87d419bcd3eef5f61a4b39f728d40f5252b2dda6a60c12f01b85bc14812",
+      "visual_family": "L02-operating-artifact:file:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "File the decision beside the job.",
+        "Job",
+        "Decision"
+      ],
+      "accessibility_text": "The Operating File gains a decision record. Visual: Two linked folders, job and decision card.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains a decision record.",
+      "brief_sha256": "61129a9df0363bfa5f1f641c85a142580de8c5a73f289aea5d493176a96aa4dd"
+    },
+    {
+      "scene_id": "L03-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-01.png",
+      "frame_sha256": "0ffeefc2ed31f1d1676c988f3b8a3bc257772d14e2b04eeff8e35297ff3536e6",
+      "visual_family": "L03-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Can Morgan defend room capacity?"
+      ],
+      "accessibility_text": "Twenty chairs need a current source. Visual: Seating plan tied to local records by a magnifier.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Twenty chairs need a current source.",
+      "brief_sha256": "03860b26d402f1a93d189f6ed5dc58daa053edd406ec0658b3e96a2d206a134c"
+    },
+    {
+      "scene_id": "L03-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-02.png",
+      "frame_sha256": "d7cdb97de769162bd07c089e9f6fb172f00c2020809aff5d17b80fdccf469252",
+      "visual_family": "L03-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          900,
+          350,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "agent, source, and artifact fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
+      },
+      "display_copy": [
+        "Show how the claim was prepared.",
+        "Claim",
+        "Source"
+      ],
+      "accessibility_text": "A trace makes the claim inspectable. Visual: Approved receipt plate focused on agent, source, and artifact.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A trace makes the claim inspectable.",
+      "brief_sha256": "06d43b7211b7adb8b50831937f58484d32cfc7ff7a5028b23a5bbd1f955f07e6"
+    },
+    {
+      "scene_id": "L03-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-03.png",
+      "frame_sha256": "3c4186132aa5e45402aee1aa88b2cfc84151779e4c7d2140a62e1699fb14b773",
+      "visual_family": "L03-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Check date and permitted use.",
+        "Current date",
+        "Permitted use"
+      ],
+      "accessibility_text": "A source needs freshness and a use boundary. Visual: Calendar and permission sheet beside the seating plan.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A source needs freshness and a use boundary.",
+      "brief_sha256": "e62ea4c2953408b3108e06350baf8cebbc1da14db7d0a9956cc5a8280f15fac0"
+    },
+    {
+      "scene_id": "L03-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-04.png",
+      "frame_sha256": "3890d257e7cf043723ddac8e91caefac68fa66a3b49e1e5edfaa4f67835e7d95",
+      "visual_family": "L03-operating-artifact:boundary:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Classify the source before use.",
+        "Use tier",
+        "Unknown means hold"
+      ],
+      "accessibility_text": "Private and public records require different handling. Visual: Four physical record sleeves around the seating plan.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Private and public records require different handling.",
+      "brief_sha256": "e18488c49ee3929e905af79706e7b4d70fcc464e5cd9832a71f7f21509d86f41"
+    },
+    {
+      "scene_id": "L03-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-05.png",
+      "frame_sha256": "33b03d00e5a811081ff7bffc678c968bd22abf0795103bc487b958a930f3f400",
+      "visual_family": "L03-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Room capacity is not staffing.",
+        "Room evidence",
+        "Staffing unknown"
+      ],
+      "accessibility_text": "One record cannot prove a different claim. Visual: Twenty-chair plan beside a blank staff availability card.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "One record cannot prove a different claim.",
+      "brief_sha256": "3033d001c2567dd2c96ddc21e6dd5e96b87cf94bec1e2b06e71e5a9455a69a48"
+    },
+    {
+      "scene_id": "L03-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-06.png",
+      "frame_sha256": "b2d1b6fc29d9448f56502a00ec2a47eb3d43b9c4635adeeac26b6bf9cba7809b",
+      "visual_family": "L03-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose one defensible source.",
+        "Select a record",
+        "Explain its use"
+      ],
+      "accessibility_text": "The learner selects evidence for the claim. Visual: Magnifier poised over candidate records.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner selects evidence for the claim.",
+      "brief_sha256": "fff14c132b02638b6afb43b6bbfbf1674910d4a1d834c76ac1f00efab1590217"
+    },
+    {
+      "scene_id": "L03-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-07.png",
+      "frame_sha256": "9b2b57387b74ab3e40e24bd10b19af9ef3351538afb66d331e0342df0e98ef01",
+      "visual_family": "L03-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Trace the claim to its source.",
+        "Citation",
+        "Reviewer"
+      ],
+      "accessibility_text": "The learner records citation and reviewer. Visual: Source-trace worksheet over the seating plan.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records citation and reviewer.",
+      "brief_sha256": "8d9f625751e586b2246ed80b0a270754a2f6994d713ddc0121290c8c70b397f1"
+    },
+    {
+      "scene_id": "L03-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-08.png",
+      "frame_sha256": "204ac59092385655c168853dd375f6f1c2b0e1edac5e31e3bfe900f1adba7eab",
+      "visual_family": "L03-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the trace with the file.",
+        "Trace",
+        "Source"
+      ],
+      "accessibility_text": "A durable claim retains its evidence. Visual: Operating File binder with trace and source sleeve.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A durable claim retains its evidence.",
+      "brief_sha256": "438e226e07d64fd3fcc19620045c6d6d35f09cde5458a3aa0fb9930f3f574597"
+    },
+    {
+      "scene_id": "L04-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-01.png",
+      "frame_sha256": "515ebac3045767cb598db6923f7f32257b46fa5e998ae24f1c41aba96c31a544",
+      "visual_family": "L04-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A correction is not yet memory."
+      ],
+      "accessibility_text": "Feedback enters a review path. Visual: Blank correction card before five archival trays.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Feedback enters a review path.",
+      "brief_sha256": "d4a0bf9b4d91fac92f7559054f99ac9fe640d762264b4c08c8d3f2257f00e722"
+    },
+    {
+      "scene_id": "L04-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-02.png",
+      "frame_sha256": "2c77497dadb3da472f1fc4449066865c59b52f8130c86b776b502ba6073127e7",
+      "visual_family": "L04-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Move feedback through review.",
+        "Proposal only",
+        "Human approval"
+      ],
+      "accessibility_text": "A proposal waits before the locked archive. Visual: Source, event, proposal, approval, and memory trays.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A proposal waits before the locked archive.",
+      "brief_sha256": "3aefd372ae3c977519494a5caae57f3a828cbf74d026d70530b75999472d6986"
+    },
+    {
+      "scene_id": "L04-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-03.png",
+      "frame_sha256": "d9e2e4aaaa225e6a3ea5dd4ff0868d6bc238f31349c41f1f194d529deecd79c6",
+      "visual_family": "L04-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Reject the unsupported inference.",
+        "Narrow correction",
+        "Inference rejected"
+      ],
+      "accessibility_text": "A narrow correction survives; speculation does not. Visual: Proposal envelope separated from a rejected inference card.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A narrow correction survives; speculation does not.",
+      "brief_sha256": "0a8613e4f71c085fb572c4299cfdd0f657cd87b7d0445588308921bb0dadc427"
+    },
+    {
+      "scene_id": "L04-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-04.png",
+      "frame_sha256": "78a6b81702b6902811d40380738b36388003b77f7e8a0dadcf20b1fb3961fa26",
+      "visual_family": "L04-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          650,
+          500,
+          2300,
+          1600
+        ],
+        "crop_safety": {
+          "insets_px": [
+            320,
+            70,
+            300,
+            220
+          ],
+          "feather_px": 40,
+          "focus": "Signals plate",
+          "edge_risk": "Momentum and Alignment labels at opposite edges and partial lower ring",
+          "mask_sha256": "c26b3758de41f56a410d08f3454a23bbdb9b87a4469f2a2e0b5aebaafeabb983"
+        }
+      },
+      "display_copy": [
+        "Keep messaging outside the route.",
+        "Assignment",
+        "No message"
+      ],
+      "accessibility_text": "An assignment path does not authorize sending. Visual: Approved Amina plate focused on the governed gate.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "An assignment path does not authorize sending.",
+      "brief_sha256": "85a1a9168cb8df20bcdb1c7fe01fe7be0719aed0f674d49e3f4ad7f5d305fe64"
+    },
+    {
+      "scene_id": "L04-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-05.png",
+      "frame_sha256": "2ec5b03c6f66786e5b81b00f924b201821f21397531a889c1953a5ad0109f1a3",
+      "visual_family": "L04-operating-artifact:boundary:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Use a written routing rule.",
+        "Written rule",
+        "Human fallback"
+      ],
+      "accessibility_text": "Without a rule, hand the work to a person. Visual: Empty rule tray beside the human seal.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Without a rule, hand the work to a person.",
+      "brief_sha256": "e95ae008ee5737bd09bb2daf2cc9165f25a3703fbd1651d37f8f4921695838e3"
+    },
+    {
+      "scene_id": "L04-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-06.png",
+      "frame_sha256": "a67dfc0f967b18a0ea3132fc6f1f8a249cdec550a1aa5a2423350b4081c446a7",
+      "visual_family": "L04-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose what may persist.",
+        "Keep correction",
+        "Reject inference"
+      ],
+      "accessibility_text": "The learner separates correction from inference. Visual: Two correction slips before the closed archive.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner separates correction from inference.",
+      "brief_sha256": "089b853004c7158d8600e4cae69a106da9ab1b4283ebb885230f7fcd26bd5708"
+    },
+    {
+      "scene_id": "L04-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-07.png",
+      "frame_sha256": "90a448b74b769a5676d33d03cbde36e73cfa0080c497cb3f2f4fb7b3f64942c7",
+      "visual_family": "L04-operating-artifact:worksheet:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Record the memory proposal.",
+        "Source",
+        "Owner"
+      ],
+      "accessibility_text": "The learner names source, owner, and status. Visual: Governed-memory worksheet before the lockbox.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner names source, owner, and status.",
+      "brief_sha256": "15f8466cc77e1fc615cc272510c719c33923777c3d0ab63cefe2030c16570c7e"
+    },
+    {
+      "scene_id": "L04-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-08.png",
+      "frame_sha256": "6709447cc5eeed9534b2e6b1e0c2e3168f9c8e65c8360ba6655914b09646adf2",
+      "visual_family": "L04-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "File memory and route together.",
+        "Memory",
+        "Route"
+      ],
+      "accessibility_text": "The Operating File gains two governed records. Visual: Memory box and routing envelope in one binder.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains two governed records.",
+      "brief_sha256": "c76b2b847953b05bb3ce2666ade29e4e73b9cc09153d7b6c72b39f864506148f"
+    },
+    {
+      "scene_id": "L05-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-01.png",
+      "frame_sha256": "ae17ecedc7aed89fc4b46f6b2b1ad24e521d451cde78005b857bdd3a712bdf74",
+      "visual_family": "L05-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "One request needs a visible path."
+      ],
+      "accessibility_text": "A new teammate can follow the work. Visual: Request card, compass, source lens, draft, receipt, and owner.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A new teammate can follow the work.",
+      "brief_sha256": "38c85bdda9a49bc6f1a204bc2e7e8f1adac81d7f1376f1f0af58c94d8ea7e335"
+    },
+    {
+      "scene_id": "L05-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-02.png",
+      "frame_sha256": "1a788dec496d9f26ce55b9d98a819900aef25308eafd1e6938410beb6ba35322",
+      "visual_family": "L05-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Route the request to Morgan.",
+        "Request enters",
+        "Morgan reviews"
+      ],
+      "accessibility_text": "The path ends at a human decision. Visual: Physical stations across the bounded operating lane.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The path ends at a human decision.",
+      "brief_sha256": "eb558be1f037929a9055db6c5b089c1bc0afcdb3a6418b2499cc27d8c7521f3c"
+    },
+    {
+      "scene_id": "L05-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-03.png",
+      "frame_sha256": "4c78e31081739a1826443a06d5adea9642569b24ce8c5627c74028656873ed0a",
+      "visual_family": "L05-operating-artifact:hold:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Mark each unknown handoff.",
+        "Unknown handoff",
+        "Mark the gap"
+      ],
+      "accessibility_text": "A gap is visible instead of guessed away. Visual: Missing station on the physical route.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A gap is visible instead of guessed away.",
+      "brief_sha256": "873d3ff87fc4d9ddb5fd64acd6f468432f8647ee3b6c6e32252a292f5c4dafe1"
+    },
+    {
+      "scene_id": "L05-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-04.png",
+      "frame_sha256": "4ca5d14a76cc3df09dbad25d8a569270cc6b105104bd9dbebe2721145dd3e081",
+      "visual_family": "L05-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          100,
+          300,
+          2100,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            100,
+            40,
+            130,
+            100
+          ],
+          "feather_px": 40,
+          "focus": "Open Brain and Harness plates",
+          "edge_risk": "third panel starts at right edge",
+          "mask_sha256": "9113573c21defec0e2c8e7a329a74b584e62a19c3e11519a50e9fd7e12afc74c"
+        }
+      },
+      "display_copy": [
+        "Connect job, source, and receipt.",
+        "Source",
+        "Receipt"
+      ],
+      "accessibility_text": "The stack must carry evidence through the path. Visual: Approved Portfolio stack focused on controls and corpus.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The stack must carry evidence through the path.",
+      "brief_sha256": "c3038d52f8c72eb485ac423b2e263bead230231d8b0550cc5f60af8a87eefe1e"
+    },
+    {
+      "scene_id": "L05-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-05.png",
+      "frame_sha256": "0749b4ead1c344b763453d51e78e21805b019df9f17fbde0e3fcbb6e42562b0e",
+      "visual_family": "L05-operating-artifact:boundary:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep spend and public proof closed.",
+        "Spend closed",
+        "Proof closed"
+      ],
+      "accessibility_text": "Drafting authority does not release external action. Visual: Red boundary enclosing the operating route.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Drafting authority does not release external action.",
+      "brief_sha256": "8b3d922b01cb553c737816d8909146d0bdec0e0e0b05c8f2d236518fa8a058e2"
+    },
+    {
+      "scene_id": "L05-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-06.png",
+      "frame_sha256": "39457a3658225a8d2d290f8a664a2783ade9eacfcc078942c96341536fdd8f92",
+      "visual_family": "L05-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Circle the first gap.",
+        "Find a gap",
+        "Name its owner"
+      ],
+      "accessibility_text": "The learner chooses one missing station. Visual: Magnifier over the route map.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner chooses one missing station.",
+      "brief_sha256": "54a817268f68924f5a7ff38a582ce187c51552e7b88af6c2e0b28e732a9236b3"
+    },
+    {
+      "scene_id": "L05-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-07.png",
+      "frame_sha256": "a8f8183afccea6c8c66f98f2a6447f82ab2095ed45876efe938ce559027bbc00",
+      "visual_family": "L05-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Draw the operating map.",
+        "Route",
+        "Handoff"
+      ],
+      "accessibility_text": "The learner connects route, source, and handoff. Visual: Operating-map worksheet over the physical stations.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner connects route, source, and handoff.",
+      "brief_sha256": "3d1cddc382d9dbcbc9def146f39cf569c57445a9fe64fd80cf5f598824f93f91"
+    },
+    {
+      "scene_id": "L05-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-08.png",
+      "frame_sha256": "5bd97a767c9ab0dc1b398f8601f65662f6f1f8d1286b83da6e7d6982075c10f1",
+      "visual_family": "L05-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the map in the file.",
+        "Map",
+        "Next gate"
+      ],
+      "accessibility_text": "The Operating File gains one readable path. Visual: Map sheet folded into a labeled binder.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains one readable path.",
+      "brief_sha256": "942f653694459630a64791224ab8178af8354111d2f02ade2a92446bd4744945"
+    },
+    {
+      "scene_id": "L06-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-01.png",
+      "frame_sha256": "8e921d1ffb11638533c84241c4df746a90b729e25983fa42c4a6504846fac653",
+      "visual_family": "L06-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A role needs a permission slip."
+      ],
+      "accessibility_text": "Preparation tools stop before execution. Visual: Lens, pencil, archive, and handoff envelope beside a gate.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Preparation tools stop before execution.",
+      "brief_sha256": "c8da06d43ec0f5ee0900de4961ca94386b8d2ad1c9b7ddcc5a1dd08c8e01bbf7"
+    },
+    {
+      "scene_id": "L06-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-02.png",
+      "frame_sha256": "100b52343e4dd8d2b158b0fff1406b2a95ad42dc119b301e7213947462febe1b",
+      "visual_family": "L06-operating-artifact:boundary:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name the role boundary.",
+        "Prepare only",
+        "Execution closed"
+      ],
+      "accessibility_text": "Scope, ceiling, and expiry shape permission. Visual: Permission slip beside a closed key.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Scope, ceiling, and expiry shape permission.",
+      "brief_sha256": "31a0e2a4f26f8019f07b85f4748f30a76c52d145a81203225f54582e5d16d182"
+    },
+    {
+      "scene_id": "L06-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-03.png",
+      "frame_sha256": "3d8dcec08c8da382e6b3109a3e241c002da6fb1934129397e5ca8afe1c54cbfa",
+      "visual_family": "L06-operating-artifact:plate:bottom",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          3050,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            190,
+            70,
+            140
+          ],
+          "feather_px": 40,
+          "focus": "Recommend and Prepare boundary",
+          "edge_risk": "neighboring blank ladder rung at top and bottom",
+          "mask_sha256": "b0b95da87279cd324eea3faa79ec0c439d222b0535ad4ea672b09d14d011aafa"
+        }
+      },
+      "display_copy": [
+        "Source check before action.",
+        "Prepare",
+        "Human gate"
+      ],
+      "accessibility_text": "The role can prepare a receipt, not execute. Visual: Approved authority ladder focused on the Prepare rung.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The role can prepare a receipt, not execute.",
+      "brief_sha256": "b4d862d5becd8806cf8307acad2e800ae1711e04897ca5da547c5b0f929d79e5"
+    },
+    {
+      "scene_id": "L06-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-04.png",
+      "frame_sha256": "7d8c5bcbab401bfbc82f2257b2b1d3308713024beea5edade43a107292bc9c59",
+      "visual_family": "L06-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Retire work that has lost proof.",
+        "Current proof",
+        "Retire or revise"
+      ],
+      "accessibility_text": "A useful-looking task can outlive its evidence. Visual: Weather-summary slip beside a review seal.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A useful-looking task can outlive its evidence.",
+      "brief_sha256": "5c7a55cb93fc0b50c8b9943e2338f4062c9c72f8a3f71d9da63b56a1de602664"
+    },
+    {
+      "scene_id": "L06-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-05.png",
+      "frame_sha256": "0ca6c9ec6fa40f59bc11f367ce013a014d737ea6c67b2b3d6e98e0d4f10bce45",
+      "visual_family": "L06-operating-artifact:handoff:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Send proposals to a human owner.",
+        "Proposal",
+        "Human owner"
+      ],
+      "accessibility_text": "A documented disposition completes the handoff. Visual: Envelope crosses the gate to the owner token.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A documented disposition completes the handoff.",
+      "brief_sha256": "e9d7cafc6c2b8cc9b27b78d4141c66e03dc10f081e3055e1507d4c3ba295b085"
+    },
+    {
+      "scene_id": "L06-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-06.png",
+      "frame_sha256": "41d6331a958e7a4e8fb9e8f6944bca860b89a674e8ae1152bfbd89030026f3cf",
+      "visual_family": "L06-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Point to the exact boundary.",
+        "Permitted work",
+        "Closed action"
+      ],
+      "accessibility_text": "The learner identifies where authority stops. Visual: Brass gate and key as the exercise target.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner identifies where authority stops.",
+      "brief_sha256": "33af660cac564f0eaf8350d2e16ac14d93dad2d24e5be7402f29bf071e8cee55"
+    },
+    {
+      "scene_id": "L06-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-07.png",
+      "frame_sha256": "bba2d0d159daa1a887237720b2ed4775a5a9b174059a47ac95c18a31a1648949",
+      "visual_family": "L06-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the permission slip.",
+        "Scope",
+        "Escalation"
+      ],
+      "accessibility_text": "The learner records scope and escalation. Visual: Permission worksheet over the sealed gate.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records scope and escalation.",
+      "brief_sha256": "0e324bc97f5beccfa4c4eb53e74c77ebe40f4720ec2d59d2f53a53b071d16d57"
+    },
+    {
+      "scene_id": "L06-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-08.png",
+      "frame_sha256": "ab97945b495549c79193f7e5446de39f393e5caa7ddcbb05e185e4b8b90e4f20",
+      "visual_family": "L06-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the slip and cull together.",
+        "Permission",
+        "Cull"
+      ],
+      "accessibility_text": "The Operating File records permission and retirement. Visual: Permission slip and cull sheet in one folder.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File records permission and retirement.",
+      "brief_sha256": "8f3c2a8a1f3d9f41dba933e37e6b5d286a067014ece3ab58cb53253356241bbf"
+    },
+    {
+      "scene_id": "L07-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-01.png",
+      "frame_sha256": "7dc200d9bc72976e66ab0373e426611b1ce638ec528b65fc196b648b115c863a",
+      "visual_family": "L07-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A polished draft can hide a bad claim."
+      ],
+      "accessibility_text": "The staffing gap blocks the requirements sheet. Visual: Draft folder, missing source, and team tokens.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The staffing gap blocks the requirements sheet.",
+      "brief_sha256": "b827351c510bbddb61121385328a4930839aac26f47effdfc735709e769c0e3b"
+    },
+    {
+      "scene_id": "L07-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-02.png",
+      "frame_sha256": "e07c5502967130350a0ae10f4b36f950675238efb4a3fb8a7efd7fd2e0849e57",
+      "visual_family": "L07-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Specify the job before assigning it.",
+        "Outcome",
+        "Acceptance tests"
+      ],
+      "accessibility_text": "Outcome, tests, and reversal shape the work. Visual: Requirements sheet beside the small pod.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Outcome, tests, and reversal shape the work.",
+      "brief_sha256": "5d698c435604b49bf3a005d9db3d3c7db0a2ab7f7734e44c9154f79e671a1d63"
+    },
+    {
+      "scene_id": "L07-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-03.png",
+      "frame_sha256": "d41556b823872fbfcf230e37a6f1ddde0df3a119daa0a8a982dacb12af219511",
+      "visual_family": "L07-operating-artifact:hold:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A failed test stops the draft.",
+        "Test failed",
+        "Draft withdrawn"
+      ],
+      "accessibility_text": "Morgan withdraws unsupported staffing claims. Visual: Red block on the draft folder.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Morgan withdraws unsupported staffing claims.",
+      "brief_sha256": "c284e8c429bed72d7e9ae6f514f0354fd36b0720a576b578142856690339a4e8"
+    },
+    {
+      "scene_id": "L07-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-04.png",
+      "frame_sha256": "af321676d370f2d63a18cf12b390513c05973f6d569f35d98b977afbb16c48a4",
+      "visual_family": "L07-operating-artifact:sequence:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Give the pod one outcome.",
+        "One outcome",
+        "Morgan owns it"
+      ],
+      "accessibility_text": "Clear handoffs keep a small team accountable. Visual: Four worker tokens around one shared job.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Clear handoffs keep a small team accountable.",
+      "brief_sha256": "6a06b829ce5284f7661c3517d1de04e02edb7636a71a200b900248007c1784fb"
+    },
+    {
+      "scene_id": "L07-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-05.png",
+      "frame_sha256": "438954e807bd6d0f9a2c1636a2b01991af471f051d83e37ab6ca96cb6416132b",
+      "visual_family": "L07-operating-artifact:plate:middle",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          1750,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            240,
+            70,
+            190
+          ],
+          "feather_px": 40,
+          "focus": "Route rung and receiver path",
+          "edge_risk": "Stage and adjacent rung fragments",
+          "mask_sha256": "9e49b7a673955ad870a0d145d1e5d48bf74c2bece927ac9afb126fe36ad73172"
+        }
+      },
+      "display_copy": [
+        "Name each receiver.",
+        "Handoff",
+        "Morgan"
+      ],
+      "accessibility_text": "Source checker, drafter, and coordinator pass work to Morgan. Visual: Approved authority ladder focused on the Route rung.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Source checker, drafter, and coordinator pass work to Morgan.",
+      "brief_sha256": "01460f28c48918f2964fec521c3e0b79b7fa07e5fe6ac80ed894cf95b2c88799"
+    },
+    {
+      "scene_id": "L07-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-06.png",
+      "frame_sha256": "00096efec8b571a379fe2f2f079c0ad5229aedb780ab5808b474a726bcd2f798",
+      "visual_family": "L07-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose the receiver.",
+        "Next receiver",
+        "Block owner"
+      ],
+      "accessibility_text": "The learner names who must take the next handoff. Visual: One open team position beside the pod.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner names who must take the next handoff.",
+      "brief_sha256": "a7f35ad1c8500d387e82edc7385f0ffe6098090c2c6f94c99623ae2556e4b73e"
+    },
+    {
+      "scene_id": "L07-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-07.png",
+      "frame_sha256": "1e364e4fa1924f6ef89d50a0913788ed3f61fa47d59dd55e1a9f31034acb052e",
+      "visual_family": "L07-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the PRD and pod.",
+        "Test",
+        "Handoff"
+      ],
+      "accessibility_text": "The learner records tests and team handoffs. Visual: Requirements worksheet over the pod.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records tests and team handoffs.",
+      "brief_sha256": "c0c96729c0d73e33c569be3a2d53e31e8bc28e112adfb0288e029f7a480c540a"
+    },
+    {
+      "scene_id": "L07-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-08.png",
+      "frame_sha256": "deab7f6b7757f72db8cd31448de22f99d87546721fcef6487fcedc6bae8f343f",
+      "visual_family": "L07-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the spec with the team.",
+        "PRD",
+        "Pod"
+      ],
+      "accessibility_text": "The Operating File gains a job spec and pod map. Visual: PRD sheet and team map in one binder.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains a job spec and pod map.",
+      "brief_sha256": "0888ab980f36c87395a61ef5e4b963b90741680c3ed95cf88388f9bd765500f8"
+    },
+    {
+      "scene_id": "L08-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-01.png",
+      "frame_sha256": "65132c2fd5298ad0bd8eb2d73c51621fe21807697d2b6b7a592d1508a18b4add",
+      "visual_family": "L08-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A handoff must be testable."
+      ],
+      "accessibility_text": "A sealed payload passes between accountable people. Visual: Handoff envelope between two hands and test cards.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A sealed payload passes between accountable people.",
+      "brief_sha256": "5cd761f7dae1fa3a9f7d3b54de45f2a7c17711985aac7e876cd4288ed9d9ef25"
+    },
+    {
+      "scene_id": "L08-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-02.png",
+      "frame_sha256": "394b7c21aba4299d590d7cce88c58bd5140727bfa5308612f0bc51eb2968bc82",
+      "visual_family": "L08-operating-artifact:detail:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Agree on payload and rejection.",
+        "Payload",
+        "Reject rule"
+      ],
+      "accessibility_text": "Both sides know what passes and what fails. Visual: Contract sheet beneath the sealed envelope.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Both sides know what passes and what fails.",
+      "brief_sha256": "d2f604651ede98354299b92113a652c4316a14b04ff1ff6d990058e8385562ad"
+    },
+    {
+      "scene_id": "L08-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-03.png",
+      "frame_sha256": "fb9ee5ec828b6dea4d79a93c1b742e18c223d509451e2aa734c61dcdd9e08986",
+      "visual_family": "L08-operating-artifact:hold:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Reject the unsupported claim.",
+        "Staffing claim",
+        "Morgan receives hold"
+      ],
+      "accessibility_text": "The receiving person gets a useful hold reason. Visual: Red test card beside the receiver hand.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The receiving person gets a useful hold reason.",
+      "brief_sha256": "c5ae45911d7f07afda95293dc8be86b5761f2c7f8c22c9f3f1f644e09b502ca4"
+    },
+    {
+      "scene_id": "L08-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-04.png",
+      "frame_sha256": "713e1b99ea394ccbac1257c4c4734ebbf86bef73dfffb7011bb20e444fc07730",
+      "visual_family": "L08-operating-artifact:sequence:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Human review follows evaluation.",
+        "Evaluate",
+        "Human sample"
+      ],
+      "accessibility_text": "A test result cannot promote itself. Visual: Green, amber, and red cases before a human seal.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A test result cannot promote itself.",
+      "brief_sha256": "0b022480d79cc8bc7bfaf3d62bd7934342da92bc8afd90bdeca22e646c8b1e75"
+    },
+    {
+      "scene_id": "L08-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-05.png",
+      "frame_sha256": "9e14616d8b845e6b6ee0b40c2b9ea21066c5398ccaa375954ba8812e108af2ea",
+      "visual_family": "L08-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          900,
+          350,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "receipt outcome and rollback fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
+      },
+      "display_copy": [
+        "Three cases are not production proof.",
+        "Test cases",
+        "No promotion"
+      ],
+      "accessibility_text": "A test set reveals behavior without release authority. Visual: Approved receipt plate focused on outcome and rollback.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A test set reveals behavior without release authority.",
+      "brief_sha256": "460bc4a2f71ba4bca1829e81b53a25d839945f38eed8d6e7b70f0d956a881443"
+    },
+    {
+      "scene_id": "L08-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-06.png",
+      "frame_sha256": "b7afe4666b167ec9163c2c36c15b3ae068a1576e0567c8e3a00c5df777135f16",
+      "visual_family": "L08-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Find the hidden handoff failure.",
+        "Find the failure",
+        "Name the owner"
+      ],
+      "accessibility_text": "The learner chooses a rejection path. Visual: Amber card in the set of test cases.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner chooses a rejection path.",
+      "brief_sha256": "fadb0770b0cf7548547229314dc4c64967aac5074ee6798109cf593193bac5d1"
+    },
+    {
+      "scene_id": "L08-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-07.png",
+      "frame_sha256": "1f487d325ee1ab4afd5e31df5ad90a9653e3c907598e7cbc3f510e6789a50c81",
+      "visual_family": "L08-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the handoff contract.",
+        "Precondition",
+        "Rejection"
+      ],
+      "accessibility_text": "The learner records preconditions and rejection. Visual: Handoff worksheet beneath the envelope.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records preconditions and rejection.",
+      "brief_sha256": "d66102db6043b1a601c3031df0b5c73e7e8ce882eab1e49a1e95bb374af6133e"
+    },
+    {
+      "scene_id": "L08-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-08.png",
+      "frame_sha256": "539204587f9617d42fa7d13ab81dabe9d935c1daaf0893fd8ff6b7f208687bf3",
+      "visual_family": "L08-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep contract and evaluation together.",
+        "Contract",
+        "Evaluation"
+      ],
+      "accessibility_text": "The Operating File joins the agreement to its tests. Visual: Contract and case cards filed together.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File joins the agreement to its tests.",
+      "brief_sha256": "bcc13218a56953bfe192fbc19ad52364d461b7d78864cf7e3f98f432955deb7f"
+    },
+    {
+      "scene_id": "L09-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-01.png",
+      "frame_sha256": "a9ef0d7eacf8143e89ec8803d62a3b3e8202ef3a19c94640051360bb66273ad9",
+      "visual_family": "L09-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Count supported work, not drafts."
+      ],
+      "accessibility_text": "One of three folders has a defensible source. Visual: Supported, held, and wrong drafts beside a scale.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "One of three folders has a defensible source.",
+      "brief_sha256": "50234f29154b68fcce599cd4a036c98ff76e09896ef985ada25b8496a9e387d7"
+    },
+    {
+      "scene_id": "L09-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-02.png",
+      "frame_sha256": "75e1a6a752ff710b3203d96a9ff7716ce82af4681ee4c69f670ca64ec3a436b5",
+      "visual_family": "L09-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          950,
+          300,
+          2100,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            65,
+            55,
+            45,
+            75
+          ],
+          "feather_px": 40,
+          "focus": "receipt, gate, and evaluation",
+          "edge_risk": "neighboring decorative borders",
+          "mask_sha256": "1e8dd3f1b37edc8c01f5bcdd44c07b9fa54b0c8a04e37f102f53f9dcbf23d57e"
+        }
+      },
+      "display_copy": [
+        "Measure the path to authority.",
+        "Evidence",
+        "Authority"
+      ],
+      "accessibility_text": "Activity alone is not a trusted outcome. Visual: Approved trust-layer plate focused on the gate and proof.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Activity alone is not a trusted outcome.",
+      "brief_sha256": "8bed4417d19ce4641e547a1ef5635082b6d058eed8ea4e6d0345b2668cc865ce"
+    },
+    {
+      "scene_id": "L09-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-03.png",
+      "frame_sha256": "1169935cd8f925161cb9f0ab8ad3b7f9f7311cca59c9a49e048c149f5518811a",
+      "visual_family": "L09-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name a measure and its decider.",
+        "Measure",
+        "Decision"
+      ],
+      "accessibility_text": "A number matters when it changes a choice. Visual: Brass scale beside the human review token.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A number matters when it changes a choice.",
+      "brief_sha256": "4ebd3630fcfc55272a8db7fb295c2062709f9b205decf0f25f4857ab0bab145b"
+    },
+    {
+      "scene_id": "L09-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-04.png",
+      "frame_sha256": "c3b9bf560f4440c9a2925589537ac5c0b88b397a702560c5a174b8dbb0de1f8d",
+      "visual_family": "L09-operating-artifact:plate:top",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          1050,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            145,
+            70,
+            190
+          ],
+          "feather_px": 40,
+          "focus": "Stage rung and human review",
+          "edge_risk": "cut adjacent rung label at top and receiver panel below",
+          "mask_sha256": "4f25282cba490bc5615473aee26538c054b50e5c4b3bc029efba4453f74c3145"
+        }
+      },
+      "display_copy": [
+        "Prepare the draft for Morgan.",
+        "Prepare",
+        "Human gate"
+      ],
+      "accessibility_text": "Side effects remain behind a separate gate. Visual: Approved authority ladder focused on Stage and Execute.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Side effects remain behind a separate gate.",
+      "brief_sha256": "e0b2602a19dfcf618279348f55b5098af7c9a88fd4c6b2a7b00c6bf769ebfb96"
+    },
+    {
+      "scene_id": "L09-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-05.png",
+      "frame_sha256": "951ce2ef777700bf2e570adc274cd1dd810836a2725f502133a63f8c55d01b6a",
+      "visual_family": "L09-operating-artifact:detail:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Show uncertainty with evidence.",
+        "Evidence",
+        "Uncertainty"
+      ],
+      "accessibility_text": "A review packet carries both proof and its limits. Visual: Three draft folders weighed against sources.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A review packet carries both proof and its limits.",
+      "brief_sha256": "54d34da0ffb05f64a43b2baa113cd689e426294d0d1f3293b8f50642c271e755"
+    },
+    {
+      "scene_id": "L09-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-06.png",
+      "frame_sha256": "2c8d5dcfadc60b4f1fab2914beeb8e95d3d7d1226e22628cb1d5fd78d42f7c43",
+      "visual_family": "L09-operating-artifact:choice:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Cross out one vanity metric.",
+        "Which number helps?",
+        "Who decides?"
+      ],
+      "accessibility_text": "The learner removes a number that changes no choice. Visual: Unsupported draft outside the scale.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner removes a number that changes no choice.",
+      "brief_sha256": "b1814a7d83b0d56b39ff016a6e2d8e09121e4907bab48bc708725a1f8ab4f072"
+    },
+    {
+      "scene_id": "L09-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-07.png",
+      "frame_sha256": "8d8b38335b23879a75fb0381ab928cb43b3305126a8520db46a5bb1e2c055cbb",
+      "visual_family": "L09-operating-artifact:worksheet:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Build the metrics ladder.",
+        "Quality",
+        "Outcome"
+      ],
+      "accessibility_text": "The learner records activity and quality measures. Visual: Metrics worksheet over the evidence scale.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records activity and quality measures.",
+      "brief_sha256": "1a80a514ac5c0b480718e8162a637da66590e81ef40b81f3bb07c825bb54e130"
+    },
+    {
+      "scene_id": "L09-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-08.png",
+      "frame_sha256": "e1171e21e7c12361906214521f6d286563720ec0659c8b84d6a7fc4fbddf1c66",
+      "visual_family": "L09-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep metrics beside review.",
+        "Metrics",
+        "Review"
+      ],
+      "accessibility_text": "The Operating File joins measures to decisions. Visual: Metrics card and review note in one binder.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File joins measures to decisions.",
+      "brief_sha256": "1b51e404a5ed0a2e2c7f18f9b003e7eee932a0bdba1b0750613e4aa43bb79d23"
+    },
+    {
+      "scene_id": "L10-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-01.png",
+      "frame_sha256": "9bca1d246d5041d8db73235c0e7e4cab77433259939dc9e8faaa13dc6a1996a9",
+      "visual_family": "L10-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A recommendation cannot release money."
+      ],
+      "accessibility_text": "The spending envelope stays sealed. Visual: Recommendation brief and closed spend gate.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The spending envelope stays sealed.",
+      "brief_sha256": "64f24bb01017a9dcaa646839cf8845475a31e4ca20cbd9d8107774e954760c17"
+    },
+    {
+      "scene_id": "L10-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-02.png",
+      "frame_sha256": "67eea4947466c6fd80a67bf058dd0daaa1a5370afbb099da860ec3b95341422f",
+      "visual_family": "L10-operating-artifact:boundary:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the exact spend boundary.",
+        "Amount",
+        "Purpose"
+      ],
+      "accessibility_text": "Amount, purpose, and expiry belong together. Visual: Envelope with a bounded permission strip.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Amount, purpose, and expiry belong together.",
+      "brief_sha256": "43e67ceb212d2302022687dcb1d232d123bef09080786250209139774d3db936"
+    },
+    {
+      "scene_id": "L10-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-03.png",
+      "frame_sha256": "beca1283fd816611b2dea0c5656998f5bb97600345d4c7540fb1d9476c2805b0",
+      "visual_family": "L10-operating-artifact:plate:top",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          250,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            80,
+            70,
+            120
+          ],
+          "feather_px": 40,
+          "focus": "Execute gate",
+          "edge_risk": "neighboring rung at left and bottom",
+          "mask_sha256": "02972479505b7f261f694edb855ff88e9613968d1f2f2111f7cef6a897d9a553"
+        }
+      },
+      "display_copy": [
+        "Changed terms need new review.",
+        "Recommend",
+        "Execute only after approval"
+      ],
+      "accessibility_text": "A recommendation stays separate from execution. Visual: Approved authority ladder focused on Recommend and Execute.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A recommendation stays separate from execution.",
+      "brief_sha256": "a1c64722933a4be6d84821e46a17d82a840950c8c585ba0bc70ae6695a112353"
+    },
+    {
+      "scene_id": "L10-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-04.png",
+      "frame_sha256": "18e834ac04298042dd20d7c3cb68e04994667fc87c51c03e6cfa35a4fcb5780b",
+      "visual_family": "L10-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Offer options before a decision.",
+        "Options",
+        "Reversibility"
+      ],
+      "accessibility_text": "The brief shows choices and reversibility. Visual: Recommendation sheet beside the sealed envelope.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The brief shows choices and reversibility.",
+      "brief_sha256": "43bead4c697305b14f19902cf81ce07c338d2e44d68b8a1d9556c1b1212ca5a9"
+    },
+    {
+      "scene_id": "L10-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-05.png",
+      "frame_sha256": "286013169f8458c1875ae7dfaaedb7b20d68d3abb0a30c6edf32e844106232c6",
+      "visual_family": "L10-operating-artifact:hold:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Hold print spending separately.",
+        "Session choice",
+        "Spend hold"
+      ],
+      "accessibility_text": "A session choice does not approve a purchase. Visual: Two separate envelopes and one closed money gate.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A session choice does not approve a purchase.",
+      "brief_sha256": "73cbfe5d66bf0236701d1c1fc3ab8c264b85735526c2e4d76b7cf7df487e7691"
+    },
+    {
+      "scene_id": "L10-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-06.png",
+      "frame_sha256": "fc451755f917b5f90bf09f53e7525bb854eb5cdad2ea3eafbf943e9f69bb2164",
+      "visual_family": "L10-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the condition clearly.",
+        "Condition",
+        "Fresh review"
+      ],
+      "accessibility_text": "The learner states what would permit the next step. Visual: Condition slip beside the key.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner states what would permit the next step.",
+      "brief_sha256": "24bd507f55cd992df868b22ca70f438b2faea2bc3ff68bd0f51636a8080070f5"
+    },
+    {
+      "scene_id": "L10-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-07.png",
+      "frame_sha256": "88e3cb49c886e197054f7645d6d72acf81a027a81844e7fc80e09e31de811ded",
+      "visual_family": "L10-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Build the spend envelope.",
+        "Amount",
+        "Approval"
+      ],
+      "accessibility_text": "The learner records amount and approval. Visual: Spend worksheet over the sealed envelope.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records amount and approval.",
+      "brief_sha256": "eb4814347a42d1f95f8e62d6b1e168463cf4002f93fcf192a955d71c9fd6c6fc"
+    },
+    {
+      "scene_id": "L10-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-08.png",
+      "frame_sha256": "eac857e932d13d36e3443edad72b60e8580a7d5361897aff43c5c79dd0998dba",
+      "visual_family": "L10-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep spend and decision separate.",
+        "Spend",
+        "Decision"
+      ],
+      "accessibility_text": "The Operating File preserves both boundaries. Visual: Two sealed sleeves in one binder.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File preserves both boundaries.",
+      "brief_sha256": "a5c786c7e0de89547f9377e50c7ec54f5f575b49c0134abbc585a79cddfcdb14"
+    },
+    {
+      "scene_id": "L11-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-01.png",
+      "frame_sha256": "e499e70c66540d4d04285d8c043e0dcc60a60e371cc8ed3c3a7d78ba19a7e22b",
+      "visual_family": "L11-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "See the job in one glance."
+      ],
+      "accessibility_text": "Status, blocker, and next step are visible. Visual: Three physical cockpit instruments around one job card.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Status, blocker, and next step are visible.",
+      "brief_sha256": "212ee5dc5347f75f3faf897aa1dcf5ab7408f4aa0eb0f070a916a237173c1152"
+    },
+    {
+      "scene_id": "L11-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-02.png",
+      "frame_sha256": "194ef1a128425ae7b63fbf809b1ce1a19c2403f788be2b96431ecd1215711b6b",
+      "visual_family": "L11-operating-artifact:plate:right",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          1750,
+          250,
+          2100,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            130,
+            55,
+            60,
+            220
+          ],
+          "feather_px": 40,
+          "focus": "agent roles and Mission Control",
+          "edge_risk": "public-proof panel at lower edge",
+          "mask_sha256": "27997b671838b6aefce4e4b8551ad2d851acb99903d14ffcdd9d00d358764264"
+        }
+      },
+      "display_copy": [
+        "Put the blocker beside the owner.",
+        "Blocker",
+        "Owner"
+      ],
+      "accessibility_text": "The cockpit must show a safe next step. Visual: Approved Portfolio stack focused on Mission Control.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The cockpit must show a safe next step.",
+      "brief_sha256": "81b7d4559f8920487fb0451e9ac42ce0ceb3ac57e5eda97fbcdcfac44b83ccf8"
+    },
+    {
+      "scene_id": "L11-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-03.png",
+      "frame_sha256": "2bb9c7feefe93488dd90da4cd1c6ae38ceb70828485b8af0f87c7aeca1bfe6db",
+      "visual_family": "L11-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Scan before stepping in.",
+        "Scan",
+        "Step in"
+      ],
+      "accessibility_text": "An operator reads, sorts, signals, then acts. Visual: Three cockpit dials and one trace ledger.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "An operator reads, sorts, signals, then acts.",
+      "brief_sha256": "0834e409c589c83e9f32c6f6cd0ce6c1abbae28bfcd95cb43dba799a9f024fcd"
+    },
+    {
+      "scene_id": "L11-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-04.png",
+      "frame_sha256": "a62bc86c8e80eaa8bb63c5206199fc9f4747bb66d22ec959264b59e0b3b263bc",
+      "visual_family": "L11-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Match the signal to the stakes.",
+        "Status",
+        "Escalate"
+      ],
+      "accessibility_text": "A status note differs from an external escalation. Visual: Three instruments with escalating color and review.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A status note differs from an external escalation.",
+      "brief_sha256": "6280421f6106225d49bf42e764e17b9da74f62faa5b5fa928d2e12b79b938dbb"
+    },
+    {
+      "scene_id": "L11-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-05.png",
+      "frame_sha256": "6ad7ef8eb073960d27d22ca4a45fa73e4c50144794690ff3949d65230078c181",
+      "visual_family": "L11-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Open the full trace from mobile.",
+        "Summary card",
+        "Full trace"
+      ],
+      "accessibility_text": "A compact card cannot erase the gate. Visual: Job card beside the deeper trace ledger.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A compact card cannot erase the gate.",
+      "brief_sha256": "82ec2e30bc16cc3490cb9b44db3089fb4f286d12724917ff469ef47f4ecab232"
+    },
+    {
+      "scene_id": "L11-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-06.png",
+      "frame_sha256": "8774175b1be0ffae635acbcd3bad5773d09dae2eaf15c3fa211b19306b7751b3",
+      "visual_family": "L11-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Find the missing field.",
+        "Missing field",
+        "Next safe step"
+      ],
+      "accessibility_text": "The learner spots the empty cockpit slot. Visual: One unfilled dial in the operator desk.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner spots the empty cockpit slot.",
+      "brief_sha256": "8f035cd2f7d6f2af63028130a27b1b3df85950737680bab4a0f6ea42133509f3"
+    },
+    {
+      "scene_id": "L11-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-07.png",
+      "frame_sha256": "93f997642e1485647013e8d1f7f54094f656ecba73adebf4d524c1d19121d357",
+      "visual_family": "L11-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Sketch a readable cockpit.",
+        "Status",
+        "Blocker"
+      ],
+      "accessibility_text": "The learner places status, owner, and blocker. Visual: Cockpit worksheet over the dials.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner places status, owner, and blocker.",
+      "brief_sha256": "e2c9721b973033261400f05fc1141ce91630e04500f3126241a58ac124cb2494"
+    },
+    {
+      "scene_id": "L11-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-08.png",
+      "frame_sha256": "d65b01b6b37915af33ace91767b73f7974772f7d7755f3a7f1902543c9b10db7",
+      "visual_family": "L11-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the cockpit in the file.",
+        "Cockpit",
+        "Trace"
+      ],
+      "accessibility_text": "The Operating File gains an unblock view. Visual: Cockpit and trace sheet in one binder.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains an unblock view.",
+      "brief_sha256": "77ef946095fa994a10113de506602e88fcd44ea3210f36e9cef51628ba298c93"
+    },
+    {
+      "scene_id": "L12-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-01.png",
+      "frame_sha256": "277d19a1ecf819b1b4e611c124f94e6352a1d06f76deaa770d4ad593debf5bb9",
+      "visual_family": "L12-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Show proof inside a boundary."
+      ],
+      "accessibility_text": "Only scoped evidence enters the view. Visual: Viewing window around receipt and decision; raw stack closed.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Only scoped evidence enters the view.",
+      "brief_sha256": "44c705b2b70eaebc0707bccf4606e418389dbed06b0e5ec06b05709db01ad3d1"
+    },
+    {
+      "scene_id": "L12-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-02.png",
+      "frame_sha256": "65bf51e9e71a2532e4aa6b3bdebed32c36f8b4cc94316a83e1bbbf71c89046a4",
+      "visual_family": "L12-operating-artifact:boundary:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Define audience and exclusions.",
+        "Audience",
+        "Exclusions"
+      ],
+      "accessibility_text": "A proof packet needs a readable perimeter. Visual: Window frame and privacy ribbon around the packet.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A proof packet needs a readable perimeter.",
+      "brief_sha256": "ee07d05ec01876cebacec6690228e19bae536330273f62b849a4d0bc4f0be977"
+    },
+    {
+      "scene_id": "L12-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-03.png",
+      "frame_sha256": "c6cebe114080521fa4de758c52f3b60883c0be9573c846925693ccc3d3b28dfa",
+      "visual_family": "L12-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          900,
+          350,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "receipt artifact and approval fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
+      },
+      "display_copy": [
+        "Withhold unrelated raw records.",
+        "Scoped receipt",
+        "Decision"
+      ],
+      "accessibility_text": "The audience sees receipts, not private source piles. Visual: Approved receipt plate focused on artifact and approval.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The audience sees receipts, not private source piles.",
+      "brief_sha256": "b2a2f0a1e0d9a9f92222128096883b9bb5596bccea67cf065f283c9731b7a006"
+    },
+    {
+      "scene_id": "L12-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-04.png",
+      "frame_sha256": "1e78d41330a3e84236e41dbd18fcf9e4c139b5efe533d0da0dfb075ab41df6c7",
+      "visual_family": "L12-operating-artifact:hold:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Evidence comes before a proposal.",
+        "Evidence missing",
+        "Human gate"
+      ],
+      "accessibility_text": "A missing source leaves the idea unscored. Visual: Empty evidence slot before the human seal.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A missing source leaves the idea unscored.",
+      "brief_sha256": "a64d4be7347dea4ac380d59f2d5eb96af51d7367c008ea16a6e08662dd34a0de"
+    },
+    {
+      "scene_id": "L12-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-05.png",
+      "frame_sha256": "5aed1d0b1a669a76ad6b7d7e12171afb7dd7110434825db0c130d42ef4e09929",
+      "visual_family": "L12-operating-artifact:boundary:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Research review is a separate gate.",
+        "Proof packet",
+        "No build authority"
+      ],
+      "accessibility_text": "Proof of work does not authorize a build. Visual: Closed folder beside the next proposal card.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Proof of work does not authorize a build.",
+      "brief_sha256": "bb32679b81da9bdd3d98a478737cd123559491851ab7912a998f468a21ad7e8e"
+    },
+    {
+      "scene_id": "L12-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-06.png",
+      "frame_sha256": "9403b89be711b945e4d419bfcfefbcd50e47361f1229c686a99e5ab2b607257e",
+      "visual_family": "L12-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name one exclusion.",
+        "Include",
+        "Exclude"
+      ],
+      "accessibility_text": "The learner draws a real privacy boundary. Visual: Red ribbon beside the source stack.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner draws a real privacy boundary.",
+      "brief_sha256": "f79e2ff158773c7c348361e32cb2389b4dabcbe8451921dbf8cbb1f3b9f11f8a"
+    },
+    {
+      "scene_id": "L12-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-07.png",
+      "frame_sha256": "66d2b983e6dae1a21035e684280be0efb8f29f3ebb70ddde0f1cb2dd23d7300a",
+      "visual_family": "L12-operating-artifact:worksheet:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Draft the client-safe packet.",
+        "Scope",
+        "Redaction"
+      ],
+      "accessibility_text": "The learner records scope and redactions. Visual: Proof worksheet under the viewing frame.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records scope and redactions.",
+      "brief_sha256": "d6a8379d3c3da65fb080b025542e713dcaf894c9c03b640c6ccb656bec6a3ad0"
+    },
+    {
+      "scene_id": "L12-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-08.png",
+      "frame_sha256": "7abaafb5e18e9b8a91baedf9adee637dbce2d5770517f2d05566266f4f791042",
+      "visual_family": "L12-operating-artifact:file:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep proof and proposal distinct.",
+        "Proof",
+        "Proposal"
+      ],
+      "accessibility_text": "The Operating File stores safe proof beside a future idea. Visual: Two sleeves separated by the review gate.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File stores safe proof beside a future idea.",
+      "brief_sha256": "4ef9ad12795c162deb827a112248cd35864dd99f44b5798d5b125d97578c274e"
+    },
+    {
+      "scene_id": "L13-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-01.png",
+      "frame_sha256": "d2295cf1b4e8249f8891b21b65c6d2a0586ddef2ed629f4fd5fe8ee86e37c5eb",
+      "visual_family": "L13-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "An idea is still a proposal."
+      ],
+      "accessibility_text": "The lab gate remains closed. Visual: Hypothesis folder, blank baseline, and human key.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The lab gate remains closed.",
+      "brief_sha256": "ec149c173cd132375c2a85158fa58bf9419866a55afdc396fe6bbfc118520cf5"
+    },
+    {
+      "scene_id": "L13-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-02.png",
+      "frame_sha256": "e8f2212dcac1a237ad5f50340ff6d8d3d92ac1a4ab4c7d3aa87f428097a5f11d",
+      "visual_family": "L13-operating-artifact:plate:bottom",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          650,
+          2150,
+          2300,
+          1600
+        ],
+        "crop_safety": {
+          "insets_px": [
+            80,
+            45,
+            160,
+            300
+          ],
+          "feather_px": 40,
+          "focus": "Map, Instrument, and Negotiate",
+          "edge_risk": "next label begins with a clipped A at right and partial lower cards",
+          "mask_sha256": "958e41ae027e75802d7621a867e35ea539299768d9b9194057ec3d1917cc3e3d"
+        }
+      },
+      "display_copy": [
+        "Trace before any run.",
+        "Proposal",
+        "Trace"
+      ],
+      "accessibility_text": "A proposal needs a gate and an experiment record. Visual: Approved Amina plate focused on Map, Instrument, and Negotiate.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A proposal needs a gate and an experiment record.",
+      "brief_sha256": "8a9f1aa186a8dfcb0d07f49699f4a742c61371cfcb55b209ef9fecd13df59581"
+    },
+    {
+      "scene_id": "L13-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-03.png",
+      "frame_sha256": "a6b16e793fe6659d93f120b9aa4405e5fe493b112ef1d3fe348a3ab73269a672",
+      "visual_family": "L13-operating-artifact:hold:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Leave the baseline unknown.",
+        "Baseline unknown",
+        "Result not run"
+      ],
+      "accessibility_text": "A metric cannot be claimed before observation. Visual: Blank instrument beside the unopened trace ledger.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A metric cannot be claimed before observation.",
+      "brief_sha256": "eab5e0d5c1bb7c48a48b8c667c42f5a6534d2c6c726d60b42ce13c60d57efbf4"
+    },
+    {
+      "scene_id": "L13-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-04.png",
+      "frame_sha256": "38025ee8ff0e098a3a2bf14c0f0cac5f0ab1aa96e5766cc5bb8547bcc913a535",
+      "visual_family": "L13-operating-artifact:handoff:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Morgan reviews the proposal.",
+        "Morgan reviews",
+        "No promotion"
+      ],
+      "accessibility_text": "The lab key stays with the human owner. Visual: Proposal folder in front of the closed gate.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The lab key stays with the human owner.",
+      "brief_sha256": "2f24821286fd1d12622690d5d187d4270890891722c40e75424a2e3c645f25e5"
+    },
+    {
+      "scene_id": "L13-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-05.png",
+      "frame_sha256": "ecd81a29205cd331a3aed4984641e3fdc1c2147f0eace5e21dae330a476ca613",
+      "visual_family": "L13-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Record a useful hold reason.",
+        "Hold reason",
+        "Next step"
+      ],
+      "accessibility_text": "A blocked idea needs an owner and safe next step. Visual: Hold card beside the proposal folder.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A blocked idea needs an owner and safe next step.",
+      "brief_sha256": "6dc5e289a5c8041190ad908e124aaa830a78be66eee45884e83caae130b7c70c"
+    },
+    {
+      "scene_id": "L13-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-06.png",
+      "frame_sha256": "6e9e6a01cb159f2adece5b569017377938dd08470cff35575365e63dc02c9989",
+      "visual_family": "L13-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name the missing baseline.",
+        "Missing baseline",
+        "Proposed measure"
+      ],
+      "accessibility_text": "The learner identifies what would be measured first. Visual: Blank instrument as the exercise target.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner identifies what would be measured first.",
+      "brief_sha256": "90cc3f27707bb1d1315416d0fd1fe3b545fa5a8389024f63ab5dcbc608f965a2"
+    },
+    {
+      "scene_id": "L13-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-07.png",
+      "frame_sha256": "7ece034c47e14d86a309570dd5ae9cb66913c4d1611f59a75fb1641fdf61e857",
+      "visual_family": "L13-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Draft the research proposal.",
+        "Hypothesis",
+        "Comparison"
+      ],
+      "accessibility_text": "The learner records hypothesis and comparison. Visual: Research worksheet over the unopened lab folder.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records hypothesis and comparison.",
+      "brief_sha256": "fe33afa65d0c3675d4cc00b2cddb154d4902718fe4ba6701fba2d0e5d90b1e1b"
+    },
+    {
+      "scene_id": "L13-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-08.png",
+      "frame_sha256": "75de7b37aa2ede3696b4a9a713dc848ce086b7f83c3654e8d583ce328d3f6a97",
+      "visual_family": "L13-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the proposal unrun.",
+        "Proposal",
+        "Not run"
+      ],
+      "accessibility_text": "The Operating File stores a gated idea. Visual: Research sleeve closed with a review seal.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File stores a gated idea.",
+      "brief_sha256": "09808b780caa5b8580c3e5c0a04c110a937254f385a2300151c9fc9d1660bb0a"
+    },
+    {
+      "scene_id": "L14-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-01.png",
+      "frame_sha256": "f71c42480916068def560479558c8f7d6f4e96df28fd7e8a0c6412a580c1d968",
+      "visual_family": "L14-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "The board needs three connected views."
+      ],
+      "accessibility_text": "Queue, trace, and memory sit together. Visual: Three-panel physical board with human reviewer.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Queue, trace, and memory sit together.",
+      "brief_sha256": "f858dabc0ef522138aa7329598a2a320311e34f1b9865dae36e95b017ed535ae"
+    },
+    {
+      "scene_id": "L14-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-02.png",
+      "frame_sha256": "90ad541c1b0da130b4dd88ee6b8948a4af46986e99f734de4648bf36b44e0b19",
+      "visual_family": "L14-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Show prepared, held, and rejected.",
+        "Prepared",
+        "Held"
+      ],
+      "accessibility_text": "Status is visible on the board. Visual: Queue tray with distinct physical states.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Status is visible on the board.",
+      "brief_sha256": "df0b5fffda770fa6545b090fd5e1d45f296781e9a58b43bfeb0d3efc08562294"
+    },
+    {
+      "scene_id": "L14-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-03.png",
+      "frame_sha256": "2ceee6643be80135f466ee367469cfd27f875190e667802b78c2501538daab15",
+      "visual_family": "L14-operating-artifact:plate:right",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "source_sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          1350,
+          700,
+          2100,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            390,
+            290,
+            220,
+            230
+          ],
+          "feather_px": 40,
+          "focus": "controls and review instruments",
+          "edge_risk": "partial agent-role banners above, first icon at left, and raw-proof panel below",
+          "mask_sha256": "7c47ce5f109127090d1ae69fa06d52b646039d38497b53dce0361527401746f0"
+        }
+      },
+      "display_copy": [
+        "Stop before any send.",
+        "Draft",
+        "No send"
+      ],
+      "accessibility_text": "The request path reaches Morgan, then holds. Visual: Approved Portfolio stack focused on Mission Control and controls.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The request path reaches Morgan, then holds.",
+      "brief_sha256": "e9cbd4cc9447c1a77b581be987663997c69280252a3d77909cc9aa5c121700f3"
+    },
+    {
+      "scene_id": "L14-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-04.png",
+      "frame_sha256": "69b364399a854e6c738d762b5a0d29fbd85b217beff96e039cd5ea95f833b042",
+      "visual_family": "L14-operating-artifact:plate:middle",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          1750,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            240,
+            70,
+            190
+          ],
+          "feather_px": 40,
+          "focus": "Route rung and rule owner",
+          "edge_risk": "Stage and adjacent rung fragments",
+          "mask_sha256": "9e49b7a673955ad870a0d145d1e5d48bf74c2bece927ac9afb126fe36ad73172"
+        }
+      },
+      "display_copy": [
+        "Put a rule owner on the trace.",
+        "Rule owner",
+        "Review"
+      ],
+      "accessibility_text": "Every control has scope, source, and reviewer. Visual: Approved authority ladder focused on Route and human gate.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Every control has scope, source, and reviewer.",
+      "brief_sha256": "ac79bcce070ee303beb2619714f64d6eb6efe7e64c76def3c45fa003188d5a8a"
+    },
+    {
+      "scene_id": "L14-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-05.png",
+      "frame_sha256": "a086335f48a750207cc3467102efdf967f2e82034b542972574be256e845f4cc",
+      "visual_family": "L14-operating-artifact:hold:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep proof outlines unshared.",
+        "Outline only",
+        "Not shared"
+      ],
+      "accessibility_text": "A board sketch is not a production claim. Visual: Closed proof panel beside the active queue.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A board sketch is not a production claim.",
+      "brief_sha256": "4b8266ad7995fd71bffb1f11c224f51d1eee5da81b4fe0b9425f7446c1d32186"
+    },
+    {
+      "scene_id": "L14-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-06.png",
+      "frame_sha256": "765f447d5203be4a689c691d4f8da272f5d0e4b701e1f89c903bb1b71a73222d",
+      "visual_family": "L14-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Find the weakest panel.",
+        "Queue",
+        "Trace"
+      ],
+      "accessibility_text": "The learner spots the board view missing its evidence. Visual: One incomplete panel in the triptych.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner spots the board view missing its evidence.",
+      "brief_sha256": "1a750d7e9e9e41afd3bbff3b422ccf4a401c179a6c597cfa6026ec43877b03f8"
+    },
+    {
+      "scene_id": "L14-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-07.png",
+      "frame_sha256": "5144227d73f6caa708c8af62f4fb2bf41270d581ebe18657812f9b628b44874d",
+      "visual_family": "L14-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Storyboard the board review.",
+        "Panel",
+        "Reviewer"
+      ],
+      "accessibility_text": "The learner gives each panel a reviewer. Visual: Three-panel worksheet over the board.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner gives each panel a reviewer.",
+      "brief_sha256": "5a70308fa7f1c7397a54474d5b5977fc83d918df413a4b62494deca3496b37c1"
+    },
+    {
+      "scene_id": "L14-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-08.png",
+      "frame_sha256": "d04655024eaf2969575f8693cf4d12cba36092edd487ea38743ee8dcfc51d140",
+      "visual_family": "L14-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the board demo in the file.",
+        "Queue",
+        "Trace and memory"
+      ],
+      "accessibility_text": "The Operating File gains a reviewable storyboard. Visual: Triptych folded into the binder.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains a reviewable storyboard.",
+      "brief_sha256": "af820bd1b96e8e85bf4474be2a136b0158908078504fc0e7e74b8cf65b973c90"
+    },
+    {
+      "scene_id": "L15-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-01.png",
+      "frame_sha256": "4bbcfa010e81358d10ee8db26365c370cfd531e7bb3ffa2a427a66f41da29b50",
+      "visual_family": "L15-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "The day is prepared, not sent."
+      ],
+      "accessibility_text": "Human approval controls the work clock. Visual: Six physical stations around a brass day-clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Human approval controls the work clock.",
+      "brief_sha256": "5a581def3c7065e2d70a11d26cb5fdecfb7a40ceb09c5458db60db4e5b596945"
+    },
+    {
+      "scene_id": "L15-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-02.png",
+      "frame_sha256": "e9ec4b82c43165064ae90a8fb6d46962c1ebbfc121b7b9419068ee48ac1eef59",
+      "visual_family": "L15-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Brief the work and learning.",
+        "Work",
+        "Human owner"
+      ],
+      "accessibility_text": "The first beat names the human and the job. Visual: Brief folder at the first clock station.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The first beat names the human and the job.",
+      "brief_sha256": "a6c5f48dd3e920de50213c882827d68b178e7ce296c3dee2d7a11931bcf0f890"
+    },
+    {
+      "scene_id": "L15-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-03.png",
+      "frame_sha256": "50d0114a385402f5bae052f898477de42d0d0145c151cf287057f029832d3ab5",
+      "visual_family": "L15-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Route to an owner and window.",
+        "Owner",
+        "Review window"
+      ],
+      "accessibility_text": "The second beat establishes handoff timing. Visual: Route token and review window on the clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The second beat establishes handoff timing.",
+      "brief_sha256": "e35f804cbad10b3d2eced8654b5ebcb8b09943b02b3fea364cbfe564dc05f1b3"
+    },
+    {
+      "scene_id": "L15-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-04.png",
+      "frame_sha256": "ca8e159c9c83de1127457652f774e1241e3538032f2fecc40fd00f93a6410b51",
+      "visual_family": "L15-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          950,
+          300,
+          2100,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            65,
+            55,
+            45,
+            75
+          ],
+          "feather_px": 40,
+          "focus": "source and human gate",
+          "edge_risk": "neighboring decorative borders",
+          "mask_sha256": "1e8dd3f1b37edc8c01f5bcdd44c07b9fa54b0c8a04e37f102f53f9dcbf23d57e"
+        }
+      },
+      "display_copy": [
+        "Check the source before approval.",
+        "Source",
+        "Human gate"
+      ],
+      "accessibility_text": "The third beat examines the claim and gate. Visual: Approved trust-layer plate focused on source and human gate.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The third beat examines the claim and gate.",
+      "brief_sha256": "8235fcb5fcdacae71d7e6d3a56b045e5bee2d9ef5aa91c6e5fb616b65fd215f2"
+    },
+    {
+      "scene_id": "L15-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-05.png",
+      "frame_sha256": "d6348d225a7a38185c90893f0c85b09df6f80d7d3a4820fa0b889db9a5a62db3",
+      "visual_family": "L15-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Recover before learning.",
+        "Recover",
+        "Learn"
+      ],
+      "accessibility_text": "Preserve, correct, and trace precede a new proposal. Visual: Recovery kit and learning notebook as later beats.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Preserve, correct, and trace precede a new proposal.",
+      "brief_sha256": "d50aa4e8c69b0ec33af4bc5bfee779814144e9fbd87f3fcacec86996c03dd8da"
+    },
+    {
+      "scene_id": "L15-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-06.png",
+      "frame_sha256": "fee648001060e4f485a9fa39a977e83d827c9f92b4733a8d579734d0fd52e516",
+      "visual_family": "L15-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Where can approval go soft?",
+        "Who approves?",
+        "What changes?"
+      ],
+      "accessibility_text": "The learner finds the weak human decision point. Visual: Approval seal hovering over the clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner finds the weak human decision point.",
+      "brief_sha256": "9d89044740f4976b30b21824c177131e891cd6655930ab76c383c64477f90784"
+    },
+    {
+      "scene_id": "L15-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-07.png",
+      "frame_sha256": "f25973ed4fd6d3541707c6584f9430cfce75734eae2ca37d0688054e46d69d83",
+      "visual_family": "L15-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write a six-beat day.",
+        "Failure",
+        "Recovery"
+      ],
+      "accessibility_text": "The learner records one failure and its recovery. Visual: Six-station worksheet over the work clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records one failure and its recovery.",
+      "brief_sha256": "087128bc255e767509428af7086b5ca6209861f7392c6347863a61f10277ee35"
+    },
+    {
+      "scene_id": "L15-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-08.png",
+      "frame_sha256": "2db1346925c8b316ce556b2736048ed2daf7469a0eed501c7c5fc6788fdcb19c",
+      "visual_family": "L15-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the rehearsal in the file.",
+        "Day plan",
+        "Next audit"
+      ],
+      "accessibility_text": "The Operating File gains a day sequence. Visual: Six-beat plan folded into the binder.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains a day sequence.",
+      "brief_sha256": "8f71d58808973cb5a461da09ca667807230c4684b2e9e0d4fd42c940dc90ff82"
+    },
+    {
+      "scene_id": "L16-01",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-01.png",
+      "frame_sha256": "fb4f2ebd00bcdadc1136daae9f211bccfba7b6540aa968e602f7a30a4c202b47",
+      "visual_family": "L16-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
+      "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Audit the gaps before release."
+      ],
+      "accessibility_text": "Two empty layers remain visible in the binder. Visual: Operating File pages with amber gap rings.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Two empty layers remain visible in the binder.",
+      "brief_sha256": "07819b3e6a714259e08fdda07995f32752cf4177bfe9f160d68799dd20cf0fb8"
+    },
+    {
+      "scene_id": "L16-02",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-02.png",
+      "frame_sha256": "423121c6d1520597c15c64ccf4a3bfc60ec13f747c2454a7946b8867f6fe9499",
+      "visual_family": "L16-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
+      "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Trace route, log, gate, and memory.",
+        "Route",
+        "Gate"
+      ],
+      "accessibility_text": "Each layer needs a human review path. Visual: Tabbed binder opened to the route and gate.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Each layer needs a human review path.",
+      "brief_sha256": "5590aac62dde0cb348ecfb357a742cd5e6a5c2ddb4ab8ea9c0c91cdd3ef7b7ce"
+    },
+    {
+      "scene_id": "L16-03",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-03.png",
+      "frame_sha256": "b9466dbd3dbee01cabe2de7ceea3c35082450fa834719da8affc9f25f57d4626",
+      "visual_family": "L16-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
+      "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Check source and proposal status.",
+        "Source status",
+        "Proposal status"
+      ],
+      "accessibility_text": "A receipt shape cannot substitute for evidence. Visual: Blank source row and closed proposal sleeve.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A receipt shape cannot substitute for evidence.",
+      "brief_sha256": "ed0f3e0efeea25e3373a644595a0fd54b6184764c563089ce4a848f92bda1b84"
+    },
+    {
+      "scene_id": "L16-04",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-04.png",
+      "frame_sha256": "9f179c38c96462c39612faa0399a91392201648aac3eb4f22dca3766c5fbb989",
+      "visual_family": "L16-operating-artifact:plate:bottom",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          650,
+          2150,
+          2300,
+          1600
+        ],
+        "crop_safety": {
+          "insets_px": [
+            80,
+            45,
+            160,
+            300
+          ],
+          "feather_px": 40,
+          "focus": "Map, Instrument, and Negotiate",
+          "edge_risk": "next label at right and partial lower panels",
+          "mask_sha256": "958e41ae027e75802d7621a867e35ea539299768d9b9194057ec3d1917cc3e3d"
+        }
+      },
+      "display_copy": [
+        "Prepare only while gates hold.",
+        "Prepare",
+        "Hold external action"
+      ],
+      "accessibility_text": "Staffing and spend stay behind authority. Visual: Approved Amina plate focused on Map, Instrument, and Negotiate.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Staffing and spend stay behind authority.",
+      "brief_sha256": "fe202e9a0d0dd0c23734a033b90d3e4a0c24f98f1449d84dd7772c28366a283a"
+    },
+    {
+      "scene_id": "L16-05",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-05.png",
+      "frame_sha256": "2e0e961b712805c70a2a9f5954759901976b5b0da1a67424dc5c2a9fdb8f7394",
+      "visual_family": "L16-operating-artifact:plate:bottom",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          500,
+          2000,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            200,
+            70,
+            110
+          ],
+          "feather_px": 40,
+          "focus": "Route and rollback readiness",
+          "edge_risk": "adjacent ladder rung at top and left",
+          "mask_sha256": "acc2dd75ba564f1118317ffbb4bc4c85ad80a53d2543c5d8012217f50cc3f92c"
+        }
+      },
+      "display_copy": [
+        "Keep the export sealed.",
+        "Export closed",
+        "Rollback ready"
+      ],
+      "accessibility_text": "Rollback means preserve and correct. Visual: Approved authority ladder focused on rollback and human gate.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Rollback means preserve and correct.",
+      "brief_sha256": "8fb4e5802478b41ebd77c0ec4166935ba3445c54020fa42540386fa63f906a77"
+    },
+    {
+      "scene_id": "L16-06",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-06.png",
+      "frame_sha256": "1609cf1cb765a7257ecf08d0a966c7f90fa3e8d63f68e3a34dba8fa42cba7452",
+      "visual_family": "L16-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
+      "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep, shrink, or retire?",
+        "Keep",
+        "Retire"
+      ],
+      "accessibility_text": "The learner chooses what survives the audit. Visual: Three tabs beside the circled gaps.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner chooses what survives the audit.",
+      "brief_sha256": "7bdbff10b6ee3d7c790e0bffe01231623cb527c1861f32ae8a2ed5437cd354e2"
+    },
+    {
+      "scene_id": "L16-07",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-07.png",
+      "frame_sha256": "ebc60695b482f12ebb981ca84190c37ff207c95ec579c224617de6cab56c4be5",
+      "visual_family": "L16-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
+      "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Present the whole Operating File.",
+        "Gap",
+        "Owner"
+      ],
+      "accessibility_text": "The learner names owners for every gap. Visual: Audit worksheet over the open binder.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner names owners for every gap.",
+      "brief_sha256": "a87da097bb0be366b618d77626c6de5151356c90a3369d76dfb0ac098dc7363b"
+    },
+    {
+      "scene_id": "L16-08",
+      "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-08.png",
+      "frame_sha256": "fb18fc0e4e2e0aea278a1cf72de4aaed8137fab89fd3aa9d710c6f0d3b07f5a9",
+      "visual_family": "L16-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
+      "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Leave the audit pending review.",
+        "Audit pending",
+        "Human review"
+      ],
+      "accessibility_text": "The file is ready for human editorial and source review. Visual: Binder closed with an outstanding review ring.",
+      "continuity": {
+        "id": "L16-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The file is ready for human editorial and source review.",
+      "brief_sha256": "392d8a43bfc0536a615974626db90aec22a9b117bd9ffea1d19d5fa70e130441"
+    }
+  ]
+}
