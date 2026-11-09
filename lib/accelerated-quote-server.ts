@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { supabaseAdmin } from '@/lib/supabase'
 import { DECISION_FILE_VERSION } from '@/lib/accelerated-decision-file'
+import { AGENTIFIED_VERSION } from '@/lib/agentified-workshop'
 import { chooseQuoteQuestions, deriveQuoteContext, projectQuoteOffers, quoteQuestions, QUOTE_QUESTION_SET_VERSION,
   QUOTE_RULES_VERSION, type QuoteAnswers, type QuoteOffer } from '@/lib/accelerated-quote-refinement'
 
@@ -24,14 +25,19 @@ export async function loadQuoteContext(userId: string, orderId: number) {
     recResult.data.offer_kind !== 'service' || recResult.data.approved_is_quote_based !== true)
     fail('The reviewed service has changed. Ask for a new review.')
   const rec = recResult.data!
+  const intake = await supabaseAdmin.from('accelerated_decision_file_intakes')
+    .select('id,worksheet_id,content_version,payload_sha256,answers,review_status,linked_audit_id,learner_name')
+    .eq('id', rec.intake_id).maybeSingle()
+  if (intake.error || !intake.data || ![DECISION_FILE_VERSION, AGENTIFIED_VERSION].includes(intake.data.content_version))
+    fail('The reviewed workshop file is unavailable. Ask for a new review.')
+  const workshop = intake.data!.content_version === AGENTIFIED_VERSION ? 'agentified' : 'accelerated'
   const items = order!.order_items as Array<{ service_id: string | null; product_id: number | null; accelerated_recommendation_id: string | null; accelerated_reviewed_at: string | null }> | null
   if (!items || items.length !== 1 || String(items[0].service_id) !== rec.offer_id || items[0].product_id !== null ||
     items[0].accelerated_recommendation_id !== rec.id || items[0].accelerated_reviewed_at !== rec.reviewed_at)
     fail('The quote order no longer matches the reviewed service.')
-  const [owner, intake, worksheet, audit, services, products, recs, latest, contact] = await Promise.all([
+  const [owner, worksheet, audit, services, products, recs, latest, contact] = await Promise.all([
     supabaseAdmin.from('accelerated_decision_file_owners').select('intake_id,user_id').eq('intake_id', rec.intake_id).eq('user_id', userId).maybeSingle(),
-    supabaseAdmin.from('accelerated_decision_file_intakes').select('id,worksheet_id,content_version,payload_sha256,answers,review_status,linked_audit_id,learner_name').eq('id', rec.intake_id).maybeSingle(),
-    supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,content_version,answers').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
+    supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,content_version,answers').eq('user_id', userId).eq('content_version', intake.data!.content_version).maybeSingle(),
     supabaseAdmin.from('diagnostic_audits').select('id,user_id,status').eq('id', rec.audit_id).eq('user_id', userId).maybeSingle(),
     supabaseAdmin.from('services').select('id,title,description,price,is_quote_based,service_type,delivery_method,duration_hours,duration_description,min_participants,max_participants,image_url,image_variants,video_url,video_thumbnail_url,presentation_url,is_featured,topics,updated_at').eq('is_active', true).order('id'),
     supabaseAdmin.from('products').select('id,title,description,price,type,image_url,image_variants,is_featured,updated_at').eq('is_active', true).order('id'),
@@ -39,12 +45,12 @@ export async function loadQuoteContext(userId: string, orderId: number) {
     supabaseAdmin.from('accelerated_quote_refinements').select('id,revision,answers,payload_sha256,context_package').eq('order_id', orderId).order('revision', { ascending: false }).limit(1).maybeSingle(),
     supabaseAdmin.from('accelerated_quote_contact_links').select('contact_submission_id,refinement_id').eq('order_id', orderId).maybeSingle(),
   ])
-  if ([owner,intake,worksheet,audit,services,products,recs,latest,contact].some((result) => result.error)) fail('Quote context is temporarily unavailable.')
-  if (!owner.data || !intake.data || !worksheet.data || !audit.data ||
-    intake.data.review_status !== 'linked' || intake.data.linked_audit_id !== audit.data.id ||
-    audit.data.status !== 'completed' || intake.data.content_version !== DECISION_FILE_VERSION ||
-    worksheet.data.content_version !== DECISION_FILE_VERSION || intake.data.worksheet_id !== worksheet.data.worksheet_id ||
-    sha(intake.data.answers) !== sha(worksheet.data.answers)) fail('Your Decision File changed. Ask for a new review before continuing.')
+  if ([owner,worksheet,audit,services,products,recs,latest,contact].some((result) => result.error)) fail('Quote context is temporarily unavailable.')
+  if (!owner.data || !worksheet.data || !audit.data ||
+    intake.data!.review_status !== 'linked' || intake.data!.linked_audit_id !== audit.data.id ||
+    audit.data.status !== 'completed' || worksheet.data.content_version !== intake.data!.content_version ||
+    intake.data!.worksheet_id !== worksheet.data.worksheet_id ||
+    sha(intake.data!.answers) !== sha(worksheet.data.answers)) fail('Your workshop file changed. Ask for a new review before continuing.')
   const activeServices = (services.data ?? []) as Array<Record<string, unknown>>
   const reviewed = new Map<string, string>((recs.data ?? []).map((r: {offer_kind:string;offer_id:string;id:string}) => [`${r.offer_kind}:${r.offer_id}`, r.id]))
   const offers: QuoteOffer[] = [
@@ -71,7 +77,7 @@ export async function loadQuoteContext(userId: string, orderId: number) {
     Number(reviewedOffer.price ?? 0) !== Number(rec.approved_price ?? 0) ||
     (reviewedOffer.is_quote_based === true || reviewedOffer.price === null) !== rec.approved_is_quote_based)
     fail('The approved service changed. Ask for a new review.')
-  const derived = deriveQuoteContext(intake.data.answers as Record<string, string>)
+  const derived = deriveQuoteContext(intake.data!.answers as Record<string, string>, workshop)
   const questions = chooseQuoteQuestions(derived, offers)
   const catalogSha = sha({ services: services.data, products: products.data, reviewed: recs.data })
   const savedPackage = latest.data?.context_package as Record<string, unknown> | undefined
@@ -79,7 +85,7 @@ export async function loadQuoteContext(userId: string, orderId: number) {
     savedPackage.worksheetSha256 !== sha(worksheet.data.answers) ||
     savedPackage.rulesVersion !== QUOTE_RULES_VERSION || savedPackage.questionSetVersion !== QUOTE_QUESTION_SET_VERSION))
     fail('Quote context changed. Return to your dashboard and ask for a new review.')
-  return { order: order!, rec, intake: intake.data, derived, questions, offers, catalogSha,
+  return { workshop, order: order!, rec, intake: intake.data!, derived, questions, offers, catalogSha,
     latest: latest.data, submitted: !!contact.data, worksheetSha: sha(worksheet.data.answers), rulesVersion: QUOTE_RULES_VERSION,
     questionSetVersion: QUOTE_QUESTION_SET_VERSION }
 }

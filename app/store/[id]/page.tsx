@@ -60,8 +60,8 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const fromQuote = searchParams.get('fromQuote')
-  const quoteBackHref = fromQuote === 'qa' && process.env.NODE_ENV === 'development'
-    ? '/member/quote?qa=quote' : /^\d+$/.test(fromQuote || '') ? `/member/quote?orderId=${fromQuote}` : '/store'
+  const quoteBackHref = process.env.NODE_ENV === 'development' && (fromQuote === 'qa' || fromQuote === 'qa-agentified')
+    ? `/member/quote?qa=${fromQuote === 'qa-agentified' ? 'quote-agentified' : 'quote'}` : /^\d+$/.test(fromQuote || '') ? `/member/quote?orderId=${fromQuote}` : '/store'
   const productId = params.id as string
   const visualCapture = searchParams.get('visualCapture') === '1'
   const visualFocusCodes = (searchParams.get('visualFocus') || '')

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     const context = await loadQuoteContext(auth.user.id, orderId)
     const answers = (context.latest?.answers ?? {}) as QuoteAnswers
-    return NextResponse.json({ orderId, title: context.rec.title, summary: context.derived.summary,
+    return NextResponse.json({ orderId, workshop: context.workshop, title: context.rec.title, summary: context.derived.summary,
       derivedFacts: context.derived.facts, questions: quoteQuestions.filter((q) => context.questions.includes(q.id)),
       offers: context.offers, answers, revision: context.latest?.revision ?? 0,
       refinementId: context.latest?.id ?? null, submitted: context.submitted,
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     Object.keys(body.answers).length > 6) return fail('Invalid quote receipt. Reload and try again.', 400)
   try {
     const context = await loadQuoteContext(auth.user.id, orderId)
-    if (context.submitted) return fail('This quote request was already sent for operator review.', 409)
+    if (context.submitted) return fail('This quote request was already sent for review.', 409)
     const { projection, packageData, payloadSha256 } = buildRefinement(context, body.answers as QuoteAnswers,
       typeof body.requestedOfferId === 'string' ? body.requestedOfferId : null)
     const { data, error } = await supabaseAdmin.rpc('accelerated_save_quote_refinement', {

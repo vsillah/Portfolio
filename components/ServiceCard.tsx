@@ -89,7 +89,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
             <p className="max-w-xs text-xs leading-5">A reviewed service image or deliverable preview has not been added. Open details to learn what is included.</p>
           </div>
         )}
-        {gallery.length === 1 && <p className="bg-card px-3 py-2 text-xs text-muted-foreground">More service evidence pending · <Link href={viewDetailsHref || `/services/${service.id}`} className="text-card-foreground underline decoration-accent underline-offset-2 focus-visible:outline-2 focus-visible:outline-accent">View details</Link></p>}
+        {gallery.length === 1 && <p className="bg-card px-3 py-2 text-xs text-muted-foreground"><Link href={viewDetailsHref || `/services/${service.id}`} className="text-card-foreground underline decoration-accent underline-offset-2 focus-visible:outline-2 focus-visible:outline-accent">View service details</Link></p>}
         {service.is_featured && (
           <div className="pointer-events-none absolute right-2 top-2 z-30 rounded bg-accent px-2 py-1 text-xs font-semibold text-accent-foreground">
             Featured

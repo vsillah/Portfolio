@@ -17,6 +17,7 @@ vi.mock('@/components/client-dashboard/ReportsSection', () => ({ default: () => 
 vi.mock('@/components/client-dashboard/MeetingHistory', () => ({ default: () => null }))
 vi.mock('@/components/member/RecommendationAction', () => ({ default: () => null }))
 vi.mock('@/components/member/CompletionCredential', () => ({ default: () => <div>Accelerated certificate</div> }))
+vi.mock('@/components/member/AgentifiedCompletionCredential', () => ({ default: () => <div>Agentified credential</div> }))
 
 describe('Member dashboard course loading', () => {
   beforeEach(() => {
@@ -36,8 +37,7 @@ describe('Member dashboard course loading', () => {
     render(<MemberDashboardPage />)
 
     expect(await screen.findByRole('region', { name: 'Agentified progress' })).toBeInTheDocument()
-    expect(screen.getByText('Your guest workshop progress has not been linked to this account.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open the Learning Plan to review and claim it' })).toHaveAttribute('href', '/agentified/learningplan')
+    expect(screen.getByRole('link', { name: 'Review and claim guest progress' })).toHaveAttribute('href', '/agentified/learningplan')
     expect(screen.getByRole('status')).toHaveTextContent('Loading your dashboard')
   })
 
@@ -48,10 +48,31 @@ describe('Member dashboard course loading', () => {
     render(<MemberDashboardPage />)
 
     expect(await screen.findByRole('region', { name: 'Agentified progress' })).toBeInTheDocument()
-    expect(screen.getByText('Your guest workshop progress has not been linked to this account.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Review and claim guest progress' })).toHaveAttribute('href', '/agentified/learningplan')
     expect(fetchSpy).not.toHaveBeenCalled()
     const accelerated = screen.getByRole('region', { name: 'Accelerated course' })
     expect(within(accelerated).getByText('Accelerated certificate')).toBeInTheDocument()
     expect(within(screen.getByRole('region', { name: 'Agentified progress' })).queryByText('Accelerated certificate')).not.toBeInTheDocument()
+  })
+
+  it('keeps the reviewed Agentified assessment and offers in its own workshop section', async () => {
+    window.history.replaceState({}, '', '/member/dashboard?qa=agentified-assessed')
+    render(<MemberDashboardPage />)
+    const agentified = await screen.findByRole('region', { name: 'Agentified workshop journey' })
+    expect(within(agentified).getByText('The agent roles are clear; the handoff needs a stronger review gate.')).toBeInTheDocument()
+    expect(within(agentified).getByText('Agent workflow review')).toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'Accelerated course' })).queryByText('Agent workflow review')).not.toBeInTheDocument()
+  })
+
+  it('attributes same-account workshop orders from intake identity and preserves each quote route', async () => {
+    window.history.replaceState({}, '', '/member/dashboard?qa=orders')
+    render(<MemberDashboardPage />)
+    const orders = await screen.findByRole('region', { name: 'Orders' })
+    const accelerated = within(orders).getByText('Order #1203').closest('li')!
+    const agentified = within(orders).getByText('Order #2203').closest('li')!
+    expect(accelerated).toHaveTextContent('accelerated')
+    expect(agentified).toHaveTextContent('agentified')
+    expect(within(accelerated).getByRole('link', { name: 'Continue quote request' })).toHaveAttribute('href', '/member/quote?qa=quote')
+    expect(within(agentified).getByRole('link', { name: 'Continue quote request' })).toHaveAttribute('href', '/member/quote?qa=quote-agentified')
   })
 })

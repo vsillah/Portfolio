@@ -25,7 +25,7 @@ export const quoteQuestions = [
 export type QuoteDimension = typeof quoteQuestions[number]['id']
 export type QuoteAnswers = Partial<Record<QuoteDimension, string>>
 export type DerivedFact = { value: string; sourceField: string }
-export type DerivedContext = { facts: Partial<Record<QuoteDimension, DerivedFact>>; summary: string[]; sourceFields: string[] }
+export type DerivedContext = { facts: Partial<Record<QuoteDimension, DerivedFact>>; summary: string[]; sourceFields: string[]; workshop?: 'accelerated' | 'agentified' }
 export type QuoteOffer = {
   kind: 'service' | 'product'; id: string; title: string; price: number | null
   quoteBased: boolean; serviceType?: string | null; deliveryMethod?: string | null
@@ -74,7 +74,7 @@ const patterns: Record<QuoteDimension, Array<[string, RegExp]>> = {
   ],
 }
 
-export function deriveQuoteContext(worksheetAnswers: Record<string, string>): DerivedContext {
+export function deriveQuoteContext(worksheetAnswers: Record<string, string>, workshop: 'accelerated' | 'agentified' = 'accelerated'): DerivedContext {
   const facts: DerivedContext['facts'] = {}
   const sourceFields = Object.entries(worksheetAnswers).filter(([field, answer]) =>
     lessonIds.has(field) && typeof answer === 'string' && answer.trim()).map(([field]) => field).sort()
@@ -95,13 +95,19 @@ export function deriveQuoteContext(worksheetAnswers: Record<string, string>): De
     }
     if (matches.length && matches.every((item) => item.value === matches[0].value)) facts[question.id] = matches[0]
   }
-  const summary = [
+  const summaryFields = workshop === 'agentified' ? [
+    ['L02', 'A decision card is documented'],
+    ['L03', 'Source safety is documented'],
+    ['L09', 'A review posture is documented'],
+    ['L16', 'An accountability audit is documented'],
+  ] : [
     ['L02', 'A priority decision is documented'],
     ['L03', 'An evidence gap is documented'],
     ['L09', 'Decision roles are documented'],
     ['L16', 'A next action is documented'],
-  ].filter(([field]) => sourceFields.includes(field)).map(([field, label]) => `${label} (${field})`)
-  return { facts, summary, sourceFields }
+  ]
+  const summary = summaryFields.filter(([field]) => sourceFields.includes(field)).map(([field, label]) => `${label} (${field})`)
+  return { facts, summary, sourceFields, workshop }
 }
 
 export function effectiveQuoteAnswers(derived: DerivedContext, answers: QuoteAnswers): QuoteAnswers {
@@ -166,7 +172,7 @@ export function projectQuoteOffers(offers: QuoteOffer[], derived: DerivedContext
       const answer = effective[dimension]
       if (!answer || answer === 'unsure' || answer === 'flexible') { uncertain = true; continue }
       const known = knownFacet(offer, dimension)
-      const source = derived.facts[dimension] ? `Decision File ${derived.facts[dimension]!.sourceField}` : 'your answer'
+      const source = derived.facts[dimension] ? `${derived.workshop === 'agentified' ? 'Operating File' : 'Decision File'} ${derived.facts[dimension]!.sourceField}` : 'your answer'
       if (!known) { uncertain = true; reasons.push(`${questionValue(dimension, answer)} needs operator confirmation`); evidence.push(source); continue }
       const incompatible = dimension === 'budget'
         ? (answer === 'under_500' && known !== 'under_500') || (answer === 'up_to_2500' && known === 'above_2500')

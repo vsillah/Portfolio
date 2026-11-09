@@ -32,7 +32,7 @@ export default function RecommendationAction({ item, preview = false }: { item: 
   async function select() {
     if (!ready) return
     if (needsVariant && !variantId) { setMessage('Choose a size and color first.'); return }
-    if (preview) { setMessage(quote ? 'Preview: the quote request opens from here.' : 'Preview: this offer is added to your cart before checkout.'); return }
+    if (preview) { setMessage(quote ? 'Your next step is a quote request.' : 'Your next step is to review this offer in your cart.'); return }
     setBusy(true)
     setMessage('')
     try {
