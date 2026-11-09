@@ -1,6 +1,6 @@
 {
   "projectName": "Local LLM Model Ops & Hermes Automation",
-  "generatedAt": "2026-11-02T14:09:02.093Z",
+  "generatedAt": "2026-11-09T13:04:52.470Z",
   "recommendations": {
     "replyIntentDefault": "Keep qwen3-4b-instruct-2507 for reply-intent classification. It has the best current accuracy/latency balance.",
     "ragDefault": "Use routed local RAG as the leading local/shadow candidate, with Pinecone/OpenAI fallback until larger answer-level evals pass.",
