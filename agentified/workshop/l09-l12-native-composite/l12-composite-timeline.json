@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "lesson_id": "L12",
+  "request_sha256": "56498ca2f4748dc058a63ca80efe27e340d3474d0025c4f335e93e1e9d8a15b7",
+  "native_source_sha256": "83f196cc60bef391471a1f160849f4e595af070306cb2179b0afad0748d5507b",
+  "native_source_duration_seconds": 220.12,
+  "native_speed": 1,
+  "output_duration_seconds": 268.12,
+  "presenter_windows": [
+    {
+      "scene_id": "L12-01",
+      "source_in": 0,
+      "source_out": 13.82,
+      "sequence_start": 0,
+      "sequence_end": 13.82
+    },
+    {
+      "scene_id": "L12-08",
+      "source_in": 214.38,
+      "source_out": 220.12,
+      "sequence_start": 259.38,
+      "sequence_end": 265.12
+    }
+  ],
+  "guided_work_countdown": {
+    "source_split_seconds": 205.08,
+    "sequence_start": 205.08,
+    "sequence_end": 250.08,
+    "seconds": 45
+  },
+  "provider_free_closing_card": {
+    "start": 265.12,
+    "end": 268.12
+  },
+  "sentence_alignment": {
+    "engine": "faster-whisper small.en plus exact-script global alignment",
+    "distance": 18,
+    "expected_words": 571,
+    "observed_words": 576
+  },
+  "presenter_transform": {
+    "x": 1048,
+    "y": 326,
+    "width": 768,
+    "height": 432,
+    "fit": "contain",
+    "border": "solid_gold",
+    "background": "provider_free_textured_studio"
+  },
+  "l10_mobile_diagram_treatment": null
+}

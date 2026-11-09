@@ -1,0 +1,3320 @@
+{
+  "language": "en",
+  "duration": 220.119,
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.6,
+      "text": "A Harbor Board member asks Morgan what the preparation agent actually did for the proposed",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.42,
+          "word": " A"
+        },
+        {
+          "start": 0.42,
+          "end": 0.66,
+          "word": " Harbor"
+        },
+        {
+          "start": 0.66,
+          "end": 0.96,
+          "word": " Board"
+        },
+        {
+          "start": 0.96,
+          "end": 1.24,
+          "word": " member"
+        },
+        {
+          "start": 1.24,
+          "end": 1.68,
+          "word": " asks"
+        },
+        {
+          "start": 1.68,
+          "end": 2.14,
+          "word": " Morgan"
+        },
+        {
+          "start": 2.14,
+          "end": 2.7,
+          "word": " what"
+        },
+        {
+          "start": 2.7,
+          "end": 2.86,
+          "word": " the"
+        },
+        {
+          "start": 2.86,
+          "end": 3.34,
+          "word": " preparation"
+        },
+        {
+          "start": 3.34,
+          "end": 3.8,
+          "word": " agent"
+        },
+        {
+          "start": 3.8,
+          "end": 4.32,
+          "word": " actually"
+        },
+        {
+          "start": 4.32,
+          "end": 4.78,
+          "word": " did"
+        },
+        {
+          "start": 4.78,
+          "end": 5.14,
+          "word": " for"
+        },
+        {
+          "start": 5.14,
+          "end": 5.28,
+          "word": " the"
+        },
+        {
+          "start": 5.28,
+          "end": 5.6,
+          "word": " proposed"
+        }
+      ]
+    },
+    {
+      "start": 5.6,
+      "end": 6.08,
+      "text": "session.",
+      "words": [
+        {
+          "start": 5.6,
+          "end": 6.08,
+          "word": " session."
+        }
+      ]
+    },
+    {
+      "start": 6.96,
+      "end": 8.72,
+      "text": "Morgan could hand over the entire trace.",
+      "words": [
+        {
+          "start": 6.96,
+          "end": 7.0,
+          "word": " Morgan"
+        },
+        {
+          "start": 7.0,
+          "end": 7.2,
+          "word": " could"
+        },
+        {
+          "start": 7.2,
+          "end": 7.44,
+          "word": " hand"
+        },
+        {
+          "start": 7.44,
+          "end": 7.68,
+          "word": " over"
+        },
+        {
+          "start": 7.68,
+          "end": 7.86,
+          "word": " the"
+        },
+        {
+          "start": 7.86,
+          "end": 8.28,
+          "word": " entire"
+        },
+        {
+          "start": 8.28,
+          "end": 8.72,
+          "word": " trace."
+        }
+      ]
+    },
+    {
+      "start": 9.2,
+      "end": 13.82,
+      "text": "That would reveal source notes and internal deliberation the board member did not request.",
+      "words": [
+        {
+          "start": 9.2,
+          "end": 9.42,
+          "word": " That"
+        },
+        {
+          "start": 9.42,
+          "end": 9.6,
+          "word": " would"
+        },
+        {
+          "start": 9.6,
+          "end": 9.92,
+          "word": " reveal"
+        },
+        {
+          "start": 9.92,
+          "end": 10.26,
+          "word": " source"
+        },
+        {
+          "start": 10.26,
+          "end": 10.6,
+          "word": " notes"
+        },
+        {
+          "start": 10.6,
+          "end": 11.08,
+          "word": " and"
+        },
+        {
+          "start": 11.08,
+          "end": 11.48,
+          "word": " internal"
+        },
+        {
+          "start": 11.48,
+          "end": 12.24,
+          "word": " deliberation"
+        },
+        {
+          "start": 12.24,
+          "end": 12.48,
+          "word": " the"
+        },
+        {
+          "start": 12.48,
+          "end": 12.72,
+          "word": " board"
+        },
+        {
+          "start": 12.72,
+          "end": 12.98,
+          "word": " member"
+        },
+        {
+          "start": 12.98,
+          "end": 13.2,
+          "word": " did"
+        },
+        {
+          "start": 13.2,
+          "end": 13.42,
+          "word": " not"
+        },
+        {
+          "start": 13.42,
+          "end": 13.82,
+          "word": " request."
+        }
+      ]
+    },
+    {
+      "start": 14.62,
+      "end": 16.6,
+      "text": "Morgan could write a polished story from memory.",
+      "words": [
+        {
+          "start": 14.62,
+          "end": 14.78,
+          "word": " Morgan"
+        },
+        {
+          "start": 14.78,
+          "end": 15.0,
+          "word": " could"
+        },
+        {
+          "start": 15.0,
+          "end": 15.18,
+          "word": " write"
+        },
+        {
+          "start": 15.18,
+          "end": 15.34,
+          "word": " a"
+        },
+        {
+          "start": 15.34,
+          "end": 15.6,
+          "word": " polished"
+        },
+        {
+          "start": 15.6,
+          "end": 16.0,
+          "word": " story"
+        },
+        {
+          "start": 16.0,
+          "end": 16.26,
+          "word": " from"
+        },
+        {
+          "start": 16.26,
+          "end": 16.6,
+          "word": " memory."
+        }
+      ]
+    },
+    {
+      "start": 17.1,
+      "end": 18.16,
+      "text": "That would be hard to check.",
+      "words": [
+        {
+          "start": 17.1,
+          "end": 17.3,
+          "word": " That"
+        },
+        {
+          "start": 17.3,
+          "end": 17.4,
+          "word": " would"
+        },
+        {
+          "start": 17.4,
+          "end": 17.54,
+          "word": " be"
+        },
+        {
+          "start": 17.54,
+          "end": 17.7,
+          "word": " hard"
+        },
+        {
+          "start": 17.7,
+          "end": 17.88,
+          "word": " to"
+        },
+        {
+          "start": 17.88,
+          "end": 18.16,
+          "word": " check."
+        }
+      ]
+    },
+    {
+      "start": 18.68,
+      "end": 23.6,
+      "text": "We need a smaller packet, enough to show the boundary, the work, the hold, and the",
+      "words": [
+        {
+          "start": 18.68,
+          "end": 18.84,
+          "word": " We"
+        },
+        {
+          "start": 18.84,
+          "end": 18.96,
+          "word": " need"
+        },
+        {
+          "start": 18.96,
+          "end": 19.08,
+          "word": " a"
+        },
+        {
+          "start": 19.08,
+          "end": 19.52,
+          "word": " smaller"
+        },
+        {
+          "start": 19.52,
+          "end": 19.96,
+          "word": " packet,"
+        },
+        {
+          "start": 20.22,
+          "end": 20.46,
+          "word": " enough"
+        },
+        {
+          "start": 20.46,
+          "end": 20.64,
+          "word": " to"
+        },
+        {
+          "start": 20.64,
+          "end": 20.82,
+          "word": " show"
+        },
+        {
+          "start": 20.82,
+          "end": 20.98,
+          "word": " the"
+        },
+        {
+          "start": 20.98,
+          "end": 21.42,
+          "word": " boundary,"
+        },
+        {
+          "start": 21.8,
+          "end": 21.96,
+          "word": " the"
+        },
+        {
+          "start": 21.96,
+          "end": 22.26,
+          "word": " work,"
+        },
+        {
+          "start": 22.64,
+          "end": 22.72,
+          "word": " the"
+        },
+        {
+          "start": 22.72,
+          "end": 23.08,
+          "word": " hold,"
+        },
+        {
+          "start": 23.28,
+          "end": 23.48,
+          "word": " and"
+        },
+        {
+          "start": 23.48,
+          "end": 23.6,
+          "word": " the"
+        }
+      ]
+    },
+    {
+      "start": 23.6,
+      "end": 27.3,
+      "text": "human decision without dragging every underlying record into the room.",
+      "words": [
+        {
+          "start": 23.6,
+          "end": 23.8,
+          "word": " human"
+        },
+        {
+          "start": 23.8,
+          "end": 24.28,
+          "word": " decision"
+        },
+        {
+          "start": 24.28,
+          "end": 24.94,
+          "word": " without"
+        },
+        {
+          "start": 24.94,
+          "end": 25.4,
+          "word": " dragging"
+        },
+        {
+          "start": 25.4,
+          "end": 25.8,
+          "word": " every"
+        },
+        {
+          "start": 25.8,
+          "end": 26.24,
+          "word": " underlying"
+        },
+        {
+          "start": 26.24,
+          "end": 26.6,
+          "word": " record"
+        },
+        {
+          "start": 26.6,
+          "end": 26.84,
+          "word": " into"
+        },
+        {
+          "start": 26.84,
+          "end": 27.02,
+          "word": " the"
+        },
+        {
+          "start": 27.02,
+          "end": 27.3,
+          "word": " room."
+        }
+      ]
+    },
+    {
+      "start": 27.3,
+      "end": 31.14,
+      "text": "Chapter 21's scoped proof loop has six fields.",
+      "words": [
+        {
+          "start": 27.3,
+          "end": 27.98,
+          "word": " Chapter"
+        },
+        {
+          "start": 27.98,
+          "end": 29.0,
+          "word": " 21's"
+        },
+        {
+          "start": 29.0,
+          "end": 29.14,
+          "word": " scoped"
+        },
+        {
+          "start": 29.14,
+          "end": 29.46,
+          "word": " proof"
+        },
+        {
+          "start": 29.46,
+          "end": 29.76,
+          "word": " loop"
+        },
+        {
+          "start": 29.76,
+          "end": 30.22,
+          "word": " has"
+        },
+        {
+          "start": 30.22,
+          "end": 30.58,
+          "word": " six"
+        },
+        {
+          "start": 30.58,
+          "end": 31.14,
+          "word": " fields."
+        }
+      ]
+    },
+    {
+      "start": 31.74,
+      "end": 35.96,
+      "text": "Audience, scope, window, exclusions, export, and ledger.",
+      "words": [
+        {
+          "start": 31.74,
+          "end": 32.08,
+          "word": " Audience,"
+        },
+        {
+          "start": 32.6,
+          "end": 32.68,
+          "word": " scope,"
+        },
+        {
+          "start": 33.08,
+          "end": 33.46,
+          "word": " window,"
+        },
+        {
+          "start": 33.86,
+          "end": 34.56,
+          "word": " exclusions,"
+        },
+        {
+          "start": 34.9,
+          "end": 35.24,
+          "word": " export,"
+        },
+        {
+          "start": 35.56,
+          "end": 35.7,
+          "word": " and"
+        },
+        {
+          "start": 35.7,
+          "end": 35.96,
+          "word": " ledger."
+        }
+      ]
+    },
+    {
+      "start": 36.5,
+      "end": 41.46,
+      "text": "For the Harbor Board reader, scope is one session option paper case across one course",
+      "words": [
+        {
+          "start": 36.5,
+          "end": 36.64,
+          "word": " For"
+        },
+        {
+          "start": 36.64,
+          "end": 36.78,
+          "word": " the"
+        },
+        {
+          "start": 36.78,
+          "end": 36.98,
+          "word": " Harbor"
+        },
+        {
+          "start": 36.98,
+          "end": 37.28,
+          "word": " Board"
+        },
+        {
+          "start": 37.28,
+          "end": 37.66,
+          "word": " reader,"
+        },
+        {
+          "start": 38.2,
+          "end": 38.26,
+          "word": " scope"
+        },
+        {
+          "start": 38.26,
+          "end": 38.52,
+          "word": " is"
+        },
+        {
+          "start": 38.52,
+          "end": 38.88,
+          "word": " one"
+        },
+        {
+          "start": 38.88,
+          "end": 39.3,
+          "word": " session"
+        },
+        {
+          "start": 39.3,
+          "end": 39.64,
+          "word": " option"
+        },
+        {
+          "start": 39.64,
+          "end": 39.88,
+          "word": " paper"
+        },
+        {
+          "start": 39.88,
+          "end": 40.28,
+          "word": " case"
+        },
+        {
+          "start": 40.28,
+          "end": 40.72,
+          "word": " across"
+        },
+        {
+          "start": 40.72,
+          "end": 41.16,
+          "word": " one"
+        },
+        {
+          "start": 41.16,
+          "end": 41.46,
+          "word": " course"
+        }
+      ]
+    },
+    {
+      "start": 41.46,
+      "end": 42.24,
+      "text": "planning window.",
+      "words": [
+        {
+          "start": 41.46,
+          "end": 41.8,
+          "word": " planning"
+        },
+        {
+          "start": 41.8,
+          "end": 42.24,
+          "word": " window."
+        }
+      ]
+    },
+    {
+      "start": 42.84,
+      "end": 48.28,
+      "text": "Include the permitted job, evidence status summary, handoff result, the staffing hold,",
+      "words": [
+        {
+          "start": 42.84,
+          "end": 43.12,
+          "word": " Include"
+        },
+        {
+          "start": 43.12,
+          "end": 43.3,
+          "word": " the"
+        },
+        {
+          "start": 43.3,
+          "end": 43.62,
+          "word": " permitted"
+        },
+        {
+          "start": 43.62,
+          "end": 44.12,
+          "word": " job,"
+        },
+        {
+          "start": 44.5,
+          "end": 44.76,
+          "word": " evidence"
+        },
+        {
+          "start": 44.76,
+          "end": 45.18,
+          "word": " status"
+        },
+        {
+          "start": 45.18,
+          "end": 45.7,
+          "word": " summary,"
+        },
+        {
+          "start": 46.08,
+          "end": 46.54,
+          "word": " handoff"
+        },
+        {
+          "start": 46.54,
+          "end": 46.92,
+          "word": " result,"
+        },
+        {
+          "start": 47.34,
+          "end": 47.48,
+          "word": " the"
+        },
+        {
+          "start": 47.48,
+          "end": 47.88,
+          "word": " staffing"
+        },
+        {
+          "start": 47.88,
+          "end": 48.28,
+          "word": " hold,"
+        }
+      ]
+    },
+    {
+      "start": 48.82,
+      "end": 52.4,
+      "text": "Morgan's paper disposition, and the still unapproved print request.",
+      "words": [
+        {
+          "start": 48.82,
+          "end": 49.08,
+          "word": " Morgan's"
+        },
+        {
+          "start": 49.08,
+          "end": 49.28,
+          "word": " paper"
+        },
+        {
+          "start": 49.28,
+          "end": 49.8,
+          "word": " disposition,"
+        },
+        {
+          "start": 50.26,
+          "end": 50.56,
+          "word": " and"
+        },
+        {
+          "start": 50.56,
+          "end": 50.72,
+          "word": " the"
+        },
+        {
+          "start": 50.72,
+          "end": 51.04,
+          "word": " still"
+        },
+        {
+          "start": 51.04,
+          "end": 51.62,
+          "word": " unapproved"
+        },
+        {
+          "start": 51.62,
+          "end": 51.98,
+          "word": " print"
+        },
+        {
+          "start": 51.98,
+          "end": 52.4,
+          "word": " request."
+        }
+      ]
+    },
+    {
+      "start": 52.92,
+      "end": 58.66,
+      "text": "Exclude raw source text, prompts, private reasoning, unrelated people, and any actual",
+      "words": [
+        {
+          "start": 52.92,
+          "end": 53.44,
+          "word": " Exclude"
+        },
+        {
+          "start": 53.44,
+          "end": 53.76,
+          "word": " raw"
+        },
+        {
+          "start": 53.76,
+          "end": 54.04,
+          "word": " source"
+        },
+        {
+          "start": 54.04,
+          "end": 54.52,
+          "word": " text,"
+        },
+        {
+          "start": 54.86,
+          "end": 55.08,
+          "word": " prompts,"
+        },
+        {
+          "start": 55.78,
+          "end": 55.82,
+          "word": " private"
+        },
+        {
+          "start": 55.82,
+          "end": 56.3,
+          "word": " reasoning,"
+        },
+        {
+          "start": 56.66,
+          "end": 57.02,
+          "word": " unrelated"
+        },
+        {
+          "start": 57.02,
+          "end": 57.52,
+          "word": " people,"
+        },
+        {
+          "start": 57.92,
+          "end": 58.0,
+          "word": " and"
+        },
+        {
+          "start": 58.0,
+          "end": 58.26,
+          "word": " any"
+        },
+        {
+          "start": 58.26,
+          "end": 58.66,
+          "word": " actual"
+        }
+      ]
+    },
+    {
+      "start": 58.66,
+      "end": 59.12,
+      "text": "records.",
+      "words": [
+        {
+          "start": 58.66,
+          "end": 59.12,
+          "word": " records."
+        }
+      ]
+    },
+    {
+      "start": 59.52,
+      "end": 61.9,
+      "text": "The packet records what is known and what is withheld.",
+      "words": [
+        {
+          "start": 59.52,
+          "end": 59.68,
+          "word": " The"
+        },
+        {
+          "start": 59.68,
+          "end": 59.94,
+          "word": " packet"
+        },
+        {
+          "start": 59.94,
+          "end": 60.34,
+          "word": " records"
+        },
+        {
+          "start": 60.34,
+          "end": 60.56,
+          "word": " what"
+        },
+        {
+          "start": 60.56,
+          "end": 60.7,
+          "word": " is"
+        },
+        {
+          "start": 60.7,
+          "end": 60.98,
+          "word": " known"
+        },
+        {
+          "start": 60.98,
+          "end": 61.3,
+          "word": " and"
+        },
+        {
+          "start": 61.3,
+          "end": 61.46,
+          "word": " what"
+        },
+        {
+          "start": 61.46,
+          "end": 61.56,
+          "word": " is"
+        },
+        {
+          "start": 61.56,
+          "end": 61.9,
+          "word": " withheld."
+        }
+      ]
+    },
+    {
+      "start": 62.36,
+      "end": 65.9,
+      "text": "It does not certify agent quality or imply a session happened.",
+      "words": [
+        {
+          "start": 62.36,
+          "end": 62.56,
+          "word": " It"
+        },
+        {
+          "start": 62.56,
+          "end": 62.72,
+          "word": " does"
+        },
+        {
+          "start": 62.72,
+          "end": 63.0,
+          "word": " not"
+        },
+        {
+          "start": 63.0,
+          "end": 63.5,
+          "word": " certify"
+        },
+        {
+          "start": 63.5,
+          "end": 63.84,
+          "word": " agent"
+        },
+        {
+          "start": 63.84,
+          "end": 64.24,
+          "word": " quality"
+        },
+        {
+          "start": 64.24,
+          "end": 64.72,
+          "word": " or"
+        },
+        {
+          "start": 64.72,
+          "end": 65.06,
+          "word": " imply"
+        },
+        {
+          "start": 65.06,
+          "end": 65.2,
+          "word": " a"
+        },
+        {
+          "start": 65.2,
+          "end": 65.42,
+          "word": " session"
+        },
+        {
+          "start": 65.42,
+          "end": 65.9,
+          "word": " happened."
+        }
+      ]
+    },
+    {
+      "start": 66.36,
+      "end": 70.86,
+      "text": "The workbook calls for capability boundaries, scoped trace references, approval",
+      "words": [
+        {
+          "start": 66.36,
+          "end": 66.56,
+          "word": " The"
+        },
+        {
+          "start": 66.56,
+          "end": 66.9,
+          "word": " workbook"
+        },
+        {
+          "start": 66.9,
+          "end": 67.14,
+          "word": " calls"
+        },
+        {
+          "start": 67.14,
+          "end": 67.38,
+          "word": " for"
+        },
+        {
+          "start": 67.38,
+          "end": 67.82,
+          "word": " capability"
+        },
+        {
+          "start": 67.82,
+          "end": 68.48,
+          "word": " boundaries,"
+        },
+        {
+          "start": 68.98,
+          "end": 69.16,
+          "word": " scoped"
+        },
+        {
+          "start": 69.16,
+          "end": 69.52,
+          "word": " trace"
+        },
+        {
+          "start": 69.52,
+          "end": 70.06,
+          "word": " references,"
+        },
+        {
+          "start": 70.5,
+          "end": 70.86,
+          "word": " approval"
+        }
+      ]
+    },
+    {
+      "start": 70.86,
+      "end": 75.88,
+      "text": "decisions, cost authority summary, export metadata, and reviewer notes.",
+      "words": [
+        {
+          "start": 70.86,
+          "end": 71.42,
+          "word": " decisions,"
+        },
+        {
+          "start": 72.26,
+          "end": 72.26,
+          "word": " cost"
+        },
+        {
+          "start": 72.26,
+          "end": 72.68,
+          "word": " authority"
+        },
+        {
+          "start": 72.68,
+          "end": 73.14,
+          "word": " summary,"
+        },
+        {
+          "start": 73.6,
+          "end": 74.0,
+          "word": " export"
+        },
+        {
+          "start": 74.0,
+          "end": 74.48,
+          "word": " metadata,"
+        },
+        {
+          "start": 74.9,
+          "end": 75.16,
+          "word": " and"
+        },
+        {
+          "start": 75.16,
+          "end": 75.48,
+          "word": " reviewer"
+        },
+        {
+          "start": 75.48,
+          "end": 75.88,
+          "word": " notes."
+        }
+      ]
+    },
+    {
+      "start": 76.5,
+      "end": 80.04,
+      "text": "Use course references and a course timestamp label, not a real log.",
+      "words": [
+        {
+          "start": 76.5,
+          "end": 76.74,
+          "word": " Use"
+        },
+        {
+          "start": 76.74,
+          "end": 76.98,
+          "word": " course"
+        },
+        {
+          "start": 76.98,
+          "end": 77.42,
+          "word": " references"
+        },
+        {
+          "start": 77.42,
+          "end": 77.8,
+          "word": " and"
+        },
+        {
+          "start": 77.8,
+          "end": 77.92,
+          "word": " a"
+        },
+        {
+          "start": 77.92,
+          "end": 78.16,
+          "word": " course"
+        },
+        {
+          "start": 78.16,
+          "end": 78.66,
+          "word": " timestamp"
+        },
+        {
+          "start": 78.66,
+          "end": 79.04,
+          "word": " label,"
+        },
+        {
+          "start": 79.24,
+          "end": 79.4,
+          "word": " not"
+        },
+        {
+          "start": 79.4,
+          "end": 79.52,
+          "word": " a"
+        },
+        {
+          "start": 79.52,
+          "end": 79.7,
+          "word": " real"
+        },
+        {
+          "start": 79.7,
+          "end": 80.04,
+          "word": " log."
+        }
+      ]
+    },
+    {
+      "start": 80.6,
+      "end": 83.5,
+      "text": "Morgan reviews the proposed proof packet before any sharing.",
+      "words": [
+        {
+          "start": 80.6,
+          "end": 80.9,
+          "word": " Morgan"
+        },
+        {
+          "start": 80.9,
+          "end": 81.34,
+          "word": " reviews"
+        },
+        {
+          "start": 81.34,
+          "end": 81.52,
+          "word": " the"
+        },
+        {
+          "start": 81.52,
+          "end": 81.88,
+          "word": " proposed"
+        },
+        {
+          "start": 81.88,
+          "end": 82.2,
+          "word": " proof"
+        },
+        {
+          "start": 82.2,
+          "end": 82.56,
+          "word": " packet"
+        },
+        {
+          "start": 82.56,
+          "end": 82.9,
+          "word": " before"
+        },
+        {
+          "start": 82.9,
+          "end": 83.12,
+          "word": " any"
+        },
+        {
+          "start": 83.12,
+          "end": 83.5,
+          "word": " sharing."
+        }
+      ]
+    },
+    {
+      "start": 84.0,
+      "end": 87.62,
+      "text": "If a field cannot be safely summarized, mark it withheld with a reason.",
+      "words": [
+        {
+          "start": 84.0,
+          "end": 84.08,
+          "word": " If"
+        },
+        {
+          "start": 84.08,
+          "end": 84.22,
+          "word": " a"
+        },
+        {
+          "start": 84.22,
+          "end": 84.48,
+          "word": " field"
+        },
+        {
+          "start": 84.48,
+          "end": 84.72,
+          "word": " cannot"
+        },
+        {
+          "start": 84.72,
+          "end": 84.96,
+          "word": " be"
+        },
+        {
+          "start": 84.96,
+          "end": 85.26,
+          "word": " safely"
+        },
+        {
+          "start": 85.26,
+          "end": 85.84,
+          "word": " summarized,"
+        },
+        {
+          "start": 86.28,
+          "end": 86.48,
+          "word": " mark"
+        },
+        {
+          "start": 86.48,
+          "end": 86.64,
+          "word": " it"
+        },
+        {
+          "start": 86.64,
+          "end": 86.98,
+          "word": " withheld"
+        },
+        {
+          "start": 86.98,
+          "end": 87.22,
+          "word": " with"
+        },
+        {
+          "start": 87.22,
+          "end": 87.32,
+          "word": " a"
+        },
+        {
+          "start": 87.32,
+          "end": 87.62,
+          "word": " reason."
+        }
+      ]
+    },
+    {
+      "start": 88.36,
+      "end": 91.54,
+      "text": "Redaction is a decision, not a blur laid over a screenshot.",
+      "words": [
+        {
+          "start": 88.36,
+          "end": 88.68,
+          "word": " Redaction"
+        },
+        {
+          "start": 88.68,
+          "end": 89.04,
+          "word": " is"
+        },
+        {
+          "start": 89.04,
+          "end": 89.2,
+          "word": " a"
+        },
+        {
+          "start": 89.2,
+          "end": 89.62,
+          "word": " decision,"
+        },
+        {
+          "start": 89.96,
+          "end": 90.22,
+          "word": " not"
+        },
+        {
+          "start": 90.22,
+          "end": 90.36,
+          "word": " a"
+        },
+        {
+          "start": 90.36,
+          "end": 90.56,
+          "word": " blur"
+        },
+        {
+          "start": 90.56,
+          "end": 90.78,
+          "word": " laid"
+        },
+        {
+          "start": 90.78,
+          "end": 91.0,
+          "word": " over"
+        },
+        {
+          "start": 91.0,
+          "end": 91.18,
+          "word": " a"
+        },
+        {
+          "start": 91.18,
+          "end": 91.54,
+          "word": " screenshot."
+        }
+      ]
+    },
+    {
+      "start": 92.18,
+      "end": 94.92,
+      "text": "Here, the export is only a classroom outline.",
+      "words": [
+        {
+          "start": 92.18,
+          "end": 92.48,
+          "word": " Here,"
+        },
+        {
+          "start": 92.76,
+          "end": 92.9,
+          "word": " the"
+        },
+        {
+          "start": 92.9,
+          "end": 93.3,
+          "word": " export"
+        },
+        {
+          "start": 93.3,
+          "end": 93.56,
+          "word": " is"
+        },
+        {
+          "start": 93.56,
+          "end": 93.9,
+          "word": " only"
+        },
+        {
+          "start": 93.9,
+          "end": 94.1,
+          "word": " a"
+        },
+        {
+          "start": 94.1,
+          "end": 94.5,
+          "word": " classroom"
+        },
+        {
+          "start": 94.5,
+          "end": 94.92,
+          "word": " outline."
+        }
+      ]
+    },
+    {
+      "start": 95.28,
+      "end": 95.96,
+      "text": "Nothing is sent.",
+      "words": [
+        {
+          "start": 95.28,
+          "end": 95.5,
+          "word": " Nothing"
+        },
+        {
+          "start": 95.5,
+          "end": 95.66,
+          "word": " is"
+        },
+        {
+          "start": 95.66,
+          "end": 95.96,
+          "word": " sent."
+        }
+      ]
+    },
+    {
+      "start": 96.54,
+      "end": 100.7,
+      "text": "The same team then hears an idea, a tiny phone tool that helps volunteer",
+      "words": [
+        {
+          "start": 96.54,
+          "end": 96.76,
+          "word": " The"
+        },
+        {
+          "start": 96.76,
+          "end": 97.0,
+          "word": " same"
+        },
+        {
+          "start": 97.0,
+          "end": 97.32,
+          "word": " team"
+        },
+        {
+          "start": 97.32,
+          "end": 97.6,
+          "word": " then"
+        },
+        {
+          "start": 97.6,
+          "end": 97.84,
+          "word": " hears"
+        },
+        {
+          "start": 97.84,
+          "end": 98.0,
+          "word": " an"
+        },
+        {
+          "start": 98.0,
+          "end": 98.36,
+          "word": " idea,"
+        },
+        {
+          "start": 98.72,
+          "end": 98.92,
+          "word": " a"
+        },
+        {
+          "start": 98.92,
+          "end": 99.14,
+          "word": " tiny"
+        },
+        {
+          "start": 99.14,
+          "end": 99.46,
+          "word": " phone"
+        },
+        {
+          "start": 99.46,
+          "end": 99.72,
+          "word": " tool"
+        },
+        {
+          "start": 99.72,
+          "end": 99.96,
+          "word": " that"
+        },
+        {
+          "start": 99.96,
+          "end": 100.22,
+          "word": " helps"
+        },
+        {
+          "start": 100.22,
+          "end": 100.7,
+          "word": " volunteer"
+        }
+      ]
+    },
+    {
+      "start": 100.7,
+      "end": 102.74,
+      "text": "coordinators compare workshop options.",
+      "words": [
+        {
+          "start": 100.7,
+          "end": 101.4,
+          "word": " coordinators"
+        },
+        {
+          "start": 101.4,
+          "end": 101.74,
+          "word": " compare"
+        },
+        {
+          "start": 101.74,
+          "end": 102.24,
+          "word": " workshop"
+        },
+        {
+          "start": 102.24,
+          "end": 102.74,
+          "word": " options."
+        }
+      ]
+    },
+    {
+      "start": 103.14,
+      "end": 105.96,
+      "text": "The temptation is to build it because it fits the Harbor story.",
+      "words": [
+        {
+          "start": 103.14,
+          "end": 103.36,
+          "word": " The"
+        },
+        {
+          "start": 103.36,
+          "end": 103.64,
+          "word": " temptation"
+        },
+        {
+          "start": 103.64,
+          "end": 103.98,
+          "word": " is"
+        },
+        {
+          "start": 103.98,
+          "end": 104.14,
+          "word": " to"
+        },
+        {
+          "start": 104.14,
+          "end": 104.36,
+          "word": " build"
+        },
+        {
+          "start": 104.36,
+          "end": 104.56,
+          "word": " it"
+        },
+        {
+          "start": 104.56,
+          "end": 104.82,
+          "word": " because"
+        },
+        {
+          "start": 104.82,
+          "end": 104.98,
+          "word": " it"
+        },
+        {
+          "start": 104.98,
+          "end": 105.2,
+          "word": " fits"
+        },
+        {
+          "start": 105.2,
+          "end": 105.42,
+          "word": " the"
+        },
+        {
+          "start": 105.42,
+          "end": 105.56,
+          "word": " Harbor"
+        },
+        {
+          "start": 105.56,
+          "end": 105.96,
+          "word": " story."
+        }
+      ]
+    },
+    {
+      "start": 105.96,
+      "end": 109.28,
+      "text": "Chapter 22 asks for a foundry test first.",
+      "words": [
+        {
+          "start": 105.96,
+          "end": 106.68,
+          "word": " Chapter"
+        },
+        {
+          "start": 106.68,
+          "end": 107.28,
+          "word": " 22"
+        },
+        {
+          "start": 107.28,
+          "end": 107.7,
+          "word": " asks"
+        },
+        {
+          "start": 107.7,
+          "end": 108.02,
+          "word": " for"
+        },
+        {
+          "start": 108.02,
+          "end": 108.12,
+          "word": " a"
+        },
+        {
+          "start": 108.12,
+          "end": 108.52,
+          "word": " foundry"
+        },
+        {
+          "start": 108.52,
+          "end": 108.74,
+          "word": " test"
+        },
+        {
+          "start": 108.74,
+          "end": 109.28,
+          "word": " first."
+        }
+      ]
+    },
+    {
+      "start": 109.88,
+      "end": 114.3,
+      "text": "Demand, monetization, builder fit, build velocity, differentiation,",
+      "words": [
+        {
+          "start": 109.88,
+          "end": 109.92,
+          "word": " Demand,"
+        },
+        {
+          "start": 110.34,
+          "end": 111.08,
+          "word": " monetization,"
+        },
+        {
+          "start": 111.46,
+          "end": 111.78,
+          "word": " builder"
+        },
+        {
+          "start": 111.78,
+          "end": 112.1,
+          "word": " fit,"
+        },
+        {
+          "start": 112.5,
+          "end": 112.72,
+          "word": " build"
+        },
+        {
+          "start": 112.72,
+          "end": 113.24,
+          "word": " velocity,"
+        },
+        {
+          "start": 113.68,
+          "end": 114.3,
+          "word": " differentiation,"
+        }
+      ]
+    },
+    {
+      "start": 114.96,
+      "end": 116.84,
+      "text": "release readiness, and approval gates.",
+      "words": [
+        {
+          "start": 114.96,
+          "end": 115.2,
+          "word": " release"
+        },
+        {
+          "start": 115.2,
+          "end": 115.6,
+          "word": " readiness,"
+        },
+        {
+          "start": 116.08,
+          "end": 116.2,
+          "word": " and"
+        },
+        {
+          "start": 116.2,
+          "end": 116.5,
+          "word": " approval"
+        },
+        {
+          "start": 116.5,
+          "end": 116.84,
+          "word": " gates."
+        }
+      ]
+    },
+    {
+      "start": 117.42,
+      "end": 120.14,
+      "text": "The workbook proposes a weighted score out of 100.",
+      "words": [
+        {
+          "start": 117.42,
+          "end": 117.6,
+          "word": " The"
+        },
+        {
+          "start": 117.6,
+          "end": 117.94,
+          "word": " workbook"
+        },
+        {
+          "start": 117.94,
+          "end": 118.38,
+          "word": " proposes"
+        },
+        {
+          "start": 118.38,
+          "end": 118.58,
+          "word": " a"
+        },
+        {
+          "start": 118.58,
+          "end": 118.86,
+          "word": " weighted"
+        },
+        {
+          "start": 118.86,
+          "end": 119.26,
+          "word": " score"
+        },
+        {
+          "start": 119.26,
+          "end": 119.54,
+          "word": " out"
+        },
+        {
+          "start": 119.54,
+          "end": 119.7,
+          "word": " of"
+        },
+        {
+          "start": 119.7,
+          "end": 120.14,
+          "word": " 100."
+        }
+      ]
+    },
+    {
+      "start": 120.6,
+      "end": 124.02,
+      "text": "A score is useful only when each field has attributable evidence.",
+      "words": [
+        {
+          "start": 120.6,
+          "end": 120.76,
+          "word": " A"
+        },
+        {
+          "start": 120.76,
+          "end": 121.0,
+          "word": " score"
+        },
+        {
+          "start": 121.0,
+          "end": 121.18,
+          "word": " is"
+        },
+        {
+          "start": 121.18,
+          "end": 121.46,
+          "word": " useful"
+        },
+        {
+          "start": 121.46,
+          "end": 121.88,
+          "word": " only"
+        },
+        {
+          "start": 121.88,
+          "end": 122.14,
+          "word": " when"
+        },
+        {
+          "start": 122.14,
+          "end": 122.48,
+          "word": " each"
+        },
+        {
+          "start": 122.48,
+          "end": 122.84,
+          "word": " field"
+        },
+        {
+          "start": 122.84,
+          "end": 123.08,
+          "word": " has"
+        },
+        {
+          "start": 123.08,
+          "end": 123.5,
+          "word": " attributable"
+        },
+        {
+          "start": 123.5,
+          "end": 124.02,
+          "word": " evidence."
+        }
+      ]
+    },
+    {
+      "start": 124.5,
+      "end": 128.64,
+      "text": "Our class has no real market research, pay or interview, or release review.",
+      "words": [
+        {
+          "start": 124.5,
+          "end": 124.74,
+          "word": " Our"
+        },
+        {
+          "start": 124.74,
+          "end": 124.96,
+          "word": " class"
+        },
+        {
+          "start": 124.96,
+          "end": 125.2,
+          "word": " has"
+        },
+        {
+          "start": 125.2,
+          "end": 125.5,
+          "word": " no"
+        },
+        {
+          "start": 125.5,
+          "end": 125.7,
+          "word": " real"
+        },
+        {
+          "start": 125.7,
+          "end": 125.96,
+          "word": " market"
+        },
+        {
+          "start": 125.96,
+          "end": 126.44,
+          "word": " research,"
+        },
+        {
+          "start": 126.74,
+          "end": 126.98,
+          "word": " pay"
+        },
+        {
+          "start": 126.98,
+          "end": 127.08,
+          "word": " or"
+        },
+        {
+          "start": 127.08,
+          "end": 127.46,
+          "word": " interview,"
+        },
+        {
+          "start": 127.74,
+          "end": 128.0,
+          "word": " or"
+        },
+        {
+          "start": 128.0,
+          "end": 128.3,
+          "word": " release"
+        },
+        {
+          "start": 128.3,
+          "end": 128.64,
+          "word": " review."
+        }
+      ]
+    },
+    {
+      "start": 129.02,
+      "end": 130.66,
+      "text": "Those fields stay unscored.",
+      "words": [
+        {
+          "start": 129.02,
+          "end": 129.26,
+          "word": " Those"
+        },
+        {
+          "start": 129.26,
+          "end": 129.66,
+          "word": " fields"
+        },
+        {
+          "start": 129.66,
+          "end": 130.18,
+          "word": " stay"
+        },
+        {
+          "start": 130.18,
+          "end": 130.66,
+          "word": " unscored."
+        }
+      ]
+    },
+    {
+      "start": 131.08,
+      "end": 134.06,
+      "text": "A number without evidence would turn an idea into false proof.",
+      "words": [
+        {
+          "start": 131.08,
+          "end": 131.32,
+          "word": " A"
+        },
+        {
+          "start": 131.32,
+          "end": 131.48,
+          "word": " number"
+        },
+        {
+          "start": 131.48,
+          "end": 131.82,
+          "word": " without"
+        },
+        {
+          "start": 131.82,
+          "end": 132.22,
+          "word": " evidence"
+        },
+        {
+          "start": 132.22,
+          "end": 132.48,
+          "word": " would"
+        },
+        {
+          "start": 132.48,
+          "end": 132.68,
+          "word": " turn"
+        },
+        {
+          "start": 132.68,
+          "end": 132.84,
+          "word": " an"
+        },
+        {
+          "start": 132.84,
+          "end": 133.16,
+          "word": " idea"
+        },
+        {
+          "start": 133.16,
+          "end": 133.46,
+          "word": " into"
+        },
+        {
+          "start": 133.46,
+          "end": 133.72,
+          "word": " false"
+        },
+        {
+          "start": 133.72,
+          "end": 134.06,
+          "word": " proof."
+        }
+      ]
+    },
+    {
+      "start": 134.06,
+      "end": 136.42,
+      "text": "Write the smallest safe next test.",
+      "words": [
+        {
+          "start": 134.06,
+          "end": 134.76,
+          "word": " Write"
+        },
+        {
+          "start": 134.76,
+          "end": 134.94,
+          "word": " the"
+        },
+        {
+          "start": 134.94,
+          "end": 135.44,
+          "word": " smallest"
+        },
+        {
+          "start": 135.44,
+          "end": 135.74,
+          "word": " safe"
+        },
+        {
+          "start": 135.74,
+          "end": 135.98,
+          "word": " next"
+        },
+        {
+          "start": 135.98,
+          "end": 136.42,
+          "word": " test."
+        }
+      ]
+    },
+    {
+      "start": 137.0,
+      "end": 139.92,
+      "text": "Morgan could ask for permission to research public demand and",
+      "words": [
+        {
+          "start": 137.0,
+          "end": 137.12,
+          "word": " Morgan"
+        },
+        {
+          "start": 137.12,
+          "end": 137.34,
+          "word": " could"
+        },
+        {
+          "start": 137.34,
+          "end": 137.52,
+          "word": " ask"
+        },
+        {
+          "start": 137.52,
+          "end": 137.7,
+          "word": " for"
+        },
+        {
+          "start": 137.7,
+          "end": 137.98,
+          "word": " permission"
+        },
+        {
+          "start": 137.98,
+          "end": 138.28,
+          "word": " to"
+        },
+        {
+          "start": 138.28,
+          "end": 138.66,
+          "word": " research"
+        },
+        {
+          "start": 138.66,
+          "end": 138.98,
+          "word": " public"
+        },
+        {
+          "start": 138.98,
+          "end": 139.42,
+          "word": " demand"
+        },
+        {
+          "start": 139.42,
+          "end": 139.92,
+          "word": " and"
+        }
+      ]
+    },
+    {
+      "start": 139.92,
+      "end": 141.04,
+      "text": "clarify who would pay.",
+      "words": [
+        {
+          "start": 139.92,
+          "end": 140.38,
+          "word": " clarify"
+        },
+        {
+          "start": 140.38,
+          "end": 140.64,
+          "word": " who"
+        },
+        {
+          "start": 140.64,
+          "end": 140.8,
+          "word": " would"
+        },
+        {
+          "start": 140.8,
+          "end": 141.04,
+          "word": " pay."
+        }
+      ]
+    },
+    {
+      "start": 141.54,
+      "end": 145.0,
+      "text": "Even that is a proposed plan, not a provider call or outreach.",
+      "words": [
+        {
+          "start": 141.54,
+          "end": 141.74,
+          "word": " Even"
+        },
+        {
+          "start": 141.74,
+          "end": 142.04,
+          "word": " that"
+        },
+        {
+          "start": 142.04,
+          "end": 142.2,
+          "word": " is"
+        },
+        {
+          "start": 142.2,
+          "end": 142.32,
+          "word": " a"
+        },
+        {
+          "start": 142.32,
+          "end": 142.6,
+          "word": " proposed"
+        },
+        {
+          "start": 142.6,
+          "end": 143.02,
+          "word": " plan,"
+        },
+        {
+          "start": 143.24,
+          "end": 143.5,
+          "word": " not"
+        },
+        {
+          "start": 143.5,
+          "end": 143.64,
+          "word": " a"
+        },
+        {
+          "start": 143.64,
+          "end": 143.98,
+          "word": " provider"
+        },
+        {
+          "start": 143.98,
+          "end": 144.34,
+          "word": " call"
+        },
+        {
+          "start": 144.34,
+          "end": 144.58,
+          "word": " or"
+        },
+        {
+          "start": 144.58,
+          "end": 145.0,
+          "word": " outreach."
+        }
+      ]
+    },
+    {
+      "start": 145.44,
+      "end": 150.66,
+      "text": "No repository, tester invite, user data collection, price, store listing,",
+      "words": [
+        {
+          "start": 145.44,
+          "end": 145.66,
+          "word": " No"
+        },
+        {
+          "start": 145.66,
+          "end": 146.2,
+          "word": " repository,"
+        },
+        {
+          "start": 146.76,
+          "end": 147.08,
+          "word": " tester"
+        },
+        {
+          "start": 147.08,
+          "end": 147.48,
+          "word": " invite,"
+        },
+        {
+          "start": 147.8,
+          "end": 148.08,
+          "word": " user"
+        },
+        {
+          "start": 148.08,
+          "end": 148.32,
+          "word": " data"
+        },
+        {
+          "start": 148.32,
+          "end": 148.8,
+          "word": " collection,"
+        },
+        {
+          "start": 149.18,
+          "end": 149.58,
+          "word": " price,"
+        },
+        {
+          "start": 150.0,
+          "end": 150.24,
+          "word": " store"
+        },
+        {
+          "start": 150.24,
+          "end": 150.66,
+          "word": " listing,"
+        }
+      ]
+    },
+    {
+      "start": 150.9,
+      "end": 152.76,
+      "text": "or public claim follows from this lesson.",
+      "words": [
+        {
+          "start": 150.9,
+          "end": 151.02,
+          "word": " or"
+        },
+        {
+          "start": 151.02,
+          "end": 151.34,
+          "word": " public"
+        },
+        {
+          "start": 151.34,
+          "end": 151.64,
+          "word": " claim"
+        },
+        {
+          "start": 151.64,
+          "end": 152.0,
+          "word": " follows"
+        },
+        {
+          "start": 152.0,
+          "end": 152.26,
+          "word": " from"
+        },
+        {
+          "start": 152.26,
+          "end": 152.42,
+          "word": " this"
+        },
+        {
+          "start": 152.42,
+          "end": 152.76,
+          "word": " lesson."
+        }
+      ]
+    },
+    {
+      "start": 153.24,
+      "end": 157.46,
+      "text": "A phone can display the packet and a hold status, but it cannot wave the gate.",
+      "words": [
+        {
+          "start": 153.24,
+          "end": 153.42,
+          "word": " A"
+        },
+        {
+          "start": 153.42,
+          "end": 153.66,
+          "word": " phone"
+        },
+        {
+          "start": 153.66,
+          "end": 153.86,
+          "word": " can"
+        },
+        {
+          "start": 153.86,
+          "end": 154.2,
+          "word": " display"
+        },
+        {
+          "start": 154.2,
+          "end": 154.38,
+          "word": " the"
+        },
+        {
+          "start": 154.38,
+          "end": 154.68,
+          "word": " packet"
+        },
+        {
+          "start": 154.68,
+          "end": 155.0,
+          "word": " and"
+        },
+        {
+          "start": 155.0,
+          "end": 155.1,
+          "word": " a"
+        },
+        {
+          "start": 155.1,
+          "end": 155.3,
+          "word": " hold"
+        },
+        {
+          "start": 155.3,
+          "end": 155.72,
+          "word": " status,"
+        },
+        {
+          "start": 155.82,
+          "end": 156.22,
+          "word": " but"
+        },
+        {
+          "start": 156.22,
+          "end": 156.36,
+          "word": " it"
+        },
+        {
+          "start": 156.36,
+          "end": 156.8,
+          "word": " cannot"
+        },
+        {
+          "start": 156.8,
+          "end": 157.08,
+          "word": " wave"
+        },
+        {
+          "start": 157.08,
+          "end": 157.28,
+          "word": " the"
+        },
+        {
+          "start": 157.28,
+          "end": 157.46,
+          "word": " gate."
+        }
+      ]
+    },
+    {
+      "start": 157.82,
+      "end": 160.82,
+      "text": "The valuable outcome may be a decision to shelve the idea.",
+      "words": [
+        {
+          "start": 157.82,
+          "end": 158.0,
+          "word": " The"
+        },
+        {
+          "start": 158.0,
+          "end": 158.38,
+          "word": " valuable"
+        },
+        {
+          "start": 158.38,
+          "end": 158.84,
+          "word": " outcome"
+        },
+        {
+          "start": 158.84,
+          "end": 159.14,
+          "word": " may"
+        },
+        {
+          "start": 159.14,
+          "end": 159.3,
+          "word": " be"
+        },
+        {
+          "start": 159.3,
+          "end": 159.44,
+          "word": " a"
+        },
+        {
+          "start": 159.44,
+          "end": 159.7,
+          "word": " decision"
+        },
+        {
+          "start": 159.7,
+          "end": 160.04,
+          "word": " to"
+        },
+        {
+          "start": 160.04,
+          "end": 160.36,
+          "word": " shelve"
+        },
+        {
+          "start": 160.36,
+          "end": 160.46,
+          "word": " the"
+        },
+        {
+          "start": 160.46,
+          "end": 160.82,
+          "word": " idea."
+        }
+      ]
+    },
+    {
+      "start": 161.1,
+      "end": 163.44,
+      "text": "That saves time a rushed build would consume.",
+      "words": [
+        {
+          "start": 161.1,
+          "end": 161.38,
+          "word": " That"
+        },
+        {
+          "start": 161.38,
+          "end": 161.62,
+          "word": " saves"
+        },
+        {
+          "start": 161.62,
+          "end": 162.02,
+          "word": " time"
+        },
+        {
+          "start": 162.02,
+          "end": 162.28,
+          "word": " a"
+        },
+        {
+          "start": 162.28,
+          "end": 162.5,
+          "word": " rushed"
+        },
+        {
+          "start": 162.5,
+          "end": 162.82,
+          "word": " build"
+        },
+        {
+          "start": 162.82,
+          "end": 163.02,
+          "word": " would"
+        },
+        {
+          "start": 163.02,
+          "end": 163.44,
+          "word": " consume."
+        }
+      ]
+    },
+    {
+      "start": 163.44,
+      "end": 164.28,
+      "text": "Pause.",
+      "words": [
+        {
+          "start": 163.44,
+          "end": 164.28,
+          "word": " Pause."
+        }
+      ]
+    },
+    {
+      "start": 164.92,
+      "end": 168.12,
+      "text": "What would you leave out of the board packet even if it helped tell a better story?",
+      "words": [
+        {
+          "start": 164.92,
+          "end": 165.0,
+          "word": " What"
+        },
+        {
+          "start": 165.0,
+          "end": 165.12,
+          "word": " would"
+        },
+        {
+          "start": 165.12,
+          "end": 165.24,
+          "word": " you"
+        },
+        {
+          "start": 165.24,
+          "end": 165.42,
+          "word": " leave"
+        },
+        {
+          "start": 165.42,
+          "end": 165.6,
+          "word": " out"
+        },
+        {
+          "start": 165.6,
+          "end": 165.68,
+          "word": " of"
+        },
+        {
+          "start": 165.68,
+          "end": 165.78,
+          "word": " the"
+        },
+        {
+          "start": 165.78,
+          "end": 166.02,
+          "word": " board"
+        },
+        {
+          "start": 166.02,
+          "end": 166.4,
+          "word": " packet"
+        },
+        {
+          "start": 166.4,
+          "end": 166.74,
+          "word": " even"
+        },
+        {
+          "start": 166.74,
+          "end": 166.86,
+          "word": " if"
+        },
+        {
+          "start": 166.86,
+          "end": 166.96,
+          "word": " it"
+        },
+        {
+          "start": 166.96,
+          "end": 167.14,
+          "word": " helped"
+        },
+        {
+          "start": 167.14,
+          "end": 167.36,
+          "word": " tell"
+        },
+        {
+          "start": 167.36,
+          "end": 167.48,
+          "word": " a"
+        },
+        {
+          "start": 167.48,
+          "end": 167.64,
+          "word": " better"
+        },
+        {
+          "start": 167.64,
+          "end": 168.12,
+          "word": " story?"
+        }
+      ]
+    },
+    {
+      "start": 168.86,
+      "end": 172.24,
+      "text": "Draft a client safe proof packet outline for the harbor planning case.",
+      "words": [
+        {
+          "start": 168.86,
+          "end": 168.88,
+          "word": " Draft"
+        },
+        {
+          "start": 168.88,
+          "end": 169.12,
+          "word": " a"
+        },
+        {
+          "start": 169.12,
+          "end": 169.4,
+          "word": " client"
+        },
+        {
+          "start": 169.4,
+          "end": 169.68,
+          "word": " safe"
+        },
+        {
+          "start": 169.68,
+          "end": 170.02,
+          "word": " proof"
+        },
+        {
+          "start": 170.02,
+          "end": 170.4,
+          "word": " packet"
+        },
+        {
+          "start": 170.4,
+          "end": 170.78,
+          "word": " outline"
+        },
+        {
+          "start": 170.78,
+          "end": 171.1,
+          "word": " for"
+        },
+        {
+          "start": 171.1,
+          "end": 171.24,
+          "word": " the"
+        },
+        {
+          "start": 171.24,
+          "end": 171.42,
+          "word": " harbor"
+        },
+        {
+          "start": 171.42,
+          "end": 171.78,
+          "word": " planning"
+        },
+        {
+          "start": 171.78,
+          "end": 172.24,
+          "word": " case."
+        }
+      ]
+    },
+    {
+      "start": 172.82,
+      "end": 178.08,
+      "text": "State audience, scope, window, inclusions, exclusions, export review,",
+      "words": [
+        {
+          "start": 172.82,
+          "end": 173.02,
+          "word": " State"
+        },
+        {
+          "start": 173.02,
+          "end": 173.4,
+          "word": " audience,"
+        },
+        {
+          "start": 174.16,
+          "end": 174.28,
+          "word": " scope,"
+        },
+        {
+          "start": 174.7,
+          "end": 175.02,
+          "word": " window,"
+        },
+        {
+          "start": 175.44,
+          "end": 175.98,
+          "word": " inclusions,"
+        },
+        {
+          "start": 176.24,
+          "end": 176.94,
+          "word": " exclusions,"
+        },
+        {
+          "start": 177.2,
+          "end": 177.62,
+          "word": " export"
+        },
+        {
+          "start": 177.62,
+          "end": 178.08,
+          "word": " review,"
+        }
+      ]
+    },
+    {
+      "start": 178.42,
+      "end": 179.32,
+      "text": "and ledger fields.",
+      "words": [
+        {
+          "start": 178.42,
+          "end": 178.6,
+          "word": " and"
+        },
+        {
+          "start": 178.6,
+          "end": 178.86,
+          "word": " ledger"
+        },
+        {
+          "start": 178.86,
+          "end": 179.32,
+          "word": " fields."
+        }
+      ]
+    },
+    {
+      "start": 179.78,
+      "end": 182.78,
+      "text": "Redact the course trace in words rather than pasting it.",
+      "words": [
+        {
+          "start": 179.78,
+          "end": 180.06,
+          "word": " Redact"
+        },
+        {
+          "start": 180.06,
+          "end": 180.28,
+          "word": " the"
+        },
+        {
+          "start": 180.28,
+          "end": 180.48,
+          "word": " course"
+        },
+        {
+          "start": 180.48,
+          "end": 180.8,
+          "word": " trace"
+        },
+        {
+          "start": 180.8,
+          "end": 181.0,
+          "word": " in"
+        },
+        {
+          "start": 181.0,
+          "end": 181.36,
+          "word": " words"
+        },
+        {
+          "start": 181.36,
+          "end": 181.84,
+          "word": " rather"
+        },
+        {
+          "start": 181.84,
+          "end": 182.1,
+          "word": " than"
+        },
+        {
+          "start": 182.1,
+          "end": 182.5,
+          "word": " pasting"
+        },
+        {
+          "start": 182.5,
+          "end": 182.78,
+          "word": " it."
+        }
+      ]
+    },
+    {
+      "start": 183.12,
+      "end": 186.22,
+      "text": "Then make a foundry test for the volunteer coordinator tool.",
+      "words": [
+        {
+          "start": 183.12,
+          "end": 183.48,
+          "word": " Then"
+        },
+        {
+          "start": 183.48,
+          "end": 183.84,
+          "word": " make"
+        },
+        {
+          "start": 183.84,
+          "end": 183.98,
+          "word": " a"
+        },
+        {
+          "start": 183.98,
+          "end": 184.36,
+          "word": " foundry"
+        },
+        {
+          "start": 184.36,
+          "end": 184.58,
+          "word": " test"
+        },
+        {
+          "start": 184.58,
+          "end": 184.84,
+          "word": " for"
+        },
+        {
+          "start": 184.84,
+          "end": 184.96,
+          "word": " the"
+        },
+        {
+          "start": 184.96,
+          "end": 185.34,
+          "word": " volunteer"
+        },
+        {
+          "start": 185.34,
+          "end": 185.82,
+          "word": " coordinator"
+        },
+        {
+          "start": 185.82,
+          "end": 186.22,
+          "word": " tool."
+        }
+      ]
+    },
+    {
+      "start": 186.66,
+      "end": 190.12,
+      "text": "Mark each evidence field observed, missing, or unscored.",
+      "words": [
+        {
+          "start": 186.66,
+          "end": 186.98,
+          "word": " Mark"
+        },
+        {
+          "start": 186.98,
+          "end": 187.32,
+          "word": " each"
+        },
+        {
+          "start": 187.32,
+          "end": 187.68,
+          "word": " evidence"
+        },
+        {
+          "start": 187.68,
+          "end": 188.06,
+          "word": " field"
+        },
+        {
+          "start": 188.06,
+          "end": 188.48,
+          "word": " observed,"
+        },
+        {
+          "start": 188.84,
+          "end": 189.14,
+          "word": " missing,"
+        },
+        {
+          "start": 189.42,
+          "end": 189.58,
+          "word": " or"
+        },
+        {
+          "start": 189.58,
+          "end": 190.12,
+          "word": " unscored."
+        }
+      ]
+    },
+    {
+      "start": 190.66,
+      "end": 195.72,
+      "text": "Name a payer question, a tiny proposed test, the human gate, and a stop condition.",
+      "words": [
+        {
+          "start": 190.66,
+          "end": 190.94,
+          "word": " Name"
+        },
+        {
+          "start": 190.94,
+          "end": 191.14,
+          "word": " a"
+        },
+        {
+          "start": 191.14,
+          "end": 191.42,
+          "word": " payer"
+        },
+        {
+          "start": 191.42,
+          "end": 191.84,
+          "word": " question,"
+        },
+        {
+          "start": 192.16,
+          "end": 192.34,
+          "word": " a"
+        },
+        {
+          "start": 192.34,
+          "end": 192.62,
+          "word": " tiny"
+        },
+        {
+          "start": 192.62,
+          "end": 192.96,
+          "word": " proposed"
+        },
+        {
+          "start": 192.96,
+          "end": 193.42,
+          "word": " test,"
+        },
+        {
+          "start": 193.72,
+          "end": 193.82,
+          "word": " the"
+        },
+        {
+          "start": 193.82,
+          "end": 194.1,
+          "word": " human"
+        },
+        {
+          "start": 194.1,
+          "end": 194.38,
+          "word": " gate,"
+        },
+        {
+          "start": 194.62,
+          "end": 194.92,
+          "word": " and"
+        },
+        {
+          "start": 194.92,
+          "end": 195.04,
+          "word": " a"
+        },
+        {
+          "start": 195.04,
+          "end": 195.24,
+          "word": " stop"
+        },
+        {
+          "start": 195.24,
+          "end": 195.72,
+          "word": " condition."
+        }
+      ]
+    },
+    {
+      "start": 196.12,
+      "end": 198.1,
+      "text": "Use a fictional or approved example.",
+      "words": [
+        {
+          "start": 196.12,
+          "end": 196.34,
+          "word": " Use"
+        },
+        {
+          "start": 196.34,
+          "end": 196.52,
+          "word": " a"
+        },
+        {
+          "start": 196.52,
+          "end": 196.84,
+          "word": " fictional"
+        },
+        {
+          "start": 196.84,
+          "end": 197.2,
+          "word": " or"
+        },
+        {
+          "start": 197.2,
+          "end": 197.58,
+          "word": " approved"
+        },
+        {
+          "start": 197.58,
+          "end": 198.1,
+          "word": " example."
+        }
+      ]
+    },
+    {
+      "start": 198.76,
+      "end": 204.54,
+      "text": "Do not use private operational data, contact a person, create a repo, or generate a public claim.",
+      "words": [
+        {
+          "start": 198.76,
+          "end": 198.9,
+          "word": " Do"
+        },
+        {
+          "start": 198.9,
+          "end": 199.1,
+          "word": " not"
+        },
+        {
+          "start": 199.1,
+          "end": 199.36,
+          "word": " use"
+        },
+        {
+          "start": 199.36,
+          "end": 199.7,
+          "word": " private"
+        },
+        {
+          "start": 199.7,
+          "end": 200.18,
+          "word": " operational"
+        },
+        {
+          "start": 200.18,
+          "end": 200.58,
+          "word": " data,"
+        },
+        {
+          "start": 200.98,
+          "end": 201.26,
+          "word": " contact"
+        },
+        {
+          "start": 201.26,
+          "end": 201.46,
+          "word": " a"
+        },
+        {
+          "start": 201.46,
+          "end": 201.8,
+          "word": " person,"
+        },
+        {
+          "start": 202.12,
+          "end": 202.4,
+          "word": " create"
+        },
+        {
+          "start": 202.4,
+          "end": 202.54,
+          "word": " a"
+        },
+        {
+          "start": 202.54,
+          "end": 202.9,
+          "word": " repo,"
+        },
+        {
+          "start": 203.14,
+          "end": 203.36,
+          "word": " or"
+        },
+        {
+          "start": 203.36,
+          "end": 203.72,
+          "word": " generate"
+        },
+        {
+          "start": 203.72,
+          "end": 203.9,
+          "word": " a"
+        },
+        {
+          "start": 203.9,
+          "end": 204.08,
+          "word": " public"
+        },
+        {
+          "start": 204.08,
+          "end": 204.54,
+          "word": " claim."
+        }
+      ]
+    },
+    {
+      "start": 205.08,
+      "end": 206.82,
+      "text": "Save revision 12 as a draft.",
+      "words": [
+        {
+          "start": 205.08,
+          "end": 205.36,
+          "word": " Save"
+        },
+        {
+          "start": 205.36,
+          "end": 205.66,
+          "word": " revision"
+        },
+        {
+          "start": 205.66,
+          "end": 206.08,
+          "word": " 12"
+        },
+        {
+          "start": 206.08,
+          "end": 206.32,
+          "word": " as"
+        },
+        {
+          "start": 206.32,
+          "end": 206.46,
+          "word": " a"
+        },
+        {
+          "start": 206.46,
+          "end": 206.82,
+          "word": " draft."
+        }
+      ]
+    },
+    {
+      "start": 207.64,
+      "end": 211.64,
+      "text": "Harbor now has a way to explain its held work and a way to examine a new idea",
+      "words": [
+        {
+          "start": 207.64,
+          "end": 207.64,
+          "word": " Harbor"
+        },
+        {
+          "start": 207.64,
+          "end": 207.86,
+          "word": " now"
+        },
+        {
+          "start": 207.86,
+          "end": 208.06,
+          "word": " has"
+        },
+        {
+          "start": 208.06,
+          "end": 208.2,
+          "word": " a"
+        },
+        {
+          "start": 208.2,
+          "end": 208.32,
+          "word": " way"
+        },
+        {
+          "start": 208.32,
+          "end": 208.48,
+          "word": " to"
+        },
+        {
+          "start": 208.48,
+          "end": 208.92,
+          "word": " explain"
+        },
+        {
+          "start": 208.92,
+          "end": 209.12,
+          "word": " its"
+        },
+        {
+          "start": 209.12,
+          "end": 209.34,
+          "word": " held"
+        },
+        {
+          "start": 209.34,
+          "end": 209.66,
+          "word": " work"
+        },
+        {
+          "start": 209.66,
+          "end": 210.1,
+          "word": " and"
+        },
+        {
+          "start": 210.1,
+          "end": 210.18,
+          "word": " a"
+        },
+        {
+          "start": 210.18,
+          "end": 210.3,
+          "word": " way"
+        },
+        {
+          "start": 210.3,
+          "end": 210.46,
+          "word": " to"
+        },
+        {
+          "start": 210.46,
+          "end": 210.8,
+          "word": " examine"
+        },
+        {
+          "start": 210.8,
+          "end": 211.0,
+          "word": " a"
+        },
+        {
+          "start": 211.0,
+          "end": 211.14,
+          "word": " new"
+        },
+        {
+          "start": 211.14,
+          "end": 211.64,
+          "word": " idea"
+        }
+      ]
+    },
+    {
+      "start": 211.64,
+      "end": 213.82,
+      "text": "without pretending either is ready to ship.",
+      "words": [
+        {
+          "start": 211.64,
+          "end": 212.2,
+          "word": " without"
+        },
+        {
+          "start": 212.2,
+          "end": 212.68,
+          "word": " pretending"
+        },
+        {
+          "start": 212.68,
+          "end": 212.96,
+          "word": " either"
+        },
+        {
+          "start": 212.96,
+          "end": 213.2,
+          "word": " is"
+        },
+        {
+          "start": 213.2,
+          "end": 213.38,
+          "word": " ready"
+        },
+        {
+          "start": 213.38,
+          "end": 213.6,
+          "word": " to"
+        },
+        {
+          "start": 213.6,
+          "end": 213.82,
+          "word": " ship."
+        }
+      ]
+    },
+    {
+      "start": 214.38,
+      "end": 216.98,
+      "text": "The operating file keeps the missing evidence visible.",
+      "words": [
+        {
+          "start": 214.38,
+          "end": 214.64,
+          "word": " The"
+        },
+        {
+          "start": 214.64,
+          "end": 214.98,
+          "word": " operating"
+        },
+        {
+          "start": 214.98,
+          "end": 215.36,
+          "word": " file"
+        },
+        {
+          "start": 215.36,
+          "end": 215.68,
+          "word": " keeps"
+        },
+        {
+          "start": 215.68,
+          "end": 215.9,
+          "word": " the"
+        },
+        {
+          "start": 215.9,
+          "end": 216.1,
+          "word": " missing"
+        },
+        {
+          "start": 216.1,
+          "end": 216.54,
+          "word": " evidence"
+        },
+        {
+          "start": 216.54,
+          "end": 216.98,
+          "word": " visible."
+        }
+      ]
+    },
+    {
+      "start": 216.98,
+      "end": 219.6,
+      "text": "That is what makes the next human decision honest.",
+      "words": [
+        {
+          "start": 216.98,
+          "end": 217.64,
+          "word": " That"
+        },
+        {
+          "start": 217.64,
+          "end": 217.78,
+          "word": " is"
+        },
+        {
+          "start": 217.78,
+          "end": 217.92,
+          "word": " what"
+        },
+        {
+          "start": 217.92,
+          "end": 218.14,
+          "word": " makes"
+        },
+        {
+          "start": 218.14,
+          "end": 218.34,
+          "word": " the"
+        },
+        {
+          "start": 218.34,
+          "end": 218.56,
+          "word": " next"
+        },
+        {
+          "start": 218.56,
+          "end": 218.82,
+          "word": " human"
+        },
+        {
+          "start": 218.82,
+          "end": 219.2,
+          "word": " decision"
+        },
+        {
+          "start": 219.2,
+          "end": 219.6,
+          "word": " honest."
+        }
+      ]
+    }
+  ]
+}

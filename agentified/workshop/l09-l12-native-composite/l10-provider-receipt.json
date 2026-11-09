@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "status": "completed_once_no_retry_and_composited_provider_free",
+  "lesson_id": "L10",
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "batch_sha256": "c339600cab53a406b01ae80399354bf718e94a36863322f934d795c424aa6ed5",
+  "request_sha256": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8",
+  "provider": "HeyGen Avatar IV",
+  "job_id": "ce566c1d43d38666e24de7716f8fc270",
+  "look_id": "7275ba9035f94b31ad589dda6532d002",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "submissions": 1,
+  "retries": 0,
+  "execution_authorization_receipt": {
+    "path": "agentified/workshop/l09-l12-native-composite/execution-authorization-receipt.json",
+    "sha256": "a3401459019b02c36e08d9a84b5880acdf781fddc29c0c61a9d187870edc910d",
+    "request_sha256": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8"
+  },
+  "provider_usage": {
+    "credit_cost": null,
+    "account_balance_after_batch": 768,
+    "cash_purchase_usd": 0,
+    "note": "The connector exposed completion and account balance but not an immutable per-job credit debit for this job; no value is inferred."
+  },
+  "native_source": {
+    "path": "agentified/workshop/l09-l12-native-source/L10/agentified-l10-heygen-native-source.mp4",
+    "sha256": "dfc8b28b72719b5ff903fe9c6d7b520a6716732c413ebc98b50449b80e18aa91",
+    "duration_seconds": 221.271
+  },
+  "word_timing": {
+    "path": "agentified/workshop/l09-l12-native-source/L10/word-timing.json",
+    "sha256": "125e49e34491d77ba69d13d7acf80c984447385c3990b26693cac4057f5100a2",
+    "generated_provider_free": true
+  },
+  "timing_receipt": {
+    "schema_version": 1,
+    "lesson_id": "L10",
+    "request_sha256": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8",
+    "native_source_sha256": "dfc8b28b72719b5ff903fe9c6d7b520a6716732c413ebc98b50449b80e18aa91",
+    "native_source_duration_seconds": 221.271,
+    "native_speed": 1,
+    "output_duration_seconds": 274.271,
+    "presenter_windows": [
+      {
+        "scene_id": "L10-01",
+        "source_in": 0,
+        "source_out": 12.64,
+        "sequence_start": 0,
+        "sequence_end": 12.64
+      },
+      {
+        "scene_id": "L10-08",
+        "source_in": 215.38,
+        "source_out": 221.271,
+        "sequence_start": 260.38,
+        "sequence_end": 266.271
+      }
+    ],
+    "guided_work_countdown": {
+      "source_split_seconds": 207.62,
+      "sequence_start": 207.62,
+      "sequence_end": 252.62,
+      "seconds": 45
+    },
+    "provider_free_closing_card": {
+      "start": 266.271,
+      "end": 274.271
+    },
+    "sentence_alignment": {
+      "engine": "faster-whisper small.en plus exact-script global alignment",
+      "distance": 22,
+      "expected_words": 565,
+      "observed_words": 569
+    },
+    "presenter_transform": {
+      "x": 1048,
+      "y": 326,
+      "width": 768,
+      "height": 432,
+      "fit": "contain",
+      "border": "solid_gold",
+      "background": "provider_free_textured_studio"
+    },
+    "l10_mobile_diagram_treatment": {
+      "mode": "enlarged_full_width_plate",
+      "text_equivalent": "Authority ladder showing recommend is not execute and changed terms require new review."
+    }
+  },
+  "background_treatment": {
+    "mode": "provider_free_textured_studio_reconstruction",
+    "key": "colorkey=0x00e868:0.28:0.08",
+    "edge_despill": "green:mix=0.05:expand=0.02",
+    "native_presenter_pixels_preserved": true
+  },
+  "composite": {
+    "path": "agentified/workshop/l09-l12-native-composite/agentified-l10-native-composite.mp4",
+    "sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+    "duration_seconds": 274.28
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l09-l12-native-composite/agentified-l10-native-captions.srt",
+    "srt_sha256": "dc4b8a900077649de5191ea2e2a5f34a48ec9e941970d3cbdfb0982b00db0366",
+    "vtt_path": "agentified/workshop/l09-l12-native-composite/agentified-l10-native-captions.vtt",
+    "vtt_sha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8"
+  }
+}

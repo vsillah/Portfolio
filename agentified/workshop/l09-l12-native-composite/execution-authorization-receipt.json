@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "status": "approved_and_executed_within_scope",
+  "authorization_scope": "agentified_l09_l12_review_only_sources",
+  "source_commit": "cb44c2389b4281aac7dae33d835363ae35c42ea2",
+  "batch_sha256": "c339600cab53a406b01ae80399354bf718e94a36863322f934d795c424aa6ed5",
+  "look_id": "7275ba9035f94b31ad589dda6532d002",
+  "voice_id": "4f53988b1c314610b514db98432fd0ef",
+  "request_sha256_by_lesson": {
+    "L09": "cb89bf17ea0df2de96018439b3b54ce13aa5b4fbe017724b7c9ab5047c556fcd",
+    "L10": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8",
+    "L11": "7a139886e0f6b35daf35bab1b44ab4eb582127cd4aadedbcf59f810011cc74b8",
+    "L12": "56498ca2f4748dc058a63ca80efe27e340d3474d0025c4f335e93e1e9d8a15b7"
+  },
+  "identity_and_voice_use": {
+    "approved": true,
+    "purpose": "Agentified L09-L12 review-only sources",
+    "attributable_identity": "Vambah Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "voice_id": "4f53988b1c314610b514db98432fd0ef"
+  },
+  "execution_limits": {
+    "existing_subscription_credits_only": true,
+    "cash_purchase_authorized": false,
+    "auto_reload_reliance_authorized": false,
+    "maximum_jobs": 4,
+    "maximum_retries": 0,
+    "submission_order": [
+      "L09",
+      "L10",
+      "L11",
+      "L12"
+    ]
+  },
+  "provider_configuration": {
+    "provider": "HeyGen Avatar IV",
+    "l09_parameter_amendment": "omit_unsupported_expressiveness_parameter_only",
+    "all_other_bindings_unchanged": true
+  },
+  "exclusions": [
+    "generate_l13_l16",
+    "alter_narration_or_assets",
+    "activate_learner_playback",
+    "purchase_credits",
+    "rely_on_auto_reload",
+    "upload_unrelated_material",
+    "publish",
+    "distribute",
+    "apply_migrations",
+    "mutate_production_data",
+    "change_credentials_or_account_settings",
+    "send_externally"
+  ],
+  "stop_conditions": [
+    "uncertain_submission",
+    "provider_error",
+    "identity_or_source_mismatch",
+    "incomplete_passage",
+    "unexpected_credit_use",
+    "output_mismatch",
+    "visual_regression"
+  ],
+  "authorization_provenance": [
+    {
+      "kind": "initial_batch_authorization",
+      "source_message_id": "msg_03aad1e9d96279fd016af1018e20e087d2824d806243304a3c",
+      "scope": "L09-L12 exact requests, identity, existing credits, sequential one-time submissions, zero retries, and exclusions"
+    },
+    {
+      "kind": "l09_pre_submission_parameter_amendment",
+      "source_message_id": "msg_03aad1e9d96279fd016af102f3dc8487d28b92e90fe48534d0",
+      "scope": "L09 only; omit unsupported expressiveness parameter while preserving every other approved binding"
+    }
+  ],
+  "immutability": {
+    "version_bound": true,
+    "authorization_may_not_be_inferred_from_provider_receipts": true,
+    "scope_expansion_requires_new_approval": true
+  }
+}

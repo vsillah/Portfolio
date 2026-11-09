@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "lesson_id": "L10",
+  "request_sha256": "19a70e94acb9c75e633535211ce54af1b4e1075f2ec5da7d40048c90593694a8",
+  "native_source_sha256": "dfc8b28b72719b5ff903fe9c6d7b520a6716732c413ebc98b50449b80e18aa91",
+  "native_source_duration_seconds": 221.271,
+  "native_speed": 1,
+  "output_duration_seconds": 274.271,
+  "presenter_windows": [
+    {
+      "scene_id": "L10-01",
+      "source_in": 0,
+      "source_out": 12.64,
+      "sequence_start": 0,
+      "sequence_end": 12.64
+    },
+    {
+      "scene_id": "L10-08",
+      "source_in": 215.38,
+      "source_out": 221.271,
+      "sequence_start": 260.38,
+      "sequence_end": 266.271
+    }
+  ],
+  "guided_work_countdown": {
+    "source_split_seconds": 207.62,
+    "sequence_start": 207.62,
+    "sequence_end": 252.62,
+    "seconds": 45
+  },
+  "provider_free_closing_card": {
+    "start": 266.271,
+    "end": 274.271
+  },
+  "sentence_alignment": {
+    "engine": "faster-whisper small.en plus exact-script global alignment",
+    "distance": 22,
+    "expected_words": 565,
+    "observed_words": 569
+  },
+  "presenter_transform": {
+    "x": 1048,
+    "y": 326,
+    "width": 768,
+    "height": 432,
+    "fit": "contain",
+    "border": "solid_gold",
+    "background": "provider_free_textured_studio"
+  },
+  "l10_mobile_diagram_treatment": {
+    "mode": "enlarged_full_width_plate",
+    "text_equivalent": "Authority ladder showing recommend is not execute and changed terms require new review."
+  }
+}

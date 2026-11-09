@@ -1,0 +1,3336 @@
+{
+  "language": "en",
+  "duration": 218.839,
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.58,
+      "text": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.54,
+          "word": " Harbor"
+        },
+        {
+          "start": 0.54,
+          "end": 0.88,
+          "word": " Learning"
+        },
+        {
+          "start": 0.88,
+          "end": 1.16,
+          "word": " Circle"
+        },
+        {
+          "start": 1.16,
+          "end": 1.48,
+          "word": " has"
+        },
+        {
+          "start": 1.48,
+          "end": 1.86,
+          "word": " three"
+        },
+        {
+          "start": 1.86,
+          "end": 2.16,
+          "word": " neat"
+        },
+        {
+          "start": 2.16,
+          "end": 2.64,
+          "word": " classroom"
+        },
+        {
+          "start": 2.64,
+          "end": 2.94,
+          "word": " briefs"
+        },
+        {
+          "start": 2.94,
+          "end": 3.16,
+          "word": " on"
+        },
+        {
+          "start": 3.16,
+          "end": 3.28,
+          "word": " a"
+        },
+        {
+          "start": 3.28,
+          "end": 3.58,
+          "word": " table."
+        }
+      ]
+    },
+    {
+      "start": 4.04,
+      "end": 5.6,
+      "text": "All three were produced on time.",
+      "words": [
+        {
+          "start": 4.04,
+          "end": 4.2,
+          "word": " All"
+        },
+        {
+          "start": 4.2,
+          "end": 4.5,
+          "word": " three"
+        },
+        {
+          "start": 4.5,
+          "end": 4.72,
+          "word": " were"
+        },
+        {
+          "start": 4.72,
+          "end": 5.02,
+          "word": " produced"
+        },
+        {
+          "start": 5.02,
+          "end": 5.3,
+          "word": " on"
+        },
+        {
+          "start": 5.3,
+          "end": 5.6,
+          "word": " time."
+        }
+      ]
+    },
+    {
+      "start": 6.42,
+      "end": 7.46,
+      "text": "Morgan looks past the count.",
+      "words": [
+        {
+          "start": 6.42,
+          "end": 6.44,
+          "word": " Morgan"
+        },
+        {
+          "start": 6.44,
+          "end": 6.68,
+          "word": " looks"
+        },
+        {
+          "start": 6.68,
+          "end": 7.0,
+          "word": " past"
+        },
+        {
+          "start": 7.0,
+          "end": 7.18,
+          "word": " the"
+        },
+        {
+          "start": 7.18,
+          "end": 7.46,
+          "word": " count."
+        }
+      ]
+    },
+    {
+      "start": 8.06,
+      "end": 11.0,
+      "text": "One brief treats an unconfirmed facilitator as confirmed.",
+      "words": [
+        {
+          "start": 8.06,
+          "end": 8.18,
+          "word": " One"
+        },
+        {
+          "start": 8.18,
+          "end": 8.46,
+          "word": " brief"
+        },
+        {
+          "start": 8.46,
+          "end": 8.82,
+          "word": " treats"
+        },
+        {
+          "start": 8.82,
+          "end": 8.96,
+          "word": " an"
+        },
+        {
+          "start": 8.96,
+          "end": 9.6,
+          "word": " unconfirmed"
+        },
+        {
+          "start": 9.6,
+          "end": 10.28,
+          "word": " facilitator"
+        },
+        {
+          "start": 10.28,
+          "end": 10.52,
+          "word": " as"
+        },
+        {
+          "start": 10.52,
+          "end": 11.0,
+          "word": " confirmed."
+        }
+      ]
+    },
+    {
+      "start": 11.48,
+      "end": 13.38,
+      "text": "Another stopped because the note was stale.",
+      "words": [
+        {
+          "start": 11.48,
+          "end": 11.82,
+          "word": " Another"
+        },
+        {
+          "start": 11.82,
+          "end": 12.24,
+          "word": " stopped"
+        },
+        {
+          "start": 12.24,
+          "end": 12.6,
+          "word": " because"
+        },
+        {
+          "start": 12.6,
+          "end": 12.76,
+          "word": " the"
+        },
+        {
+          "start": 12.76,
+          "end": 12.94,
+          "word": " note"
+        },
+        {
+          "start": 12.94,
+          "end": 13.08,
+          "word": " was"
+        },
+        {
+          "start": 13.08,
+          "end": 13.38,
+          "word": " stale."
+        }
+      ]
+    },
+    {
+      "start": 13.98,
+      "end": 17.2,
+      "text": "The third accurately says the facilitator is still under review.",
+      "words": [
+        {
+          "start": 13.98,
+          "end": 14.12,
+          "word": " The"
+        },
+        {
+          "start": 14.12,
+          "end": 14.4,
+          "word": " third"
+        },
+        {
+          "start": 14.4,
+          "end": 14.92,
+          "word": " accurately"
+        },
+        {
+          "start": 14.92,
+          "end": 15.26,
+          "word": " says"
+        },
+        {
+          "start": 15.26,
+          "end": 15.46,
+          "word": " the"
+        },
+        {
+          "start": 15.46,
+          "end": 16.14,
+          "word": " facilitator"
+        },
+        {
+          "start": 16.14,
+          "end": 16.28,
+          "word": " is"
+        },
+        {
+          "start": 16.28,
+          "end": 16.54,
+          "word": " still"
+        },
+        {
+          "start": 16.54,
+          "end": 16.82,
+          "word": " under"
+        },
+        {
+          "start": 16.82,
+          "end": 17.2,
+          "word": " review."
+        }
+      ]
+    },
+    {
+      "start": 17.96,
+      "end": 21.5,
+      "text": "Three drafts tell Morgan very little about whether this work helps the team.",
+      "words": [
+        {
+          "start": 17.96,
+          "end": 18.26,
+          "word": " Three"
+        },
+        {
+          "start": 18.26,
+          "end": 18.62,
+          "word": " drafts"
+        },
+        {
+          "start": 18.62,
+          "end": 18.88,
+          "word": " tell"
+        },
+        {
+          "start": 18.88,
+          "end": 19.24,
+          "word": " Morgan"
+        },
+        {
+          "start": 19.24,
+          "end": 19.6,
+          "word": " very"
+        },
+        {
+          "start": 19.6,
+          "end": 19.86,
+          "word": " little"
+        },
+        {
+          "start": 19.86,
+          "end": 20.12,
+          "word": " about"
+        },
+        {
+          "start": 20.12,
+          "end": 20.38,
+          "word": " whether"
+        },
+        {
+          "start": 20.38,
+          "end": 20.58,
+          "word": " this"
+        },
+        {
+          "start": 20.58,
+          "end": 20.82,
+          "word": " work"
+        },
+        {
+          "start": 20.82,
+          "end": 21.04,
+          "word": " helps"
+        },
+        {
+          "start": 21.04,
+          "end": 21.26,
+          "word": " the"
+        },
+        {
+          "start": 21.26,
+          "end": 21.5,
+          "word": " team."
+        }
+      ]
+    },
+    {
+      "start": 22.08,
+      "end": 25.04,
+      "text": "Last lesson gave us a contract and three test cases.",
+      "words": [
+        {
+          "start": 22.08,
+          "end": 22.42,
+          "word": " Last"
+        },
+        {
+          "start": 22.42,
+          "end": 22.78,
+          "word": " lesson"
+        },
+        {
+          "start": 22.78,
+          "end": 23.0,
+          "word": " gave"
+        },
+        {
+          "start": 23.0,
+          "end": 23.16,
+          "word": " us"
+        },
+        {
+          "start": 23.16,
+          "end": 23.28,
+          "word": " a"
+        },
+        {
+          "start": 23.28,
+          "end": 23.76,
+          "word": " contract"
+        },
+        {
+          "start": 23.76,
+          "end": 24.12,
+          "word": " and"
+        },
+        {
+          "start": 24.12,
+          "end": 24.42,
+          "word": " three"
+        },
+        {
+          "start": 24.42,
+          "end": 24.66,
+          "word": " test"
+        },
+        {
+          "start": 24.66,
+          "end": 25.04,
+          "word": " cases."
+        }
+      ]
+    },
+    {
+      "start": 25.04,
+      "end": 30.86,
+      "text": "This lesson asks what we would watch over time and what Morgan must see before signing a decision.",
+      "words": [
+        {
+          "start": 25.04,
+          "end": 25.84,
+          "word": " This"
+        },
+        {
+          "start": 25.84,
+          "end": 26.16,
+          "word": " lesson"
+        },
+        {
+          "start": 26.16,
+          "end": 26.52,
+          "word": " asks"
+        },
+        {
+          "start": 26.52,
+          "end": 26.86,
+          "word": " what"
+        },
+        {
+          "start": 26.86,
+          "end": 27.02,
+          "word": " we"
+        },
+        {
+          "start": 27.02,
+          "end": 27.18,
+          "word": " would"
+        },
+        {
+          "start": 27.18,
+          "end": 27.42,
+          "word": " watch"
+        },
+        {
+          "start": 27.42,
+          "end": 27.62,
+          "word": " over"
+        },
+        {
+          "start": 27.62,
+          "end": 28.04,
+          "word": " time"
+        },
+        {
+          "start": 28.04,
+          "end": 28.48,
+          "word": " and"
+        },
+        {
+          "start": 28.48,
+          "end": 28.68,
+          "word": " what"
+        },
+        {
+          "start": 28.68,
+          "end": 29.0,
+          "word": " Morgan"
+        },
+        {
+          "start": 29.0,
+          "end": 29.24,
+          "word": " must"
+        },
+        {
+          "start": 29.24,
+          "end": 29.58,
+          "word": " see"
+        },
+        {
+          "start": 29.58,
+          "end": 29.92,
+          "word": " before"
+        },
+        {
+          "start": 29.92,
+          "end": 30.26,
+          "word": " signing"
+        },
+        {
+          "start": 30.26,
+          "end": 30.44,
+          "word": " a"
+        },
+        {
+          "start": 30.44,
+          "end": 30.86,
+          "word": " decision."
+        }
+      ]
+    },
+    {
+      "start": 31.82,
+      "end": 33.82,
+      "text": "Chapter 15 lays out seven rungs.",
+      "words": [
+        {
+          "start": 31.82,
+          "end": 31.82,
+          "word": " Chapter"
+        },
+        {
+          "start": 31.82,
+          "end": 32.34,
+          "word": " 15"
+        },
+        {
+          "start": 32.34,
+          "end": 32.62,
+          "word": " lays"
+        },
+        {
+          "start": 32.62,
+          "end": 32.88,
+          "word": " out"
+        },
+        {
+          "start": 32.88,
+          "end": 33.24,
+          "word": " seven"
+        },
+        {
+          "start": 33.24,
+          "end": 33.82,
+          "word": " rungs."
+        }
+      ]
+    },
+    {
+      "start": 34.64,
+      "end": 40.24,
+      "text": "Activity, output, quality, behavior, outcome, learning, and authority.",
+      "words": [
+        {
+          "start": 34.64,
+          "end": 34.64,
+          "word": " Activity,"
+        },
+        {
+          "start": 35.04,
+          "end": 35.52,
+          "word": " output,"
+        },
+        {
+          "start": 35.96,
+          "end": 36.42,
+          "word": " quality,"
+        },
+        {
+          "start": 37.02,
+          "end": 37.38,
+          "word": " behavior,"
+        },
+        {
+          "start": 38.08,
+          "end": 38.44,
+          "word": " outcome,"
+        },
+        {
+          "start": 38.98,
+          "end": 39.3,
+          "word": " learning,"
+        },
+        {
+          "start": 39.7,
+          "end": 39.8,
+          "word": " and"
+        },
+        {
+          "start": 39.8,
+          "end": 40.24,
+          "word": " authority."
+        }
+      ]
+    },
+    {
+      "start": 40.9,
+      "end": 42.66,
+      "text": "A count of briefs belongs low on the latter.",
+      "words": [
+        {
+          "start": 40.9,
+          "end": 40.9,
+          "word": " A"
+        },
+        {
+          "start": 40.9,
+          "end": 41.1,
+          "word": " count"
+        },
+        {
+          "start": 41.1,
+          "end": 41.24,
+          "word": " of"
+        },
+        {
+          "start": 41.24,
+          "end": 41.5,
+          "word": " briefs"
+        },
+        {
+          "start": 41.5,
+          "end": 41.84,
+          "word": " belongs"
+        },
+        {
+          "start": 41.84,
+          "end": 42.18,
+          "word": " low"
+        },
+        {
+          "start": 42.18,
+          "end": 42.34,
+          "word": " on"
+        },
+        {
+          "start": 42.34,
+          "end": 42.46,
+          "word": " the"
+        },
+        {
+          "start": 42.46,
+          "end": 42.66,
+          "word": " latter."
+        }
+      ]
+    },
+    {
+      "start": 43.08,
+      "end": 48.1,
+      "text": "For Harbor, quality asks whether each sentence is supported by a permitted, current source.",
+      "words": [
+        {
+          "start": 43.08,
+          "end": 43.2,
+          "word": " For"
+        },
+        {
+          "start": 43.2,
+          "end": 43.46,
+          "word": " Harbor,"
+        },
+        {
+          "start": 44.3,
+          "end": 44.3,
+          "word": " quality"
+        },
+        {
+          "start": 44.3,
+          "end": 44.7,
+          "word": " asks"
+        },
+        {
+          "start": 44.7,
+          "end": 45.0,
+          "word": " whether"
+        },
+        {
+          "start": 45.0,
+          "end": 45.3,
+          "word": " each"
+        },
+        {
+          "start": 45.3,
+          "end": 45.6,
+          "word": " sentence"
+        },
+        {
+          "start": 45.6,
+          "end": 45.9,
+          "word": " is"
+        },
+        {
+          "start": 45.9,
+          "end": 46.22,
+          "word": " supported"
+        },
+        {
+          "start": 46.22,
+          "end": 46.48,
+          "word": " by"
+        },
+        {
+          "start": 46.48,
+          "end": 46.62,
+          "word": " a"
+        },
+        {
+          "start": 46.62,
+          "end": 46.96,
+          "word": " permitted,"
+        },
+        {
+          "start": 47.32,
+          "end": 47.68,
+          "word": " current"
+        },
+        {
+          "start": 47.68,
+          "end": 48.1,
+          "word": " source."
+        }
+      ]
+    },
+    {
+      "start": 49.14,
+      "end": 53.66,
+      "text": "Behavior asks whether the preparer stopped at a stale note and respected the preparer-only gate.",
+      "words": [
+        {
+          "start": 49.14,
+          "end": 49.14,
+          "word": " Behavior"
+        },
+        {
+          "start": 49.14,
+          "end": 49.62,
+          "word": " asks"
+        },
+        {
+          "start": 49.62,
+          "end": 49.94,
+          "word": " whether"
+        },
+        {
+          "start": 49.94,
+          "end": 50.16,
+          "word": " the"
+        },
+        {
+          "start": 50.16,
+          "end": 50.54,
+          "word": " preparer"
+        },
+        {
+          "start": 50.54,
+          "end": 50.84,
+          "word": " stopped"
+        },
+        {
+          "start": 50.84,
+          "end": 51.04,
+          "word": " at"
+        },
+        {
+          "start": 51.04,
+          "end": 51.18,
+          "word": " a"
+        },
+        {
+          "start": 51.18,
+          "end": 51.4,
+          "word": " stale"
+        },
+        {
+          "start": 51.4,
+          "end": 51.72,
+          "word": " note"
+        },
+        {
+          "start": 51.72,
+          "end": 52.08,
+          "word": " and"
+        },
+        {
+          "start": 52.08,
+          "end": 52.5,
+          "word": " respected"
+        },
+        {
+          "start": 52.5,
+          "end": 52.82,
+          "word": " the"
+        },
+        {
+          "start": 52.82,
+          "end": 53.2,
+          "word": " preparer"
+        },
+        {
+          "start": 53.2,
+          "end": 53.32,
+          "word": "-only"
+        },
+        {
+          "start": 53.32,
+          "end": 53.66,
+          "word": " gate."
+        }
+      ]
+    },
+    {
+      "start": 53.66,
+      "end": 59.16,
+      "text": "Outcome asks whether Morgan could decide with less reconstruction and no hidden staffing claim.",
+      "words": [
+        {
+          "start": 53.66,
+          "end": 54.5,
+          "word": " Outcome"
+        },
+        {
+          "start": 54.5,
+          "end": 54.84,
+          "word": " asks"
+        },
+        {
+          "start": 54.84,
+          "end": 55.2,
+          "word": " whether"
+        },
+        {
+          "start": 55.2,
+          "end": 55.48,
+          "word": " Morgan"
+        },
+        {
+          "start": 55.48,
+          "end": 55.74,
+          "word": " could"
+        },
+        {
+          "start": 55.74,
+          "end": 56.1,
+          "word": " decide"
+        },
+        {
+          "start": 56.1,
+          "end": 56.32,
+          "word": " with"
+        },
+        {
+          "start": 56.32,
+          "end": 56.6,
+          "word": " less"
+        },
+        {
+          "start": 56.6,
+          "end": 57.2,
+          "word": " reconstruction"
+        },
+        {
+          "start": 57.2,
+          "end": 57.82,
+          "word": " and"
+        },
+        {
+          "start": 57.82,
+          "end": 58.08,
+          "word": " no"
+        },
+        {
+          "start": 58.08,
+          "end": 58.32,
+          "word": " hidden"
+        },
+        {
+          "start": 58.32,
+          "end": 58.74,
+          "word": " staffing"
+        },
+        {
+          "start": 58.74,
+          "end": 59.16,
+          "word": " claim."
+        }
+      ]
+    },
+    {
+      "start": 59.78,
+      "end": 64.7,
+      "text": "Learning asks whether a revised contract reduces the same error in later approved tests.",
+      "words": [
+        {
+          "start": 59.78,
+          "end": 59.94,
+          "word": " Learning"
+        },
+        {
+          "start": 59.94,
+          "end": 60.36,
+          "word": " asks"
+        },
+        {
+          "start": 60.36,
+          "end": 60.68,
+          "word": " whether"
+        },
+        {
+          "start": 60.68,
+          "end": 60.88,
+          "word": " a"
+        },
+        {
+          "start": 60.88,
+          "end": 61.26,
+          "word": " revised"
+        },
+        {
+          "start": 61.26,
+          "end": 61.84,
+          "word": " contract"
+        },
+        {
+          "start": 61.84,
+          "end": 62.28,
+          "word": " reduces"
+        },
+        {
+          "start": 62.28,
+          "end": 62.52,
+          "word": " the"
+        },
+        {
+          "start": 62.52,
+          "end": 62.84,
+          "word": " same"
+        },
+        {
+          "start": 62.84,
+          "end": 63.28,
+          "word": " error"
+        },
+        {
+          "start": 63.28,
+          "end": 63.66,
+          "word": " in"
+        },
+        {
+          "start": 63.66,
+          "end": 63.94,
+          "word": " later"
+        },
+        {
+          "start": 63.94,
+          "end": 64.24,
+          "word": " approved"
+        },
+        {
+          "start": 64.24,
+          "end": 64.7,
+          "word": " tests."
+        }
+      ]
+    },
+    {
+      "start": 65.64,
+      "end": 67.28,
+      "text": "Authority records the human-granted scope.",
+      "words": [
+        {
+          "start": 65.64,
+          "end": 65.64,
+          "word": " Authority"
+        },
+        {
+          "start": 65.64,
+          "end": 66.08,
+          "word": " records"
+        },
+        {
+          "start": 66.08,
+          "end": 66.3,
+          "word": " the"
+        },
+        {
+          "start": 66.3,
+          "end": 66.58,
+          "word": " human"
+        },
+        {
+          "start": 66.58,
+          "end": 66.94,
+          "word": "-granted"
+        },
+        {
+          "start": 66.94,
+          "end": 67.28,
+          "word": " scope."
+        }
+      ]
+    },
+    {
+      "start": 67.62,
+      "end": 69.3,
+      "text": "It is not a prize for a high count.",
+      "words": [
+        {
+          "start": 67.62,
+          "end": 67.78,
+          "word": " It"
+        },
+        {
+          "start": 67.78,
+          "end": 67.88,
+          "word": " is"
+        },
+        {
+          "start": 67.88,
+          "end": 68.14,
+          "word": " not"
+        },
+        {
+          "start": 68.14,
+          "end": 68.24,
+          "word": " a"
+        },
+        {
+          "start": 68.24,
+          "end": 68.52,
+          "word": " prize"
+        },
+        {
+          "start": 68.52,
+          "end": 68.78,
+          "word": " for"
+        },
+        {
+          "start": 68.78,
+          "end": 68.88,
+          "word": " a"
+        },
+        {
+          "start": 68.88,
+          "end": 69.04,
+          "word": " high"
+        },
+        {
+          "start": 69.04,
+          "end": 69.3,
+          "word": " count."
+        }
+      ]
+    },
+    {
+      "start": 69.72,
+      "end": 72.56,
+      "text": "The workbook adds cost and trust to the scorecard.",
+      "words": [
+        {
+          "start": 69.72,
+          "end": 69.9,
+          "word": " The"
+        },
+        {
+          "start": 69.9,
+          "end": 70.3,
+          "word": " workbook"
+        },
+        {
+          "start": 70.3,
+          "end": 70.66,
+          "word": " adds"
+        },
+        {
+          "start": 70.66,
+          "end": 70.96,
+          "word": " cost"
+        },
+        {
+          "start": 70.96,
+          "end": 71.38,
+          "word": " and"
+        },
+        {
+          "start": 71.38,
+          "end": 71.68,
+          "word": " trust"
+        },
+        {
+          "start": 71.68,
+          "end": 71.98,
+          "word": " to"
+        },
+        {
+          "start": 71.98,
+          "end": 72.1,
+          "word": " the"
+        },
+        {
+          "start": 72.1,
+          "end": 72.56,
+          "word": " scorecard."
+        }
+      ]
+    },
+    {
+      "start": 73.3,
+      "end": 77.86,
+      "text": "Harbor can record course minutes for Morgan's review and an illustrative preparation cost",
+      "words": [
+        {
+          "start": 73.3,
+          "end": 73.3,
+          "word": " Harbor"
+        },
+        {
+          "start": 73.3,
+          "end": 73.56,
+          "word": " can"
+        },
+        {
+          "start": 73.56,
+          "end": 73.98,
+          "word": " record"
+        },
+        {
+          "start": 73.98,
+          "end": 74.32,
+          "word": " course"
+        },
+        {
+          "start": 74.32,
+          "end": 74.64,
+          "word": " minutes"
+        },
+        {
+          "start": 74.64,
+          "end": 74.92,
+          "word": " for"
+        },
+        {
+          "start": 74.92,
+          "end": 75.34,
+          "word": " Morgan's"
+        },
+        {
+          "start": 75.34,
+          "end": 75.66,
+          "word": " review"
+        },
+        {
+          "start": 75.66,
+          "end": 76.14,
+          "word": " and"
+        },
+        {
+          "start": 76.14,
+          "end": 76.28,
+          "word": " an"
+        },
+        {
+          "start": 76.28,
+          "end": 76.84,
+          "word": " illustrative"
+        },
+        {
+          "start": 76.84,
+          "end": 77.34,
+          "word": " preparation"
+        },
+        {
+          "start": 77.34,
+          "end": 77.86,
+          "word": " cost"
+        }
+      ]
+    },
+    {
+      "start": 77.86,
+      "end": 79.8,
+      "text": "but cannot claim real savings.",
+      "words": [
+        {
+          "start": 77.86,
+          "end": 78.36,
+          "word": " but"
+        },
+        {
+          "start": 78.36,
+          "end": 78.68,
+          "word": " cannot"
+        },
+        {
+          "start": 78.68,
+          "end": 79.08,
+          "word": " claim"
+        },
+        {
+          "start": 79.08,
+          "end": 79.38,
+          "word": " real"
+        },
+        {
+          "start": 79.38,
+          "end": 79.8,
+          "word": " savings."
+        }
+      ]
+    },
+    {
+      "start": 79.8,
+      "end": 84.88,
+      "text": "For the paper case, the useful measures are source supported claims, correct holds,",
+      "words": [
+        {
+          "start": 79.8,
+          "end": 80.5,
+          "word": " For"
+        },
+        {
+          "start": 80.5,
+          "end": 80.62,
+          "word": " the"
+        },
+        {
+          "start": 80.62,
+          "end": 80.84,
+          "word": " paper"
+        },
+        {
+          "start": 80.84,
+          "end": 81.16,
+          "word": " case,"
+        },
+        {
+          "start": 81.62,
+          "end": 81.64,
+          "word": " the"
+        },
+        {
+          "start": 81.64,
+          "end": 81.94,
+          "word": " useful"
+        },
+        {
+          "start": 81.94,
+          "end": 82.28,
+          "word": " measures"
+        },
+        {
+          "start": 82.28,
+          "end": 82.58,
+          "word": " are"
+        },
+        {
+          "start": 82.58,
+          "end": 82.82,
+          "word": " source"
+        },
+        {
+          "start": 82.82,
+          "end": 83.2,
+          "word": " supported"
+        },
+        {
+          "start": 83.2,
+          "end": 83.64,
+          "word": " claims,"
+        },
+        {
+          "start": 84.14,
+          "end": 84.4,
+          "word": " correct"
+        },
+        {
+          "start": 84.4,
+          "end": 84.88,
+          "word": " holds,"
+        }
+      ]
+    },
+    {
+      "start": 85.42,
+      "end": 88.38,
+      "text": "Morgan's review burden, and whether a decision becomes clearer.",
+      "words": [
+        {
+          "start": 85.42,
+          "end": 85.7,
+          "word": " Morgan's"
+        },
+        {
+          "start": 85.7,
+          "end": 85.94,
+          "word": " review"
+        },
+        {
+          "start": 85.94,
+          "end": 86.26,
+          "word": " burden,"
+        },
+        {
+          "start": 86.6,
+          "end": 86.78,
+          "word": " and"
+        },
+        {
+          "start": 86.78,
+          "end": 87.04,
+          "word": " whether"
+        },
+        {
+          "start": 87.04,
+          "end": 87.24,
+          "word": " a"
+        },
+        {
+          "start": 87.24,
+          "end": 87.54,
+          "word": " decision"
+        },
+        {
+          "start": 87.54,
+          "end": 87.98,
+          "word": " becomes"
+        },
+        {
+          "start": 87.98,
+          "end": 88.38,
+          "word": " clearer."
+        }
+      ]
+    },
+    {
+      "start": 89.3,
+      "end": 90.92,
+      "text": "Write a decision beside each measure.",
+      "words": [
+        {
+          "start": 89.3,
+          "end": 89.4,
+          "word": " Write"
+        },
+        {
+          "start": 89.4,
+          "end": 89.56,
+          "word": " a"
+        },
+        {
+          "start": 89.56,
+          "end": 89.86,
+          "word": " decision"
+        },
+        {
+          "start": 89.86,
+          "end": 90.26,
+          "word": " beside"
+        },
+        {
+          "start": 90.26,
+          "end": 90.56,
+          "word": " each"
+        },
+        {
+          "start": 90.56,
+          "end": 90.92,
+          "word": " measure."
+        }
+      ]
+    },
+    {
+      "start": 91.42,
+      "end": 96.14,
+      "text": "If a measure cannot tell Morgan to keep, revise, narrow, or stop the design,",
+      "words": [
+        {
+          "start": 91.42,
+          "end": 91.5,
+          "word": " If"
+        },
+        {
+          "start": 91.5,
+          "end": 91.64,
+          "word": " a"
+        },
+        {
+          "start": 91.64,
+          "end": 91.86,
+          "word": " measure"
+        },
+        {
+          "start": 91.86,
+          "end": 92.14,
+          "word": " cannot"
+        },
+        {
+          "start": 92.14,
+          "end": 92.44,
+          "word": " tell"
+        },
+        {
+          "start": 92.44,
+          "end": 92.74,
+          "word": " Morgan"
+        },
+        {
+          "start": 92.74,
+          "end": 92.96,
+          "word": " to"
+        },
+        {
+          "start": 92.96,
+          "end": 93.22,
+          "word": " keep,"
+        },
+        {
+          "start": 93.56,
+          "end": 94.02,
+          "word": " revise,"
+        },
+        {
+          "start": 94.36,
+          "end": 94.68,
+          "word": " narrow,"
+        },
+        {
+          "start": 95.12,
+          "end": 95.26,
+          "word": " or"
+        },
+        {
+          "start": 95.26,
+          "end": 95.54,
+          "word": " stop"
+        },
+        {
+          "start": 95.54,
+          "end": 95.72,
+          "word": " the"
+        },
+        {
+          "start": 95.72,
+          "end": 96.14,
+          "word": " design,"
+        }
+      ]
+    },
+    {
+      "start": 96.5,
+      "end": 97.62,
+      "text": "take it off the front page.",
+      "words": [
+        {
+          "start": 96.5,
+          "end": 96.74,
+          "word": " take"
+        },
+        {
+          "start": 96.74,
+          "end": 96.86,
+          "word": " it"
+        },
+        {
+          "start": 96.86,
+          "end": 96.98,
+          "word": " off"
+        },
+        {
+          "start": 96.98,
+          "end": 97.12,
+          "word": " the"
+        },
+        {
+          "start": 97.12,
+          "end": 97.28,
+          "word": " front"
+        },
+        {
+          "start": 97.28,
+          "end": 97.62,
+          "word": " page."
+        }
+      ]
+    },
+    {
+      "start": 98.22,
+      "end": 102.22,
+      "text": "Three classroom cases are a test exercise, not a performance baseline.",
+      "words": [
+        {
+          "start": 98.22,
+          "end": 98.5,
+          "word": " Three"
+        },
+        {
+          "start": 98.5,
+          "end": 98.9,
+          "word": " classroom"
+        },
+        {
+          "start": 98.9,
+          "end": 99.26,
+          "word": " cases"
+        },
+        {
+          "start": 99.26,
+          "end": 99.66,
+          "word": " are"
+        },
+        {
+          "start": 99.66,
+          "end": 99.82,
+          "word": " a"
+        },
+        {
+          "start": 99.82,
+          "end": 100.02,
+          "word": " test"
+        },
+        {
+          "start": 100.02,
+          "end": 100.58,
+          "word": " exercise,"
+        },
+        {
+          "start": 100.96,
+          "end": 101.2,
+          "word": " not"
+        },
+        {
+          "start": 101.2,
+          "end": 101.34,
+          "word": " a"
+        },
+        {
+          "start": 101.34,
+          "end": 101.7,
+          "word": " performance"
+        },
+        {
+          "start": 101.7,
+          "end": 102.22,
+          "word": " baseline."
+        }
+      ]
+    },
+    {
+      "start": 103.02,
+      "end": 106.82,
+      "text": "Chapter 16 asks us to choose a review posture for each action.",
+      "words": [
+        {
+          "start": 103.02,
+          "end": 103.14,
+          "word": " Chapter"
+        },
+        {
+          "start": 103.14,
+          "end": 103.68,
+          "word": " 16"
+        },
+        {
+          "start": 103.68,
+          "end": 104.04,
+          "word": " asks"
+        },
+        {
+          "start": 104.04,
+          "end": 104.36,
+          "word": " us"
+        },
+        {
+          "start": 104.36,
+          "end": 104.56,
+          "word": " to"
+        },
+        {
+          "start": 104.56,
+          "end": 104.84,
+          "word": " choose"
+        },
+        {
+          "start": 104.84,
+          "end": 105.1,
+          "word": " a"
+        },
+        {
+          "start": 105.1,
+          "end": 105.44,
+          "word": " review"
+        },
+        {
+          "start": 105.44,
+          "end": 105.78,
+          "word": " posture"
+        },
+        {
+          "start": 105.78,
+          "end": 106.16,
+          "word": " for"
+        },
+        {
+          "start": 106.16,
+          "end": 106.38,
+          "word": " each"
+        },
+        {
+          "start": 106.38,
+          "end": 106.82,
+          "word": " action."
+        }
+      ]
+    },
+    {
+      "start": 107.38,
+      "end": 111.56,
+      "text": "Pre-action review means the work waits for a human before a side effect.",
+      "words": [
+        {
+          "start": 107.38,
+          "end": 107.68,
+          "word": " Pre"
+        },
+        {
+          "start": 107.68,
+          "end": 108.02,
+          "word": "-action"
+        },
+        {
+          "start": 108.02,
+          "end": 108.36,
+          "word": " review"
+        },
+        {
+          "start": 108.36,
+          "end": 108.7,
+          "word": " means"
+        },
+        {
+          "start": 108.7,
+          "end": 108.92,
+          "word": " the"
+        },
+        {
+          "start": 108.92,
+          "end": 109.14,
+          "word": " work"
+        },
+        {
+          "start": 109.14,
+          "end": 109.42,
+          "word": " waits"
+        },
+        {
+          "start": 109.42,
+          "end": 109.66,
+          "word": " for"
+        },
+        {
+          "start": 109.66,
+          "end": 109.8,
+          "word": " a"
+        },
+        {
+          "start": 109.8,
+          "end": 110.12,
+          "word": " human"
+        },
+        {
+          "start": 110.12,
+          "end": 110.68,
+          "word": " before"
+        },
+        {
+          "start": 110.68,
+          "end": 110.98,
+          "word": " a"
+        },
+        {
+          "start": 110.98,
+          "end": 111.18,
+          "word": " side"
+        },
+        {
+          "start": 111.18,
+          "end": 111.56,
+          "word": " effect."
+        }
+      ]
+    },
+    {
+      "start": 112.16,
+      "end": 117.04,
+      "text": "Bounded action means a specifically fenced action may happen inside an already approved scope.",
+      "words": [
+        {
+          "start": 112.16,
+          "end": 112.34,
+          "word": " Bounded"
+        },
+        {
+          "start": 112.34,
+          "end": 112.7,
+          "word": " action"
+        },
+        {
+          "start": 112.7,
+          "end": 113.04,
+          "word": " means"
+        },
+        {
+          "start": 113.04,
+          "end": 113.32,
+          "word": " a"
+        },
+        {
+          "start": 113.32,
+          "end": 113.88,
+          "word": " specifically"
+        },
+        {
+          "start": 113.88,
+          "end": 114.32,
+          "word": " fenced"
+        },
+        {
+          "start": 114.32,
+          "end": 114.76,
+          "word": " action"
+        },
+        {
+          "start": 114.76,
+          "end": 114.94,
+          "word": " may"
+        },
+        {
+          "start": 114.94,
+          "end": 115.28,
+          "word": " happen"
+        },
+        {
+          "start": 115.28,
+          "end": 115.74,
+          "word": " inside"
+        },
+        {
+          "start": 115.74,
+          "end": 115.92,
+          "word": " an"
+        },
+        {
+          "start": 115.92,
+          "end": 116.3,
+          "word": " already"
+        },
+        {
+          "start": 116.3,
+          "end": 116.66,
+          "word": " approved"
+        },
+        {
+          "start": 116.66,
+          "end": 117.04,
+          "word": " scope."
+        }
+      ]
+    },
+    {
+      "start": 117.86,
+      "end": 122.2,
+      "text": "Post-action audit checks low stakes action after it happens, with a way to tighten the fence.",
+      "words": [
+        {
+          "start": 117.86,
+          "end": 117.96,
+          "word": " Post"
+        },
+        {
+          "start": 117.96,
+          "end": 118.22,
+          "word": "-action"
+        },
+        {
+          "start": 118.22,
+          "end": 118.56,
+          "word": " audit"
+        },
+        {
+          "start": 118.56,
+          "end": 118.96,
+          "word": " checks"
+        },
+        {
+          "start": 118.96,
+          "end": 119.24,
+          "word": " low"
+        },
+        {
+          "start": 119.24,
+          "end": 119.5,
+          "word": " stakes"
+        },
+        {
+          "start": 119.5,
+          "end": 119.92,
+          "word": " action"
+        },
+        {
+          "start": 119.92,
+          "end": 120.18,
+          "word": " after"
+        },
+        {
+          "start": 120.18,
+          "end": 120.32,
+          "word": " it"
+        },
+        {
+          "start": 120.32,
+          "end": 120.74,
+          "word": " happens,"
+        },
+        {
+          "start": 120.8,
+          "end": 121.16,
+          "word": " with"
+        },
+        {
+          "start": 121.16,
+          "end": 121.26,
+          "word": " a"
+        },
+        {
+          "start": 121.26,
+          "end": 121.38,
+          "word": " way"
+        },
+        {
+          "start": 121.38,
+          "end": 121.54,
+          "word": " to"
+        },
+        {
+          "start": 121.54,
+          "end": 121.76,
+          "word": " tighten"
+        },
+        {
+          "start": 121.76,
+          "end": 121.96,
+          "word": " the"
+        },
+        {
+          "start": 121.96,
+          "end": 122.2,
+          "word": " fence."
+        }
+      ]
+    },
+    {
+      "start": 122.8,
+      "end": 125.32,
+      "text": "In this course, these are design choices on paper.",
+      "words": [
+        {
+          "start": 122.8,
+          "end": 122.98,
+          "word": " In"
+        },
+        {
+          "start": 122.98,
+          "end": 123.14,
+          "word": " this"
+        },
+        {
+          "start": 123.14,
+          "end": 123.44,
+          "word": " course,"
+        },
+        {
+          "start": 123.7,
+          "end": 123.92,
+          "word": " these"
+        },
+        {
+          "start": 123.92,
+          "end": 124.04,
+          "word": " are"
+        },
+        {
+          "start": 124.04,
+          "end": 124.44,
+          "word": " design"
+        },
+        {
+          "start": 124.44,
+          "end": 124.76,
+          "word": " choices"
+        },
+        {
+          "start": 124.76,
+          "end": 125.0,
+          "word": " on"
+        },
+        {
+          "start": 125.0,
+          "end": 125.32,
+          "word": " paper."
+        }
+      ]
+    },
+    {
+      "start": 126.12,
+      "end": 127.82,
+      "text": "Harbor's brief may be prepared for Morgan.",
+      "words": [
+        {
+          "start": 126.12,
+          "end": 126.36,
+          "word": " Harbor's"
+        },
+        {
+          "start": 126.36,
+          "end": 126.6,
+          "word": " brief"
+        },
+        {
+          "start": 126.6,
+          "end": 126.86,
+          "word": " may"
+        },
+        {
+          "start": 126.86,
+          "end": 126.98,
+          "word": " be"
+        },
+        {
+          "start": 126.98,
+          "end": 127.32,
+          "word": " prepared"
+        },
+        {
+          "start": 127.32,
+          "end": 127.52,
+          "word": " for"
+        },
+        {
+          "start": 127.52,
+          "end": 127.82,
+          "word": " Morgan."
+        }
+      ]
+    },
+    {
+      "start": 128.28,
+      "end": 131.18,
+      "text": "Proposing a session, announcing it, booking a room,",
+      "words": [
+        {
+          "start": 128.28,
+          "end": 128.66,
+          "word": " Proposing"
+        },
+        {
+          "start": 128.66,
+          "end": 128.8,
+          "word": " a"
+        },
+        {
+          "start": 128.8,
+          "end": 129.14,
+          "word": " session,"
+        },
+        {
+          "start": 129.5,
+          "end": 129.86,
+          "word": " announcing"
+        },
+        {
+          "start": 129.86,
+          "end": 130.2,
+          "word": " it,"
+        },
+        {
+          "start": 130.44,
+          "end": 130.64,
+          "word": " booking"
+        },
+        {
+          "start": 130.64,
+          "end": 130.86,
+          "word": " a"
+        },
+        {
+          "start": 130.86,
+          "end": 131.18,
+          "word": " room,"
+        }
+      ]
+    },
+    {
+      "start": 131.42,
+      "end": 134.3,
+      "text": "or spending would need its own explicit human gate.",
+      "words": [
+        {
+          "start": 131.42,
+          "end": 131.6,
+          "word": " or"
+        },
+        {
+          "start": 131.6,
+          "end": 132.0,
+          "word": " spending"
+        },
+        {
+          "start": 132.0,
+          "end": 132.42,
+          "word": " would"
+        },
+        {
+          "start": 132.42,
+          "end": 132.58,
+          "word": " need"
+        },
+        {
+          "start": 132.58,
+          "end": 132.78,
+          "word": " its"
+        },
+        {
+          "start": 132.78,
+          "end": 133.1,
+          "word": " own"
+        },
+        {
+          "start": 133.1,
+          "end": 133.62,
+          "word": " explicit"
+        },
+        {
+          "start": 133.62,
+          "end": 134.02,
+          "word": " human"
+        },
+        {
+          "start": 134.02,
+          "end": 134.3,
+          "word": " gate."
+        }
+      ]
+    },
+    {
+      "start": 134.3,
+      "end": 137.22,
+      "text": "Nothing in our evaluation grants those permissions.",
+      "words": [
+        {
+          "start": 134.3,
+          "end": 135.1,
+          "word": " Nothing"
+        },
+        {
+          "start": 135.1,
+          "end": 135.38,
+          "word": " in"
+        },
+        {
+          "start": 135.38,
+          "end": 135.5,
+          "word": " our"
+        },
+        {
+          "start": 135.5,
+          "end": 136.04,
+          "word": " evaluation"
+        },
+        {
+          "start": 136.04,
+          "end": 136.46,
+          "word": " grants"
+        },
+        {
+          "start": 136.46,
+          "end": 136.72,
+          "word": " those"
+        },
+        {
+          "start": 136.72,
+          "end": 137.22,
+          "word": " permissions."
+        }
+      ]
+    },
+    {
+      "start": 138.08,
+      "end": 140.64,
+      "text": "Give Morgan a review view that answers four questions.",
+      "words": [
+        {
+          "start": 138.08,
+          "end": 138.16,
+          "word": " Give"
+        },
+        {
+          "start": 138.16,
+          "end": 138.46,
+          "word": " Morgan"
+        },
+        {
+          "start": 138.46,
+          "end": 138.68,
+          "word": " a"
+        },
+        {
+          "start": 138.68,
+          "end": 139.0,
+          "word": " review"
+        },
+        {
+          "start": 139.0,
+          "end": 139.3,
+          "word": " view"
+        },
+        {
+          "start": 139.3,
+          "end": 139.5,
+          "word": " that"
+        },
+        {
+          "start": 139.5,
+          "end": 139.8,
+          "word": " answers"
+        },
+        {
+          "start": 139.8,
+          "end": 140.16,
+          "word": " four"
+        },
+        {
+          "start": 140.16,
+          "end": 140.64,
+          "word": " questions."
+        }
+      ]
+    },
+    {
+      "start": 141.2,
+      "end": 141.9,
+      "text": "What changed?",
+      "words": [
+        {
+          "start": 141.2,
+          "end": 141.42,
+          "word": " What"
+        },
+        {
+          "start": 141.42,
+          "end": 141.9,
+          "word": " changed?"
+        }
+      ]
+    },
+    {
+      "start": 142.46,
+      "end": 143.66,
+      "text": "Which sources support it?",
+      "words": [
+        {
+          "start": 142.46,
+          "end": 142.62,
+          "word": " Which"
+        },
+        {
+          "start": 142.62,
+          "end": 142.96,
+          "word": " sources"
+        },
+        {
+          "start": 142.96,
+          "end": 143.38,
+          "word": " support"
+        },
+        {
+          "start": 143.38,
+          "end": 143.66,
+          "word": " it?"
+        }
+      ]
+    },
+    {
+      "start": 144.0,
+      "end": 144.84,
+      "text": "What is uncertain?",
+      "words": [
+        {
+          "start": 144.0,
+          "end": 144.3,
+          "word": " What"
+        },
+        {
+          "start": 144.3,
+          "end": 144.42,
+          "word": " is"
+        },
+        {
+          "start": 144.42,
+          "end": 144.84,
+          "word": " uncertain?"
+        }
+      ]
+    },
+    {
+      "start": 145.4,
+      "end": 147.12,
+      "text": "And what happens if Morgan says yes?",
+      "words": [
+        {
+          "start": 145.4,
+          "end": 145.52,
+          "word": " And"
+        },
+        {
+          "start": 145.52,
+          "end": 145.68,
+          "word": " what"
+        },
+        {
+          "start": 145.68,
+          "end": 146.04,
+          "word": " happens"
+        },
+        {
+          "start": 146.04,
+          "end": 146.26,
+          "word": " if"
+        },
+        {
+          "start": 146.26,
+          "end": 146.5,
+          "word": " Morgan"
+        },
+        {
+          "start": 146.5,
+          "end": 146.82,
+          "word": " says"
+        },
+        {
+          "start": 146.82,
+          "end": 147.12,
+          "word": " yes?"
+        }
+      ]
+    },
+    {
+      "start": 147.78,
+      "end": 150.98,
+      "text": "Make reject and request revision as visible as approved.",
+      "words": [
+        {
+          "start": 147.78,
+          "end": 148.02,
+          "word": " Make"
+        },
+        {
+          "start": 148.02,
+          "end": 148.42,
+          "word": " reject"
+        },
+        {
+          "start": 148.42,
+          "end": 148.78,
+          "word": " and"
+        },
+        {
+          "start": 148.78,
+          "end": 149.12,
+          "word": " request"
+        },
+        {
+          "start": 149.12,
+          "end": 149.6,
+          "word": " revision"
+        },
+        {
+          "start": 149.6,
+          "end": 149.96,
+          "word": " as"
+        },
+        {
+          "start": 149.96,
+          "end": 150.34,
+          "word": " visible"
+        },
+        {
+          "start": 150.34,
+          "end": 150.6,
+          "word": " as"
+        },
+        {
+          "start": 150.6,
+          "end": 150.98,
+          "word": " approved."
+        }
+      ]
+    },
+    {
+      "start": 151.64,
+      "end": 156.16,
+      "text": "The stale facilitator note should land as a hold with a next step, not a green badge.",
+      "words": [
+        {
+          "start": 151.64,
+          "end": 151.86,
+          "word": " The"
+        },
+        {
+          "start": 151.86,
+          "end": 152.14,
+          "word": " stale"
+        },
+        {
+          "start": 152.14,
+          "end": 152.78,
+          "word": " facilitator"
+        },
+        {
+          "start": 152.78,
+          "end": 153.0,
+          "word": " note"
+        },
+        {
+          "start": 153.0,
+          "end": 153.26,
+          "word": " should"
+        },
+        {
+          "start": 153.26,
+          "end": 153.52,
+          "word": " land"
+        },
+        {
+          "start": 153.52,
+          "end": 153.72,
+          "word": " as"
+        },
+        {
+          "start": 153.72,
+          "end": 153.88,
+          "word": " a"
+        },
+        {
+          "start": 153.88,
+          "end": 154.14,
+          "word": " hold"
+        },
+        {
+          "start": 154.14,
+          "end": 154.36,
+          "word": " with"
+        },
+        {
+          "start": 154.36,
+          "end": 154.5,
+          "word": " a"
+        },
+        {
+          "start": 154.5,
+          "end": 154.7,
+          "word": " next"
+        },
+        {
+          "start": 154.7,
+          "end": 155.06,
+          "word": " step,"
+        },
+        {
+          "start": 155.22,
+          "end": 155.44,
+          "word": " not"
+        },
+        {
+          "start": 155.44,
+          "end": 155.58,
+          "word": " a"
+        },
+        {
+          "start": 155.58,
+          "end": 155.78,
+          "word": " green"
+        },
+        {
+          "start": 155.78,
+          "end": 156.16,
+          "word": " badge."
+        }
+      ]
+    },
+    {
+      "start": 156.74,
+      "end": 160.02,
+      "text": "A reviewer who sees only a score will learn to clear a queue.",
+      "words": [
+        {
+          "start": 156.74,
+          "end": 156.96,
+          "word": " A"
+        },
+        {
+          "start": 156.96,
+          "end": 157.26,
+          "word": " reviewer"
+        },
+        {
+          "start": 157.26,
+          "end": 157.52,
+          "word": " who"
+        },
+        {
+          "start": 157.52,
+          "end": 157.72,
+          "word": " sees"
+        },
+        {
+          "start": 157.72,
+          "end": 158.1,
+          "word": " only"
+        },
+        {
+          "start": 158.1,
+          "end": 158.28,
+          "word": " a"
+        },
+        {
+          "start": 158.28,
+          "end": 158.66,
+          "word": " score"
+        },
+        {
+          "start": 158.66,
+          "end": 159.04,
+          "word": " will"
+        },
+        {
+          "start": 159.04,
+          "end": 159.24,
+          "word": " learn"
+        },
+        {
+          "start": 159.24,
+          "end": 159.44,
+          "word": " to"
+        },
+        {
+          "start": 159.44,
+          "end": 159.68,
+          "word": " clear"
+        },
+        {
+          "start": 159.68,
+          "end": 159.8,
+          "word": " a"
+        },
+        {
+          "start": 159.8,
+          "end": 160.02,
+          "word": " queue."
+        }
+      ]
+    },
+    {
+      "start": 160.5,
+      "end": 163.96,
+      "text": "A reviewer who sees the evidence can take responsibility for a decision.",
+      "words": [
+        {
+          "start": 160.5,
+          "end": 160.66,
+          "word": " A"
+        },
+        {
+          "start": 160.66,
+          "end": 160.96,
+          "word": " reviewer"
+        },
+        {
+          "start": 160.96,
+          "end": 161.26,
+          "word": " who"
+        },
+        {
+          "start": 161.26,
+          "end": 161.48,
+          "word": " sees"
+        },
+        {
+          "start": 161.48,
+          "end": 161.68,
+          "word": " the"
+        },
+        {
+          "start": 161.68,
+          "end": 162.04,
+          "word": " evidence"
+        },
+        {
+          "start": 162.04,
+          "end": 162.3,
+          "word": " can"
+        },
+        {
+          "start": 162.3,
+          "end": 162.5,
+          "word": " take"
+        },
+        {
+          "start": 162.5,
+          "end": 163.08,
+          "word": " responsibility"
+        },
+        {
+          "start": 163.08,
+          "end": 163.52,
+          "word": " for"
+        },
+        {
+          "start": 163.52,
+          "end": 163.64,
+          "word": " a"
+        },
+        {
+          "start": 163.64,
+          "end": 163.96,
+          "word": " decision."
+        }
+      ]
+    },
+    {
+      "start": 164.3,
+      "end": 165.08,
+      "text": "Pause.",
+      "words": [
+        {
+          "start": 164.3,
+          "end": 165.08,
+          "word": " Pause."
+        }
+      ]
+    },
+    {
+      "start": 165.8,
+      "end": 169.76,
+      "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?",
+      "words": [
+        {
+          "start": 165.8,
+          "end": 165.84,
+          "word": " Which"
+        },
+        {
+          "start": 165.84,
+          "end": 166.08,
+          "word": " number"
+        },
+        {
+          "start": 166.08,
+          "end": 166.32,
+          "word": " would"
+        },
+        {
+          "start": 166.32,
+          "end": 166.56,
+          "word": " make"
+        },
+        {
+          "start": 166.56,
+          "end": 166.78,
+          "word": " Harbor"
+        },
+        {
+          "start": 166.78,
+          "end": 167.08,
+          "word": " look"
+        },
+        {
+          "start": 167.08,
+          "end": 167.38,
+          "word": " busy"
+        },
+        {
+          "start": 167.38,
+          "end": 167.64,
+          "word": " while"
+        },
+        {
+          "start": 167.64,
+          "end": 167.94,
+          "word": " hiding"
+        },
+        {
+          "start": 167.94,
+          "end": 168.14,
+          "word": " the"
+        },
+        {
+          "start": 168.14,
+          "end": 168.72,
+          "word": " unsupported"
+        },
+        {
+          "start": 168.72,
+          "end": 169.5,
+          "word": " facilitator"
+        },
+        {
+          "start": 169.5,
+          "end": 169.76,
+          "word": " claim?"
+        }
+      ]
+    },
+    {
+      "start": 170.52,
+      "end": 174.16,
+      "text": "Add an agent metrics ladder and review postures card to your operating file.",
+      "words": [
+        {
+          "start": 170.52,
+          "end": 170.52,
+          "word": " Add"
+        },
+        {
+          "start": 170.52,
+          "end": 170.72,
+          "word": " an"
+        },
+        {
+          "start": 170.72,
+          "end": 171.0,
+          "word": " agent"
+        },
+        {
+          "start": 171.0,
+          "end": 171.44,
+          "word": " metrics"
+        },
+        {
+          "start": 171.44,
+          "end": 171.8,
+          "word": " ladder"
+        },
+        {
+          "start": 171.8,
+          "end": 172.02,
+          "word": " and"
+        },
+        {
+          "start": 172.02,
+          "end": 172.32,
+          "word": " review"
+        },
+        {
+          "start": 172.32,
+          "end": 172.76,
+          "word": " postures"
+        },
+        {
+          "start": 172.76,
+          "end": 173.04,
+          "word": " card"
+        },
+        {
+          "start": 173.04,
+          "end": 173.26,
+          "word": " to"
+        },
+        {
+          "start": 173.26,
+          "end": 173.38,
+          "word": " your"
+        },
+        {
+          "start": 173.38,
+          "end": 173.74,
+          "word": " operating"
+        },
+        {
+          "start": 173.74,
+          "end": 174.16,
+          "word": " file."
+        }
+      ]
+    },
+    {
+      "start": 174.68,
+      "end": 179.92,
+      "text": "Name one measure for activity, quality, behavior or trust, cost, and outcome.",
+      "words": [
+        {
+          "start": 174.68,
+          "end": 174.78,
+          "word": " Name"
+        },
+        {
+          "start": 174.78,
+          "end": 175.1,
+          "word": " one"
+        },
+        {
+          "start": 175.1,
+          "end": 175.4,
+          "word": " measure"
+        },
+        {
+          "start": 175.4,
+          "end": 175.7,
+          "word": " for"
+        },
+        {
+          "start": 175.7,
+          "end": 176.22,
+          "word": " activity,"
+        },
+        {
+          "start": 176.48,
+          "end": 176.92,
+          "word": " quality,"
+        },
+        {
+          "start": 177.38,
+          "end": 177.58,
+          "word": " behavior"
+        },
+        {
+          "start": 177.58,
+          "end": 177.88,
+          "word": " or"
+        },
+        {
+          "start": 177.88,
+          "end": 178.28,
+          "word": " trust,"
+        },
+        {
+          "start": 178.6,
+          "end": 178.94,
+          "word": " cost,"
+        },
+        {
+          "start": 179.42,
+          "end": 179.5,
+          "word": " and"
+        },
+        {
+          "start": 179.5,
+          "end": 179.92,
+          "word": " outcome."
+        }
+      ]
+    },
+    {
+      "start": 180.38,
+      "end": 185.7,
+      "text": "Give each a source, a review cadence, a name decider, and the decision it could change.",
+      "words": [
+        {
+          "start": 180.38,
+          "end": 180.64,
+          "word": " Give"
+        },
+        {
+          "start": 180.64,
+          "end": 180.84,
+          "word": " each"
+        },
+        {
+          "start": 180.84,
+          "end": 181.02,
+          "word": " a"
+        },
+        {
+          "start": 181.02,
+          "end": 181.3,
+          "word": " source,"
+        },
+        {
+          "start": 181.72,
+          "end": 181.86,
+          "word": " a"
+        },
+        {
+          "start": 181.86,
+          "end": 182.16,
+          "word": " review"
+        },
+        {
+          "start": 182.16,
+          "end": 182.64,
+          "word": " cadence,"
+        },
+        {
+          "start": 182.88,
+          "end": 183.06,
+          "word": " a"
+        },
+        {
+          "start": 183.06,
+          "end": 183.32,
+          "word": " name"
+        },
+        {
+          "start": 183.32,
+          "end": 183.82,
+          "word": " decider,"
+        },
+        {
+          "start": 183.96,
+          "end": 184.36,
+          "word": " and"
+        },
+        {
+          "start": 184.36,
+          "end": 184.48,
+          "word": " the"
+        },
+        {
+          "start": 184.48,
+          "end": 184.88,
+          "word": " decision"
+        },
+        {
+          "start": 184.88,
+          "end": 185.12,
+          "word": " it"
+        },
+        {
+          "start": 185.12,
+          "end": 185.24,
+          "word": " could"
+        },
+        {
+          "start": 185.24,
+          "end": 185.7,
+          "word": " change."
+        }
+      ]
+    },
+    {
+      "start": 186.12,
+      "end": 188.74,
+      "text": "Mark any unavailable baseline as unproven.",
+      "words": [
+        {
+          "start": 186.12,
+          "end": 186.4,
+          "word": " Mark"
+        },
+        {
+          "start": 186.4,
+          "end": 186.76,
+          "word": " any"
+        },
+        {
+          "start": 186.76,
+          "end": 187.32,
+          "word": " unavailable"
+        },
+        {
+          "start": 187.32,
+          "end": 187.94,
+          "word": " baseline"
+        },
+        {
+          "start": 187.94,
+          "end": 188.28,
+          "word": " as"
+        },
+        {
+          "start": 188.28,
+          "end": 188.74,
+          "word": " unproven."
+        }
+      ]
+    },
+    {
+      "start": 189.3,
+      "end": 191.4,
+      "text": "Then, classify three Harbor actions.",
+      "words": [
+        {
+          "start": 189.3,
+          "end": 189.62,
+          "word": " Then,"
+        },
+        {
+          "start": 189.7,
+          "end": 190.2,
+          "word": " classify"
+        },
+        {
+          "start": 190.2,
+          "end": 190.62,
+          "word": " three"
+        },
+        {
+          "start": 190.62,
+          "end": 190.88,
+          "word": " Harbor"
+        },
+        {
+          "start": 190.88,
+          "end": 191.4,
+          "word": " actions."
+        }
+      ]
+    },
+    {
+      "start": 191.4,
+      "end": 196.42,
+      "text": "Drafting the brief, Morgan's internal review, and a proposed external announcement.",
+      "words": [
+        {
+          "start": 191.4,
+          "end": 192.2,
+          "word": " Drafting"
+        },
+        {
+          "start": 192.2,
+          "end": 192.32,
+          "word": " the"
+        },
+        {
+          "start": 192.32,
+          "end": 192.56,
+          "word": " brief,"
+        },
+        {
+          "start": 193.2,
+          "end": 193.48,
+          "word": " Morgan's"
+        },
+        {
+          "start": 193.48,
+          "end": 193.78,
+          "word": " internal"
+        },
+        {
+          "start": 193.78,
+          "end": 194.18,
+          "word": " review,"
+        },
+        {
+          "start": 194.66,
+          "end": 194.72,
+          "word": " and"
+        },
+        {
+          "start": 194.72,
+          "end": 194.84,
+          "word": " a"
+        },
+        {
+          "start": 194.84,
+          "end": 195.22,
+          "word": " proposed"
+        },
+        {
+          "start": 195.22,
+          "end": 195.8,
+          "word": " external"
+        },
+        {
+          "start": 195.8,
+          "end": 196.42,
+          "word": " announcement."
+        }
+      ]
+    },
+    {
+      "start": 196.96,
+      "end": 199.84,
+      "text": "For each, state the reviewer view and stop condition.",
+      "words": [
+        {
+          "start": 196.96,
+          "end": 197.14,
+          "word": " For"
+        },
+        {
+          "start": 197.14,
+          "end": 197.44,
+          "word": " each,"
+        },
+        {
+          "start": 197.7,
+          "end": 198.0,
+          "word": " state"
+        },
+        {
+          "start": 198.0,
+          "end": 198.18,
+          "word": " the"
+        },
+        {
+          "start": 198.18,
+          "end": 198.48,
+          "word": " reviewer"
+        },
+        {
+          "start": 198.48,
+          "end": 198.8,
+          "word": " view"
+        },
+        {
+          "start": 198.8,
+          "end": 199.12,
+          "word": " and"
+        },
+        {
+          "start": 199.12,
+          "end": 199.4,
+          "word": " stop"
+        },
+        {
+          "start": 199.4,
+          "end": 199.84,
+          "word": " condition."
+        }
+      ]
+    },
+    {
+      "start": 200.18,
+      "end": 202.14,
+      "text": "Use a fictional or approved example.",
+      "words": [
+        {
+          "start": 200.18,
+          "end": 200.42,
+          "word": " Use"
+        },
+        {
+          "start": 200.42,
+          "end": 200.56,
+          "word": " a"
+        },
+        {
+          "start": 200.56,
+          "end": 200.88,
+          "word": " fictional"
+        },
+        {
+          "start": 200.88,
+          "end": 201.3,
+          "word": " or"
+        },
+        {
+          "start": 201.3,
+          "end": 201.68,
+          "word": " approved"
+        },
+        {
+          "start": 201.68,
+          "end": 202.14,
+          "word": " example."
+        }
+      ]
+    },
+    {
+      "start": 202.76,
+      "end": 207.48,
+      "text": "Do not use private operational data or paste live dashboards or customer results.",
+      "words": [
+        {
+          "start": 202.76,
+          "end": 202.86,
+          "word": " Do"
+        },
+        {
+          "start": 202.86,
+          "end": 203.06,
+          "word": " not"
+        },
+        {
+          "start": 203.06,
+          "end": 203.38,
+          "word": " use"
+        },
+        {
+          "start": 203.38,
+          "end": 203.74,
+          "word": " private"
+        },
+        {
+          "start": 203.74,
+          "end": 204.26,
+          "word": " operational"
+        },
+        {
+          "start": 204.26,
+          "end": 204.6,
+          "word": " data"
+        },
+        {
+          "start": 204.6,
+          "end": 205.1,
+          "word": " or"
+        },
+        {
+          "start": 205.1,
+          "end": 205.36,
+          "word": " paste"
+        },
+        {
+          "start": 205.36,
+          "end": 205.64,
+          "word": " live"
+        },
+        {
+          "start": 205.64,
+          "end": 206.26,
+          "word": " dashboards"
+        },
+        {
+          "start": 206.26,
+          "end": 206.6,
+          "word": " or"
+        },
+        {
+          "start": 206.6,
+          "end": 207.0,
+          "word": " customer"
+        },
+        {
+          "start": 207.0,
+          "end": 207.48,
+          "word": " results."
+        }
+      ]
+    },
+    {
+      "start": 208.06,
+      "end": 209.82,
+      "text": "Save revision nine as a draft.",
+      "words": [
+        {
+          "start": 208.06,
+          "end": 208.38,
+          "word": " Save"
+        },
+        {
+          "start": 208.38,
+          "end": 208.64,
+          "word": " revision"
+        },
+        {
+          "start": 208.64,
+          "end": 209.08,
+          "word": " nine"
+        },
+        {
+          "start": 209.08,
+          "end": 209.38,
+          "word": " as"
+        },
+        {
+          "start": 209.38,
+          "end": 209.52,
+          "word": " a"
+        },
+        {
+          "start": 209.52,
+          "end": 209.82,
+          "word": " draft."
+        }
+      ]
+    },
+    {
+      "start": 210.24,
+      "end": 212.02,
+      "text": "The scorecard may tell Morgan where to look.",
+      "words": [
+        {
+          "start": 210.24,
+          "end": 210.32,
+          "word": " The"
+        },
+        {
+          "start": 210.32,
+          "end": 210.82,
+          "word": " scorecard"
+        },
+        {
+          "start": 210.82,
+          "end": 211.0,
+          "word": " may"
+        },
+        {
+          "start": 211.0,
+          "end": 211.2,
+          "word": " tell"
+        },
+        {
+          "start": 211.2,
+          "end": 211.5,
+          "word": " Morgan"
+        },
+        {
+          "start": 211.5,
+          "end": 211.68,
+          "word": " where"
+        },
+        {
+          "start": 211.68,
+          "end": 211.8,
+          "word": " to"
+        },
+        {
+          "start": 211.8,
+          "end": 212.02,
+          "word": " look."
+        }
+      ]
+    },
+    {
+      "start": 212.4,
+      "end": 213.86,
+      "text": "It does not sign for Morgan.",
+      "words": [
+        {
+          "start": 212.4,
+          "end": 212.62,
+          "word": " It"
+        },
+        {
+          "start": 212.62,
+          "end": 212.78,
+          "word": " does"
+        },
+        {
+          "start": 212.78,
+          "end": 213.06,
+          "word": " not"
+        },
+        {
+          "start": 213.06,
+          "end": 213.36,
+          "word": " sign"
+        },
+        {
+          "start": 213.36,
+          "end": 213.54,
+          "word": " for"
+        },
+        {
+          "start": 213.54,
+          "end": 213.86,
+          "word": " Morgan."
+        }
+      ]
+    },
+    {
+      "start": 214.38,
+      "end": 218.36,
+      "text": "Next, we will put the same discipline around money and the final decision brief.",
+      "words": [
+        {
+          "start": 214.38,
+          "end": 214.66,
+          "word": " Next,"
+        },
+        {
+          "start": 214.74,
+          "end": 214.94,
+          "word": " we"
+        },
+        {
+          "start": 214.94,
+          "end": 215.06,
+          "word": " will"
+        },
+        {
+          "start": 215.06,
+          "end": 215.2,
+          "word": " put"
+        },
+        {
+          "start": 215.2,
+          "end": 215.36,
+          "word": " the"
+        },
+        {
+          "start": 215.36,
+          "end": 215.74,
+          "word": " same"
+        },
+        {
+          "start": 215.74,
+          "end": 216.22,
+          "word": " discipline"
+        },
+        {
+          "start": 216.22,
+          "end": 216.52,
+          "word": " around"
+        },
+        {
+          "start": 216.52,
+          "end": 216.88,
+          "word": " money"
+        },
+        {
+          "start": 216.88,
+          "end": 217.26,
+          "word": " and"
+        },
+        {
+          "start": 217.26,
+          "end": 217.42,
+          "word": " the"
+        },
+        {
+          "start": 217.42,
+          "end": 217.7,
+          "word": " final"
+        },
+        {
+          "start": 217.7,
+          "end": 218.04,
+          "word": " decision"
+        },
+        {
+          "start": 218.04,
+          "end": 218.36,
+          "word": " brief."
+        }
+      ]
+    }
+  ]
+}
