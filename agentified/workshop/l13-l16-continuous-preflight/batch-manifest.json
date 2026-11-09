@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "status": "provider_free_L13-L16_preflight_validated; execution_blocked",
+  "lessons": [
+    {
+      "lesson_id": "L13",
+      "candidate_sha256": "ca8117572b7e862a9dcdd15b1b901886cfe1068dbc2be487c6cde6f17cb84876",
+      "packet_sha256": "f7308be394a1d1a85053201e448bd1ed18d03306f20a28fef9890fa88fca8f56",
+      "script_sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+      "speech_text_sha256": "26fbae66aadb6d71446376c3c18f247c87b19297a09eacfe392946337d4030b4",
+      "source_binding_count": 13,
+      "approved_visual_count": 1,
+      "approved_plate_rights": "bound_lesson_use_only",
+      "presenter_and_voice_rights": "purpose_specific_approval_pending",
+      "accessibility": {
+        "source_captions_exact": true,
+        "final_caption_sync": "pending_native_audio",
+        "scene_specific_plate_text_alternatives": [
+          {
+            "scene_id": "L13-02",
+            "text": "A.M.I.N.A. inside SAM diagram: Signals, Alignment, and Momentum surround Align, Map, Instrument, Negotiate, and Audit. Three lower panels read Ask, Act, and Attest."
+          }
+        ],
+        "visual_labels_independent_of_color": true,
+        "mobile_contain_plus_teaching_copy": true,
+        "final_mobile_review": "pending_native_edit"
+      },
+      "provisional_continuous_seconds": 287,
+      "guided_pause_seconds": 45,
+      "learner_playback_locked": true,
+      "provider_calls": 0,
+      "audio_generated": 0,
+      "spend_usd": 0,
+      "status": "validated_provider_free; execution_blocked"
+    },
+    {
+      "lesson_id": "L14",
+      "candidate_sha256": "93414761a5a5a49ebc6068bf72ef5f0055418030f27ec57abe0fafe4f9781e6b",
+      "packet_sha256": "4388dbb260c9a9f1a5253777f3b9657c72cebb46f5098d7ad60f41b3c4f552ce",
+      "script_sha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
+      "speech_text_sha256": "5dbd66cfa1904d70b998f590d37bbac513776904f722d2681948c250fa249034",
+      "source_binding_count": 14,
+      "approved_visual_count": 2,
+      "approved_plate_rights": "bound_lesson_use_only",
+      "presenter_and_voice_rights": "purpose_specific_approval_pending",
+      "accessibility": {
+        "source_captions_exact": true,
+        "final_caption_sync": "pending_native_audio",
+        "scene_specific_plate_text_alternatives": [
+          {
+            "scene_id": "L14-03",
+            "text": "Portfolio-first operating stack: Open Brain, Harness, Agent roles, and Mission Control feed a controls layer. A public-safe proof branch is separated from raw private logs."
+          },
+          {
+            "scene_id": "L14-04",
+            "text": "Authority ladder climbs from Prepare to Recommend, Route, Stage, and Execute. Side labels require a rollback path, human gate, source check, and receipt before authority rises."
+          }
+        ],
+        "visual_labels_independent_of_color": true,
+        "mobile_contain_plus_teaching_copy": true,
+        "final_mobile_review": "pending_native_edit"
+      },
+      "provisional_continuous_seconds": 284,
+      "guided_pause_seconds": 45,
+      "learner_playback_locked": true,
+      "provider_calls": 0,
+      "audio_generated": 0,
+      "spend_usd": 0,
+      "status": "validated_provider_free; execution_blocked"
+    },
+    {
+      "lesson_id": "L15",
+      "candidate_sha256": "9683b252bff8ec732942905713cc98f06f6d8643814c547d8ad1cc580c8dd224",
+      "packet_sha256": "cf4fe7cbafcb46ade700360765d775301a5fd0d14ada1f37fb9f75154680236c",
+      "script_sha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
+      "speech_text_sha256": "ec8bb7001b3de666bf6620d5b5dd91005b78294d6a35f5b2774e03d48fc3d6b1",
+      "source_binding_count": 13,
+      "approved_visual_count": 1,
+      "approved_plate_rights": "bound_lesson_use_only",
+      "presenter_and_voice_rights": "purpose_specific_approval_pending",
+      "accessibility": {
+        "source_captions_exact": true,
+        "final_caption_sync": "pending_native_audio",
+        "scene_specific_plate_text_alternatives": [
+          {
+            "scene_id": "L15-04",
+            "text": "SAM trust layer: Signals, Alignment, and Momentum are connected by source, receipt, gate, evaluation, and proof labels that travel with the work."
+          }
+        ],
+        "visual_labels_independent_of_color": true,
+        "mobile_contain_plus_teaching_copy": true,
+        "final_mobile_review": "pending_native_edit"
+      },
+      "provisional_continuous_seconds": 302,
+      "guided_pause_seconds": 45,
+      "learner_playback_locked": true,
+      "provider_calls": 0,
+      "audio_generated": 0,
+      "spend_usd": 0,
+      "status": "validated_provider_free; execution_blocked"
+    },
+    {
+      "lesson_id": "L16",
+      "candidate_sha256": "2a9fc51f0bdaa64401b57a10d3beac2989d51286187fc5fd11525ed2bb16b314",
+      "packet_sha256": "1002cce78b604a1d118791f07a9c98cd7accd55e532ab1d4a0f5eb2a5fdcf2e1",
+      "script_sha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e",
+      "speech_text_sha256": "e14c1b2ca67b5d3c21b72c6c1d7ed21a379b524fbc4c48c592f5f17361e58060",
+      "source_binding_count": 14,
+      "approved_visual_count": 2,
+      "approved_plate_rights": "bound_lesson_use_only",
+      "presenter_and_voice_rights": "purpose_specific_approval_pending",
+      "accessibility": {
+        "source_captions_exact": true,
+        "final_caption_sync": "pending_native_audio",
+        "scene_specific_plate_text_alternatives": [
+          {
+            "scene_id": "L16-04",
+            "text": "A.M.I.N.A. inside SAM diagram: Signals, Alignment, and Momentum surround Align, Map, Instrument, Negotiate, and Audit. Three lower panels read Ask, Act, and Attest."
+          },
+          {
+            "scene_id": "L16-05",
+            "text": "Authority ladder climbs from Prepare to Recommend, Route, Stage, and Execute. Side labels require a rollback path, human gate, source check, and receipt before authority rises."
+          }
+        ],
+        "visual_labels_independent_of_color": true,
+        "mobile_contain_plus_teaching_copy": true,
+        "final_mobile_review": "pending_native_edit"
+      },
+      "provisional_continuous_seconds": 303,
+      "guided_pause_seconds": 45,
+      "learner_playback_locked": true,
+      "provider_calls": 0,
+      "audio_generated": 0,
+      "spend_usd": 0,
+      "status": "validated_provider_free; execution_blocked"
+    }
+  ],
+  "presenter_window_manifest_path": "agentified/workshop/l13-l16-continuous-preflight/presenter-window-manifest.json",
+  "presenter_window_manifest_sha256": "ebccd6a729944f00cfa0e77e10ce7f771735b0106b95b4348611931003e91dc9",
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "spend_usd": 0,
+  "current_execution_cap_usd": 0,
+  "project_budget_path": "agentified/workshop/provider-budget-authorization.json",
+  "project_budget_sha256": "b1ed10abcfb2fb10ef46940e32f0a5577af671e6309e56edcf06150c34a1fc3c",
+  "project_aggregate_cash_ceiling_usd": 100,
+  "current_balance": null,
+  "binding_quotes": null,
+  "enforceable_job_caps": null,
+  "aggregate_cumulative_spend": null,
+  "maximum_later_jobs": 4,
+  "retries": 0,
+  "rights_status": "L13-L16 purpose-specific look and voice approval pending",
+  "production_binding_allowed": false,
+  "customer_release_allowed": false,
+  "learner_playback_locked": true,
+  "learner_player_sha256": "0eaad4eb91ae457b55a6aac66b2e929c8aa01ea17504977abc297f9b5ce6f7f6",
+  "batch_sha256": "18b3a6bfa3ee1dc6fadedb2cc969a312e8a9acf935bfb50684ad0d812b0cb194"
+}

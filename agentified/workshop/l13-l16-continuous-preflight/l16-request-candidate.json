@@ -1,0 +1,819 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_review_candidate",
+  "lesson_id": "L16",
+  "title": "Audit the operating file",
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "packet_path": "agentified/workshop/scene-production/packets/L16.json",
+  "packet_sha256": "1002cce78b604a1d118791f07a9c98cd7accd55e532ab1d4a0f5eb2a5fdcf2e1",
+  "script_sha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "provider_jobs_submitted": 0,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_execution_cap_usd": 0,
+  "proposed_identity": {
+    "look_name": "Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
+    "offscreen_voice_id": "4f53988b1c314610b514db98432fd0ef",
+    "status": "historical precedent only; L13-L16 purpose-specific rights pending"
+  },
+  "presenter_passages": [
+    {
+      "scene_id": "L16-01",
+      "storyboard_reservation": {
+        "start_seconds": 0,
+        "end_seconds": 17.029,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "At the end of Harbor's Friday, Morgan has a full Operating File. It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal.",
+      "passage_sha256": "a311d686d2e6252b25bd2d84d437d881b86a66b8b2f7a4e727df1aee22dc35aa",
+      "provisional_speech_seconds": 17.029,
+      "caption_count": 2,
+      "native_media_path": null,
+      "native_media_sha256": null
+    },
+    {
+      "scene_id": "L16-08",
+      "storyboard_reservation": {
+        "start_seconds": 588.293,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "Only Morgan and the appropriate owners can make that disposition real. The file gives them a way to see what is ready, what is missing, and what must stop.",
+      "passage_sha256": "b24148ff60b1b698b46ee55c3c32096ad1da759fcf487509e7d332d0162e8c9b",
+      "provisional_speech_seconds": 11.707,
+      "caption_count": 2,
+      "native_media_path": null,
+      "native_media_sha256": null
+    }
+  ],
+  "offscreen_narration": {
+    "text": "The file is impressive in one sense: its gaps are visible. Staffing is still unconfirmed. Spend is unapproved. The research test has not run. The board proof has not been shared. The capstone asks whether this design deserves to continue, in what smaller form, and under whose care.\n\nChapter Twenty-Six names five operating questions: route, log, gate, memory, review. Who receives the work? What record explains it? Where does a human decide? What may be remembered, and by whom? When will someone revisit the rule? The companion workbook expands these into an Accountability Stack from source through rollback. We will use the larger worksheet to audit the single Harbor workflow, while keeping the five questions as a readable spine.\n\nBegin with source and event. Harbor's three course inputs use opaque references and a source-status field. No raw private record belongs in the learner export. The receipt describes a paper event shape; it does not certify that an agent ran. Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan. A missing approval date stays blank. Do not backfill it to make the stack look complete.\n\nMove to routing, action, approval, and cost. The preparation role may draft a Session Option Brief. Morgan owns the session recommendation. A separate owner must review spend. The agent cannot book, send, buy, or turn a proposal into a team rule. We have no evidence that staffing is available, so the next action is still hold. A capstone score cannot lift that hold. It can identify who must decide and what evidence they need.\n\nFinish with export and rollback. The proof outline is scoped to an audience and remains `not shared`. If a claim is wrong, Harbor can retain the prior draft, correct the paper brief, and record the reason. If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it. The weakest gate today is staffing confirmation: without it, the brief cannot become a team proposal. That is a useful result, even though nothing launches.\n\nPause. Pick the weakest gate in your workflow. Would you keep the design as a paper trial, shrink its scope, or retire it? Name the human who can make that call and the evidence that person would need. Use a fictional or approved example. Do not use private operational data. A blank disposition is pending, never consent.\n\nPresent your Operating File as a one-page audit. Walk source, event, proposal, memory, routing, action, approval, cost, export, and rollback. For each layer, write owner, evidence, privacy tier, gate, failure mode, and next improvement. Mark missing evidence openly. Then write a human disposition field with decision, owner, date, reason, and next review date. You may leave the decision pending. This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete.\n\nSave revision sixteen for review. Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+    "text_sha256": "e14c1b2ca67b5d3c21b72c6c1d7ed21a379b524fbc4c48c592f5f17361e58060",
+    "word_count": 512,
+    "segments": [
+      {
+        "scene_id": "L16-01",
+        "text": "The file is impressive in one sense: its gaps are visible. Staffing is still unconfirmed. Spend is unapproved. The research test has not run. The board proof has not been shared. The capstone asks whether this design deserves to continue, in what smaller form, and under whose care.",
+        "sha256": "515f753a32672d4b6dc978618106f967707586e2eba601bb8dd7cc8d79e93efe"
+      },
+      {
+        "scene_id": "L16-02",
+        "text": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review. Who receives the work? What record explains it? Where does a human decide? What may be remembered, and by whom? When will someone revisit the rule? The companion workbook expands these into an Accountability Stack from source through rollback. We will use the larger worksheet to audit the single Harbor workflow, while keeping the five questions as a readable spine.",
+        "sha256": "5a920698650a428dd9c4db09c6e74f1ebb7ffcea0263cbe9d02093b52cfbb6ba"
+      },
+      {
+        "scene_id": "L16-03",
+        "text": "Begin with source and event. Harbor's three course inputs use opaque references and a source-status field. No raw private record belongs in the learner export. The receipt describes a paper event shape; it does not certify that an agent ran. Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan. A missing approval date stays blank. Do not backfill it to make the stack look complete.",
+        "sha256": "4575aa6fc06856607377910de913a0f8adf826f3b53941c029dc969f73e407e8"
+      },
+      {
+        "scene_id": "L16-04",
+        "text": "Move to routing, action, approval, and cost. The preparation role may draft a Session Option Brief. Morgan owns the session recommendation. A separate owner must review spend. The agent cannot book, send, buy, or turn a proposal into a team rule. We have no evidence that staffing is available, so the next action is still hold. A capstone score cannot lift that hold. It can identify who must decide and what evidence they need.",
+        "sha256": "d7d790953d04a9f5033f1d72e94fa7a52e2ce0d35e6737010b45ec4ab9992bb8"
+      },
+      {
+        "scene_id": "L16-05",
+        "text": "Finish with export and rollback. The proof outline is scoped to an audience and remains `not shared`. If a claim is wrong, Harbor can retain the prior draft, correct the paper brief, and record the reason. If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it. The weakest gate today is staffing confirmation: without it, the brief cannot become a team proposal. That is a useful result, even though nothing launches.",
+        "sha256": "46a447099ba8e0afb5960d317aea20d9f58430fc78bdf4814a5528c420a10385"
+      },
+      {
+        "scene_id": "L16-06",
+        "text": "Pause. Pick the weakest gate in your workflow. Would you keep the design as a paper trial, shrink its scope, or retire it? Name the human who can make that call and the evidence that person would need. Use a fictional or approved example. Do not use private operational data. A blank disposition is pending, never consent.",
+        "sha256": "58c3d2377094f50c788085ca2d31341ddd1bd1a788af87aa01dd40fdf04f1edc"
+      },
+      {
+        "scene_id": "L16-07",
+        "text": "Present your Operating File as a one-page audit. Walk source, event, proposal, memory, routing, action, approval, cost, export, and rollback. For each layer, write owner, evidence, privacy tier, gate, failure mode, and next improvement. Mark missing evidence openly. Then write a human disposition field with decision, owner, date, reason, and next review date. You may leave the decision pending. This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete.",
+        "sha256": "99a8318e525e955ff4749f8dd338173bbf87b33d4103634e7d63a9475226b60f"
+      },
+      {
+        "scene_id": "L16-08",
+        "text": "Save revision sixteen for review. Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+        "sha256": "01ff8ed7057706188359706490115510deed78bcf73b0d024ab9fb656b284c1e"
+      }
+    ],
+    "new_audio_path": null,
+    "new_audio_sha256": null
+  },
+  "timing": {
+    "status": "provisional_cue_derived; native_audio_required",
+    "original_storyboard_seconds": 600,
+    "proposed_continuous_seconds": 303,
+    "spoken_seconds": 258,
+    "ordinary_gap_limit_seconds": 2.5,
+    "actual_native_timing_seconds": null,
+    "no_fixed_ten_minute_padding": true,
+    "cues": [
+      {
+        "scene_id": "L16-01",
+        "speaker": "presenter",
+        "start_seconds": 0,
+        "end_seconds": 5.054,
+        "text": "At the end of Harbor's Friday, Morgan has a full Operating File. ",
+        "source_start_seconds": 0,
+        "source_end_seconds": 5.054
+      },
+      {
+        "scene_id": "L16-01",
+        "speaker": "presenter",
+        "start_seconds": 5.054,
+        "end_seconds": 17.029,
+        "text": "It contains a job, sources, receipts, authority limits, a team handoff, evaluation cases, a proof outline, a research proposal, and a six-beat rehearsal. ",
+        "source_start_seconds": 5.054,
+        "source_end_seconds": 17.029
+      },
+      {
+        "scene_id": "L16-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 17.029,
+        "end_seconds": 21.207,
+        "text": "The file is impressive in one sense: its gaps are visible. ",
+        "source_start_seconds": 17.029,
+        "source_end_seconds": 21.207
+      },
+      {
+        "scene_id": "L16-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 21.207,
+        "end_seconds": 23.403,
+        "text": "Staffing is still unconfirmed. ",
+        "source_start_seconds": 21.207,
+        "source_end_seconds": 23.403
+      },
+      {
+        "scene_id": "L16-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 23.403,
+        "end_seconds": 24.89,
+        "text": "Spend is unapproved. ",
+        "source_start_seconds": 23.403,
+        "source_end_seconds": 24.89
+      },
+      {
+        "scene_id": "L16-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 24.89,
+        "end_seconds": 27.085,
+        "text": "The research test has not run. ",
+        "source_start_seconds": 24.89,
+        "source_end_seconds": 27.085
+      },
+      {
+        "scene_id": "L16-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 27.085,
+        "end_seconds": 29.706,
+        "text": "The board proof has not been shared. ",
+        "source_start_seconds": 27.085,
+        "source_end_seconds": 29.706
+      },
+      {
+        "scene_id": "L16-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 29.706,
+        "end_seconds": 37,
+        "text": "The capstone asks whether this design deserves to continue, in what smaller form, and under whose care.",
+        "source_start_seconds": 29.706,
+        "source_end_seconds": 37
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 37,
+        "end_seconds": 43.018,
+        "text": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review. ",
+        "source_start_seconds": 65,
+        "source_end_seconds": 71.018
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 43.018,
+        "end_seconds": 44.646,
+        "text": "Who receives the work? ",
+        "source_start_seconds": 71.018,
+        "source_end_seconds": 72.646
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 44.646,
+        "end_seconds": 46.416,
+        "text": "What record explains it? ",
+        "source_start_seconds": 72.646,
+        "source_end_seconds": 74.416
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 46.416,
+        "end_seconds": 48.327,
+        "text": "Where does a human decide? ",
+        "source_start_seconds": 74.416,
+        "source_end_seconds": 76.327
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 48.327,
+        "end_seconds": 50.947,
+        "text": "What may be remembered, and by whom? ",
+        "source_start_seconds": 76.327,
+        "source_end_seconds": 78.947
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 50.947,
+        "end_seconds": 53.496,
+        "text": "When will someone revisit the rule? ",
+        "source_start_seconds": 78.947,
+        "source_end_seconds": 81.496
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 53.496,
+        "end_seconds": 60.292,
+        "text": "The companion workbook expands these into an Accountability Stack from source through rollback. ",
+        "source_start_seconds": 81.496,
+        "source_end_seconds": 88.292
+      },
+      {
+        "scene_id": "L16-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 60.292,
+        "end_seconds": 69,
+        "text": "We will use the larger worksheet to audit the single Harbor workflow, while keeping the five questions as a readable spine.",
+        "source_start_seconds": 88.292,
+        "source_end_seconds": 97
+      },
+      {
+        "scene_id": "L16-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 69,
+        "end_seconds": 71.136,
+        "text": "Begin with source and event. ",
+        "source_start_seconds": 130,
+        "source_end_seconds": 132.136
+      },
+      {
+        "scene_id": "L16-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 71.136,
+        "end_seconds": 76.882,
+        "text": "Harbor's three course inputs use opaque references and a source-status field. ",
+        "source_start_seconds": 132.136,
+        "source_end_seconds": 137.882
+      },
+      {
+        "scene_id": "L16-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 76.882,
+        "end_seconds": 80.786,
+        "text": "No raw private record belongs in the learner export. ",
+        "source_start_seconds": 137.882,
+        "source_end_seconds": 141.786
+      },
+      {
+        "scene_id": "L16-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 80.786,
+        "end_seconds": 86.826,
+        "text": "The receipt describes a paper event shape; it does not certify that an agent ran. ",
+        "source_start_seconds": 141.786,
+        "source_end_seconds": 147.826
+      },
+      {
+        "scene_id": "L16-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 86.826,
+        "end_seconds": 95.518,
+        "text": "Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan. ",
+        "source_start_seconds": 147.826,
+        "source_end_seconds": 156.518
+      },
+      {
+        "scene_id": "L16-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 95.518,
+        "end_seconds": 98.243,
+        "text": "A missing approval date stays blank. ",
+        "source_start_seconds": 156.518,
+        "source_end_seconds": 159.243
+      },
+      {
+        "scene_id": "L16-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 98.243,
+        "end_seconds": 102,
+        "text": "Do not backfill it to make the stack look complete.",
+        "source_start_seconds": 159.243,
+        "source_end_seconds": 163
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 102,
+        "end_seconds": 105.462,
+        "text": "Move to routing, action, approval, and cost. ",
+        "source_start_seconds": 195,
+        "source_end_seconds": 198.462
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 105.462,
+        "end_seconds": 109.692,
+        "text": "The preparation role may draft a Session Option Brief. ",
+        "source_start_seconds": 198.462,
+        "source_end_seconds": 202.692
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 109.692,
+        "end_seconds": 112.769,
+        "text": "Morgan owns the session recommendation. ",
+        "source_start_seconds": 202.692,
+        "source_end_seconds": 205.769
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 112.769,
+        "end_seconds": 115.538,
+        "text": "A separate owner must review spend. ",
+        "source_start_seconds": 205.769,
+        "source_end_seconds": 208.538
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 115.538,
+        "end_seconds": 121,
+        "text": "The agent cannot book, send, buy, or turn a proposal into a team rule. ",
+        "source_start_seconds": 208.538,
+        "source_end_seconds": 214
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 121,
+        "end_seconds": 127.308,
+        "text": "We have no evidence that staffing is available, so the next action is still hold. ",
+        "source_start_seconds": 214,
+        "source_end_seconds": 220.308
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 127.308,
+        "end_seconds": 130.385,
+        "text": "A capstone score cannot lift that hold. ",
+        "source_start_seconds": 220.308,
+        "source_end_seconds": 223.385
+      },
+      {
+        "scene_id": "L16-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 130.385,
+        "end_seconds": 135,
+        "text": "It can identify who must decide and what evidence they need.",
+        "source_start_seconds": 223.385,
+        "source_end_seconds": 228
+      },
+      {
+        "scene_id": "L16-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 135,
+        "end_seconds": 137.6,
+        "text": "Finish with export and rollback. ",
+        "source_start_seconds": 260,
+        "source_end_seconds": 262.6
+      },
+      {
+        "scene_id": "L16-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 137.6,
+        "end_seconds": 143.035,
+        "text": "The proof outline is scoped to an audience and remains `not shared`. ",
+        "source_start_seconds": 262.6,
+        "source_end_seconds": 268.035
+      },
+      {
+        "scene_id": "L16-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 143.035,
+        "end_seconds": 151.228,
+        "text": "If a claim is wrong, Harbor can retain the prior draft, correct the paper brief, and record the reason. ",
+        "source_start_seconds": 268.035,
+        "source_end_seconds": 276.228
+      },
+      {
+        "scene_id": "L16-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 151.228,
+        "end_seconds": 158.711,
+        "text": "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it. ",
+        "source_start_seconds": 276.228,
+        "source_end_seconds": 283.711
+      },
+      {
+        "scene_id": "L16-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 158.711,
+        "end_seconds": 166.746,
+        "text": "The weakest gate today is staffing confirmation: without it, the brief cannot become a team proposal. ",
+        "source_start_seconds": 283.711,
+        "source_end_seconds": 291.746
+      },
+      {
+        "scene_id": "L16-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 166.746,
+        "end_seconds": 171,
+        "text": "That is a useful result, even though nothing launches.",
+        "source_start_seconds": 291.746,
+        "source_end_seconds": 296
+      },
+      {
+        "scene_id": "L16-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 171,
+        "end_seconds": 171.565,
+        "text": "Pause. ",
+        "source_start_seconds": 320,
+        "source_end_seconds": 320.565
+      },
+      {
+        "scene_id": "L16-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 171.565,
+        "end_seconds": 174.795,
+        "text": "Pick the weakest gate in your workflow. ",
+        "source_start_seconds": 320.565,
+        "source_end_seconds": 323.795
+      },
+      {
+        "scene_id": "L16-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 174.795,
+        "end_seconds": 180.932,
+        "text": "Would you keep the design as a paper trial, shrink its scope, or retire it? ",
+        "source_start_seconds": 323.795,
+        "source_end_seconds": 329.932
+      },
+      {
+        "scene_id": "L16-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 180.932,
+        "end_seconds": 187.311,
+        "text": "Name the human who can make that call and the evidence that person would need. ",
+        "source_start_seconds": 329.932,
+        "source_end_seconds": 336.311
+      },
+      {
+        "scene_id": "L16-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 187.311,
+        "end_seconds": 190.298,
+        "text": "Use a fictional or approved example. ",
+        "source_start_seconds": 336.311,
+        "source_end_seconds": 339.298
+      },
+      {
+        "scene_id": "L16-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 190.298,
+        "end_seconds": 193.286,
+        "text": "Do not use private operational data. ",
+        "source_start_seconds": 339.298,
+        "source_end_seconds": 342.286
+      },
+      {
+        "scene_id": "L16-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 193.286,
+        "end_seconds": 197,
+        "text": "A blank disposition is pending, never consent.",
+        "source_start_seconds": 342.286,
+        "source_end_seconds": 346
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 197,
+        "end_seconds": 200.405,
+        "text": "Present your Operating File as a one-page audit. ",
+        "source_start_seconds": 375,
+        "source_end_seconds": 378.405
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 200.405,
+        "end_seconds": 206.869,
+        "text": "Walk source, event, proposal, memory, routing, action, approval, cost, export, and rollback. ",
+        "source_start_seconds": 378.405,
+        "source_end_seconds": 384.869
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 206.869,
+        "end_seconds": 213.471,
+        "text": "For each layer, write owner, evidence, privacy tier, gate, failure mode, and next improvement. ",
+        "source_start_seconds": 384.869,
+        "source_end_seconds": 391.471
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 213.471,
+        "end_seconds": 215.556,
+        "text": "Mark missing evidence openly. ",
+        "source_start_seconds": 391.471,
+        "source_end_seconds": 393.556
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 215.556,
+        "end_seconds": 222.158,
+        "text": "Then write a human disposition field with decision, owner, date, reason, and next review date. ",
+        "source_start_seconds": 393.556,
+        "source_end_seconds": 400.158
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 222.158,
+        "end_seconds": 224.66,
+        "text": "You may leave the decision pending. ",
+        "source_start_seconds": 400.158,
+        "source_end_seconds": 402.66
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 224.66,
+        "end_seconds": 233,
+        "text": "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete.",
+        "source_start_seconds": 402.66,
+        "source_end_seconds": 411
+      },
+      {
+        "scene_id": "L16-07",
+        "speaker": "guided_work_pause",
+        "start_seconds": 233,
+        "end_seconds": 278,
+        "text": "Complete an `Accountability Stack` for the workflow you designed across L01–L15. For each of source, event, proposal, memory, routing, action, approval, cost/spend, export, and rollback, record owner, evidence reference, privacy tier, approval gate, failure mode, and next improvement. Identify the weakest gate. Add a disposition with `keep`, `shrink`, `retire`, or `pending`; named human owner; decision date; reason; next review date; and unresolved evidence. If the human has not decided, leave date blank and status `pending`. This exercise does not authorize a run.",
+        "visual": "visible synchronized countdown from 45 to 0; no music"
+      },
+      {
+        "scene_id": "L16-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 278,
+        "end_seconds": 280.568,
+        "text": "Save revision sixteen for review. ",
+        "source_start_seconds": 575,
+        "source_end_seconds": 577.568
+      },
+      {
+        "scene_id": "L16-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 280.568,
+        "end_seconds": 291.293,
+        "text": "Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format. ",
+        "source_start_seconds": 577.568,
+        "source_end_seconds": 588.293
+      },
+      {
+        "scene_id": "L16-08",
+        "speaker": "presenter",
+        "start_seconds": 291.293,
+        "end_seconds": 296.656,
+        "text": "Only Morgan and the appropriate owners can make that disposition real. ",
+        "source_start_seconds": 588.293,
+        "source_end_seconds": 593.656
+      },
+      {
+        "scene_id": "L16-08",
+        "speaker": "presenter",
+        "start_seconds": 296.656,
+        "end_seconds": 303,
+        "text": "The file gives them a way to see what is ready, what is missing, and what must stop.",
+        "source_start_seconds": 593.656,
+        "source_end_seconds": 600
+      }
+    ],
+    "guided_work_pause_seconds": 45,
+    "closing_card": {
+      "scene_id": "L16-08",
+      "start_seconds": 291.293,
+      "end_seconds": 303,
+      "duration_seconds": 11.707,
+      "overlay_on_final_presenter_passage": true,
+      "audience_copy_exact": [
+        "Operating File v16: audit pending.",
+        "Next: human editorial and source review."
+      ],
+      "treatment": "approved ending copy in provider-free card; L16 overlaps final spoken passage without padding"
+    },
+    "rule": "Retain exact speech in order; change picture only at a sentence-complete spoken handoff; one speaker at a time; preserve native presenter source frame rate and audio; re-time captions after native recordings."
+  },
+  "scenes": [
+    {
+      "scene_id": "L16-01",
+      "audience_copy_exact": [
+        "Capstone: inspect the gaps."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L16-02",
+      "audience_copy_exact": [
+        "Route / Log / Gate / Memory / Review."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L16-03",
+      "audience_copy_exact": [
+        "Source status. Receipt shape. Proposal status."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L16-04",
+      "audience_copy_exact": [
+        "Prepare only.",
+        "Hold: staffing and spend."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L16-05",
+      "audience_copy_exact": [
+        "Export: not shared.",
+        "Rollback: preserve and correct."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L16-06",
+      "audience_copy_exact": [
+        "Pause: keep / shrink / retire?"
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L16-07",
+      "audience_copy_exact": [],
+      "exercise_prompt_exact": "Complete an `Accountability Stack` for the workflow you designed across L01–L15. For each of source, event, proposal, memory, routing, action, approval, cost/spend, export, and rollback, record owner, evidence reference, privacy tier, approval gate, failure mode, and next improvement. Identify the weakest gate. Add a disposition with `keep`, `shrink`, `retire`, or `pending`; named human owner; decision date; reason; next review date; and unresolved evidence. If the human has not decided, leave date blank and status `pending`. This exercise does not authorize a run.",
+      "guided_display_copy_exact": [
+        "Present your Operating File as a one-page audit.",
+        "Walk source, event, proposal, memory, routing, action, approval, cost, export, and rollback."
+      ]
+    },
+    {
+      "scene_id": "L16-08",
+      "audience_copy_exact": [
+        "Operating File v16: audit pending.",
+        "Next: human editorial and source review."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    }
+  ],
+  "visuals": [
+    {
+      "scene_id": "L16-04",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "use": "Harbor hold card nested in the Gate row, with staffing, spend, and research as separate statuses.",
+      "text_equivalent": "A.M.I.N.A. inside SAM diagram: Signals, Alignment, and Momentum surround Align, Map, Instrument, Negotiate, and Audit. Three lower panels read Ask, Act, and Attest.",
+      "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+      "treatment": "full plate in contain region; approved audience copy separate and readable at mobile width"
+    },
+    {
+      "scene_id": "L16-05",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "use": "Human disposition card showing suggested `shrink` and actual `pending` in separate labeled fields.",
+      "text_equivalent": "Authority ladder climbs from Prepare to Recommend, Route, Stage, and Execute. Side labels require a rollback path, human gate, source check, and receipt before authority rises.",
+      "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+      "treatment": "full plate in contain region; approved audience copy separate and readable at mobile width"
+    }
+  ],
+  "cover": {
+    "path": "public/agentified/posters/l16-poster.webp",
+    "sha256": "6d8fe4fa9ea18ea78ef66ec642242e612a9b68b2e371ec390da20d969f234b95",
+    "use": "static poster and internal animatic only; video locked"
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "accountability-stack",
+      "revision": 16,
+      "status": "draft",
+      "update_exact": "`accountability-stack` → `day_and_audit.audit`, revision 16, status `needs_review`; no learner completion grants execution authority."
+    },
+    "chapter_sources": [
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch26-what-comes-next.md",
+        "sha256": "a7abd0cb290e9e074d9a1ee0fd754b235ea4d519cd2aac2601c250946f487aa4"
+      }
+    ],
+    "source_ids_policy": "protected synthetic trace only; no source IDs in provider request"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L16.json",
+      "sha256": "1002cce78b604a1d118791f07a9c98cd7accd55e532ab1d4a0f5eb2a5fdcf2e1"
+    },
+    {
+      "path": "agentified/workshop/scripts/L16-audit-the-operating-file.md",
+      "sha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413"
+    },
+    {
+      "path": "public/agentified/posters/l16-poster.webp",
+      "sha256": "6d8fe4fa9ea18ea78ef66ec642242e612a9b68b2e371ec390da20d969f234b95"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0"
+    },
+    {
+      "path": "app/agentified/AgentifiedWorkshop.tsx",
+      "sha256": "0eaad4eb91ae457b55a6aac66b2e929c8aa01ea17504977abc297f9b5ce6f7f6"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch26-what-comes-next.md",
+      "sha256": "a7abd0cb290e9e074d9a1ee0fd754b235ea4d519cd2aac2601c250946f487aa4"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+    }
+  ],
+  "gates": [
+    "purpose-specific L13-L16 look and voice approval",
+    "fresh provider quote, balance and enforceable one-job and batch caps",
+    "separate exact execution authorization",
+    "native audio timing and sentence-level edit audit",
+    "caption, diagram alt, mobile/desktop and final MP4 review"
+  ],
+  "stop_conditions": [
+    "source, rights, identity, voice or packet drift",
+    "uncertain job outcome or provider error; no retry",
+    "cost cap uncertainty or unexpected debit",
+    "narration omission, repetition or altered meaning",
+    "ordinary gap over 2.5 seconds",
+    "topic cut before sentence-complete handoff",
+    "visual clipping, label collision or unreadable captions"
+  ],
+  "candidate_sha256": "2a9fc51f0bdaa64401b57a10d3beac2989d51286187fc5fd11525ed2bb16b314"
+}

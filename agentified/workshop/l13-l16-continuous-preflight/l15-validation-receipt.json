@@ -1,0 +1,31 @@
+{
+  "lesson_id": "L15",
+  "candidate_sha256": "9683b252bff8ec732942905713cc98f06f6d8643814c547d8ad1cc580c8dd224",
+  "packet_sha256": "cf4fe7cbafcb46ade700360765d775301a5fd0d14ada1f37fb9f75154680236c",
+  "script_sha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
+  "speech_text_sha256": "ec8bb7001b3de666bf6620d5b5dd91005b78294d6a35f5b2774e03d48fc3d6b1",
+  "source_binding_count": 13,
+  "approved_visual_count": 1,
+  "approved_plate_rights": "bound_lesson_use_only",
+  "presenter_and_voice_rights": "purpose_specific_approval_pending",
+  "accessibility": {
+    "source_captions_exact": true,
+    "final_caption_sync": "pending_native_audio",
+    "scene_specific_plate_text_alternatives": [
+      {
+        "scene_id": "L15-04",
+        "text": "SAM trust layer: Signals, Alignment, and Momentum are connected by source, receipt, gate, evaluation, and proof labels that travel with the work."
+      }
+    ],
+    "visual_labels_independent_of_color": true,
+    "mobile_contain_plus_teaching_copy": true,
+    "final_mobile_review": "pending_native_edit"
+  },
+  "provisional_continuous_seconds": 302,
+  "guided_pause_seconds": 45,
+  "learner_playback_locked": true,
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "spend_usd": 0,
+  "status": "validated_provider_free; execution_blocked"
+}

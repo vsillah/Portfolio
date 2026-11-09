@@ -1,0 +1,35 @@
+{
+  "lesson_id": "L14",
+  "candidate_sha256": "93414761a5a5a49ebc6068bf72ef5f0055418030f27ec57abe0fafe4f9781e6b",
+  "packet_sha256": "4388dbb260c9a9f1a5253777f3b9657c72cebb46f5098d7ad60f41b3c4f552ce",
+  "script_sha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
+  "speech_text_sha256": "5dbd66cfa1904d70b998f590d37bbac513776904f722d2681948c250fa249034",
+  "source_binding_count": 14,
+  "approved_visual_count": 2,
+  "approved_plate_rights": "bound_lesson_use_only",
+  "presenter_and_voice_rights": "purpose_specific_approval_pending",
+  "accessibility": {
+    "source_captions_exact": true,
+    "final_caption_sync": "pending_native_audio",
+    "scene_specific_plate_text_alternatives": [
+      {
+        "scene_id": "L14-03",
+        "text": "Portfolio-first operating stack: Open Brain, Harness, Agent roles, and Mission Control feed a controls layer. A public-safe proof branch is separated from raw private logs."
+      },
+      {
+        "scene_id": "L14-04",
+        "text": "Authority ladder climbs from Prepare to Recommend, Route, Stage, and Execute. Side labels require a rollback path, human gate, source check, and receipt before authority rises."
+      }
+    ],
+    "visual_labels_independent_of_color": true,
+    "mobile_contain_plus_teaching_copy": true,
+    "final_mobile_review": "pending_native_edit"
+  },
+  "provisional_continuous_seconds": 284,
+  "guided_pause_seconds": 45,
+  "learner_playback_locked": true,
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "spend_usd": 0,
+  "status": "validated_provider_free; execution_blocked"
+}

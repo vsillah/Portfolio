@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "batch_sha256": "18b3a6bfa3ee1dc6fadedb2cc969a312e8a9acf935bfb50684ad0d812b0cb194",
+  "review_html_sha256": "7edeea8130678fe8d9c32f5ecd13f76373f619c4f91ae4951c3389c57d58824e",
+  "walkthroughs": [
+    {
+      "viewport": "desktop",
+      "path": "desktop-walkthrough.mp4",
+      "sha256": "efe33b00c85af0cff3e09cd0f1a840f5522ffac4a5a72e3ad1d7c8102cf77630",
+      "duration_seconds": 14.96,
+      "codec": "h264",
+      "width": 1280,
+      "height": 800,
+      "states_checked": 18,
+      "countdowns_verified": 4,
+      "customer_copy_audited": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "mobile-walkthrough.mp4",
+      "sha256": "dd3840e03ae5ccede6fedc08ce62c9aab1e96e39d2911845e4b7666225aa0e32",
+      "duration_seconds": 14.72,
+      "codec": "h264",
+      "width": 390,
+      "height": 844,
+      "states_checked": 18,
+      "countdowns_verified": 4,
+      "customer_copy_audited": true
+    }
+  ],
+  "interaction_results": [
+    {
+      "viewport": "narrow",
+      "width": 320,
+      "actions_checked": 18,
+      "disabled_reasons_checked": 2,
+      "overflow": false
+    },
+    {
+      "viewport": "tablet",
+      "width": 768,
+      "actions_checked": 18,
+      "disabled_reasons_checked": 2,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "width": 1280,
+      "actions_checked": 18,
+      "disabled_reasons_checked": 2,
+      "overflow": false
+    }
+  ],
+  "provider_calls": 0,
+  "generated_audio": 0,
+  "spend_usd": 0,
+  "privacy": "synthetic approved packet text and local plates only"
+}

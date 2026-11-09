@@ -1,0 +1,31 @@
+{
+  "lesson_id": "L13",
+  "candidate_sha256": "ca8117572b7e862a9dcdd15b1b901886cfe1068dbc2be487c6cde6f17cb84876",
+  "packet_sha256": "f7308be394a1d1a85053201e448bd1ed18d03306f20a28fef9890fa88fca8f56",
+  "script_sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+  "speech_text_sha256": "26fbae66aadb6d71446376c3c18f247c87b19297a09eacfe392946337d4030b4",
+  "source_binding_count": 13,
+  "approved_visual_count": 1,
+  "approved_plate_rights": "bound_lesson_use_only",
+  "presenter_and_voice_rights": "purpose_specific_approval_pending",
+  "accessibility": {
+    "source_captions_exact": true,
+    "final_caption_sync": "pending_native_audio",
+    "scene_specific_plate_text_alternatives": [
+      {
+        "scene_id": "L13-02",
+        "text": "A.M.I.N.A. inside SAM diagram: Signals, Alignment, and Momentum surround Align, Map, Instrument, Negotiate, and Audit. Three lower panels read Ask, Act, and Attest."
+      }
+    ],
+    "visual_labels_independent_of_color": true,
+    "mobile_contain_plus_teaching_copy": true,
+    "final_mobile_review": "pending_native_edit"
+  },
+  "provisional_continuous_seconds": 287,
+  "guided_pause_seconds": 45,
+  "learner_playback_locked": true,
+  "provider_calls": 0,
+  "audio_generated": 0,
+  "spend_usd": 0,
+  "status": "validated_provider_free; execution_blocked"
+}

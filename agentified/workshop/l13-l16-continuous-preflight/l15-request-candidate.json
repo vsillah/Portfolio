@@ -1,0 +1,789 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_review_candidate",
+  "lesson_id": "L15",
+  "title": "Rehearse the agentified day",
+  "source_commit": "5d61cadff39b46d5d17add8e06370cc25a18de41",
+  "packet_path": "agentified/workshop/scene-production/packets/L15.json",
+  "packet_sha256": "cf4fe7cbafcb46ade700360765d775301a5fd0d14ada1f37fb9f75154680236c",
+  "script_sha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "spend_allowed": false,
+  "publication_allowed": false,
+  "provider_jobs_submitted": 0,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "current_execution_cap_usd": 0,
+  "proposed_identity": {
+    "look_name": "Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "avatar_group_id": "5796a337512c43bbbdaa77c1cefc295f",
+    "offscreen_voice_id": "4f53988b1c314610b514db98432fd0ef",
+    "status": "historical precedent only; L13-L16 purpose-specific rights pending"
+  },
+  "presenter_passages": [
+    {
+      "scene_id": "L15-01",
+      "storyboard_reservation": {
+        "start_seconds": 0,
+        "end_seconds": 19.796,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "It is Friday at Harbor Learning Circle. Morgan opens a paper brief, not a live dashboard. The preparation agent's job was to compare three cleared course inputs and draft a Session Option Brief. The first line says prepared, not sent.",
+      "passage_sha256": "c39319d3f37de1f9e0f22155eff7510961cadbfb696ce0e83f72b508b94c3f26",
+      "provisional_speech_seconds": 19.796,
+      "caption_count": 4,
+      "native_media_path": null,
+      "native_media_sha256": null
+    },
+    {
+      "scene_id": "L15-08",
+      "storyboard_reservation": {
+        "start_seconds": 585.64,
+        "end_seconds": 600,
+        "state": "reserved_unfilled"
+      },
+      "passage_exact": "The six beats are useful because they make those boundaries routine.",
+      "passage_sha256": "b63a6f9744a1c678ca94935096e271c912fdd92896a57db6d670cce2cf1a47f2",
+      "provisional_speech_seconds": 5.36,
+      "caption_count": 1,
+      "native_media_path": null,
+      "native_media_sha256": null
+    }
+  ],
+  "offscreen_narration": {
+    "text": "A second line says staffing is unconfirmed. A third says a research proposal has not run. Morgan's day is not about clearing every row. It is about spending judgment where a decision can change what happens next.\n\nThe Six-Beat Day begins with a brief. What was prepared? What needs a human? What may be worth learning? Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test. The brief must carry receipts and uncertainty. If it reads like an endless task list, the system has handed burden back to Morgan.\n\nSecond, route. The staffing question belongs to the program lead and team, not to the preparation agent. A proposed spend belongs in a separate budget decision. The research question belongs to Morgan as owner of the brief format. Route each item to a named person, with a deadline or review window where appropriate. Routing an item to a queue without an owner is a way to lose it politely.\n\nThird, review. Morgan reads the brief beside its source-status summary and trace template. One course source is stale for the proposed month. The agent's draft sounds confident anyway. Morgan marks the claim unsupported and keeps the staffing hold in place. Fourth, approve. There is nothing to approve for a team proposal today. Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.\n\nFifth, recover. Suppose the paper handoff is incomplete: the draft lacks its source-status field. Morgan does not fill the gap by guessing. The recovery choice is to return the brief for a corrected paper draft, preserve the earlier version, and record why. There is no automatic retry or provider call. Sixth, learn. The repeated missing source-status field could become a memory proposal: require that field in future briefs. It stays a proposal until Morgan reviews its source, scope, and expiry. One bad draft does not write policy by itself.\n\nAt day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned? In this rehearsal the answer is a paper correction, and Morgan can revisit it. The staffing, spend, research, and memory decisions remain distinct. Pause and name the beat in your workflow where a human is most likely to approve too quickly.\n\nWrite a Six-Beat Day brief for your workflow. For each beat, name the item, evidence, owner, safe action, and stop condition. Make one thing fail. Show how the operator recovers without hiding the original version. Mark any lesson as a memory proposal rather than an approved rule. Close with the question you would ask after a busy day. Use a fictional or approved example. Do not use private operational data, open a live account, import a trace, or contact a person.\n\nSave revision fifteen as a draft. Harbor's day ends with a held brief, a visible correction path, and decisions still owned by people.",
+    "text_sha256": "ec8bb7001b3de666bf6620d5b5dd91005b78294d6a35f5b2774e03d48fc3d6b1",
+    "word_count": 499,
+    "segments": [
+      {
+        "scene_id": "L15-01",
+        "text": "A second line says staffing is unconfirmed. A third says a research proposal has not run. Morgan's day is not about clearing every row. It is about spending judgment where a decision can change what happens next.",
+        "sha256": "fc1c52e129f112628611a3f322f8b6f43336f583c87ed3566acb59e13d6d1b58"
+      },
+      {
+        "scene_id": "L15-02",
+        "text": "The Six-Beat Day begins with a brief. What was prepared? What needs a human? What may be worth learning? Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test. The brief must carry receipts and uncertainty. If it reads like an endless task list, the system has handed burden back to Morgan.",
+        "sha256": "5094cabeac728ea694fb3e6b6529234fede31d41534aa7c0e565826aa6b1a5c6"
+      },
+      {
+        "scene_id": "L15-03",
+        "text": "Second, route. The staffing question belongs to the program lead and team, not to the preparation agent. A proposed spend belongs in a separate budget decision. The research question belongs to Morgan as owner of the brief format. Route each item to a named person, with a deadline or review window where appropriate. Routing an item to a queue without an owner is a way to lose it politely.",
+        "sha256": "3373fe44f8fccf765e79f41be0e7ebdcbc514771ba3e3acb7635eafe39e5746a"
+      },
+      {
+        "scene_id": "L15-04",
+        "text": "Third, review. Morgan reads the brief beside its source-status summary and trace template. One course source is stale for the proposed month. The agent's draft sounds confident anyway. Morgan marks the claim unsupported and keeps the staffing hold in place. Fourth, approve. There is nothing to approve for a team proposal today. Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+        "sha256": "dbbc6c143a84c4f6a2fd222f5a6ab4e5dd688181e167988259cf797937db54b0"
+      },
+      {
+        "scene_id": "L15-05",
+        "text": "Fifth, recover. Suppose the paper handoff is incomplete: the draft lacks its source-status field. Morgan does not fill the gap by guessing. The recovery choice is to return the brief for a corrected paper draft, preserve the earlier version, and record why. There is no automatic retry or provider call. Sixth, learn. The repeated missing source-status field could become a memory proposal: require that field in future briefs. It stays a proposal until Morgan reviews its source, scope, and expiry. One bad draft does not write policy by itself.",
+        "sha256": "64b812c80ecbfd93bb69c90ac181ab1b3f02e6a009590f853651c38a3714185e"
+      },
+      {
+        "scene_id": "L15-06",
+        "text": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned? In this rehearsal the answer is a paper correction, and Morgan can revisit it. The staffing, spend, research, and memory decisions remain distinct. Pause and name the beat in your workflow where a human is most likely to approve too quickly.",
+        "sha256": "66430fad75a416c5dfbcca9a58b25de2e09d109f4824b07197c960cd4291647f"
+      },
+      {
+        "scene_id": "L15-07",
+        "text": "Write a Six-Beat Day brief for your workflow. For each beat, name the item, evidence, owner, safe action, and stop condition. Make one thing fail. Show how the operator recovers without hiding the original version. Mark any lesson as a memory proposal rather than an approved rule. Close with the question you would ask after a busy day. Use a fictional or approved example. Do not use private operational data, open a live account, import a trace, or contact a person.",
+        "sha256": "ab685d1234d5566819cdce13382e7fb2e73a61a4ae2c15ba1482b60780ab2de3"
+      },
+      {
+        "scene_id": "L15-08",
+        "text": "Save revision fifteen as a draft. Harbor's day ends with a held brief, a visible correction path, and decisions still owned by people.",
+        "sha256": "efb330011fb19d831e69119f2a19864835403c4dd351adff2d31596736158969"
+      }
+    ],
+    "new_audio_path": null,
+    "new_audio_sha256": null
+  },
+  "timing": {
+    "status": "provisional_cue_derived; native_audio_required",
+    "original_storyboard_seconds": 600,
+    "proposed_continuous_seconds": 302,
+    "spoken_seconds": 248,
+    "ordinary_gap_limit_seconds": 2.5,
+    "actual_native_timing_seconds": null,
+    "no_fixed_ten_minute_padding": true,
+    "cues": [
+      {
+        "scene_id": "L15-01",
+        "speaker": "presenter",
+        "start_seconds": 0,
+        "end_seconds": 3.37,
+        "text": "It is Friday at Harbor Learning Circle. ",
+        "source_start_seconds": 0,
+        "source_end_seconds": 3.37
+      },
+      {
+        "scene_id": "L15-01",
+        "speaker": "presenter",
+        "start_seconds": 3.37,
+        "end_seconds": 7.581,
+        "text": "Morgan opens a paper brief, not a live dashboard. ",
+        "source_start_seconds": 3.37,
+        "source_end_seconds": 7.581
+      },
+      {
+        "scene_id": "L15-01",
+        "speaker": "presenter",
+        "start_seconds": 7.581,
+        "end_seconds": 16.426,
+        "text": "The preparation agent's job was to compare three cleared course inputs and draft a Session Option Brief. ",
+        "source_start_seconds": 7.581,
+        "source_end_seconds": 16.426
+      },
+      {
+        "scene_id": "L15-01",
+        "speaker": "presenter",
+        "start_seconds": 16.426,
+        "end_seconds": 19.796,
+        "text": "The first line says prepared, not sent. ",
+        "source_start_seconds": 16.426,
+        "source_end_seconds": 19.796
+      },
+      {
+        "scene_id": "L15-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 19.796,
+        "end_seconds": 22.952,
+        "text": "A second line says staffing is unconfirmed. ",
+        "source_start_seconds": 19.796,
+        "source_end_seconds": 22.952
+      },
+      {
+        "scene_id": "L15-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 22.952,
+        "end_seconds": 26.251,
+        "text": "A third says a research proposal has not run. ",
+        "source_start_seconds": 22.952,
+        "source_end_seconds": 26.251
+      },
+      {
+        "scene_id": "L15-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 26.251,
+        "end_seconds": 29.55,
+        "text": "Morgan's day is not about clearing every row. ",
+        "source_start_seconds": 26.251,
+        "source_end_seconds": 29.55
+      },
+      {
+        "scene_id": "L15-01",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 29.55,
+        "end_seconds": 35,
+        "text": "It is about spending judgment where a decision can change what happens next.",
+        "source_start_seconds": 29.55,
+        "source_end_seconds": 35
+      },
+      {
+        "scene_id": "L15-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 35,
+        "end_seconds": 37.931,
+        "text": "The Six-Beat Day begins with a brief. ",
+        "source_start_seconds": 70,
+        "source_end_seconds": 72.931
+      },
+      {
+        "scene_id": "L15-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 37.931,
+        "end_seconds": 39.397,
+        "text": "What was prepared? ",
+        "source_start_seconds": 72.931,
+        "source_end_seconds": 74.397
+      },
+      {
+        "scene_id": "L15-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 39.397,
+        "end_seconds": 40.939,
+        "text": "What needs a human? ",
+        "source_start_seconds": 74.397,
+        "source_end_seconds": 75.939
+      },
+      {
+        "scene_id": "L15-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 40.939,
+        "end_seconds": 43.099,
+        "text": "What may be worth learning? ",
+        "source_start_seconds": 75.939,
+        "source_end_seconds": 78.099
+      },
+      {
+        "scene_id": "L15-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 43.099,
+        "end_seconds": 52.972,
+        "text": "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test. ",
+        "source_start_seconds": 78.099,
+        "source_end_seconds": 87.972
+      },
+      {
+        "scene_id": "L15-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 52.972,
+        "end_seconds": 56.598,
+        "text": "The brief must carry receipts and uncertainty. ",
+        "source_start_seconds": 87.972,
+        "source_end_seconds": 91.598
+      },
+      {
+        "scene_id": "L15-02",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 56.598,
+        "end_seconds": 63,
+        "text": "If it reads like an endless task list, the system has handed burden back to Morgan.",
+        "source_start_seconds": 91.598,
+        "source_end_seconds": 98
+      },
+      {
+        "scene_id": "L15-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 63,
+        "end_seconds": 64.189,
+        "text": "Second, route. ",
+        "source_start_seconds": 135,
+        "source_end_seconds": 136.189
+      },
+      {
+        "scene_id": "L15-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 64.189,
+        "end_seconds": 71.325,
+        "text": "The staffing question belongs to the program lead and team, not to the preparation agent. ",
+        "source_start_seconds": 136.189,
+        "source_end_seconds": 143.325
+      },
+      {
+        "scene_id": "L15-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 71.325,
+        "end_seconds": 75.765,
+        "text": "A proposed spend belongs in a separate budget decision. ",
+        "source_start_seconds": 143.325,
+        "source_end_seconds": 147.765
+      },
+      {
+        "scene_id": "L15-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 75.765,
+        "end_seconds": 81.315,
+        "text": "The research question belongs to Morgan as owner of the brief format. ",
+        "source_start_seconds": 147.765,
+        "source_end_seconds": 153.315
+      },
+      {
+        "scene_id": "L15-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 81.315,
+        "end_seconds": 88.212,
+        "text": "Route each item to a named person, with a deadline or review window where appropriate. ",
+        "source_start_seconds": 153.315,
+        "source_end_seconds": 160.212
+      },
+      {
+        "scene_id": "L15-03",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 88.212,
+        "end_seconds": 94,
+        "text": "Routing an item to a queue without an owner is a way to lose it politely.",
+        "source_start_seconds": 160.212,
+        "source_end_seconds": 166
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 94,
+        "end_seconds": 95.125,
+        "text": "Third, review. ",
+        "source_start_seconds": 195,
+        "source_end_seconds": 196.125
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 95.125,
+        "end_seconds": 100.825,
+        "text": "Morgan reads the brief beside its source-status summary and trace template. ",
+        "source_start_seconds": 196.125,
+        "source_end_seconds": 201.825
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 100.825,
+        "end_seconds": 104.65,
+        "text": "One course source is stale for the proposed month. ",
+        "source_start_seconds": 201.825,
+        "source_end_seconds": 205.65
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 104.65,
+        "end_seconds": 107.875,
+        "text": "The agent's draft sounds confident anyway. ",
+        "source_start_seconds": 205.65,
+        "source_end_seconds": 208.875
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 107.875,
+        "end_seconds": 113.35,
+        "text": "Morgan marks the claim unsupported and keeps the staffing hold in place. ",
+        "source_start_seconds": 208.875,
+        "source_end_seconds": 214.35
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 113.35,
+        "end_seconds": 114.625,
+        "text": "Fourth, approve. ",
+        "source_start_seconds": 214.35,
+        "source_end_seconds": 215.625
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 114.625,
+        "end_seconds": 118.75,
+        "text": "There is nothing to approve for a team proposal today. ",
+        "source_start_seconds": 215.625,
+        "source_end_seconds": 219.75
+      },
+      {
+        "scene_id": "L15-04",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 118.75,
+        "end_seconds": 130,
+        "text": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+        "source_start_seconds": 219.75,
+        "source_end_seconds": 231
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 130,
+        "end_seconds": 131.172,
+        "text": "Fifth, recover. ",
+        "source_start_seconds": 255,
+        "source_end_seconds": 256.172
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 131.172,
+        "end_seconds": 137.179,
+        "text": "Suppose the paper handoff is incomplete: the draft lacks its source-status field. ",
+        "source_start_seconds": 256.172,
+        "source_end_seconds": 262.179
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 137.179,
+        "end_seconds": 140.256,
+        "text": "Morgan does not fill the gap by guessing. ",
+        "source_start_seconds": 262.179,
+        "source_end_seconds": 265.256
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 140.256,
+        "end_seconds": 148.901,
+        "text": "The recovery choice is to return the brief for a corrected paper draft, preserve the earlier version, and record why. ",
+        "source_start_seconds": 265.256,
+        "source_end_seconds": 273.901
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 148.901,
+        "end_seconds": 152.271,
+        "text": "There is no automatic retry or provider call. ",
+        "source_start_seconds": 273.901,
+        "source_end_seconds": 277.271
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 152.271,
+        "end_seconds": 153.297,
+        "text": "Sixth, learn. ",
+        "source_start_seconds": 277.271,
+        "source_end_seconds": 278.297
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 153.297,
+        "end_seconds": 161.355,
+        "text": "The repeated missing source-status field could become a memory proposal: require that field in future briefs. ",
+        "source_start_seconds": 278.297,
+        "source_end_seconds": 286.355
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 161.355,
+        "end_seconds": 166.63,
+        "text": "It stays a proposal until Morgan reviews its source, scope, and expiry. ",
+        "source_start_seconds": 286.355,
+        "source_end_seconds": 291.63
+      },
+      {
+        "scene_id": "L15-05",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 166.63,
+        "end_seconds": 170,
+        "text": "One bad draft does not write policy by itself.",
+        "source_start_seconds": 291.63,
+        "source_end_seconds": 295
+      },
+      {
+        "scene_id": "L15-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 170,
+        "end_seconds": 177.838,
+        "text": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned? ",
+        "source_start_seconds": 325,
+        "source_end_seconds": 332.838
+      },
+      {
+        "scene_id": "L15-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 177.838,
+        "end_seconds": 183.791,
+        "text": "In this rehearsal the answer is a paper correction, and Morgan can revisit it. ",
+        "source_start_seconds": 332.838,
+        "source_end_seconds": 338.791
+      },
+      {
+        "scene_id": "L15-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 183.791,
+        "end_seconds": 188.991,
+        "text": "The staffing, spend, research, and memory decisions remain distinct. ",
+        "source_start_seconds": 338.791,
+        "source_end_seconds": 343.991
+      },
+      {
+        "scene_id": "L15-06",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 188.991,
+        "end_seconds": 196,
+        "text": "Pause and name the beat in your workflow where a human is most likely to approve too quickly.",
+        "source_start_seconds": 343.991,
+        "source_end_seconds": 351
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 196,
+        "end_seconds": 199.531,
+        "text": "Write a Six-Beat Day brief for your workflow. ",
+        "source_start_seconds": 375,
+        "source_end_seconds": 378.531
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 199.531,
+        "end_seconds": 205.672,
+        "text": "For each beat, name the item, evidence, owner, safe action, and stop condition. ",
+        "source_start_seconds": 378.531,
+        "source_end_seconds": 384.672
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 205.672,
+        "end_seconds": 207.284,
+        "text": "Make one thing fail. ",
+        "source_start_seconds": 384.672,
+        "source_end_seconds": 386.284
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 207.284,
+        "end_seconds": 212.503,
+        "text": "Show how the operator recovers without hiding the original version. ",
+        "source_start_seconds": 386.284,
+        "source_end_seconds": 391.503
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 212.503,
+        "end_seconds": 217.646,
+        "text": "Mark any lesson as a memory proposal rather than an approved rule. ",
+        "source_start_seconds": 391.503,
+        "source_end_seconds": 396.646
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 217.646,
+        "end_seconds": 221.945,
+        "text": "Close with the question you would ask after a busy day. ",
+        "source_start_seconds": 396.646,
+        "source_end_seconds": 400.945
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 221.945,
+        "end_seconds": 224.785,
+        "text": "Use a fictional or approved example. ",
+        "source_start_seconds": 400.945,
+        "source_end_seconds": 403.785
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 224.785,
+        "end_seconds": 232,
+        "text": "Do not use private operational data, open a live account, import a trace, or contact a person.",
+        "source_start_seconds": 403.785,
+        "source_end_seconds": 411
+      },
+      {
+        "scene_id": "L15-07",
+        "speaker": "guided_work_pause",
+        "start_seconds": 232,
+        "end_seconds": 277,
+        "text": "Produce a `Six-Beat Day` brief with brief, route, review, approve, recover, and learn. Each beat needs an item, evidence reference, owner, permissible next step, and stop condition. Include one failure and its version-preserving recovery path. End by answering, “What did I approve today that I should have questioned?” Use only invented activity; the preparation agent cannot grant its own authority.",
+        "visual": "visible synchronized countdown from 45 to 0; no music"
+      },
+      {
+        "scene_id": "L15-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 277,
+        "end_seconds": 279.68,
+        "text": "Save revision fifteen as a draft. ",
+        "source_start_seconds": 575,
+        "source_end_seconds": 577.68
+      },
+      {
+        "scene_id": "L15-08",
+        "speaker": "offscreen_narrator",
+        "start_seconds": 279.68,
+        "end_seconds": 287.64,
+        "text": "Harbor's day ends with a held brief, a visible correction path, and decisions still owned by people. ",
+        "source_start_seconds": 577.68,
+        "source_end_seconds": 585.64
+      },
+      {
+        "scene_id": "L15-08",
+        "speaker": "presenter",
+        "start_seconds": 287.64,
+        "end_seconds": 293,
+        "text": "The six beats are useful because they make those boundaries routine.",
+        "source_start_seconds": 585.64,
+        "source_end_seconds": 591
+      }
+    ],
+    "guided_work_pause_seconds": 45,
+    "closing_card": {
+      "scene_id": "L15-08",
+      "start_seconds": 293,
+      "end_seconds": 302,
+      "duration_seconds": 9,
+      "overlay_on_final_presenter_passage": false,
+      "audience_copy_exact": [
+        "Operating File v15: Six-Beat Day.",
+        "Next: audit the stack."
+      ],
+      "treatment": "approved ending copy in provider-free card; L16 overlaps final spoken passage without padding"
+    },
+    "rule": "Retain exact speech in order; change picture only at a sentence-complete spoken handoff; one speaker at a time; preserve native presenter source frame rate and audio; re-time captions after native recordings."
+  },
+  "scenes": [
+    {
+      "scene_id": "L15-01",
+      "audience_copy_exact": [
+        "Prepared, not sent.",
+        "Protect judgment."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L15-02",
+      "audience_copy_exact": [
+        "1. Brief: work / human / learning."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L15-03",
+      "audience_copy_exact": [
+        "2. Route: owner and review window."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L15-04",
+      "audience_copy_exact": [
+        "3. Review: check source and claim.",
+        "4. Approve: only the bounded correction."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L15-05",
+      "audience_copy_exact": [
+        "5. Recover: preserve, correct, trace.",
+        "6. Learn: proposal, then review."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L15-06",
+      "audience_copy_exact": [
+        "Pause: where does approval go soft?"
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    },
+    {
+      "scene_id": "L15-07",
+      "audience_copy_exact": [],
+      "exercise_prompt_exact": "Produce a `Six-Beat Day` brief with brief, route, review, approve, recover, and learn. Each beat needs an item, evidence reference, owner, permissible next step, and stop condition. Include one failure and its version-preserving recovery path. End by answering, “What did I approve today that I should have questioned?” Use only invented activity; the preparation agent cannot grant its own authority.",
+      "guided_display_copy_exact": [
+        "Write a Six-Beat Day brief for your workflow.",
+        "For each beat, name the item, evidence, owner, safe action, and stop condition."
+      ]
+    },
+    {
+      "scene_id": "L15-08",
+      "audience_copy_exact": [
+        "Operating File v15: Six-Beat Day.",
+        "Next: audit the stack."
+      ],
+      "exercise_prompt_exact": null,
+      "guided_display_copy_exact": null
+    }
+  ],
+  "visuals": [
+    {
+      "scene_id": "L15-04",
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "use": "Paper draft A and corrected draft B with a missing source-status field highlighted in text.",
+      "text_equivalent": "SAM trust layer: Signals, Alignment, and Momentum are connected by source, receipt, gate, evaluation, and proof labels that travel with the work.",
+      "approval_record": "msg_03aad1e9d96279fd016aef0d09fd8c87d29a24d2af1b4ccdb8",
+      "treatment": "full plate in contain region; approved audience copy separate and readable at mobile width"
+    }
+  ],
+  "cover": {
+    "path": "public/agentified/posters/l15-poster.webp",
+    "sha256": "29277e8bc53ca8ba381b3304bd9656937b17d501bdc059898939c45495cac898",
+    "use": "static poster and internal animatic only; video locked"
+  },
+  "continuity": {
+    "case": "Harbor Learning Circle",
+    "owner": "Morgan",
+    "operating_file": {
+      "artifact": "six-beat-rehearsal",
+      "revision": 15,
+      "status": "draft",
+      "update_exact": "`six-beat-rehearsal` → `day_and_audit.day`, revision 15, status `draft`; all prior unresolved gates persist."
+    },
+    "chapter_sources": [
+      {
+        "path": "agentified/manuscript/production-draft/chapters/ch25-the-agentified-day.md",
+        "sha256": "a1b88ebc98e1dd87521c575421ff1dcfff22fc4fc363f2b38bf5dee2f32aedba"
+      }
+    ],
+    "source_ids_policy": "protected synthetic trace only; no source IDs in provider request"
+  },
+  "source_bindings": [
+    {
+      "path": "agentified/workshop/scene-production/packets/L15.json",
+      "sha256": "cf4fe7cbafcb46ade700360765d775301a5fd0d14ada1f37fb9f75154680236c"
+    },
+    {
+      "path": "agentified/workshop/scripts/L15-rehearse-the-agentified-day.md",
+      "sha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47"
+    },
+    {
+      "path": "public/agentified-cover.jpg",
+      "sha256": "b874d18d720f6780cda26b6085594bf6aec1637880a1e62ee41c360749eea5ce"
+    },
+    {
+      "path": "docs/qa/agentified-lesson-covers/source-map.json",
+      "sha256": "673609c5c8c2ed867c77d652246718e777df420a2c16e8cba5d49a888b9c4413"
+    },
+    {
+      "path": "public/agentified/posters/l15-poster.webp",
+      "sha256": "29277e8bc53ca8ba381b3304bd9656937b17d501bdc059898939c45495cac898"
+    },
+    {
+      "path": "agentified/workshop/visual-review/packets.json",
+      "sha256": "ec0aff8962098435eaa1ae65b090617ba04a52490ed0039fe88f92bae587c934"
+    },
+    {
+      "path": "agentified/workshop/source-register.json",
+      "sha256": "ce236050ee4457e71cca199b607090976f441d0baed7ba122f131ea8899de851"
+    },
+    {
+      "path": "agentified/workshop/curriculum-crosswalk.json",
+      "sha256": "b098490598a40d870c9cd80c214780b83ffc95ae4b0ed6d78de1c1d1f1abea6e"
+    },
+    {
+      "path": "agentified/workshop/scene-production/presenter-windows.json",
+      "sha256": "9be8bdc4c5dd13faab6d1f26c27996074d1d41d038a0e7e4097c939caa22cac0"
+    },
+    {
+      "path": "app/agentified/AgentifiedWorkshop.tsx",
+      "sha256": "0eaad4eb91ae457b55a6aac66b2e929c8aa01ea17504977abc297f9b5ce6f7f6"
+    },
+    {
+      "path": "agentified/manuscript/workbook/agentified-operating-system-workbook.md",
+      "sha256": "eb38e9061b8bc7619125e0fa4ab484c376eefa6f6dde5b5bc1d93fc5b2ecaeab"
+    },
+    {
+      "path": "agentified/manuscript/production-draft/chapters/ch25-the-agentified-day.md",
+      "sha256": "a1b88ebc98e1dd87521c575421ff1dcfff22fc4fc363f2b38bf5dee2f32aedba"
+    },
+    {
+      "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1"
+    }
+  ],
+  "gates": [
+    "purpose-specific L13-L16 look and voice approval",
+    "fresh provider quote, balance and enforceable one-job and batch caps",
+    "separate exact execution authorization",
+    "native audio timing and sentence-level edit audit",
+    "caption, diagram alt, mobile/desktop and final MP4 review"
+  ],
+  "stop_conditions": [
+    "source, rights, identity, voice or packet drift",
+    "uncertain job outcome or provider error; no retry",
+    "cost cap uncertainty or unexpected debit",
+    "narration omission, repetition or altered meaning",
+    "ordinary gap over 2.5 seconds",
+    "topic cut before sentence-complete handoff",
+    "visual clipping, label collision or unreadable captions"
+  ],
+  "candidate_sha256": "9683b252bff8ec732942905713cc98f06f6d8643814c547d8ad1cc580c8dd224"
+}

@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { validateCandidate } from './validate.mjs';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(here, '../../..');
+const sha = (value) => createHash('sha256').update(value).digest('hex');
+const candidate = JSON.parse(readFileSync(path.join(here, 'l14-request-candidate.json')));
+const receipt = JSON.parse(readFileSync(path.join(here, 'l14-validation-receipt.json')));
+const packet = JSON.parse(readFileSync(path.join(root, candidate.packet_path)));
+const registry = JSON.parse(readFileSync(path.join(root, 'agentified/workshop/visual-review/packets.json'))).lessons.find((item) => item.id === 'L14');
+const manifest = JSON.parse(readFileSync(path.join(here, 'presenter-window-manifest.json'))).lessons.find((item) => item.lesson_id === 'L14');
+const hash = (relative) => sha(readFileSync(path.join(root, relative)));
+const fixture = () => ({ candidate: structuredClone(candidate), receipt: structuredClone(receipt), packet: structuredClone(packet), registry: structuredClone(registry), manifest: structuredClone(manifest) });
+const rehash = (value) => { const { candidate_sha256: ignored, ...payload } = value; value.candidate_sha256 = sha(JSON.stringify(payload)); };
+const check = (value, hashFile = hash) => validateCandidate(value.candidate, value.receipt, value.packet, value.registry, value.manifest, hashFile);
+
+test('exact candidate and all source bindings pass', () => assert.equal(check(fixture()), true));
+test('request identity drift fails', () => { const f = fixture(); f.candidate.offscreen_narration.text += ' Altered.'; assert.throws(() => check(f), /candidate identity drift/); });
+test('source script hash drift fails after candidate is rehashed', () => { const f = fixture(); f.candidate.script_sha256 = '0'.repeat(64); rehash(f.candidate); assert.throws(() => check(f), /source script drift/); });
+test('presenter window drift fails after candidate is rehashed', () => { const f = fixture(); f.candidate.presenter_passages[0].storyboard_reservation.end_seconds += 1; rehash(f.candidate); assert.throws(() => check(f), /presenter manifest drift/); });
+test('approved visual asset drift fails after candidate is rehashed', () => { const f = fixture(); f.candidate.visuals[0].sha256 = '0'.repeat(64); rehash(f.candidate); assert.throws(() => check(f), /approved visual asset drift/); });
+test('approved visual rights drift fails', () => { const f = fixture(); f.registry.visuals[0].rights.status = 'pending'; assert.throws(() => check(f), /visual rights drift/); });
+test('bound source drift fails even with an unchanged candidate', () => { const f = fixture(); const poster = f.candidate.cover.path; assert.throws(() => check(f, (relative) => relative === poster ? '0'.repeat(64) : hash(relative)), /bound source drift/); });
+test('caption gap fails after candidate is rehashed', () => { const f = fixture(); f.candidate.timing.cues[2].start_seconds += 3; rehash(f.candidate); assert.throws(() => check(f), /caption gap or overlap/); });
+test('learner playback unlock fails', () => { const f = fixture(); f.receipt.learner_playback_locked = false; assert.throws(() => check(f), /learner playback drift/); });
