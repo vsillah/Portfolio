@@ -193,4 +193,34 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(JSON.parse(localStorage.getItem(AGENTIFIED_GUEST_KEY)!).videoSeconds.L01).toBe(65)
     await waitFor(() => expect(JSON.parse(localStorage.getItem(AGENTIFIED_GUEST_KEY)!).worksheet.answers.L01).toBe('A bounded job with a receipt.'))
   })
+
+  it('matches the Accelerated navigation, status, and icon-control patterns', async () => {
+    render(<AgentifiedWorkshop mode="plan" />)
+
+    const expand = await screen.findByRole('button', { name: 'Expand lesson navigation' })
+    expect(expand).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(expand)
+    expect(screen.getByRole('button', { name: 'Collapse lesson navigation' })).toHaveAttribute('aria-expanded', 'true')
+
+    expect(screen.getByRole('button', { name: /L01: Give the agent a job and a receipt, Current/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /L02: Start with the decision, Ready/ })).toBeInTheDocument()
+    expect(screen.queryByText('Read')).not.toBeInTheDocument()
+
+    const complete = screen.getByRole('button', { name: 'Mark lesson complete' })
+    expect(complete).toHaveAttribute('data-tooltip', 'Mark lesson complete')
+    fireEvent.click(complete)
+    expect(screen.getByRole('button', { name: /L01: Give the agent a job and a receipt, Complete/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Mark as incomplete' })).toHaveAttribute('data-tooltip', 'Mark as incomplete')
+    expect(screen.getByRole('button', { name: 'Next lesson · L02' })).toHaveAttribute('data-tooltip', 'Next lesson · L02')
+  })
+
+  it('keeps internal production language off the learner surface', async () => {
+    render(<AgentifiedWorkshop mode="plan" />)
+
+    expect(await screen.findByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    expect(screen.queryByText(/bounded job carried/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/final audit/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/production review/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/being prepared/i)).not.toBeInTheDocument()
+  })
 })
