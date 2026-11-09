@@ -102,13 +102,17 @@
   },
   "composite": {
     "path": "agentified/workshop/l13-l16-native-composite/agentified-l13-native-composite.mp4",
-    "sha256": "ca7f8f89c350787ba02af25a7b20e25db8766a7dd3dd03c108de0f01620a249e",
+    "sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
     "duration_seconds": 255.243
   },
   "captions": {
     "srt_path": "agentified/workshop/l13-l16-native-composite/agentified-l13-native-captions.srt",
-    "srt_sha256": "489f13998c5919641e176242799a471f43e9982b1bfc76f2617b13c4def3945c",
+    "srt_sha256": "150123d892f2e77b0a37748e65dea274f05b4600d3349c66bb398350304d8cd3",
     "vtt_path": "agentified/workshop/l13-l16-native-composite/agentified-l13-native-captions.vtt",
-    "vtt_sha256": "39345dd457bfd8b89dec0b13e7a6c51102cdfec8fd25da707eea86cbad70d903"
+    "vtt_sha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27"
+  },
+  "caption_correction_receipt": {
+    "path": "agentified/workshop/l13-l16-native-composite/l13-caption-correction-receipt.json",
+    "sha256": "dd6704d0509f03a892fed4b7fd0bc5b9caefe75190ed0df7faef73a267ef175a"
   }
 }

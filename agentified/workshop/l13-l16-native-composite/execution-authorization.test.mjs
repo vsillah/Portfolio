@@ -16,6 +16,17 @@ test('accepts the exact immutable execution authorization', () => {
   }
 })
 
+for (const [name, binding, lessonId, pattern] of [
+  ['missing authorization binding', undefined, 'L13', /authorization path drift/],
+  ['wrong authorization path', { path: 'wrong', sha256: AUTHORIZATION_SHA256, request_sha256: REQUESTS.L13 }, 'L13', /authorization path drift/],
+  ['wrong authorization hash', { path: AUTHORIZATION_PATH, sha256: 'wrong', request_sha256: REQUESTS.L13 }, 'L13', /authorization hash drift/],
+  ['wrong lesson request binding', { path: AUTHORIZATION_PATH, sha256: AUTHORIZATION_SHA256, request_sha256: REQUESTS.L14 }, 'L13', /authorization request binding drift/],
+]) {
+  test(`fails closed on ${name}`, () => {
+    assert.throws(() => validateAuthorizationBinding(binding, lessonId), pattern)
+  })
+}
+
 for (const [name, mutate, pattern] of [
   ['stale source', (r) => { r.source_commit = 'stale' }, /source drift/],
   ['wrong batch', (r) => { r.batch_sha256 = 'wrong' }, /batch drift/],

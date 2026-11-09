@@ -115,77 +115,81 @@ The agent cannot turn a promising hypothesis into durable memory.
 A memory proposal would need its own source, scope, expiry, and human decision.
 
 30
-00:02:09,927 --> 00:02:13,895
-` Then add the next safe step: Morgan reviews whether the question is worth testing at all.
+00:02:00,740 --> 00:02:09,273
+Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`
 
 31
+00:02:09,927 --> 00:02:13,895
+Then add the next safe step: Morgan reviews whether the question is worth testing at all.
+
+32
 00:02:14,279 --> 00:02:17,266
 If Morgan says no, keep the rejection and its reason.
 
-32
+33
 00:02:17,735 --> 00:02:21,063
 If Morgan says yes, define the test before anyone runs it.
 
-33
+34
 00:02:21,511 --> 00:02:24,071
 Either path teaches Harbor something about its priorities.
 
-34
+35
 00:02:24,583 --> 00:02:27,015
 A silent queue of ideas teaches almost nothing.
 
-35
+36
 00:02:27,655 --> 00:02:29,148
 Pause on your own workflow type.
 
-36
+37
 00:02:29,533 --> 00:02:32,306
 What evidence would make your favorite improvement worth testing?
 
-37
+38
 00:02:32,886 --> 00:02:34,764
 Draft one AutoResearch Proposal.
 
-38
+39
 00:02:35,190 --> 00:02:48,801
 Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.
 
-39
+40
 00:02:49,447 --> 00:02:51,330
 Mark the result `not_run`.
 
-40
+41
 00:02:51,879 --> 00:02:55,549
 Write the reason in plain language and the action Morgan may take after review.
 
-41
+42
 00:02:56,189 --> 00:02:58,237
 Keep the staffing and spend holds visible.
 
-42
+43
 00:02:58,621 --> 00:03:00,455
 Use a fictional or approved example.
 
-43
+44
 00:03:01,113 --> 00:03:53,025
 Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.
 
-44
+45
 00:03:53,579 --> 00:03:55,414
 Save revision thirteen as a draft.
 
-45
+46
 00:03:56,040 --> 00:04:01,075
 Research begins when a question can survive a gate, not when a dashboard fills with experiments.
 
-46
+47
 00:04:01,797 --> 00:04:03,807
 Harbor has a proposal that someone can
 
-47
+48
 00:04:03,847 --> 00:04:06,157
 inspect, and a clear record that nothing
 
-48
+49
 00:04:06,327 --> 00:04:07,007
 has run.

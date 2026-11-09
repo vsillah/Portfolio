@@ -87,8 +87,11 @@ The agent cannot turn a promising hypothesis into durable memory.
 00:01:54.980 --> 00:01:59.844
 A memory proposal would need its own source, scope, expiry, and human decision.
 
+00:02:00.740 --> 00:02:09.273
+Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`
+
 00:02:09.927 --> 00:02:13.895
-` Then add the next safe step: Morgan reviews whether the question is worth testing at all.
+Then add the next safe step: Morgan reviews whether the question is worth testing at all.
 
 00:02:14.279 --> 00:02:17.266
 If Morgan says no, keep the rejection and its reason.

@@ -14,3 +14,7 @@ Review-only Human QA package for the final Agentified lesson batch.
 - Learner playback: locked
 
 Run `node validate.mjs` and `node --test execution-authorization.test.mjs` from this directory. Open `review.html` through a local HTTP server for responsive Human QA. The 64-second `agentified-l13-l16-human-qa-walkthrough.mp4` is the privacy-safe primary review artifact.
+
+## L13 caption correction
+
+The version-bound correction restores the sentence-complete `not_run` instruction at `02:00.740–02:09.273`. The corrected MP4 was remuxed with stream copy: its H.264 video and AAC audio stream hashes are unchanged. `l13-caption-correction-receipt.json` binds the before/after caption and container hashes, unchanged stream hashes, zero provider calls, and zero spend. `agentified-l13-caption-correction-walkthrough.mp4` is the focused privacy-safe Human QA artifact.

@@ -5,6 +5,8 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
+import { expectedCaptionText, normalizeCaptionText, splitSentences } from './caption-contract.mjs'
+import { AUTHORIZATION_PATH, AUTHORIZATION_SHA256, REQUESTS } from './execution-authorization.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(here, '../../..')
@@ -48,10 +50,6 @@ function parseSrt(value) {
     const toSeconds = (offset) => Number(match[offset]) * 3600 + Number(match[offset + 1]) * 60 + Number(match[offset + 2]) + Number(match[offset + 3]) / 1000
     return { start: toSeconds(1), end: toSeconds(5), text: lines.slice(2).join(' ').trim() }
   })
-}
-
-function splitSentences(text) {
-  return (text.match(/[^.!?]+[.!?]+(?:[”’"']?)(?=\s|$)|[^.!?]+$/g) || [text]).map((value) => value.trim()).filter(Boolean)
 }
 
 function alignExpectedWords(expected, observed) {
@@ -210,6 +208,7 @@ for (const lesson of lessons) {
     ? { ...cue, scene: `${lesson.id}-01`, speaker: 'presenter' }
     : { ...cue, start: closingStart + cue.start - closingSourceStart, end: closingStart + cue.end - closingSourceStart, scene: `${lesson.id}-08`, speaker: 'presenter' })
   const captionCues = [...mappedPresenterCues.slice(0, openingCount), ...mappedNarrationCues, ...mappedPresenterCues.slice(openingCount)].sort((a, b) => a.start - b.start)
+  assert(normalizeCaptionText(captionCues.map((cue) => cue.text).join(' ')) === normalizeCaptionText(expectedCaptionText(candidate)), `${lesson.id} caption transcript drift`)
 
   const frames = path.join(here, `frames-${lesson.id}`)
   mkdirSync(frames, { recursive: true })
@@ -308,6 +307,7 @@ for (const lesson of lessons) {
     voice_id: voiceId,
     provider_calls: 2,
     retries: 0,
+    execution_authorization_receipt: { path: AUTHORIZATION_PATH, sha256: AUTHORIZATION_SHA256, request_sha256: REQUESTS[lesson.id] },
     provider_usage: { presenter_credit_cost: lesson.presenterCost, narration_credit_cost: lesson.narrationCost, lesson_credit_cost: lesson.presenterCost + lesson.narrationCost, account_balance_after_lesson: lesson.balanceAfter, cash_purchase_usd: 0 },
     presenter_source: { path: path.relative(root, presenter), sha256: sha(presenter), duration_seconds: Number(presenterDuration.toFixed(3)), subtitle_path: path.relative(root, presenterSrt), subtitle_sha256: sha(presenterSrt) },
     narration_source: { path: path.relative(root, narration), sha256: sha(narration), duration_seconds: Number(narrationDuration.toFixed(3)), text_sha256: candidate.offscreen_narration.text_sha256, timing_path: path.relative(root, timingPath), timing_sha256: sha(timingPath) },
@@ -326,5 +326,5 @@ for (const lesson of lessons) {
 }
 
 rmSync(studioBackdropPath, { force: true })
-writeFileSync(path.join(here, 'batch-provider-receipt.json'), `${JSON.stringify({ schema_version: 1, status: 'four_presenter_and_narration_pairs_completed_once_no_retry_and_composited_provider_free', source_commit: sourceCommit, batch_sha256: batchSha, look_id: lookId, voice_id: voiceId, calls_submitted: 8, presenter_jobs_submitted: 4, narration_calls_submitted: 4, retries: 0, starting_balance: startingBalance, account_balance_after_batch: finalBalance, cash_purchase_usd: 0, exact_credit_cost: startingBalance - finalBalance, minimum_balance_required: 168, lessons: batchLessons }, null, 2)}\n`)
+writeFileSync(path.join(here, 'batch-provider-receipt.json'), `${JSON.stringify({ schema_version: 1, status: 'four_presenter_and_narration_pairs_completed_once_no_retry_and_composited_provider_free', source_commit: sourceCommit, batch_sha256: batchSha, look_id: lookId, voice_id: voiceId, calls_submitted: 8, presenter_jobs_submitted: 4, narration_calls_submitted: 4, retries: 0, starting_balance: startingBalance, account_balance_after_batch: finalBalance, cash_purchase_usd: 0, exact_credit_cost: startingBalance - finalBalance, minimum_balance_required: 168, execution_authorization_receipt: { path: AUTHORIZATION_PATH, sha256: AUTHORIZATION_SHA256 }, lessons: batchLessons }, null, 2)}\n`)
 console.log(`L13-L16 complete: ${batchLessons.length} lessons, eight calls, zero retries, ${startingBalance - finalBalance} credits`)
