@@ -19,6 +19,7 @@ import AgentifiedCompletionCredential from '@/components/member/AgentifiedComple
 
 type MemberOrder = {
   id: number
+  workshop: 'accelerated' | 'agentified' | null
   status: string
   final_amount: number
   created_at: string
@@ -30,10 +31,10 @@ const orderLabels: Record<string, string> = {
   failed: 'Payment failed', cancelled: 'Cancelled', refunded: 'Refunded',
 }
 
-function orderAction(status: string, id: number, preview = false) {
+function orderAction(status: string, id: number, preview = false, workshop: MemberOrder['workshop'] = null) {
   if (status === 'pending') return { href: `/checkout/payment?orderId=${id}`, label: 'Continue payment' }
   if (status === 'completed') return { href: `/purchases?orderId=${id}`, label: 'View receipt and details' }
-  if (status === 'quote_pending') return { href: preview ? '/member/quote?qa=quote' : `/member/quote?orderId=${id}`, label: 'Continue quote request' }
+  if (status === 'quote_pending') return { href: preview ? `/member/quote?qa=${workshop === 'agentified' ? 'quote-agentified' : 'quote'}` : `/member/quote?orderId=${id}`, label: 'Continue quote request' }
   return { href: `/purchases?orderId=${id}`, label: 'Review order' }
 }
 
@@ -68,11 +69,12 @@ function syntheticMember(state: string): MemberData {
       { id: 'synthetic-quote', title: 'Custom implementation plan', rationale: 'The scope needs a conversation before pricing.', offer_kind: 'service', offer_id: 'synthetic-quote-service', reviewed_at: '2026-11-05T12:00:00Z', approved_price: null, approved_is_quote_based: true },
     ] : [],
     orders: state === 'orders' || state === 'paid' ? [
-      { id: 1201, status: 'pending', final_amount: 240, created_at: '2026-11-05T12:00:00Z', order_items: [{ id: 1, services: { title: 'Decision support session' } }] },
-      { id: 1202, status: 'completed', final_amount: 240, created_at: '2026-11-04T12:00:00Z', order_items: [{ id: 2, services: { title: 'Decision support session' } }] },
-      { id: 1203, status: 'quote_pending', final_amount: 0, created_at: '2026-11-03T12:00:00Z', order_items: [{ id: 3, services: { title: 'Custom implementation plan' } }] },
-      { id: 1204, status: 'failed', final_amount: 240, created_at: '2026-11-02T12:00:00Z', order_items: [{ id: 4, services: { title: 'Decision support session' } }] },
-      { id: 1205, status: 'cancelled', final_amount: 240, created_at: '2026-11-01T12:00:00Z', order_items: [{ id: 5, services: { title: 'Decision support session' } }] },
+      { id: 1201, workshop: 'accelerated', status: 'pending', final_amount: 240, created_at: '2026-11-05T12:00:00Z', order_items: [{ id: 1, services: { title: 'Decision support session' } }] },
+      { id: 1202, workshop: 'accelerated', status: 'completed', final_amount: 240, created_at: '2026-11-04T12:00:00Z', order_items: [{ id: 2, services: { title: 'Decision support session' } }] },
+      { id: 1203, workshop: 'accelerated', status: 'quote_pending', final_amount: 0, created_at: '2026-11-03T12:00:00Z', order_items: [{ id: 3, services: { title: 'Custom implementation plan' } }] },
+      { id: 2203, workshop: 'agentified', status: 'quote_pending', final_amount: 0, created_at: '2026-11-03T11:00:00Z', order_items: [{ id: 6, services: { title: 'Monthly Advisory Retainer' } }] },
+      { id: 1204, workshop: 'accelerated', status: 'failed', final_amount: 240, created_at: '2026-11-02T12:00:00Z', order_items: [{ id: 4, services: { title: 'Decision support session' } }] },
+      { id: 1205, workshop: 'accelerated', status: 'cancelled', final_amount: 240, created_at: '2026-11-01T12:00:00Z', order_items: [{ id: 5, services: { title: 'Decision support session' } }] },
     ] : [],
     projects: state === 'paid' ? [{ project: { id: 'synthetic-project', project_name: 'Client engagement' }, accountSummary: null, timeTracking: { total_seconds: 0, by_target: [] }, tasks: [{ id: 'synthetic-task', title: 'Review the evidence handoff', description: 'Review the project evidence', status: 'pending', category: 'planning', priority: 'high', diy_resources: [] }], milestones: [{ id: 'synthetic-milestone', title: 'Evidence review', status: 'pending', target_date: '2026-11-30' }], documents: [], valueReports: [], gammaReports: [] } as unknown as DashboardData] : [],
     projectMeetings: state === 'paid' ? { 'synthetic-project': [{ id: 'synthetic-meeting', meeting_type: 'review', meeting_date: '2026-11-05T12:00:00Z', duration_minutes: 30, structured_notes: null, key_decisions: ['Test the evidence handoff'], action_items: null, open_questions: null, recording_url: null }] } : {},
@@ -157,9 +159,9 @@ export default function MemberDashboardPage() {
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Assessment"><h2 className="text-xl font-semibold">Assessment</h2>{data.assessment ? <><p className="my-3 text-platinum-white/75">{data.assessment.assessment?.diagnostic_summary ?? 'Your completed assessment is linked to this account.'}</p><AssessmentScoreBreakdown scores={data.assessment.scores.categoryScores} hasFormalAssessment /></> : data.assessmentStatus ? <p className="mt-2 text-platinum-white/65">Completed assessment linked. {data.assessmentStatus.summary ?? 'The report is not available in this dashboard yet.'}</p> : <p className="mt-2 text-platinum-white/65">No completed assessment has been linked to this account. We review the assessment link before it appears here.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Reviewed recommendations"><h2 className="text-xl font-semibold">Recommended next steps</h2>{data.recommendations.length ? <ul className="mt-3 space-y-4">{data.recommendations.map((item) => <li key={item.id} className="border-t border-radiant-gold/15 pt-4 first:border-0 first:pt-0"><strong>{item.title}</strong><p className="text-sm text-platinum-white/65">{item.rationale}</p><RecommendationAction item={item} preview={previewMode} /></li>)}</ul> : <p className="mt-2 text-platinum-white/65">No reviewed recommendation yet.</p>}</section>
         <section className="rounded-lg border border-radiant-gold/25 p-6" aria-label="Orders"><h2 className="text-xl font-semibold">Your orders</h2>{data.orders?.length ? <ul className="mt-3 space-y-3">{data.orders.map((order) => {
-          const action = orderAction(order.status, order.id, previewMode)
+          const action = orderAction(order.status, order.id, previewMode, order.workshop)
           return <li key={order.id} className="flex flex-col gap-3 border-t border-radiant-gold/15 pt-3 first:border-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
-            <div><strong>Order #{order.id}</strong><p className="text-sm text-platinum-white/70">{order.order_items?.map((line) => line.products?.title || line.services?.title || 'Item').join(', ') || 'Order details'}</p><p className="text-xs text-platinum-white/60">{new Date(order.created_at).toLocaleDateString()} · {order.status === 'quote_pending' ? 'Price pending review' : `$${Number(order.final_amount).toFixed(2)}`}</p></div>
+            <div><strong>Order #{order.id}</strong>{order.workshop && <span className="ml-2 text-xs font-semibold uppercase tracking-wide text-radiant-gold">{order.workshop}</span>}<p className="text-sm text-platinum-white/70">{order.order_items?.map((line) => line.products?.title || line.services?.title || 'Item').join(', ') || 'Order details'}</p><p className="text-xs text-platinum-white/60">{new Date(order.created_at).toLocaleDateString()} · {order.status === 'quote_pending' ? 'Price pending review' : `$${Number(order.final_amount).toFixed(2)}`}</p></div>
             <div className="flex flex-wrap items-center gap-3"><span className="rounded-full border border-radiant-gold/30 px-3 py-1 text-xs">{orderLabels[order.status] ?? 'Order update'}</span><Link className="min-h-11 inline-flex items-center text-radiant-gold underline" href={action.href}>{action.label}</Link></div>
           </li>
         })}</ul> : <p className="mt-2 text-platinum-white/65">No orders yet. Reviewed offers appear above after review.</p>}</section>

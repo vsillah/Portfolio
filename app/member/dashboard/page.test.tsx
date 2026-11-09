@@ -63,4 +63,16 @@ describe('Member dashboard course loading', () => {
     expect(within(agentified).getByText('Agent workflow review')).toBeInTheDocument()
     expect(within(screen.getByRole('region', { name: 'Accelerated course' })).queryByText('Agent workflow review')).not.toBeInTheDocument()
   })
+
+  it('attributes same-account workshop orders from intake identity and preserves each quote route', async () => {
+    window.history.replaceState({}, '', '/member/dashboard?qa=orders')
+    render(<MemberDashboardPage />)
+    const orders = await screen.findByRole('region', { name: 'Orders' })
+    const accelerated = within(orders).getByText('Order #1203').closest('li')!
+    const agentified = within(orders).getByText('Order #2203').closest('li')!
+    expect(accelerated).toHaveTextContent('accelerated')
+    expect(agentified).toHaveTextContent('agentified')
+    expect(within(accelerated).getByRole('link', { name: 'Continue quote request' })).toHaveAttribute('href', '/member/quote?qa=quote')
+    expect(within(agentified).getByRole('link', { name: 'Continue quote request' })).toHaveAttribute('href', '/member/quote?qa=quote-agentified')
+  })
 })

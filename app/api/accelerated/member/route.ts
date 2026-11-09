@@ -7,6 +7,7 @@ import { validateLearningState } from '@/lib/accelerated-member-progress'
 import { getDashboardByProjectId } from '@/lib/client-dashboard'
 import { loadWorkshopMemberAssessment } from '@/lib/workshop-member-assessment'
 import { AGENTIFIED_VERSION } from '@/lib/agentified-workshop'
+import { attributeWorkshopOrders } from '@/lib/workshop-order-attribution'
 
 export const dynamic = 'force-dynamic'
 const headers = { 'Cache-Control': 'private, no-store' }
@@ -25,6 +26,16 @@ async function loadMemberships(userId: string) {
   return current
 }
 
+async function loadOrders(userId: string) {
+  const current = await supabaseAdmin.from('orders')
+    .select('id,status,final_amount,created_at,workshop_intake_id,order_items(id,quantity,price_at_purchase,products(title),services(title))')
+    .eq('user_id', userId).order('created_at', { ascending: false }).limit(30)
+  if (current.error?.code === '42703') return supabaseAdmin.from('orders')
+    .select('id,status,final_amount,created_at,order_items(id,quantity,price_at_purchase,products(title),services(title))')
+    .eq('user_id', userId).order('created_at', { ascending: false }).limit(30)
+  return current
+}
+
 export async function GET(request: NextRequest) {
   const userId = await identity(request)
   if (!userId) return fail('Sign in to view member progress.', 401)
@@ -34,13 +45,20 @@ export async function GET(request: NextRequest) {
     supabaseAdmin.from('accelerated_member_lessons').select('lesson_id,completed_at,video_seconds').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION),
     supabaseAdmin.from('accelerated_member_worksheets').select('worksheet_id,answers,updated_at').eq('user_id', userId).eq('content_version', DECISION_FILE_VERSION).maybeSingle(),
     loadMemberships(userId),
-    supabaseAdmin.from('orders').select('id,status,final_amount,created_at,order_items(id,quantity,price_at_purchase,products(title),services(title))')
-      .eq('user_id', userId).order('created_at', { ascending: false }).limit(30),
+    loadOrders(userId),
   ])
   if ([profile, enrollment, lessonRows, worksheet, memberships, orders].some((item) => item.error)) return fail('Member data is temporarily unavailable.', 503)
   let workflow
   try { workflow = await loadWorkshopMemberAssessment(userId, DECISION_FILE_VERSION) }
   catch { return fail('Member assessment is temporarily unavailable.', 503) }
+  const orderRows = (orders.data ?? []) as Array<{ workshop_intake_id?: string | null; [key: string]: unknown }>
+  const orderIntakeIds = [...new Set(orderRows.map((order) => order.workshop_intake_id).filter((id): id is string => typeof id === 'string'))]
+  const orderIntakes = orderIntakeIds.length ? await supabaseAdmin.from('accelerated_decision_file_intakes')
+    .select('id,content_version').in('id', orderIntakeIds) : { data: [], error: null }
+  if (orderIntakes.error) return fail('Workshop order identity is temporarily unavailable.', 503)
+  let attributedOrders
+  try { attributedOrders = attributeWorkshopOrders(orderRows, orderIntakes.data ?? []) }
+  catch { return fail('Workshop order identity is unavailable.', 503) }
   const projects = []
   const projectMeetings: Record<string, unknown[]> = {}
   const projectWorkshops: Record<string, 'accelerated' | 'agentified'> = {}
@@ -73,7 +91,7 @@ export async function GET(request: NextRequest) {
     assessmentStatus: workflow.assessmentStatus,
     assessment: workflow.assessment,
     recommendations: workflow.recommendations,
-    orders: orders.data ?? [],
+    orders: attributedOrders,
     projects,
     projectWorkshops,
     projectMeetings,

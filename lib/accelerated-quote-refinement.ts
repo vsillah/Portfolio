@@ -25,7 +25,7 @@ export const quoteQuestions = [
 export type QuoteDimension = typeof quoteQuestions[number]['id']
 export type QuoteAnswers = Partial<Record<QuoteDimension, string>>
 export type DerivedFact = { value: string; sourceField: string }
-export type DerivedContext = { facts: Partial<Record<QuoteDimension, DerivedFact>>; summary: string[]; sourceFields: string[] }
+export type DerivedContext = { facts: Partial<Record<QuoteDimension, DerivedFact>>; summary: string[]; sourceFields: string[]; workshop?: 'accelerated' | 'agentified' }
 export type QuoteOffer = {
   kind: 'service' | 'product'; id: string; title: string; price: number | null
   quoteBased: boolean; serviceType?: string | null; deliveryMethod?: string | null
@@ -107,7 +107,7 @@ export function deriveQuoteContext(worksheetAnswers: Record<string, string>, wor
     ['L16', 'A next action is documented'],
   ]
   const summary = summaryFields.filter(([field]) => sourceFields.includes(field)).map(([field, label]) => `${label} (${field})`)
-  return { facts, summary, sourceFields }
+  return { facts, summary, sourceFields, workshop }
 }
 
 export function effectiveQuoteAnswers(derived: DerivedContext, answers: QuoteAnswers): QuoteAnswers {
@@ -172,7 +172,7 @@ export function projectQuoteOffers(offers: QuoteOffer[], derived: DerivedContext
       const answer = effective[dimension]
       if (!answer || answer === 'unsure' || answer === 'flexible') { uncertain = true; continue }
       const known = knownFacet(offer, dimension)
-      const source = derived.facts[dimension] ? `Decision File ${derived.facts[dimension]!.sourceField}` : 'your answer'
+      const source = derived.facts[dimension] ? `${derived.workshop === 'agentified' ? 'Operating File' : 'Decision File'} ${derived.facts[dimension]!.sourceField}` : 'your answer'
       if (!known) { uncertain = true; reasons.push(`${questionValue(dimension, answer)} needs operator confirmation`); evidence.push(source); continue }
       const incompatible = dimension === 'budget'
         ? (answer === 'under_500' && known !== 'under_500') || (answer === 'up_to_2500' && known === 'above_2500')

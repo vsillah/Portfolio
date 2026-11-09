@@ -8,7 +8,7 @@ import ServiceCard from '@/components/ServiceCard'
 import { addServiceToCart, addToCart, getCartCount } from '@/lib/cart'
 import type { Product, Service } from '@/lib/types/store'
 import { supabase } from '@/lib/supabase'
-import { projectQuoteOffers, quoteQuestions, type DerivedContext, type QuoteAnswers, type QuoteOffer,
+import { chooseQuoteQuestions, deriveQuoteContext, projectQuoteOffers, quoteQuestions, type DerivedContext, type QuoteAnswers, type QuoteOffer,
   type QuoteDimension } from '@/lib/accelerated-quote-refinement'
 
 type Question = typeof quoteQuestions[number]
@@ -23,18 +23,44 @@ export const synthetic: Context = {
   questions: quoteQuestions.filter((q) => ['delivery', 'timeline', 'implementation', 'budget', 'support'].includes(q.id)),
   offers: [
     { kind: 'service', id: '11111111-1111-4111-8111-111111111111', title: 'Custom implementation plan', price: null, quoteBased: true, deliveryMethod: 'virtual', reviewedRecommendationId: 'r1', catalog: {
-      id: '11111111-1111-4111-8111-111111111111', title: 'Custom implementation plan', description: 'A scoped implementation plan with direct guidance for your team.', service_type: 'consulting', delivery_method: 'virtual', duration_hours: null, duration_description: 'Scope set after review', price: null, is_quote_based: true, min_participants: 1, max_participants: null, image_url: '/showcases/gallery-accelerated-cohort-outcome.svg', video_url: null, video_thumbnail_url: null, presentation_url: null, is_featured: false } },
+      id: '11111111-1111-4111-8111-111111111111', title: 'Custom implementation plan', description: 'A scoped implementation plan with direct guidance for your team.', service_type: 'consulting', delivery_method: 'virtual', duration_hours: null, duration_description: 'Scope set after review', price: null, is_quote_based: true, min_participants: 1, max_participants: null, image_url: '/amadutown-logo-upscaled.png', video_url: null, video_thumbnail_url: null, presentation_url: null, is_featured: false } },
     { kind: 'service', id: '22222222-2222-4222-8222-222222222222', title: 'In-person strategy workshop', price: 1800, quoteBased: false, deliveryMethod: 'in_person', catalog: {
       id: '22222222-2222-4222-8222-222222222222', title: 'In-person strategy workshop', description: 'A facilitated working session to set priorities.', service_type: 'workshop', delivery_method: 'in_person', duration_hours: 4, duration_description: 'Half day', price: 1800, is_quote_based: false, min_participants: 2, max_participants: 20, image_url: '/ATAS_Innovation_Workshop.webp', video_url: null, video_thumbnail_url: null, presentation_url: null, is_featured: false } },
     { kind: 'service', id: '33333333-3333-4333-8333-333333333333', title: 'Custom coaching support', price: null, quoteBased: true, deliveryMethod: 'virtual', catalog: {
-      id: '33333333-3333-4333-8333-333333333333', title: 'Custom coaching support', description: 'Direct support for a team working through a decision.', service_type: 'coaching', delivery_method: 'virtual', duration_hours: null, duration_description: 'Scope set after review', price: null, is_quote_based: true, min_participants: 1, max_participants: null, image_url: '/showcases/service-self-paced-course-concept.svg', video_url: null, video_thumbnail_url: null, presentation_url: null, is_featured: false } },
+      id: '33333333-3333-4333-8333-333333333333', title: 'Custom coaching support', description: 'Direct support for a team working through a decision.', service_type: 'coaching', delivery_method: 'virtual', duration_hours: null, duration_description: 'Scope set after review', price: null, is_quote_based: true, min_participants: 1, max_participants: null, image_url: '/amadutown-logo-upscaled.png', video_url: null, video_thumbnail_url: null, presentation_url: null, is_featured: false } },
     { kind: 'product', id: '903', title: 'Self-guided toolkit', price: 199, quoteBased: false, productType: 'digital', catalog: {
       id: 903, title: 'Self-guided toolkit', description: 'Templates and prompts to move from decision to action.', type: 'digital', price: 199, image_url: '/accelerated_cover_ebook.webp', is_featured: false } },
   ], answers: {}, revision: 0, refinementId: null,
   reviewedOfferId: '11111111-1111-4111-8111-111111111111', requestedOfferId: '11111111-1111-4111-8111-111111111111',
 }
 
+const agentifiedAnswers = {
+  L02: 'Our agent decision card names the handoff owner.',
+  L03: 'We need to review source safety before an agent acts.',
+  L09: 'Our team will review each proposed action before release.',
+}
+const agentifiedDerived = deriveQuoteContext(agentifiedAnswers, 'agentified')
+const agentifiedOffers: QuoteOffer[] = [
+  { kind: 'service', id: 'fbaaca1b-e64b-463d-b084-bdc535c60fa2', title: 'Monthly Advisory Retainer', price: 2500, quoteBased: true, deliveryMethod: 'virtual', reviewedRecommendationId: 'agentified-reviewed-quote', catalog: {
+    id: 'fbaaca1b-e64b-463d-b084-bdc535c60fa2', title: 'Monthly Advisory Retainer', description: 'Ongoing strategic AI advisory. Monthly 1-on-1 calls, priority support, and quarterly strategy reviews.', service_type: 'consulting', delivery_method: 'virtual', duration_hours: 4, duration_description: '4 hours/month', price: 2500, is_quote_based: true, min_participants: 1, max_participants: null, image_url: '/showcases/service-photographic/monthly-advisory-hero.jpg', video_url: null, video_thumbnail_url: null, presentation_url: null, is_featured: false,
+  } },
+  { kind: 'service', id: '63550520-2fb6-4e48-99ae-a4717ec2428a', title: 'AI Strategy Workshop — Half-Day', price: 1500, quoteBased: false, deliveryMethod: 'virtual', catalog: {
+    id: '63550520-2fb6-4e48-99ae-a4717ec2428a', title: 'AI Strategy Workshop — Half-Day', description: 'Intensive half-day workshop to identify your top AI opportunities. Walk away with a prioritized roadmap.', service_type: 'workshop', delivery_method: 'virtual', duration_hours: 4, duration_description: 'Half-day (4 hours)', price: 1500, is_quote_based: false, min_participants: 1, max_participants: 20, image_url: '/showcases/service-photographic/ai-strategy-half-day-hero.jpg', video_url: null, video_thumbnail_url: null, presentation_url: null, is_featured: false,
+  } },
+]
+export const syntheticAgentified: Context = {
+  orderId: 2203, workshop: 'agentified', title: 'Monthly Advisory Retainer',
+  summary: agentifiedDerived.summary, derivedFacts: agentifiedDerived.facts,
+  questions: quoteQuestions.filter((question) => chooseQuoteQuestions(agentifiedDerived, agentifiedOffers).includes(question.id)),
+  offers: agentifiedOffers, answers: {}, revision: 0, refinementId: null,
+  reviewedOfferId: agentifiedOffers[0].id, requestedOfferId: agentifiedOffers[0].id,
+}
+
 const draftKey = (id: number) => `accelerated-quote-draft:${id}`
+const customerReason = (reason: string) => reason
+  .replace('Operator-reviewed recommendation', 'Reviewed recommendation')
+  .replace('needs operator confirmation', 'needs review')
+  .replace('Needs more evidence before an operator can confirm fit', 'More information is needed to confirm fit')
 
 export default function MemberQuoteForm() {
   const [context, setContext] = useState<Context | null>(null)
@@ -52,11 +78,13 @@ export default function MemberQuoteForm() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    if (process.env.NODE_ENV === 'development' && params.get('qa') === 'quote') {
-      setPreview(true); setContext(synthetic); setCartCount(getCartCount());
-      const draft = readDraft(synthetic.orderId, synthetic.revision, synthetic)
+    const qa = params.get('qa')
+    if (process.env.NODE_ENV !== 'production' && (qa === 'quote' || qa === 'quote-agentified')) {
+      const fixture = qa === 'quote-agentified' ? syntheticAgentified : synthetic
+      setPreview(true); setContext(fixture); setCartCount(getCartCount());
+      const draft = readDraft(fixture.orderId, fixture.revision, fixture)
       setAnswers(draft.answers); setRequestedOfferId(draft.requestedOfferId)
-      setSavedRequestedOfferId(synthetic.requestedOfferId); setStatus('ready'); return
+      setSavedRequestedOfferId(fixture.requestedOfferId); setStatus('ready'); return
     }
     const orderId = Number(params.get('orderId'))
     if (!Number.isSafeInteger(orderId) || orderId <= 0) {
@@ -86,12 +114,12 @@ export default function MemberQuoteForm() {
   }, [context, status, revision, answers, requestedOfferId])
 
   const projection = useMemo(() => context && projectQuoteOffers(context.offers,
-    { facts: context.derivedFacts, summary: context.summary, sourceFields: [] }, answers,
+    { facts: context.derivedFacts, summary: context.summary, sourceFields: [], workshop: context.workshop }, answers,
     context.questions.map((q) => q.id)), [context, answers])
   const dirty = JSON.stringify(answers) !== JSON.stringify(savedAnswers) || requestedOfferId !== savedRequestedOfferId
   const reviewed = context?.offers.find((offer) => offer.kind === 'service' && offer.id === context.reviewedOfferId)
   const alternatives = (showAll ? context?.offers : projection?.remaining)?.filter((offer) => offer.id !== context?.reviewedOfferId) ?? []
-  const detailHref = (offer: QuoteOffer) => `/${offer.kind === 'product' ? 'store' : 'services'}/${encodeURIComponent(offer.id)}?fromQuote=${preview ? 'qa' : context?.orderId}`
+  const detailHref = (offer: QuoteOffer) => `/${offer.kind === 'product' ? 'store' : 'services'}/${encodeURIComponent(offer.id)}?fromQuote=${preview ? context?.workshop === 'agentified' ? 'qa-agentified' : 'qa' : context?.orderId}`
   const addProduct = (id: number) => { addToCart(id); setCartCount(getCartCount()) }
   const addService = (id: string) => { addServiceToCart(id); setCartCount(getCartCount()) }
   const requestQuote = (id: string) => {
@@ -167,7 +195,7 @@ export default function MemberQuoteForm() {
       <main className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-2" aria-live="polite">
           <h2 className="font-heading text-xl font-semibold">Active catalog</h2>
-          <span className="text-sm text-platinum-white/75">{projection?.remaining.length ?? 0} matching options · {projection?.excluded.length ?? 0} filtered out</span>
+          <span className="text-sm text-platinum-white/75">{projection?.remaining.length ?? 0} matching {(projection?.remaining.length ?? 0) === 1 ? 'option' : 'options'} · {projection?.excluded.length ?? 0} filtered out</span>
         </div>
         <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3" data-testid="catalog-grid">
         {reviewed && <div className="min-w-0 rounded-xl border-2 border-radiant-gold/70 bg-radiant-gold/10 p-3" data-testid="reviewed-offer">
@@ -184,8 +212,8 @@ export default function MemberQuoteForm() {
           </div>}
           {!alternatives.length && projection?.status !== 'no_match' && <p className="mt-5 text-sm text-platinum-white/70">No additional catalog options fit yet. Adjust a filter to explore others.</p>}
           {showAll && <button type="button" onClick={() => setShowAll(false)} className="mt-3 text-sm text-radiant-gold underline">Return to matching options</button>}
-          {!!projection?.excluded.length && <details className="mt-5 text-sm text-platinum-white/70"><summary className="cursor-pointer text-radiant-gold">Why {projection.excluded.length} options fell away</summary>
-            <ul className="mt-2 space-y-1">{projection.excluded.map((offer) => <li key={offer.kind + offer.id}>{offer.title}: {offer.reasons.join('; ')}</li>)}</ul>
+          {!!projection?.excluded.length && <details className="mt-5 text-sm text-platinum-white/70"><summary className="cursor-pointer text-radiant-gold">Why {projection.excluded.length} {projection.excluded.length === 1 ? 'option' : 'options'} fell away</summary>
+            <ul className="mt-2 space-y-1">{projection.excluded.map((offer) => <li key={offer.kind + offer.id}>{offer.title}: {offer.reasons.map(customerReason).join('; ')}</li>)}</ul>
           </details>}
           <div id="quote-review-action" className="mt-6 rounded-lg border border-radiant-gold/30 bg-silicon-slate/40 p-4">
             <h3 className="font-semibold">Request a quote review</h3>
@@ -193,9 +221,10 @@ export default function MemberQuoteForm() {
             {requestedOfferId !== context.reviewedOfferId && <p className="mt-1 text-sm text-amber-200">This alternative is a request for review. Your approved recommendation has not changed.</p>}
             {error && <p role="alert" className="mt-3 text-sm text-amber-200">{error}</p>}
             <div className="mt-4 flex flex-wrap gap-3">
-              <button type="button" onClick={() => void save()} disabled={preview || status !== 'ready' || !dirty && !!refinementId} className="min-h-11 rounded-md border border-radiant-gold px-5 py-2 font-semibold text-radiant-gold disabled:opacity-50">{preview ? 'Preview only' : status === 'saving' ? 'Saving…' : 'Save context'}</button>
+              <button type="button" onClick={() => void save()} disabled={preview || status !== 'ready' || !dirty && !!refinementId} className="min-h-11 rounded-md border border-radiant-gold px-5 py-2 font-semibold text-radiant-gold disabled:opacity-50">{status === 'saving' ? 'Saving…' : 'Save context'}</button>
               <button type="button" onClick={() => void send()} disabled={preview || status !== 'ready' || dirty || !refinementId || projection?.status === 'no_match'} className="min-h-11 rounded-md bg-radiant-gold px-5 py-2 font-semibold text-imperial-navy disabled:opacity-50">{status === 'sending' ? 'Sending…' : 'Send for review'}</button>
             </div>
+            {preview && <p className="mt-2 text-xs text-platinum-white/60">Open a reviewed quote from your account to save or send your request.</p>}
             <p className="mt-2 text-xs text-platinum-white/60">We will review the scope before confirming a price or starting a project. No payment is due.</p>
           </div>
         </>}
