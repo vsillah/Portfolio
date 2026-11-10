@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -9,8 +10,11 @@ const root = path.resolve(here, '../../..')
 const audit = JSON.parse(readFileSync(path.join(here, 'audit-boundaries.json'), 'utf8'))
 const out = path.join(here, 'composites')
 mkdirSync(out, { recursive: true })
-const only = process.argv.slice(2).map(value => value.toUpperCase())
+const receiptOnly = process.argv.includes('--receipts-only')
+const only = process.argv.slice(2).filter(value => value !== '--receipts-only').map(value => value.toUpperCase())
 const receipt = []
+const presenterInset = { x: 1038, y: 316, width: 788, height: 452 }
+const sha = file => createHash('sha256').update(readFileSync(file)).digest('hex')
 const probe = file => JSON.parse(execFileSync('ffprobe', ['-v','error','-show_entries','stream=codec_type,r_frame_rate:format=duration','-of','json',file], {encoding:'utf8'}))
 const timelineFor = id => {
   const n = Number(id.slice(1))
@@ -51,13 +55,33 @@ for (let n = 1; n <= 16; n++) {
   }).join('\n') + `\nfile '${path.join(here,'frames/illustrated',`${id}-08.png`)}'\n`
   const list = path.join(out, `${id}-frames.txt`)
   writeFileSync(list, concat)
-  const visible = protectedWindows.map(([start,end]) => `between(t,${start},${end})`).join('+')
-  const filter = `[0:v]fps=${fps},format=yuv420p[art];[1:v]format=yuv420p[original];[art][original]overlay=enable='${visible}':shortest=1:format=auto,format=yuv420p[v]`
+  const presenterVisible = protectedWindows.filter(([, , kind]) => kind === 'native presenter').map(([start,end]) => `between(t,${start},${end})`).join('+') || '0'
+  const fullFrameVisible = protectedWindows.filter(([, , kind]) => kind !== 'native presenter').map(([start,end]) => `between(t,${start},${end})`).join('+') || '0'
+  // Preserve the approved presenter pixels without restoring the legacy teaching
+  // slide that surrounds the inset in the source composite.
+  const filter = `[0:v]fps=${fps},format=yuv420p[art];[1:v]format=yuv420p,split=2[original][presenterSource];[presenterSource]crop=${presenterInset.width}:${presenterInset.height}:${presenterInset.x}:${presenterInset.y}[presenter];[art][original]overlay=enable='${fullFrameVisible}':shortest=1:format=auto[base];[base][presenter]overlay=${presenterInset.x}:${presenterInset.y}:enable='${presenterVisible}':shortest=1:format=auto,format=yuv420p[v]`
   const output = path.join(out, `${id}-illustrated-review.mp4`)
   const args = ['-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',list,'-i',source,'-filter_complex',filter,'-map','[v]','-map','1:a?','-map','1:s?','-c:v','libx264','-preset','veryfast','-crf','20','-r',fps,'-c:a','copy','-c:s','copy','-t',String(duration),'-movflags','+faststart',output]
-  console.log(`${id}: rendering ${duration}s at ${fps}; protected ${protectedWindows.length} windows`)
-  const run = spawnSync('ffmpeg',args,{stdio:'inherit'})
-  if (run.status !== 0) throw new Error(`${id}: ffmpeg exited ${run.status}`)
-  receipt.push({lesson_id:id,source_path:rows[0].video_path,output_path:path.relative(root,output),source_duration_seconds:duration,frame_rate:fps,protected_windows:protectedWindows,scene_boundaries:rows.map(({scene_id,start_seconds,end_seconds})=>({scene_id,start_seconds,end_seconds}))})
+  if (receiptOnly) {
+    if (!existsSync(output)) throw new Error(`${id}: missing composite for receipt refresh`)
+    console.log(`${id}: refreshing receipt; protected ${protectedWindows.length} windows`)
+  } else {
+    console.log(`${id}: rendering ${duration}s at ${fps}; protected ${protectedWindows.length} windows`)
+    const run = spawnSync('ffmpeg',args,{stdio:'inherit'})
+    if (run.status !== 0) throw new Error(`${id}: ffmpeg exited ${run.status}`)
+  }
+  receipt.push({
+    lesson_id: id,
+    source_path: rows[0].video_path,
+    source_sha256: sha(source),
+    output_path: path.relative(root, output),
+    output_sha256: sha(output),
+    scene_count: rows.length,
+    release_state: 'unbound review candidate',
+    source_duration_seconds: duration,
+    frame_rate: fps,
+    protected_windows: protectedWindows,
+    scene_boundaries: rows.map(({scene_id,start_seconds,end_seconds})=>({scene_id,start_seconds,end_seconds})),
+  })
   writeFileSync(path.join(here,'composite-receipts.json'),JSON.stringify({schema_version:1,composites:receipt},null,2)+'\n')
 }

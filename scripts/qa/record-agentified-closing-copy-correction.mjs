@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, unlinkSync } from 'node:fs'
+import { mkdirSync, readFileSync, unlinkSync } from 'node:fs'
 import path from 'node:path'
 import { chromium } from 'playwright'
 
@@ -10,6 +10,7 @@ if (!/^[0-9a-f]{40}$/.test(revision || '')) throw new Error('Pass the exact 40-c
 const output = path.resolve('docs/qa/agentified-closing-copy-correction')
 mkdirSync(output, { recursive: true })
 const lessons = ['L02', 'L08', 'L16']
+const receipts = JSON.parse(readFileSync('agentified/workshop/presentation-illustration-audit/composite-receipts.json', 'utf8'))
 const forbidden = /operating file v\d+|\bfile pending\b|audit pending|human editorial|source review/i
 const browser = await chromium.launch({ headless: true })
 
@@ -23,7 +24,11 @@ async function capture(label, width, height) {
   const page = await context.newPage()
 
   for (const lesson of lessons) {
+    await page.goto('about:blank')
     await page.goto(`${base}/agentified/learningplan?lesson=${lesson}&revision=${revision}`)
+    const lessonButton = page.locator('button').filter({ hasText: lesson }).first()
+    if (!await lessonButton.isVisible()) await page.getByRole('button', { name: 'Expand lesson navigation' }).click()
+    await lessonButton.click()
     const video = page.locator(`video[aria-label^="${lesson} "]`)
     await video.waitFor({ state: 'visible' })
     await video.evaluate(node => new Promise((resolve, reject) => {
@@ -32,14 +37,22 @@ async function capture(label, width, height) {
       node.addEventListener('error', reject, { once: true })
     }))
     await video.scrollIntoViewIfNeeded()
-    const duration = await video.evaluate(node => node.duration)
+    const receipt = receipts.composites.find(item => item.lesson_id === lesson)
+    const finalPresenter = receipt?.protected_windows.filter(([, , kind]) => kind === 'native presenter').at(-1)
+    if (!finalPresenter) throw new Error(`${lesson}: missing final presenter receipt`)
+    const target = (finalPresenter[0] + finalPresenter[1]) / 2
     await video.evaluate((node, time) => new Promise(resolve => {
       node.addEventListener('seeked', resolve, { once: true })
       node.currentTime = time
-    }), Math.max(0, duration - 12))
+    }), target)
     await video.evaluate(node => node.play())
-    await page.waitForTimeout(2200)
+    await page.waitForTimeout(500)
     await video.evaluate(node => node.pause())
+    await video.evaluate(node => {
+      const top = node.getBoundingClientRect().top + window.scrollY
+      window.scrollTo(0, Math.max(0, top - 96))
+    })
+    await page.waitForTimeout(100)
     await page.screenshot({ path: path.join(output, `${label}-${lesson.toLowerCase()}-closing.png`) })
     if (forbidden.test(await page.locator('body').innerText())) throw new Error(`${lesson}: internal closing copy is visible`)
     const geometry = await page.evaluate(() => ({

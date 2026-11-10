@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const here=path.dirname(fileURLToPath(import.meta.url)),root=path.resolve(here,'../../..')
 const audit=JSON.parse(readFileSync(path.join(here,'audit-boundaries.json'),'utf8'))
+const presenterCrop='crop=788:452:1038:316'
 let total=0,minimum=Infinity
 for(let n=1;n<=16;n++){
   const id=`L${String(n).padStart(2,'0')}`
@@ -32,7 +33,8 @@ for(let n=1;n<=16;n++){
   const output=path.join(here,'composites',`${id}-illustrated-review.mp4`)
   for(const [start,end,kind] of windows){
     const t=((start+end)/2).toFixed(3)
-    const result=spawnSync('ffmpeg',['-hide_banner','-ss',t,'-i',source,'-ss',t,'-i',output,'-filter_complex','[0:v][1:v]psnr','-frames:v','1','-f','null','-'],{encoding:'utf8'})
+    const comparison=kind==='presenter'?`[0:v]${presenterCrop}[source];[1:v]${presenterCrop}[rendered];[source][rendered]psnr`:'[0:v][1:v]psnr'
+    const result=spawnSync('ffmpeg',['-hide_banner','-ss',t,'-i',source,'-ss',t,'-i',output,'-filter_complex',comparison,'-frames:v','1','-f','null','-'],{encoding:'utf8'})
     assert.equal(result.status,0,`${id} ${kind}: ffmpeg failed`)
     const rawScore=/average:([\d.]+|inf)/.exec(result.stderr)?.[1]
     const score=rawScore==='inf'?Number.POSITIVE_INFINITY:Number(rawScore)

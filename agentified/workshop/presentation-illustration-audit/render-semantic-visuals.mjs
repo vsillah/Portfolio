@@ -47,7 +47,9 @@ function overlay(brief){
     case 'sequence':body=`${topBand(headline)}<circle cx="565" cy="550" r="112" fill="none" stroke="#d6ae59" stroke-width="12"/><circle cx="1030" cy="550" r="112" fill="none" stroke="#d6ae59" stroke-width="12"/><circle cx="1495" cy="550" r="112" fill="none" stroke="#d6ae59" stroke-width="12"/>${a?label(a,95,865,630):''}${b?label(b,1190,865,630):''}`;break
     case 'handoff':body=`${topBand(headline)}${a?label(a,120,840,650):''}${b?label(b,1145,840,650):''}<path d="M760 876H1130" stroke="#d6ae59" stroke-width="9" stroke-linecap="round"/>`;break
     case 'worksheet':body=`${rect(525,105,1260,850,'#f3e7cf','#c59f55',18)}${text(headline,615,235,66,33,'#17303b')}<path d="M615 295H1695" stroke="#d4ad61" stroke-width="6"/>${a?text(a,650,430,52,21,'#17303b'):''}${rect(635,465,1060,145,'#e3e8df','#b9c5c0',12)}${b?text(b,650,705,52,21,'#17303b'):''}${rect(635,742,1060,145,'#e3e8df','#b9c5c0',12)}`;break
-    case 'file':body=`${rect(615,135,1120,820,'#f0e1c4','#d6ad56',18)}${rect(680,197,990,105,'#d9b663','none',8)}${text('OPERATING FILE',720,266,48,28,'#17303b')}${text(headline,695,390,62,28,'#17303b')}${a?label(a,730,570,860):''}${b?label(b,730,735,860):''}`;break
+    case 'file':body=brief.scene_id.endsWith('-08')
+      ? `${rect(70,135,930,820,'#f0e1c4','#d6ad56',18)}${rect(125,197,820,105,'#d9b663','none',8)}${text('OPERATING FILE',165,266,48,23,'#17303b')}${text(headline,140,390,58,20,'#17303b')}${a?label(a,140,650,790):''}${b?label(b,140,815,790):''}`
+      : `${rect(615,135,1120,820,'#f0e1c4','#d6ad56',18)}${rect(680,197,990,105,'#d9b663','none',8)}${text('OPERATING FILE',720,266,48,28,'#17303b')}${text(headline,695,390,62,28,'#17303b')}${a?label(a,730,570,860):''}${b?label(b,730,735,860):''}`;break
     case 'plate':body=`${leftPanel(headline)}${a?plateLabel(a,755,930):''}${b?plateLabel(b,1300,930):''}`;break
     default:throw new Error(`${brief.scene_id}: unknown treatment ${brief.treatment}`)
   }
