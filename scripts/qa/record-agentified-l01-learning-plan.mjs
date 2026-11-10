@@ -45,6 +45,7 @@ try {
     const page = await context.newPage()
     const video = await inspect(page, label)
     if (record) {
+      await video.scrollIntoViewIfNeeded()
       for (const sampleTime of [14, 45, 90]) {
         await video.evaluate((node, time) => { node.currentTime = time; return node.play() }, sampleTime)
         await page.waitForTimeout(6500)
