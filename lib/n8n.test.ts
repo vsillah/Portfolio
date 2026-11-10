@@ -83,6 +83,80 @@ describe('lib/n8n sendToN8n and diagnostic fallbacks', () => {
     expect(result.escalated).toBe(false)
   })
 
+  it('classifies Cloudflare 1033 as a stale chat route without retrying or logging the route', async () => {
+    const webhookUrl = 'private-fixture-path'
+    setEnv({ MOCK_N8N: 'false', N8N_WEBHOOK_URL: webhookUrl, NEXT_PUBLIC_SITE_URL: 'https://example.com' })
+    const fetchMock = vi.fn().mockResolvedValue(new Response(
+      '<html><title>Error 1033</title><p>private-fixture-path</p></html>',
+      { status: 530 }
+    ))
+    vi.stubGlobal('fetch', fetchMock)
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { sendToN8n } = await import('./n8n')
+    const result = await sendToN8n({ message: 'What chatbot services does AmaduTown offer?', sessionId: 's-1033' })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(result.escalated).toBe(true)
+    expect(result.metadata).toMatchObject({
+      fallback: true,
+      failureClass: 'stale_webhook_route',
+      retriable: true,
+    })
+    expect(result.metadata?.fallbackReason).toContain('Cloudflare 1033')
+    expect(result.response).toContain('AI Customer Support Chatbot')
+    expect(result.response).toContain('AI Inbound Lead Chatbot')
+    expect(result.response).toContain('/services/1313650b-1afb-44f7-8118-21f05b1ae8a0')
+    expect(result.response).toContain('/services/a479ce70-4856-4d3f-917b-c37bfff1f0a2')
+    expect(result.response).toContain('schedule a free discovery call')
+    expect(JSON.stringify(log.mock.calls)).not.toContain('private-fixture-path')
+  })
+
+  it('classifies an unrecognized 530 separately from Cloudflare 1033', async () => {
+    setEnv({ MOCK_N8N: 'false', N8N_WEBHOOK_URL: 'fixture-530-route' })
+    const fetchMock = vi.fn().mockResolvedValue(new Response('upstream unavailable', { status: 530 }))
+    vi.stubGlobal('fetch', fetchMock)
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { sendToN8n } = await import('./n8n')
+    const result = await sendToN8n({ message: 'Hello', sessionId: 's-530' })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(result.metadata?.failureClass).toBe('provider_gateway_failure')
+    expect(result.metadata?.fallbackReason).toBe('n8n gateway returned 530')
+  })
+
+  it('keeps thrown transport details out of logs and fallback receipts', async () => {
+    const webhookUrl = 'private-fixture-path'
+    setEnv({ MOCK_N8N: 'false', N8N_WEBHOOK_URL: webhookUrl, N8N_MAX_RETRIES: '0' })
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error(`fetch failed for ${webhookUrl}`)))
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { sendToN8n } = await import('./n8n')
+    const result = await sendToN8n({ message: 'private fixture message', sessionId: 's-network' })
+
+    expect(result.metadata?.fallbackReason).toBe('n8n chat transport failed')
+    expect(JSON.stringify(log.mock.calls)).not.toContain('private-fixture-path')
+    expect(JSON.stringify(log.mock.calls)).not.toContain('private fixture message')
+  })
+
+  it.each([
+    ['a generic question', 'Hello there', 'Our chat service isn’t responding right now', undefined],
+    ['a general service question', 'What services do you offer?', 'training, speaking, consulting, coaching, and workshops', 'AI Inbound Lead Chatbot'],
+    ['a project question', 'Tell me about your projects', '/projects', undefined],
+    ['a publication question', 'Show me your publications', '/publications', undefined],
+    ['a chatbot buying question', 'I need a chatbot to qualify leads', 'AI Inbound Lead Chatbot', 'AI Customer Support Chatbot'],
+  ])('keeps a useful fallback for %s', async (_label, message, expected, otherExpected) => {
+    setEnv({ MOCK_N8N: 'false', N8N_WEBHOOK_URL: undefined, NEXT_PUBLIC_SITE_URL: 'https://example.com' })
+    const { sendToN8n } = await import('./n8n')
+    const result = await sendToN8n({ message, sessionId: 's-intent' })
+
+    expect(result.response).toContain(expected)
+    if (otherExpected) expect(result.response).toContain(otherExpected)
+    expect(result.metadata).toMatchObject({ fallback: true, retriable: true })
+    expect(result.escalated).toBe(true)
+  })
+
   it('parses n8n results wrapper and merges top-level metadata', async () => {
     setEnv({
       MOCK_N8N: 'false',
