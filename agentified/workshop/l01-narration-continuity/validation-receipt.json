@@ -1,0 +1,668 @@
+{
+  "schema_version": 1,
+  "status": "provider_free_narration_continuity_ready_for_human_qa",
+  "lesson_id": "L01",
+  "source_commit": "c350559dfda0a5f164323838ddd8a7390031c9b7",
+  "source_composite": {
+    "path": "agentified/workshop/l01-continuous-narration/agentified-l01-continuous-narration-composite.mp4",
+    "sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+    "duration_seconds": 540
+  },
+  "source_illustrated_composite": {
+    "path": "public/agentified/lessons/l01/illustrated-7365b3dc/agentified-l01-illustrated-composite.mp4",
+    "sha256": "7365b3dca329faaf035e9e59c99a51fd437ad944e2c6a57e5192542b1f64d6ea"
+  },
+  "corrected_composite": {
+    "path": "agentified/workshop/l01-narration-continuity/agentified-l01-continuous-narration-composite.mp4",
+    "sha256": "10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14",
+    "duration_seconds": 378.05899999999997
+  },
+  "corrected_illustrated_composite": {
+    "path": "agentified/workshop/l01-narration-continuity/agentified-l01-illustrated-composite.mp4",
+    "sha256": "47a79d7279e11477ad55f3f4beefbe177a71d8cc7f725aff8067fb97e80783e6",
+    "duration_seconds": 378.05899999999997
+  },
+  "captions": {
+    "srt_path": "agentified/workshop/l01-narration-continuity/agentified-l01-continuous-narration-captions.srt",
+    "srt_sha256": "c361084660e2db557cdd7b8a23301306a0a22e92ad2d6a9bfc06b76ee34ea640",
+    "vtt_path": "agentified/workshop/l01-narration-continuity/agentified-l01-continuous-narration-captions.vtt",
+    "vtt_sha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+    "cue_count": 55
+  },
+  "continuity": {
+    "ordinary_gap_target_seconds": 0.8,
+    "ordinary_gap_limit_seconds": 2.5,
+    "removed_pause_count": 36,
+    "removed_seconds": 161.94100000000003,
+    "maximum_corrected_ordinary_gap_seconds": 1.8949999999999818,
+    "guided_work_window": {
+      "start": 232.60399999999976,
+      "end": 343.05899999999974,
+      "duration_seconds": 110.45499999999998,
+      "preserved": true
+    },
+    "end_screen": {
+      "start": 359.64499999999975,
+      "end": 378.05899999999997,
+      "duration_seconds": 18.414000000000215,
+      "image_path": "agentified/workshop/l01-narration-continuity/agentified-l01-end-screen.png",
+      "image_sha256": "fa20788e505b8f807cd6fb65be2f3b4a559417f4fe7e629fba9b92d320bb3929",
+      "next_lesson_poster_path": "public/agentified/posters/l02-poster.webp",
+      "next_lesson_poster_sha256": "3977814a4731bbcb60dd4d17d22d640c83cbdfad9f434fe348d6aa5fd8eb84a1",
+      "treatment": "branded lesson-complete screen with course progress and exact next-lesson cover"
+    },
+    "removals": [
+      {
+        "after_cue": 5,
+        "before_cue": 6,
+        "source_start": 20.671999999999997,
+        "source_end": 26.755000000000003,
+        "removed_seconds": 6.083000000000003,
+        "original_gap_seconds": 6.883000000000003,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 6,
+        "before_cue": 7,
+        "source_start": 31.651999999999997,
+        "source_end": 37.735,
+        "removed_seconds": 6.082999999999999,
+        "original_gap_seconds": 6.882999999999999,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 7,
+        "before_cue": 8,
+        "source_start": 41.169,
+        "source_end": 47.252,
+        "removed_seconds": 6.083000000000003,
+        "original_gap_seconds": 6.883000000000003,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 8,
+        "before_cue": 9,
+        "source_start": 50.443999999999996,
+        "source_end": 56.527,
+        "removed_seconds": 6.083000000000003,
+        "original_gap_seconds": 6.883000000000003,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 9,
+        "before_cue": 10,
+        "source_start": 58.516999999999996,
+        "source_end": 64.6,
+        "removed_seconds": 6.083000000000003,
+        "original_gap_seconds": 6.883000000000003,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 10,
+        "before_cue": 11,
+        "source_start": 69.995,
+        "source_end": 73.21199999999999,
+        "removed_seconds": 3.216999999999996,
+        "original_gap_seconds": 4.016999999999996,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 11,
+        "before_cue": 12,
+        "source_start": 76.953,
+        "source_end": 80.16999999999999,
+        "removed_seconds": 3.216999999999996,
+        "original_gap_seconds": 4.016999999999996,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 12,
+        "before_cue": 13,
+        "source_start": 83.927,
+        "source_end": 87.14399999999999,
+        "removed_seconds": 3.216999999999996,
+        "original_gap_seconds": 4.016999999999996,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 13,
+        "before_cue": 14,
+        "source_start": 89.56,
+        "source_end": 92.77799999999999,
+        "removed_seconds": 3.218000000000001,
+        "original_gap_seconds": 4.018000000000001,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 14,
+        "before_cue": 15,
+        "source_start": 99.253,
+        "source_end": 102.47,
+        "removed_seconds": 3.2170000000000103,
+        "original_gap_seconds": 4.01700000000001,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 15,
+        "before_cue": 16,
+        "source_start": 105.28200000000001,
+        "source_end": 108.499,
+        "removed_seconds": 3.216999999999996,
+        "original_gap_seconds": 4.016999999999996,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 16,
+        "before_cue": 17,
+        "source_start": 110.51100000000001,
+        "source_end": 113.728,
+        "removed_seconds": 3.216999999999996,
+        "original_gap_seconds": 4.016999999999996,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 17,
+        "before_cue": 18,
+        "source_start": 116.17,
+        "source_end": 119.387,
+        "removed_seconds": 3.2170000000000103,
+        "original_gap_seconds": 4.01700000000001,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 18,
+        "before_cue": 19,
+        "source_start": 121.67,
+        "source_end": 124.887,
+        "removed_seconds": 3.2170000000000103,
+        "original_gap_seconds": 4.01700000000001,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 19,
+        "before_cue": 20,
+        "source_start": 128.265,
+        "source_end": 131.482,
+        "removed_seconds": 3.2170000000000103,
+        "original_gap_seconds": 4.01700000000001,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 20,
+        "before_cue": 21,
+        "source_start": 136.383,
+        "source_end": 139.6,
+        "removed_seconds": 3.216999999999996,
+        "original_gap_seconds": 4.016999999999996,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 21,
+        "before_cue": 22,
+        "source_start": 149.997,
+        "source_end": 154.974,
+        "removed_seconds": 4.976999999999987,
+        "original_gap_seconds": 5.776999999999987,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 22,
+        "before_cue": 23,
+        "source_start": 158.041,
+        "source_end": 163.018,
+        "removed_seconds": 4.977000000000015,
+        "original_gap_seconds": 5.777000000000015,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 23,
+        "before_cue": 24,
+        "source_start": 166.042,
+        "source_end": 171.019,
+        "removed_seconds": 4.977000000000015,
+        "original_gap_seconds": 5.777000000000015,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 24,
+        "before_cue": 25,
+        "source_start": 172.713,
+        "source_end": 177.69,
+        "removed_seconds": 4.977000000000015,
+        "original_gap_seconds": 5.777000000000015,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 25,
+        "before_cue": 26,
+        "source_start": 186.269,
+        "source_end": 191.24599999999998,
+        "removed_seconds": 4.976999999999987,
+        "original_gap_seconds": 5.776999999999987,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 26,
+        "before_cue": 27,
+        "source_start": 198.47400000000002,
+        "source_end": 203.451,
+        "removed_seconds": 4.976999999999987,
+        "original_gap_seconds": 5.776999999999987,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 27,
+        "before_cue": 28,
+        "source_start": 209.62300000000002,
+        "source_end": 214.6,
+        "removed_seconds": 4.976999999999987,
+        "original_gap_seconds": 5.776999999999987,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 28,
+        "before_cue": 29,
+        "source_start": 217.306,
+        "source_end": 222.857,
+        "removed_seconds": 5.550999999999999,
+        "original_gap_seconds": 6.350999999999999,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 29,
+        "before_cue": 30,
+        "source_start": 226.797,
+        "source_end": 232.34799999999998,
+        "removed_seconds": 5.550999999999999,
+        "original_gap_seconds": 6.350999999999999,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 30,
+        "before_cue": 31,
+        "source_start": 241.602,
+        "source_end": 247.153,
+        "removed_seconds": 5.550999999999999,
+        "original_gap_seconds": 6.350999999999999,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 31,
+        "before_cue": 32,
+        "source_start": 253.671,
+        "source_end": 259.22200000000004,
+        "removed_seconds": 5.551000000000028,
+        "original_gap_seconds": 6.3510000000000275,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 32,
+        "before_cue": 33,
+        "source_start": 261.931,
+        "source_end": 267.482,
+        "removed_seconds": 5.550999999999999,
+        "original_gap_seconds": 6.350999999999999,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 33,
+        "before_cue": 34,
+        "source_start": 272.096,
+        "source_end": 277.64700000000005,
+        "removed_seconds": 5.550999999999999,
+        "original_gap_seconds": 6.350999999999999,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 34,
+        "before_cue": 35,
+        "source_start": 284.049,
+        "source_end": 289.6,
+        "removed_seconds": 5.550999999999999,
+        "original_gap_seconds": 6.350999999999999,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 35,
+        "before_cue": 36,
+        "source_start": 293.655,
+        "source_end": 297.39500000000004,
+        "removed_seconds": 3.7400000000000206,
+        "original_gap_seconds": 4.5400000000000205,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 36,
+        "before_cue": 37,
+        "source_start": 300.589,
+        "source_end": 304.329,
+        "removed_seconds": 3.739999999999964,
+        "original_gap_seconds": 4.539999999999964,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 37,
+        "before_cue": 38,
+        "source_start": 311.96799999999996,
+        "source_end": 315.709,
+        "removed_seconds": 3.740999999999997,
+        "original_gap_seconds": 4.540999999999997,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 38,
+        "before_cue": 39,
+        "source_start": 320.501,
+        "source_end": 324.24100000000004,
+        "removed_seconds": 3.7400000000000206,
+        "original_gap_seconds": 4.5400000000000205,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 39,
+        "before_cue": 40,
+        "source_start": 331.854,
+        "source_end": 335.595,
+        "removed_seconds": 3.740999999999997,
+        "original_gap_seconds": 4.540999999999997,
+        "corrected_gap_seconds": 0.8
+      },
+      {
+        "after_cue": 40,
+        "before_cue": 41,
+        "source_start": 340.85999999999996,
+        "source_end": 344.6,
+        "removed_seconds": 3.7400000000000206,
+        "original_gap_seconds": 4.5400000000000205,
+        "corrected_gap_seconds": 0.8
+      }
+    ]
+  },
+  "corrected_cues": [
+    {
+      "start": 0.2,
+      "end": 1.6989999999999998,
+      "text": "Friday afternoon."
+    },
+    {
+      "start": 1.899,
+      "end": 4.458,
+      "text": "Morgan runs a small community learning program."
+    },
+    {
+      "start": 4.458,
+      "end": 10.075,
+      "text": "For this course, we’ll follow Harbor Learning Circle, an illustrative case built from fictional records."
+    },
+    {
+      "start": 10.075,
+      "end": 13.633,
+      "text": "Someone suggests adding a free digital-skills session next month."
+    },
+    {
+      "start": 13.633,
+      "end": 20.272,
+      "text": "Three notes are on the table: an attendance count, a facilitator availability note, and a room-capacity note."
+    },
+    {
+      "start": 21.071999999999996,
+      "end": 25.168999999999993,
+      "text": "An assistant can turn those into a neat recommendation in seconds."
+    },
+    {
+      "start": 25.96899999999999,
+      "end": 28.60299999999999,
+      "text": "But if Morgan asks, ‘Where did this come from?’"
+    },
+    {
+      "start": 29.402999999999988,
+      "end": 31.794999999999984,
+      "text": "a polished paragraph is thin protection."
+    },
+    {
+      "start": 32.594999999999985,
+      "end": 33.78499999999998,
+      "text": "The work needs a trail."
+    },
+    {
+      "start": 34.58499999999998,
+      "end": 39.17999999999998,
+      "text": "Our job today is small: design one preparation role and one receipt."
+    },
+    {
+      "start": 39.97999999999999,
+      "end": 42.92099999999999,
+      "text": "The agent does not decide whether the session happens."
+    },
+    {
+      "start": 43.721000000000004,
+      "end": 46.67800000000001,
+      "text": "It prepares a Session Option Brief for Morgan to review."
+    },
+    {
+      "start": 47.47800000000002,
+      "end": 49.09400000000002,
+      "text": "That distinction matters."
+    },
+    {
+      "start": 49.894000000000034,
+      "end": 55.56900000000003,
+      "text": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+    },
+    {
+      "start": 56.36900000000004,
+      "end": 58.38100000000004,
+      "text": "What exactly begins its work?"
+    },
+    {
+      "start": 59.181000000000054,
+      "end": 60.39300000000006,
+      "text": "What can it read?"
+    },
+    {
+      "start": 61.19300000000007,
+      "end": 62.835000000000065,
+      "text": "What must it hand back?"
+    },
+    {
+      "start": 63.635000000000076,
+      "end": 65.11800000000007,
+      "text": "Who owns the outcome?"
+    },
+    {
+      "start": 65.91800000000008,
+      "end": 68.49600000000007,
+      "text": "These are ordinary management questions."
+    },
+    {
+      "start": 69.29600000000006,
+      "end": 73.39700000000006,
+      "text": "They become more urgent when a tool can produce work while nobody is watching."
+    },
+    {
+      "start": 74.19700000000007,
+      "end": 83.79400000000008,
+      "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’"
+    },
+    {
+      "start": 84.5940000000001,
+      "end": 86.86100000000009,
+      "text": "The trigger is Morgan's request."
+    },
+    {
+      "start": 87.6610000000001,
+      "end": 89.88500000000009,
+      "text": "The output is a draft brief."
+    },
+    {
+      "start": 90.6850000000001,
+      "end": 91.57900000000008,
+      "text": "The manager is Morgan."
+    },
+    {
+      "start": 92.37900000000009,
+      "end": 100.15800000000009,
+      "text": "The measure is whether Morgan can check the claim and source for every recommendation without chasing the agent through a log."
+    },
+    {
+      "start": 100.9580000000001,
+      "end": 107.38600000000012,
+      "text": "The forbidden actions are just as plain: no booking, no announcement, no message to participants, no spending."
+    },
+    {
+      "start": 108.18600000000013,
+      "end": 113.55800000000015,
+      "text": "A useful agent job names the work it finishes and the work it leaves alone."
+    },
+    {
+      "start": 114.35800000000016,
+      "end": 116.26400000000017,
+      "text": "Now attach the receipt."
+    },
+    {
+      "start": 117.06400000000018,
+      "end": 120.20400000000016,
+      "text": "Imagine the brief says the room can hold twenty people."
+    },
+    {
+      "start": 121.00400000000018,
+      "end": 129.4580000000002,
+      "text": "Morgan needs to see which note supplied that number, when the brief was prepared, what the agent actually did, and whether anyone approved it."
+    },
+    {
+      "start": 130.2580000000002,
+      "end": 135.97600000000017,
+      "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+    },
+    {
+      "start": 136.77600000000018,
+      "end": 138.68500000000017,
+      "text": "A blank field stays blank and gets an owner."
+    },
+    {
+      "start": 139.48500000000013,
+      "end": 143.29900000000015,
+      "text": "We never fill a gap with a confident guess."
+    },
+    {
+      "start": 144.0990000000001,
+      "end": 149.70100000000008,
+      "text": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
+    },
+    {
+      "start": 150.50100000000003,
+      "end": 153.75600000000003,
+      "text": "In our case, approval is ‘pending Morgan.’"
+    },
+    {
+      "start": 154.55599999999998,
+      "end": 156.95,
+      "text": "The outcome is ‘draft prepared, no session selected.’"
+    },
+    {
+      "start": 157.74999999999994,
+      "end": 164.58899999999994,
+      "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+    },
+    {
+      "start": 165.3889999999999,
+      "end": 169.38099999999991,
+      "text": "If the source for room capacity is missing, mark the brief blocked."
+    },
+    {
+      "start": 170.18099999999987,
+      "end": 176.99399999999986,
+      "text": "A complete-looking card without a source can move bad information faster than an obviously unfinished one."
+    },
+    {
+      "start": 177.7939999999998,
+      "end": 182.2589999999998,
+      "text": "The receipt makes that gap visible before anyone treats the draft as a decision."
+    },
+    {
+      "start": 183.05899999999974,
+      "end": 184.07599999999974,
+      "text": "Take a moment."
+    },
+    {
+      "start": 184.88499999999976,
+      "end": 187.41199999999975,
+      "text": "Picture one workflow in your own work."
+    },
+    {
+      "start": 188.22099999999972,
+      "end": 191.35599999999977,
+      "text": "Keep this exercise on paper or in a local draft."
+    },
+    {
+      "start": 192.16499999999974,
+      "end": 194.67799999999977,
+      "text": "Use a fictional or approved example."
+    },
+    {
+      "start": 195.48699999999974,
+      "end": 198.03499999999974,
+      "text": "Do not use private operational data."
+    },
+    {
+      "start": 198.84399999999977,
+      "end": 202.24999999999972,
+      "text": "What is the one useful output, and who would have to defend it?"
+    },
+    {
+      "start": 203.05899999999974,
+      "end": 205.53699999999975,
+      "text": "Fill the Job and Receipt boxes."
+    },
+    {
+      "start": 205.78699999999975,
+      "end": 210.43899999999974,
+      "text": "Name the trigger, permitted inputs, output, human manager, success check, and three forbidden actions."
+    },
+    {
+      "start": 210.68899999999974,
+      "end": 213.91799999999972,
+      "text": "Then fill the nine receipt fields for one imaginary run."
+    },
+    {
+      "start": 214.16799999999972,
+      "end": 222.12299999999976,
+      "text": "If you cannot name a source, approval state, or rollback, write ‘unknown’ and the person who must resolve it."
+    },
+    {
+      "start": 222.37299999999976,
+      "end": 225.29899999999975,
+      "text": "Do not open a real system to complete this exercise."
+    },
+    {
+      "start": 225.54899999999975,
+      "end": 232.60399999999976,
+      "text": "The point is to see the shape of the work before asking a tool to do it."
+    },
+    {
+      "start": 343.05899999999974,
+      "end": 346.98399999999975,
+      "text": "Save those two boxes in your Agentified Operating File as a draft."
+    },
+    {
+      "start": 348.87899999999973,
+      "end": 355.0039999999998,
+      "text": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+    },
+    {
+      "start": 356.8989999999998,
+      "end": 359.64499999999975,
+      "text": "Next we will name the decision Morgan actually owns."
+    }
+  ],
+  "boundaries": {
+    "provider_calls": 0,
+    "narration_rewritten": false,
+    "source_audio_replaced": false,
+    "presenter_footage_replaced": false,
+    "illustrations_replaced": false,
+    "closing_copy_rewritten": false,
+    "youtube_style_end_screen_added": true,
+    "production_binding_changed": false
+  }
+}
