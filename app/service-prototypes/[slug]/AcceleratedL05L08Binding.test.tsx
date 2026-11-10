@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { AcceleratedLearningPlan, approvedL05L08Media, l01Media, l02Media, l03Media, lessons } from './AcceleratedLearningPlan'
+import { visualParityBindings, AcceleratedLearningPlan, approvedL05L08Media, l01Media, l02Media, l03Media, lessons } from './AcceleratedLearningPlan'
 
 const source = 'artifacts/accelerated-l05-l08-native-composite-2026-11-04'
 const receipt = JSON.parse(readFileSync('docs/accelerated-course-modules/l05-l08-learner-binding/human-qa-approval-receipt.json', 'utf8'))
@@ -54,20 +54,19 @@ describe('Accelerated L05–L08 learner binding', () => {
     render(<AcceleratedLearningPlan />)
     for (const item of lessons.filter((lesson) => Number(lesson.id.slice(1)) >= 13)) {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${item.id}:`) }))
-      expect(screen.getByRole('button', { name: new RegExp(`Watch ${item.id} guided video`) })).toBeEnabled()
+      expect(screen.getByLabelText(`${item.id} ${item.title} guided video`)).toHaveAttribute('controls')
     }
   })
 
-  it.each(['L05', 'L06', 'L07', 'L08'] as const)('plays %s with captions and transcript, then returns to progress', (id) => {
+  it.each(['L05', 'L06', 'L07', 'L08'] as const)('plays %s with captions and transcript, then keeps progress available', (id) => {
+    localStorage.clear()
     render(<AcceleratedLearningPlan />)
     const item = lessons.find((lesson) => lesson.id === id)!
     fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${id}:`) }))
-    expect(screen.getByText(`${id} guided video is ready`)).toBeInTheDocument()
     expect(screen.queryByText(/approved workshop visual|Storyboard preview · representative frame|Progress is for this preview only/)).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(`Watch ${id} guided video`) }))
     const video = screen.getByLabelText(`${id} ${item.title} guided video`)
     expect(video).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', approvedL05L08Media[id].video)
+    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === id)?.videoPath)
     expect(document.querySelector('video track')).toHaveAttribute('src', approvedL05L08Media[id].captions)
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
@@ -77,8 +76,6 @@ describe('Accelerated L05–L08 learner binding', () => {
     expect(track.mode).toBe('disabled')
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
     expect(screen.getByText(approvedL05L08Media[id].transcript.cues[0].text)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
-    expect(screen.queryByLabelText(`${id} ${item.title} guided video`)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
   })

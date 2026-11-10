@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { createRequire } from 'node:module'
-import { AcceleratedLearningPlan, reviewL13L16Media, lessons } from './AcceleratedLearningPlan'
+import { visualParityBindings, AcceleratedLearningPlan, reviewL13L16Media, lessons } from './AcceleratedLearningPlan'
 
 const require = createRequire(import.meta.url)
 const originalApproval = require('../../../docs/accelerated-course-modules/l13-l16-learner-binding/human-qa-approval-receipt.json')
@@ -11,6 +11,7 @@ const { verifyAcceleratedL13L16Binding } = require('../../../scripts/verify-acce
 const nextConfig = require('../../../next.config.js')
 
 describe('Accelerated L13–L16 correction review binding', () => {
+  beforeEach(() => localStorage.clear())
   it('preserves historical approval and binds the exact approved correction artifacts', () => {
     expect(verifyAcceleratedL13L16Binding()).toBe(true)
     expect(originalApproval.approval_source).toMatchObject({ reviewed_pr: 1206, merged_source_commit: '6814e6a5b01ab75555f5de46742a0a715bf9dfb5', reviewer: 'Vambah Sillah' })
@@ -42,15 +43,14 @@ describe('Accelerated L13–L16 correction review binding', () => {
     }
   })
 
-  it.each(['L13', 'L14', 'L15', 'L16'] as const)('opens %s with captions and transcript, returns and records progress', (id) => {
+  it.each(['L13', 'L14', 'L15', 'L16'] as const)('plays %s directly with captions and transcript, then records progress', (id) => {
     render(<AcceleratedLearningPlan />)
     const lesson = lessons.find((item) => item.id === id)!
     fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${id}:.*ready`) }))
-    expect(screen.getByText(`${id} guided video is ready`)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(`Watch ${id} guided video`) }))
+    expect(screen.getByRole('region', { name: `${id} guided video` })).toBeInTheDocument()
     const video = screen.getByLabelText(`${id} ${lesson.title} guided video`)
     expect(video).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', reviewL13L16Media[id].video)
+    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === id)?.videoPath)
     expect(document.querySelector('video track')).toHaveAttribute('src', reviewL13L16Media[id].captions)
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
@@ -60,7 +60,6 @@ describe('Accelerated L13–L16 correction review binding', () => {
     expect(track.mode).toBe('disabled')
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
     expect(screen.getByText(reviewL13L16Media[id].transcript.cues[0].text)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
   })

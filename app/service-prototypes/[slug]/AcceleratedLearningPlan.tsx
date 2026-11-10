@@ -25,8 +25,10 @@ import { GUEST_PROGRESS_KEY, validateLearningState, type LearningState } from '@
 import { supabase } from '@/lib/supabase'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 import endScreenBindings from '@/lib/accelerated-end-screen-bindings.json'
+import visualParityBindings from '@/lib/accelerated-visual-parity-bindings.json'
 import CompletionCredential from '@/components/member/CompletionCredential'
 export { lessons } from '@/lib/accelerated-decision-file'
+export { default as visualParityBindings } from '@/lib/accelerated-visual-parity-bindings.json'
 
 export const l01Media = {
   video: '/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4',
@@ -142,8 +144,9 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         ? { ...l03Media, transcript: l03Transcript }
         : approvedBatchMedia
   const endBinding = endScreenBindings.lessons.find((item) => item.lessonId === lesson.id)
+  const visualBinding = visualParityBindings.lessons.find((item) => item.lessonId === lesson.id)
   const nextBinding = endScreenBindings.lessons.find((item) => item.lessonId === next?.id)
-  const endBindingMatches = Boolean(endBinding && lessonMedia && endBinding.videoPath === lessonMedia.video && endBinding.captionPath === lessonMedia.captions && endBinding.posterPath === posterUrl && (!next || nextBinding?.posterPath === lessonPosters[next.id as keyof typeof lessonPosters]))
+  const endBindingMatches = Boolean(endBinding && visualBinding && lessonMedia && endBinding.videoPath === lessonMedia.video && endBinding.videoSha256 === visualBinding.sourceVideoSha256 && endBinding.captionPath === lessonMedia.captions && endBinding.captionSha256 === visualBinding.captionSha256 && endBinding.posterPath === posterUrl && (!next || nextBinding?.posterPath === lessonPosters[next.id as keyof typeof lessonPosters]))
   const showEndScreen = endedLesson === lesson.id && endBindingMatches
   const handleVideoEnded = () => {
     const video = videoRef.current
@@ -460,7 +463,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
           <div className={styles.videoStage} data-ended={showEndScreen} style={{ backgroundImage: `url(${posterUrl})` }}><video key={lesson.id} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => setEndedLesson(null)} onEmptied={() => { setPosterRevealed(false); setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
-            <source src={lessonMedia.video} type="video/mp4" />
+            <source src={visualBinding?.videoPath ?? ''} type="video/mp4" />
             <track kind="captions" src={lessonMedia.captions} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
           </video>

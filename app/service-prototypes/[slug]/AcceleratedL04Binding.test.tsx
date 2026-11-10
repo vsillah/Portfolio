@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { AcceleratedLearningPlan, approvedL05L08Media, l01Media, l02Media, l03Media, l04Media, lessons } from './AcceleratedLearningPlan'
+import { visualParityBindings, AcceleratedLearningPlan, approvedL05L08Media, l01Media, l02Media, l03Media, l04Media, lessons } from './AcceleratedLearningPlan'
 import { validateApproval, validateReconciliation, verifyL04Binding } from '../../../scripts/verify-accelerated-l04-binding.mjs'
 
 const dir = 'docs/accelerated-course-modules/l04-learner-binding'
@@ -42,18 +42,16 @@ describe('Accelerated L04 approved learner binding', () => {
     expect(() => validateReconciliation({ ...reconciliation, bindings: { ...reconciliation.bindings, approved_srt_sha256: 'wrong' } }, packet)).toThrow(/mismatched/)
   })
 
-  it('plays L04 with captions and transcript, returns to progress, preserves L01–L03 and L05–L08, and preserves L09–L16 readiness', () => {
+  it('plays L04 with captions and transcript, preserves L01–L03 and L05–L08, and preserves L09–L16 readiness', () => {
     expect(l01Media.video).toContain('/l01/')
     expect(l02Media.video).toContain('/l02/')
     expect(l03Media.video).toContain('/l03/')
     expect(Object.keys(approvedL05L08Media)).toEqual(['L05', 'L06', 'L07', 'L08'])
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /L04: Build small; keep personas alive/ }))
-    expect(screen.getByText('L04 guided video is ready')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Watch L04 guided video/ }))
     const video = screen.getByLabelText('L04 Build small; keep personas alive guided video')
     expect(video).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', l04Media.video)
+    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === 'L04')?.videoPath)
     expect(document.querySelector('video track')).toHaveAttribute('src', l04Media.captions)
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
@@ -63,8 +61,6 @@ describe('Accelerated L04 approved learner binding', () => {
     expect(track.mode).toBe('disabled')
     fireEvent.click(screen.getByText('Read along with L04 transcript'))
     expect(screen.getByText(l04Media.transcript.cues[0].text)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
-    expect(screen.queryByLabelText('L04 Build small; keep personas alive guided video')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
     for (const lesson of lessons.slice(8)) {

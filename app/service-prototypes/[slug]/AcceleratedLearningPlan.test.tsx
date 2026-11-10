@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
+import { visualParityBindings, AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
 import { DECISION_FILE_STORAGE_KEY, emptyDecisionFile } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
@@ -242,7 +242,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L09: Map the decision theater/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'ready')
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', l01Media.video)
+    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === 'L01')?.videoPath)
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('poster', lessonPosters.L01)
     expect(document.querySelector('video track')).toHaveAttribute('src', l01Media.captions)
     expect(screen.getByRole('button', { name: 'English captions on' })).toHaveAttribute('aria-pressed', 'true')
@@ -287,7 +287,7 @@ describe('Accelerated learning plan', () => {
       expect(video).toHaveAttribute('aria-description', expect.stringContaining(`${item.id} ${item.title} cover`))
       expect(video).toHaveAttribute('preload', 'metadata')
       expect(video).toHaveAttribute('controls')
-      expect(video.querySelector('source')).toHaveAttribute('src', expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
+      expect(video.querySelector('source')).toHaveAttribute('src', visualParityBindings.lessons.find((binding) => binding.lessonId === item.id)?.videoPath)
       expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
     }
   })
@@ -377,7 +377,7 @@ describe('Accelerated learning plan', () => {
     fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
     expect(screen.queryByLabelText('L01 Build smarter, stay human guided video')).not.toBeInTheDocument()
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', l02Media.video)
+    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === 'L02')?.videoPath)
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('poster', lessonPosters.L02)
     expect(document.querySelector('video track')).toHaveAttribute('src', l02Media.captions)
     fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery, ready/ }))
