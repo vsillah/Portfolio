@@ -1,7 +1,9 @@
+import type { Session } from '@supabase/supabase-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   signInWithOAuth: vi.fn(async () => ({ data: { provider: 'google' }, error: null })),
+  refreshSession: vi.fn(),
 }))
 
 vi.mock('./supabase', () => ({
@@ -9,6 +11,7 @@ vi.mock('./supabase', () => ({
     auth: {
       getUser: vi.fn(),
       getSession: vi.fn(),
+      refreshSession: mocks.refreshSession,
       signUp: vi.fn(),
       signInWithPassword: vi.fn(),
       signOut: vi.fn(),
@@ -20,7 +23,7 @@ vi.mock('./supabase', () => ({
   },
 }))
 
-import { getStoredAuthNextPath, normalizeAuthRedirectPath, signInWithOAuth } from './auth'
+import { getStoredAuthNextPath, normalizeAuthRedirectPath, refreshCurrentSession, signInWithOAuth } from './auth'
 
 describe('auth redirect helpers', () => {
   beforeEach(() => {
@@ -71,5 +74,40 @@ describe('auth redirect helpers', () => {
 
     expect(sessionStorage.getItem('auth_next_path')).toBeNull()
     expect(localStorage.getItem('auth_next_path')).toBeNull()
+  })
+})
+
+describe('refreshCurrentSession', () => {
+  beforeEach(() => {
+    mocks.refreshSession.mockReset()
+  })
+
+  it('returns null when refresh reports an error, even if a session payload is present', async () => {
+    mocks.refreshSession.mockResolvedValue({
+      data: { session: { access_token: 'partial-token' }, user: null },
+      error: { message: 'refresh failed' },
+    })
+
+    expect(await refreshCurrentSession()).toBeNull()
+    expect(mocks.refreshSession).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns the refreshed session only when refresh reports no error', async () => {
+    const refreshed = { access_token: 'fresh-token' } as Session
+    mocks.refreshSession.mockResolvedValue({
+      data: { session: refreshed, user: null },
+      error: null,
+    })
+
+    expect(await refreshCurrentSession()).toBe(refreshed)
+  })
+
+  it('returns null when refresh succeeds without a session', async () => {
+    mocks.refreshSession.mockResolvedValue({
+      data: { session: null, user: null },
+      error: null,
+    })
+
+    expect(await refreshCurrentSession()).toBeNull()
   })
 })

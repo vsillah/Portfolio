@@ -74,4 +74,104 @@ describe('fetchWithSessionRecovery', () => {
     expect(response).toBeNull()
     expect(fetchImpl).not.toHaveBeenCalled()
   })
+
+  it('returns the original 401 when refresh cannot produce a session', async () => {
+    const denied = new Response(JSON.stringify({ error: 'expired' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const fetchImpl = vi.fn().mockResolvedValue(denied)
+    const refreshSession = vi.fn().mockResolvedValue(null)
+
+    const response = await fetchWithSessionRecovery('/api/admin/social-content/item-1', { cache: 'no-store' }, {
+      fetchImpl,
+      getSession: vi.fn().mockResolvedValue(session('stale-token')),
+      refreshSession,
+    })
+
+    expect(response).toBe(denied)
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(refreshSession).toHaveBeenCalledTimes(1)
+    await expect(response?.json()).resolves.toEqual({ error: 'expired' })
+  })
+
+  it('does not treat a refresh outage as a missing session', async () => {
+    const denied = new Response(null, { status: 401 })
+    const fetchImpl = vi.fn().mockResolvedValue(denied)
+    const failure = new Error('refresh unavailable')
+    const refreshSession = vi.fn().mockRejectedValue(failure)
+
+    await expect(fetchWithSessionRecovery('/detail', undefined, {
+      fetchImpl,
+      getSession: vi.fn().mockResolvedValue(session('stale-token')),
+      refreshSession,
+    })).rejects.toBe(failure)
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(refreshSession).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not refresh forbidden or server failures', async () => {
+    for (const status of [403, 500]) {
+      const denied = new Response(null, { status })
+      const fetchImpl = vi.fn().mockResolvedValue(denied)
+      const refreshSession = vi.fn()
+
+      const response = await fetchWithSessionRecovery('/detail', undefined, {
+        fetchImpl,
+        getSession: vi.fn().mockResolvedValue(session('current-token')),
+        refreshSession,
+      })
+
+      expect(response).toBe(denied)
+      expect(fetchImpl).toHaveBeenCalledTimes(1)
+      expect(refreshSession).not.toHaveBeenCalled()
+    }
+  })
+
+  it('retries a rejected mutation with the replacement token and the original request', async () => {
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+    const refreshSession = vi.fn().mockResolvedValue(session('replacement-token'))
+    const detailUrl = new URL('https://portfolio.test/api/admin/social-content/item-1')
+    const body = JSON.stringify({ action: 'load' })
+
+    const response = await fetchWithSessionRecovery(detailUrl, {
+      method: 'POST',
+      body,
+      cache: 'no-store',
+      headers: {
+        Authorization: 'Bearer caller-supplied',
+        'Content-Type': 'application/json',
+        'X-Request-Id': 'detail-retry',
+      },
+    }, {
+      fetchImpl,
+      getSession: vi.fn().mockResolvedValue(session('stale-token')),
+      refreshSession,
+    })
+
+    expect(response?.status).toBe(204)
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(refreshSession).toHaveBeenCalledTimes(1)
+    const expectedTokens = ['Bearer stale-token', 'Bearer replacement-token']
+    fetchImpl.mock.calls.forEach((call, index) => {
+      const [input, init] = call as [URL, RequestInit]
+      expect(input).toBe(detailUrl)
+      expect(init.method).toBe('POST')
+      expect(init.body).toBe(body)
+      expect(init.cache).toBe('no-store')
+      const headers = new Headers(init.headers)
+      expect(authorizationValues(headers)).toEqual([expectedTokens[index]])
+      expect(headers.get('Content-Type')).toBe('application/json')
+      expect(headers.get('X-Request-Id')).toBe('detail-retry')
+    })
+  })
 })
+
+function authorizationValues(headers: Headers): string[] {
+  return [...headers.entries()]
+    .filter(([name]) => name.toLowerCase() === 'authorization')
+    .map(([, value]) => value)
+}
