@@ -28,6 +28,7 @@ for (const [label,viewport] of [['desktop',{width:1280,height:800}],['mobile',{w
       node.addEventListener('seeked',()=>{clearTimeout(limit);node.pause();resolve()}, {once:true})
       node.currentTime=time
     }),seconds)
+    await page.waitForTimeout(800)
     await page.screenshot({path:path.join(out,`${label}-${id.toLowerCase()}-scene.png`),fullPage:false})
     await page.waitForTimeout(1700)
     if (id==='L16') {
