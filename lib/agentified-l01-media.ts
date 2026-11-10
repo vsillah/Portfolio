@@ -1,9 +1,9 @@
 /** Provider-free L01 continuity correction; historical approved assets remain preserved. */
 export const agentifiedL01Media = {
-  video: '/agentified/lessons/l01/continuous-7a2c8636/agentified-l01-continuous-narration-composite.mp4',
-  captions: '/agentified/lessons/l01/continuous-7a2c8636/agentified-l01-continuous-narration-captions.vtt',
+  video: '/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-composite.mp4',
+  captions: '/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-captions.vtt',
   durationSeconds: 378.059,
-  compositeSha256: '7a2c8636c8cd0e6d7f324328df170a3dc9458d07db9c088cbd7af39f98cd066d',
+  compositeSha256: '10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14',
   srtSha256: 'c361084660e2db557cdd7b8a23301306a0a22e92ad2d6a9bfc06b76ee34ea640',
   vttSha256: '6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e',
   narrationSha256: '45ab02f0ade43d57c51d2d634991cf8f9616b31299fa611b872e5c50978362c6',

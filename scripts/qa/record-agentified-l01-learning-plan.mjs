@@ -17,7 +17,7 @@ async function inspect(page, label) {
   await video.waitFor({ state: 'visible' })
   const media = await video.evaluate((node) => ({ duration: node.duration, source: node.querySelector('source')?.getAttribute('src'), captions: node.querySelector('track')?.getAttribute('src'), trackDefault: node.querySelector('track')?.default }))
   // The semantic timeline ends at 378.059s; the served MP4 includes a 226ms AAC encoder tail.
-  if (Math.abs(media.duration - 378.285) > 0.05 || !media.source?.includes('illustrated-91279f9a') || !media.captions?.includes('continuous-7a2c8636') || !media.trackDefault) throw new Error(`${label} media mismatch: ${JSON.stringify(media)}`)
+  if (Math.abs(media.duration - 378.285) > 0.05 || !media.source?.includes('illustrated-47a79d72') || !media.captions?.includes('continuous-10f9ea26') || !media.trackDefault) throw new Error(`${label} media mismatch: ${JSON.stringify(media)}`)
   if (!(await page.getByText('Ready · 06:18').isVisible())) throw new Error(`${label} L01 not ready`)
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2)
   if (overflow) throw new Error(`${label} horizontal overflow`)
@@ -50,9 +50,9 @@ try {
         await page.waitForTimeout(6500)
         await video.evaluate((node) => node.pause())
       }
-      await video.evaluate((node) => { node.pause(); node.currentTime = 356.5 })
+      await video.evaluate((node) => { node.pause(); node.currentTime = 357.5 })
       await video.evaluate((node) => node.play())
-      await page.waitForTimeout(3500)
+      await page.waitForTimeout(13000)
       await video.evaluate((node) => node.pause())
       await page.getByText('Read along with L01 transcript').click()
       if (!(await page.getByText('Spoken audio').isVisible())) throw new Error(`${label} transcript missing`)

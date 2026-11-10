@@ -20,13 +20,21 @@ describe('approved Agentified L01 continuous-narration binding', () => {
     expect(digest(`public${media.captions}`)).toBe(media.vttSha256)
 
     const receipt = JSON.parse(readFileSync(`${base}validation-receipt.json`, 'utf8'))
+    expect(digest(receipt.continuity.end_screen.image_path)).toBe(receipt.continuity.end_screen.image_sha256)
+    expect(digest(receipt.continuity.end_screen.next_lesson_poster_path)).toBe(receipt.continuity.end_screen.next_lesson_poster_sha256)
     expect(receipt.corrected_composite.duration_seconds).toBeCloseTo(media.durationSeconds, 3)
+    expect(receipt.continuity.end_screen.start).toBeCloseTo(359.645, 3)
+    expect(receipt.continuity.end_screen.end).toBeCloseTo(378.059, 3)
+    expect(receipt.continuity.end_screen.duration_seconds).toBeCloseTo(18.414, 3)
     expect(receipt.continuity).toMatchObject({
       ordinary_gap_target_seconds: 0.8,
       ordinary_gap_limit_seconds: 2.5,
       removed_pause_count: 36,
       maximum_corrected_ordinary_gap_seconds: 1.8949999999999818,
       guided_work_window: { preserved: true },
+      end_screen: {
+        treatment: 'branded lesson-complete screen with course progress and exact next-lesson cover',
+      },
     })
     expect(receipt.boundaries).toMatchObject({
       provider_calls: 0,
@@ -34,6 +42,8 @@ describe('approved Agentified L01 continuous-narration binding', () => {
       source_audio_replaced: false,
       presenter_footage_replaced: false,
       illustrations_replaced: false,
+      closing_copy_rewritten: false,
+      youtube_style_end_screen_added: true,
     })
   })
 

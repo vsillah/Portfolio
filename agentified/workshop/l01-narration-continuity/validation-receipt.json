@@ -9,17 +9,17 @@
     "duration_seconds": 540
   },
   "source_illustrated_composite": {
-    "path": "agentified/workshop/presentation-illustration-audit/composites/L01-illustrated-review.mp4",
+    "path": "public/agentified/lessons/l01/illustrated-7365b3dc/agentified-l01-illustrated-composite.mp4",
     "sha256": "7365b3dca329faaf035e9e59c99a51fd437ad944e2c6a57e5192542b1f64d6ea"
   },
   "corrected_composite": {
     "path": "agentified/workshop/l01-narration-continuity/agentified-l01-continuous-narration-composite.mp4",
-    "sha256": "7a2c8636c8cd0e6d7f324328df170a3dc9458d07db9c088cbd7af39f98cd066d",
+    "sha256": "10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14",
     "duration_seconds": 378.05899999999997
   },
   "corrected_illustrated_composite": {
     "path": "agentified/workshop/l01-narration-continuity/agentified-l01-illustrated-composite.mp4",
-    "sha256": "91279f9acb31df7562d7b7f20d2f7e384dec69df514de09019097c596f09dfcf",
+    "sha256": "47a79d7279e11477ad55f3f4beefbe177a71d8cc7f725aff8067fb97e80783e6",
     "duration_seconds": 378.05899999999997
   },
   "captions": {
@@ -40,6 +40,16 @@
       "end": 343.05899999999974,
       "duration_seconds": 110.45499999999998,
       "preserved": true
+    },
+    "end_screen": {
+      "start": 359.64499999999975,
+      "end": 378.05899999999997,
+      "duration_seconds": 18.414000000000215,
+      "image_path": "agentified/workshop/l01-narration-continuity/agentified-l01-end-screen.png",
+      "image_sha256": "fa20788e505b8f807cd6fb65be2f3b4a559417f4fe7e629fba9b92d320bb3929",
+      "next_lesson_poster_path": "public/agentified/posters/l02-poster.webp",
+      "next_lesson_poster_sha256": "3977814a4731bbcb60dd4d17d22d640c83cbdfad9f434fe348d6aa5fd8eb84a1",
+      "treatment": "branded lesson-complete screen with course progress and exact next-lesson cover"
     },
     "removals": [
       {
@@ -651,6 +661,8 @@
     "source_audio_replaced": false,
     "presenter_footage_replaced": false,
     "illustrations_replaced": false,
+    "closing_copy_rewritten": false,
+    "youtube_style_end_screen_added": true,
     "production_binding_changed": false
   }
 }
