@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "lessons": [
+    {
+      "lessonId": "L01",
+      "videoPath": "/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+      "videoSha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "captionPath": "/accelerated/lessons/l01/approved-ee09bf72/l01-approved-captions.vtt",
+      "captionSha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f",
+      "finalCaptionEnd": "09:00.000",
+      "finalCaptionText": "build on it.",
+      "posterPath": "/accelerated/posters/l01-poster.webp",
+      "posterSha256": "bd83a117c1c80c7579b9b25b7da5f63c95e462a5a0808d58b1a66acb7e27d72d"
+    },
+    {
+      "lessonId": "L02",
+      "videoPath": "/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+      "videoSha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "captionPath": "/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "captionSha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "finalCaptionEnd": "00:10:00.000",
+      "finalCaptionText": "You have done the harder thing today: made one choice clear enough to challenge.",
+      "posterPath": "/accelerated/posters/l02-poster.webp",
+      "posterSha256": "1497219fd502fe450e0fe9db04b821eaf3e5b9620e2f1b6652e1fa072bec0044"
+    },
+    {
+      "lessonId": "L03",
+      "videoPath": "/accelerated/lessons/l03/approved-02b9c3ea/accelerated-l03-native-composite.mp4",
+      "videoSha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "captionPath": "/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "captionSha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "finalCaptionEnd": "00:09:00.000",
+      "finalCaptionText": "We are going to use it again.",
+      "posterPath": "/accelerated/posters/l03-poster.webp",
+      "posterSha256": "6d94f3ef74cec70657cc24e4919ca0f6824933923f6635172f511f852b834f19"
+    },
+    {
+      "lessonId": "L04",
+      "videoPath": "/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+      "videoSha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "captionPath": "/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "captionSha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "finalCaptionEnd": "00:10:00.000",
+      "finalCaptionText": "That is how we move faster without leaving the person behind.",
+      "posterPath": "/accelerated/posters/l04-poster.webp",
+      "posterSha256": "4219aa12a50507b0c42ce1a258adf0fbc25293f3f8cdb69154bf9fc9e0060058"
+    },
+    {
+      "lessonId": "L05",
+      "videoPath": "/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+      "videoSha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "captionPath": "/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "captionSha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "finalCaptionEnd": "00:10:00.000",
+      "finalCaptionText": "Keep the ID in view.",
+      "posterPath": "/accelerated/posters/l05-poster.webp",
+      "posterSha256": "0122f6a4537bd778f2f889a40fca70a0d0355b8106bfd6eec3b207c674c92e1a"
+    },
+    {
+      "lessonId": "L06",
+      "videoPath": "/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+      "videoSha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "captionPath": "/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "captionSha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "finalCaptionEnd": "00:11:00.000",
+      "finalCaptionText": "If they cannot, the line still has a gap to repair.",
+      "posterPath": "/accelerated/posters/l06-poster.webp",
+      "posterSha256": "a01f82298c89f8607c9dc70c2cd8f97f241481d33fa9ff702aabb9ab2fb64674"
+    },
+    {
+      "lessonId": "L07",
+      "videoPath": "/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4",
+      "videoSha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "captionPath": "/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "captionSha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "finalCaptionEnd": "00:10:00.000",
+      "finalCaptionText": "The date is useful because someone has agreed to look, listen, and decide.",
+      "posterPath": "/accelerated/posters/l07-poster.webp",
+      "posterSha256": "5348c8ffbae40b6e1548b7e40d9d43ba16967d2ad1ece65fe6974c9cec7f7456"
+    },
+    {
+      "lessonId": "L08",
+      "videoPath": "/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+      "videoSha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "captionPath": "/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "captionSha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "finalCaptionEnd": "00:12:00.000",
+      "finalCaptionText": "Let the unanswered question remain visible there.",
+      "posterPath": "/accelerated/posters/l08-poster.webp",
+      "posterSha256": "89e9903ccbc1af3998f5e06f26ff70588d7f7f3f2a6f43affa5691d5970c0cdd"
+    },
+    {
+      "lessonId": "L09",
+      "videoPath": "/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+      "videoSha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "captionPath": "/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "captionSha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "finalCaptionEnd": "00:11:00.000",
+      "finalCaptionText": "It must tell the truth about what we know, what we hope to learn, and what we would give up to run the test.",
+      "posterPath": "/accelerated/posters/l09-poster.webp",
+      "posterSha256": "05cc01c2512fef8b808ef2901ac51a666eb2d7ca58860f803e9d645e95584393"
+    },
+    {
+      "lessonId": "L10",
+      "videoPath": "/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+      "videoSha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "captionPath": "/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "captionSha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "finalCaptionEnd": "00:09:00.000",
+      "finalCaptionText": "A decision brief should make learning possible, even when the answer is inconvenient.",
+      "posterPath": "/accelerated/posters/l10-poster.webp",
+      "posterSha256": "23e00a160177c2a0fd1fe7e142f6fa79b312e85f3c457b4b16e551dedfe311e8"
+    },
+    {
+      "lessonId": "L11",
+      "videoPath": "/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+      "videoSha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "captionPath": "/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "captionSha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "finalCaptionEnd": "00:10:00.000",
+      "finalCaptionText": "The boundary between those two sources matters.",
+      "posterPath": "/accelerated/posters/l11-poster.webp",
+      "posterSha256": "40becd9de93aa0da2931cdb6542c0414abf80fa468073138ac10faccec5a8f43"
+    },
+    {
+      "lessonId": "L12",
+      "videoPath": "/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+      "videoSha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "captionPath": "/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "captionSha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "finalCaptionEnd": "00:11:00.000",
+      "finalCaptionText": "A clear unknown is a better starting point than a polished claim that no one can trace.",
+      "posterPath": "/accelerated/posters/l12-poster.webp",
+      "posterSha256": "efa6782801a66b0cbea9a1b09d274b6ea45edbdcae5c17b28fe8f54de274abe0"
+    },
+    {
+      "lessonId": "L13",
+      "videoPath": "/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+      "videoSha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "captionPath": "/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "captionSha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "finalCaptionEnd": "00:11:00.000",
+      "finalCaptionText": "It tells the next reviewer where a decision is still exposed.",
+      "posterPath": "/accelerated/posters/l13-poster.webp",
+      "posterSha256": "dc952787d2bc803aad0cccab9e2701d9b4d297df28051b9fee30a6bab56754a2"
+    },
+    {
+      "lessonId": "L14",
+      "videoPath": "/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+      "videoSha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "captionPath": "/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "captionSha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "finalCaptionEnd": "00:08:00.000",
+      "finalCaptionText": "At scale, the same evidence will need to survive more meetings, more owners, and more chances for its meaning to drift.",
+      "posterPath": "/accelerated/posters/l14-poster.webp",
+      "posterSha256": "e248769b547ad9528a1fb3138dd13e5292c0a2594db403a25a987b103c4c4375"
+    },
+    {
+      "lessonId": "L15",
+      "videoPath": "/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+      "videoSha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "captionPath": "/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "captionSha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "finalCaptionEnd": "00:12:00.000",
+      "finalCaptionText": "The aim is a repeatable learning practice that can carry disagreement and correction as well as success.",
+      "posterPath": "/accelerated/posters/l15-poster.webp",
+      "posterSha256": "c8774e3e2829ab5c3850df5511bd8e475bcc3cf0b24db93261216b672cc2c6f0"
+    },
+    {
+      "lessonId": "L16",
+      "videoPath": "/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+      "videoSha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "captionPath": "/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "captionSha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "finalCaptionEnd": "00:08:00.000",
+      "finalCaptionText": "Write the answer, and the next loop begins.",
+      "posterPath": "/accelerated/posters/l16-poster.webp",
+      "posterSha256": "6d4efe4618fdc920b47af6d65d1e0424845036cdd70d7e6cebbb67cf75f64cf6"
+    }
+  ]
+}
