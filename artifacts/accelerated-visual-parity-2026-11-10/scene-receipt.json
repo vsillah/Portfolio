@@ -1,0 +1,1361 @@
+{
+  "schema_version": 1,
+  "source_manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "scene_concepts_sha256": "e1e47e35598c116ec1bfb8733c79871c31125bb3985d1a3bbd217a8781d0b38d",
+  "source_art_sha256": {
+    "sam": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+    "signals": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+    "alignment": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+    "momentum": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
+    "cover": "465f44c2ba34122516a91ebf3f4cc1398ffe6cb2c4ed3062ff5074ac24fa5765"
+  },
+  "scene_count": 98,
+  "scenes": [
+    {
+      "scene_id": "L01-01",
+      "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "start_seconds": 0,
+      "end_seconds": 75,
+      "visual_layout": "sheet",
+      "title": "The blank document",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-01.png",
+      "frame_sha256": "befa93be7d95628598d8fb61d2b89a24cfbfdcb26a7aa352757d3d76496b4375",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L01-01.png",
+      "presenter_frame_sha256": "ff617e8b9a320d13d00db81ce036a093afe8b0463fecee75288eb87bea3fedd6"
+    },
+    {
+      "scene_id": "L01-02",
+      "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "start_seconds": 75,
+      "end_seconds": 165,
+      "visual_layout": "flow",
+      "title": "What a product system does",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-02.png",
+      "frame_sha256": "ff604899b29bf7b2bcafa50b5930ca3e69358b4ddf72f8540b81327c737e7fd5",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L01-02.png",
+      "presenter_frame_sha256": "fea7f605e035c69dd8026a1992beef7b3027e31bc7e8744c24e38af4b52ca5ce",
+      "segments": [
+        {
+          "kind": "sam",
+          "duration_seconds": 15,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-02-sam.png",
+          "frame_sha256": "03b64a4c5e3da92ba900f7f725ffed06055f62f8db8d3c7bb0e2d6f0d723ec8a"
+        },
+        {
+          "kind": "signals",
+          "duration_seconds": 15,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-02-signals.png",
+          "frame_sha256": "385cc1a0fe6876b54d85e7832714cfc40e5969c944e72fa9a33437c428f0ff8c"
+        },
+        {
+          "kind": "main",
+          "duration_seconds": 60,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-02.png",
+          "frame_sha256": "ff604899b29bf7b2bcafa50b5930ca3e69358b4ddf72f8540b81327c737e7fd5"
+        }
+      ]
+    },
+    {
+      "scene_id": "L01-03",
+      "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "start_seconds": 165,
+      "end_seconds": 255,
+      "visual_layout": "sam",
+      "title": "The map, with the book underneath",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-03.png",
+      "frame_sha256": "e1fa85d02a4d1e1697af1fdd8914aab36d916e92acef15301cee6772402a5ea6",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L01-03.png",
+      "presenter_frame_sha256": "f4c83ba7d43c15cd5fa370ce41ae288e560898156f85d6df4b6eb9d9583aa0b5"
+    },
+    {
+      "scene_id": "L01-04",
+      "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "start_seconds": 255,
+      "end_seconds": 345,
+      "visual_layout": "boundary",
+      "title": "Safety before tools",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-04.png",
+      "frame_sha256": "44252a434a254406933eb918b6384dc606d0e4190a8085c96580ab0756b6b78a",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L01-04.png",
+      "presenter_frame_sha256": "83202b81a1181e4d6936d8bb696f4eab75ae858f902e0329f6a224cd0b67bf6a"
+    },
+    {
+      "scene_id": "L01-05",
+      "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "start_seconds": 345,
+      "end_seconds": 440,
+      "visual_layout": "sheet",
+      "title": "Make the cover sheet",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-05.png",
+      "frame_sha256": "26a002ecc9797b0d0ffa8bb691280bcbc22d134303bf150fe3b0c2d687b93003",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L01-05.png",
+      "presenter_frame_sha256": "9de9b7cc37370b527afbd3f470650d049596c686b0a70a983648c738d326f4f9"
+    },
+    {
+      "scene_id": "L01-06",
+      "source_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "start_seconds": 440,
+      "end_seconds": 540,
+      "visual_layout": "question",
+      "title": "Human ownership",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-06.png",
+      "frame_sha256": "61637748029af09b28645deeade4634f2bf78c9a6760cd2b4866aa4c4d816328",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L01-06.png",
+      "presenter_frame_sha256": "278b25dc5a827bfb8754985455648adadb8862aae06a0298d1556090263ac37e",
+      "segments": [
+        {
+          "kind": "main",
+          "duration_seconds": 55,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-06.png",
+          "frame_sha256": "61637748029af09b28645deeade4634f2bf78c9a6760cd2b4866aa4c4d816328"
+        },
+        {
+          "kind": "signals",
+          "duration_seconds": 20,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-06-signals.png",
+          "frame_sha256": "3bf2412175255e6794ad10d7fc18906aefd23b886795c933ce1138a6a9198314"
+        },
+        {
+          "kind": "main",
+          "duration_seconds": 25,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L01-06.png",
+          "frame_sha256": "61637748029af09b28645deeade4634f2bf78c9a6760cd2b4866aa4c4d816328"
+        }
+      ]
+    },
+    {
+      "scene_id": "L02-01",
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "start_seconds": 0,
+      "end_seconds": 90,
+      "visual_layout": "priority",
+      "title": "Fifteen priorities",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-01.png",
+      "frame_sha256": "fe8724da5dd93d6d075510e881e3fca9b8dbe14ac8a598760338e92aca394572",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L02-01.png",
+      "presenter_frame_sha256": "50b995b12d92ec36d00d930ba4a0d68bad7f52ea67d5f29286a2685a1ee7d0f5"
+    },
+    {
+      "scene_id": "L02-02",
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "start_seconds": 90,
+      "end_seconds": 180,
+      "visual_layout": "comparison",
+      "title": "What the list hides",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-02.png",
+      "frame_sha256": "776cc7f517ca1f9968943cc885d02ac8f9d17700e4a16059bf583c0a6e91d9a9",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L02-02.png",
+      "presenter_frame_sha256": "238bee3d1f3ab188fb6e15a42abf7db6736ba566884a3f18e92b77f2029e23e6",
+      "segments": [
+        {
+          "kind": "signals",
+          "duration_seconds": 15,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-02-signals.png",
+          "frame_sha256": "8605e1a53e9dc25ce09ba861f61ed07e4c46d59dc1f5787831006e9e8bbec8ef"
+        },
+        {
+          "kind": "main",
+          "duration_seconds": 75,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-02.png",
+          "frame_sha256": "776cc7f517ca1f9968943cc885d02ac8f9d17700e4a16059bf583c0a6e91d9a9"
+        }
+      ]
+    },
+    {
+      "scene_id": "L02-03",
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "start_seconds": 180,
+      "end_seconds": 273,
+      "visual_layout": "matrix",
+      "title": "Match the frame to the question",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-03.png",
+      "frame_sha256": "8f1c2d8bf361167d9eb9a16559c9edbd3e3cd092725ba1b010c9eb4981b4973b",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L02-03.png",
+      "presenter_frame_sha256": "b3b5329f1bd183dae81ef6d3016946cc72a358dd14f7f167f4c86020907ede63"
+    },
+    {
+      "scene_id": "L02-04",
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "start_seconds": 273,
+      "end_seconds": 366,
+      "visual_layout": "ledger",
+      "title": "Compare without fake precision",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-04.png",
+      "frame_sha256": "ed236c8ae9fbe877865428530e664281317d1af569467ff60cedfac9d9029ec3",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L02-04.png",
+      "presenter_frame_sha256": "48059632711419f034da932ab195035a55487e8ce718e9bb0625cfde9226c078"
+    },
+    {
+      "scene_id": "L02-05",
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "start_seconds": 366,
+      "end_seconds": 451,
+      "visual_layout": "cards",
+      "title": "Economic fit belongs in the case",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-05.png",
+      "frame_sha256": "4d791b2f2b4e88cd7a400ce8368de5e049130a478931f9c3355685ddfc2cf8dd",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L02-05.png",
+      "presenter_frame_sha256": "d6559ea0e3e3c644d8799e407a189d88068d4579fe63c4bac3357e5dea982124"
+    },
+    {
+      "scene_id": "L02-06",
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "start_seconds": 451,
+      "end_seconds": 546,
+      "visual_layout": "branch",
+      "title": "Make a reversible choice",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-06.png",
+      "frame_sha256": "caba7833b192a5e724a7c585fef6d6a9a23c78f5a5cbb6c2d464399bde3b498b",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L02-06.png",
+      "presenter_frame_sha256": "3239ed6c77315b225e068e72dac51c19fa8e06e79e3eff533d077bfbafdb76d3"
+    },
+    {
+      "scene_id": "L02-07",
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "start_seconds": 546,
+      "end_seconds": 600,
+      "visual_layout": "question",
+      "title": "Handoff to discovery",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-07.png",
+      "frame_sha256": "bb23b9e7ce6b2d176251651ddf59d5408630d2e0474b2a09d648c955c9f619a2",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L02-07.png",
+      "presenter_frame_sha256": "fdfa425faad5d8c4f103e4ac4cc19c97b4b4885c45e431525939b8d150c4ded1"
+    },
+    {
+      "scene_id": "L03-01",
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "start_seconds": 0,
+      "end_seconds": 86,
+      "visual_layout": "decision",
+      "title": "A dashboard in the room",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-01.png",
+      "frame_sha256": "35db4eaa52a56427febb5b903cdbb49baf6c5e6276213680f95b7992b8519d6b",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L03-01.png",
+      "presenter_frame_sha256": "85a8cd5cf0fd2c642a1cb9c246212bcc029c206dd12dcaef048f091dc76f502f"
+    },
+    {
+      "scene_id": "L03-02",
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "start_seconds": 86,
+      "end_seconds": 174,
+      "visual_layout": "reverse",
+      "title": "Work backward from the choice",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-02.png",
+      "frame_sha256": "9153b32a8a70363aab3ac666bbb95a3968c0f6bc5a84f6eec31c02b88593a3b6",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L03-02.png",
+      "presenter_frame_sha256": "8efff54d4942760984aef6476a0623b02ed13e4a5be853c3b4e7290c657f0143"
+    },
+    {
+      "scene_id": "L03-03",
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "start_seconds": 174,
+      "end_seconds": 262,
+      "visual_layout": "comparison",
+      "title": "Keep alternatives visible",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-03.png",
+      "frame_sha256": "99d7055febf334f10b2d6d9ed61b8f75e73e9f448ff7b2c09b177781538fe32a",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L03-03.png",
+      "presenter_frame_sha256": "c2a81c7860ba036c90f29ed47ba71ccf3ecc0733ddc263fc7065052c9e341966"
+    },
+    {
+      "scene_id": "L03-04",
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "start_seconds": 262,
+      "end_seconds": 349,
+      "visual_layout": "sheet",
+      "title": "Ask what would change your mind",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-04.png",
+      "frame_sha256": "c16adce48e1aedcd659a58ec9996d650452f8a8ab3e610e670a17c02e1dbcdff",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L03-04.png",
+      "presenter_frame_sha256": "09b0192c4476e580f12c67e65c81346b1ad9c5c200abeb44a5e7cadf8ae93963"
+    },
+    {
+      "scene_id": "L03-05",
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "start_seconds": 349,
+      "end_seconds": 441,
+      "visual_layout": "branch",
+      "title": "Design a small evidence move",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-05.png",
+      "frame_sha256": "724cbc7a6c0213710609111dbe8b45f65f71e4f6fa14e57c00015dfc4ce9ef0f",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L03-05.png",
+      "presenter_frame_sha256": "1081837ef786de4dc6a15c3b1db0f2b7d8466ab640f87cf908b91b58c4b78083"
+    },
+    {
+      "scene_id": "L03-06",
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "start_seconds": 441,
+      "end_seconds": 540,
+      "visual_layout": "archive",
+      "title": "Carry the question forward",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-06.png",
+      "frame_sha256": "f7332609b480c2e4e8be599d1ce4f92e8ca685f6a93feda2587d382c7b1f5ceb",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L03-06.png",
+      "presenter_frame_sha256": "22424b065a4f89c91a5b924588b5dc3fcf690df68f990e0a7ff45733c06ac7d1"
+    },
+    {
+      "scene_id": "L04-01",
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "start_seconds": 0,
+      "end_seconds": 80,
+      "visual_layout": "focus",
+      "title": "The large idea returns",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-01.png",
+      "frame_sha256": "8e5bb3e22ee186fbea4da5bd3e178f24b90520faa1ebdb47130ea13135d27ecb",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L04-01.png",
+      "presenter_frame_sha256": "bfc143839176e72fcce205521f9db6c32ae5b23a5dd61329e1fd66b9f23d1d69"
+    },
+    {
+      "scene_id": "L04-02",
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "start_seconds": 80,
+      "end_seconds": 165,
+      "visual_layout": "contrast",
+      "title": "The persona deck",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-02.png",
+      "frame_sha256": "0eee0a6f503466fbdf5b78fe5261635b14528c853ffa858df90e51194237249c",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L04-02.png",
+      "presenter_frame_sha256": "5215be572aeabecb6bdc00bf9716a5505e5ec6f1f3d7956ce6e89776c02dc238"
+    },
+    {
+      "scene_id": "L04-03",
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "start_seconds": 165,
+      "end_seconds": 260,
+      "visual_layout": "contrast",
+      "title": "From who to what",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-03.png",
+      "frame_sha256": "ba5f2ba3d875552a3333371e2f37b31157894f67fb9c465f853e8c01c482bdf1",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L04-03.png",
+      "presenter_frame_sha256": "33ba8a0e1ba2bd8ddd3509f6e9cba7d2c1d48378e8c1c9e59c6bd206abed5cda"
+    },
+    {
+      "scene_id": "L04-04",
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "start_seconds": 260,
+      "end_seconds": 350,
+      "visual_layout": "comparison",
+      "title": "Build a smaller thing",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-04.png",
+      "frame_sha256": "325064b0339802b4b06ebb1fe03e72d71be5ed6d876965ad068e7a6d1dac1210",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L04-04.png",
+      "presenter_frame_sha256": "4b460f2f48ddec41534ed90ee97a593faa6966d603e5759308ae13b548d30a1a"
+    },
+    {
+      "scene_id": "L04-05",
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "start_seconds": 350,
+      "end_seconds": 440,
+      "visual_layout": "sheet",
+      "title": "Add evidence and uncertainty",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-05.png",
+      "frame_sha256": "9662e36cd331fcd70d94fba8af91bb927a1fa91af340083923822b909e65cd7e",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L04-05.png",
+      "presenter_frame_sha256": "7e8d9682496e3fd86d25049b3ebd6a72a229f92aea3fe0ab2b4e798623cd7fbd"
+    },
+    {
+      "scene_id": "L04-06",
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "start_seconds": 440,
+      "end_seconds": 529,
+      "visual_layout": "contrast",
+      "title": "Revisit the person, not the picture",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-06.png",
+      "frame_sha256": "dc3568722975f2b94dd295a64c2087a7259c68f2ccc349ed1ea21cb2fbb9f4c9",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L04-06.png",
+      "presenter_frame_sha256": "edb278ef5f7d92904c33d1191f76516aa013c3f1f6a32caf7bed811a8fd21c1b"
+    },
+    {
+      "scene_id": "L04-07",
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "start_seconds": 529,
+      "end_seconds": 600,
+      "visual_layout": "archive",
+      "title": "The first file is ready",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-07.png",
+      "frame_sha256": "6f4a86de68ab2aecca3d8a52954552eca6b320b57619adff76631befda7d8489",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L04-07.png",
+      "presenter_frame_sha256": "9cc055647871997f61c1cbf9dd7c435c4671d0f8ead5d7b41d3427321d635602"
+    },
+    {
+      "scene_id": "L05-01",
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "start_seconds": 0,
+      "end_seconds": 100,
+      "visual_layout": "inbox",
+      "title": "A full inbox and an empty decision",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-01.png",
+      "frame_sha256": "9eefdb59337f6eeee9aaaf67779e5c28a79dc6285ae2620739997b1956c4bcb5",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L05-01.png",
+      "presenter_frame_sha256": "8b7e23e5bfe12f40b431fb45fb2dda00803fadc251b5f8844981a52f76b42803",
+      "segments": [
+        {
+          "kind": "main",
+          "duration_seconds": 80,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-01.png",
+          "frame_sha256": "9eefdb59337f6eeee9aaaf67779e5c28a79dc6285ae2620739997b1956c4bcb5"
+        },
+        {
+          "kind": "signals",
+          "duration_seconds": 20,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-01-signals.png",
+          "frame_sha256": "39313c1e0aef5f5c3724fdfce33e22b9cb26bc07bc1b815e5d05d350cda3ad6c"
+        }
+      ]
+    },
+    {
+      "scene_id": "L05-02",
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "start_seconds": 100,
+      "end_seconds": 200,
+      "visual_layout": "feedback",
+      "title": "Keep the raw words traceable",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-02.png",
+      "frame_sha256": "b950d325b457bbbba304d7448af83f4b6c52b9cdb6ba8b1a4199cdc48f63d447",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L05-02.png",
+      "presenter_frame_sha256": "0eeb7d518f691f4f95286f3b2cf4862e42a237c983f085023ff523a9cdae9584"
+    },
+    {
+      "scene_id": "L05-03",
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "start_seconds": 200,
+      "end_seconds": 300,
+      "visual_layout": "branch",
+      "title": "One complaint can hide several jobs",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-03.png",
+      "frame_sha256": "84330ae8a22518541d1cf5473a42c39554420a361e4eba2f228f6a24e1f7c32d",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L05-03.png",
+      "presenter_frame_sha256": "9f93c21cc7cc0fe90c9367b746386efc3a555e49690db29172c57dbbe6e99b74"
+    },
+    {
+      "scene_id": "L05-04",
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "start_seconds": 300,
+      "end_seconds": 400,
+      "visual_layout": "correction",
+      "title": "A machine can cluster; a person must inspect",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-04.png",
+      "frame_sha256": "10f24d768326f33a3d61508432be7231e609166c848d921cdd91d6dc576cb5cc",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L05-04.png",
+      "presenter_frame_sha256": "96ede45c7b2acde5ef54c9ad0f460c763bdafe1618915f3241cf2fac78713d54"
+    },
+    {
+      "scene_id": "L05-05",
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "start_seconds": 400,
+      "end_seconds": 500,
+      "visual_layout": "evidence",
+      "title": "Make one opportunity testable",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-05.png",
+      "frame_sha256": "15a59bc971e53bc2068141502d5ea4a073dba5e2c388d94eb799237204c875ab",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L05-05.png",
+      "presenter_frame_sha256": "d6fa857aa03576cce63a246326efb0b5cf893160d8a3b534239aa2412ab55f7a"
+    },
+    {
+      "scene_id": "L05-06",
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "start_seconds": 500,
+      "end_seconds": 600,
+      "visual_layout": "sheet",
+      "title": "Leave room for the contrary note",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-06.png",
+      "frame_sha256": "b312275a82c901dfcef7dd5e07eae7e7fb7821a2e41ccbf0c83c834a049ed4ae",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L05-06.png",
+      "presenter_frame_sha256": "bb4ae7dc165a95a786cd7506b12c2161394acf74d6e5ca9527497891a333532e",
+      "segments": [
+        {
+          "kind": "main",
+          "duration_seconds": 50,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-06.png",
+          "frame_sha256": "b312275a82c901dfcef7dd5e07eae7e7fb7821a2e41ccbf0c83c834a049ed4ae"
+        },
+        {
+          "kind": "alignment",
+          "duration_seconds": 20,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-06-alignment.png",
+          "frame_sha256": "8c4e213d9b60b5df33d8349f1626d5c8b22cccac3e22575c7235ad324627fbd8"
+        },
+        {
+          "kind": "main",
+          "duration_seconds": 30,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-06.png",
+          "frame_sha256": "b312275a82c901dfcef7dd5e07eae7e7fb7821a2e41ccbf0c83c834a049ed4ae"
+        }
+      ]
+    },
+    {
+      "scene_id": "L06-01",
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "start_seconds": 0,
+      "end_seconds": 110,
+      "visual_layout": "comparison",
+      "title": "Three cards on the wall",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-01.png",
+      "frame_sha256": "ddfd949964b4148bdd2f0ba84b0c3a4cc38610263a4ffd8367d6cea6f61b3c54",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L06-01.png",
+      "presenter_frame_sha256": "c0a439479dbf14ba8e63af5ffe4d275d2fe6b638db6ac0465accb09438e8e6c8"
+    },
+    {
+      "scene_id": "L06-02",
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "start_seconds": 110,
+      "end_seconds": 220,
+      "visual_layout": "ledger",
+      "title": "Choose with criteria and keep the alternatives",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-02.png",
+      "frame_sha256": "e6f8cf063327a999865f21c80002de7c577db38c98cf2e631b3ea6aace1edf73",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L06-02.png",
+      "presenter_frame_sha256": "a263eb27d815483bf041f847408a5c38b63269f74864f37aa24d460be7ceeabe",
+      "segments": [
+        {
+          "kind": "main",
+          "duration_seconds": 90,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-02.png",
+          "frame_sha256": "e6f8cf063327a999865f21c80002de7c577db38c98cf2e631b3ea6aace1edf73"
+        },
+        {
+          "kind": "alignment",
+          "duration_seconds": 20,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-02-alignment.png",
+          "frame_sha256": "d2703df134afd45b291f9a66cf25aa0804f39dcf2ab3d0781c91effcc0ee0de6"
+        }
+      ]
+    },
+    {
+      "scene_id": "L06-03",
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "start_seconds": 220,
+      "end_seconds": 330,
+      "visual_layout": "sheet",
+      "title": "The product brief opens with the change we seek",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-03.png",
+      "frame_sha256": "868849456c36fa4f726382f715287c6df75e70daac7c611069865c1eacab8cfe",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L06-03.png",
+      "presenter_frame_sha256": "6ba153736e4f8f1be037862dab6b03616e02d551eb3a6befeb6cb807f6e6976e"
+    },
+    {
+      "scene_id": "L06-04",
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "start_seconds": 330,
+      "end_seconds": 440,
+      "visual_layout": "handoff",
+      "title": "Ask someone to explain the handoff back",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-04.png",
+      "frame_sha256": "71a88bfd765e746fb544522baeade6b33a204d9dce5f8b3b2a7b6993989585ef",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L06-04.png",
+      "presenter_frame_sha256": "8849fa97ffed46d6405e9aceae7db7c019216e755b088635b3358682c369a79a"
+    },
+    {
+      "scene_id": "L06-05",
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "start_seconds": 440,
+      "end_seconds": 550,
+      "visual_layout": "trace",
+      "title": "Keep a living line from evidence to measure",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-05.png",
+      "frame_sha256": "b5861ed8d6d38dc2189f8cdffebbc20c62badf47a8948c78770e532612d61296",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L06-05.png",
+      "presenter_frame_sha256": "72724d3d74e97c1e66b418e6ffd102b68c59c21b86c7f46cfa9daa3c536ffe4e"
+    },
+    {
+      "scene_id": "L06-06",
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "start_seconds": 550,
+      "end_seconds": 660,
+      "visual_layout": "flow",
+      "title": "Draw the line all the way through",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-06.png",
+      "frame_sha256": "febc148cd57bd3e5380c337197f0f7793c81a92d2d635db7e2e50a7365186be9",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L06-06.png",
+      "presenter_frame_sha256": "7559040d77afd234981d636fd4909fba11e2f119f06fc157563d13e708c871ed"
+    },
+    {
+      "scene_id": "L07-01",
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "start_seconds": 0,
+      "end_seconds": 100,
+      "visual_layout": "contrast",
+      "title": "The quarter is full",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-01.png",
+      "frame_sha256": "60fdbb335dc3a32a5682f2bb963ebf345202215447c138c1e25f3213609589dc",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L07-01.png",
+      "presenter_frame_sha256": "002971e4f9f4179026fd9a7f22cca4c3e8b9864cbfc1d49809eb943e35b57ebb"
+    },
+    {
+      "scene_id": "L07-02",
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "start_seconds": 100,
+      "end_seconds": 200,
+      "visual_layout": "checkpoint",
+      "title": "Checkpoint one: diagnose before expanding",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-02.png",
+      "frame_sha256": "76c1d7fd68ba8a03b555de161d3187f6085bbf39272e330d3c9a265bb085af8f",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L07-02.png",
+      "presenter_frame_sha256": "05c496aa47057e3a99d6f087b75d0ced22c786db3a1f29677c5959215e92f567"
+    },
+    {
+      "scene_id": "L07-03",
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "start_seconds": 200,
+      "end_seconds": 300,
+      "visual_layout": "checkpoint",
+      "title": "Checkpoint two: test the smaller change",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-03.png",
+      "frame_sha256": "b2cee2b560077a525ba96c68876124401e75f92745a8f6422066fa46f0d0e5dc",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L07-03.png",
+      "presenter_frame_sha256": "a6dabdbe020ed17a190fe3f966b895dcb7b8a8a014d2d17a421acec5181b63e3"
+    },
+    {
+      "scene_id": "L07-04",
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "start_seconds": 300,
+      "end_seconds": 400,
+      "visual_layout": "cards",
+      "title": "Sam's team changes its question",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-04.png",
+      "frame_sha256": "441561fec439386d03c12ecde746517cdd18214c4ac20d420c5de8734144ae71",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L07-04.png",
+      "presenter_frame_sha256": "8226e366ce5bd7e9a428bf7e7687588bacc4b979ba696eb0b635ecd67e5d0eb9"
+    },
+    {
+      "scene_id": "L07-05",
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "start_seconds": 400,
+      "end_seconds": 500,
+      "visual_layout": "reverse",
+      "title": "A failed test still changes the plan",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-05.png",
+      "frame_sha256": "0de81701a09103409d5770510c4623eee0774f102021f84eff73d1d0cbce097b",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L07-05.png",
+      "presenter_frame_sha256": "a0eccb990343159f29cd02980df024e75e4edf3241c31759f042b05c5fa2e55b"
+    },
+    {
+      "scene_id": "L07-06",
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "start_seconds": 500,
+      "end_seconds": 600,
+      "visual_layout": "timeline",
+      "title": "Two dates, two decisions",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-06.png",
+      "frame_sha256": "6db61f56aa59ffd75b1bff885bf35a77f3e4116ff193b5e9d3e362ee4137a69e",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L07-06.png",
+      "presenter_frame_sha256": "1607f4429bfc524ef51a5aa41eabf13c63496031fbf7715e10df5540259aae0a",
+      "segments": [
+        {
+          "kind": "main",
+          "duration_seconds": 50,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-06.png",
+          "frame_sha256": "6db61f56aa59ffd75b1bff885bf35a77f3e4116ff193b5e9d3e362ee4137a69e"
+        },
+        {
+          "kind": "alignment",
+          "duration_seconds": 20,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-06-alignment.png",
+          "frame_sha256": "d44b21803b5d047e7a5bd3f8f0c9e2acfa4aac7153c6281b1eb10d1da7812b46"
+        },
+        {
+          "kind": "main",
+          "duration_seconds": 30,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-06.png",
+          "frame_sha256": "6db61f56aa59ffd75b1bff885bf35a77f3e4116ff193b5e9d3e362ee4137a69e"
+        }
+      ]
+    },
+    {
+      "scene_id": "L08-01",
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "start_seconds": 0,
+      "end_seconds": 120,
+      "visual_layout": "contrast",
+      "title": "A dashboard can look healthy",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-01.png",
+      "frame_sha256": "225306a7781ea8ea14fd53825a9893158dd83d6e274eb5c5f80874a4c5cd6ad1",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-01.png",
+      "presenter_frame_sha256": "b89be64da449594bf1b28c9b447912e5b000fb39528ec66ca39627e9a65cdb00"
+    },
+    {
+      "scene_id": "L08-02",
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "start_seconds": 120,
+      "end_seconds": 240,
+      "visual_layout": "measure",
+      "title": "Define the measure and its guardrail",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-02.png",
+      "frame_sha256": "d3dfed33e32648db8584fc3500266a8687f2c3aae448b4f50fcabf58e76ed0e6",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-02.png",
+      "presenter_frame_sha256": "ab824743dae2a3eca3dbf5e01d67c95bb5a7bfedf5e707b8ca52288848c71306"
+    },
+    {
+      "scene_id": "L08-03",
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "start_seconds": 240,
+      "end_seconds": 360,
+      "visual_layout": "numbered",
+      "title": "The first five components establish the bet",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-03.png",
+      "frame_sha256": "ce19cf7f16baef40c1b4ac60f1fcaea56c4e9f7ae7e4e54516ef7707b448257b",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-03.png",
+      "presenter_frame_sha256": "26431ef3446a0ff45d10ac7665c52be0c92c9241654485f2b32cbdce6f5d5b8c"
+    },
+    {
+      "scene_id": "L08-04",
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "start_seconds": 360,
+      "end_seconds": 480,
+      "visual_layout": "numbered",
+      "title": "The next five decide what happens afterward",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-04.png",
+      "frame_sha256": "c419a34b2c1826f8011cd4ca85a13815b589f0451239e605024a8dce1f137704",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-04.png",
+      "presenter_frame_sha256": "1687b7b2d072f4740eed22c8baf740329bf3ce75298b447612c2f7df1c927df0"
+    },
+    {
+      "scene_id": "L08-05",
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "start_seconds": 480,
+      "end_seconds": 600,
+      "visual_layout": "branch",
+      "title": "Walk the plan against two possible results",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-05.png",
+      "frame_sha256": "7f0943f0609e21677921fa4cbe610d725fd6d3790a6d159c4832ae681a658626",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-05.png",
+      "presenter_frame_sha256": "ca5f2a9b03257c26a81aed521698e829412dd3580c3cb00fd20260c70327a11f"
+    },
+    {
+      "scene_id": "L08-06",
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "start_seconds": 600,
+      "end_seconds": 720,
+      "visual_layout": "sheet",
+      "title": "Complete the file before the test",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-06.png",
+      "frame_sha256": "3be5040ada49d2af02d5963dc9b68295d586509f3780550442f0acf4cd2b75ee",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-06.png",
+      "presenter_frame_sha256": "618c76a29a316423e1977b49a62656a3e4b6d5dd3791cdee880bd0e9dbee3243",
+      "segments": [
+        {
+          "kind": "main",
+          "duration_seconds": 60,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-06.png",
+          "frame_sha256": "3be5040ada49d2af02d5963dc9b68295d586509f3780550442f0acf4cd2b75ee"
+        },
+        {
+          "kind": "learning_loop",
+          "duration_seconds": 20,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-06-learning_loop.png",
+          "frame_sha256": "4f1d4e8dbe907ae9919c608acd7a412211139234351b240605be8b45c66375d9"
+        },
+        {
+          "kind": "main",
+          "duration_seconds": 40,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-06.png",
+          "frame_sha256": "3be5040ada49d2af02d5963dc9b68295d586509f3780550442f0acf4cd2b75ee"
+        }
+      ]
+    },
+    {
+      "scene_id": "L09-01",
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "start_seconds": 0,
+      "end_seconds": 110,
+      "visual_layout": "handoff",
+      "title": "The slow no",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-01.png",
+      "frame_sha256": "c75311b9e5e98eab765ae4068b98e24c7f14487d0969cf54c8f091c9c003e457",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L09-01.png",
+      "presenter_frame_sha256": "dcfe6df90d8b94c27485b13996c8ba909e07c0bf4d702c5b6afa676d461b0f84"
+    },
+    {
+      "scene_id": "L09-02",
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "start_seconds": 110,
+      "end_seconds": 220,
+      "visual_layout": "numbered",
+      "title": "Build the argument before the deck",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-02.png",
+      "frame_sha256": "78a40e9a916c063f112027b01bb90d6079076dac673bb44e1768d45b56c134a1",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L09-02.png",
+      "presenter_frame_sha256": "bf6f27e9b1a2b70900dfba4ec6e9f828e0bb411a2007340120dd233003d72bd9"
+    },
+    {
+      "scene_id": "L09-03",
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "start_seconds": 220,
+      "end_seconds": 330,
+      "visual_layout": "roles",
+      "title": "Map roles and behavior",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-03.png",
+      "frame_sha256": "7fec3e5cf175eab7285fd7984978e3c1ee379166f140c5f1ffcc37a62b6fa3c3",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L09-03.png",
+      "presenter_frame_sha256": "3332a72d81af1768006ad89ba9dbf229091aeb47791b03ec1b26eb6d3e6fcd4a"
+    },
+    {
+      "scene_id": "L09-04",
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "start_seconds": 330,
+      "end_seconds": 440,
+      "visual_layout": "matrix",
+      "title": "Use the book's power-interest grid",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-04.png",
+      "frame_sha256": "ea057bc1477d45b8b80c8f0aabd4d3acc85f00782cf655be57ed81b28540756f",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L09-04.png",
+      "presenter_frame_sha256": "996b0b02767bb97c295dab16c9e6e00daa8552e0eaa162047f18d0f22f6463fc"
+    },
+    {
+      "scene_id": "L09-05",
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "start_seconds": 440,
+      "end_seconds": 550,
+      "visual_layout": "timeline",
+      "title": "Sequence quiet conversations",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-05.png",
+      "frame_sha256": "d95f226b23d1a3aac86bfe54a5e93d9763ddd8775dab6b5b83986c3bd6cce7e9",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L09-05.png",
+      "presenter_frame_sha256": "a2e9342ba378cbba4390ee8a0623bc7de99e7b5057f234611bc46aeba550f6ac"
+    },
+    {
+      "scene_id": "L09-06",
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "start_seconds": 550,
+      "end_seconds": 660,
+      "visual_layout": "roles",
+      "title": "Complete the map",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-06.png",
+      "frame_sha256": "ad071b6e7b3f93161c322cf8cc648dd6df820b49c00ace261809f36f391fe700",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L09-06.png",
+      "presenter_frame_sha256": "9ac12c2232b2edcdb0df5963ffe99ddfced9bbedbbcec65d184337bdc1f91717"
+    },
+    {
+      "scene_id": "L10-01",
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "start_seconds": 0,
+      "end_seconds": 90,
+      "visual_layout": "handoff",
+      "title": "The proposal that did not land",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-01.png",
+      "frame_sha256": "b54cea8174d513bfa6545849598ad02cd84292307e26464492a0841417817999",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L10-01.png",
+      "presenter_frame_sha256": "eb74cc37edc75fe78da252cdcdb9d753ae7add286217bd8606a8b9114112c44b"
+    },
+    {
+      "scene_id": "L10-02",
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "start_seconds": 90,
+      "end_seconds": 180,
+      "visual_layout": "contrast",
+      "title": "Keep the claim, change the emphasis",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-02.png",
+      "frame_sha256": "21b1ed827f2533d735ac5ded2c7e82309d0ef90c81671cc5bd7374926d78dcca",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L10-02.png",
+      "presenter_frame_sha256": "592f4b815dc3496641e428fe32f8af41954991f299c5bd6040a19f32e96046ad"
+    },
+    {
+      "scene_id": "L10-03",
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "start_seconds": 180,
+      "end_seconds": 270,
+      "visual_layout": "comparison",
+      "title": "Name the option we are passing over",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-03.png",
+      "frame_sha256": "b175eab657e6550da5a1ddc6a75950b28d6fbc92cfc129d8c30c4d479dc44c32",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L10-03.png",
+      "presenter_frame_sha256": "2fedcf1e2b2790190210cff0ef88891bd38c3b7f50ee036ab4f6fe416d6d31f9"
+    },
+    {
+      "scene_id": "L10-04",
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "start_seconds": 270,
+      "end_seconds": 360,
+      "visual_layout": "sheet",
+      "title": "State the tradeoff without theater",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-04.png",
+      "frame_sha256": "cef21f458b8b3cd8b0b19593474240f9a2592105c218166b10d6de7c14919b24",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L10-04.png",
+      "presenter_frame_sha256": "9e41302f912f418cfbdfedc3cf63854b2a1cd7bcc5762f00c799153d4e0fb344"
+    },
+    {
+      "scene_id": "L10-05",
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "start_seconds": 360,
+      "end_seconds": 450,
+      "visual_layout": "correction",
+      "title": "Rehearse a real objection",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-05.png",
+      "frame_sha256": "308be44ddfffa6390c98ddd6abd708182d7319457766c77e570f5ef45e77b0b0",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L10-05.png",
+      "presenter_frame_sha256": "3640dbbe4a8e8d0585bc326bb72e1952dd81b2c7a225f91978296c01f39bf11a"
+    },
+    {
+      "scene_id": "L10-06",
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "start_seconds": 450,
+      "end_seconds": 540,
+      "visual_layout": "sheet",
+      "title": "Deliver the 90-second decision brief",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-06.png",
+      "frame_sha256": "ebc0b175cb55ca7a1a4a1720ab1377bab785ba1180eca0ecb7b44db0a496a6e7",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L10-06.png",
+      "presenter_frame_sha256": "1532db08cf95ae8fa9639b57db80a8d0958f3d120c20e65bcb997abafae95024"
+    },
+    {
+      "scene_id": "L11-01",
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "start_seconds": 0,
+      "end_seconds": 100,
+      "visual_layout": "decision",
+      "title": "A shorter meeting",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-01.png",
+      "frame_sha256": "c84fa559437285c78b6af0b6256e7df51c6106dbd438388ca0bb2d94a0dd46f6",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L11-01.png",
+      "presenter_frame_sha256": "8ea02838a2f729be9b440f8174b6aaa10a5e10f6151c5a6989d7288fddb16adc"
+    },
+    {
+      "scene_id": "L11-02",
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "start_seconds": 100,
+      "end_seconds": 200,
+      "visual_layout": "trace",
+      "title": "Trace the failed test",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-02.png",
+      "frame_sha256": "b9794c12a7f117d5d61728dd4a4e4c003d2f0a596a1f4988cfdad70f94508f22",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L11-02.png",
+      "presenter_frame_sha256": "bfd7e3017cf354a706e29867153846a0d947f4b6635b3a680a03e72ac159f99b"
+    },
+    {
+      "scene_id": "L11-03",
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "start_seconds": 200,
+      "end_seconds": 300,
+      "visual_layout": "numbered",
+      "title": "Connect signal, insight, test, decision",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-03.png",
+      "frame_sha256": "97fa76f3aeb8aa6afe6cab212205226a988408d8d24d4726531dfc9dd142a01a",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L11-03.png",
+      "presenter_frame_sha256": "96a1fd3e706937bdded39e6a15b1aa53e9a9c2e1d07d475416b1ba85322ff62e"
+    },
+    {
+      "scene_id": "L11-04",
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "start_seconds": 300,
+      "end_seconds": 400,
+      "visual_layout": "handoff",
+      "title": "Put a person at the review gate",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-04.png",
+      "frame_sha256": "7e1a42a958afee953b5f4cb0f73a0dfc191ede732584e73571130c5d63204bfc",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L11-04.png",
+      "presenter_frame_sha256": "933c14cf622255509a81773d1c6b9b3d021635f88e97f963a3c3640da3ad0fa4"
+    },
+    {
+      "scene_id": "L11-05",
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "start_seconds": 400,
+      "end_seconds": 500,
+      "visual_layout": "archive",
+      "title": "Give the next person the memory",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-05.png",
+      "frame_sha256": "654bfb78c7cd0a01e70688ae5c2a754310fa758606d639d9d3980725fdfbe883",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L11-05.png",
+      "presenter_frame_sha256": "dd22b5843f0c09d90f754d67cd37da971f209c789631aa92c843923e878a3d9e"
+    },
+    {
+      "scene_id": "L11-06",
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "start_seconds": 500,
+      "end_seconds": 600,
+      "visual_layout": "loop",
+      "title": "Draw the loop you can run",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-06.png",
+      "frame_sha256": "0661acdc2280bccae08229d3031b990ff20694b64ce1977aa337f11239115bed",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L11-06.png",
+      "presenter_frame_sha256": "59c2cd4461036956a991ed86828fac14d9c8f50a559e2f12214bc00a179f0e9d"
+    },
+    {
+      "scene_id": "L12-01",
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "start_seconds": 0,
+      "end_seconds": 110,
+      "visual_layout": "feedback",
+      "title": "A pile of feedback is not a job",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-01.png",
+      "frame_sha256": "c7dfa733fcae520e5f31a703a8f66badc9ec2f9e6cfac96fb9d2ac6ae3838509",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L12-01.png",
+      "presenter_frame_sha256": "a1821910a21b770e3d1e42669bea7a6a3b641ecd04b4679baccb550723507954"
+    },
+    {
+      "scene_id": "L12-02",
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "start_seconds": 110,
+      "end_seconds": 220,
+      "visual_layout": "flow",
+      "title": "Translate without inventing",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-02.png",
+      "frame_sha256": "dec43aa5cf396256d0aae589dac573d217df59542565fa795c7f2ef3e2b4e973",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L12-02.png",
+      "presenter_frame_sha256": "aea55d83e367450c953b1e6b0333838c74c5d4ff4fe90962d712cc9a8b17aaa8"
+    },
+    {
+      "scene_id": "L12-03",
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "start_seconds": 220,
+      "end_seconds": 330,
+      "visual_layout": "boundary",
+      "title": "ClientQ: a book example",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-03.png",
+      "frame_sha256": "30a8d5aa3349d121b33a1bd38f095f89d2cfd838e7587d2e1d7b985763f7c82e",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L12-03.png",
+      "presenter_frame_sha256": "7fcf8fa263f58cd6bb2d6edf90e0c7ce317bcce833a170c9218ec113e2d35d00"
+    },
+    {
+      "scene_id": "L12-04",
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "start_seconds": 330,
+      "end_seconds": 440,
+      "visual_layout": "correction",
+      "title": "Simulate objections without borrowing authority",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-04.png",
+      "frame_sha256": "9e6aca4f3e1ebcc84cf040ae903336b3f312b7a407ead81965243d843c748bf1",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L12-04.png",
+      "presenter_frame_sha256": "abceebd273dc8c4d809f899f9d790f7199e2283d077cda40eff3b7d6bbb98ddb"
+    },
+    {
+      "scene_id": "L12-05",
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "start_seconds": 440,
+      "end_seconds": 550,
+      "visual_layout": "checkpoint",
+      "title": "Set the real-world checkpoint",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-05.png",
+      "frame_sha256": "c605a1038f474035d6d15ed91f096a3cdf059f85752d2a62084904b56c8383dd",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L12-05.png",
+      "presenter_frame_sha256": "e504af622a0acbf5df5a806ff3874c607cecd7b25cdfb23ae8b5b14a9aeaa2a1"
+    },
+    {
+      "scene_id": "L12-06",
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "start_seconds": 550,
+      "end_seconds": 660,
+      "visual_layout": "sheet",
+      "title": "Finish the two cards",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-06.png",
+      "frame_sha256": "e7199a496b1cb0c38b1daa06ea35fd997fcd5c8beeda77d11c9ca8427c74d36c",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L12-06.png",
+      "presenter_frame_sha256": "c40d7fc03b2e0b7089a9b2b8be48c5de6a1f94ab0b6c8f9e21cf45389033427c"
+    },
+    {
+      "scene_id": "L13-01",
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "start_seconds": 0,
+      "end_seconds": 117,
+      "visual_layout": "measure",
+      "title": "Flat is a question, not a verdict",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-01.png",
+      "frame_sha256": "b5f91865d69b47a9eac60ee1f8b89ed59ba68ff2d6888e0c9b3358f1b087794f",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L13-01.png",
+      "presenter_frame_sha256": "76bad4b85c6a93d83526822c7cb7d19ee6b659ba05848b53e441944b41082d5c"
+    },
+    {
+      "scene_id": "L13-02",
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "start_seconds": 117,
+      "end_seconds": 226,
+      "visual_layout": "comparison",
+      "title": "Compare the book's alternatives",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-02.png",
+      "frame_sha256": "2834103619dcddd1032d7451c846f1e2aa7b08ec6f81753ad9ca70ca4265be09",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L13-02.png",
+      "presenter_frame_sha256": "a3a60ea0b6c9d831913ae1f33e8cc9a336b588fbfcdf16f4834fa31b3a75ba1d"
+    },
+    {
+      "scene_id": "L13-03",
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "start_seconds": 226,
+      "end_seconds": 340,
+      "visual_layout": "checkpoint",
+      "title": "Design the smallest strategic test",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-03.png",
+      "frame_sha256": "b3d38f5332fe2478ea0ef3ba0eee0f93864f0454324608c2e069b0f9eb460361",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L13-03.png",
+      "presenter_frame_sha256": "eeab2c564a99ae18a46960bf2c500e4f963e94aba3f815b7ce795c61198f0037"
+    },
+    {
+      "scene_id": "L13-04",
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "start_seconds": 340,
+      "end_seconds": 446,
+      "visual_layout": "sheet",
+      "title": "Make the future concept explainable",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-04.png",
+      "frame_sha256": "484da9f4a345abb92ec58f36552f42757a0ab3bdf5a6283fbb51d94f1da33e6b",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L13-04.png",
+      "presenter_frame_sha256": "c0f52d5a96ff082ed15bd15323d3dcd9f5f8740119746855f04ad33483f30108"
+    },
+    {
+      "scene_id": "L13-05",
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "start_seconds": 446,
+      "end_seconds": 553,
+      "visual_layout": "correction",
+      "title": "Challenge the story across contexts",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-05.png",
+      "frame_sha256": "a7a3fec9a504bc9896c436370824d390f85dc14cbca9bf1bc6a5c6ea4359c7b6",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L13-05.png",
+      "presenter_frame_sha256": "9c4920fed0f3b3c41b8d0c1f48865cbcc53b91dda524ed75e76350cc5e9f03be"
+    },
+    {
+      "scene_id": "L13-06",
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "start_seconds": 553,
+      "end_seconds": 660,
+      "visual_layout": "sheet",
+      "title": "Hand off a strategic choice",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-06.png",
+      "frame_sha256": "3cdb98e12bc1697c2b7b2ccd0e7790925e2a04ced1c916026be38b1dfbfa9c69",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L13-06.png",
+      "presenter_frame_sha256": "c0c6bbdff79f3dd727bf30bb9cdac7b38fb1c9c67d85d19602e26b9c9a9bd1c0"
+    },
+    {
+      "scene_id": "L14-01",
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "start_seconds": 0,
+      "end_seconds": 82,
+      "visual_layout": "contrast",
+      "title": "A good plan meets a skeptical room",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-01.png",
+      "frame_sha256": "5e7338c23e3c1194e8ef1b579762d083765b54a744c31807bd23947b8f173e35",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L14-01.png",
+      "presenter_frame_sha256": "8723eb277a81815d94d3f531a1f5617ed4b763374ac1b4de3899f6ed7485ab8e"
+    },
+    {
+      "scene_id": "L14-02",
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "start_seconds": 82,
+      "end_seconds": 164,
+      "visual_layout": "trace",
+      "title": "Hold the source steady",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-02.png",
+      "frame_sha256": "a1fd300e4ac933f00c577f13535bc3239a9bf13b6ba97d8351b44714bcdc6779",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L14-02.png",
+      "presenter_frame_sha256": "ccb11c4434d826e15a01c9555468d05c1dd3f595c417c6ef5355ba5c0d336b5d"
+    },
+    {
+      "scene_id": "L14-03",
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "start_seconds": 164,
+      "end_seconds": 249,
+      "visual_layout": "sheet",
+      "title": "Name the cost and rejected option",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-03.png",
+      "frame_sha256": "4d50534b056061a8301e3f4263f633ce974228d2b0b0bd224821793fb78be5f9",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L14-03.png",
+      "presenter_frame_sha256": "57857bb8e5466987e0ce690607cf70ad0515c145ed81e84bece546ce2d699221"
+    },
+    {
+      "scene_id": "L14-04",
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "start_seconds": 249,
+      "end_seconds": 330,
+      "visual_layout": "correction",
+      "title": "Rehearse objections as rehearsal",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-04.png",
+      "frame_sha256": "a7b3b03b97cc2f79d01e1178b9a54b89b0f57174e2182b06329b23bc4ebdc571",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L14-04.png",
+      "presenter_frame_sha256": "7982e4a4b2f995e0c4e1572625c48c3ecbaca31a578fd6f183b01d1243b40acb"
+    },
+    {
+      "scene_id": "L14-05",
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "start_seconds": 330,
+      "end_seconds": 406,
+      "visual_layout": "comparison",
+      "title": "Write two sixty-second versions",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-05.png",
+      "frame_sha256": "8a0cd8b6c6c06c5bbf084c031cc9cbfeac212a6984bc6cc6fa49cb73b2875a25",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L14-05.png",
+      "presenter_frame_sha256": "45706d7399312bd0cec1c2e16e5391e0e2d4b61ffc77fda8bd3e6ad347d92351"
+    },
+    {
+      "scene_id": "L14-06",
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "start_seconds": 406,
+      "end_seconds": 480,
+      "visual_layout": "archive",
+      "title": "Make the decision file usable",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-06.png",
+      "frame_sha256": "07e972369b57df972ef1f6859e0901105dd566e6a26c4b87fee3cb300d934ebc",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L14-06.png",
+      "presenter_frame_sha256": "74324371505420c22017b007c4499ecea973c9329967a55553fe7f1f69d2ab13"
+    },
+    {
+      "scene_id": "L15-01",
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "start_seconds": 0,
+      "end_seconds": 122,
+      "visual_layout": "handoff",
+      "title": "A local win creates a new problem",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-01.png",
+      "frame_sha256": "c58669974fba0317d72ca416ea3278e28a03b4e6b8fa11b5837c3eb877644308",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L15-01.png",
+      "presenter_frame_sha256": "0a238a1fe0011de5265999efbf62c0d1811ace639f3db085fafca562f5aa3dc8"
+    },
+    {
+      "scene_id": "L15-02",
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "start_seconds": 122,
+      "end_seconds": 243,
+      "visual_layout": "contrast",
+      "title": "Use a light common record",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-02.png",
+      "frame_sha256": "9074413f8725c565d5bc1f4865bfa40c83a9d9babb125dc8ba50da7f0096181e",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L15-02.png",
+      "presenter_frame_sha256": "f8cfcb17153727b59761ea20c1d6b5df93386a9fcbf1c5abbc071b084e49ddb0"
+    },
+    {
+      "scene_id": "L15-03",
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "start_seconds": 243,
+      "end_seconds": 364,
+      "visual_layout": "numbered",
+      "title": "Find the five failure modes",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-03.png",
+      "frame_sha256": "e9c0654ac889f22baf31cd5e49bba0ad92b10e11f83ddc47792b44dc8a9b7041",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L15-03.png",
+      "presenter_frame_sha256": "5477eeeb92dd893dcb5bc081da083086d4d1401dbd847154a124aad163b8cd0b"
+    },
+    {
+      "scene_id": "L15-04",
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "start_seconds": 364,
+      "end_seconds": 481,
+      "visual_layout": "boundary",
+      "title": "Keep Sam's story in its lane",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-04.png",
+      "frame_sha256": "a56c0cf1a2dfa48c96ea885e87cf08f7c5ea32639437bae6ed31e838ea8e921d",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L15-04.png",
+      "presenter_frame_sha256": "540f1c398438a6ee3ddafdeb7e30bd96fbb26ebc33f1477efb8c6970e0a027c7"
+    },
+    {
+      "scene_id": "L15-05",
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "start_seconds": 481,
+      "end_seconds": 603,
+      "visual_layout": "archive",
+      "title": "Make the decision recoverable",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-05.png",
+      "frame_sha256": "fd0154ccc4637287cc93deb3e3e2066db7eb807a13e2ce6d99f09e1202957a4e",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L15-05.png",
+      "presenter_frame_sha256": "a222cf7aa4b82fec4ec6aea0a32949910b185c08ceecbed3bad9a7aedba02685"
+    },
+    {
+      "scene_id": "L15-06",
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "start_seconds": 603,
+      "end_seconds": 720,
+      "visual_layout": "checkpoint",
+      "title": "Decide whether to spread",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-06.png",
+      "frame_sha256": "9be62a89c37f4273960c5c3b1d89b0988ba24d7dcefc4a8453fecae5f46dbaae",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L15-06.png",
+      "presenter_frame_sha256": "cd825438a6e59c9047da3f320c266715e3c546892d13cfdbf06578a6ea17f38e"
+    },
+    {
+      "scene_id": "L16-01",
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "start_seconds": 0,
+      "end_seconds": 81,
+      "visual_layout": "sam",
+      "title": "Return to the first decision",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-01.png",
+      "frame_sha256": "19a00c2b0706f8227823fc3a01b6fa394f2aa0f837eb4c079c3c2d313ce60622",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L16-01.png",
+      "presenter_frame_sha256": "b282431901aa93006d39b0bd9ce8e829037a6d2914e977322515c6060a20671b",
+      "segments": [
+        {
+          "kind": "sam",
+          "duration_seconds": 40,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-01-sam.png",
+          "frame_sha256": "5cf84792289f1cfde101a0d9906c44425ffd0e16d4d3227cb518c451467249df"
+        },
+        {
+          "kind": "main",
+          "duration_seconds": 41,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-01.png",
+          "frame_sha256": "19a00c2b0706f8227823fc3a01b6fa394f2aa0f837eb4c079c3c2d313ce60622"
+        }
+      ]
+    },
+    {
+      "scene_id": "L16-02",
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "start_seconds": 81,
+      "end_seconds": 161,
+      "visual_layout": "trace",
+      "title": "Show how the file changed",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-02.png",
+      "frame_sha256": "bd011df2798fd90bd1589244b98f0e34248725b9e1b491ca8ac5abf9e07703a0",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L16-02.png",
+      "presenter_frame_sha256": "9f3d936608d9a37339ca3e006675f27781b9886bf21445d94b3ec8690036b8d4"
+    },
+    {
+      "scene_id": "L16-03",
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "start_seconds": 161,
+      "end_seconds": 239,
+      "visual_layout": "checkpoint",
+      "title": "Set a seven-day test",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-03.png",
+      "frame_sha256": "c778dade4ae032e514e44d62dbe34f9337bf4568d85028702c8650d1c11bd86a",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L16-03.png",
+      "presenter_frame_sha256": "1b3d47d7d0999378d2b8dca7506d58c69be7fa0c0c09746ecd8383f4e86cab3f"
+    },
+    {
+      "scene_id": "L16-04",
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "start_seconds": 239,
+      "end_seconds": 316,
+      "visual_layout": "boundary",
+      "title": "Protect the boundary",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-04.png",
+      "frame_sha256": "079d2a47d5db1ad97908ec008ce78b5e4bc88436b586e011a486bf0bfbba0732",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L16-04.png",
+      "presenter_frame_sha256": "842f55fb0d2fdbc50112edc00589c644763cce1844bd52fb470ad961b7b0beaf"
+    },
+    {
+      "scene_id": "L16-05",
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "start_seconds": 316,
+      "end_seconds": 408,
+      "visual_layout": "handoff",
+      "title": "Plan the review conversation",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-05.png",
+      "frame_sha256": "2c917c7d6dcf255f85a24b3d2ec651b42b384798d94bc0b741beceadeb34b2da",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L16-05.png",
+      "presenter_frame_sha256": "b26c5df9cf0e4a5bfdc1780c18abcc0d2a9f28aa0bd39175e870e2b7281a7683"
+    },
+    {
+      "scene_id": "L16-06",
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "start_seconds": 408,
+      "end_seconds": 480,
+      "visual_layout": "finale",
+      "title": "Close with one accountable move",
+      "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-06.png",
+      "frame_sha256": "dda88f963583f7e5fc75c38bc61939498f0d050b2a5de9f7239a6dedf24882a3",
+      "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L16-06.png",
+      "presenter_frame_sha256": "02ece240cad138617c02af0da5d8086f704626f42959dc36e920d9f86274e449",
+      "segments": [
+        {
+          "kind": "sam",
+          "duration_seconds": 27,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-06-sam.png",
+          "frame_sha256": "227aaba29571e4dc97dd6f3a9ec62a38a4422b5669ec5c470651393abeb2d64e"
+        },
+        {
+          "kind": "cover",
+          "duration_seconds": 45,
+          "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-06-cover.png",
+          "frame_sha256": "53f1120de8a0d55810de4f7f57345a81077e9c5c628a12bc9a94b3b51fc636b4"
+        }
+      ]
+    }
+  ]
+}

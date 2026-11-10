@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { AcceleratedLearningPlan, l01Media, l02Media, l03Media, lessons } from './AcceleratedLearningPlan'
+import { visualParityBindings, AcceleratedLearningPlan, l01Media, l02Media, l03Media, lessons } from './AcceleratedLearningPlan'
 
 vi.mock('next/image', () => ({
   default: ({ unoptimized: _unoptimized, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
@@ -74,14 +74,12 @@ describe('Accelerated L03 learner binding', () => {
     })).toThrow(/artifact binding mismatch/)
   })
 
-  it('plays L03 with captions and transcript, returns to plan, and preserves L09–L16 readiness', () => {
+  it('plays L03 with captions and transcript, preserves L09–L16 readiness', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery/ }))
-    expect(screen.getByText('L03 guided video is ready')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Watch L03 guided video/ }))
     const video = screen.getByLabelText('L03 Answer-driven discovery guided video')
     expect(video).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', l03Media.video)
+    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === 'L03')?.videoPath)
     expect(document.querySelector('video track')).toHaveAttribute('src', l03Media.captions)
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
@@ -91,8 +89,6 @@ describe('Accelerated L03 learner binding', () => {
     expect(track.mode).toBe('disabled')
     fireEvent.click(screen.getByText('Read along with L03 transcript'))
     expect(screen.getByText('Imagine walking into a review with a dashboard redesign.')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
-    expect(screen.queryByLabelText('L03 Answer-driven discovery guided video')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
     for (const lesson of lessons.filter((item) => Number(item.id.slice(1)) >= 9)) {

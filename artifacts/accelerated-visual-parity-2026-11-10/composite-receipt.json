@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "composites": [
+    {
+      "lesson_id": "L01",
+      "source_path": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+      "source_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "caption_path": "public/accelerated/lessons/l01/approved-ee09bf72/l01-approved-captions.vtt",
+      "caption_sha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f",
+      "output_path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
+      "output_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+      "duration_seconds": 540.0,
+      "presenter_windows": [
+        [
+          0.0,
+          31.52
+        ],
+        [
+          235.0,
+          248.2
+        ],
+        [
+          345.0,
+          358.96
+        ],
+        [
+          515.0,
+          529.48
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L02",
+      "source_path": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+      "source_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "caption_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "caption_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "output_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "output_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "duration_seconds": 600.0,
+      "presenter_windows": [
+        [
+          0.0,
+          29.76
+        ],
+        [
+          180.0,
+          194.28
+        ],
+        [
+          366.0,
+          376.2
+        ],
+        [
+          573.88,
+          587.24
+        ]
+      ],
+      "scene_count": 7
+    },
+    {
+      "lesson_id": "L03",
+      "source_path": "public/accelerated/lessons/l03/approved-02b9c3ea/accelerated-l03-native-composite.mp4",
+      "source_sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "caption_path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "caption_sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "output_path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "output_sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "duration_seconds": 540.0,
+      "presenter_windows": [
+        [
+          0.0,
+          22.28
+        ],
+        [
+          174.0,
+          190.84
+        ],
+        [
+          349.0,
+          360.28
+        ],
+        [
+          513.96,
+          526.24
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L04",
+      "source_path": "public/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+      "source_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "caption_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "caption_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "output_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "output_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "duration_seconds": 600.0,
+      "presenter_windows": [
+        [
+          0.0,
+          25.72
+        ],
+        [
+          165.0,
+          178.84
+        ],
+        [
+          350.0,
+          365.24
+        ],
+        [
+          572.92,
+          585.44
+        ]
+      ],
+      "scene_count": 7
+    },
+    {
+      "lesson_id": "L05",
+      "source_path": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+      "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "caption_path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "caption_sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "output_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "output_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "duration_seconds": 600.0,
+      "presenter_windows": [
+        [
+          0,
+          19.24
+        ],
+        [
+          200.0,
+          220.88
+        ],
+        [
+          400.0,
+          414.32
+        ],
+        [
+          573.92,
+          584.96
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L06",
+      "source_path": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+      "source_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "caption_path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "caption_sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "output_path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "output_sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "duration_seconds": 660.0,
+      "presenter_windows": [
+        [
+          0,
+          20.92
+        ],
+        [
+          220.0,
+          236.8
+        ],
+        [
+          440.0,
+          453.4
+        ],
+        [
+          630.84,
+          646.08
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L07",
+      "source_path": "public/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4",
+      "source_sha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "caption_path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "caption_sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "output_path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "output_sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "duration_seconds": 600.0,
+      "presenter_windows": [
+        [
+          0,
+          18.0
+        ],
+        [
+          200.0,
+          214.56
+        ],
+        [
+          400.0,
+          411.92
+        ],
+        [
+          569.96,
+          585.92
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L08",
+      "source_path": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+      "source_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "caption_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "caption_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "output_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "output_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "duration_seconds": 720.0,
+      "presenter_windows": [
+        [
+          0,
+          28.52
+        ],
+        [
+          240.0,
+          258.0
+        ],
+        [
+          480.0,
+          495.36
+        ],
+        [
+          681.04,
+          702.8
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L09",
+      "source_path": "public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+      "source_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "caption_path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "caption_sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "output_path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "output_sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "duration_seconds": 660.0,
+      "presenter_windows": [
+        [
+          0,
+          22.92
+        ],
+        [
+          220.0,
+          241.16
+        ],
+        [
+          440.0,
+          456.52
+        ],
+        [
+          630.72,
+          645.8
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L10",
+      "source_path": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+      "source_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "caption_path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "caption_sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "output_path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "output_sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "duration_seconds": 540.0,
+      "presenter_windows": [
+        [
+          0,
+          25.92
+        ],
+        [
+          180.0,
+          199.96
+        ],
+        [
+          360.0,
+          382.2
+        ],
+        [
+          511.6,
+          531.96
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L11",
+      "source_path": "public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+      "source_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "caption_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "caption_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "output_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "output_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "duration_seconds": 600.0,
+      "presenter_windows": [
+        [
+          0,
+          21.48
+        ],
+        [
+          200.0,
+          221.28
+        ],
+        [
+          400.0,
+          422.04
+        ],
+        [
+          561.56,
+          580.68
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L12",
+      "source_path": "public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+      "source_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "caption_path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "caption_sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "output_path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "output_sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "duration_seconds": 660.0,
+      "presenter_windows": [
+        [
+          0,
+          24.52
+        ],
+        [
+          220.0,
+          241.28
+        ],
+        [
+          440.0,
+          460.72
+        ],
+        [
+          622.68,
+          645.72
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L13",
+      "source_path": "public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+      "source_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "caption_path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "caption_sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "output_path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "output_sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "duration_seconds": 660.0,
+      "presenter_windows": [
+        [
+          0,
+          28.04
+        ],
+        [
+          226.0,
+          246.28
+        ],
+        [
+          446.0,
+          471.68
+        ],
+        [
+          632.28,
+          649.88
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L14",
+      "source_path": "public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+      "source_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "caption_path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "caption_sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "output_path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "output_sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "duration_seconds": 480.0,
+      "presenter_windows": [
+        [
+          0,
+          26.28
+        ],
+        [
+          164.0,
+          189.12
+        ],
+        [
+          330.0,
+          352.44
+        ],
+        [
+          451.32,
+          468.48
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L15",
+      "source_path": "public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+      "source_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "caption_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "caption_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "output_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "output_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "duration_seconds": 720.0,
+      "presenter_windows": [
+        [
+          0,
+          25.84
+        ],
+        [
+          243.0,
+          267.96
+        ],
+        [
+          481.0,
+          508.84
+        ],
+        [
+          688.08,
+          708.52
+        ]
+      ],
+      "scene_count": 6
+    },
+    {
+      "lesson_id": "L16",
+      "source_path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+      "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "caption_path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "caption_sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "output_path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "output_sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "duration_seconds": 480.0,
+      "presenter_windows": [
+        [
+          0,
+          28.48
+        ],
+        [
+          161.0,
+          187.08
+        ],
+        [
+          316.0,
+          341.4
+        ],
+        [
+          449.44,
+          472.52
+        ]
+      ],
+      "scene_count": 6
+    }
+  ]
+}

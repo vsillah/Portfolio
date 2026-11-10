@@ -1,0 +1,99 @@
+# Scene | visual grammar | visible concept labels. All examples are synthetic teaching labels.
+L01-01|sheet|Q3 INNOVATION PLAN|Decision to make|Owner|Evidence still needed
+L01-02|flow|RAW SIGNAL|HUMAN DECISION|LEARNING RECORD
+L01-03|sam|SIGNALS|ALIGNMENT|MOMENTUM
+L01-04|boundary|PUBLIC|APPROVED FOR THIS USE|RESTRICTED · STOP
+L01-05|sheet|COVER SHEET|Decision owner|Choice|Evidence gap|Review date
+L01-06|question|What must we learn before choosing?|Open evidence question|Human owner
+L02-01|priority|15 possible priorities|Which choice matters now?|One decision
+L02-02|comparison|WELCOME EMAIL|GUIDED FIRST TASK|STAFF DASHBOARD|Keep two alternatives visible
+L02-03|matrix|CUSTOMER · pain|COMPANY · value|COMPETITION · difference|PRODUCT · learning
+L02-04|ledger|OPTION|PAIN|VALUE|LEARNING|RISK|REVERSIBLE?
+L02-05|cards|Who benefits?|What changes economically?|What can we operate?|What can we learn?
+L02-06|branch|CURRENT BET|ALTERNATIVE A|ALTERNATIVE B|Assumption that could reopen the choice
+L02-07|question|What could overturn this choice?|Evidence gap|Next discovery move
+L03-01|decision|DASHBOARD IN THE ROOM|Decision requested|Numbers on screen|Missing question
+L03-02|reverse|DECISION|ANSWER NEEDED|EVIDENCE TO COLLECT
+L03-03|comparison|QUICK CHANGE|DEEPER BET|DELIBERATE DELAY|Strongest fair objection
+L03-04|sheet|RESEARCH QUESTION|What would change your mind?|Evidence missing|Source to check
+L03-05|branch|QUICK CHANGE|DEEPER BET|DELIBERATE DELAY|Small evidence move
+L03-06|archive|SOURCE + DATE|UNCERTAINTY|DECISION FILE
+L04-01|focus|Q3 PLAN|ONE MOMENT|ONE TEST
+L04-02|contrast|PERSONA DECK|JOB IN CONTEXT|Observed evidence still needed
+L04-03|contrast|WHO WE IMAGINE|WHAT THEY TRY TO DO|Observed signal ≠ proposed signal
+L04-04|comparison|VERSION 1 · prompt|VERSION 2 · guided first task|VERSION 3 · human help|Provisional choice
+L04-05|sheet|LIVING PERSONA|Job + context|Observed signal: missing|Next validation question
+L04-06|contrast|EARLIER ASSUMPTION|NEW QUESTION|Source + review date
+L04-07|archive|BOUNDARY|PRIORITY|EVIDENCE|PERSONA
+L05-01|inbox|F01|F02|F03|F04|F05|F06|Decision before theme
+L05-02|feedback|F01–F06|SOURCE NOTE|MOMENT|POSSIBLE JOB
+L05-03|branch|ONE COMPLAINT|CONFIRMATION|RESUME|INSTRUCTION
+L05-04|correction|DRAFT CLUSTER|RETURN TO F01|HUMAN CORRECTION
+L05-05|evidence|PATTERN|COUNTEREXAMPLE|PROPOSED DECISION
+L05-06|sheet|FEEDBACK LEDGER|Code six notes|Keep one contrary note|Human review
+L06-01|comparison|ADD A REMINDER|REWRITE FIRST TASK|STAFF DASHBOARD|Current bet remains provisional
+L06-02|ledger|OPTION|WHY NOW?|EVIDENCE|RISK|REOPEN WHEN
+L06-03|sheet|PRODUCT BRIEF|Problem|Person|Evidence|Behavior sought
+L06-04|handoff|BEGIN FAILS|WHO SEES IT?|WHAT HAPPENS NEXT?|Who owns recovery?
+L06-05|trace|SOURCE|OWNER|SCOPE|MEASURE|CHANGE REASON
+L06-06|flow|SOURCE ID|CURRENT BET|PRODUCT BRIEF|OBSERVATION
+L07-01|contrast|DELIVERY DATE|LEARNING QUESTION|Customer outcome
+L07-02|checkpoint|CHECKPOINT 1|Question|Method|Owner|Date|Adjustment
+L07-03|checkpoint|CHECKPOINT 2|Smaller test|Owner|Date|What changes?
+L07-04|cards|SAM'S BOOK STORY|Customer outcome?|What will we learn?|What changes next?
+L07-05|reverse|FAILED PREVIEW TEST|WHAT DID WE LEARN?|NEXT SEARCH QUESTION
+L07-06|timeline|CHECKPOINT 1 · diagnose|CHECKPOINT 2 · test|Two decisions, two dates
+L08-01|contrast|ACTIVITY LOOKS HEALTHY|TASK STILL UNCLEAR|Outcome unanswered
+L08-02|measure|OPENS|SUCCESSFUL STARTS|GUARDRAIL|Source and owner
+L08-03|numbered|1 · Problem|2 · Cohort|3 · Hypothesis|4 · Scope|5 · Metrics
+L08-04|numbered|6 · Timing|7 · Tripwires|8 · Pivots|9 · Future path|10 · Backlog
+L08-05|branch|POSSIBLE RESULT|CLEARER START|NEXT QUESTION|NO CHANGE|REVISIT THE JOB
+L08-06|sheet|LEARNING PLAN|Ten fields|Measure + guardrail|Stop condition before results
+L09-01|handoff|SOUND RECOMMENDATION|SLOW NO|Whose decision is missing?
+L09-02|numbered|Problem|Opportunity|Options|Recommendation|Tradeoffs|Outcome
+L09-03|roles|WHO DECIDES?|WHO SHAPES?|WHO CONTROLS ACCESS?|WHO CAN CHALLENGE?
+L09-04|matrix|MANAGE CLOSELY|KEEP SATISFIED|KEEP INFORMED|MONITOR
+L09-05|timeline|ASK EARLY|LISTEN|REVISE|BRING THE DECISION
+L09-06|roles|DECIDER|RESOURCE OWNER|CUSTOMER VOICE|CHALLENGER
+L10-01|handoff|STRONG CASE|MISSED DECISION|Find the path to the owner
+L10-02|contrast|SAME EVIDENCE|ROOM A · concern|ROOM B · concern
+L10-03|comparison|CARD TEST|GUIDED INTRODUCTION|DEFER|Name the rejected option
+L10-04|sheet|TRADEOFF CARD|Cost|Exclusion|Owner|Review date
+L10-05|correction|OBJECTION|EVIDENCE NEEDED|POSSIBLE REVISION
+L10-06|sheet|90-SECOND BRIEF|Decision requested|Source|What changes your mind?
+L11-01|decision|MEETING BEGINS|DECISION FIRST|Evidence within reach
+L11-02|trace|TEST FAILED|QUESTION ANSWERED|NEXT MOVE
+L11-03|numbered|1 · Signal|2 · Insight|3 · Test|4 · Decision|5 · Momentum
+L11-04|handoff|AUTOMATED MOVEMENT|HUMAN REVIEW|Meaning checked here
+L11-05|archive|WHAT WE BELIEVED|WHAT WE SAW|WHAT WE DECIDED
+L11-06|loop|SIGNAL|INSIGHT|TEST|DECISION|MISSING HANDOFF
+L12-01|feedback|SOURCE NOTE|CONTEXT|PROPOSED JOB|Question still open
+L12-02|flow|SOURCE ID|CONTEXT|JOB|QUESTION
+L12-03|boundary|BOOK CASE · ClientQ|CLASSROOM EXERCISE|OBSERVED EVIDENCE · missing
+L12-04|correction|SIMULATED OBJECTION|QUESTION FOR A PERSON|REAL EVIDENCE
+L12-05|checkpoint|HYPOTHESIS NOW|VALIDATION BEFORE LAUNCH|Owner|Stop condition
+L12-06|sheet|TWO CARDS|One job|Two questions|A real test
+L13-01|measure|FLAT METRIC|POSSIBLE CAUSES|DIAGNOSIS FIRST
+L13-02|comparison|USAGE-BASED|SEASONAL FREE TIER|SERVICES HYBRID|Compare operating costs
+L13-03|checkpoint|ONE OPTION|FALSIFIABLE TEST|Owner|Stop rule
+L13-04|sheet|FUTURE CONCEPT|Who is it for?|What changes?|What remains uncertain?
+L13-05|correction|REACTION|QUESTION TO TEST|Different context
+L13-06|sheet|STRATEGIC CHOICE|Cost|Test|Owner|Review date
+L14-01|contrast|ONE PROPOSAL|ROOM A · operations|ROOM B · funding
+L14-02|trace|SOURCE STAYS|EMPHASIS A|EMPHASIS B
+L14-03|sheet|TRADEOFF BEFORE ASK|Cost|Rejected option|Decision requested
+L14-04|correction|REHEARSED OBJECTION|PERSON TO ASK|Evidence to seek
+L14-05|comparison|60 SEC · ROOM A|60 SEC · ROOM B|Same cited evidence
+L14-06|archive|DECISION REQUESTED|SOURCE ID|OBJECTION|REVIEW DATE
+L15-01|handoff|LOCAL WIN|SECOND TEAM|Record must travel
+L15-02|contrast|SHARED FORMAT|LOCAL JUDGMENT|Context still checked
+L15-03|numbered|Bottleneck|Paperwork|Tool fixation|Resistance|Haste
+L15-04|boundary|SAM · BOOK STORY|LOCAL EVIDENCE|No borrowed proof
+L15-05|archive|WHAT WE KNEW|WHY WE CHOSE|WHEN TO REVISIT
+L15-06|checkpoint|REUSE?|OWNER|CONTEXT CHECK|STOP RULE
+L16-01|sam|FIRST DECISION|OPEN EVIDENCE QUESTION|NEXT WEEK
+L16-02|trace|ORIGINAL CHOICE|SOURCE EVIDENCE|CURRENT VIEW|WHAT CHANGED
+L16-03|checkpoint|ACTION|OWNER|EVIDENCE|DATE WITHIN SEVEN DAYS
+L16-04|boundary|OBSERVATION|INTERPRETATION|SIMULATION · label it
+L16-05|handoff|REVIEW CONVERSATION|WHAT CHANGED YOUR MIND?|WHO DECIDES NEXT?
+L16-06|finale|CHOOSE ONE PAIN POINT|RUN ONE TEST|SET ONE REVIEW

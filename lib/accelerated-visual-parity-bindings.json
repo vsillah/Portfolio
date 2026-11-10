@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "sceneReceiptSha256": "2b0ce4ad9fea5ff9f6b08c15d2c5767f32b429a807928971cfaf3515faf3b896",
+  "lessons": [
+    {
+      "lessonId": "L01",
+      "videoPath": "/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
+      "videoSha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+      "sourceVideoSha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "captionSha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f",
+      "durationSeconds": 540.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L02",
+      "videoPath": "/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "videoSha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "sourceVideoSha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "captionSha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "durationSeconds": 600.0,
+      "sceneCount": 7
+    },
+    {
+      "lessonId": "L03",
+      "videoPath": "/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "videoSha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "sourceVideoSha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "captionSha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "durationSeconds": 540.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L04",
+      "videoPath": "/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "videoSha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "sourceVideoSha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "captionSha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "durationSeconds": 600.0,
+      "sceneCount": 7
+    },
+    {
+      "lessonId": "L05",
+      "videoPath": "/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "videoSha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "sourceVideoSha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "captionSha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "durationSeconds": 600.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L06",
+      "videoPath": "/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "videoSha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "sourceVideoSha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "captionSha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "durationSeconds": 660.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L07",
+      "videoPath": "/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "videoSha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "sourceVideoSha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "captionSha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "durationSeconds": 600.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L08",
+      "videoPath": "/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "videoSha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "sourceVideoSha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "captionSha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "durationSeconds": 720.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L09",
+      "videoPath": "/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "videoSha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "sourceVideoSha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "captionSha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "durationSeconds": 660.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L10",
+      "videoPath": "/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "videoSha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "sourceVideoSha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "captionSha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "durationSeconds": 540.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L11",
+      "videoPath": "/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "videoSha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "sourceVideoSha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "captionSha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "durationSeconds": 600.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L12",
+      "videoPath": "/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "videoSha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "sourceVideoSha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "captionSha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "durationSeconds": 660.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L13",
+      "videoPath": "/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "videoSha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "sourceVideoSha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "captionSha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "durationSeconds": 660.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L14",
+      "videoPath": "/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "videoSha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "sourceVideoSha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "captionSha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "durationSeconds": 480.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L15",
+      "videoPath": "/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "videoSha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "sourceVideoSha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "captionSha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "durationSeconds": 720.0,
+      "sceneCount": 6
+    },
+    {
+      "lessonId": "L16",
+      "videoPath": "/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "videoSha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "sourceVideoSha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "captionSha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "durationSeconds": 480.0,
+      "sceneCount": 6
+    }
+  ]
+}

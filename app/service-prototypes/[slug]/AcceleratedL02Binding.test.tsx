@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
+import { visualParityBindings, AcceleratedLearningPlan, l01Media, l02Media, lessons } from './AcceleratedLearningPlan'
 
 vi.mock('next/image', () => ({
   default: ({ unoptimized: _unoptimized, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
@@ -43,21 +43,17 @@ describe('Accelerated L02 learner binding', () => {
     expect(hash(`public${l01Media.video}`)).toBe('ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a')
   })
 
-  it('plays L02 with captions and transcript, returns to plan, and preserves L09–L16 readiness', () => {
+  it('plays L02 with captions and transcript, preserves L09–L16 readiness', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
-    expect(screen.getByText('L02 guided video is ready')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Watch L02 guided video/ }))
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', l02Media.video)
+    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === 'L02')?.videoPath)
     expect(document.querySelector('video track')).toHaveAttribute('src', l02Media.captions)
     expect(screen.getByRole('button', { name: 'English captions on' })).toHaveAttribute('aria-pressed', 'true')
     fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
     expect(screen.getByRole('button', { name: 'English captions off' })).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(screen.getByText('Read along with L02 transcript'))
     expect(screen.getByText('The meeting has barely started and the board is full.')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Return to Learning plan/ }))
-    expect(screen.queryByLabelText('L02 Prioritize before generating guided video')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
     for (const item of lessons.slice(8)) {
