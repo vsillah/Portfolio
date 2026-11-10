@@ -52,20 +52,64 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Synthetic decision; sensitive detail removed')
     localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
   })
-  it('requires confirmation before clearing every saved answer', async () => {
-    localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+  it('clears only the selected lesson on this device and preserves progress', async () => {
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
     render(<AcceleratedLearningPlan />)
-    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'Keep this decision' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'Keep L01' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
+    fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'Clear L02' } })
     fireEvent.click(screen.getByRole('button', { name: 'Clear worksheet' }))
-    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Keep this decision')
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('Clear only L02 · Prioritize before generating from this device?'))
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Clear L02')
     confirm.mockReturnValue(true)
     fireEvent.click(screen.getByRole('button', { name: 'Clear worksheet' }))
     expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('')
-    expect(screen.getByRole('status')).toHaveTextContent('The local worksheet has been cleared.')
+    expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
+    fireEvent.click(screen.getByRole('button', { name: /L01: Build smarter, stay human/ }))
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Keep L01')
     confirm.mockRestore()
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(DECISION_FILE_STORAGE_KEY) || '{}').answers).toEqual({ L01: 'Keep L01', L02: '' }))
+    expect(JSON.parse(localStorage.getItem(GUEST_PROGRESS_KEY) || '{}').completed).toEqual(['L01'])
+  })
+
+  it('saves a scoped lesson clear to the member profile', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    authMocks.getSession.mockResolvedValue({ data: { session: {
+      access_token: 'synthetic-token',
+      user: { id: 'synthetic-member', email: 'member@example.test', user_metadata: {} },
+    } } })
+    const fetchMock = vi.fn(async (_url: string, options?: RequestInit) => options?.method === 'POST'
+      ? { ok: true, json: async () => ({ revision: 2 }) }
+      : { ok: true, json: async () => ({
+        enrollment: { revision: 1, current_lesson_id: 'L02' },
+        lessons: [{ lesson_id: 'L01', completed_at: '2026-11-01T00:00:00Z', video_seconds: 0 }],
+        worksheet: { worksheet_id: '12345678-1234-4234-8234-123456789abc', answers: { L01: 'Keep L01', L02: 'Clear L02' }, updated_at: '2026-11-01T00:00:00Z' },
+      }) })
+    vi.stubGlobal('fetch', fetchMock)
+    render(<AcceleratedLearningPlan />)
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Clear L02'))
+    fireEvent.click(screen.getByRole('button', { name: 'Clear worksheet' }))
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('Clear only L02 · Prioritize before generating from your AmaduTown profile?'))
+    expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
+    await waitFor(() => expect(fetchMock.mock.calls.some(([url, options]) => url === '/api/accelerated/member' && options?.method === 'POST')).toBe(true), { timeout: 3000 })
+    const writes = fetchMock.mock.calls.filter(([url, options]) => url === '/api/accelerated/member' && options?.method === 'POST')
+    const saved = JSON.parse(String(writes.at(-1)?.[1]?.body)).state
+    expect(saved.worksheet.answers).toEqual({ L01: 'Keep L01', L02: '' })
+    expect(saved.completed).toEqual(['L01'])
+    confirm.mockRestore()
+    vi.unstubAllGlobals()
+  })
+
+  it('keeps the Decision File delete action scoped to all answers', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    render(<AcceleratedLearningPlan mode="decision-file" />)
+    fireEvent.change(screen.getByLabelText(/Decision-file cover sheet and data-use boundary/), { target: { value: 'First answer' } })
+    fireEvent.change(screen.getByLabelText(/Priority decision with two rejected alternatives/), { target: { value: 'Second answer' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Delete all answers' }))
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('Clear all sixteen worksheet answers from this device?'))
     await waitFor(() => expect(JSON.parse(localStorage.getItem(DECISION_FILE_STORAGE_KEY) || '{}').answers).toEqual({}))
-    localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
+    confirm.mockRestore()
   })
   it('keeps state and filter colors readable in both themes', () => {
     const css = readFileSync('app/service-prototypes/[slug]/learning-plan.module.css', 'utf8')

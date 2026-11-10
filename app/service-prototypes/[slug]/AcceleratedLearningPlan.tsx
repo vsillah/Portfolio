@@ -326,18 +326,24 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   }
   const clearDraft = () => {
     const target = memberClaimed ? 'your AmaduTown profile' : 'this device'
+    if (mode === 'plan') {
+      if (!window.confirm(`Clear only ${lesson.id} · ${lesson.title} from ${target}? Your other lesson answers and completion progress will stay. ${memberClaimed ? 'This change will be saved to your member profile.' : 'This change will be saved on this device.'}`)) return
+      setDraft((current) => current ? { ...current, answers: { ...current.answers, [lesson.id]: '' }, updatedAt: new Date().toISOString() } : current)
+      setSent(false)
+      setConsent(false)
+      setShareState(`${lesson.id} response cleared. Your other lesson answers and completion progress remain.`)
+      return
+    }
     if (!window.confirm(`Clear all sixteen worksheet answers from ${target}? Export a copy first if you want to keep them.${memberClaimed ? ' Any copy already sent for review remains with AmaduTown.' : ''}`)) return
-    if (memberClaimed && mode === 'decision-file') { void commitWorkspace('delete', {}); return }
-    setDraft((current) => memberClaimed && current
-      ? { ...current, answers: {}, updatedAt: new Date().toISOString() }
-      : emptyDecisionFile(crypto.randomUUID()))
+    if (memberClaimed) { void commitWorkspace('delete', {}); return }
+    setDraft(emptyDecisionFile(crypto.randomUUID()))
     setSent(false)
     setFixtureReceived(false)
     setShareName('')
     setShareEmail('')
     setConsent(false)
     setShareOpen(false)
-    setShareState(memberClaimed ? 'The worksheet has been cleared from this course profile.' : 'The local worksheet has been cleared.')
+    setShareState('The local worksheet has been cleared.')
   }
   const submitDraft = async () => {
     if (!draft || !consent || !shareName.trim() || !shareEmail.trim()) { setShareState('Enter your name and email, then agree to share this worksheet.'); return }
