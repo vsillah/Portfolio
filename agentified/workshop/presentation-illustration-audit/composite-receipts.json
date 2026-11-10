@@ -4,12 +4,12 @@
   "composites": [
     {
       "lesson_id": "L01",
-      "source_path": "public/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
-      "source_sha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
-      "output_path": "agentified/workshop/presentation-illustration-audit/composites/L01-illustrated-review.mp4",
-      "output_sha256": "7365b3dca329faaf035e9e59c99a51fd437ad944e2c6a57e5192542b1f64d6ea",
+      "source_path": "public/agentified/lessons/l01/continuous-7a2c8636/agentified-l01-continuous-narration-composite.mp4",
+      "source_sha256": "7a2c8636c8cd0e6d7f324328df170a3dc9458d07db9c088cbd7af39f98cd066d",
+      "output_path": "agentified/workshop/l01-narration-continuity/agentified-l01-illustrated-composite.mp4",
+      "output_sha256": "91279f9acb31df7562d7b7f20d2f7e384dec69df514de09019097c596f09dfcf",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound continuity correction candidate"
     },
     {
       "lesson_id": "L02",

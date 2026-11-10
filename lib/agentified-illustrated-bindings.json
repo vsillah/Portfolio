@@ -2,14 +2,14 @@
   "approvalCommit": "6b288adc0ddefbe37f0b7889debafaf5eec855c1",
   "bindings": {
     "L01": {
-      "video": "/agentified/lessons/l01/illustrated-7365b3dc/agentified-l01-illustrated-composite.mp4",
-      "compositeSha256": "7365b3dca329faaf035e9e59c99a51fd437ad944e2c6a57e5192542b1f64d6ea",
-      "sourceVideo": "/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
-      "sourceSha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
-      "captions": "/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-captions.vtt",
-      "captionsSha256": "fa4a57dc243a420648e58aaa21c1ceb57a9b967296c22baed4946d612e928fbd",
-      "transcriptSha256": "966c9530da86397d1caf0d893dcc88d97ed9a0614d5e0e7ca2443cba6652f123",
-      "durationSeconds": 540
+      "video": "/agentified/lessons/l01/illustrated-91279f9a/agentified-l01-illustrated-composite.mp4",
+      "compositeSha256": "91279f9acb31df7562d7b7f20d2f7e384dec69df514de09019097c596f09dfcf",
+      "sourceVideo": "/agentified/lessons/l01/continuous-7a2c8636/agentified-l01-continuous-narration-composite.mp4",
+      "sourceSha256": "7a2c8636c8cd0e6d7f324328df170a3dc9458d07db9c088cbd7af39f98cd066d",
+      "captions": "/agentified/lessons/l01/continuous-7a2c8636/agentified-l01-continuous-narration-captions.vtt",
+      "captionsSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+      "transcriptSha256": "997e83f0d7f6d06a318d2da866195bc53e0d13a603954c10ab7d70985ddd03d2",
+      "durationSeconds": 378.059
     },
     "L02": {
       "video": "/agentified/lessons/l02/illustrated-32ae36cb/agentified-l02-illustrated-composite.mp4",
