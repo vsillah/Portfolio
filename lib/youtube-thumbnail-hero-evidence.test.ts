@@ -90,6 +90,166 @@ describe('YouTube thumbnail hero evidence', () => {
     const value = receipt(); value.candidates[0].customer_facing_copy.push(marker)
     expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toContain(`${value.candidates[0].candidate_id} contains internal workflow language in customer-facing pixels.`)
   })
+
+  it.each([null, [], { version: 'youtube-thumbnail-hero-evidence/v1' }])('rejects a missing or wrong-version receipt', (value) => {
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)).toEqual({
+      ready: false,
+      review_ready: false,
+      fixture_ready: false,
+      blockers: ['The YouTube thumbnail hero evidence receipt is missing or malformed.'],
+      recovery_actions: ['Rebuild the campaign-specific generation request and evidence receipt.'],
+    })
+  })
+
+  it('rejects a receipt whose content version is stale for the current package', () => {
+    const value = receipt()
+    value.content_version = `sha256:${'ab'.repeat(32)}`
+    const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
+    expect(result.ready).toBe(false)
+    expect(result.blockers).toContain('The hero evidence receipt is missing its campaign identity or is stale for the current content version.')
+  })
+
+  it('treats an unreadable evaluation time as stale outlier evidence', () => {
+    const result = validateYouTubeThumbnailHeroEvidence(receipt(), CONTENT_VERSION, 'not-a-time')
+    expect(result.ready).toBe(false)
+    expect(result.blockers).toContain('The topic-specific YouTube outlier evidence is missing or stale.')
+  })
+
+  it('blocks an undersized cohort, a threshold with no included outlier, and a weighted playlist', () => {
+    const value = receipt()
+    value.outlier_evidence.minimum_sample_size = value.outlier_evidence.included_video_ids.length + 1
+    value.outlier_evidence.outlier_threshold = 0
+    value.outlier_evidence.qualified_outlier_video_ids = ['not-in-cohort']
+    value.outlier_evidence.curated_playlist_performance_weight = 1
+    value.outlier_evidence.curated_playlist_role = 'performance'
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toEqual(expect.arrayContaining([
+      'The live YouTube cohort does not meet its declared minimum sample size.',
+      'The live YouTube cohort has no attributable outlier at the declared threshold.',
+      'The curated playlist is not constrained to zero-weight taste calibration.',
+    ]))
+  })
+
+  it('rejects a reusable likeness reference and an incomplete visual-intent contract', () => {
+    const value = receipt()
+    value.generation_request.identity_reference.usage = 'final_output'
+    value.generation_request.required_prompt_fields = value.generation_request.required_prompt_fields.filter((field: string) => field !== 'gaze')
+    value.hero_assets[0].prompt_intent.gaze = ' '
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toEqual(expect.arrayContaining([
+      'The likeness reference is missing or can be reused as output.',
+      'The generation request does not require the complete campaign-specific visual intent.',
+      `${value.hero_assets[0].asset_id} lacks complete visual intent.`,
+    ]))
+  })
+
+  it('keeps a synthetic fixture out of final use and withholds review readiness until real generation is authorized', () => {
+    const synthetic = receipt()
+    synthetic.hero_assets[0].generation_status = 'synthetic_fixture'
+    synthetic.hero_assets[0].final_use_eligible = true
+    const syntheticResult = validateYouTubeThumbnailHeroEvidence(synthetic, CONTENT_VERSION, AS_OF)
+    expect(syntheticResult.fixture_ready).toBe(false)
+    expect(syntheticResult.review_ready).toBe(false)
+    expect(syntheticResult.blockers).toEqual(expect.arrayContaining([
+      `${synthetic.hero_assets[0].asset_id} incorrectly marks a synthetic fixture as final-use eligible.`,
+      'Real campaign-specific likeness generation remains blocked pending explicit provider authorization; the displayed images are synthetic contract fixtures and are not final-use artwork.',
+    ]))
+
+    const unauthorized = receipt()
+    unauthorized.generation_request.real_generation_completed = false
+    unauthorized.generation_request.authorization_status = 'denied'
+    const unauthorizedResult = validateYouTubeThumbnailHeroEvidence(unauthorized, CONTENT_VERSION, AS_OF)
+    expect(unauthorizedResult.fixture_ready).toBe(true)
+    expect(unauthorizedResult.review_ready).toBe(false)
+    expect(unauthorizedResult.ready).toBe(false)
+    expect(unauthorizedResult.blockers).toEqual([
+      'Real campaign-specific likeness generation remains blocked pending explicit provider authorization; the displayed images are synthetic contract fixtures and are not final-use artwork.',
+    ])
+  })
+
+  it('rejects missing product proof, a title-length teaser, and a non-1280×720 feed pair', () => {
+    const value = receipt()
+    delete value.product_proof
+    const candidate = value.candidates[0]
+    candidate.teaser = candidate.title
+    candidate.text_word_count = 6
+    candidate.width = 640
+    candidate.aspect_ratio = '4:3'
+    candidate.feed_preview_width = 160
+    candidate.face_text_overlap = true
+    const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      'The separate product-proof binding is missing or malformed.',
+      `${candidate.candidate_id} does not keep a short teaser distinct from the title.`,
+      `${candidate.candidate_id} is not an exact version-bound 1280×720 output.`,
+      `${candidate.candidate_id} lacks an exact actual-feed-size preview.`,
+      `${candidate.candidate_id} fails focal hierarchy, face clearance, product legibility, or feed-size comprehension.`,
+    ]))
+  })
+
+  it('rejects a creative decision traced to a video outside the live cohort', () => {
+    const value = receipt()
+    const trace = value.candidates[0].evidence_trace.find((item: { decision_dimension: string }) => item.decision_dimension === 'teaser')
+    trace.live_evidence_video_ids = ['not-in-cohort']
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toContain(`${value.candidates[0].candidate_id} lacks attributable live evidence for teaser.`)
+  })
+
+  it('rejects a candidate that is perceptually too close to a recent hero or full composition', () => {
+    const value = receipt()
+    const candidate = value.candidates[0]
+    const hero = value.hero_assets.find((asset: { asset_id: string }) => asset.asset_id === candidate.hero_binding.hero_asset_id)
+    value.recent_thumbnail_history[0].composition_perceptual_hash = candidate.perceptual_hash
+    value.recent_thumbnail_history[0].hero_perceptual_hash = hero.perceptual_hash
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toEqual(expect.arrayContaining([
+      `${candidate.candidate_id} is perceptually too close to a recent full composition.`,
+      `${candidate.candidate_id} is perceptually too close to a recent hero treatment.`,
+    ]))
+  })
+
+  it('keeps a pending Human QA packet review-ready and final-use closed', () => {
+    const value = receipt()
+    value.selection_decision.status = 'pending_human_qa'
+    value.selection_decision.decided_at = null
+    value.selection_decision.selected_candidate_id = ''
+    value.selection_decision.rejected_candidates = []
+    for (const candidate of value.candidates) {
+      candidate.selection_status = 'pending_human_qa'
+      candidate.final_use_eligible = false
+    }
+    const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
+    expect(result.ready).toBe(false)
+    expect(result.review_ready).toBe(true)
+    expect(result.fixture_ready).toBe(false)
+    expect(result.blockers).toEqual(['Human QA has not selected the sole final thumbnail output or recorded the rejected alternatives.'])
+  })
+
+  it('rejects a pending decision that already names a winner or marks a candidate eligible', () => {
+    const value = receipt()
+    value.selection_decision.status = 'pending_human_qa'
+    value.selection_decision.decided_at = AS_OF
+    value.selection_decision.selected_candidate_id = value.candidates[1].candidate_id
+    value.selection_decision.rejected_candidates = []
+    for (const candidate of value.candidates) {
+      candidate.selection_status = 'pending_human_qa'
+      candidate.final_use_eligible = false
+    }
+    value.candidates[1].final_use_eligible = true
+    const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
+    expect(result.review_ready).toBe(false)
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      `${value.candidates[1].candidate_id} is awaiting Human QA but is incorrectly final-use eligible.`,
+      'The pending Human QA decision receipt is malformed or exposes an eligible output.',
+      'Human QA has not selected the sole final thumbnail output or recorded the rejected alternatives.',
+    ]))
+  })
+
+  it('rejects a selected candidate that is not the sole final-use output', () => {
+    const value = receipt()
+    const selected = value.candidates.find((candidate: { selection_status: string }) => candidate.selection_status === 'selected')
+    selected.final_use_eligible = false
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toEqual(expect.arrayContaining([
+      `${selected.candidate_id} is selected but not final-use eligible.`,
+      'Exactly one candidate must be selected and bound as the sole final-use output.',
+    ]))
+  })
 })
 
 const approvedCampaigns = [
