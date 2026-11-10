@@ -15,7 +15,7 @@ for (const [label,viewport] of [['desktop',{width:1280,height:800}],['mobile',{w
   const page = await context.newPage()
   await page.goto(route,{waitUntil:'domcontentloaded'})
   await page.locator('video').waitFor()
-  for (const [id,seconds] of [['L01',180],['L08',360],['L16',240]]) {
+  for (const [id,seconds] of [['L01',180],['L08',360],['L11',240],['L15',300],['L16',240]]) {
     if (label==='mobile' && await page.getByRole('button',{name:'Expand lesson navigation'}).count()) {
       await page.getByRole('button',{name:'Expand lesson navigation'}).click()
     }
