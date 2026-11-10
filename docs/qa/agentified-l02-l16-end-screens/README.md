@@ -9,6 +9,7 @@ This lane extends the Human QA-approved L01 end-screen system from Portfolio com
 - L16 shows a branded course-complete treatment.
 - Seeking before the boundary removes the overlay; the ended state keeps it visible.
 - The overlay leaves the native video controls unobscured.
+- Native-control clearance scales from 38px in the compact player to 96px in the full-width player, and rendered QA verifies that exact reserve.
 - Exact composite and caption hashes fail closed before a binding is returned.
 
 ## Validation

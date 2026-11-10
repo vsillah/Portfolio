@@ -65,12 +65,14 @@ async function capture(label, width, height) {
       const descendants = [...node.querySelectorAll('*')].map((element) => element.getBoundingClientRect())
       return {
         bottomGap: stage ? stage.bottom - rect.bottom : 0,
+        stageWidth: stage?.width ?? 0,
         width: rect.width,
         height: rect.height,
         childOverflow: descendants.some((child) => child.width > 0 && child.height > 0 && (child.left < rect.left - 1 || child.right > rect.right + 1 || child.top < rect.top - 1 || child.bottom > rect.bottom + 1)),
       }
     })
-    if (geometry.bottomGap < 36) throw new Error(`${testCase.id} end screen covers native controls: ${JSON.stringify(geometry)}`)
+    const minimumControlClearance = Math.min(96, Math.max(38, geometry.stageWidth * 0.095))
+    if (geometry.bottomGap + 1 < minimumControlClearance) throw new Error(`${testCase.id} end screen covers native controls: ${JSON.stringify({ ...geometry, minimumControlClearance })}`)
     if (geometry.width <= 0 || geometry.height <= 0) throw new Error(`${testCase.id} end screen is blank`)
     if (geometry.childOverflow) throw new Error(`${testCase.id} end-screen content is clipped: ${JSON.stringify(geometry)}`)
     const layoutOverflow = await page.evaluate(() => [...document.querySelectorAll('body *')].some((element) => {
