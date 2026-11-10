@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { AnchorHTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AGENTIFIED_GUEST_KEY } from '@/lib/agentified-workshop'
+import illustrated from '@/lib/agentified-illustrated-bindings.json'
 import { supabase } from '@/lib/supabase'
 import { AgentifiedWorkshop } from './AgentifiedWorkshop'
 
@@ -49,7 +50,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', expect.stringContaining(`corrected-${hash}/agentified-${id.toLowerCase()}-native-composite.mp4`))
+    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
     expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`corrected-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`))
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
@@ -81,7 +82,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/continuous-${hash}/agentified-${id.toLowerCase()}-continuous-narration-composite.mp4`)
+    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
     expect(video.querySelector('track')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/continuous-${hash}/agentified-${id.toLowerCase()}-continuous-narration-captions.vtt`)
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
@@ -113,7 +114,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-composite.mp4`)
+    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
     expect(video.querySelector('track')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`)
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
@@ -145,7 +146,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-composite.mp4`)
+    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
     expect(video.querySelector('track')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`)
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
@@ -171,7 +172,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     const { container } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
     expect(video).toHaveAttribute('poster', '/agentified/posters/l01-poster.webp')
-    expect(video.querySelector('source')).toHaveAttribute('src', '/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4')
+    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings.L01.video)
     expect(video.querySelector('track')).toHaveAttribute('src', '/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-captions.vtt')
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText('Ready · 09:00')).toBeInTheDocument()
