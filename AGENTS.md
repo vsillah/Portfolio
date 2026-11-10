@@ -232,5 +232,6 @@ After code merges or captain sweep merges complete:
 - Match active task threads against merged PRs, merged branch names, and removed worktrees.
 - Archive task threads only when their scoped work has merged, been superseded, or is clearly a completed read-only helper.
 - Keep the active integration captain lane visible unless Vambah explicitly asks to close it.
+- Before removing or archiving any worktree, verify that no kept-active chat still uses that path as its working directory. Rebind the chat to a valid checkout first, or leave the worktree in place; after cleanup, verify every kept-active chat's working directory still exists.
 - Back up Codex local state before directly editing the thread registry for records that cannot be archived through the Codex app tool.
 - Include archived thread names/counts, kept-active tasks, backup path, and ambiguous tasks left alone in the captain cleanup report.
