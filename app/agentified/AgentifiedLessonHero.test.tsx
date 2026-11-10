@@ -81,7 +81,7 @@ describe('Agentified lesson media gate', () => {
     const css = readFileSync('app/agentified/workshop.module.css', 'utf8')
     expect(css).toMatch(/\.coverStage \.videoReveal\{animation:agentifiedPosterToVideo 340ms ease-out both\}/)
     expect(css).toMatch(/\.lessonVideo\{[^}]*width:100%;max-width:100%/)
-    expect(css).toMatch(/\.coverStage\{--native-control-clearance:clamp\(38px,9\.5cqw,96px\)/)
+    expect(css).toMatch(/\.coverStage\{--native-control-clearance:clamp\(64px,9\.5cqw,96px\)/)
     expect(css).toMatch(/\.endScreen\{[^}]*inset:0 0 var\(--native-control-clearance\)/)
     expect(css).toMatch(/container:lesson-cover\/inline-size/)
     expect(css).toMatch(/@container lesson-cover \(max-width:900px\)/)
