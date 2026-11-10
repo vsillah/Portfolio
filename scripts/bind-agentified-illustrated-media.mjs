@@ -27,5 +27,10 @@ for (const [index, row] of receipts.composites.entries()) {
   assert.equal(sha(destination), row.output_sha256, `${id}: public copy drift`)
   bindings[id] = { video: publicPath, compositeSha256: row.output_sha256, sourceVideo: media.video, sourceSha256: row.source_sha256, captions: media.captions, captionsSha256: sha(path.join(root, 'public', media.captions)), transcriptSha256: createHash('sha256').update(JSON.stringify(media.spokenCues)).digest('hex'), durationSeconds: media.durationSeconds }
 }
-writeFileSync(path.join(root, 'lib/agentified-illustrated-bindings.json'), `${JSON.stringify({ approvalCommit: '6b288adc0ddefbe37f0b7889debafaf5eec855c1', bindings }, null, 2)}\n`)
+writeFileSync(path.join(root, 'lib/agentified-illustrated-bindings.json'), `${JSON.stringify({
+  sourceApprovalCommit: '6b288adc0ddefbe37f0b7889debafaf5eec855c1',
+  correctionBaseCommit: 'f5d65b6078ebef02c18b574b3afa70b2b60084ed',
+  correctionReviewState: 'human_qa_pending',
+  bindings,
+}, null, 2)}\n`)
 console.log('Bound 16 exact illustrated composites')

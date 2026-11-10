@@ -162,6 +162,6 @@ export const briefRows = {
     'Keep the export sealed.|Rollback means preserve and correct.|Approved authority ladder focused on rollback and human gate.|plate|bottom|Export closed;Rollback ready',
     'Keep, shrink, or retire?|The learner chooses what survives the audit.|Three tabs beside the circled gaps.|choice|right|Keep;Retire',
     'Present the whole Operating File.|The learner names owners for every gap.|Audit worksheet over the open binder.|worksheet|left|Gap;Owner',
-    'Leave the audit pending review.|The file is ready for human editorial and source review.|Binder closed with an outstanding review ring.|file|center|Audit pending;Human review',
+    'Your operating system is ready to review.|Every lesson now has a place in the complete file.|Closed binder with sixteen indexed lesson tabs.|file|center|16 lessons;Ready to review',
   ],
 }

@@ -28,19 +28,22 @@ for (let n = 1; n <= 16; n++) {
   const duration = Number(info.format.duration)
   const fps = info.streams.find(stream => stream.codec_type === 'video').r_frame_rate
   const protectedWindows = []
-  if (n >= 5 && n <= 8) {
+  if (n === 1) {
+    const narrationReceipt = JSON.parse(readFileSync(path.join(root, 'agentified/workshop/l01-continuous-narration/validation-receipt.json'),'utf8'))
+    for (const placement of narrationReceipt.presenter_source.placements.filter(placement => placement.sequence_end <= duration)) protectedWindows.push([placement.sequence_start,placement.sequence_end,'native presenter'])
+    const continuityReceipt = JSON.parse(readFileSync(path.join(root, 'agentified/workshop/l01-narration-continuity/validation-receipt.json'),'utf8'))
+    const endScreen = continuityReceipt.continuity.end_screen
+    protectedWindows.push([endScreen.start,endScreen.end,'approved branded end screen'])
+  } else if (n >= 5 && n <= 8) {
     const finalReceipt = JSON.parse(readFileSync(path.join(root, `agentified/workshop/l05-l08-continuous-narration/${id.toLowerCase()}-validation-receipt.json`),'utf8'))
     for (const placement of finalReceipt.presenter_source.placements) protectedWindows.push([placement.sequence_start,placement.sequence_end,'native presenter'])
     const guide = finalReceipt.guided_work_window
     protectedWindows.push([guide.start,guide.end,'original countdown'])
-    protectedWindows.push([finalReceipt.presenter_source.placements.at(-1).sequence_end,duration,'original closing card'])
   } else {
     const timeline = timelineFor(id)
     for (const placement of timeline.presenter_windows || timeline.placements || []) protectedWindows.push([placement.sequence_start,placement.sequence_end,'native presenter'])
     const countdown = timeline.guided_work_countdown
     if (countdown) protectedWindows.push([countdown.sequence_start,countdown.sequence_end,'original countdown'])
-    const closing = timeline.provider_free_closing_card || timeline.approved_closing_card
-    if (closing) protectedWindows.push([closing.start,closing.end,'original closing card'])
   }
   const concat = rows.map(row => {
     const frame = path.join(here, 'frames/illustrated', `${row.scene_id}.png`)

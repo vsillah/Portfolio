@@ -82,6 +82,9 @@ for (const frame of visuals.frames) {
     assert(!/→|->|≠|`|\b(?:fixture|synthetic|source handling|operator note|qa)\b/i.test(copy),`${frame.scene_id}: internal or code-like copy: ${copy}`)
     assert(copy.length <= 180,`${frame.scene_id}: overlong copy`)
   }
+  if (/-08$/.test(frame.scene_id)) {
+    assert(!frame.display_copy.some(copy => /operating file v\d+|\bpending\b|human editorial|source review/i.test(copy)),`${frame.scene_id}: internal closing copy returned`)
+  }
   if (frame.source_path) assert.equal(sha(path.join(root,frame.source_path)),frame.source_sha256,`${frame.scene_id}: source hash drift`)
 }
 for (const row of audit.rows) {

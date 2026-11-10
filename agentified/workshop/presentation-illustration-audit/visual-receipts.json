@@ -3205,24 +3205,24 @@
     {
       "scene_id": "L16-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-08.png",
-      "frame_sha256": "fb18fc0e4e2e0aea278a1cf72de4aaed8137fab89fd3aa9d710c6f0d3b07f5a9",
+      "frame_sha256": "d07f64917453ae29813abab9086024bc6f3112d44b3b9063aa0cb31233f90a9c",
       "visual_family": "L16-operating-artifact:file:center",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
       "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
       "source_rights": "original generated project-local illustration",
       "approved_plate_rendered_px": null,
       "display_copy": [
-        "Leave the audit pending review.",
-        "Audit pending",
-        "Human review"
+        "Your operating system is ready to review.",
+        "16 lessons",
+        "Ready to review"
       ],
-      "accessibility_text": "The file is ready for human editorial and source review. Visual: Binder closed with an outstanding review ring.",
+      "accessibility_text": "Every lesson now has a place in the complete file. Visual: Closed binder with sixteen indexed lesson tabs.",
       "continuity": {
         "id": "L16-operating-artifact",
         "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
       },
-      "one_second_read": "The file is ready for human editorial and source review.",
-      "brief_sha256": "392d8a43bfc0536a615974626db90aec22a9b117bd9ffea1d19d5fa70e130441"
+      "one_second_read": "Every lesson now has a place in the complete file.",
+      "brief_sha256": "19eb4d0a72e3b6fe4fc818ed70e704ae179861d0298148d214dd532bd6d2bfb3"
     }
   ]
 }

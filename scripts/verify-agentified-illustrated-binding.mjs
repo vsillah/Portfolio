@@ -9,7 +9,9 @@ const receipts = JSON.parse(readFileSync(path.join(root, 'agentified/workshop/pr
 const manifest = JSON.parse(readFileSync(path.join(root, 'lib/agentified-illustrated-bindings.json'), 'utf8'))
 const { agentifiedSourceMedia } = await import('../lib/agentified-source-media.ts')
 const sha = (file) => createHash('sha256').update(readFileSync(path.join(root, file))).digest('hex')
-assert.equal(manifest.approvalCommit, '6b288adc0ddefbe37f0b7889debafaf5eec855c1')
+assert.equal(manifest.sourceApprovalCommit, '6b288adc0ddefbe37f0b7889debafaf5eec855c1')
+assert.equal(manifest.correctionBaseCommit, 'f5d65b6078ebef02c18b574b3afa70b2b60084ed')
+assert.equal(manifest.correctionReviewState, 'human_qa_pending')
 assert.equal(receipts.composites.length, 16)
 assert.equal(Object.keys(manifest.bindings).length, 16)
 for (const [index, row] of receipts.composites.entries()) {
