@@ -87,6 +87,7 @@
 .artifact summary{cursor:pointer;font-size:13px;font-weight:800}
 .coverStage{width:100%;aspect-ratio:16/9;overflow:hidden;margin-top:12px;border-radius:7px;background:#081a26}
 .coverStage img,.coverStage video{display:block;width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
+.lessonVideo{display:block;width:100%;max-width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
 .coverStage .videoReveal{animation:agentifiedPosterToVideo 340ms ease-out both}
 @keyframes agentifiedPosterToVideo{from{opacity:0}to{opacity:1}}
 .fileGroups{display:grid;gap:18px}

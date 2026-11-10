@@ -24,6 +24,7 @@ describe('Agentified lesson media gate', () => {
     const video = container.querySelector('video')!
     expect(video).toHaveAttribute('poster', '/agentified/posters/l01-poster.webp')
     expect(video).toHaveAttribute('aria-label', 'L01 Receipt guided video')
+    expect(video.className).toContain('lessonVideo')
     expect(video).toHaveAttribute('controls')
     expect(video).toHaveAttribute('playsinline')
     fireEvent.playing(video)
@@ -54,6 +55,7 @@ describe('Agentified lesson media gate', () => {
   it('keeps the established 340 ms fade and reduced-motion cut in CSS', () => {
     const css = readFileSync('app/agentified/workshop.module.css', 'utf8')
     expect(css).toMatch(/\.coverStage \.videoReveal\{animation:agentifiedPosterToVideo 340ms ease-out both\}/)
+    expect(css).toMatch(/\.lessonVideo\{[^}]*width:100%;max-width:100%/)
     expect(css).toMatch(/prefers-reduced-motion:reduce[^}]*\}[^}]*\.coverStage \.videoReveal\{animation:none\}/)
     expect(css).toContain('@media(max-width:1100px)')
     expect(css).toContain('@media(max-width:900px)')
