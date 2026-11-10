@@ -85,11 +85,11 @@
 .transcript p span{display:block;font-size:11px;font-weight:800;color:#9b762c;margin-bottom:5px}
 .artifact{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
 .artifact summary{cursor:pointer;font-size:13px;font-weight:800}
-.coverStage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;margin-top:12px;border-radius:7px;background:#081a26;container:lesson-cover/inline-size}
+.coverStage{--native-control-clearance:clamp(64px,9.5cqw,96px);position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;margin-top:12px;border-radius:7px;background:#081a26;container:lesson-cover/inline-size}
 .coverStage img,.coverStage video{display:block;width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
 .lessonVideo{display:block;width:100%;max-width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
 .coverStage .videoReveal{animation:agentifiedPosterToVideo 340ms ease-out both}
-.endScreen{position:absolute;z-index:2;inset:0 0 44px;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.92fr);gap:24px;padding:clamp(18px,3.3vw,46px);overflow:hidden;background:#071b2a;color:#f5eddb;pointer-events:none;animation:agentifiedEndScreen 340ms ease-out both}
+.endScreen{position:absolute;z-index:2;inset:0 0 var(--native-control-clearance);display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.92fr);gap:24px;padding:clamp(18px,3.3vw,46px);overflow:hidden;background:#071b2a;color:#f5eddb;pointer-events:none;animation:agentifiedEndScreen 340ms ease-out both}
 .endScreen::before,.endScreen::after{position:absolute;left:0;right:0;height:1px;content:"";background:#ddb44d;opacity:.48}
 .endScreen::before{top:9%}.endScreen::after{bottom:9%}
 .endScreenSummary,.endScreenNext,.endScreenComplete{position:relative;z-index:1;min-width:0}
@@ -130,5 +130,5 @@
 .reviewActions{display:flex;gap:9px;flex-wrap:wrap}
 @media(max-width:1100px){.lessonColumns{grid-template-columns:minmax(0, 1fr)}.worksheet{order:2}}
 @media(max-width:900px){.header{display:block}.headerLinks{margin-top:15px}.planLayout,.planLayoutCollapsed{grid-template-columns:1fr}.nav,.navCollapsed{position:static;max-height:none;padding:16px}.navCollapsed .navHeading{justify-content:space-between;padding:0 4px 10px}.navCollapsed .navHeading strong{display:block}.navCollapsed .navBody{display:none}.nav:not(.navCollapsed) .navBody{display:block}.nav:not(.navCollapsed) .navBody h2,.nav:not(.navCollapsed) .navBody button strong{display:block}.continuity{align-items:start;flex-direction:column}}
-@media(max-width:620px){.workshop{padding:20px 14px 60px}.lesson,.fileGroups>section,.review{padding:17px}.header h1{font-size:42px}.fileGroups label{grid-template-columns:1fr}.fileGroups label>span{grid-row:auto}.fileGroups label textarea,.fileGroups label a{grid-column:1}.endScreen{inset:0 0 38px;grid-template-columns:minmax(0,.95fr) minmax(118px,1.05fr);gap:9px;padding:14px}.endScreenSummary strong{font-size:18px}.endScreenNext,.endScreenComplete{padding:7px}.endScreenNext strong,.endScreenComplete strong{font-size:15px}.endScreen p{margin:5px 0 4px;font-size:8px}.endScreen small{margin-top:8px;font-size:8px}.endScreenProgress{height:5px}.endScreenCheck{width:24px;height:24px;font-size:15px}}
+@media(max-width:620px){.workshop{padding:20px 14px 60px}.lesson,.fileGroups>section,.review{padding:17px}.header h1{font-size:42px}.fileGroups label{grid-template-columns:1fr}.fileGroups label>span{grid-row:auto}.fileGroups label textarea,.fileGroups label a{grid-column:1}}
 @media(prefers-reduced-motion:reduce){.workshop *{scroll-behavior:auto!important;transition:none!important;animation:none!important}.coverStage .videoReveal,.endScreen{animation:none}}
