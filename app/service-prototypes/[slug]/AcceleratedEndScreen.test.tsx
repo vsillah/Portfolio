@@ -13,7 +13,11 @@ describe('Accelerated lesson endings', () => {
     Object.defineProperty(video, 'duration', { configurable: true, value: duration })
     expect(video).toHaveAttribute('controls')
     fireEvent.ended(video)
-    expect(screen.getByLabelText(`${id} lesson complete`)).toBeInTheDocument()
+    expect(screen.getByLabelText(`${id} video finished`)).toBeInTheDocument()
+    if (id === 'L16') {
+      expect(screen.getByText('FINAL VIDEO FINISHED')).toBeInTheDocument()
+      expect(screen.queryByText('COURSE COMPLETE')).not.toBeInTheDocument()
+    }
     expect(video.parentElement).toHaveAttribute('data-ended', 'true')
     if (next) {
       expect(screen.getByRole('img', { name: new RegExp(`^${next} .* lesson cover$`) })).toHaveAttribute('src', `/accelerated/posters/${next.toLowerCase()}-poster.webp`)
@@ -22,7 +26,7 @@ describe('Accelerated lesson endings', () => {
       expect(screen.getByRole('link', { name: /Open the Decision File/ })).toHaveAttribute('href', '/accelerated/decision-file')
     }
     fireEvent.seeking(video)
-    expect(screen.queryByLabelText(`${id} lesson complete`)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(`${id} video finished`)).not.toBeInTheDocument()
     expect(video.parentElement).toHaveAttribute('data-ended', 'false')
   })
 })

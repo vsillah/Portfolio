@@ -693,7 +693,7 @@
       "visual_layout": "numbered",
       "title": "The first five components establish the bet",
       "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-03.png",
-      "frame_sha256": "57b928ce839cf7a638234330eef1c4a51af42cb9def248d7456275e95a7f1ea6",
+      "frame_sha256": "ce19cf7f16baef40c1b4ac60f1fcaea56c4e9f7ae7e4e54516ef7707b448257b",
       "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-03.png",
       "presenter_frame_sha256": "26431ef3446a0ff45d10ac7665c52be0c92c9241654485f2b32cbdce6f5d5b8c"
     },
@@ -705,7 +705,7 @@
       "visual_layout": "numbered",
       "title": "The next five decide what happens afterward",
       "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-04.png",
-      "frame_sha256": "2dd3750fdbb7f8579dfa5da9c21a9ac7432ccb6883d0d83ad6780729d75b6372",
+      "frame_sha256": "c419a34b2c1826f8011cd4ca85a13815b589f0451239e605024a8dce1f137704",
       "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L08-04.png",
       "presenter_frame_sha256": "1687b7b2d072f4740eed22c8baf740329bf3ce75298b447612c2f7df1c927df0"
     },
@@ -929,7 +929,7 @@
       "visual_layout": "numbered",
       "title": "Connect signal, insight, test, decision",
       "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-03.png",
-      "frame_sha256": "0dac68c0b407f6a4fbf9cf2a29bb01746dc12a1a228419345daffb0ae12b6bcf",
+      "frame_sha256": "97fa76f3aeb8aa6afe6cab212205226a988408d8d24d4726531dfc9dd142a01a",
       "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L11-03.png",
       "presenter_frame_sha256": "96a1fd3e706937bdded39e6a15b1aa53e9a9c2e1d07d475416b1ba85322ff62e"
     },
@@ -1217,7 +1217,7 @@
       "visual_layout": "numbered",
       "title": "Find the five failure modes",
       "frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-03.png",
-      "frame_sha256": "ac8e5614016777db81eecd901ec0324d791db760bd25f9a52ec1eb99981e5e07",
+      "frame_sha256": "e9c0654ac889f22baf31cd5e49bba0ad92b10e11f83ddc47792b44dc8a9b7041",
       "presenter_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-frames/L15-03.png",
       "presenter_frame_sha256": "5477eeeb92dd893dcb5bc081da083086d4d1401dbd847154a124aad163b8cd0b"
     },

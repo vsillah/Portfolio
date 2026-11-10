@@ -16,8 +16,12 @@ for (const [label,viewport] of [['desktop',{width:1280,height:800}],['mobile',{w
   await page.goto(route,{waitUntil:'domcontentloaded'})
   await page.locator('video').waitFor()
   for (const [id,seconds] of [['L01',180],['L08',360],['L16',240]]) {
+    if (label==='mobile' && await page.getByRole('button',{name:'Expand lesson navigation'}).count()) {
+      await page.getByRole('button',{name:'Expand lesson navigation'}).click()
+    }
     await page.getByRole('button',{name:new RegExp(`^${id}:`)}).click()
     const video = page.locator('video')
+    await video.scrollIntoViewIfNeeded()
     await page.waitForFunction(() => document.querySelector('video')?.readyState >= 1)
     await video.evaluate((node,time)=>new Promise((resolve,reject)=>{
       const limit=setTimeout(()=>reject(new Error('seek timed out')),10000)
@@ -34,11 +38,11 @@ for (const [label,viewport] of [['desktop',{width:1280,height:800}],['mobile',{w
         node.muted=true
         node.play().catch(reject)
       }))
-      await page.getByRole('status',{name:'L16 lesson complete'}).waitFor()
+      await page.getByRole('status',{name:'L16 video finished'}).waitFor()
       await page.waitForTimeout(1900)
     }
   }
-  await page.screenshot({path:path.join(out,`${label}-l16-end.png`),fullPage:true})
+  await page.screenshot({path:path.join(out,`${label}-l16-end.png`),fullPage:false})
   const videoPath = await page.video().path()
   await context.close()
   execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',videoPath,'-c:v','libx264','-crf','20','-pix_fmt','yuv420p',path.join(out,`${label}-early-middle-final.mp4`)])

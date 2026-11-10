@@ -210,8 +210,8 @@
       "source_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
       "caption_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
       "caption_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
-      "output_path": "public/accelerated/visual-parity/l08/visual-36fa4f32/l08-visual-parity.mp4",
-      "output_sha256": "36fa4f3261d31c3d1609e1224b1ebe769c7ab8f7c378957967b8f8c6fc77542b",
+      "output_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "output_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
       "duration_seconds": 720.0,
       "presenter_windows": [
         [
@@ -297,8 +297,8 @@
       "source_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
       "caption_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
       "caption_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
-      "output_path": "public/accelerated/visual-parity/l11/visual-b4cdc18a/l11-visual-parity.mp4",
-      "output_sha256": "b4cdc18a216de62356af3117e839b12be30cf11746106ff8c55394c6b583c62e",
+      "output_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "output_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
       "duration_seconds": 600.0,
       "presenter_windows": [
         [
@@ -413,8 +413,8 @@
       "source_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
       "caption_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
       "caption_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
-      "output_path": "public/accelerated/visual-parity/l15/visual-4c5227bf/l15-visual-parity.mp4",
-      "output_sha256": "4c5227bf076a692072962c7a9b5f413a198f4368b26b2ae3c4e667beda5f8cad",
+      "output_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "output_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
       "duration_seconds": 720.0,
       "presenter_windows": [
         [

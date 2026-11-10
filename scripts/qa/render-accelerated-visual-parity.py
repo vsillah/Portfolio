@@ -246,7 +246,8 @@ def draw_semantic(d,layout,labels):
                 concept_box(d,(x,y+45,x+315,y+200),value,size=28)
             return True
         for i,value in enumerate(labels):
-            x=725+i*1030/count;y=570-(i%2)*205
+            # Keep both rows above the native caption and control region.
+            x=725+i*1030/count;y=420-(i%2)*160
             d.ellipse((x,y-60,x+90,y+30),fill=GOLD_LIGHT,outline=GOLD,width=5)
             d.text((x+27,y-52),str(i+1),font=font(40,True),fill=INK)
             concept_box(d,(x-15,y+45,x+1010/count-15,y+190),value,size=25)
