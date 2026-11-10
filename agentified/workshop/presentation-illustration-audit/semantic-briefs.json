@@ -4211,15 +4211,15 @@
     {
       "scene_id": "L16-08",
       "lesson_title": "Audit the operating file",
-      "headline": "Leave the audit pending review.",
-      "concept": "Leave the audit pending review",
-      "one_second_read": "The file is ready for human editorial and source review.",
-      "visual_artifact": "Binder closed with an outstanding review ring.",
+      "headline": "Your operating system is ready to review.",
+      "concept": "Your operating system is ready to review",
+      "one_second_read": "Every lesson now has a place in the complete file.",
+      "visual_artifact": "Closed binder with sixteen indexed lesson tabs.",
       "treatment": "file",
       "focus": "center",
       "visible_labels": [
-        "Audit pending",
-        "Human review"
+        "16 lessons",
+        "Ready to review"
       ],
       "text_budget": {
         "headline_words": 10,
@@ -4227,7 +4227,7 @@
         "label_words": 4,
         "min_font_px": 42
       },
-      "accessibility_description": "The file is ready for human editorial and source review. Visual: Binder closed with an outstanding review ring.",
+      "accessibility_description": "Every lesson now has a place in the complete file. Visual: Closed binder with sixteen indexed lesson tabs.",
       "master_source": {
         "path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
         "sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",

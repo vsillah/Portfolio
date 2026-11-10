@@ -181,7 +181,7 @@
     {
       "scene_id": "L01-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L01-08.png",
-      "frame_sha256": "ed2a96ef7a7c4a9f5d38f1b9b67a5b8f9dbe36860521ac09ecada961afd83a04",
+      "frame_sha256": "cc93b2699a872e189879dd0976a8d5fd927a2a1ba58df55f1d8e3d1e7887b669",
       "visual_family": "L01-operating-artifact:file:center",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
       "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
@@ -378,7 +378,7 @@
     {
       "scene_id": "L02-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L02-08.png",
-      "frame_sha256": "509ab87d419bcd3eef5f61a4b39f728d40f5252b2dda6a60c12f01b85bc14812",
+      "frame_sha256": "77d0b6ed80dc3e2b699ef7167e6831b5ad8820a659995e474cbe172d1b31f0cc",
       "visual_family": "L02-operating-artifact:file:left",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
       "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
@@ -575,7 +575,7 @@
     {
       "scene_id": "L03-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L03-08.png",
-      "frame_sha256": "204ac59092385655c168853dd375f6f1c2b0e1edac5e31e3bfe900f1adba7eab",
+      "frame_sha256": "80ad87417a589373d1871ba5e1211c97d1df8c4c1dede17c51101aa6750ee307",
       "visual_family": "L03-operating-artifact:file:center",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
       "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
@@ -772,7 +772,7 @@
     {
       "scene_id": "L04-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L04-08.png",
-      "frame_sha256": "6709447cc5eeed9534b2e6b1e0c2e3168f9c8e65c8360ba6655914b09646adf2",
+      "frame_sha256": "2c83cc87e463b4be535c3579edabf57daa374b7e1a17d7dbcbab449afa597c50",
       "visual_family": "L04-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
       "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
@@ -969,7 +969,7 @@
     {
       "scene_id": "L05-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-08.png",
-      "frame_sha256": "5bd97a767c9ab0dc1b398f8601f65662f6f1f8d1286b83da6e7d6982075c10f1",
+      "frame_sha256": "88cfbcaf60a5b5637b85e578d6e541768198da23533a63b04b76617010ff24d5",
       "visual_family": "L05-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
       "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
@@ -1166,7 +1166,7 @@
     {
       "scene_id": "L06-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L06-08.png",
-      "frame_sha256": "ab97945b495549c79193f7e5446de39f393e5caa7ddcbb05e185e4b8b90e4f20",
+      "frame_sha256": "1c3e207f99c05ccc720ed87cfdd7a3290ddde6dc35cf6fb79b8e154f947fa10f",
       "visual_family": "L06-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
       "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
@@ -1363,7 +1363,7 @@
     {
       "scene_id": "L07-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L07-08.png",
-      "frame_sha256": "deab7f6b7757f72db8cd31448de22f99d87546721fcef6487fcedc6bae8f343f",
+      "frame_sha256": "234f3010cbdf74fe5be5a90d9e8ec0e516e7b62c8442838879149a3947abc820",
       "visual_family": "L07-operating-artifact:file:center",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
       "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
@@ -1560,7 +1560,7 @@
     {
       "scene_id": "L08-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L08-08.png",
-      "frame_sha256": "539204587f9617d42fa7d13ab81dabe9d935c1daaf0893fd8ff6b7f208687bf3",
+      "frame_sha256": "d3dc0914666c6552f7347fb3cc5a87ac0c9a58a2d4eab4eb3262ad4b1eeaefdf",
       "visual_family": "L08-operating-artifact:file:center",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
       "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
@@ -1780,7 +1780,7 @@
     {
       "scene_id": "L09-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L09-08.png",
-      "frame_sha256": "e1171e21e7c12361906214521f6d286563720ec0659c8b84d6a7fc4fbddf1c66",
+      "frame_sha256": "df098a3ccafb1b62ba9f64bdaa909df0fe5070c3303acdfcc13d7a4709d3504e",
       "visual_family": "L09-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
       "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
@@ -1977,7 +1977,7 @@
     {
       "scene_id": "L10-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L10-08.png",
-      "frame_sha256": "eac857e932d13d36e3443edad72b60e8580a7d5361897aff43c5c79dd0998dba",
+      "frame_sha256": "c44b2ca3d0de93034c9e7d9c4aaa60e3b453d88177d8dddc16696fae7f6dd109",
       "visual_family": "L10-operating-artifact:file:center",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
       "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
@@ -2174,7 +2174,7 @@
     {
       "scene_id": "L11-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L11-08.png",
-      "frame_sha256": "d65b01b6b37915af33ace91767b73f7974772f7d7755f3a7f1902543c9b10db7",
+      "frame_sha256": "093fd1d2e9f800368b99e262b13c97d2f87f15b3a21772f96b00d438897be8df",
       "visual_family": "L11-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
       "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
@@ -2371,7 +2371,7 @@
     {
       "scene_id": "L12-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L12-08.png",
-      "frame_sha256": "7abaafb5e18e9b8a91baedf9adee637dbce2d5770517f2d05566266f4f791042",
+      "frame_sha256": "7e2c4924bcf54b572ea567ef41e101db12b779e114b1bbda61ae4a1e8018ab4e",
       "visual_family": "L12-operating-artifact:file:left",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
       "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
@@ -2568,7 +2568,7 @@
     {
       "scene_id": "L13-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L13-08.png",
-      "frame_sha256": "75de7b37aa2ede3696b4a9a713dc848ce086b7f83c3654e8d583ce328d3f6a97",
+      "frame_sha256": "1238de4201d1033517f8680172a76a166941981fb3dff95d9eb7eb01dc622c8b",
       "visual_family": "L13-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
       "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
@@ -2788,7 +2788,7 @@
     {
       "scene_id": "L14-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L14-08.png",
-      "frame_sha256": "d04655024eaf2969575f8693cf4d12cba36092edd487ea38743ee8dcfc51d140",
+      "frame_sha256": "5287fb8a6c0cf11a8f7ea7d69d5ba0e9ace889015603c22a057156869a9b8912",
       "visual_family": "L14-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
       "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
@@ -2985,7 +2985,7 @@
     {
       "scene_id": "L15-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L15-08.png",
-      "frame_sha256": "2db1346925c8b316ce556b2736048ed2daf7469a0eed501c7c5fc6788fdcb19c",
+      "frame_sha256": "4b428b633cd62c262b0b44068dc942615e0c1d1f27424ba36f0853eb9149bd7a",
       "visual_family": "L15-operating-artifact:file:right",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
       "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
@@ -3205,24 +3205,24 @@
     {
       "scene_id": "L16-08",
       "frame_path": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-08.png",
-      "frame_sha256": "fb18fc0e4e2e0aea278a1cf72de4aaed8137fab89fd3aa9d710c6f0d3b07f5a9",
+      "frame_sha256": "de03f55bf5c6472d53b540ba3c0de023fb9dda4ccba83008c89b0ed85982f015",
       "visual_family": "L16-operating-artifact:file:center",
       "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L16.png",
       "source_sha256": "87c0ce672e97914afb1fb1f2cb22a1b2c2ccd1921a4c6ed46fa48a218c9bb5f9",
       "source_rights": "original generated project-local illustration",
       "approved_plate_rendered_px": null,
       "display_copy": [
-        "Leave the audit pending review.",
-        "Audit pending",
-        "Human review"
+        "Your operating system is ready to review.",
+        "16 lessons",
+        "Ready to review"
       ],
-      "accessibility_text": "The file is ready for human editorial and source review. Visual: Binder closed with an outstanding review ring.",
+      "accessibility_text": "Every lesson now has a place in the complete file. Visual: Closed binder with sixteen indexed lesson tabs.",
       "continuity": {
         "id": "L16-operating-artifact",
         "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
       },
-      "one_second_read": "The file is ready for human editorial and source review.",
-      "brief_sha256": "392d8a43bfc0536a615974626db90aec22a9b117bd9ffea1d19d5fa70e130441"
+      "one_second_read": "Every lesson now has a place in the complete file.",
+      "brief_sha256": "19eb4d0a72e3b6fe4fc818ed70e704ae179861d0298148d214dd532bd6d2bfb3"
     }
   ]
 }

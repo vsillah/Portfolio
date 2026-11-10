@@ -1,150 +1,1105 @@
 {
   "schema_version": 1,
-  "source_commit": "f0931f3860e042507ee5aba83f220eb57cfd3eb5",
   "composites": [
     {
       "lesson_id": "L01",
       "source_path": "public/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-composite.mp4",
       "source_sha256": "10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14",
-      "output_path": "agentified/workshop/l01-narration-continuity/agentified-l01-illustrated-composite.mp4",
-      "output_sha256": "47a79d7279e11477ad55f3f4beefbe177a71d8cc7f725aff8067fb97e80783e6",
+      "output_path": "agentified/workshop/presentation-illustration-audit/composites/L01-illustrated-review.mp4",
+      "output_sha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
       "scene_count": 8,
-      "release_state": "unbound continuity correction candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 378.285,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          13.633,
+          "native presenter"
+        ],
+        [
+          359.64499999999975,
+          378.05899999999997,
+          "approved branded end screen"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L01-01",
+          "start_seconds": 0,
+          "end_seconds": 34.58499999999998
+        },
+        {
+          "scene_id": "L01-02",
+          "start_seconds": 34.58499999999998,
+          "end_seconds": 74.19700000000007
+        },
+        {
+          "scene_id": "L01-03",
+          "start_seconds": 74.19700000000007,
+          "end_seconds": 114.35800000000016
+        },
+        {
+          "scene_id": "L01-04",
+          "start_seconds": 114.35800000000016,
+          "end_seconds": 150.50100000000003
+        },
+        {
+          "scene_id": "L01-05",
+          "start_seconds": 150.50100000000003,
+          "end_seconds": 183.05899999999974
+        },
+        {
+          "scene_id": "L01-06",
+          "start_seconds": 183.05899999999974,
+          "end_seconds": 203.05899999999974
+        },
+        {
+          "scene_id": "L01-07",
+          "start_seconds": 203.05899999999974,
+          "end_seconds": 343.05899999999974
+        },
+        {
+          "scene_id": "L01-08",
+          "start_seconds": 343.05899999999974,
+          "end_seconds": 378.05899999999974
+        }
+      ]
     },
     {
       "lesson_id": "L02",
       "source_path": "public/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
       "source_sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L02-illustrated-review.mp4",
-      "output_sha256": "32ae36cbe142aef0fe403b8b5a2ee28d338205a465007956edf6f19392886488",
+      "output_sha256": "27a72885e84e7f100bda67298afa6c75a85696b7324650da950c658dff84d469",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 510,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          16.709,
+          "native presenter"
+        ],
+        [
+          500.763,
+          504,
+          "native presenter"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L02-01",
+          "start_seconds": 0,
+          "end_seconds": 65
+        },
+        {
+          "scene_id": "L02-02",
+          "start_seconds": 65,
+          "end_seconds": 130
+        },
+        {
+          "scene_id": "L02-03",
+          "start_seconds": 130,
+          "end_seconds": 195
+        },
+        {
+          "scene_id": "L02-04",
+          "start_seconds": 195,
+          "end_seconds": 260
+        },
+        {
+          "scene_id": "L02-05",
+          "start_seconds": 260,
+          "end_seconds": 325
+        },
+        {
+          "scene_id": "L02-06",
+          "start_seconds": 325,
+          "end_seconds": 345
+        },
+        {
+          "scene_id": "L02-07",
+          "start_seconds": 345,
+          "end_seconds": 485
+        },
+        {
+          "scene_id": "L02-08",
+          "start_seconds": 485,
+          "end_seconds": 510
+        }
+      ]
     },
     {
       "lesson_id": "L03",
       "source_path": "public/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
       "source_sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L03-illustrated-review.mp4",
-      "output_sha256": "124d2b2c72e8ec331aebb6c80c702293b0a593e2f6c27eed280196b196c2b2a1",
+      "output_sha256": "0ad7c3e132e2f54148f282a798255cb1f9a23a0f5865ee1cfb6e142efe1d6cbb",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 600,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          14.572,
+          "native presenter"
+        ],
+        [
+          587.557,
+          592,
+          "native presenter"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L03-01",
+          "start_seconds": 0,
+          "end_seconds": 70
+        },
+        {
+          "scene_id": "L03-02",
+          "start_seconds": 70,
+          "end_seconds": 140
+        },
+        {
+          "scene_id": "L03-03",
+          "start_seconds": 140,
+          "end_seconds": 210
+        },
+        {
+          "scene_id": "L03-04",
+          "start_seconds": 210,
+          "end_seconds": 295
+        },
+        {
+          "scene_id": "L03-05",
+          "start_seconds": 295,
+          "end_seconds": 355
+        },
+        {
+          "scene_id": "L03-06",
+          "start_seconds": 355,
+          "end_seconds": 375
+        },
+        {
+          "scene_id": "L03-07",
+          "start_seconds": 375,
+          "end_seconds": 575
+        },
+        {
+          "scene_id": "L03-08",
+          "start_seconds": 575,
+          "end_seconds": 600
+        }
+      ]
     },
     {
       "lesson_id": "L04",
       "source_path": "public/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
       "source_sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L04-illustrated-review.mp4",
-      "output_sha256": "3993bb619f6e011f62bdcbf064b4365d730339ed7a917c03f7d5424fbe884f9c",
+      "output_sha256": "f7400d17001b64692c24ac9050a5896d40e5951a4782fc71282138e211dc0306",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 600,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          18.086,
+          "native presenter"
+        ],
+        [
+          593.551,
+          597,
+          "native presenter"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L04-01",
+          "start_seconds": 0,
+          "end_seconds": 70
+        },
+        {
+          "scene_id": "L04-02",
+          "start_seconds": 70,
+          "end_seconds": 140
+        },
+        {
+          "scene_id": "L04-03",
+          "start_seconds": 140,
+          "end_seconds": 210
+        },
+        {
+          "scene_id": "L04-04",
+          "start_seconds": 210,
+          "end_seconds": 285
+        },
+        {
+          "scene_id": "L04-05",
+          "start_seconds": 285,
+          "end_seconds": 355
+        },
+        {
+          "scene_id": "L04-06",
+          "start_seconds": 355,
+          "end_seconds": 375
+        },
+        {
+          "scene_id": "L04-07",
+          "start_seconds": 375,
+          "end_seconds": 575
+        },
+        {
+          "scene_id": "L04-08",
+          "start_seconds": 575,
+          "end_seconds": 600
+        }
+      ]
     },
     {
       "lesson_id": "L05",
       "source_path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
       "source_sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L05-illustrated-review.mp4",
-      "output_sha256": "b28c0e2478559122fb8e610c00d1e48418279b9e318b6839d3c7e2b5b6a4759c",
+      "output_sha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 237.687,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          11.91,
+          "native presenter"
+        ],
+        [
+          228.357531,
+          234.68753099999998,
+          "native presenter"
+        ],
+        [
+          174.7895,
+          219.7895,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L05-01",
+          "start_seconds": 0,
+          "end_seconds": 24.779
+        },
+        {
+          "scene_id": "L05-02",
+          "start_seconds": 24.779,
+          "end_seconds": 52.822
+        },
+        {
+          "scene_id": "L05-03",
+          "start_seconds": 52.822,
+          "end_seconds": 78.582
+        },
+        {
+          "scene_id": "L05-04",
+          "start_seconds": 78.582,
+          "end_seconds": 105.56
+        },
+        {
+          "scene_id": "L05-05",
+          "start_seconds": 105.56,
+          "end_seconds": 136.581
+        },
+        {
+          "scene_id": "L05-06",
+          "start_seconds": 136.581,
+          "end_seconds": 144.329
+        },
+        {
+          "scene_id": "L05-07",
+          "start_seconds": 144.329,
+          "end_seconds": 219.992
+        },
+        {
+          "scene_id": "L05-08",
+          "start_seconds": 219.992,
+          "end_seconds": 237.687
+        }
+      ]
     },
     {
       "lesson_id": "L06",
       "source_path": "public/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
       "source_sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L06-illustrated-review.mp4",
-      "output_sha256": "d6a18bb2163380c58d07b4a522af76e47c9250329aab8858d9880c073d51404a",
+      "output_sha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 258.96,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          13.64,
+          "native presenter"
+        ],
+        [
+          249.99284399999996,
+          255.95984399999998,
+          "native presenter"
+        ],
+        [
+          198.79250000000002,
+          243.79250000000002,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L06-01",
+          "start_seconds": 0,
+          "end_seconds": 28.639
+        },
+        {
+          "scene_id": "L06-02",
+          "start_seconds": 28.639,
+          "end_seconds": 65.532
+        },
+        {
+          "scene_id": "L06-03",
+          "start_seconds": 65.532,
+          "end_seconds": 97.482
+        },
+        {
+          "scene_id": "L06-04",
+          "start_seconds": 97.482,
+          "end_seconds": 132.486
+        },
+        {
+          "scene_id": "L06-05",
+          "start_seconds": 132.486,
+          "end_seconds": 162.599
+        },
+        {
+          "scene_id": "L06-06",
+          "start_seconds": 162.599,
+          "end_seconds": 169.015
+        },
+        {
+          "scene_id": "L06-07",
+          "start_seconds": 169.015,
+          "end_seconds": 243.974
+        },
+        {
+          "scene_id": "L06-08",
+          "start_seconds": 243.974,
+          "end_seconds": 258.96
+        }
+      ]
     },
     {
       "lesson_id": "L07",
       "source_path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
       "source_sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L07-illustrated-review.mp4",
-      "output_sha256": "48b3ca355b0bc198aa2130af324085a8df68f225ad1c0ef2d5e4009bceba89b7",
+      "output_sha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 251.332,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          9.37,
+          "native presenter"
+        ],
+        [
+          242.22243799999995,
+          248.33243799999997,
+          "native presenter"
+        ],
+        [
+          188.515,
+          233.515,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L07-01",
+          "start_seconds": 0,
+          "end_seconds": 27.99
+        },
+        {
+          "scene_id": "L07-02",
+          "start_seconds": 27.99,
+          "end_seconds": 65.494
+        },
+        {
+          "scene_id": "L07-03",
+          "start_seconds": 65.494,
+          "end_seconds": 92.669
+        },
+        {
+          "scene_id": "L07-04",
+          "start_seconds": 92.669,
+          "end_seconds": 127.108
+        },
+        {
+          "scene_id": "L07-05",
+          "start_seconds": 127.108,
+          "end_seconds": 153.479
+        },
+        {
+          "scene_id": "L07-06",
+          "start_seconds": 153.479,
+          "end_seconds": 160.078
+        },
+        {
+          "scene_id": "L07-07",
+          "start_seconds": 160.078,
+          "end_seconds": 233.648
+        },
+        {
+          "scene_id": "L07-08",
+          "start_seconds": 233.648,
+          "end_seconds": 251.332
+        }
+      ]
     },
     {
       "lesson_id": "L08",
       "source_path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
       "source_sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L08-illustrated-review.mp4",
-      "output_sha256": "1917140ce49410ebe456ae0d432fdd07dc57a35b6c1e1064e24f1f84623f7a6d",
+      "output_sha256": "5ea78c3647a901be84eddc1647185fcbea7178d79a5588befb467f92d20c93bd",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 257.68,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          13.525,
+          "native presenter"
+        ],
+        [
+          247.29171900000003,
+          254.67071900000002,
+          "native presenter"
+        ],
+        [
+          192.6535,
+          237.6535,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L08-01",
+          "start_seconds": 0,
+          "end_seconds": 25.414
+        },
+        {
+          "scene_id": "L08-02",
+          "start_seconds": 25.414,
+          "end_seconds": 65.848
+        },
+        {
+          "scene_id": "L08-03",
+          "start_seconds": 65.848,
+          "end_seconds": 91.608
+        },
+        {
+          "scene_id": "L08-04",
+          "start_seconds": 91.608,
+          "end_seconds": 125.431
+        },
+        {
+          "scene_id": "L08-05",
+          "start_seconds": 125.431,
+          "end_seconds": 161.224
+        },
+        {
+          "scene_id": "L08-06",
+          "start_seconds": 161.224,
+          "end_seconds": 166.552
+        },
+        {
+          "scene_id": "L08-07",
+          "start_seconds": 166.552,
+          "end_seconds": 237.792
+        },
+        {
+          "scene_id": "L08-08",
+          "start_seconds": 237.792,
+          "end_seconds": 257.68
+        }
+      ]
     },
     {
       "lesson_id": "L09",
       "source_path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
       "source_sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L09-illustrated-review.mp4",
-      "output_sha256": "5aff01214f8d174cf924fd89cbc9ff189968f54f182fb191a90330780977356a",
+      "output_sha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 272.84,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          13.38,
+          "native presenter"
+        ],
+        [
+          259.38,
+          263.84,
+          "native presenter"
+        ],
+        [
+          208.06,
+          253.06,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L09-01",
+          "start_seconds": 0,
+          "end_seconds": 31.82
+        },
+        {
+          "scene_id": "L09-02",
+          "start_seconds": 31.82,
+          "end_seconds": 69.72
+        },
+        {
+          "scene_id": "L09-03",
+          "start_seconds": 69.72,
+          "end_seconds": 103.02
+        },
+        {
+          "scene_id": "L09-04",
+          "start_seconds": 103.02,
+          "end_seconds": 138.08
+        },
+        {
+          "scene_id": "L09-05",
+          "start_seconds": 138.08,
+          "end_seconds": 164.3
+        },
+        {
+          "scene_id": "L09-06",
+          "start_seconds": 164.3,
+          "end_seconds": 170.52
+        },
+        {
+          "scene_id": "L09-07",
+          "start_seconds": 170.52,
+          "end_seconds": 253.06
+        },
+        {
+          "scene_id": "L09-08",
+          "start_seconds": 253.06,
+          "end_seconds": 272.84
+        }
+      ]
     },
     {
       "lesson_id": "L10",
       "source_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
       "source_sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L10-illustrated-review.mp4",
-      "output_sha256": "892db666b8168da43b06b3d8071fb42b709d9f37ec8cc936dade4d59372448bd",
+      "output_sha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 274.28,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          12.64,
+          "native presenter"
+        ],
+        [
+          260.38,
+          266.271,
+          "native presenter"
+        ],
+        [
+          207.62,
+          252.62,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L10-01",
+          "start_seconds": 0,
+          "end_seconds": 33.7
+        },
+        {
+          "scene_id": "L10-02",
+          "start_seconds": 33.7,
+          "end_seconds": 69
+        },
+        {
+          "scene_id": "L10-03",
+          "start_seconds": 69,
+          "end_seconds": 98.9
+        },
+        {
+          "scene_id": "L10-04",
+          "start_seconds": 98.9,
+          "end_seconds": 134.44
+        },
+        {
+          "scene_id": "L10-05",
+          "start_seconds": 134.44,
+          "end_seconds": 165.56
+        },
+        {
+          "scene_id": "L10-06",
+          "start_seconds": 165.56,
+          "end_seconds": 171.04
+        },
+        {
+          "scene_id": "L10-07",
+          "start_seconds": 171.04,
+          "end_seconds": 252.62
+        },
+        {
+          "scene_id": "L10-08",
+          "start_seconds": 252.62,
+          "end_seconds": 274.28
+        }
+      ]
     },
     {
       "lesson_id": "L11",
       "source_path": "public/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
       "source_sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L11-illustrated-review.mp4",
-      "output_sha256": "040f282fa9982f71b56f6bdd4f128b57114fa7c167f159a3b0eb5e21e3a7f643",
+      "output_sha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 252.92,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          13.8,
+          "native presenter"
+        ],
+        [
+          241.62,
+          248.904,
+          "native presenter"
+        ],
+        [
+          189.84,
+          234.84,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L11-01",
+          "start_seconds": 0,
+          "end_seconds": 26.08
+        },
+        {
+          "scene_id": "L11-02",
+          "start_seconds": 26.08,
+          "end_seconds": 61.66
+        },
+        {
+          "scene_id": "L11-03",
+          "start_seconds": 61.66,
+          "end_seconds": 91.52
+        },
+        {
+          "scene_id": "L11-04",
+          "start_seconds": 91.52,
+          "end_seconds": 122.02
+        },
+        {
+          "scene_id": "L11-05",
+          "start_seconds": 122.02,
+          "end_seconds": 149.38
+        },
+        {
+          "scene_id": "L11-06",
+          "start_seconds": 149.38,
+          "end_seconds": 156.12
+        },
+        {
+          "scene_id": "L11-07",
+          "start_seconds": 156.12,
+          "end_seconds": 234.84
+        },
+        {
+          "scene_id": "L11-08",
+          "start_seconds": 234.84,
+          "end_seconds": 252.92
+        }
+      ]
     },
     {
       "lesson_id": "L12",
       "source_path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
       "source_sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L12-illustrated-review.mp4",
-      "output_sha256": "6053307528de11cb6e2b1edd09d5f0ebb830764e4532e53ea0fcc22f8d16fc84",
+      "output_sha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 268.12,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          13.82,
+          "native presenter"
+        ],
+        [
+          259.38,
+          265.12,
+          "native presenter"
+        ],
+        [
+          205.08,
+          250.08,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L12-01",
+          "start_seconds": 0,
+          "end_seconds": 27.3
+        },
+        {
+          "scene_id": "L12-02",
+          "start_seconds": 27.3,
+          "end_seconds": 66.36
+        },
+        {
+          "scene_id": "L12-03",
+          "start_seconds": 66.36,
+          "end_seconds": 96.54
+        },
+        {
+          "scene_id": "L12-04",
+          "start_seconds": 96.54,
+          "end_seconds": 134.06
+        },
+        {
+          "scene_id": "L12-05",
+          "start_seconds": 134.06,
+          "end_seconds": 163.44
+        },
+        {
+          "scene_id": "L12-06",
+          "start_seconds": 163.44,
+          "end_seconds": 168.86
+        },
+        {
+          "scene_id": "L12-07",
+          "start_seconds": 168.86,
+          "end_seconds": 250.08
+        },
+        {
+          "scene_id": "L12-08",
+          "start_seconds": 250.08,
+          "end_seconds": 268.12
+        }
+      ]
     },
     {
       "lesson_id": "L13",
       "source_path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
       "source_sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L13-illustrated-review.mp4",
-      "output_sha256": "e9228c7ee9d200ec53f67d30dd987b3befb345fa5ef6c94601576e50fd42943f",
+      "output_sha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 255.243,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          12.42,
+          "native presenter"
+        ],
+        [
+          241.797,
+          247.243,
+          "native presenter"
+        ],
+        [
+          188.025,
+          233.025,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L13-01",
+          "start_seconds": 0,
+          "end_seconds": 26.667
+        },
+        {
+          "scene_id": "L13-02",
+          "start_seconds": 26.667,
+          "end_seconds": 56.587
+        },
+        {
+          "scene_id": "L13-03",
+          "start_seconds": 56.587,
+          "end_seconds": 90.371
+        },
+        {
+          "scene_id": "L13-04",
+          "start_seconds": 90.371,
+          "end_seconds": 120.74
+        },
+        {
+          "scene_id": "L13-05",
+          "start_seconds": 120.74,
+          "end_seconds": 147.655
+        },
+        {
+          "scene_id": "L13-06",
+          "start_seconds": 147.655,
+          "end_seconds": 152.886
+        },
+        {
+          "scene_id": "L13-07",
+          "start_seconds": 152.886,
+          "end_seconds": 233.579
+        },
+        {
+          "scene_id": "L13-08",
+          "start_seconds": 233.579,
+          "end_seconds": 255.243
+        }
+      ]
     },
     {
       "lesson_id": "L14",
       "source_path": "public/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
       "source_sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L14-illustrated-review.mp4",
-      "output_sha256": "40994408a0b4974eb725f49671dbc10ca4a74b287571161c963bdc97b637737a",
+      "output_sha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 241.762,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          11.91,
+          "native presenter"
+        ],
+        [
+          227.397,
+          230.763,
+          "native presenter"
+        ],
+        [
+          172.412,
+          217.412,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L14-01",
+          "start_seconds": 0,
+          "end_seconds": 29.302
+        },
+        {
+          "scene_id": "L14-02",
+          "start_seconds": 29.302,
+          "end_seconds": 52.814
+        },
+        {
+          "scene_id": "L14-03",
+          "start_seconds": 52.814,
+          "end_seconds": 78.338
+        },
+        {
+          "scene_id": "L14-04",
+          "start_seconds": 78.338,
+          "end_seconds": 104.726
+        },
+        {
+          "scene_id": "L14-05",
+          "start_seconds": 104.726,
+          "end_seconds": 135.407
+        },
+        {
+          "scene_id": "L14-06",
+          "start_seconds": 135.407,
+          "end_seconds": 140.713
+        },
+        {
+          "scene_id": "L14-07",
+          "start_seconds": 140.713,
+          "end_seconds": 217.924
+        },
+        {
+          "scene_id": "L14-08",
+          "start_seconds": 217.924,
+          "end_seconds": 241.762
+        }
+      ]
     },
     {
       "lesson_id": "L15",
       "source_path": "public/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
       "source_sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L15-illustrated-review.mp4",
-      "output_sha256": "5aeaf5df83e033aed4d4740f0be974077a899784cc19566e8898480867f0bc8d",
+      "output_sha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 255.386,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          15.35,
+          "native presenter"
+        ],
+        [
+          242.734,
+          246.386,
+          "native presenter"
+        ],
+        [
+          188.932,
+          233.932,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L15-01",
+          "start_seconds": 0,
+          "end_seconds": 28.782
+        },
+        {
+          "scene_id": "L15-02",
+          "start_seconds": 28.782,
+          "end_seconds": 51.109
+        },
+        {
+          "scene_id": "L15-03",
+          "start_seconds": 51.109,
+          "end_seconds": 74.662
+        },
+        {
+          "scene_id": "L15-04",
+          "start_seconds": 74.662,
+          "end_seconds": 103.33
+        },
+        {
+          "scene_id": "L15-05",
+          "start_seconds": 103.33,
+          "end_seconds": 138.578
+        },
+        {
+          "scene_id": "L15-06",
+          "start_seconds": 138.578,
+          "end_seconds": 159.671
+        },
+        {
+          "scene_id": "L15-07",
+          "start_seconds": 159.671,
+          "end_seconds": 234.444
+        },
+        {
+          "scene_id": "L15-08",
+          "start_seconds": 234.444,
+          "end_seconds": 255.386
+        }
+      ]
     },
     {
       "lesson_id": "L16",
       "source_path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
       "source_sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
       "output_path": "agentified/workshop/presentation-illustration-audit/composites/L16-illustrated-review.mp4",
-      "output_sha256": "43ce6b0052132a20c4c33d9ecaed73d425b3659014460d290a72d687a160eec3",
+      "output_sha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
       "scene_count": 8,
-      "release_state": "unbound review candidate"
+      "release_state": "unbound review candidate",
+      "source_duration_seconds": 267.309,
+      "frame_rate": "25/1",
+      "protected_windows": [
+        [
+          0,
+          16.26,
+          "native presenter"
+        ],
+        [
+          258.262,
+          267.309,
+          "native presenter"
+        ],
+        [
+          202.586,
+          247.586,
+          "original countdown"
+        ]
+      ],
+      "scene_boundaries": [
+        {
+          "scene_id": "L16-01",
+          "start_seconds": 0,
+          "end_seconds": 34.212
+        },
+        {
+          "scene_id": "L16-02",
+          "start_seconds": 34.212,
+          "end_seconds": 62.745
+        },
+        {
+          "scene_id": "L16-03",
+          "start_seconds": 62.745,
+          "end_seconds": 89.687
+        },
+        {
+          "scene_id": "L16-04",
+          "start_seconds": 89.687,
+          "end_seconds": 117.109
+        },
+        {
+          "scene_id": "L16-05",
+          "start_seconds": 117.109,
+          "end_seconds": 145.819
+        },
+        {
+          "scene_id": "L16-06",
+          "start_seconds": 145.819,
+          "end_seconds": 165.7
+        },
+        {
+          "scene_id": "L16-07",
+          "start_seconds": 165.7,
+          "end_seconds": 248.226
+        },
+        {
+          "scene_id": "L16-08",
+          "start_seconds": 248.226,
+          "end_seconds": 267.309
+        }
+      ]
     }
   ]
 }
