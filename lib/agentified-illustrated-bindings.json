@@ -1,0 +1,165 @@
+{
+  "approvalCommit": "6b288adc0ddefbe37f0b7889debafaf5eec855c1",
+  "bindings": {
+    "L01": {
+      "video": "/agentified/lessons/l01/illustrated-7365b3dc/agentified-l01-illustrated-composite.mp4",
+      "compositeSha256": "7365b3dca329faaf035e9e59c99a51fd437ad944e2c6a57e5192542b1f64d6ea",
+      "sourceVideo": "/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-composite.mp4",
+      "sourceSha256": "ae0c4d085bb5fbe334ba1707fe371c29fdbecfacbb96543a57befaa3d1d34909",
+      "captions": "/agentified/lessons/l01/corrected-ae0c4d08/agentified-l01-continuous-narration-captions.vtt",
+      "captionsSha256": "fa4a57dc243a420648e58aaa21c1ceb57a9b967296c22baed4946d612e928fbd",
+      "transcriptSha256": "966c9530da86397d1caf0d893dcc88d97ed9a0614d5e0e7ca2443cba6652f123",
+      "durationSeconds": 540
+    },
+    "L02": {
+      "video": "/agentified/lessons/l02/illustrated-32ae36cb/agentified-l02-illustrated-composite.mp4",
+      "compositeSha256": "32ae36cbe142aef0fe403b8b5a2ee28d338205a465007956edf6f19392886488",
+      "sourceVideo": "/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "sourceSha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+      "captions": "/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-captions.vtt",
+      "captionsSha256": "eb8b81caf9283e0c5b106b6b404a72c178f50d2c0549bca18c92a4af343219d9",
+      "transcriptSha256": "9bcc6b3ebb437bf696b52e752be0e81aede74472fdbd89f5ca00a6646030c9fd",
+      "durationSeconds": 510
+    },
+    "L03": {
+      "video": "/agentified/lessons/l03/illustrated-124d2b2c/agentified-l03-illustrated-composite.mp4",
+      "compositeSha256": "124d2b2c72e8ec331aebb6c80c702293b0a593e2f6c27eed280196b196c2b2a1",
+      "sourceVideo": "/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "sourceSha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+      "captions": "/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-captions.vtt",
+      "captionsSha256": "f548f0a0d2a369dc082261d48eb5aa001e97c48e6cd993d49cb20a0208347bc4",
+      "transcriptSha256": "82e6db65f7db811ad75427f255b9d41fee5f0b36e29ce3a6525f9fc75431ff90",
+      "durationSeconds": 600
+    },
+    "L04": {
+      "video": "/agentified/lessons/l04/illustrated-3993bb61/agentified-l04-illustrated-composite.mp4",
+      "compositeSha256": "3993bb619f6e011f62bdcbf064b4365d730339ed7a917c03f7d5424fbe884f9c",
+      "sourceVideo": "/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "sourceSha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+      "captions": "/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-captions.vtt",
+      "captionsSha256": "ed98985beb67d616df745399937fa5bcc32b4b7e0267504393f5b2b6e2a4c647",
+      "transcriptSha256": "c07c9a65b5bfec326d0ce0b5a6ae47b45ea5f1aa0ba4fa015980909e6ba14fa5",
+      "durationSeconds": 600
+    },
+    "L05": {
+      "video": "/agentified/lessons/l05/illustrated-b28c0e24/agentified-l05-illustrated-composite.mp4",
+      "compositeSha256": "b28c0e2478559122fb8e610c00d1e48418279b9e318b6839d3c7e2b5b6a4759c",
+      "sourceVideo": "/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+      "sourceSha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+      "captions": "/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-captions.vtt",
+      "captionsSha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389",
+      "transcriptSha256": "f932cb15f888dd4ea5e285f2fdc49fc3fa4b51902a60b2be93c5cf752d033ada",
+      "durationSeconds": 237.687
+    },
+    "L06": {
+      "video": "/agentified/lessons/l06/illustrated-d6a18bb2/agentified-l06-illustrated-composite.mp4",
+      "compositeSha256": "d6a18bb2163380c58d07b4a522af76e47c9250329aab8858d9880c073d51404a",
+      "sourceVideo": "/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+      "sourceSha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+      "captions": "/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-captions.vtt",
+      "captionsSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+      "transcriptSha256": "fd2934696358cf5713882956ee394cb2d6530da126149450294971962b11f17a",
+      "durationSeconds": 258.96
+    },
+    "L07": {
+      "video": "/agentified/lessons/l07/illustrated-48b3ca35/agentified-l07-illustrated-composite.mp4",
+      "compositeSha256": "48b3ca355b0bc198aa2130af324085a8df68f225ad1c0ef2d5e4009bceba89b7",
+      "sourceVideo": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "sourceSha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "captionsSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+      "transcriptSha256": "417fa294df5b969317bcb9885b5984fd5aa50fff23c34e32586aee60dac93750",
+      "durationSeconds": 251.332
+    },
+    "L08": {
+      "video": "/agentified/lessons/l08/illustrated-1917140c/agentified-l08-illustrated-composite.mp4",
+      "compositeSha256": "1917140ce49410ebe456ae0d432fdd07dc57a35b6c1e1064e24f1f84623f7a6d",
+      "sourceVideo": "/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "sourceSha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "captions": "/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt",
+      "captionsSha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011",
+      "transcriptSha256": "26dfe4c9ff7fb8a9deec7bb7e4bbaa9987e19ed8079ec347cf85e7d33ecea03b",
+      "durationSeconds": 257.68
+    },
+    "L09": {
+      "video": "/agentified/lessons/l09/illustrated-5aff0121/agentified-l09-illustrated-composite.mp4",
+      "compositeSha256": "5aff01214f8d174cf924fd89cbc9ff189968f54f182fb191a90330780977356a",
+      "sourceVideo": "/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+      "sourceSha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+      "captions": "/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-captions.vtt",
+      "captionsSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+      "transcriptSha256": "c2157c044e77cd3ab6636465ff8b0e22af3ffd3ff9ec88b4dcc331b97b106ad6",
+      "durationSeconds": 272.84
+    },
+    "L10": {
+      "video": "/agentified/lessons/l10/illustrated-892db666/agentified-l10-illustrated-composite.mp4",
+      "compositeSha256": "892db666b8168da43b06b3d8071fb42b709d9f37ec8cc936dade4d59372448bd",
+      "sourceVideo": "/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+      "sourceSha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+      "captions": "/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-captions.vtt",
+      "captionsSha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+      "transcriptSha256": "c856d7504f0eaee7063f4a246ecf894a4cf59865f37413974c2e066c99a740ec",
+      "durationSeconds": 274.28
+    },
+    "L11": {
+      "video": "/agentified/lessons/l11/illustrated-040f282f/agentified-l11-illustrated-composite.mp4",
+      "compositeSha256": "040f282fa9982f71b56f6bdd4f128b57114fa7c167f159a3b0eb5e21e3a7f643",
+      "sourceVideo": "/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+      "sourceSha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+      "captions": "/agentified/lessons/l11/approved-46973271/agentified-l11-native-captions.vtt",
+      "captionsSha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+      "transcriptSha256": "cb7ee5db3dacb7f4f06bd29d516488bd4b8788d31a5ba572027ed4a5faab6c77",
+      "durationSeconds": 252.92
+    },
+    "L12": {
+      "video": "/agentified/lessons/l12/illustrated-60533075/agentified-l12-illustrated-composite.mp4",
+      "compositeSha256": "6053307528de11cb6e2b1edd09d5f0ebb830764e4532e53ea0fcc22f8d16fc84",
+      "sourceVideo": "/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+      "sourceSha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+      "captions": "/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-captions.vtt",
+      "captionsSha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+      "transcriptSha256": "5be27b8fcc2de95e8fba2386235ca0d44203460bed7e099b99083bfb5b85e5e3",
+      "durationSeconds": 268.12
+    },
+    "L13": {
+      "video": "/agentified/lessons/l13/illustrated-e9228c7e/agentified-l13-illustrated-composite.mp4",
+      "compositeSha256": "e9228c7ee9d200ec53f67d30dd987b3befb345fa5ef6c94601576e50fd42943f",
+      "sourceVideo": "/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+      "sourceSha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+      "captions": "/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-captions.vtt",
+      "captionsSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+      "transcriptSha256": "0d258bdbe8fb92ca3a76be43c5a03b4da61e41d0184c5484d8d815cd9cfdb372",
+      "durationSeconds": 255.243
+    },
+    "L14": {
+      "video": "/agentified/lessons/l14/illustrated-40994408/agentified-l14-illustrated-composite.mp4",
+      "compositeSha256": "40994408a0b4974eb725f49671dbc10ca4a74b287571161c963bdc97b637737a",
+      "sourceVideo": "/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+      "sourceSha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+      "captions": "/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-captions.vtt",
+      "captionsSha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446",
+      "transcriptSha256": "45b5e43d082c5bb8a59f88227929879837e9770454f7682f3d0827f3582f1759",
+      "durationSeconds": 241.762
+    },
+    "L15": {
+      "video": "/agentified/lessons/l15/illustrated-5aeaf5df/agentified-l15-illustrated-composite.mp4",
+      "compositeSha256": "5aeaf5df83e033aed4d4740f0be974077a899784cc19566e8898480867f0bc8d",
+      "sourceVideo": "/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+      "sourceSha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+      "captions": "/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-captions.vtt",
+      "captionsSha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522",
+      "transcriptSha256": "b6864c9195f7a7a666abe7a6acfc649749fc7f04758785c42414452226cc4908",
+      "durationSeconds": 255.386
+    },
+    "L16": {
+      "video": "/agentified/lessons/l16/illustrated-43ce6b00/agentified-l16-illustrated-composite.mp4",
+      "compositeSha256": "43ce6b0052132a20c4c33d9ecaed73d425b3659014460d290a72d687a160eec3",
+      "sourceVideo": "/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+      "sourceSha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+      "captions": "/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-captions.vtt",
+      "captionsSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
+      "transcriptSha256": "e5e5c61ddf3c808e1aec315fd58f6d5c11bf3a18262d44a0213ad9e699a73a73",
+      "durationSeconds": 267.309
+    }
+  }
+}

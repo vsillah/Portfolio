@@ -9,15 +9,17 @@ import { AGENTIFIED_GUEST_KEY, AGENTIFIED_VERSION, agentifiedActs, agentifiedLes
 import styles from './workshop.module.css'
 import { agentifiedLessonPosters, agentifiedPosterAlt } from '@/lib/agentified-lesson-posters'
 import { AgentifiedLessonHero } from './AgentifiedLessonHero'
-import { agentifiedL01Media } from '@/lib/agentified-l01-media'
-import { agentifiedL02L04Media } from '@/lib/agentified-l02-l04-media'
-import { agentifiedL05L08Media } from '@/lib/agentified-l05-l08-media'
-import { agentifiedL09L12Media } from '@/lib/agentified-l09-l12-media'
-import { agentifiedL13L16Media } from '@/lib/agentified-l13-l16-media'
+import { agentifiedSourceMedia } from '@/lib/agentified-source-media'
+import illustrated from '@/lib/agentified-illustrated-bindings.json'
 
 type Mode = 'plan' | 'file'
 const lessonById = (id: string) => agentifiedLessons.find((lesson) => lesson.id === id) ?? agentifiedLessons[0]
-const approvedMedia = { L01: agentifiedL01Media, ...agentifiedL02L04Media, ...agentifiedL05L08Media, ...agentifiedL09L12Media, ...agentifiedL13L16Media }
+const approvedMedia = Object.fromEntries(Object.entries(agentifiedSourceMedia).map(([id, media]) => {
+  const binding = illustrated.bindings[id as keyof typeof illustrated.bindings]
+  return [id, binding && binding.sourceVideo === media.video && binding.sourceSha256 === media.compositeSha256 && binding.captions === media.captions && binding.durationSeconds === media.durationSeconds
+    ? { ...media, video: binding.video, compositeSha256: binding.compositeSha256 }
+    : null]
+})) as Record<keyof typeof agentifiedSourceMedia, (typeof agentifiedSourceMedia)[keyof typeof agentifiedSourceMedia] | null>
 const mediaFor = (id: string) => approvedMedia[id as keyof typeof approvedMedia]
 const newState = (worksheetId: string): AgentifiedState => ({ version: AGENTIFIED_VERSION, worksheet: emptyAgentifiedDraft(worksheetId), completed: [], videoSeconds: {}, currentLessonId: 'L01', updatedAt: new Date().toISOString() })
 
