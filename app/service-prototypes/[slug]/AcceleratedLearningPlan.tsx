@@ -327,7 +327,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const clearDraft = () => {
     const target = memberClaimed ? 'your AmaduTown profile' : 'this device'
     if (mode === 'plan') {
-      if (!window.confirm(`Clear only ${lesson.id} · ${lesson.title} from ${target}? Your other lesson answers and completion progress will stay. ${memberClaimed ? 'This change will be saved to your member profile.' : 'This change will be saved on this device.'}`)) return
+      if (!window.confirm(`Clear only ${lesson.id} · ${lesson.title} from ${target}? Your other lesson answers and completion progress will stay. ${memberClaimed ? 'This change will be saved to your member profile.' : 'This change will be saved on this device.'} Any copy already sent for review remains with AmaduTown.`)) return
       setDraft((current) => current ? { ...current, answers: { ...current.answers, [lesson.id]: '' }, updatedAt: new Date().toISOString() } : current)
       setSent(false)
       setConsent(false)
