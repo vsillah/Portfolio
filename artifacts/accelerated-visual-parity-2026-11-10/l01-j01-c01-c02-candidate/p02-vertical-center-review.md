@@ -1,6 +1,6 @@
 # P02 vertical-center review
 
-Status: **ready for captain review only**. Source commit `2ab998d4`; one local short reel rendered on 2026-11-11. The voice-bearing [reel](l01-p01-p02-middle-motion.mp4) stays ignored by Git, SHA-256 `58d52c06d573702d42ec6da48e9ea756cfe94afff1cf4cff02238d23c07505dc`. The [technical receipt](middle-motion-technical-receipt.json) binds the source, frames, and audio.
+Status: **rejected at the optical-alignment gate**. Source commit `2ab998d4`; this earlier local reel was rendered on 2026-11-11 and preserved as `l01-p01-p02-middle-motion-before-optical-center.mp4`, SHA-256 `58d52c06d573702d42ec6da48e9ea756cfe94afff1cf4cff02238d23c07505dc`. Vambah found the focused source-art content still partly offset despite matching crop-center coordinates. The one bounded [optical revision also stopped](p02-optical-center-failure-receipt.md) when its encoded content remained top-heavy.
 
 Vambah's correction was to place the SAM teaching art on the fixed presenter's vertical middle rather than near the top. On the 1920×1080 source canvas, the presenter remains `(1136,348,672,384)`, center y=540 (rendered 1280×720 center y=360). The full SAM map is `(275,320,530,440)`, center y=540. Each source-art focus crop is placed at `(240,335,600,409)`, center y=539.5 (rendered y=359.67), a measured 0.5 source-pixel optical offset. The small brand remains at the top. No duplicate overlay heading was added.
 
@@ -14,4 +14,4 @@ The full map ends at source y=760 and each focus ends at y=744; they retain 160 
 | 390×844 Chrome | Signals at 7.73s, Alignment at 9.13s, Momentum at 10.63s, and full-map return at 12.03s were inspected with native controls visible. Focus headings, map footer, and presenter remain visible and clear the controls. |
 | Caption space | The art stays above the reserved lower band in the layout stills and above native controls in actual playback. This short reel has no caption track; a captioned learner composite must clear its own desktop/mobile gate. |
 
-The focused crops are partial views of the owned SAM illustration. Their visual storytelling and timing remain for captain judgment. This is not an illustration-ready full lesson or Human QA artifact. No learner media or binding, J01/C01/C02 timing, HeyGen, spend, merge, or release action changed.
+This historical reel is no longer the review candidate. Its focused crops made hard cuts through salient source-art content. No learner media or binding, J01/C01/C02 timing, HeyGen, spend, merge, or release action changed.
