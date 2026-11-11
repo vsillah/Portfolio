@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -265,6 +265,85 @@ describe('Accelerated learning plan', () => {
     expect(within(review).getByLabelText('Name')).toHaveValue('Synthetic Member')
     expect(within(review).getByLabelText('Email')).toHaveValue('member@example.com')
     expect(within(review).getByRole('button', { name: 'Send for assessment review' })).toBeDisabled()
+    vi.unstubAllGlobals()
+  })
+
+  it('keeps member hydration and reload read-only, then saves one real answer edit', async () => {
+    const guest = emptyDecisionFile('12345678-1234-4234-8234-123456789abc')
+    guest.answers.L01 = 'Stale guest answer'
+    localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(guest))
+    authMocks.getSession.mockResolvedValue({ data: { session: {
+      access_token: 'synthetic-token',
+      user: { id: 'synthetic-member', email: 'member@example.test', user_metadata: {} },
+    } } })
+    let revision = 12
+    const fetchMock = vi.fn(async (_url: string, options?: RequestInit) => {
+      if (options?.method === 'POST') {
+        const body = JSON.parse(String(options.body))
+        expect(body.expectedRevision).toBe(revision)
+        revision += 1
+        return { ok: true, json: async () => ({ revision }) }
+      }
+      return { ok: true, json: async () => ({
+        enrollment: { revision, current_lesson_id: 'L01' }, lessons: [],
+        worksheet: { worksheet_id: '22345678-1234-4234-8234-123456789abc', answers: { L01: 'Remote answer' }, updated_at: '2026-11-01T00:00:00Z' },
+      }) }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const postCalls = () => fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')
+    const view = render(<AcceleratedLearningPlan />)
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Remote answer'))
+    expect(screen.queryByText('Saving this lesson and worksheet to your profile…')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /L01: Build smarter, stay human/ }))
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1350)) })
+    expect(postCalls()).toHaveLength(0)
+    expect(revision).toBe(12)
+    view.unmount()
+    render(<AcceleratedLearningPlan />)
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('Remote answer'))
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1350)) })
+    expect(postCalls()).toHaveLength(0)
+    expect(screen.queryByText('Saving this lesson and worksheet to your profile…')).not.toBeInTheDocument()
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'One new answer' } })
+    await waitFor(() => expect(postCalls()).toHaveLength(1), { timeout: 2500 })
+    expect(JSON.parse(String(postCalls()[0][1]?.body)).state.worksheet.answers.L01).toBe('One new answer')
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1350)) })
+    expect(postCalls()).toHaveLength(1)
+    expect(revision).toBe(13)
+    vi.unstubAllGlobals()
+  }, 10000)
+
+  it('does not carry a stale guest worksheet into an enrolled account without a worksheet', async () => {
+    const guest = emptyDecisionFile('12345678-1234-4234-8234-123456789abc')
+    guest.answers.L01 = 'Guest answer that was never claimed'
+    localStorage.setItem(DECISION_FILE_STORAGE_KEY, JSON.stringify(guest))
+    authMocks.getSession.mockResolvedValue({ data: { session: {
+      access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.test', user_metadata: {} },
+    } } })
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ enrollment: { revision: 4, current_lesson_id: 'L01' }, lessons: [], worksheet: null }) }))
+    vi.stubGlobal('fetch', fetchMock)
+    render(<AcceleratedLearningPlan />)
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Open dashboard' })).toBeInTheDocument())
+    expect(screen.getByRole('textbox', { name: 'Your response to this lesson' })).toHaveValue('')
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1350)) })
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(0)
+    vi.unstubAllGlobals()
+  })
+
+  it('does not repeat an edit when Save to profile wins the debounce', async () => {
+    authMocks.getSession.mockResolvedValue({ data: { session: {
+      access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.test', user_metadata: {} },
+    } } })
+    const fetchMock = vi.fn(async (_url: string, options?: RequestInit) => options?.method === 'POST'
+      ? { ok: true, json: async () => ({ revision: 5 }) }
+      : { ok: true, json: async () => ({ enrollment: { revision: 4, current_lesson_id: 'L01' }, lessons: [], worksheet: null }) })
+    vi.stubGlobal('fetch', fetchMock)
+    render(<AcceleratedLearningPlan />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save to profile' })).toBeInTheDocument())
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your response to this lesson' }), { target: { value: 'Synthetic edit' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save to profile' }))
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1350)) })
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1)
     vi.unstubAllGlobals()
   })
 
