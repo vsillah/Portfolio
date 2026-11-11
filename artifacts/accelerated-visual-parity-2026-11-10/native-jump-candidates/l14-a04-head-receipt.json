@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L14",
+  "presenter_window": "A04",
+  "orientation": "head",
+  "source_path": "public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+  "source_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+  "source_window_seconds": [
+    451.32,
+    468.48
+  ],
+  "candidate_cut_seconds": 454.818667,
+  "machine_onset_seconds": 454.83,
+  "aac_snap_delta_seconds": 0.011333,
+  "intended_words": {
+    "removed_earlier_phrase_end": "write a promise that the evidence cannot carry",
+    "retained_approved_words_start": "We have created an editorial teaching card, not proof of a deployed"
+  },
+  "silent_packet_source_start_seconds": 443.32,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 642,
+  "copied_silence_packet_count": 164,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l14-a04-head-candidate.mp4",
+  "candidate_sha256": "d8a2a1460bd14d2338730182264976496841c55f46d08531c14aa22f59041185",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l14-a04-head-before-after.mp4",
+  "before_after_sha256": "9d234635e81b74a0f631b49c629939deb3aa7567fc02f101ff8561c629429f7d",
+  "before_after_source_excerpt_seconds": [
+    451.32,
+    458.318667
+  ],
+  "before_after_segment_seconds": 6.999,
+  "candidate_duration_seconds": 17.169333,
+  "before_after_duration_seconds": 14.0,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

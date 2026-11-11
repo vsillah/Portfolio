@@ -43,6 +43,8 @@ Times are the available gaps in the **current native MP4**, before any word-leve
 
 The [isolated L01 A02 correction candidate and 28-jump triage](l01-a02-native-correction-review-2026-11-10.md) now provide a packet-preserving native trim proposal and a sequential before/after MP4. The canonical MP4 and this pack’s cutaway text, timing, and speech payload hashes remain unchanged pending audible review.
 
+The [remaining presenter-jump listening queue](presenter-jump-candidate-review-2026-11-10.md) has 27 additional isolated review clips: 24 passed machine phrase-retention checks, while L06 A01, L16 A01, and L16 A02 remain blocked at the cut word. None has an audible sign-off or changes this pack.
+
 ## Exact unresolved presenter windows
 
 For each row in the [audit JSON](../../artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json), open the `native_source.path` from the corresponding lesson entry in the pack, confirm its SHA-256, and listen across the recorded `start_seconds` and `end_seconds` with context on both sides. Enter the first and last spoken words and the reviewed source hash in `audible_review`; note any trim or reorder decision. Reconcile against the approved script before changing a cutaway span. The ASR transcript and VTT are comparison aids, not the sign-off.

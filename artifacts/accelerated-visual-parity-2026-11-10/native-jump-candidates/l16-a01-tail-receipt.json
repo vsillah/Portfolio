@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L16",
+  "presenter_window": "A01",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+  "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+  "source_window_seconds": [
+    0,
+    28.48
+  ],
+  "candidate_cut_seconds": 24.192,
+  "machine_onset_seconds": 24.2,
+  "aac_snap_delta_seconds": 0.008,
+  "intended_words": {
+    "retained_approved_words_end": "Six calls for starting with one pain point",
+    "removed_later_phrase_start": "Write the next action in a sentence that begins with a verb"
+  },
+  "silent_packet_source_start_seconds": 30.48,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 1134,
+  "copied_silence_packet_count": 201,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a01-tail-candidate.mp4",
+  "candidate_sha256": "beca1ae935d177dc8b36272350ea46f43bee4d8c6f0238fe0b5c6362b9f229b9",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a01-tail-before-after.mp4",
+  "before_after_sha256": "4a5d62d3e60ae878adc26fa9297138dd5874a1ea3120f36fa48e7fc30fb28996",
+  "before_after_source_excerpt_seconds": [
+    20.692,
+    27.692
+  ],
+  "before_after_segment_seconds": 7.0,
+  "candidate_duration_seconds": 28.48,
+  "before_after_duration_seconds": 14.0,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

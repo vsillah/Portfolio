@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "status": "review_only",
+  "source_pack_sha256": "86b0fbbe24e5f0dc60c9205e2e43c3d414d8afc2d6e97affe0cc39da681bf3cf",
+  "triage_sha256": "c845d9b58edd6692fcb4641b2034379f24ad9f2514f1f5c9a2c95f20b1d23198",
+  "approved_existing_l01_a02_candidate": "l01-a02-native-trim-candidate-235-252.mp4",
+  "results": [
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A01",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A02",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a02-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A03",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a03-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A02",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a02-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A03",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a03-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A01",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A02",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a02-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A01",
+      "status": "machine_blocked_cut_boundary",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A02",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a02-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A01",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A02",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a02-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A03",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a03-head-receipt.json"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A04",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a04-head-receipt.json"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A01",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A03",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a03-head-receipt.json"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A04",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a04-head-receipt.json"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A03",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a03-head-receipt.json"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A04",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a04-head-receipt.json"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A03",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l12-a03-head-receipt.json"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A04",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l12-a04-head-receipt.json"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A01",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A02",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a02-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L14",
+      "presenter_window": "A04",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l14-a04-head-receipt.json"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A01",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A03",
+      "status": "machine_pass_pending_audible_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a03-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A01",
+      "status": "machine_blocked_cut_boundary",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a01-tail-receipt.json"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A02",
+      "status": "machine_blocked_cut_boundary",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a02-tail-receipt.json"
+    }
+  ],
+  "asr_validation_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/asr-validation.json",
+  "rendered_count": 27,
+  "machine_pass_count": 24,
+  "machine_blocked_count": 3,
+  "render_blocked_count": 0
+}
