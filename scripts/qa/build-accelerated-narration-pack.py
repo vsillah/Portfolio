@@ -15,6 +15,7 @@ OUTPUT = COURSE / 'narration-production-pack-2026-11-10.json'
 WORD = re.compile(r"[\w’']+")
 NARRATION = re.compile(r'```narration\n(.*?)\n```', re.S)
 VOICE_ID = '14b592b937744404a4fa7c01aafd7dbe'
+MAX_REQUEST_CHARS = 5000
 
 
 def sha(data):
@@ -38,6 +39,34 @@ def match_words(haystack, needle, start=0):
 
 def sentence_complete(value):
     return bool(re.search(r'[.!?][”"\']?\s*$', value.strip()))
+
+
+def split_jobs(cutaways):
+    """Pack whole sentence-complete cutaway windows under the documented limit."""
+    groups = []
+    pending = []
+    for window in cutaways:
+        assert sentence_complete(window['text'])
+        candidate = pending + [window]
+        if len('\n\n'.join(part['text'] for part in candidate)) > MAX_REQUEST_CHARS:
+            assert pending, f"Window {window['id']} exceeds the request limit"
+            groups.append(pending)
+            pending = [window]
+        else:
+            pending = candidate
+    if pending:
+        groups.append(pending)
+    jobs = []
+    for index, parts in enumerate(groups, 1):
+        payload = '\n\n'.join(part['text'] for part in parts)
+        assert 1 <= len(payload) <= MAX_REQUEST_CHARS
+        jobs.append({'id': f'J{index:02d}', 'window_ids': [part['id'] for part in parts],
+                     'text': payload, 'character_count': len(payload),
+                     'text_sha256': sha(payload.encode()),
+                     'historical_credit_estimate': math.ceil(len(payload) / 400)})
+    assert [id for job in jobs for id in job['window_ids']] == [part['id'] for part in cutaways]
+    assert [part for job in groups for part in job] == cutaways
+    return jobs
 
 
 def build():
@@ -123,6 +152,8 @@ def build():
         assert [norm(word) for window in windows for word in WORD.findall(window['text'])] == tokens, lesson_id
         cutaways = [w for w in windows if w['kind'] == 'cutaway']
         speech_text = '\n\n'.join(w['text'] for w in cutaways)
+        jobs = split_jobs(cutaways)
+        assert '\n\n'.join(job['text'] for job in jobs) == speech_text
         paths = {name: ROOT / media[key] for name, key in [('native_source', 'source_path'), ('current_visual', 'output_path'), ('captions', 'caption_path')]}
         for name, key in [('native_source', 'source_sha256'), ('current_visual', 'output_sha256'), ('captions', 'caption_sha256')]:
             assert sha(paths[name].read_bytes()) == media[key], (lesson_id, name)
@@ -137,18 +168,23 @@ def build():
                         'audio_alignment': {'status': 'pending_audible_confirmation',
                                             'request_head_mismatches': sum(not w['request_head_match'] for w in diagnostic),
                                             'request_tail_mismatches': sum(not w['request_tail_match'] for w in diagnostic)},
-                        'single_speech_job': {'voice_id': VOICE_ID, 'window_count': len(cutaways), 'text': speech_text,
-                                              'character_count': len(speech_text), 'word_count': sum(w['word_count'] for w in cutaways),
-                                              'text_sha256': sha(speech_text.encode()),
-                                              'historical_credit_estimate': math.ceil(len(speech_text) / 400)}})
-    total_chars = sum(l['single_speech_job']['character_count'] for l in lessons)
-    estimated_credits = sum(l['single_speech_job']['historical_credit_estimate'] for l in lessons)
+                        'lesson_cutaway_text': {'window_count': len(cutaways), 'text': speech_text,
+                                                'character_count': len(speech_text),
+                                                'word_count': sum(w['word_count'] for w in cutaways),
+                                                'text_sha256': sha(speech_text.encode())},
+                        'speech_jobs': jobs})
+    total_chars = sum(sum(j['character_count'] for j in l['speech_jobs']) for l in lessons)
+    estimated_credits = sum(sum(j['historical_credit_estimate'] for j in l['speech_jobs']) for l in lessons)
+    job_count = sum(len(l['speech_jobs']) for l in lessons)
     return {'schema_version': 1, 'status': 'review_only_provider_free',
-            'method': 'One continuous speech job per lesson, all sentence-complete cutaways joined with two newlines; align to native presenter audio and render from word timestamps and silence.',
+            'method': 'Sequential provider-safe speech jobs per lesson; each job contains whole sentence-complete cutaway windows joined with two newlines. Align to native presenter audio and render from word timestamps and silence.',
             'voice_id': VOICE_ID, 'source_receipt': {'path': relative(RECEIPT), 'sha256': sha(RECEIPT.read_bytes())},
             'audio_audit': {'path': relative(ASR_AUDIT), 'sha256': sha(ASR_AUDIT.read_bytes()),
                             'status': 'machine_diagnostic_only; all 64 windows need audible confirmation before synthesis'},
-            'credit_plan': {'job_count': 16, 'total_characters': total_chars, 'historical_credit_estimate': estimated_credits,
+            'credit_plan': {'job_count': job_count, 'request_character_limit': MAX_REQUEST_CHARS,
+                            'limit_source': 'https://developers.heygen.com/docs/voices/heygen-voice-speech#request-fields',
+                            'route_compatibility_gate': 'The 5,000-character limit is documented for POST /v3/models/audio/tts; confirm the actual subscription create_speech route and voice support before submission. A separate model card suggests 10,000, so this pack uses the conservative 5,000 limit.',
+                            'total_submitted_characters': total_chars, 'historical_credit_estimate': estimated_credits,
                             'proposed_aggregate_subscription_credit_cap': math.ceil(estimated_credits * 1.25),
                             'cap_basis': 'Planning allowance of 25% above the observed Agentified 1 credit per started 400 characters; this is not a provider quote or enforced cap.',
                             'required_gate': 'Confirm the connected subscription account, voice entitlement, live per-job quote, aggregate debit ceiling, sufficient balance, no auto-reload, and a fail-closed no-retry control before any submission.',
