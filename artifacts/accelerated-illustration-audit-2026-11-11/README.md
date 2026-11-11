@@ -6,6 +6,8 @@ The visual-proposal contact-sheet pass found **54 text-first templates**, **41 r
 
 The learner-bound midpoint cutaway samples show the recurring beige split-screen, short-heading/list or direct-address treatment in **92 of 98 scenes** (L02–L16); L01 uses more distinct source art and work surfaces. [Contact sheets 1](native-contact-sheet-01.jpg), [2](native-contact-sheet-02.jpg), [3](native-contact-sheet-03.jpg), [4](native-contact-sheet-04.jpg), and [5](native-contact-sheet-05.jpg) show all 98 samples. This is a one-frame-per-scene finding, not a full-video timing or caption judgment.
 
+**Production decision:** treat all 92 recurring split-screen scenes as illustration work, then inspect each scene's opening, middle, and closing speaking beats in the finished composite. A sparse title/list beside the presenter does not clear the scene. Record a specific visual claim, its source or synthetic-case boundary, the visible change during the narration, and any deliberate unchanged hold. L01's six distinct midpoint samples also need this temporal pass; the midpoint finding does not qualify their entire scenes. The current L01 pacing candidate remains review-only while this visual gate is open.
+
 Named approved-art beats appear in **10 scenes** for **347 seconds** of the 161-minute plan. Their presence does not clear the surrounding cutaway visuals.
 
 L09–L16 have **48 title-only shot fields** in the source manifest. The gallery proposes scene-specific directions from their approved narration and labels them as proposals. L05-02 has a source-shot timing conflict: it lists F01–F06 there, while its narration places F05/F06 in Scene 3.
