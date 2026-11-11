@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Source-bound clean-visual EDL; optionally composite a review-only L05 lesson."""
+import argparse
 import hashlib
 import importlib.util
 import json
@@ -249,11 +250,62 @@ def render_l05(edl):
             'canonical_media_or_learner_binding_changed': False}
 
 
+def check_edl(target):
+    recorded = json.loads((ROOT / target).read_text())
+    expected = json.loads(json.dumps(make_edl()))
+    has_candidate = 'l05_visual_only_candidate' in recorded
+    candidate = recorded.pop('l05_visual_only_candidate', None)
+    assert recorded == expected, 'EDL differs from current source-bound plan'
+    if has_candidate:
+        assert isinstance(candidate, dict), 'L05 candidate receipt must be an object'
+        lesson = next(row for row in expected['lessons'] if row['lesson_id'] == 'L05')
+        path = OUT / 'l05-clean-visual-full-review.mp4'
+        assert set(candidate) == {'path', 'sha256', 'duration_seconds', 'video_frames', 'full_decode',
+                                  'source_audio_aac_packet_sha256', 'copied_subtitle_srt_sha256',
+                                  'presenter_panel_mean_rgb_error', 'sample_frames', 'review_only',
+                                  'full_lesson_visual_qa', 'source_cutaway_silence_retained',
+                                  'canonical_media_or_learner_binding_changed'}
+        assert candidate['path'] == str(path)
+        assert candidate['sha256'] == sha(path), 'L05 candidate hash differs'
+        assert candidate['review_only'] is True
+        assert candidate['canonical_media_or_learner_binding_changed'] is False
+        assert candidate['full_lesson_visual_qa'] == 'not_yet_qualified'
+        assert candidate['source_cutaway_silence_retained'] is True
+        assert candidate['full_decode'] == 'passed'
+        assert candidate['duration_seconds'] == lesson['rendered_body_seconds']
+        assert candidate['video_frames'] == frames(lesson['rendered_body_seconds'])
+        assert set(candidate['presenter_panel_mean_rgb_error']) == {'8', '210', '405', '580'}
+        assert all(error < 5 for error in candidate['presenter_panel_mean_rgb_error'].values())
+        assert candidate['source_audio_aac_packet_sha256'] == packet_hash(lesson['source_native_mp4']['path'], 'a')
+        assert candidate['source_audio_aac_packet_sha256'] == packet_hash(path, 'a')
+        assert candidate['copied_subtitle_srt_sha256'] == packet_hash(lesson['source_native_mp4']['path'], 's')
+        assert candidate['copied_subtitle_srt_sha256'] == packet_hash(path, 's')
+        probe = json.loads(run(['ffprobe', '-v', 'error', '-show_streams', '-show_format',
+                                '-of', 'json', str(ROOT / path)]).stdout)
+        assert [row['codec_type'] for row in probe['streams']] == ['video', 'audio', 'subtitle']
+        assert int(probe['streams'][0]['nb_frames']) == candidate['video_frames']
+        assert abs(float(probe['format']['duration']) - candidate['duration_seconds']) < .05
+        sample_times = (112, 164, 245, 260, 285, 405, 550)
+        assert [sample['source_seconds'] for sample in candidate['sample_frames']] == list(sample_times)
+        for time, sample in zip(sample_times, candidate['sample_frames']):
+            assert sample['path'] == str(OUT / f'l05-review-{time:03d}s.jpg')
+            assert sample['sha256'] == sha(pathlib.Path(sample['path'])), sample['path']
+    print(f'Checked {target}: {len(expected["lessons"])} lessons; L05 candidate: {has_candidate}')
+
+
 def main():
-    edl = make_edl()
-    if '--render-l05' in sys.argv[1:]:
-        edl['l05_visual_only_candidate'] = render_l05(edl)
+    parser = argparse.ArgumentParser(description=__doc__)
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument('--check', action='store_true', help='validate existing EDL and media without writing')
+    actions.add_argument('--render-l05', action='store_true', help='render a review-only L05 visual candidate')
+    args = parser.parse_args()
     target = OUT / 'full-lesson-edl.json'
+    if args.check:
+        check_edl(target)
+        return
+    edl = make_edl()
+    if args.render_l05:
+        edl['l05_visual_only_candidate'] = render_l05(edl)
     (ROOT / target).write_text(json.dumps(edl, ensure_ascii=False, indent=2) + '\n')
     print(f'Wrote {target}: {len(edl["lessons"])} lessons; L05 rendered: {"l05_visual_only_candidate" in edl}')
 
