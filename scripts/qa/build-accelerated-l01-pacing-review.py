@@ -26,6 +26,7 @@ VOICE = "Samantha"
 VOICE_RATES = (100, 113, 87)
 WINDOWS = [(31.52, 235.0), (248.2, 345.0), (358.96, 515.0)]
 PRESENTER = [(0.0, 31.52), (235.0, 248.2), (345.0, 358.96), (515.0, 529.48)]
+REVIEW_END = 529.48  # Cut the unmarked silent end-card tail; source stays 540s.
 
 
 def run(*args, capture=False):
@@ -171,7 +172,7 @@ def make_video(listing, narration, vtt):
         "-map", "[v]", "-map", "[a]", "-map", f"{2+len(narration)}:0",
         "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-r", "25",
         "-c:a", "aac", "-b:a", "192k", "-c:s", "mov_text",
-        "-t", "540", "-movflags", "+faststart", str(final))
+        "-t", str(REVIEW_END), "-movflags", "+faststart", str(final))
     return final
 
 
@@ -180,20 +181,20 @@ def validate(path):
     probe = json.loads(run("ffprobe", "-v", "error", "-show_streams",
                            "-show_format", "-of", "json", str(path), capture=True))
     video = next(stream for stream in probe["streams"] if stream["codec_type"] == "video")
-    if video["nb_frames"] != "13500" or abs(float(probe["format"]["duration"]) - 540) > 0.05:
+    if video["nb_frames"] != "13237" or abs(float(probe["format"]["duration"]) - REVIEW_END) > 0.05:
         raise ValueError("Frame count or duration changed")
     report = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(path),
-                             "-af", "silencedetect=noise=-38dB:d=1",
+                             "-af", "silencedetect=noise=-38dB:d=2",
                              "-f", "null", "-"], capture_output=True, text=True, check=True).stderr
     gaps = []
     starts = [float(v) for v in re.findall(r"silence_start:\s*([0-9.]+)", report)]
     ends = [float(v) for v in re.findall(r"silence_end:\s*([0-9.]+)", report)]
     for i, start in enumerate(starts):
-        end = ends[i] if i < len(ends) else 540
-        if end - start > 12 and not (start >= 529.0 and end <= 540.1):
+        end = ends[i] if i < len(ends) else REVIEW_END
+        if end - start > 2:
             gaps.append([round(start, 3), round(end, 3)])
     if gaps:
-        raise ValueError(f"Unexpected silence over 12 seconds: {gaps}")
+        raise ValueError(f"Unmarked silence over 2 seconds: {gaps}")
     presenter_error = {}
     for sample in (10, 240, 350, 520):
         images = []
@@ -216,8 +217,8 @@ def validate(path):
            caption_rows[i][1] - caption_rows[i+1][0] > 0.1
            for i in range(len(caption_rows)-1)):
         raise ValueError("Caption gap or overlap exceeds tolerance")
-    return {"video_frames": int(video["nb_frames"]), "duration_seconds": 540,
-            "unexpected_silence_over_12_seconds": gaps,
+    return {"video_frames": int(video["nb_frames"]), "duration_seconds": REVIEW_END,
+            "unmarked_silence_over_2_seconds": gaps,
             "presenter_frame_mean_absolute_error": presenter_error,
             "caption_cues": len(caption_rows)}
 

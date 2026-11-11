@@ -35,7 +35,7 @@ Open the review page from `python3 -m http.server 8765 --bind 127.0.0.1` at `/do
 
 ### Lesson media voice and screen contract
 
-Spoken teaching continues when the presenter is off screen. A silent learner-work hold is allowed only when the scene explicitly names the pause, gives a learner action, and records its start and end time. After compositing, detect and review every audio gap over 12 seconds. Preserve native presenter footage and audio in their exact windows; avoid overlapping narration or changing frame sync. Captions must match the final spoken mix and stay clear of instructional art and player controls.
+Spoken teaching continues when the presenter is off screen. A silent learner-work hold is allowed only when the scene explicitly names the pause, gives a learner action, and records its start and end time. After compositing, reject any unmarked audio gap over two seconds. Preserve native presenter footage and audio in their exact windows; avoid overlapping narration or changing frame sync. Captions must match the final spoken mix and stay clear of instructional art and player controls.
 
 Keep the teaching frame focused on one idea. Remove scene codes, production/operator labels, repeated artifact names, decorative progress markers, and dense worksheet copy when they compete with the narration or captions. The learner player already supplies navigation and progress. Preserve approved book/SAM art, synthetic-example labels where they convey a real provenance boundary, and the data-use rule.
 

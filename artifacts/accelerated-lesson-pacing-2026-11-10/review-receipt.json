@@ -61,11 +61,11 @@
   "caption_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.vtt",
   "caption_sha256": "9762e81acc8bbfa8537282ca3a0c2ac648f38d2035ac5189f5ed9855294005c4",
   "output_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.mp4",
-  "output_sha256": "75e008de77ba0d5f92960d7df2bab70dbfc0e4d617938655d9fcf4b3b576dc1a",
+  "output_sha256": "0e34358c87c3695aad89c81a8e65463bb9c66f6795f92a84479636e5a7babba3",
   "validation": {
-    "video_frames": 13500,
-    "duration_seconds": 540,
-    "unexpected_silence_over_12_seconds": [],
+    "video_frames": 13237,
+    "duration_seconds": 529.48,
+    "unmarked_silence_over_2_seconds": [],
     "presenter_frame_mean_absolute_error": {
       "10": 0.283,
       "240": 0.664,
