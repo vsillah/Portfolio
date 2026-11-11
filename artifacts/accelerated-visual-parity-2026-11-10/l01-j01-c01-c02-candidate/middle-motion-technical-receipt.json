@@ -4,13 +4,13 @@
     "path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
     "sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725"
   },
-  "layout_receipt_sha256": "b1cb2dbb6628e3f2855a9e580859d2fc86b030d167a082206c2d52662d71833a",
+  "layout_receipt_sha256": "d67f4f61d043ffcfa5ae85844bce04e8f8e4a142d6175ab1ff95d1f2cab5bed2",
   "backgrounds": {
     "P01": "ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071",
-    "P02": "b83df117c6606b3d7fea3e1ccc2752146073454923f23e2c37031b88a7341196",
-    "signals": "41d6c0415ffdbca61a15586d166ad169e0b91363c854140f23207b29dee23962",
-    "alignment": "9bca38c9c470b804bcffb681ed832697f93f39b337dad0ad301d38a7c8f48de5",
-    "momentum": "353fcbc5a4347af0d084f3c45177d1450d89df51dfe395ffba65cd04314701e2"
+    "P02": "38bd6e20ed00b6f02547ee75854db7bfc6306327d373e8dad0b1ef7faf717e6d",
+    "signals": "e766e265f45f8402caa707e877e0e357623cdeba30a9aaf6124794384938f8eb",
+    "alignment": "5d6ea558a1e2ed371d59efc731e98362ebd30c3b3ee35561f37bbe3590568b8e",
+    "momentum": "6f4449b78cf9d6106f97284fe5499c223da292b3dec6c632b6e109b2e43e1fa9"
   },
   "presenter_source_1920x1080_xywh": [
     1136,
@@ -87,7 +87,7 @@
   "native_visual_frame_hold": "P02 source 235.04s held for first 40 ms frame; 235.0s audio unchanged",
   "reel": {
     "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4",
-    "sha256": "216bad878f593fccdfc0ea56b77479be5cb7b85c7111fbc98fb14ff5030c1449",
+    "sha256": "58d52c06d573702d42ec6da48e9ea756cfe94afff1cf4cff02238d23c07505dc",
     "duration_seconds": 12.821333,
     "video": {
       "codec_name": "h264",
@@ -109,7 +109,7 @@
       "bytes": 2482176,
       "sha256": "b86a0394c94c793529d3b4c75ea8031975ddd328cac7de4962bcace963b76c97"
     },
-    "browser_desktop_mobile_controls": "see p02-focus-audio-preserved-review.md",
+    "browser_desktop_mobile_controls": "see p02-vertical-center-review.md",
     "native_audio_listening": "not performed; decoded PCM identity to prior reel passed"
   },
   "limits": [

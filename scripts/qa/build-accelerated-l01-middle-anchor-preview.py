@@ -49,20 +49,20 @@ def bases():
     fill_region(p02, p02_source, 1100, 275, 1885, 725, 1080, 1895)
     fill_region(p02, p02_source, 1680, 40, 1865, 100, 1660, 1885)
     focus_background = p02.copy()
-    art = p02_source.crop((190, 165, 990, 830)).resize((760, 632), Image.Resampling.LANCZOS)
-    p02.paste(art, (160, 130))
+    art = p02_source.crop((190, 165, 990, 830)).resize((530, 440), Image.Resampling.LANCZOS)
+    p02.paste(art, (275, 320))
     p02_path = OUT / 'p02-middle-base.png'
     p02.save(p02_path)
     # Use only enlarged crops from the owned SAM plate. The opening whole-map
     # view preserves context; the three native headings then become readable.
     focus_crops = {
-        'signals': (230, 250, 450, 435),
-        'alignment': (480, 250, 700, 435),
-        'momentum': (725, 250, 945, 435),
+        'signals': (230, 250, 450, 400),
+        'alignment': (480, 250, 700, 400),
+        'momentum': (725, 250, 945, 400),
     }
     for name, box in focus_crops.items():
         focused = focus_background.copy()
-        focused.paste(p02_source.crop(box).resize((720, 606), Image.Resampling.LANCZOS), (180, 145))
+        focused.paste(p02_source.crop(box).resize((600, 409), Image.Resampling.LANCZOS), (240, 335))
         focused.save(OUT / f'p02-focus-{name}-base.png')
     return p01_path, p02_path
 
@@ -146,21 +146,26 @@ def main():
         'layout': {'P01_worksheet_xywh': [100, 285, 920, 400],
                    'P01_blank_interior_removed_source_px': 127,
                    'P01_worksheet_bottom_to_mobile_control_guard_source_px': 770 - 685,
-                   'P02_map_xywh': [160, 130, 760, 632],
-                   'P02_focus_source_crops_xyxy': {'signals': [230, 250, 450, 435],
-                                                   'alignment': [480, 250, 700, 435],
-                                                   'momentum': [725, 250, 945, 435]},
-                   'P02_focus_destination_xywh': [180, 145, 720, 606],
+                   'P02_map_xywh': [275, 320, 530, 440],
+                   'P02_focus_source_crops_xyxy': {'signals': [230, 250, 450, 400],
+                                                   'alignment': [480, 250, 700, 400],
+                                                   'momentum': [725, 250, 945, 400]},
+                   'P02_focus_destination_xywh': [240, 335, 600, 409],
+                   'P02_presenter_centerline_y': ANCHOR[1] + ANCHOR[3] / 2,
+                   'P02_map_centerline_y': 320 + 440 / 2,
+                   'P02_focus_centerline_y': 335 + 409 / 2,
+                   'P02_focus_optical_offset_y': -0.5,
                    'P02_overlays_removed': ['WORKSHOP MAP', 'Signals · Alignment · Momentum',
                                             'Book parts: Systems · Align · Momentum'],
                    'P02_source_art_text': 'preserved inside the original map crop',
                    'presenter_bottom_to_control_guard_source_px': 920 - (ANCHOR[1] + ANCHOR[3]),
-                   'map_bottom_to_control_guard_source_px': 920 - 762,
+                   'map_bottom_to_control_guard_source_px': 920 - 760,
+                   'focus_bottom_to_control_guard_source_px': 920 - 744,
                    'caption_band_review_y_px': [720, 820]},
         'observed_still_review': {
-            'desktop': 'P01 worksheet and P02 source map occupy the left teaching column with the presenter on the right. No duplicate P02 headings or book-parts overlay remains; source map footer clears the simulated control strip.',
+            'desktop': 'P02 whole map centerline y=540 matches fixed presenter centerline; each focused crop centerline y=539.5. No duplicate heading overlay; source map footer clears simulated controls.',
             '390x844': 'Focused source-art headings require actual-player readability review; simulated controls only establish preliminary clearance.',
-            'visual_balance': 'P01 card center is near the presenter center; P02 source map and middle-right presenter occupy the same vertical band. Neither scene rests wholly at the top.',
+            'visual_balance': 'P02 art and middle-right presenter share the same vertical centerline; P01 remains a separate pacing-review work surface.',
             'P01_teaching_idea': 'The blank decision field makes the named blank document visible; full scene illustration remains open.',
             'reading_boundary': 'Whole-map micro-labels failed the prior 390px gate; enlarged native source-art headings require a single short-reel check before any readiness claim.'},
         'stills': {path.name: sha(path) for path in paths},

@@ -47,12 +47,12 @@ def source_check():
     assert sha(SOURCE) == 'a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725'
     assert sha(PRIOR_AUDIO) == '820c42a81311152c454318d47549ca5ed90c8e44dfb8713d6aa5007b5d382461'
     assert sha(P01) == 'ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071'
-    assert sha(P02) == 'b83df117c6606b3d7fea3e1ccc2752146073454923f23e2c37031b88a7341196'
-    assert sha(LAYOUT) == 'b1cb2dbb6628e3f2855a9e580859d2fc86b030d167a082206c2d52662d71833a'
+    assert sha(P02) == '38bd6e20ed00b6f02547ee75854db7bfc6306327d373e8dad0b1ef7faf717e6d'
+    assert sha(LAYOUT) == 'd67f4f61d043ffcfa5ae85844bce04e8f8e4a142d6175ab1ff95d1f2cab5bed2'
     assert {name: sha(path) for name, path in FOCUS.items()} == {
-        'signals': '41d6c0415ffdbca61a15586d166ad169e0b91363c854140f23207b29dee23962',
-        'alignment': '9bca38c9c470b804bcffb681ed832697f93f39b337dad0ad301d38a7c8f48de5',
-        'momentum': '353fcbc5a4347af0d084f3c45177d1450d89df51dfe395ffba65cd04314701e2'}
+        'signals': 'e766e265f45f8402caa707e877e0e357623cdeba30a9aaf6124794384938f8eb',
+        'alignment': '5d6ea558a1e2ed371d59efc731e98362ebd30c3b3ee35561f37bbe3590568b8e',
+        'momentum': '6f4449b78cf9d6106f97284fe5499c223da292b3dec6c632b6e109b2e43e1fa9'}
     layout = json.loads(LAYOUT.read_text())
     assert layout['proposed_source_1920x1080_xywh'] == list(ANCHOR)
     assert sum(round((row['end'] - row['start']) * FPS) for row in SEGMENTS) == 320
@@ -136,7 +136,7 @@ def inspect(write=False):
                  'video': video, 'audio': audio},
         'checks': {'full_decode': 'passed', 'frame_count': 320,
                    'decoded_pcm_identity': reel_pcm,
-                   'browser_desktop_mobile_controls': 'see p02-focus-audio-preserved-review.md',
+                   'browser_desktop_mobile_controls': 'see p02-vertical-center-review.md',
                    'native_audio_listening': 'not performed; decoded PCM identity to prior reel passed'},
         'limits': ['Local voice-bearing MP4 remains ignored by Git.',
                    'No J01, learner binding, provider action, merge, or release.']

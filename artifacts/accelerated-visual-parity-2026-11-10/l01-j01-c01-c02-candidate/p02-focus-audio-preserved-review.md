@@ -1,6 +1,6 @@
 # P02 focused SAM view: local review
 
-Status: **ready for captain review only** on `codex/accelerated-lesson-pacing-audit` at source commit `0ebc158d`. One audio-preserving short reel was rendered on 2026-11-11. The voice-bearing [local reel](l01-p01-p02-middle-motion.mp4) is ignored by Git; SHA-256 `216bad878f593fccdfc0ea56b77479be5cb7b85c7111fbc98fb14ff5030c1449`.
+Status: **superseded by the centered P02 review** on `codex/accelerated-lesson-pacing-audit` at source commit `0ebc158d`. This earlier audio-preserving short reel was rendered on 2026-11-11 and preserved locally as `l01-p01-p02-middle-motion-before-vertical-center.mp4`; SHA-256 `216bad878f593fccdfc0ea56b77479be5cb7b85c7111fbc98fb14ff5030c1449`. Vambah found its SAM art too high relative to the presenter. See [the bounded layout correction](p02-vertical-center-review.md).
 
 The reel opens on the complete owned SAM map, visits enlarged source crops for Signals, Alignment, and Momentum, then returns to the complete map. It adds no replacement heading. The presenter stays at `(1136,348,672,384)` on the 1920×1080 source canvas. The source map and gold footer remain present in the whole-map views. The focused crops are partial views of the same art, not new illustrations.
 
@@ -12,4 +12,4 @@ The reel opens on the complete owned SAM map, visits enlarged source crops for S
 | 390×844 Chrome | With native controls visible, sampled Signals at 7.69s, Alignment at 8.97s, Momentum at 10.51s, and whole-map return at 11.92s. Each focused source-art heading is readable and the presenter remains fixed; the whole-map footer is visible but its small copy is not claimed readable. |
 | Caption space | Focus art ends at source y=751 and the presenter at y=732, above the prior y=920 control guard. This short reel has no caption track. A captioned learner composite must be checked separately. |
 
-This is a review candidate, not an illustration-ready lesson or Human QA artifact. P01 still needs its scene-specific visual claim; P02's focused crops and their timing need captain judgment. No learner binding, J01/C01/C02 timing, HeyGen, spend, merge, or release action occurred.
+This historical reel is no longer the review candidate. P01 still needs its scene-specific visual claim; P02's focused crops and timing need captain judgment. No learner binding, J01/C01/C02 timing, HeyGen, spend, merge, or release action occurred.

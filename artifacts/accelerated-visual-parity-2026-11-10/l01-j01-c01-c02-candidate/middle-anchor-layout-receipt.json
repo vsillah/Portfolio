@@ -89,37 +89,41 @@
     "P01_blank_interior_removed_source_px": 127,
     "P01_worksheet_bottom_to_mobile_control_guard_source_px": 85,
     "P02_map_xywh": [
-      160,
-      130,
-      760,
-      632
+      275,
+      320,
+      530,
+      440
     ],
     "P02_focus_source_crops_xyxy": {
       "signals": [
         230,
         250,
         450,
-        435
+        400
       ],
       "alignment": [
         480,
         250,
         700,
-        435
+        400
       ],
       "momentum": [
         725,
         250,
         945,
-        435
+        400
       ]
     },
     "P02_focus_destination_xywh": [
-      180,
-      145,
-      720,
-      606
+      240,
+      335,
+      600,
+      409
     ],
+    "P02_presenter_centerline_y": 540.0,
+    "P02_map_centerline_y": 540.0,
+    "P02_focus_centerline_y": 539.5,
+    "P02_focus_optical_offset_y": -0.5,
     "P02_overlays_removed": [
       "WORKSHOP MAP",
       "Signals \u00b7 Alignment \u00b7 Momentum",
@@ -127,32 +131,33 @@
     ],
     "P02_source_art_text": "preserved inside the original map crop",
     "presenter_bottom_to_control_guard_source_px": 188,
-    "map_bottom_to_control_guard_source_px": 158,
+    "map_bottom_to_control_guard_source_px": 160,
+    "focus_bottom_to_control_guard_source_px": 176,
     "caption_band_review_y_px": [
       720,
       820
     ]
   },
   "observed_still_review": {
-    "desktop": "P01 worksheet and P02 source map occupy the left teaching column with the presenter on the right. No duplicate P02 headings or book-parts overlay remains; source map footer clears the simulated control strip.",
+    "desktop": "P02 whole map centerline y=540 matches fixed presenter centerline; each focused crop centerline y=539.5. No duplicate heading overlay; source map footer clears simulated controls.",
     "390x844": "Focused source-art headings require actual-player readability review; simulated controls only establish preliminary clearance.",
-    "visual_balance": "P01 card center is near the presenter center; P02 source map and middle-right presenter occupy the same vertical band. Neither scene rests wholly at the top.",
+    "visual_balance": "P02 art and middle-right presenter share the same vertical centerline; P01 remains a separate pacing-review work surface.",
     "P01_teaching_idea": "The blank decision field makes the named blank document visible; full scene illustration remains open.",
     "reading_boundary": "Whole-map micro-labels failed the prior 390px gate; enlarged native source-art headings require a single short-reel check before any readiness claim."
   },
   "stills": {
     "p01-middle-base.png": "ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071",
-    "p02-middle-base.png": "b83df117c6606b3d7fea3e1ccc2752146073454923f23e2c37031b88a7341196",
+    "p02-middle-base.png": "38bd6e20ed00b6f02547ee75854db7bfc6306327d373e8dad0b1ef7faf717e6d",
     "P01-middle-desktop-controls.png": "b5a84e536049ea6f3bc9804684f71abd3b26576b27eee4e1a7d9f2efaf2c520d",
     "P01-middle-390x844-controls.png": "1f6f5cb46963fef38a446a0bba588e74ee7858acb2360d2e53ab8314c6ead55a",
-    "P02-middle-desktop-controls.png": "8fe4ef5ad7aeab4ad6be3d31b1adc5228d2fa3824687337cbbb5b3ead1b2ee34",
-    "P02-middle-390x844-controls.png": "ebc82bd49e3d89fdbc1f4d0f545dd70ea6e889885ab2489f38ad7280b11ab30f",
-    "P02-signals-middle-desktop-controls.png": "900b796686f90d7e0cc3a3678bd2c89db2ab7b7959d04e4b6ff2c6d21ca8dcf9",
-    "P02-signals-middle-390x844-controls.png": "946dd1f34fcd28f769aa044bb1bb259e199551684f153d24b94062a567644e51",
-    "P02-alignment-middle-desktop-controls.png": "7e7d31e5d3f8240d9f49e9bfdcf5ba165827225af1a566f22113d181dd285b99",
-    "P02-alignment-middle-390x844-controls.png": "bff3fbcb0468b6cf6a5adc073c8d2053d5b52dc9b84a3b9dda8c61cd650ba285",
-    "P02-momentum-middle-desktop-controls.png": "fd1f4373abcef193addcdfc4132a7764a47ed5d3a22a9b1e98464621c6b8e5ca",
-    "P02-momentum-middle-390x844-controls.png": "34e765b59f42393487356facfb0dd313c1928a644d0219b08476451d001b4b33"
+    "P02-middle-desktop-controls.png": "ce47f57ec625eac2adbda9885b328a5223e4d894ecd06ffdead716ae9e2aa12b",
+    "P02-middle-390x844-controls.png": "63ae2f2bbfc25350072fa3f3fdea6d8d299e508ea645285f088f12fd42a7d9dd",
+    "P02-signals-middle-desktop-controls.png": "efd476cd81c2a1aef87d59346ba2cee1f20f53e9250a5c705225ebc8be5d27c2",
+    "P02-signals-middle-390x844-controls.png": "4efa6487012bc6a0e6b6345cce8202a1d6477d92bf4084b389319ef193f1055c",
+    "P02-alignment-middle-desktop-controls.png": "57df43ffe716d0a8dd523a53b79f6b82a857577a9dd2b1ac9608a64774b91434",
+    "P02-alignment-middle-390x844-controls.png": "49ee73d873f0bb36d6c9c47cb23a860e2f648f9ff31cae62e55c04cf9a7f9bd0",
+    "P02-momentum-middle-desktop-controls.png": "0163547dbfc1dcf804b376ac690aaec707ace15ce4ebc68d9027260a300f3d70",
+    "P02-momentum-middle-390x844-controls.png": "e9187f14ec81a9706c893f2dc9193b28905b4c5f85d0b642380818bf6e2d63ec"
   },
   "limits": [
     "Controls in stills are simulated; actual Chrome playback needs the single authorized render.",
