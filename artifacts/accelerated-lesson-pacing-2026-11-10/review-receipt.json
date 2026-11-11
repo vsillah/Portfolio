@@ -58,19 +58,46 @@
       "word_count": 309
     }
   ],
+  "sam_source_art": {
+    "full_infographic": {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6"
+    },
+    "signals": {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c"
+    },
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0"
+    },
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3"
+    }
+  },
+  "presenter_focus_overlays": [
+    "artifacts/accelerated-lesson-pacing-2026-11-10/l01-presenter-story-focus.png"
+  ],
   "caption_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.vtt",
-  "caption_sha256": "9762e81acc8bbfa8537282ca3a0c2ac648f38d2035ac5189f5ed9855294005c4",
+  "caption_sha256": "fb76dce31cc8762698a67bc362722ab285ebc1a711bf94110661a804aae136f7",
   "output_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.mp4",
-  "output_sha256": "4fcdb4dfe4a5b4be11f92b72450d85a2622957b1282e740792a1a25812c7f84a",
+  "output_sha256": "d61204d50b53e9e880921cacb295fba92da54f71375073f1822aee161052bdb7",
   "validation": {
     "video_frames": 13237,
     "duration_seconds": 529.48,
     "unmarked_silence_over_2_seconds": [],
     "presenter_frame_mean_absolute_error": {
-      "10": 0.352,
-      "240": 0.735,
-      "350": 0.411,
-      "520": 0.528
+      "10": 0.771,
+      "240": 22.111,
+      "350": 0.837,
+      "520": 1.046
+    },
+    "protected_presenter_region_mean_absolute_error": {
+      "10": 0.694,
+      "240": 1.828,
+      "350": 0.784,
+      "520": 1.026
     },
     "label_mask_box_xywh": [
       1674,
@@ -79,11 +106,11 @@
       48
     ],
     "label_region_mean_absolute_change": {
-      "10": 15.345,
-      "240": 15.774,
-      "350": 16.04,
-      "520": 16.086
+      "10": 15.464,
+      "240": 15.931,
+      "350": 16.149,
+      "520": 16.217
     },
-    "caption_cues": 86
+    "caption_cues": 278
   }
 }

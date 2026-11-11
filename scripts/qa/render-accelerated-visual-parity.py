@@ -123,6 +123,14 @@ def source_art(image,name,box):
     y=box[1]+(box[3]-box[1]-art.height)//2
     image.paste(art,(x,y))
 
+def source_focus_art(image,name,box):
+    """Preserve the approved panel's alpha against the review card background."""
+    art=Image.open(ROOT/ART_ASSETS[name]).convert('RGBA')
+    art.thumbnail((box[2]-box[0],box[3]-box[1]),Image.Resampling.LANCZOS)
+    x=box[0]+(box[2]-box[0]-art.width)//2
+    y=box[1]+(box[3]-box[1]-art.height)//2
+    image.paste(art,(x,y),art)
+
 def draw_semantic(d,layout,labels):
     """Large, labeled artifact shapes; no invented measures or customer results."""
     if layout in ('flow','trace','reverse'):
@@ -273,6 +281,11 @@ def draw_semantic(d,layout,labels):
 
 def draw_concept(image,scene,variant=None,clean=False):
     layout,labels=CONCEPTS[scene['id']]
+    if clean and scene['id'] in ('L01-02','L01-03'):
+        focus = ('signals' if scene['id']=='L01-02' else
+                 variant if variant in ('signals','alignment','momentum') else 'signals')
+        draw_l01_sam_focus(image,focus)
+        return
     if clean and scene['id']=='L01-01':
         if variant=='decision':
             d=ImageDraw.Draw(image)
@@ -410,6 +423,16 @@ def draw_concept(image,scene,variant=None,clean=False):
             concept_box(d,(xx,yy,xx+width,yy+height),value,size=30)
         return
     raise AssertionError((scene['id'],layout))
+
+def draw_l01_sam_focus(image, focus, box=(670,165,1810,815)):
+    """One approved SAM panel at a time; full infographic remains source art."""
+    d=ImageDraw.Draw(image)
+    x0,y0,x1,y1=box
+    rounded(d,box,DEEP,GOLD,42,6)
+    name=focus.capitalize()
+    title=font(67,True)
+    d.text((x0+85,y0+245),name,font=title,fill=CREAM)
+    source_focus_art(image,focus,(x0+450,y0+35,x1-65,y1-35))
 
 def render(lesson, scene, index, presenter=False, variant=None, clean=False):
     image=Image.new('RGB',(1920,1080),DEEP)

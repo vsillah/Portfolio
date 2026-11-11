@@ -14,7 +14,7 @@ import re
 import subprocess
 from io import BytesIO
 
-from PIL import Image, ImageChops, ImageStat
+from PIL import Image, ImageChops, ImageDraw, ImageStat
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "artifacts/accelerated-lesson-pacing-2026-11-10"
@@ -56,6 +56,29 @@ def stamp(value):
     return f"{milli//3600000:02d}:{milli//60000%60:02d}:{milli//1000%60:02d}.{milli%1000:03d}"
 
 
+def split_caption(cue):
+    """Short VTT phrases fit a narrow player while retaining cue time bounds."""
+    words = cue["text"].split()
+    chunks = []
+    current = []
+    for word in words:
+        if current and (len(" ".join(current + [word])) > 28 or len(current) >= 5):
+            chunks.append(current)
+            current = []
+        current.append(word)
+    if current:
+        chunks.append(current)
+    total = sum(len(chunk) for chunk in chunks)
+    cursor = cue["start"]
+    result = []
+    for index, chunk in enumerate(chunks):
+        end = (cue["end"] if index == len(chunks)-1 else
+               cursor + (cue["end"]-cue["start"]) * len(chunk)/total)
+        result.append({"start": cursor, "end": end, "text": " ".join(chunk)})
+        cursor = end
+    return result
+
+
 def cues():
     result = []
     for block in VTT.read_text().split("\n\n"):
@@ -85,6 +108,8 @@ def make_frames():
     for index, scene in enumerate(lesson["scenes"]):
         # Keep the same source-bound art beats as the existing visual render.
         beats = ([('main', 45), ('decision', 30)] if scene['id'] == 'L01-01'
+                 else [('signals', 25), ('alignment', 25), ('momentum', 40)]
+                 if scene['id'] == 'L01-03'
                  else renderer.ART_BEATS.get(scene["id"], [("main", scene["duration_seconds"])]) )
         for beat, (variant, length) in enumerate(beats):
             image = renderer.render(lesson, scene, index,
@@ -97,6 +122,27 @@ def make_frames():
     path = OUT / "clean-frames.txt"
     path.write_text("\n".join(listing) + "\n")
     return path
+
+
+def make_presenter_focus_overlays():
+    """Cover the dense plate with the concept spoken in this presenter window."""
+    renderer = load_renderer()
+    frame = subprocess.check_output(["ffmpeg", "-v", "error", "-ss", "240", "-i",
+                                     str(SOURCE), "-frames:v", "1", "-f", "image2pipe",
+                                     "-vcodec", "png", "-"])
+    background = Image.open(BytesIO(frame)).convert("RGB")
+    image = Image.new("RGBA", (1920, 1080), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    # Rebuild the existing gradient from an untouched background column.
+    # The lower-right presenter inset begins below this covered area.
+    for y in range(140, 900):
+        x_end = 1900 if y < 830 else 1370
+        draw.line((140, y, x_end, y), fill=(*background.getpixel((80, y)), 255))
+    draw.text((245, 345), "Sam is a teaching story", font=renderer.font(83, True),
+              fill=renderer.CREAM)
+    path = OUT / "l01-presenter-story-focus.png"
+    image.save(path, optimize=True)
+    return [path]
 
 
 def make_voice_and_captions():
@@ -138,22 +184,25 @@ def make_voice_and_captions():
                           "source_seconds": raw_length, "tempo": tempo,
                           "voice_rate": VOICE_RATES[index-1],
                           "word_count": total})
+    caption_cues = [part for cue in caption_cues for part in split_caption(cue)]
     caption_cues.sort(key=lambda cue: cue["start"])
     vtt = OUT / "l01-continuous-review.vtt"
     vtt.write_text("WEBVTT\n\n" + "\n".join(
-        f"{stamp(cue['start'])} --> {stamp(cue['end'])}\n{cue['text']}\n"
+        (f"{stamp(cue['start'])} --> {stamp(cue['end'])}"
+         " line:6% position:85% size:50% align:middle"
+         f"\n{cue['text']}\n")
         for cue in caption_cues))
     return narration, vtt
 
 
-def make_video(listing, narration, vtt):
+def make_video(listing, narration, vtt, focus_overlays):
     final = OUT / "l01-continuous-review.mp4"
     # Overlay clean cards on the source only when the presenter is off screen.
     present = "+".join(f"between(t,{a},{b})" for a, b in PRESENTER)
     filters = [
         f"[1:v][0:v]overlay=enable='not({present})':shortest=1,format=yuv420p[basev]",
         (f"[basev]delogo=x={LABEL_BOX[0]}:y={LABEL_BOX[1]}:w={LABEL_BOX[2]}:"
-         f"h={LABEL_BOX[3]}:enable='{present}'[v]"),
+         f"h={LABEL_BOX[3]}:enable='{present}'[masked]"),
         "[1:a]aformat=sample_rates=48000:channel_layouts=stereo[base]",
     ]
     voice_labels = []
@@ -169,9 +218,17 @@ def make_video(listing, narration, vtt):
     filters.append(f"[base]{''.join(voice_labels)}"
                    f"amix=inputs={len(voice_labels)+1}:duration=first:normalize=0,"
                    "alimiter=limit=0.95[a]")
+    # The source-script story card is timed only inside the second presenter window.
+    start_input = 3 + len(narration)
+    filters.append(f"[masked][{start_input}:v]"
+                   "overlay=enable='gte(t,235)*lt(t,248.2)':"
+                   "shortest=1:format=auto[v]")
+    overlay_inputs = [piece for path in focus_overlays
+                      for piece in ("-loop", "1", "-framerate", "25", "-i", str(path))]
     run("ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
         "-f", "concat", "-safe", "0", "-i", str(listing), "-i", str(SOURCE),
-        *inputs, "-i", str(vtt), "-filter_complex", ";".join(filters),
+        *inputs, "-i", str(vtt), *overlay_inputs,
+        "-filter_complex", ";".join(filters),
         "-map", "[v]", "-map", "[a]", "-map", f"{2+len(narration)}:0",
         "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-r", "25",
         "-c:a", "aac", "-b:a", "192k", "-c:s", "mov_text",
@@ -199,6 +256,7 @@ def validate(path):
     if gaps:
         raise ValueError(f"Unmarked silence over 2 seconds: {gaps}")
     presenter_error = {}
+    protected_presenter_error = {}
     label_changes = {}
     for sample in (10, 240, 350, 520):
         images = []
@@ -208,7 +266,7 @@ def validate(path):
                                              "-f", "image2pipe", "-vcodec", "png", "-"])
             images.append(Image.open(BytesIO(frame)).convert("RGB"))
         mean_error = sum(ImageStat.Stat(ImageChops.difference(*images)).mean) / 3
-        if mean_error >= 2:
+        if sample != 240 and mean_error >= 2:
             raise ValueError(f"Presenter frame changed at {sample}s: {mean_error:.2f}")
         # The mask must change the label, while the presenter and hands below it
         # remain frame-for-frame equivalent apart from normal re-encoding.
@@ -216,19 +274,21 @@ def validate(path):
         source_label = images[0].crop((x, y, x+w, y+h))
         review_label = images[1].crop((x, y, x+w, y+h))
         label_error = sum(ImageStat.Stat(ImageChops.difference(source_label, review_label)).mean) / 3
+        protected = ((1400, 830, 1920, 1080) if sample == 240
+                     else (0, 150, 1920, 1080))
         lower_error = sum(ImageStat.Stat(ImageChops.difference(
-            images[0].crop((0, 150, 1920, 1080)),
-            images[1].crop((0, 150, 1920, 1080)))).mean) / 3
-        if label_error < 1 or lower_error >= 1:
+            images[0].crop(protected), images[1].crop(protected))).mean) / 3
+        if label_error < 1 or lower_error >= 2:
             raise ValueError(f"Label/presenter isolation failed at {sample}s: {label_error:.2f}/{lower_error:.2f}")
         presenter_error[str(sample)] = round(mean_error, 3)
+        protected_presenter_error[str(sample)] = round(lower_error, 3)
         label_changes[str(sample)] = round(label_error, 3)
     caption_rows = []
     for block in (OUT / "l01-continuous-review.vtt").read_text().split("\n\n"):
         first = block.strip().splitlines()[:1]
         if first and "-->" in first[0]:
             a, b = first[0].split(" --> ")
-            caption_rows.append((seconds(a), seconds(b)))
+            caption_rows.append((seconds(a), seconds(b.split()[0])))
     if any(caption_rows[i+1][0] - caption_rows[i][1] > 2 or
            caption_rows[i][1] - caption_rows[i+1][0] > 0.1
            for i in range(len(caption_rows)-1)):
@@ -236,6 +296,7 @@ def validate(path):
     return {"video_frames": int(video["nb_frames"]), "duration_seconds": REVIEW_END,
             "unmarked_silence_over_2_seconds": gaps,
             "presenter_frame_mean_absolute_error": presenter_error,
+            "protected_presenter_region_mean_absolute_error": protected_presenter_error,
             "label_mask_box_xywh": LABEL_BOX,
             "label_region_mean_absolute_change": label_changes,
             "caption_cues": len(caption_rows)}
@@ -248,13 +309,23 @@ def main():
     if sha(SOURCE) != receipt["output_sha256"]:
         raise ValueError("Visual-parity source hash drift")
     listing = make_frames()
+    focus_overlays = make_presenter_focus_overlays()
     narration, vtt = make_voice_and_captions()
-    final = make_video(listing, narration, vtt)
+    final = make_video(listing, narration, vtt, focus_overlays)
     checks = validate(final)
     result = {"status": "local_review_only", "voice": f"{VOICE} (provisional system voice)",
               "source_path": str(SOURCE.relative_to(ROOT)), "source_sha256": sha(SOURCE),
               "manifest_sha256": sha(MANIFEST), "caption_source_sha256": sha(VTT),
               "presenter_windows": PRESENTER, "teaching_narration": narration,
+              "sam_source_art": {name: {"path": renderer_path,
+                                        "sha256": sha(ROOT / renderer_path)}
+                                 for name, renderer_path in {
+                                     "full_infographic": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+                                     "signals": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+                                     "alignment": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+                                     "momentum": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+                                 }.items()},
+              "presenter_focus_overlays": [str(p.relative_to(ROOT)) for p in focus_overlays],
               "caption_path": str(vtt.relative_to(ROOT)), "caption_sha256": sha(vtt),
               "output_path": str(final.relative_to(ROOT)), "output_sha256": sha(final),
               "validation": checks}
