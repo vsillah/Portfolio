@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Alignment trophy with a star">
+  <defs><linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffe49a"/><stop offset="1" stop-color="#bd8f2c"/></linearGradient></defs>
+  <g stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M126 98H274L258 211q-5 38-58 47-53-9-58-47z" fill="url(#gold)" stroke-width="8"/>
+    <path d="M126 119H91q-5 85 67 90M274 119h35q5 85-67 90" stroke-width="15"/>
+    <path d="M200 258v49m-46 17h92m-108 21h124" stroke-width="18"/>
+    <path d="m200 139 13 26 29 4-21 20 5 29-26-14-26 14 5-29-21-20 29-4z" fill="#242039" stroke="#825d1c" stroke-width="5"/>
+    <path d="M200 70V42m-66 43-20-22m152 22 20-22M100 126H72m228 0h28m-235 49-25 13m239-13 25 13" stroke-width="9"/>
+  </g>
+</svg>
