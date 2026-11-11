@@ -27,6 +27,7 @@ VOICE_RATES = (100, 113, 87)
 WINDOWS = [(31.52, 235.0), (248.2, 345.0), (358.96, 515.0)]
 PRESENTER = [(0.0, 31.52), (235.0, 248.2), (345.0, 358.96), (515.0, 529.48)]
 REVIEW_END = 529.48  # Cut the unmarked silent end-card tail; source stays 540s.
+LABEL_BOX = (1674, 42, 210, 48)  # L01 source presenter label; outside the presenter inset.
 
 
 def run(*args, capture=False):
@@ -150,7 +151,9 @@ def make_video(listing, narration, vtt):
     # Overlay clean cards on the source only when the presenter is off screen.
     present = "+".join(f"between(t,{a},{b})" for a, b in PRESENTER)
     filters = [
-        f"[1:v][0:v]overlay=enable='not({present})':shortest=1,format=yuv420p[v]",
+        f"[1:v][0:v]overlay=enable='not({present})':shortest=1,format=yuv420p[basev]",
+        (f"[basev]delogo=x={LABEL_BOX[0]}:y={LABEL_BOX[1]}:w={LABEL_BOX[2]}:"
+         f"h={LABEL_BOX[3]}:enable='{present}'[v]"),
         "[1:a]aformat=sample_rates=48000:channel_layouts=stereo[base]",
     ]
     voice_labels = []
@@ -196,6 +199,7 @@ def validate(path):
     if gaps:
         raise ValueError(f"Unmarked silence over 2 seconds: {gaps}")
     presenter_error = {}
+    label_changes = {}
     for sample in (10, 240, 350, 520):
         images = []
         for file in (SOURCE, path):
@@ -206,7 +210,19 @@ def validate(path):
         mean_error = sum(ImageStat.Stat(ImageChops.difference(*images)).mean) / 3
         if mean_error >= 2:
             raise ValueError(f"Presenter frame changed at {sample}s: {mean_error:.2f}")
+        # The mask must change the label, while the presenter and hands below it
+        # remain frame-for-frame equivalent apart from normal re-encoding.
+        x, y, w, h = LABEL_BOX
+        source_label = images[0].crop((x, y, x+w, y+h))
+        review_label = images[1].crop((x, y, x+w, y+h))
+        label_error = sum(ImageStat.Stat(ImageChops.difference(source_label, review_label)).mean) / 3
+        lower_error = sum(ImageStat.Stat(ImageChops.difference(
+            images[0].crop((0, 150, 1920, 1080)),
+            images[1].crop((0, 150, 1920, 1080)))).mean) / 3
+        if label_error < 1 or lower_error >= 1:
+            raise ValueError(f"Label/presenter isolation failed at {sample}s: {label_error:.2f}/{lower_error:.2f}")
         presenter_error[str(sample)] = round(mean_error, 3)
+        label_changes[str(sample)] = round(label_error, 3)
     caption_rows = []
     for block in (OUT / "l01-continuous-review.vtt").read_text().split("\n\n"):
         first = block.strip().splitlines()[:1]
@@ -220,6 +236,8 @@ def validate(path):
     return {"video_frames": int(video["nb_frames"]), "duration_seconds": REVIEW_END,
             "unmarked_silence_over_2_seconds": gaps,
             "presenter_frame_mean_absolute_error": presenter_error,
+            "label_mask_box_xywh": LABEL_BOX,
+            "label_region_mean_absolute_change": label_changes,
             "caption_cues": len(caption_rows)}
 
 
