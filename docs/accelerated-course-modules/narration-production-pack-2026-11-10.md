@@ -1,6 +1,6 @@
 # Accelerated L01–L16 narration production pack
 
-**Status:** provider-free review candidate. The [machine-readable pack](narration-production-pack-2026-11-10.json) contains the complete approved-script cutaway text, each window’s exact character and word count, planned timing, text hash, script/request/VTT/native-media hashes, and provider-safe speech payloads grouped by lesson. The [audio audit](../../artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json) records the 64 current native presenter windows. Neither file is a provider submission or approval.
+**Status:** provider-free text inventory, **blocked for production by native-audio alignment**. The [machine-readable pack](narration-production-pack-2026-11-10.json) contains the approved-script cutaway text, each window’s character and word count, planned timing, text hash, script/request/VTT/native-media hashes, and bounded proposed speech payloads. The [per-window audio audit](../../artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json) records both full-window recognizers and script-alignment evidence for all 64 current native presenter windows. Neither file is a provider submission or approval; the proposed payloads must not be submitted from this state.
 
 ## Method and source binding
 
@@ -35,13 +35,34 @@ Times are the available gaps in the **current native MP4**, before any word-leve
 
 ## Native-audio boundary findings
 
-- **L01 C02 → A03:** the draft request starts A03 with “Let’s make the first page of your decision file.” The native A03 head starts with “It starts with a decision, not a tool.” The pack moves the first sentence to C02. Native A02 still ends at “public proof,” so C02 starts “Before you try any prompt…”
-- **L01 A03 → C03:** the request stops at “It could be whether,” but the isolated native tail completes the example through “offer.” The pack gives that whole sentence to A03 and starts C03 at “Keep the scope small…” This removes the mid-sentence cutaway start without repeating or dropping approved script words.
-- The machine transcript is diagnostic. It reports 36 request-head and 32 request-tail mismatches across 64 windows. Short clips can hallucinate after silence: a 2.8-second L01 A02 tail falsely suggested the distant “first page” sentence. Every presenter boundary therefore needs an audible, frame-aligned confirmation before these candidate payloads can become provider inputs. If a native window truly starts or ends inside a sentence, revise the edit boundary or native-audio treatment and regenerate this pack. Do not silently synthesize a fragment or duplicate spoken words.
+- **L01 A02 timeline conflict:** both full-window recognizers and a longer native tail identify A02 saying “Let’s make the first page of your decision file” after “public proof.” Word-level recognition places that sentence near **245.13–248.23 s**. The approved script has roughly 185 cutaway words between those sentences. The current candidate also assigns “Let’s make…” to C02, so submitting it would duplicate and reorder speech. The seven-second tail and high token probabilities disprove the earlier assumption that this was only a short-clip hallucination. A source-audio trim near 245.13 s, or another reviewed edit, is required before rehashing L01.
+- **L01 A03 → C03:** the request stops at “It could be whether,” while both full-window recognizers identify the native A03 continuing through “offer.” The candidate starts C03 at “Keep the scope small…”. This remains a proposed assignment pending listening and an edit decision.
+- **Across the course:** the base and small English models disagree with the candidate at 35 heads and 30 tails (five-word comparison). Long exact script matches indicate **28 possible noncontiguous script jumps** within presenter windows. These are machine diagnostics, not 28 confirmed edits. The VTT is editorially timed and can cross the native cuts. This chat’s media reader omits audio input, so **none of the 64 windows received an audible listening sign-off**. All 64 remain unresolved; the exact evidence for each is in the audit JSON. No candidate cutaway text or timing was changed on machine evidence alone.
+
+## Exact unresolved presenter windows
+
+For each row in the [audit JSON](../../artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json), open the `native_source.path` from the corresponding lesson entry in the pack, confirm its SHA-256, and listen across the recorded `start_seconds` and `end_seconds` with context on both sides. Enter the first and last spoken words and the reviewed source hash in `audible_review`; note any trim or reorder decision. Reconcile against the approved script before changing a cutaway span. The ASR transcript and VTT are comparison aids, not the sign-off.
+
+- L01: A01, A02, A03, A04
+- L02: A01, A02, A03, A04
+- L03: A01, A02, A03, A04
+- L04: A01, A02, A03, A04
+- L05: A01, A02, A03, A04
+- L06: A01, A02, A03, A04
+- L07: A01, A02, A03, A04
+- L08: A01, A02, A03, A04
+- L09: A01, A02, A03, A04
+- L10: A01, A02, A03, A04
+- L11: A01, A02, A03, A04
+- L12: A01, A02, A03, A04
+- L13: A01, A02, A03, A04
+- L14: A01, A02, A03, A04
+- L15: A01, A02, A03, A04
+- L16: A01, A02, A03, A04
 
 ## Remaining gates
 
-1. Listen to and mark the actual first and last words of all 64 native presenter windows. Resolve each discrepancy against the current source MP4 and VTT, then regenerate and rehash the exact texts. Confirm each cutaway fits its gap at the approved voice pace with transition room.
+1. Listen to and mark the actual first and last words of all 64 native presenter windows, starting with L01 A02 at 245–248 s. Resolve the possible out-of-order phrases and choose the native trims or other edit treatment against the current source MP4. Then regenerate and rehash the exact texts and timings. Confirm each cutaway fits its gap at the approved voice pace with transition room.
 2. Confirm the connected subscription account, voice entitlement and purpose-specific rights, privacy review, current balance, live per-job and aggregate credit quote, and a technically enforced ceiling no higher than the approved aggregate cap. Keep auto-reload and overage off. Obtain one explicit scope-bound production authorization before submission.
 3. On authorized production, submit only the reviewed, bounded speech jobs in sequence, no retries. Bind request, output audio, word timestamps, debit receipt, and source hashes. Render and inspect the native composites for no double speech, sentence continuity, captions, pacing, and complete MP4 playback before any later upload or learner rebind decision.
 

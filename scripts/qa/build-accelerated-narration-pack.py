@@ -73,6 +73,8 @@ def build():
     receipt = json.loads(RECEIPT.read_text())
     audit = json.loads(ASR_AUDIT.read_text())
     assert len(receipt['composites']) == 16
+    assert audit['source_receipt_sha256'] == sha(RECEIPT.read_bytes())
+    assert len(audit['windows']) == 64
     lessons = []
     for index, media in enumerate(receipt['composites'], 1):
         lesson_id = f'L{index:02d}'
@@ -109,7 +111,7 @@ def build():
             assert start == presenter_spans[2][1] - 4
             presenter_spans[2][1] = end
             adjustments = [
-                {'boundary': 'C02 to A03', 'change': 'C02 includes “Let’s make the first page of your decision file.”; A03 starts “It starts with a decision, not a tool.”', 'audio_evidence': 'Native A03 head 345–350 s transcribes “It starts with a decision, not a tool.” The short A02-tail ASR result was rejected as inconsistent with the 185-word intervening cutaway.', 'status': 'ASR-assisted candidate; listening confirmation required'},
+                {'boundary': 'A02 tail / C02 to A03', 'change': 'C02 currently includes “Let’s make the first page of your decision file.”; A03 starts “It starts with a decision, not a tool.”', 'audio_evidence': 'Both full-window ASR models and a seven-second native tail identify A02 speaking the first-page sentence after “public proof.” Word-level ASR places it near 245.13–248.23 s. The intervening cutaway contains roughly 185 approved-script words, so the current source audio jumps ahead and this candidate repeats that sentence.', 'status': 'blocked: audible confirmation and native A02 trim or alternate edit decision required'},
                 {'boundary': 'A03 to C03', 'change': 'A03 completes the example through “offer.”; C03 begins at the following sentence.', 'audio_evidence': 'Isolated native tail 355.5–359.0 s transcribes “or test a different way to explain an offer”; native silence begins near 358.95 s.', 'status': 'ASR-assisted candidate; listening confirmation required'},
             ]
         assert all(presenter_spans[n][1] < presenter_spans[n + 1][0] for n in range(3)), lesson_id
@@ -159,15 +161,18 @@ def build():
             assert sha(paths[name].read_bytes()) == media[key], (lesson_id, name)
         diagnostic = [w for w in audit['windows'] if w['lesson_id'] == lesson_id]
         assert len(diagnostic) == 4
+        assert all(w['source_media_sha256'] == media['source_sha256'] for w in diagnostic)
+        assert all(w['approved_script_sha256'] == sha(script_bytes) for w in diagnostic)
         lessons.append({'lesson_id': lesson_id, 'source_script': {'path': relative(script), 'sha256': sha(script_bytes)},
                         'presenter_request': {'path': relative(request), 'sha256': sha(request_bytes)},
                         'native_source': {'path': relative(paths['native_source']), 'sha256': media['source_sha256']},
                         'current_visual': {'path': relative(paths['current_visual']), 'sha256': media['output_sha256']},
                         'captions': {'path': relative(paths['captions']), 'sha256': media['caption_sha256']},
                         'narration_word_count': len(words), 'windows': windows, 'native_audio_adjustments': adjustments,
-                        'audio_alignment': {'status': 'pending_audible_confirmation',
+                        'audio_alignment': {'status': 'blocked_pending_audible_confirmation_and_native_edit_decision',
                                             'request_head_mismatches': sum(not w['request_head_match'] for w in diagnostic),
-                                            'request_tail_mismatches': sum(not w['request_tail_match'] for w in diagnostic)},
+                                            'request_tail_mismatches': sum(not w['request_tail_match'] for w in diagnostic),
+                                            'possible_noncontiguous_script_jumps': sum(bool(w['possible_noncontiguous_script_jumps']) for w in diagnostic)},
                         'lesson_cutaway_text': {'window_count': len(cutaways), 'text': speech_text,
                                                 'character_count': len(speech_text),
                                                 'word_count': sum(w['word_count'] for w in cutaways),
@@ -176,11 +181,11 @@ def build():
     total_chars = sum(sum(j['character_count'] for j in l['speech_jobs']) for l in lessons)
     estimated_credits = sum(sum(j['historical_credit_estimate'] for j in l['speech_jobs']) for l in lessons)
     job_count = sum(len(l['speech_jobs']) for l in lessons)
-    return {'schema_version': 1, 'status': 'review_only_provider_free',
+    return {'schema_version': 1, 'status': 'blocked_native_audio_alignment_review_only_provider_free',
             'method': 'Sequential provider-safe speech jobs per lesson; each job contains whole sentence-complete cutaway windows joined with two newlines. Align to native presenter audio and render from word timestamps and silence.',
             'voice_id': VOICE_ID, 'source_receipt': {'path': relative(RECEIPT), 'sha256': sha(RECEIPT.read_bytes())},
             'audio_audit': {'path': relative(ASR_AUDIT), 'sha256': sha(ASR_AUDIT.read_bytes()),
-                            'status': 'machine_diagnostic_only; all 64 windows need audible confirmation before synthesis'},
+                            'status': 'machine_diagnostic_only; all 64 windows unresolved for audible confirmation and native edit decision'},
             'credit_plan': {'job_count': job_count, 'request_character_limit': MAX_REQUEST_CHARS,
                             'limit_source': 'https://developers.heygen.com/docs/voices/heygen-voice-speech#request-fields',
                             'route_compatibility_gate': 'The 5,000-character limit is documented for POST /v3/models/audio/tts; confirm the actual subscription create_speech route and voice support before submission. A separate model card suggests 10,000, so this pack uses the conservative 5,000 limit.',

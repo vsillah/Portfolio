@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "status": "diagnostic_not_word_level_proof",
-  "model": "whisper.cpp ggml-base.en",
+  "status": "all_64_windows_unresolved_for_audible_confirmation",
+  "model": "whisper.cpp ggml-base.en and ggml-small.en",
   "model_sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002",
-  "method": "FFmpeg extracted each recorded presenter window at 16 kHz mono; whisper-cli base.en transcribed each full window. Short isolation clips checked L01 boundaries. ASR can hallucinate or omit words near silence and is not an audible sign-off.",
+  "method": "FFmpeg extracted each existing presenter window at 16 kHz mono. Two local whisper.cpp models independently transcribed each full window. Long exact token blocks were aligned to the approved script; gaps are diagnostic. VTT cues are editorial and cross some cut points. Neither ASR, VTT, nor waveform analysis is an audible human sign-off.",
   "source_receipt_sha256": "cf916889edbc480fd652be72850c196618fe829b86da75410503f356e13c9560",
   "windows": [
     {
@@ -14,7 +14,41 @@
       "asr_transcript": "The document is open. At the top it says Q3 Innovation Plan. The cursor blinks, your inbox is full of requests, your team wants a direction, and somebody wants a polished plan by Friday. I know that room. The pressure makes the blank page feel like the problem. So you open a tool, ask for ideas, and in 30 seconds you have a confident looking answer. Now what? Who will decide which idea matters? That story makes the pressure you're visible.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "approved_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "candidate_window_text_sha256": "949cc98f6b116db0e0a1c087ea7ceac032e76ce60570ab8be8379d60400c4b59",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 74,
+      "small_en_transcript": "The document is open. At the top it says Q3 Innovation Plan. The cursor blinks, your inbox is full of requests, your team wants a direction, and somebody wants a polished plan by Friday. I know that room. The pressure makes the blank page feel like the problem. So you open a tool, ask for ideas, and in 30 seconds you have a confident looking answer. Now what? Who will decide which idea matters? visible.",
+      "small_en_first_words": "the document is open at the top it says q3 innovation plan",
+      "small_en_last_words": "confident looking answer now what who will decide which idea matters visible",
+      "base_en_first_words": "the document is open at the top it says q3 innovation plan",
+      "base_en_last_words": "will decide which idea matters that story makes the pressure you're visible",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 58,
+          "script_excerpt": "the document is open at the top it"
+        },
+        {
+          "asr_word_start": 59,
+          "script_word_start": 59,
+          "matched_words": 15,
+          "script_excerpt": "seconds you have a confident looking answer now"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L01",
@@ -24,7 +58,47 @@
       "asr_transcript": "It is a teaching story from the book, not a claim about a current customer. Keep that distinction in view as we move between story, worksheet, and public proof. Let's make the first page of your decision file",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "approved_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "candidate_window_text_sha256": "2dd385c3d63a929eafb3f2925cb83e53f5f9b31335e91eb10b31ba4c6d27e000",
+      "candidate_script_word_start": 488,
+      "candidate_script_word_end_exclusive": 523,
+      "small_en_transcript": "It is a teaching story from the book, not a claim about a current customer. Keep that distinction in view as we move between story, worksheet, and public proof. Let's make the first page of your decision file",
+      "small_en_first_words": "it is a teaching story from the book not a claim about",
+      "small_en_last_words": "and public proof let's make the first page of your decision file",
+      "base_en_first_words": "it is a teaching story from the book not a claim about",
+      "base_en_last_words": "and public proof let's make the first page of your decision file",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 494,
+          "matched_words": 29,
+          "script_excerpt": "it is a teaching story from the book"
+        },
+        {
+          "asr_word_start": 29,
+          "script_word_start": 708,
+          "matched_words": 9,
+          "script_excerpt": "let's make the first page of your decision"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 523,
+          "to_script_word": 708,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L01",
@@ -34,7 +108,35 @@
       "asr_transcript": "It starts with a decision, not a tool. Write one sentence. We need to decide whether to -- it could be whether to change an onboarding step, simplify a service request, or test a different way to explain an offer.",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "approved_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "candidate_window_text_sha256": "fb29ca4403d1412f76cca9db1cb7020b895db6ef2e0c2f8a740e1dcc4bc2ee66",
+      "candidate_script_word_start": 717,
+      "candidate_script_word_end_exclusive": 756,
+      "small_en_transcript": "It starts with a decision, not a tool. Write one sentence. We need to decide whether to... It could be whether to change an onboarding step, simplify a service request, or test a different way to explain an offer.",
+      "small_en_first_words": "it starts with a decision not a tool write one sentence we",
+      "small_en_last_words": "a service request or test a different way to explain an offer",
+      "base_en_first_words": "it starts with a decision not a tool write one sentence we",
+      "base_en_last_words": "a service request or test a different way to explain an offer",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 717,
+          "matched_words": 39,
+          "script_excerpt": "it starts with a decision not a tool"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L01",
@@ -44,7 +146,35 @@
       "asr_transcript": "A good first page does not pretend to know the answer. It tells the truth about the decision, the evidence you have, and the information you have permission to use. Keep that first page open. The rest of this workshop will build on it.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "approved_script_sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad",
+      "candidate_window_text_sha256": "dd7f55ec6344273dedd26b61e31639a9b3405662c827a198be8efe193b319e3f",
+      "candidate_script_word_start": 1048,
+      "candidate_script_word_end_exclusive": 1092,
+      "small_en_transcript": "A good first page does not pretend to know the answer. It tells the truth about the decision, the evidence you have, and the information you have permission to use. Keep that first page open. The rest of this workshop will build on it.",
+      "small_en_first_words": "a good first page does not pretend to know the answer it",
+      "small_en_last_words": "first page open the rest of this workshop will build on it",
+      "base_en_first_words": "a good first page does not pretend to know the answer it",
+      "base_en_last_words": "first page open the rest of this workshop will build on it",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1048,
+          "matched_words": 44,
+          "script_excerpt": "a good first page does not pretend to"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L02",
@@ -54,7 +184,53 @@
       "asr_transcript": "The meeting has barely started and the board is full. 15 roadmap items, 15 top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck. Chapter 3 gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "approved_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "candidate_window_text_sha256": "48371b5a8d167f0dfc198bc5627133fcee24ea4d088445ac294629c37f958233",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 57,
+      "small_en_transcript": "The meeting has barely started and the board is full. 15 roadmap items, 15 top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck. Chapter 3 gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering.",
+      "small_en_first_words": "the meeting has barely started and the board is full 15 roadmap",
+      "small_en_last_words": "the first move is to decide what question the case is answering",
+      "base_en_first_words": "the meeting has barely started and the board is full 15 roadmap",
+      "base_en_last_words": "the first move is to decide what question the case is answering",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 10,
+          "script_excerpt": "the meeting has barely started and the board"
+        },
+        {
+          "asr_word_start": 14,
+          "script_word_start": 14,
+          "matched_words": 43,
+          "script_excerpt": "top priorities the person asking for retention has"
+        },
+        {
+          "asr_word_start": 59,
+          "script_word_start": 353,
+          "matched_words": 21,
+          "script_excerpt": "gives us a way to structure a messy"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 57,
+          "to_script_word": 353,
+          "asr_gap_words": 2
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L02",
@@ -64,7 +240,47 @@
       "asr_transcript": "If you are asking whether a market is attractive, the book offers a market frame. There is another question that can make a promising idea fail. How does the value reach a customer and how does the work sustain itself?",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "approved_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "candidate_window_text_sha256": "ecf09af9df58bbe87bbc3651d81fed4cd7ae93f270026fb1703823bc8164f3f1",
+      "candidate_script_word_start": 351,
+      "candidate_script_word_end_exclusive": 389,
+      "small_en_transcript": "If you are asking whether a market is attractive, the book offers a market frame. There is another question that can make a promising idea fail. How does the value reach a customer and how does the work sustain itself?",
+      "small_en_first_words": "if you are asking whether a market is attractive the book offers",
+      "small_en_last_words": "the value reach a customer and how does the work sustain itself",
+      "base_en_first_words": "if you are asking whether a market is attractive the book offers",
+      "base_en_last_words": "the value reach a customer and how does the work sustain itself",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 374,
+          "matched_words": 15,
+          "script_excerpt": "if you are asking whether a market is"
+        },
+        {
+          "asr_word_start": 15,
+          "script_word_start": 709,
+          "matched_words": 25,
+          "script_excerpt": "there is another question that can make a"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 389,
+          "to_script_word": 709,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L02",
@@ -74,7 +290,47 @@
       "asr_transcript": "Chapter 3 brings business model options into the case after the customer and product question is clear. Is it something you know or something you hope?",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "approved_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "candidate_window_text_sha256": "08333547fec3cd938b124490f2e7f3c01d9761b737e872a1bef9378304fea0ba",
+      "candidate_script_word_start": 709,
+      "candidate_script_word_end_exclusive": 751,
+      "small_en_transcript": "Chapter 3 brings business model options into the case after the customer and product question is clear. Is it something you know or something you hope?",
+      "small_en_first_words": "chapter 3 brings business model options into the case after the customer",
+      "small_en_last_words": "question is clear is it something you know or something you hope",
+      "base_en_first_words": "chapter 3 brings business model options into the case after the customer",
+      "base_en_last_words": "question is clear is it something you know or something you hope",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 2,
+          "script_word_start": 736,
+          "matched_words": 15,
+          "script_excerpt": "brings business model options into the case after"
+        },
+        {
+          "asr_word_start": 17,
+          "script_word_start": 1129,
+          "matched_words": 9,
+          "script_excerpt": "is it something you know or something you"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 751,
+          "to_script_word": 1129,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L02",
@@ -84,7 +340,41 @@
       "asr_transcript": "In the next lesson, we will work backward from that sentence. We will ask what answer the decision owner needs and what evidence would change the conversation. The Board of 15 priorities will still exist tomorrow.",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "approved_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "candidate_window_text_sha256": "491fabf836e70ccb258f7a41d59249084b9daa66ebe73104e095b6c8d5018ee0",
+      "candidate_script_word_start": 1129,
+      "candidate_script_word_end_exclusive": 1174,
+      "small_en_transcript": "In the next lesson, we will work backward from that sentence. We will ask what answer the decision owner needs and what evidence would change the conversation. The Board of 15 Priorities will still exist tomorrow.",
+      "small_en_first_words": "in the next lesson we will work backward from that sentence we",
+      "small_en_last_words": "change the conversation the board of 15 priorities will still exist tomorrow",
+      "base_en_first_words": "in the next lesson we will work backward from that sentence we",
+      "base_en_last_words": "change the conversation the board of 15 priorities will still exist tomorrow",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1138,
+          "matched_words": 30,
+          "script_excerpt": "in the next lesson we will work backward"
+        },
+        {
+          "asr_word_start": 31,
+          "script_word_start": 1169,
+          "matched_words": 5,
+          "script_excerpt": "priorities will still exist tomorrow"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L03",
@@ -94,7 +384,35 @@
       "asr_transcript": "Imagine walking into a review with a dashboard redesign. You have evidence that people struggle with the current screen. You have a proposed fix. You put up the first slide and someone asks, \"Is this the best use of engineering time right now?\" That is a reasonable question. It may feel like a rejection, but it is also a clue.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "approved_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "candidate_window_text_sha256": "2cf1658950242ad1a86f8e8132b6cc7ac87fc50a839c502f3025f5bf4c6cb88e",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 60,
+      "small_en_transcript": "Imagine walking into a review with a dashboard redesign. You have evidence that people struggle with the current screen. You have a proposed fix. You put up the first slide and someone asks, \"Is this the best use of engineering time right now?\" That is a reasonable question. It may feel like a rejection, but it is also a clue.",
+      "small_en_first_words": "imagine walking into a review with a dashboard redesign you have evidence",
+      "small_en_last_words": "it may feel like a rejection but it is also a clue",
+      "base_en_first_words": "imagine walking into a review with a dashboard redesign you have evidence",
+      "base_en_last_words": "it may feel like a rejection but it is also a clue",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 60,
+          "script_excerpt": "imagine walking into a review with a dashboard"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L03",
@@ -104,7 +422,41 @@
       "asr_transcript": "A single polished idea invites a yes or no. Chapter 4 calls this the binary trap. The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "approved_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "candidate_window_text_sha256": "e60698493fe847ab75dc8cd612858d5d06cbed17994c34dcbc4a7e7bf0248809",
+      "candidate_script_word_start": 343,
+      "candidate_script_word_end_exclusive": 381,
+      "small_en_transcript": "A single polished idea invites a yes or no. Chapter 4 calls this the binary trap. The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay.",
+      "small_en_first_words": "a single polished idea invites a yes or no chapter 4 calls",
+      "small_en_last_words": "can compare a quick simplification a deeper rebuild and a deliberate delay",
+      "base_en_first_words": "a single polished idea invites a yes or no chapter 4 calls",
+      "base_en_last_words": "can compare a quick simplification a deeper rebuild and a deliberate delay",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 343,
+          "matched_words": 10,
+          "script_excerpt": "a single polished idea invites a yes or"
+        },
+        {
+          "asr_word_start": 11,
+          "script_word_start": 354,
+          "matched_words": 27,
+          "script_excerpt": "calls this the binary trap the dashboard case"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L03",
@@ -114,7 +466,35 @@
       "asr_transcript": "Let's fill the rest of the card. The decision is whether to test a guided first task. Our current answer is yes, because the team suspects people need a clearer starting point.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "approved_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "candidate_window_text_sha256": "50dc1e75ca11b437ce20f737cbb11567e375ec56e951270dee1819fa4eeaf60e",
+      "candidate_script_word_start": 684,
+      "candidate_script_word_end_exclusive": 716,
+      "small_en_transcript": "Let's fill the rest of the card. The decision is whether to test a guided first task. Our current answer is yes, because the team suspects people need a clearer starting point.",
+      "small_en_first_words": "let's fill the rest of the card the decision is whether to",
+      "small_en_last_words": "is yes because the team suspects people need a clearer starting point",
+      "base_en_first_words": "let's fill the rest of the card the decision is whether to",
+      "base_en_last_words": "is yes because the team suspects people need a clearer starting point",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 684,
+          "matched_words": 32,
+          "script_excerpt": "let's fill the rest of the card the"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L03",
@@ -124,7 +504,35 @@
       "asr_transcript": "You do not have to win the room with a perfect story today. You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a",
+      "approved_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "candidate_window_text_sha256": "793803e75c5f5334aefa63cb181eb5de637a81cbac6d5ad0af6b1a1b6fcd5a09",
+      "candidate_script_word_start": 1003,
+      "candidate_script_word_end_exclusive": 1038,
+      "small_en_transcript": "You do not have to win the room with a perfect story today. You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to.",
+      "small_en_first_words": "you do not have to win the room with a perfect story",
+      "small_en_last_words": "objection you have taken seriously and evidence you would actually listen to",
+      "base_en_first_words": "you do not have to win the room with a perfect story",
+      "base_en_last_words": "objection you have taken seriously and evidence you would actually listen to",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1003,
+          "matched_words": 35,
+          "script_excerpt": "you do not have to win the room"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L04",
@@ -134,7 +542,35 @@
       "asr_transcript": "We are back at the Q3 Innovation Plan. The page is no longer empty. You have chosen a priority and written down the evidence that could change your mind. But the broad idea is still sitting there. Improve the member experience. Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything. Those ambitions can be useful.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "approved_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "candidate_window_text_sha256": "dc25799ab6229a0e4aad81d0f1fc3dec31b0f56bb8feab64763e85bd6a5b1506",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 60,
+      "small_en_transcript": "We are back at the Q3 Innovation Plan. The page is no longer empty. You have chosen a priority and written down the evidence that could change your mind. But the broad idea is still sitting there. Improve the member experience. Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything. Those ambitions can be useful.",
+      "small_en_first_words": "we are back at the q3 innovation plan the page is no",
+      "small_en_last_words": "support or use ai to personalize everything those ambitions can be useful",
+      "base_en_first_words": "we are back at the q3 innovation plan the page is no",
+      "base_en_last_words": "support or use ai to personalize everything those ambitions can be useful",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 60,
+          "script_excerpt": "we are back at the q3 innovation plan"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L04",
@@ -144,7 +580,47 @@
       "asr_transcript": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment. A living persona needs a record of where it came from.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "approved_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "candidate_window_text_sha256": "706adc3a8c22b62825a2e736e1c145bee3599f8dc37c7b68810933235ec2e07c",
+      "candidate_script_word_start": 341,
+      "candidate_script_word_end_exclusive": 371,
+      "small_en_transcript": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment. A living persona needs a record of where it came from.",
+      "small_en_first_words": "the book makes this shift with sarah a static description tells us",
+      "small_en_last_words": "moment a living persona needs a record of where it came from",
+      "base_en_first_words": "the book makes this shift with sarah a static description tells us",
+      "base_en_last_words": "moment a living persona needs a record of where it came from",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 341,
+          "matched_words": 30,
+          "script_excerpt": "the book makes this shift with sarah a"
+        },
+        {
+          "asr_word_start": 30,
+          "script_word_start": 709,
+          "matched_words": 11,
+          "script_excerpt": "a living persona needs a record of where"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 371,
+          "to_script_word": 709,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L04",
@@ -154,7 +630,53 @@
       "asr_transcript": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question at a source and a review date. That is a real working file, even if much of it is still provisional.",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "approved_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "candidate_window_text_sha256": "2b51f6837590aab76a022851543599dd9be5a5819648a214a9882526b332d8b2",
+      "candidate_script_word_start": 709,
+      "candidate_script_word_end_exclusive": 747,
+      "small_en_transcript": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question at a source and a review date. That is a real working file, even if much of it is still provisional.",
+      "small_en_first_words": "on the card write the job the context the signal you observed",
+      "small_en_last_words": "a real working file even if much of it is still provisional",
+      "base_en_first_words": "on the card write the job the context the signal you observed",
+      "base_en_last_words": "a real working file even if much of it is still provisional",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 720,
+          "matched_words": 20,
+          "script_excerpt": "on the card write the job the context"
+        },
+        {
+          "asr_word_start": 21,
+          "script_word_start": 741,
+          "matched_words": 6,
+          "script_excerpt": "a source and a review date"
+        },
+        {
+          "asr_word_start": 27,
+          "script_word_start": 1153,
+          "matched_words": 14,
+          "script_excerpt": "that is a real working file even if"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 747,
+          "to_script_word": 1153,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L04",
@@ -164,7 +686,35 @@
       "asr_transcript": "In the next lesson, the workshop will turn more raw feedback into traceable signal. For now, hold on to the small question, build only enough to learn. Keep the card open to correction.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "approved_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "candidate_window_text_sha256": "dc99c16fca19fb3111f793bd1bc01f689e80ec85a57b70b2ac2b2397ec4d8f83",
+      "candidate_script_word_start": 1153,
+      "candidate_script_word_end_exclusive": 1200,
+      "small_en_transcript": "In the next lesson, the workshop will turn more raw feedback into traceable signal. For now, hold on to the small question, \"Build only enough to learn.\" Keep the card open to correction.",
+      "small_en_first_words": "in the next lesson the workshop will turn more raw feedback into",
+      "small_en_last_words": "question build only enough to learn keep the card open to correction",
+      "base_en_first_words": "in the next lesson the workshop will turn more raw feedback into",
+      "base_en_last_words": "question build only enough to learn keep the card open to correction",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1167,
+          "matched_words": 33,
+          "script_excerpt": "in the next lesson the workshop will turn"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L05",
@@ -174,7 +724,47 @@
       "asr_transcript": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change. The book has a useful warning here.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "approved_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "candidate_window_text_sha256": "b59b04fb6b1405bde9d6426d1e88d1975e7cf5159c5f9283ae84b83ae6715983",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 52,
+      "small_en_transcript": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change. The book has a useful warning here.",
+      "small_en_first_words": "the comments keep coming one person says the service is slow another",
+      "small_en_last_words": "tells you what to change the book has a useful warning here",
+      "base_en_first_words": "the comments keep coming one person says the service is slow another",
+      "base_en_last_words": "tells you what to change the book has a useful warning here",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 52,
+          "script_excerpt": "the comments keep coming one person says the"
+        },
+        {
+          "asr_word_start": 52,
+          "script_word_start": 417,
+          "matched_words": 7,
+          "script_excerpt": "the book has a useful warning here"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 52,
+          "to_script_word": 417,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L05",
@@ -184,7 +774,47 @@
       "asr_transcript": "In the Just Make It Faster case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views. Our six notes support a question",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "approved_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "candidate_window_text_sha256": "496cb7414d2a655ea059bc70a3d7fda50fda3e32ffa08616db79fecd3c824925",
+      "candidate_script_word_start": 417,
+      "candidate_script_word_end_exclusive": 467,
+      "small_en_transcript": "In the \"Just Make It Faster\" case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views. Our six notes support a question",
+      "small_en_first_words": "in the just make it faster case a team received feedback that",
+      "small_en_last_words": "people and easier movement between views our six notes support a question",
+      "base_en_first_words": "in the just make it faster case a team received feedback that",
+      "base_en_last_words": "people and easier movement between views our six notes support a question",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 424,
+          "matched_words": 43,
+          "script_excerpt": "in the just make it faster case a"
+        },
+        {
+          "asr_word_start": 43,
+          "script_word_start": 841,
+          "matched_words": 6,
+          "script_excerpt": "our six notes support a question"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 467,
+          "to_script_word": 841,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L05",
@@ -194,7 +824,35 @@
       "asr_transcript": "Not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation. And one suggests an entry point that helped.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "approved_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "candidate_window_text_sha256": "8a80ee1bf9864e04ee64bd82adbfc68e7c2e6c0672d7e612a85249cc27ade8cb",
+      "candidate_script_word_start": 841,
+      "candidate_script_word_end_exclusive": 878,
+      "small_en_transcript": "Not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation. And one suggests an entry point that helped.",
+      "small_en_first_words": "not a verdict two notes point toward instruction clarity one points toward",
+      "small_en_last_words": "challenges the speed explanation and one suggests an entry point that helped",
+      "base_en_first_words": "not a verdict two notes point toward instruction clarity one points toward",
+      "base_en_last_words": "challenges the speed explanation and one suggests an entry point that helped",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 847,
+          "matched_words": 31,
+          "script_excerpt": "not a verdict two notes point toward instruction"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L05",
@@ -204,7 +862,35 @@
       "asr_transcript": "You can make a decision under uncertainty as long as the uncertainty travels with it. In the next lesson, this proposed choice enters a roadmap and then a product requirements document.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "approved_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "candidate_window_text_sha256": "cecc114cc2bd4c0f3b3e5c35aa371ed4830ad8223db4c2fa41e24799e2904fe3",
+      "candidate_script_word_start": 1210,
+      "candidate_script_word_end_exclusive": 1241,
+      "small_en_transcript": "You can make a decision under uncertainty as long as the uncertainty travels with it. In the next lesson, this proposed choice enters a roadmap and then a product requirements document.",
+      "small_en_first_words": "you can make a decision under uncertainty as long as the uncertainty",
+      "small_en_last_words": "this proposed choice enters a roadmap and then a product requirements document",
+      "base_en_first_words": "you can make a decision under uncertainty as long as the uncertainty",
+      "base_en_last_words": "this proposed choice enters a roadmap and then a product requirements document",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1210,
+          "matched_words": 31,
+          "script_excerpt": "you can make a decision under uncertainty as"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L06",
@@ -214,7 +900,47 @@
       "asr_transcript": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "approved_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "candidate_window_text_sha256": "5ae22c731d2f8f33abf9c04432f44ce78b3454acfdc90cf8cd17646c9f596b10",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 62,
+      "small_en_transcript": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document,",
+      "small_en_first_words": "there are three cards on the wall add a reminder rewrite the",
+      "small_en_last_words": "lesson beside the cards now the bet enters a product requirements document",
+      "base_en_first_words": "there are three cards on the wall add a reminder rewrite the",
+      "base_en_last_words": "lesson beside the cards now the bet enters a product requirements document",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 62,
+          "script_excerpt": "there are three cards on the wall add"
+        },
+        {
+          "asr_word_start": 62,
+          "script_word_start": 428,
+          "matched_words": 8,
+          "script_excerpt": "now the bet enters a product requirements document"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 62,
+          "to_script_word": 428,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L06",
@@ -224,7 +950,47 @@
       "asr_transcript": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs. Imagine the team tests the card",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "approved_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "candidate_window_text_sha256": "302b30942d9f5ee8495512f8b9a07eedd6fa786584430c21e77618e50ddfe273",
+      "candidate_script_word_start": 428,
+      "candidate_script_word_end_exclusive": 477,
+      "small_en_transcript": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs, imagine the team tests the card,",
+      "small_en_first_words": "a blank template can make a team start with controls and screens",
+      "small_en_last_words": "that line link the ledger ids imagine the team tests the card",
+      "base_en_first_words": "a blank template can make a team start with controls and screens",
+      "base_en_last_words": "that line link the ledger ids imagine the team tests the card",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 436,
+          "matched_words": 41,
+          "script_excerpt": "a blank template can make a team start"
+        },
+        {
+          "asr_word_start": 41,
+          "script_word_start": 855,
+          "matched_words": 6,
+          "script_excerpt": "imagine the team tests the card"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 477,
+          "to_script_word": 855,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L06",
@@ -234,7 +1000,35 @@
       "asr_transcript": "and finds that people understand the action, but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "approved_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "candidate_window_text_sha256": "1af94b981c469781e015d7a6f409126072f199b06e2ba23b649e5a66e82e1697",
+      "candidate_script_word_start": 855,
+      "candidate_script_word_end_exclusive": 895,
+      "small_en_transcript": "and finds that people understand the action but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
+      "small_en_first_words": "and finds that people understand the action but still cannot tell whether",
+      "small_en_last_words": "the next move may be better completion feedback rather than more instruction",
+      "base_en_first_words": "and finds that people understand the action but still cannot tell whether",
+      "base_en_last_words": "the next move may be better completion feedback rather than more instruction",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 861,
+          "matched_words": 34,
+          "script_excerpt": "and finds that people understand the action but"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L06",
@@ -244,7 +1038,35 @@
       "asr_transcript": "For now, the trace is the safeguard. It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review. Ask a teammate to point to the original feedback note and the success check.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "approved_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "candidate_window_text_sha256": "c275ac4b06d05fc8a946d54ab9dc44b6779b7e224ced77254c52d0edd7e0a978",
+      "candidate_script_word_start": 1227,
+      "candidate_script_word_end_exclusive": 1273,
+      "small_en_transcript": "For now, the trace is the safeguard. It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review. Ask a teammate to point to the original feedback note and the success check.",
+      "small_en_first_words": "for now the trace is the safeguard it lets the team build",
+      "small_en_last_words": "teammate to point to the original feedback note and the success check",
+      "base_en_first_words": "for now the trace is the safeguard it lets the team build",
+      "base_en_last_words": "teammate to point to the original feedback note and the success check",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1227,
+          "matched_words": 46,
+          "script_excerpt": "for now the trace is the safeguard it"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L07",
@@ -254,7 +1076,35 @@
       "asr_transcript": "The quarter is full before it starts. A new first task card is due in two weeks. A reminder system is penciled in after that. Someone has promised a dashboard by the end of the month. The schedule looks responsible, but the team still cannot answer a basic question. Why do new members hesitate at the first task?",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "approved_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "candidate_window_text_sha256": "68651448bfdf0d5cb704d0567e9547258f894434abe9cfbee014a5a41f4b4953",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 58,
+      "small_en_transcript": "The quarter is full before it starts. A new first task card is due in two weeks. A reminder system is penciled in after that. Someone has promised a dashboard by the end of the month. The schedule looks responsible, but the team still cannot answer a basic question. Why do new members hesitate at the first task?",
+      "small_en_first_words": "the quarter is full before it starts a new first task card",
+      "small_en_last_words": "a basic question why do new members hesitate at the first task",
+      "base_en_first_words": "the quarter is full before it starts a new first task card",
+      "base_en_last_words": "a basic question why do new members hesitate at the first task",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 58,
+          "script_excerpt": "the quarter is full before it starts a"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L07",
@@ -264,7 +1114,35 @@
       "asr_transcript": "Checkpoint 2 follows only if the first review supports the instruction hypothesis. The team tests the smaller first task card against the existing version in a planned study. Before observing anyone, define what clear enough means.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "approved_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "candidate_window_text_sha256": "e1b1bd4abe6c7da3731a4a7e36d11f563fe7746022c59cf13ddf6394aac501f3",
+      "candidate_script_word_start": 408,
+      "candidate_script_word_end_exclusive": 444,
+      "small_en_transcript": "Checkpoint 2 follows only if the first review supports the instruction hypothesis. The team tests the smaller first task card against the existing version in a planned study. Before observing anyone, define what \"clear enough\" means.",
+      "small_en_first_words": "checkpoint 2 follows only if the first review supports the instruction hypothesis",
+      "small_en_last_words": "in a planned study before observing anyone define what clear enough means",
+      "base_en_first_words": "checkpoint 2 follows only if the first review supports the instruction hypothesis",
+      "base_en_last_words": "in a planned study before observing anyone define what clear enough means",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 2,
+          "script_word_start": 410,
+          "matched_words": 34,
+          "script_excerpt": "follows only if the first review supports the"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L07",
@@ -274,7 +1152,35 @@
       "asr_transcript": "The book gives Sam's team a test that does not support the feature they built. They try document previews, expecting people to find the right file faster. The review points them toward a different need.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "approved_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "candidate_window_text_sha256": "91c642745ed56c24a3fa287e2e9b713e8612918714bc4d9a8977796677e3d0cd",
+      "candidate_script_word_start": 801,
+      "candidate_script_word_end_exclusive": 838,
+      "small_en_transcript": "The book gives Sam's team a test that does not support the feature they built. They try document previews, expecting people to find the right file faster. The review points them toward a different need.",
+      "small_en_first_words": "the book gives sam's team a test that does not support the",
+      "small_en_last_words": "the right file faster the review points them toward a different need",
+      "base_en_first_words": "the book gives sam's team a test that does not support the",
+      "base_en_last_words": "the right file faster the review points them toward a different need",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 801,
+          "matched_words": 35,
+          "script_excerpt": "the book gives sam's team a test that"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L07",
@@ -284,7 +1190,35 @@
       "asr_transcript": "Better search. The two checkpoint cards make the next decision visible to everyone who owns the work. In the next lesson, we will define the measures and write the full learning plan before results arrive. A plan becomes more trustworthy when it shows where it can change.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f",
+      "approved_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "candidate_window_text_sha256": "73fbd33d71e3a4c9d48d4afc395c45522541bad5b987421b5053fee9e6ca05f6",
+      "candidate_script_word_start": 1135,
+      "candidate_script_word_end_exclusive": 1180,
+      "small_en_transcript": "Better search. The two checkpoint cards make the next decision visible to everyone who owns the work. In the next lesson, we will define the measures and write the full learning plan before results arrive. A plan becomes more trustworthy when it shows where it can change.",
+      "small_en_first_words": "better search the two checkpoint cards make the next decision visible to",
+      "small_en_last_words": "a plan becomes more trustworthy when it shows where it can change",
+      "base_en_first_words": "better search the two checkpoint cards make the next decision visible to",
+      "base_en_last_words": "a plan becomes more trustworthy when it shows where it can change",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 2,
+          "script_word_start": 1135,
+          "matched_words": 45,
+          "script_excerpt": "the two checkpoint cards make the next decision"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L08",
@@ -294,7 +1228,53 @@
       "asr_transcript": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter 12 tells a version of this failure. A dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision. Chapter 13 gives the learning plan 10 components.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "approved_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "candidate_window_text_sha256": "27c9e89139352ac11997bea79cf7a481a42d4c4db2731a8225862564cf81ca41",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 70,
+      "small_en_transcript": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter 12 tells a version of this failure. A dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision. Chapter 13 gives the learning plan 10 components.",
+      "small_en_first_words": "the dashboard is green more people are opening the page the team",
+      "small_en_last_words": "belongs to the decision chapter 13 gives the learning plan 10 components",
+      "base_en_first_words": "the dashboard is green more people are opening the page the team",
+      "base_en_last_words": "belongs to the decision chapter 13 gives the learning plan 10 components",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 39,
+          "script_excerpt": "the dashboard is green more people are opening"
+        },
+        {
+          "asr_word_start": 40,
+          "script_word_start": 40,
+          "matched_words": 30,
+          "script_excerpt": "tells a version of this failure a dashboard"
+        },
+        {
+          "asr_word_start": 72,
+          "script_word_start": 473,
+          "matched_words": 4,
+          "script_excerpt": "gives the learning plan"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 70,
+          "to_script_word": 473,
+          "asr_gap_words": 2
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L08",
@@ -304,7 +1284,53 @@
       "asr_transcript": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise. Before there is any data,",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "approved_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "candidate_window_text_sha256": "c0be11ce153b5023048bee7eb299cec99e54c435f15067251c8af3b8f24ac282",
+      "candidate_script_word_start": 471,
+      "candidate_script_word_end_exclusive": 521,
+      "small_en_transcript": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise. Before there is any data,",
+      "small_en_first_words": "the first five establish what we are testing one business problem and",
+      "small_en_last_words": "a business lift from this small exercise before there is any data",
+      "base_en_first_words": "the first five establish what we are testing one business problem and",
+      "base_en_last_words": "a business lift from this small exercise before there is any data",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 479,
+          "matched_words": 25,
+          "script_excerpt": "the first five establish what we are testing"
+        },
+        {
+          "asr_word_start": 26,
+          "script_word_start": 505,
+          "matched_words": 16,
+          "script_excerpt": "need to begin with confidence we will not"
+        },
+        {
+          "asr_word_start": 42,
+          "script_word_start": 946,
+          "matched_words": 5,
+          "script_excerpt": "before there is any data"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 521,
+          "to_script_word": 946,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L08",
@@ -314,7 +1340,35 @@
       "asr_transcript": "Walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful start measure may look promising. The guardrail tells us the work is not finished.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "approved_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "candidate_window_text_sha256": "261ef2a55fb7393748eefbbf71582bd18e30c196c2a7b9119c9393c0859c48d1",
+      "candidate_script_word_start": 946,
+      "candidate_script_word_end_exclusive": 990,
+      "small_en_transcript": "Walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful start measure may look promising. The guardrail tells us the work is not finished.",
+      "small_en_first_words": "walk the plan through two possible results in the first participants understand",
+      "small_en_last_words": "may look promising the guardrail tells us the work is not finished",
+      "base_en_first_words": "walk the plan through two possible results in the first participants understand",
+      "base_en_last_words": "may look promising the guardrail tells us the work is not finished",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 951,
+          "matched_words": 39,
+          "script_excerpt": "walk the plan through two possible results in"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L08",
@@ -324,7 +1378,35 @@
       "asr_transcript": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results. The work is still open to correction. That is what makes it usable. In the next module, the question moves into a decision room with other people's risks and authority.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "approved_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "candidate_window_text_sha256": "08d924f5e0d83179ff05fb99f3f9873b00cc0b6d22223bc6eff7210415fc1d9c",
+      "candidate_script_word_start": 1334,
+      "candidate_script_word_end_exclusive": 1390,
+      "small_en_transcript": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results. The work is still open to correction. That is what makes it usable. In the next module, the question moves into a decision room with other people's risks and authority.",
+      "small_en_first_words": "you have a named problem a source ledger a living persona a",
+      "small_en_last_words": "question moves into a decision room with other people's risks and authority",
+      "base_en_first_words": "you have a named problem a source ledger a living persona a",
+      "base_en_last_words": "question moves into a decision room with other people's risks and authority",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1334,
+          "matched_words": 56,
+          "script_excerpt": "you have a named problem a source ledger"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L09",
@@ -334,7 +1416,41 @@
       "asr_transcript": "You bring a careful recommendation into the room. The research is sound. The test plan has a measure and a stop condition. Someone asks about a competing priority. Engineering asks whose work will move. A person who was not in the meeting raises a concern afterward. The answer becomes let's revisit this next quarter. Chapter 14 opens with a version of that slow no.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "approved_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "candidate_window_text_sha256": "9274fd5b50a11906294a1ec1e33ae2be0c19c77ba51c26d87e1005f030a6146f",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 64,
+      "small_en_transcript": "You bring a careful recommendation into the room. The research is sound. The test plan has a measure and a stop condition. Someone asks about a competing priority. Engineering asks whose work will move. A person who was not in the meeting raises a concern afterward. The answer becomes let's revisit this next quarter. Chapter 14 opens with a version of that slow no.",
+      "small_en_first_words": "you bring a careful recommendation into the room the research is sound",
+      "small_en_last_words": "next quarter chapter 14 opens with a version of that slow no",
+      "base_en_first_words": "you bring a careful recommendation into the room the research is sound",
+      "base_en_last_words": "next quarter chapter 14 opens with a version of that slow no",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 55,
+          "script_excerpt": "you bring a careful recommendation into the room"
+        },
+        {
+          "asr_word_start": 56,
+          "script_word_start": 56,
+          "matched_words": 8,
+          "script_excerpt": "opens with a version of that slow no"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L09",
@@ -344,7 +1460,35 @@
       "asr_transcript": "Chapter 15 says an org chart is a start, but it will not show every decision path. Its first stakeholder lens is roll type. A decision maker can approve or stop the work. An influencer shapes that person's view. A gatekeeper controls access, capacity, or information. A champion advocates.",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "approved_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "candidate_window_text_sha256": "bb6a8faab9cd13981a21cb749b27d7cf591fd9312e6dcba3a03fd7b45fbab593",
+      "candidate_script_word_start": 444,
+      "candidate_script_word_end_exclusive": 498,
+      "small_en_transcript": "Chapter 15 says, \"An org chart is a start, but it will not show every decision path. Its first stakeholder lens is role type. A decision maker can approve or stop the work. An influencer shapes that person's view. A gatekeeper controls access, capacity, or information. A champion advocates,",
+      "small_en_first_words": "chapter 15 says an org chart is a start but it will",
+      "small_en_last_words": "person's view a gatekeeper controls access capacity or information a champion advocates",
+      "base_en_first_words": "chapter 15 says an org chart is a start but it will",
+      "base_en_last_words": "person's view a gatekeeper controls access capacity or information a champion advocates",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 2,
+          "script_word_start": 446,
+          "matched_words": 47,
+          "script_excerpt": "says an org chart is a start but"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L09",
@@ -354,7 +1498,47 @@
       "asr_transcript": "A skeptic asks hard questions. The book calls the pre-meeting work shuttle diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take.",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "approved_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "candidate_window_text_sha256": "5970a110ecf4984ea2dc534185629c1acf7c6d14ac0db49ab25b2b981775fe4f",
+      "candidate_script_word_start": 920,
+      "candidate_script_word_end_exclusive": 967,
+      "small_en_transcript": "A skeptic asks hard questions. The book calls the pre-Meeting Work shuttle diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take.",
+      "small_en_first_words": "a skeptic asks hard questions the book calls the pre meeting work",
+      "small_en_last_words": "the observation ask the operations lead what time the test would take",
+      "base_en_first_words": "a skeptic asks hard questions the book calls the pre meeting work",
+      "base_en_last_words": "the observation ask the operations lead what time the test would take",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 493,
+          "matched_words": 5,
+          "script_excerpt": "a skeptic asks hard questions"
+        },
+        {
+          "asr_word_start": 5,
+          "script_word_start": 920,
+          "matched_words": 39,
+          "script_excerpt": "the book calls the pre meeting work shuttle"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 498,
+          "to_script_word": 920,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L09",
@@ -364,7 +1548,47 @@
       "asr_transcript": "and which staffing constraint would make it unsafe. A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "approved_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "candidate_window_text_sha256": "fb9f88fa012c6ecdd1ed2fe716a9de3d1ad84822dab9cd9e3b6afb9f0c22420c",
+      "candidate_script_word_start": 1315,
+      "candidate_script_word_end_exclusive": 1353,
+      "small_en_transcript": "and which staffing constraint would make it unsafe. A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
+      "small_en_first_words": "and which staffing constraint would make it unsafe a map is not",
+      "small_en_last_words": "lesson we will take the same choice into a short responsible pitch",
+      "base_en_first_words": "and which staffing constraint would make it unsafe a map is not",
+      "base_en_last_words": "lesson we will take the same choice into a short responsible pitch",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 959,
+          "matched_words": 8,
+          "script_excerpt": "and which staffing constraint would make it unsafe"
+        },
+        {
+          "asr_word_start": 8,
+          "script_word_start": 1315,
+          "matched_words": 38,
+          "script_excerpt": "a map is not a way to manufacture"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 967,
+          "to_script_word": 1315,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L10",
@@ -374,7 +1598,53 @@
       "asr_transcript": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research, finance sees an unpriced commitment, engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter 16 describes that kind of meeting. Chapter 16 uses a notification settings case.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "approved_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "candidate_window_text_sha256": "cbe54415740f01d4ad4160f06113a3c2fde313a520125effcd206d8ec699e829",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 62,
+      "small_en_transcript": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research. Finance sees an unpriced commitment. Engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter 16 describes that kind of meeting. Chapter 16 uses a notification settings case.",
+      "small_en_first_words": "a proposal can be right about the customer and still arrive in",
+      "small_en_last_words": "describes that kind of meeting chapter 16 uses a notification settings case",
+      "base_en_first_words": "a proposal can be right about the customer and still arrive in",
+      "base_en_last_words": "describes that kind of meeting chapter 16 uses a notification settings case",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 56,
+          "script_excerpt": "a proposal can be right about the customer"
+        },
+        {
+          "asr_word_start": 57,
+          "script_word_start": 57,
+          "matched_words": 5,
+          "script_excerpt": "describes that kind of meeting"
+        },
+        {
+          "asr_word_start": 64,
+          "script_word_start": 399,
+          "matched_words": 5,
+          "script_excerpt": "uses a notification settings case"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 62,
+          "to_script_word": 399,
+          "asr_gap_words": 2
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L10",
@@ -384,7 +1654,41 @@
       "asr_transcript": "An initial request for granular controls did not land. The revised case made the underlying problem, options, and trade-offs easier to judge. We are borrowing that decision structure, not its reported results. In our exercise, option one is to rewrite the first task card",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "approved_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "candidate_window_text_sha256": "b8b482a5799cfe3267b69c8ca1f0c587a57df2d72bc78f30677e961cdcc52193",
+      "candidate_script_word_start": 397,
+      "candidate_script_word_end_exclusive": 455,
+      "small_en_transcript": "An initial request for granular controls did not land. The revised case made the underlying problem, options, and trade-offs easier to judge. We are borrowing that decision structure, not its reported results. In our exercise, option one is to rewrite the first task card",
+      "small_en_first_words": "an initial request for granular controls did not land the revised case",
+      "small_en_last_words": "in our exercise option one is to rewrite the first task card",
+      "base_en_first_words": "an initial request for granular controls did not land the revised case",
+      "base_en_last_words": "in our exercise option one is to rewrite the first task card",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 404,
+          "matched_words": 18,
+          "script_excerpt": "an initial request for granular controls did not"
+        },
+        {
+          "asr_word_start": 20,
+          "script_word_start": 423,
+          "matched_words": 25,
+          "script_excerpt": "easier to judge we are borrowing that decision"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L10",
@@ -394,7 +1698,47 @@
       "asr_transcript": "and observe whether members understand and begin. Imagine operation says we cannot spare staff to watch a long session. Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment if none is feasible,",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "approved_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "candidate_window_text_sha256": "c1c6d125ff952821c8449330dd01d96e48c284cafa66918c74c9b66874b7c7ce",
+      "candidate_script_word_start": 794,
+      "candidate_script_word_end_exclusive": 848,
+      "small_en_transcript": "and observe whether members understand and begin. Imagine Operation says, \"We cannot spare staff to watch a long session.\" Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment if none is feasible,",
+      "small_en_first_words": "and observe whether members understand and begin imagine operation says we cannot",
+      "small_en_last_words": "a shorter window or an existing research appointment if none is feasible",
+      "base_en_first_words": "and observe whether members understand and begin imagine operation says we cannot",
+      "base_en_last_words": "a shorter window or an existing research appointment if none is feasible",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 448,
+          "matched_words": 7,
+          "script_excerpt": "and observe whether members understand and begin"
+        },
+        {
+          "asr_word_start": 9,
+          "script_word_start": 796,
+          "matched_words": 47,
+          "script_excerpt": "says we cannot spare staff to watch a"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 455,
+          "to_script_word": 796,
+          "asr_gap_words": 2
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L10",
@@ -404,7 +1748,47 @@
       "asr_transcript": "Stop and redesign the test. We will bring the observations back on the agreed date. That brief does not claim success in advance. Write a second opening for the operations lead using the same facts and their concern. Then answer one final question. What would change your mind? If the answer is nothing, revisit the learning plan.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "approved_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "candidate_window_text_sha256": "13f4a177941068824bf2e072eef4658f08f5751665c0afc8011bb812d4eb40eb",
+      "candidate_script_word_start": 1140,
+      "candidate_script_word_end_exclusive": 1192,
+      "small_en_transcript": "Stop and redesign the test. We will bring the observations back on the agreed date. That brief does not claim success in advance. Write a second opening for the operations lead, using the same facts and their concern. Then answer one final question. What would change your mind? If the answer is nothing, revisit the learning plan.",
+      "small_en_first_words": "stop and redesign the test we will bring the observations back on",
+      "small_en_last_words": "change your mind if the answer is nothing revisit the learning plan",
+      "base_en_first_words": "stop and redesign the test we will bring the observations back on",
+      "base_en_last_words": "change your mind if the answer is nothing revisit the learning plan",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 843,
+          "matched_words": 5,
+          "script_excerpt": "stop and redesign the test"
+        },
+        {
+          "asr_word_start": 5,
+          "script_word_start": 1140,
+          "matched_words": 52,
+          "script_excerpt": "we will bring the observations back on the"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 848,
+          "to_script_word": 1140,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L11",
@@ -414,7 +1798,35 @@
       "asr_transcript": "In chapter 17, Sam arrives at a roadmap meeting that feels different. The team has already gathered feedback, translated it into a question, and prepared a learning choice. The meeting can spend its time on the decision. Sam is a character in the book's story, not a member of a team we are showing live. What changed was the work before the meeting.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "approved_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "candidate_window_text_sha256": "25c0c046e489191b86d7a956eb8ae05a9f28e155ff7800c0ae309cdfdc2c4ee6",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 63,
+      "small_en_transcript": "In Chapter 17, Sam arrives at a roadmap meeting that feels different. The team has already gathered feedback, translated it into a question, and prepared a learning choice. The meeting can spend its time on the decision. Sam is a character in the book's story, not a member of a team we are showing live. What changed was the work before the meeting.",
+      "small_en_first_words": "in chapter 17 sam arrives at a roadmap meeting that feels different",
+      "small_en_last_words": "we are showing live what changed was the work before the meeting",
+      "base_en_first_words": "in chapter 17 sam arrives at a roadmap meeting that feels different",
+      "base_en_last_words": "we are showing live what changed was the work before the meeting",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 3,
+          "script_word_start": 3,
+          "matched_words": 60,
+          "script_excerpt": "sam arrives at a roadmap meeting that feels"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L11",
@@ -424,7 +1836,35 @@
       "asr_transcript": "Chapter 18 moves from scattered tools to a connected system. Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum. A signal is a traceable observation such as a set of first-task notes with source, IDs. An insight is an interpretation. Perhaps members cannot tell",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "approved_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "candidate_window_text_sha256": "ce680dc276b4311fe7aae64a3a3c0fae3e26eb92e97624270ef764a7b9b94da9",
+      "candidate_script_word_start": 417,
+      "candidate_script_word_end_exclusive": 471,
+      "small_en_transcript": "Chapter 18 moves from scattered tools to a connected system. Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum. A signal is a traceable observation such as a set of first task notes with source IDs. An insight is an interpretation. Perhaps members cannot tell",
+      "small_en_first_words": "chapter 18 moves from scattered tools to a connected system its arrow",
+      "small_en_last_words": "with source ids an insight is an interpretation perhaps members cannot tell",
+      "base_en_first_words": "chapter 18 moves from scattered tools to a connected system its arrow",
+      "base_en_last_words": "with source ids an insight is an interpretation perhaps members cannot tell",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 2,
+          "script_word_start": 419,
+          "matched_words": 47,
+          "script_excerpt": "moves from scattered tools to a connected system"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L11",
@@ -434,7 +1874,47 @@
       "asr_transcript": "Which action starts the service? Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer,",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "approved_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "candidate_window_text_sha256": "c06afab5bd8ce60315118497aadc0dad32a6712076c6bdc171618a308287ada8",
+      "candidate_script_word_start": 847,
+      "candidate_script_word_end_exclusive": 906,
+      "small_en_transcript": "Which action starts the service? Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer,",
+      "small_en_first_words": "which action starts the service imagine joining this work six weeks later",
+      "small_en_last_words": "the test version the source links the measure and guardrail the reviewer",
+      "base_en_first_words": "which action starts the service imagine joining this work six weeks later",
+      "base_en_last_words": "the test version the source links the measure and guardrail the reviewer",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 466,
+          "matched_words": 5,
+          "script_excerpt": "which action starts the service"
+        },
+        {
+          "asr_word_start": 5,
+          "script_word_start": 847,
+          "matched_words": 52,
+          "script_excerpt": "imagine joining this work six weeks later you"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 471,
+          "to_script_word": 847,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L11",
@@ -444,7 +1924,47 @@
       "asr_transcript": "The decision date and the next owner. The learning system loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "approved_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "candidate_window_text_sha256": "72e92dc31f3c8bd92c089eb5137a435a85b8411789ab8fba20ef65b978e7358e",
+      "candidate_script_word_start": 1179,
+      "candidate_script_word_end_exclusive": 1232,
+      "small_en_transcript": "The decision date and the next owner. The learning system loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
+      "small_en_first_words": "the decision date and the next owner the learning system loop from",
+      "small_en_last_words": "next lesson we will look closely at one signal entering that path",
+      "base_en_first_words": "the decision date and the next owner the learning system loop from",
+      "base_en_last_words": "next lesson we will look closely at one signal entering that path",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 899,
+          "matched_words": 7,
+          "script_excerpt": "the decision date and the next owner"
+        },
+        {
+          "asr_word_start": 7,
+          "script_word_start": 1179,
+          "matched_words": 53,
+          "script_excerpt": "the learning system loop from the course kit"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 906,
+          "to_script_word": 1179,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L12",
@@ -454,7 +1974,41 @@
       "asr_transcript": "The feedback pile is growing again. One note says, \"I could not tell where to start.\" Another asks for a reminder. A third says the task looked complete, but the page gave no confirmation. These are fictional member comments carried forward from our earlier exercise, and if we group them too quickly under \"improve on boarding,\" we lose the difference between finding an action, remembering it, and knowing it worked.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "approved_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "candidate_window_text_sha256": "5eceb70732294a04d73f8d4f9d2be145498626db3c951f815e3d31d9a8cd8021",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 68,
+      "small_en_transcript": "The feedback pile is growing again. One note says, \"I could not tell where to start.\" Another asks for a reminder. A third says the task looked complete, but the page gave no confirmation. These are fictional member comments carried forward from our earlier exercises. If we group them too quickly under \"improve onboarding,\" we lose the difference between finding an action, remembering it, and knowing it worked.",
+      "small_en_first_words": "the feedback pile is growing again one note says i could not",
+      "small_en_last_words": "the difference between finding an action remembering it and knowing it worked",
+      "base_en_first_words": "the feedback pile is growing again one note says i could not",
+      "base_en_last_words": "the difference between finding an action remembering it and knowing it worked",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 44,
+          "script_excerpt": "the feedback pile is growing again one note"
+        },
+        {
+          "asr_word_start": 45,
+          "script_word_start": 45,
+          "matched_words": 23,
+          "script_excerpt": "if we group them too quickly under improve"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L12",
@@ -464,7 +2018,35 @@
       "asr_transcript": "The book calls client Q a translator for customer language. It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog. That is a case in the book. Our six card exercise is separate. The cards in this exercise are imagine member notes,",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "approved_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "candidate_window_text_sha256": "39478a41b1138120f5836bbff743d583cdc22704777d7f7542ef20adc0d9b49d",
+      "candidate_script_word_start": 430,
+      "candidate_script_word_end_exclusive": 479,
+      "small_en_transcript": "The book calls client queue a translator for customer language. It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog. That is a case in the book. Our six-card exercise is separate. The cards in this exercise are imagine member notes,",
+      "small_en_first_words": "the book calls client queue a translator for customer language it describes",
+      "small_en_last_words": "exercise is separate the cards in this exercise are imagine member notes",
+      "base_en_first_words": "the book calls client q a translator for customer language it describes",
+      "base_en_last_words": "exercise is separate the cards in this exercise are imagine member notes",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 5,
+          "script_word_start": 434,
+          "matched_words": 38,
+          "script_excerpt": "a translator for customer language it describes clustering"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L12",
@@ -474,7 +2056,47 @@
       "asr_transcript": "separate from observed research. The simulation points to two questions, not two answers. First, can an eligible new member explain the first action before beginning it? Second, after acting, can they tell whether it worked? Put each beside a real observation method? The research owner can watch an approved session, ask the person what they expect,",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "approved_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "candidate_window_text_sha256": "9476166f50489d0399d76b617b63023248e90f382516cd4b5e03693f0dcd01a1",
+      "candidate_script_word_start": 856,
+      "candidate_script_word_end_exclusive": 913,
+      "small_en_transcript": "separate from observed research. The simulation points to two questions, not two answers. First, can an eligible new member explain the first action before beginning it? Second, after acting, can they tell whether it worked? Put each beside a real observation method, the research owner can watch an approved session, ask the person what they expect,",
+      "small_en_first_words": "separate from observed research the simulation points to two questions not two",
+      "small_en_last_words": "owner can watch an approved session ask the person what they expect",
+      "base_en_first_words": "separate from observed research the simulation points to two questions not two",
+      "base_en_last_words": "owner can watch an approved session ask the person what they expect",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 475,
+          "matched_words": 4,
+          "script_excerpt": "separate from observed research"
+        },
+        {
+          "asr_word_start": 4,
+          "script_word_start": 856,
+          "matched_words": 52,
+          "script_excerpt": "the simulation points to two questions not two"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 479,
+          "to_script_word": 856,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L12",
@@ -484,7 +2106,47 @@
       "asr_transcript": "and record the observed hesitation. The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward if the evidence is weak, say so.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "approved_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "candidate_window_text_sha256": "7b03ee96c8c162cefa3722fdd53eaa0259409cbacd0707fd4504a6be2a204208",
+      "candidate_script_word_start": 1217,
+      "candidate_script_word_end_exclusive": 1274,
+      "small_en_transcript": "and record the observed hesitation. The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward if the evidence is weak, say so.",
+      "small_en_first_words": "and record the observed hesitation the structure helps you see where a",
+      "small_en_last_words": "and the unresolved question forward if the evidence is weak say so",
+      "base_en_first_words": "and record the observed hesitation the structure helps you see where a",
+      "base_en_last_words": "and the unresolved question forward if the evidence is weak say so",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 908,
+          "matched_words": 5,
+          "script_excerpt": "and record the observed hesitation"
+        },
+        {
+          "asr_word_start": 5,
+          "script_word_start": 1217,
+          "matched_words": 57,
+          "script_excerpt": "the structure helps you see where a source"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 913,
+          "to_script_word": 1217,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L13",
@@ -494,7 +2156,53 @@
       "asr_transcript": "Picture a Monday meeting, the dashboard is flat, someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In chapter 21, Sam faces that pressure and opens StratQuest. This is a book story. Our membership service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise. The fourth StratQuest session turns a preferred option into a test.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "approved_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "candidate_window_text_sha256": "0ebfb06605fd263f665d14bdb67d55b9901b3d1d8feb5f08b6966fbcb68be9ce",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 69,
+      "small_en_transcript": "Picture a Monday meeting, the dashboard is flat, someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In Chapter 21, Sam faces that pressure and opens StratQuest. This is a book story. Our membership service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise. The fourth StratQuest session turns a preferred option into a test.",
+      "small_en_first_words": "picture a monday meeting the dashboard is flat someone says the product",
+      "small_en_last_words": "exercise the fourth stratquest session turns a preferred option into a test",
+      "base_en_first_words": "picture a monday meeting the dashboard is flat someone says the product",
+      "base_en_last_words": "exercise the fourth stratquest session turns a preferred option into a test",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 31,
+          "script_excerpt": "picture a monday meeting the dashboard is flat"
+        },
+        {
+          "asr_word_start": 32,
+          "script_word_start": 33,
+          "matched_words": 36,
+          "script_excerpt": "sam faces that pressure and opens stratquest this"
+        },
+        {
+          "asr_word_start": 68,
+          "script_word_start": 471,
+          "matched_words": 11,
+          "script_excerpt": "the fourth stratquest session turns a preferred option"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 69,
+          "to_script_word": 471,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L13",
@@ -504,7 +2212,47 @@
       "asr_transcript": "In the book case, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin. The book's collaboration example surfaces questions about differentiation,",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "approved_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "candidate_window_text_sha256": "afc8148bb4e179a16df2dd321adaa87843ac6e035929f0c9e93bd16dec1502fa",
+      "candidate_script_word_start": 471,
+      "candidate_script_word_end_exclusive": 525,
+      "small_en_transcript": "In the bookcase, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin. The book's collaboration example surfaces questions about differentiation",
+      "small_en_first_words": "in the bookcase a cohort compares a flexible price with the existing",
+      "small_en_last_words": "help new members begin the book's collaboration example surfaces questions about differentiation",
+      "base_en_first_words": "in the book case a cohort compares a flexible price with the",
+      "base_en_last_words": "help new members begin the book's collaboration example surfaces questions about differentiation",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 3,
+          "script_word_start": 486,
+          "matched_words": 39,
+          "script_excerpt": "a cohort compares a flexible price with the"
+        },
+        {
+          "asr_word_start": 42,
+          "script_word_start": 931,
+          "matched_words": 8,
+          "script_excerpt": "the book's collaboration example surfaces questions about differentiation"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 525,
+          "to_script_word": 931,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L13",
@@ -514,7 +2262,35 @@
       "asr_transcript": "infrastructure, notifications, and data. We can use that discipline with our fictional concept. Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence. If a model generates their reactions, keep simulation visible. These are possible objections, not interviews. A new member may ask whether the shorter commitment changes access,",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "approved_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "candidate_window_text_sha256": "472aece0049f2f501566301c73e3cf2969f549ffc1fc1426337de783ed9745e2",
+      "candidate_script_word_start": 931,
+      "candidate_script_word_end_exclusive": 996,
+      "small_en_transcript": "infrastructure, notifications, and data. We can use that discipline with our fictional concept. Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence. If a model generates their reactions, keep simulation visible. These are possible objections, not interviews. A new member may ask whether the shorter commitment changes access.",
+      "small_en_first_words": "infrastructure notifications and data we can use that discipline with our fictional",
+      "small_en_last_words": "interviews a new member may ask whether the shorter commitment changes access",
+      "base_en_first_words": "infrastructure notifications and data we can use that discipline with our fictional",
+      "base_en_last_words": "interviews a new member may ask whether the shorter commitment changes access",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 939,
+          "matched_words": 57,
+          "script_excerpt": "infrastructure notifications and data we can use that"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L13",
@@ -524,7 +2300,35 @@
       "asr_transcript": "Bring the chosen option and its unresolved question forward. A future story earns resources when the people who must live with it can understand and challenge it. The sheet can remain incomplete. An empty evidence cell is a request for work, not a failure of presentation.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "approved_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "candidate_window_text_sha256": "d1e29071f13c69f45d7b688e38330553d58c0b4a8f607d0143ffb8506529ec17",
+      "candidate_script_word_start": 1317,
+      "candidate_script_word_end_exclusive": 1363,
+      "small_en_transcript": "Bring the chosen option and its unresolved question forward. A future story earns resources when the people who must live with it can understand and challenge it. The sheet can remain incomplete. An empty evidence cell is a request for work, not a failure of presentation.",
+      "small_en_first_words": "bring the chosen option and its unresolved question forward a future story",
+      "small_en_last_words": "evidence cell is a request for work not a failure of presentation",
+      "base_en_first_words": "bring the chosen option and its unresolved question forward a future story",
+      "base_en_last_words": "evidence cell is a request for work not a failure of presentation",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1317,
+          "matched_words": 46,
+          "script_excerpt": "bring the chosen option and its unresolved question"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L14",
@@ -534,7 +2338,59 @@
       "asr_transcript": "The plan is ready. The evidence ledger is organized. Yet the first person hearing the recommendation asks about delivery cost while the second asks who benefits. Chapter 23 calls this the last mile problem and introduces persuasive business case GPT. That is a bookcase, not a live demonstration here. Return to the membership service alternative from lesson 13. Imagine asking for permission to test a shorter commitment.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "approved_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "candidate_window_text_sha256": "e18ce932d59c241986f2ceac07e5343a77e3661427314338319bb5bf1c75f63a",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 69,
+      "small_en_transcript": "The plan is ready. The evidence ledger is organized. Yet the first person hearing the recommendation asks about delivery costs while the second asks who benefits. Chapter 23 calls this the last mile problem and introduces persuasive business case GPT. That is a bookcase, not a live demonstration here. Return to the membership service alternative from lesson 13. Imagine asking for permission to test a shorter commitment.",
+      "small_en_first_words": "the plan is ready the evidence ledger is organized yet the first",
+      "small_en_last_words": "from lesson 13 imagine asking for permission to test a shorter commitment",
+      "base_en_first_words": "the plan is ready the evidence ledger is organized yet the first",
+      "base_en_last_words": "from lesson 13 imagine asking for permission to test a shorter commitment",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 19,
+          "script_excerpt": "the plan is ready the evidence ledger is"
+        },
+        {
+          "asr_word_start": 20,
+          "script_word_start": 20,
+          "matched_words": 7,
+          "script_excerpt": "while the second asks who benefits chapter"
+        },
+        {
+          "asr_word_start": 28,
+          "script_word_start": 29,
+          "matched_words": 15,
+          "script_excerpt": "calls this the last mile problem and introduces"
+        },
+        {
+          "asr_word_start": 44,
+          "script_word_start": 46,
+          "matched_words": 13,
+          "script_excerpt": "not a live demonstration here return to the"
+        },
+        {
+          "asr_word_start": 58,
+          "script_word_start": 60,
+          "matched_words": 9,
+          "script_excerpt": "imagine asking for permission to test a shorter"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L14",
@@ -544,7 +2400,35 @@
       "asr_transcript": "A persuasive pitch must make the cost visible. The shorter commitment test could require staff training, a clearer cancellation path, and a way to handle pauses. Those are possible operating requirements in our fictional exercise, not measured costs. Put them on the card before the recommendation. Add the option to keep the current model, and the option to defer until the job is verified.",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "approved_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "candidate_window_text_sha256": "501aee9f6e8f2563575cb9a724a51865ee264a7e991458b5134cc1a15887ba1b",
+      "candidate_script_word_start": 357,
+      "candidate_script_word_end_exclusive": 421,
+      "small_en_transcript": "A persuasive pitch must make the cost visible. The shorter commitment test could require staff training, a clearer cancellation path, and a way to handle pauses. Those are possible operating requirements in our fictional exercise, not measured costs. Put them on the card before the recommendation. Add the option to keep the current model and the option to defer until the job is verified.",
+      "small_en_first_words": "a persuasive pitch must make the cost visible the shorter commitment test",
+      "small_en_last_words": "current model and the option to defer until the job is verified",
+      "base_en_first_words": "a persuasive pitch must make the cost visible the shorter commitment test",
+      "base_en_last_words": "current model and the option to defer until the job is verified",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 357,
+          "matched_words": 64,
+          "script_excerpt": "a persuasive pitch must make the cost visible"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L14",
@@ -554,7 +2438,35 @@
       "asr_transcript": "Draft the first 60-second version for the operations owner. Name the decision, the delivery change, the review date, and what would stop the test. Draft the second for the person accountable to members. Name the job, the proposed experience, the consent boundary, and what remains unverified. These are two ways into one decision.",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "approved_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "candidate_window_text_sha256": "7e079d58a0077dacfb8906e01c044624fd8fe955c5740149fc4bb5245aa9d66b",
+      "candidate_script_word_start": 715,
+      "candidate_script_word_end_exclusive": 779,
+      "small_en_transcript": "Draft the first 60-second version for the operations owner. Name the decision, the delivery change, the review date, and what would stop the test. Draft the second for the person accountable to members. Name the job, the proposed experience, the consent boundary, and what remains unverified. These are two ways into one decision.",
+      "small_en_first_words": "draft the first 60 second version for the operations owner name the",
+      "small_en_last_words": "boundary and what remains unverified these are two ways into one decision",
+      "base_en_first_words": "draft the first 60 second version for the operations owner name the",
+      "base_en_last_words": "boundary and what remains unverified these are two ways into one decision",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 4,
+          "script_word_start": 719,
+          "matched_words": 50,
+          "script_excerpt": "second version for the operations owner name the"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L14",
@@ -564,7 +2476,47 @@
       "asr_transcript": "Do not write a promise that the evidence cannot carry. We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "approved_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "candidate_window_text_sha256": "8d97c4ec68e5c074bce5222a31270758e33ecc0b34f2d75558713c22c0fcd98d",
+      "candidate_script_word_start": 978,
+      "candidate_script_word_end_exclusive": 1019,
+      "small_en_transcript": "Do not write a promise that the evidence cannot carry. We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
+      "small_en_first_words": "do not write a promise that the evidence cannot carry we have",
+      "small_en_last_words": "test and other teams want to repeat it save the source strip",
+      "base_en_first_words": "do not write a promise that the evidence cannot carry we have",
+      "base_en_last_words": "test and other teams want to repeat it save the source strip",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 769,
+          "matched_words": 10,
+          "script_excerpt": "do not write a promise that the evidence"
+        },
+        {
+          "asr_word_start": 10,
+          "script_word_start": 978,
+          "matched_words": 41,
+          "script_excerpt": "we have created an editorial teaching card not"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 779,
+          "to_script_word": 978,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L15",
@@ -574,7 +2526,47 @@
       "asr_transcript": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments. Chapter 24 names five scaling mistakes.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "approved_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "candidate_window_text_sha256": "0caa9067a408763158cfcac75099509d62fdf794be76018ee201ae4e90bce6f0",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 65,
+      "small_en_transcript": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments. Chapter 24 names five scaling mistakes.",
+      "small_en_first_words": "one small test was useful a second team asks to run it",
+      "small_en_last_words": "can disappear between those two moments chapter 24 names five scaling mistakes",
+      "base_en_first_words": "one small test was useful a second team asks to run it",
+      "base_en_last_words": "can disappear between those two moments chapter 24 names five scaling mistakes",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 66,
+          "script_excerpt": "one small test was useful a second team"
+        },
+        {
+          "asr_word_start": 67,
+          "script_word_start": 554,
+          "matched_words": 4,
+          "script_excerpt": "names five scaling mistakes"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 66,
+          "to_script_word": 554,
+          "asr_gap_words": 1
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L15",
@@ -584,7 +2576,35 @@
       "asr_transcript": "A central team can become a bottleneck. Documentation can grow so heavy that people stop testing. The organization can fixate on one tool instead of shared learning. Teams can resist a process they did not help shape. And leaders can expand across the whole organization before the first handoff works. Put those five labels on the checklist and test your own proposal against them.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "approved_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "candidate_window_text_sha256": "19f730031112bed7d47bfd2ab2a2a96a9cea34385744fb028bf507a5608e2977",
+      "candidate_script_word_start": 551,
+      "candidate_script_word_end_exclusive": 622,
+      "small_en_transcript": "A central team can become a bottleneck. Documentation can grow so heavy that people stop testing. The organization can fixate on one tool instead of shared learning. Teams can resist a process they did not help shape. And leaders can expand across the whole organization before the first handoff works. Put those five labels on the checklist and test your own proposal against them.",
+      "small_en_first_words": "a central team can become a bottleneck documentation can grow so heavy",
+      "small_en_last_words": "five labels on the checklist and test your own proposal against them",
+      "base_en_first_words": "a central team can become a bottleneck documentation can grow so heavy",
+      "base_en_last_words": "five labels on the checklist and test your own proposal against them",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 558,
+          "matched_words": 64,
+          "script_excerpt": "a central team can become a bottleneck documentation"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L15",
@@ -594,7 +2614,47 @@
       "asr_transcript": "The decision memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why. End with a decision about readiness.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "approved_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "candidate_window_text_sha256": "87bad557e0dedad13f2e40be7324a27d32c684b137cc563f90212079085bda5a",
+      "candidate_script_word_start": 1095,
+      "candidate_script_word_end_exclusive": 1162,
+      "small_en_transcript": "The decision memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why. End with a decision about readiness.",
+      "small_en_first_words": "the decision memory record is where a useful test becomes a reusable",
+      "small_en_last_words": "decision was to defer say why end with a decision about readiness",
+      "base_en_first_words": "the decision memory record is where a useful test becomes a reusable",
+      "base_en_last_words": "decision was to defer say why end with a decision about readiness",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1095,
+          "matched_words": 67,
+          "script_excerpt": "the decision memory record is where a useful"
+        },
+        {
+          "asr_word_start": 67,
+          "script_word_start": 1566,
+          "matched_words": 6,
+          "script_excerpt": "end with a decision about readiness"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 1162,
+          "to_script_word": 1566,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L15",
@@ -604,7 +2664,35 @@
       "asr_transcript": "Even if the answer is wait. Choose one neighboring team for a future handoff only after the record survives a dry run. State which safeguards belong to the shared process and which must be set locally. This keeps a successful local experiment from becoming an organization-wide promise by accident.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "approved_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "candidate_window_text_sha256": "a61fd6f60d4a1438cc46883e86dbc45e8d87a11830f4b1a3e1625620d9c47dd9",
+      "candidate_script_word_start": 1566,
+      "candidate_script_word_end_exclusive": 1622,
+      "small_en_transcript": "Even if the answer is wait. Choose one neighboring team for a future handoff only after the record survives a dry run. State, which safeguards belong to the shared process, and which must be set locally. This keeps a successful local experiment from becoming an organization-wide promise by accident.",
+      "small_en_first_words": "even if the answer is wait choose one neighboring team for a",
+      "small_en_last_words": "a successful local experiment from becoming an organization wide promise by accident",
+      "base_en_first_words": "even if the answer is wait choose one neighboring team for a",
+      "base_en_last_words": "a successful local experiment from becoming an organization wide promise by accident",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1572,
+          "matched_words": 50,
+          "script_excerpt": "even if the answer is wait choose one"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L16",
@@ -614,7 +2702,59 @@
       "asr_transcript": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb.",
       "request_head_match": true,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "approved_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "candidate_window_text_sha256": "a5c03f18b11e93ef5881bc5a122b0dc51a4b40e6046c622c9c9df52ed251fe4f",
+      "candidate_script_word_start": 0,
+      "candidate_script_word_end_exclusive": 74,
+      "small_en_transcript": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb.",
+      "small_en_first_words": "go back to the decision you wrote on the first page at",
+      "small_en_last_words": "write the next action in a sentence that begins with a verb",
+      "base_en_first_words": "go back to the decision you wrote on the first page at",
+      "base_en_last_words": "write the next action in a sentence that begins with a verb",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 0,
+          "matched_words": 51,
+          "script_excerpt": "go back to the decision you wrote on"
+        },
+        {
+          "asr_word_start": 52,
+          "script_word_start": 52,
+          "matched_words": 13,
+          "script_excerpt": "that could change the choice and the people"
+        },
+        {
+          "asr_word_start": 66,
+          "script_word_start": 67,
+          "matched_words": 7,
+          "script_excerpt": "calls for starting with one pain point"
+        },
+        {
+          "asr_word_start": 73,
+          "script_word_start": 369,
+          "matched_words": 12,
+          "script_excerpt": "write the next action in a sentence that"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 74,
+          "to_script_word": 369,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L16",
@@ -624,7 +2764,47 @@
       "asr_transcript": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,",
       "request_head_match": false,
       "request_tail_match": false,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "approved_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "candidate_window_text_sha256": "f5c73ea024c75eb582f902915254327c27300068ecee52f9e6dbeaead9ecc032",
+      "candidate_script_word_start": 369,
+      "candidate_script_word_end_exclusive": 439,
+      "small_en_transcript": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,",
+      "small_en_first_words": "interview three approved participants about the first task review six source notes",
+      "small_en_last_words": "owns it put a short review on the calendar with the owner",
+      "base_en_first_words": "interview three approved participants about the first task review six source notes",
+      "base_en_last_words": "owns it put a short review on the calendar with the owner",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": false,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 381,
+          "matched_words": 58,
+          "script_excerpt": "interview three approved participants about the first task"
+        },
+        {
+          "asr_word_start": 58,
+          "script_word_start": 724,
+          "matched_words": 10,
+          "script_excerpt": "put a short review on the calendar with"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [
+        {
+          "from_script_word": 439,
+          "to_script_word": 724,
+          "asr_gap_words": 0
+        }
+      ],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L16",
@@ -634,7 +2814,35 @@
       "asr_transcript": "and anyone who's work or accessed the test effects. Send the decision question and the source links in advance. At the meeting, open with what happened, including the observations that complicate your preferred story. Compare the result with the threshold you wrote before the test. Record one of four next states. Continue, revise, stop, or gather a specific missing piece of evidence.",
       "request_head_match": false,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "approved_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "candidate_window_text_sha256": "5712fd1c48b771344aed15981b52b45db54101934694489b72e2eca122b9ad56",
+      "candidate_script_word_start": 724,
+      "candidate_script_word_end_exclusive": 796,
+      "small_en_transcript": "and anyone whose work or access the test affects. Send the decision question and the source links in advance. At the meeting, open with what happened, including the observations that complicate your preferred story. Compare the result with the threshold you wrote before the test. Record one of four next states. Continue, revise, stop, or gather a specific missing piece of evidence.",
+      "small_en_first_words": "and anyone whose work or access the test affects send the decision",
+      "small_en_last_words": "states continue revise stop or gather a specific missing piece of evidence",
+      "base_en_first_words": "and anyone who's work or accessed the test effects send the decision",
+      "base_en_last_words": "states continue revise stop or gather a specific missing piece of evidence",
+      "small_en_candidate_head_match": false,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 734,
+          "matched_words": 62,
+          "script_excerpt": "and anyone whose work or access the test"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     },
     {
       "lesson_id": "L16",
@@ -644,7 +2852,50 @@
       "asr_transcript": "The final chapter says the system is unfinished. That is a useful ending because real work changes. People change. Conditions change. A decision file should make revision possible without erasing the path that brought you here. Next week, do the one move you wrote down? Then return to the record. What did you observe? What did it change?",
       "request_head_match": true,
       "request_tail_match": true,
-      "status": "machine_transcript_requires_audible_confirmation"
+      "status": "unresolved_audible_review_required",
+      "source_media_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "approved_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "candidate_window_text_sha256": "ca25913b5a3262d765c3b3fcf0a160a2126f57a88f8a7814539e90bf9fdda1e2",
+      "candidate_script_word_start": 1030,
+      "candidate_script_word_end_exclusive": 1088,
+      "small_en_transcript": "The final chapter says the system is unfinished. That is a useful ending because real work changes. People change. Conditions change. A decision file should make revision possible without erasing the path that brought you here. Next week, do the one move you wrote down, then return to the record. What did you observe? What did it change?",
+      "small_en_first_words": "the final chapter says the system is unfinished that is a useful",
+      "small_en_last_words": "return to the record what did you observe what did it change",
+      "base_en_first_words": "the final chapter says the system is unfinished that is a useful",
+      "base_en_last_words": "return to the record what did you observe what did it change",
+      "small_en_candidate_head_match": true,
+      "small_en_candidate_tail_match": true,
+      "aligned_script_blocks": [
+        {
+          "asr_word_start": 0,
+          "script_word_start": 1030,
+          "matched_words": 58,
+          "script_excerpt": "the final chapter says the system is unfinished"
+        }
+      ],
+      "possible_noncontiguous_script_jumps": [],
+      "audible_review": {
+        "first_spoken_words": null,
+        "last_spoken_words": null,
+        "reviewed_source_sha256": null,
+        "reviewer": null,
+        "native_edit_decision": null
+      }
     }
-  ]
+  ],
+  "models": [
+    {
+      "name": "ggml-base.en",
+      "sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002"
+    },
+    {
+      "name": "ggml-small.en",
+      "sha256": "c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d"
+    }
+  ],
+  "listening_capability": "The connected media reader returned: audio content omitted because you do not support audio input. No listening verification is claimed.",
+  "whisper_cpp_commit": "d2c6f05a46dacf663e357bcf0ed40f542a72825d",
+  "model_source": "https://huggingface.co/ggerganov/whisper.cpp",
+  "extraction_template": "ffmpeg -ss <window_start> -i <source_mp4> -t <window_duration> -vn -ac 1 -ar 16000 <scratch_wav>",
+  "recognition_template": "whisper-cli -m <ggml-base.en-or-small.en-model> -f <scratch_wav> -otxt -osrt -of <scratch_output> -nt"
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "review_only_provider_free",
+  "status": "blocked_native_audio_alignment_review_only_provider_free",
   "method": "Sequential provider-safe speech jobs per lesson; each job contains whole sentence-complete cutaway windows joined with two newlines. Align to native presenter audio and render from word timestamps and silence.",
   "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
   "source_receipt": {
@@ -9,8 +9,8 @@
   },
   "audio_audit": {
     "path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json",
-    "sha256": "e9b78fde81effa96794b98faf16589b43febf90c3fb93869004ad53700ea8ac1",
-    "status": "machine_diagnostic_only; all 64 windows need audible confirmation before synthesis"
+    "sha256": "d57663f0b2cfe2f5b8179205ea0ee15f30aa09f96d05fb7293c6466a61551708",
+    "status": "machine_diagnostic_only; all 64 windows unresolved for audible confirmation and native edit decision"
   },
   "credit_plan": {
     "job_count": 31,
@@ -143,10 +143,10 @@
       ],
       "native_audio_adjustments": [
         {
-          "boundary": "C02 to A03",
-          "change": "C02 includes “Let’s make the first page of your decision file.”; A03 starts “It starts with a decision, not a tool.”",
-          "audio_evidence": "Native A03 head 345–350 s transcribes “It starts with a decision, not a tool.” The short A02-tail ASR result was rejected as inconsistent with the 185-word intervening cutaway.",
-          "status": "ASR-assisted candidate; listening confirmation required"
+          "boundary": "A02 tail / C02 to A03",
+          "change": "C02 currently includes “Let’s make the first page of your decision file.”; A03 starts “It starts with a decision, not a tool.”",
+          "audio_evidence": "Both full-window ASR models and a seven-second native tail identify A02 speaking the first-page sentence after “public proof.” Word-level ASR places it near 245.13–248.23 s. The intervening cutaway contains roughly 185 approved-script words, so the current source audio jumps ahead and this candidate repeats that sentence.",
+          "status": "blocked: audible confirmation and native A02 trim or alternate edit decision required"
         },
         {
           "boundary": "A03 to C03",
@@ -156,9 +156,10 @@
         }
       ],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 3
+        "request_tail_mismatches": 3,
+        "possible_noncontiguous_script_jumps": 1
       },
       "lesson_cutaway_text": {
         "window_count": 3,
@@ -322,9 +323,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 3,
-        "request_tail_mismatches": 4
+        "request_tail_mismatches": 4,
+        "possible_noncontiguous_script_jumps": 3
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -489,9 +491,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 0,
-        "request_tail_mismatches": 0
+        "request_tail_mismatches": 0,
+        "possible_noncontiguous_script_jumps": 0
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -656,9 +659,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -823,9 +827,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -990,9 +995,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -1157,9 +1163,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 1
+        "request_tail_mismatches": 1,
+        "possible_noncontiguous_script_jumps": 0
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -1324,9 +1331,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -1491,9 +1499,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 3,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -1658,9 +1667,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 3,
-        "request_tail_mismatches": 3
+        "request_tail_mismatches": 3,
+        "possible_noncontiguous_script_jumps": 3
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -1825,9 +1835,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 4,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -1992,9 +2003,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 3,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -2159,9 +2171,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -2326,9 +2339,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 1
+        "request_tail_mismatches": 1,
+        "possible_noncontiguous_script_jumps": 1
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -2484,9 +2498,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
@@ -2660,9 +2675,10 @@
       ],
       "native_audio_adjustments": [],
       "audio_alignment": {
-        "status": "pending_audible_confirmation",
+        "status": "blocked_pending_audible_confirmation_and_native_edit_decision",
         "request_head_mismatches": 2,
-        "request_tail_mismatches": 2
+        "request_tail_mismatches": 2,
+        "possible_noncontiguous_script_jumps": 2
       },
       "lesson_cutaway_text": {
         "window_count": 4,
