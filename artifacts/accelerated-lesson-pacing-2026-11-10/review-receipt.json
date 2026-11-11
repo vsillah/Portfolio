@@ -1,0 +1,77 @@
+{
+  "status": "local_review_only",
+  "voice": "Samantha (provisional system voice)",
+  "source_path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
+  "source_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+  "manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "caption_source_sha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f",
+  "presenter_windows": [
+    [
+      0.0,
+      31.52
+    ],
+    [
+      235.0,
+      248.2
+    ],
+    [
+      345.0,
+      358.96
+    ],
+    [
+      515.0,
+      529.48
+    ]
+  ],
+  "teaching_narration": [
+    {
+      "window": [
+        31.52,
+        235.0
+      ],
+      "source": "artifacts/accelerated-lesson-pacing-2026-11-10/teaching-1.aiff",
+      "source_seconds": 164.132971,
+      "tempo": 0.8082182932834352,
+      "voice_rate": 100,
+      "word_count": 422
+    },
+    {
+      "window": [
+        248.2,
+        345.0
+      ],
+      "source": "artifacts/accelerated-lesson-pacing-2026-11-10/teaching-2.aiff",
+      "source_seconds": 80.707392,
+      "tempo": 0.8372136099585061,
+      "voice_rate": 113,
+      "word_count": 202
+    },
+    {
+      "window": [
+        358.96,
+        515.0
+      ],
+      "source": "artifacts/accelerated-lesson-pacing-2026-11-10/teaching-3.aiff",
+      "source_seconds": 109.347256,
+      "tempo": 0.7025652531482909,
+      "voice_rate": 87,
+      "word_count": 309
+    }
+  ],
+  "caption_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.vtt",
+  "caption_sha256": "9762e81acc8bbfa8537282ca3a0c2ac648f38d2035ac5189f5ed9855294005c4",
+  "output_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.mp4",
+  "output_sha256": "75e008de77ba0d5f92960d7df2bab70dbfc0e4d617938655d9fcf4b3b576dc1a",
+  "validation": {
+    "video_frames": 13500,
+    "duration_seconds": 540,
+    "unexpected_silence_over_12_seconds": [],
+    "presenter_frame_mean_absolute_error": {
+      "10": 0.283,
+      "240": 0.664,
+      "350": 0.338,
+      "520": 0.456
+    },
+    "caption_cues": 86
+  }
+}

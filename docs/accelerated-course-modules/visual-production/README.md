@@ -33,4 +33,12 @@ Open the review page from `python3 -m http.server 8765 --bind 127.0.0.1` at `/do
 
 ## Production handoff boundary
 
+### Lesson media voice and screen contract
+
+Spoken teaching continues when the presenter is off screen. A silent learner-work hold is allowed only when the scene explicitly names the pause, gives a learner action, and records its start and end time. After compositing, detect and review every audio gap over 12 seconds. Preserve native presenter footage and audio in their exact windows; avoid overlapping narration or changing frame sync. Captions must match the final spoken mix and stay clear of instructional art and player controls.
+
+Keep the teaching frame focused on one idea. Remove scene codes, production/operator labels, repeated artifact names, decorative progress markers, and dense worksheet copy when they compete with the narration or captions. The learner player already supplies navigation and progress. Preserve approved book/SAM art, synthetic-example labels where they convey a real provenance boundary, and the data-use rule.
+
+A system voice may be used for a local timing proof. A releasable composite requires an authorized narration source or voice decision, a final caption pass, presenter audio/frame checks, and rendered desktop/mobile review. The local L01 proof and the L01–L16 silence audit are in `artifacts/accelerated-lesson-pacing-2026-11-10` and `lesson-media-pacing-audit-2026-11-10.md`.
+
 The packet gives a renderer exact scene timing and audio ownership, but it does not approve an avatar, a voice, a provider request, final artwork, release, or publication. A later production pass must build the synthetic cards, check every caption against the final mix, verify responsive and reduced-motion outputs, and audit all customer-facing text. Any real capture needs route, revision, capture date, rights, privacy/redaction approval, and a stable hash before it can enter a lesson.

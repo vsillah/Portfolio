@@ -271,8 +271,15 @@ def draw_semantic(d,layout,labels):
         return True
     return False
 
-def draw_concept(image,scene,variant=None):
+def draw_concept(image,scene,variant=None,clean=False):
     layout,labels=CONCEPTS[scene['id']]
+    if clean and scene['id']=='L01-01':
+        if variant=='decision':
+            d=ImageDraw.Draw(image)
+            rounded(d,(670,165,1810,815),DEEP,GOLD,42,6)
+            concept_box(d,(770,285,1710,655),'Who will decide which idea matters?',fill=INK,size=58)
+            return
+        labels=['Q3 INNOVATION PLAN','Decision to make']
     d=ImageDraw.Draw(image)
     x0,y0,x1,y1=670,165,1810,815
     rounded(d,(x0,y0,x1,y1),DEEP,GOLD,42,6)
@@ -404,7 +411,7 @@ def draw_concept(image,scene,variant=None):
         return
     raise AssertionError((scene['id'],layout))
 
-def render(lesson, scene, index, presenter=False, variant=None):
+def render(lesson, scene, index, presenter=False, variant=None, clean=False):
     image=Image.new('RGB',(1920,1080),DEEP)
     d=ImageDraw.Draw(image)
     for y in range(0,885):
@@ -414,20 +421,22 @@ def render(lesson, scene, index, presenter=False, variant=None):
         line(d,[(x,70),(x,870)],'#254650',1)
     line(d,[(0,885),(1920,885)],GOLD,5)
     d.text((95,55),'AMADUTOWN  /  ACCELERATED',font=font(29),fill=GOLD_LIGHT)
-    d.text((1520,55),f"{lesson['id']}  /  {scene['scene_number']:02d}",font=font(28),fill=MUTED)
+    if not clean:
+        d.text((1520,55),f"{lesson['id']}  /  {scene['scene_number']:02d}",font=font(28),fill=MUTED)
     title=short_title(scene)
     face=font(53,True)
     for i,part in enumerate(wrap(d,title,face,500)[:5]):
         d.text((95,185+i*68),part,font=face,fill=CREAM)
-    artifact=lesson['learner_artifact'].replace('Decision-file','Decision File').replace('PRD','product brief')
-    for j,part in enumerate(wrap(d,artifact,font(27),480)[:3]):
-        d.text((100,625+j*35),part,font=font(27),fill=MUTED)
-    line(d,[(100,750),(560,750)],GOLD,5)
-    for j in range(len(lesson['scenes'])):
-        px=115+j*(440/max(1,len(lesson['scenes'])-1))
-        d.ellipse((px-13,775,px+13,801),fill=GOLD_LIGHT if j==index else TEAL,outline=GOLD,width=3)
+    if not clean:
+        artifact=lesson['learner_artifact'].replace('Decision-file','Decision File').replace('PRD','product brief')
+        for j,part in enumerate(wrap(d,artifact,font(27),480)[:3]):
+            d.text((100,625+j*35),part,font=font(27),fill=MUTED)
+        line(d,[(100,750),(560,750)],GOLD,5)
+        for j in range(len(lesson['scenes'])):
+            px=115+j*(440/max(1,len(lesson['scenes'])-1))
+            d.ellipse((px-13,775,px+13,801),fill=GOLD_LIGHT if j==index else TEAL,outline=GOLD,width=3)
     if not presenter:
-        draw_concept(image,scene,variant)
+        draw_concept(image,scene,variant,clean)
     return image
 
 def main():
