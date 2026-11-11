@@ -58,13 +58,13 @@ def packet_hashes(path, stream):
     return [row['data_hash'] for row in data['packets']]
 
 
-def card(path, index, title, phrase, instruction):
+def card(path, index, title, phrase, instruction, total=6):
     image = Image.new('RGB', (1920, 1080), (8, 28, 40))
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((100, 104, 1820, 976), radius=42,
                            fill=(20, 55, 66), outline=(220, 181, 105), width=5)
     draw.rounded_rectangle((150, 160, 602, 235), radius=18, fill=(224, 181, 98))
-    draw.text((182, 170), f'CHAPTER {index:02d} / 06',
+    draw.text((182, 170), f'CHAPTER {index:02d} / {total:02d}',
               font=ImageFont.truetype(FONT, 36), fill=(8, 28, 40))
     draw.text((152, 282), title, font=ImageFont.truetype(FONT, 72),
               fill=(246, 249, 244))

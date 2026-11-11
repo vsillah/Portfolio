@@ -2897,5 +2897,49 @@
   "whisper_cpp_commit": "d2c6f05a46dacf663e357bcf0ed40f542a72825d",
   "model_source": "https://huggingface.co/ggerganov/whisper.cpp",
   "extraction_template": "ffmpeg -ss <window_start> -i <source_mp4> -t <window_duration> -vn -ac 1 -ar 16000 <scratch_wav>",
-  "recognition_template": "whisper-cli -m <ggml-base.en-or-small.en-model> -f <scratch_wav> -otxt -osrt -of <scratch_output> -nt"
+  "recognition_template": "whisper-cli -m <ggml-base.en-or-small.en-model> -f <scratch_wav> -otxt -osrt -of <scratch_output> -nt",
+  "human_listening_signoffs": [
+    {
+      "scope": "L05 A02 → A03",
+      "review_clip_sha256": "963224f84e103c600581fd58dd28c7c68daf0e9cccd76327259b41478ab833e3",
+      "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+      "outcome": "passed_local_audible_listening_only",
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L06 A02 → A03",
+      "review_clip_sha256": "5c3bd26a4d68f9993235d495d9d93482a8d035cdbb701a80ec15628dc8b17472",
+      "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+      "outcome": "passed_local_audible_listening_only",
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L08 A02 → A03",
+      "review_clip_sha256": "3f90ad6facbad2135371ec4bb0ff233e07cd33057f0bd9b3a2bb1f7bff9a6729",
+      "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+      "outcome": "passed_local_audible_listening_only",
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L06 A01",
+      "review_clip_sha256": "d469f892645006daa7305285369662c3901a776317461662dd5a5e8757e8c1ad",
+      "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+      "outcome": "passed_local_audible_listening_only",
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L16 A01",
+      "review_clip_sha256": "07aef614c352d57a2f5d2de2186454a78561c586c45ca532703efb9370e40a46",
+      "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+      "outcome": "passed_local_audible_listening_only",
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L16 A02",
+      "review_clip_sha256": "14d47b974948772243bdcbe8df9b0459d0e697eacc6c0e123595fd5ce1f6fe05",
+      "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+      "outcome": "passed_local_audible_listening_only",
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+    }
+  ]
 }

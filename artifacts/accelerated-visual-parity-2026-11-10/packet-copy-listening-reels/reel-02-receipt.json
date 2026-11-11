@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "status": "review_only_not_audibly_signed_off",
+  "reel_number": 2,
+  "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/packet-copy-listening-reel-02.mp4",
+  "reel_sha256": "e9217d1821cea9c86ed66d485ba49546baf47059764ac0e241589b696769490c",
+  "duration_seconds": 117.6,
+  "chapter_card_duration_seconds": 2.4,
+  "chapter_count": 8,
+  "chapters": [
+    {
+      "chapter": 1,
+      "lesson_id": "L08",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a01-tail-before-after.mp4",
+      "source_clip_sha256": "2888aadafcb2734410c0c7147c50bbd53d132232a5b27d71929fe1e569a14222",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a01-tail-receipt.json",
+      "source_receipt_sha256": "91b5990f18cbaa5296e73f6a41266e2109740b838a31d8de934fcd87b205fd87",
+      "source_candidate_sha256": "7165c66d41fead1ac09ba3edbbbf904daf9a9a408425cfac81f244985736bad9",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-01.png",
+      "chapter_card_sha256": "66ae4d89dfbd2287ac6f530e8d3acaca640376b3016413a503afcad897e4ae2e",
+      "chapter_start_seconds": 0.0,
+      "source_clip_start_seconds": 2.4,
+      "chapter_end_seconds": 16.4,
+      "retained_probe_words": "belongs to the decision",
+      "removed_probe_words": "gives the learning plan",
+      "approved_script_order": {
+        "approved_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+        "script_word_jump": [
+          70,
+          473
+        ],
+        "orientation": "tail",
+        "retained_words": "choose a measure that belongs to the decision",
+        "removed_words": "gives the learning plan ten components The first five establish what we",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 2,
+      "lesson_id": "L08",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "conditional_alternate_cut": true,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a02-tail-before-after.mp4",
+      "source_clip_sha256": "bd7bc3667869eb9e23df41b9fe2fbf0e7a2ab5f7556f615e662a579d990ddc4f",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a02-tail-receipt.json",
+      "source_receipt_sha256": "421131d7df4bd2fe15b5f8c2a633466233fc200406cf5dc4d5f3afd7d9bd92eb",
+      "source_candidate_sha256": "68af8566bfa80dfd58bd6e0e9987481c305ba0f7a8c3feda54c651b77f51e3eb",
+      "source_clip_duration_seconds": 10.793,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-02.png",
+      "chapter_card_sha256": "b5352046e0c8c642c4c484f79adf9a256accf86cf85b1ab8510842d30b41eeda",
+      "chapter_start_seconds": 16.4,
+      "source_clip_start_seconds": 18.8,
+      "chapter_end_seconds": 29.593,
+      "retained_probe_words": "from this small exercise",
+      "removed_probe_words": "before there is any",
+      "approved_script_order": {
+        "approved_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+        "script_word_jump": [
+          521,
+          946
+        ],
+        "orientation": "tail",
+        "retained_words": "claim a business lift from this small exercise",
+        "removed_words": "Before there is any data walk the plan through two possible results",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 3,
+      "lesson_id": "L09",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a03-head-before-after.mp4",
+      "source_clip_sha256": "c5b7e6299c0fe4649cbefbc321bc1b2c5a5046f6de491aea2d1b03fcd83637d5",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a03-head-receipt.json",
+      "source_receipt_sha256": "72ef86b83de652b271eb33fd03a49b0d70f12054ad9a351fbdcce0456eb009b4",
+      "source_candidate_sha256": "6dd500713e13fe3c96a1f443bcfb97ea9b44a345e490ce62212103d3a7e58d31",
+      "source_clip_duration_seconds": 11.04,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-03.png",
+      "chapter_card_sha256": "5c1e50434d717999d43e3ca3b64a6f1d349ec07a083e8cdd7bc7a6de901f81ad",
+      "chapter_start_seconds": 29.593,
+      "source_clip_start_seconds": 31.993,
+      "chapter_end_seconds": 43.033,
+      "retained_probe_words": "the book calls the",
+      "removed_probe_words": "skeptic asks hard questions",
+      "approved_script_order": {
+        "approved_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+        "script_word_jump": [
+          498,
+          920
+        ],
+        "orientation": "head",
+        "retained_words": "The book calls the pre meeting work Shuttle Diplomacy Learn the decision",
+        "removed_words": "A champion advocates A skeptic asks hard questions",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 4,
+      "lesson_id": "L09",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a04-head-before-after.mp4",
+      "source_clip_sha256": "a00888f0aaa136727ff4b460f1bb7324ed039b900aeaac63665270bad7d495df",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a04-head-receipt.json",
+      "source_receipt_sha256": "678d6b4587ea3f8595c2aa7581882f7e5b89e04dd25171a75d3c09a10db97077",
+      "source_candidate_sha256": "79cccbc3da078e89cad310109885fe0d0e620cb1cf4a2e4e3dcdc9d24b66197f",
+      "source_clip_duration_seconds": 13.2,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-04.png",
+      "chapter_card_sha256": "95e0e2019139d528e8f2689f3f4de964f6eefb0909b646f3163e38a9f57a67ec",
+      "chapter_start_seconds": 43.033,
+      "source_clip_start_seconds": 45.433,
+      "chapter_end_seconds": 58.633,
+      "retained_probe_words": "a map is not",
+      "removed_probe_words": "would make it unsafe",
+      "approved_script_order": {
+        "approved_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+        "script_word_jump": [
+          967,
+          1315
+        ],
+        "orientation": "head",
+        "retained_words": "A map is not a way to manufacture agreement It helps you",
+        "removed_words": "and which staffing constraint would make it unsafe",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 5,
+      "lesson_id": "L10",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a01-tail-before-after.mp4",
+      "source_clip_sha256": "ced387a9f9260a3a977892b41bea5350e7e7c2e538822fbd4bf70c7426cec1bc",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a01-tail-receipt.json",
+      "source_receipt_sha256": "cc5b57337d3a98f5776c8df06a98ca63f9fe008fd243327f86878d21e45910c6",
+      "source_candidate_sha256": "ec3fa8079399f37aa7b4f4897c280ae9843cad4625d10b15fb15bda406a1330c",
+      "source_clip_duration_seconds": 13.646,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-05.png",
+      "chapter_card_sha256": "997409729813b4e5657e8c65df2bdc3f36eb07f0995cc149b8f0d037489d9daa",
+      "chapter_start_seconds": 58.633,
+      "source_clip_start_seconds": 61.033,
+      "chapter_end_seconds": 74.679,
+      "retained_probe_words": "that kind of meeting",
+      "removed_probe_words": "uses a notification settings",
+      "approved_script_order": {
+        "approved_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+        "script_word_jump": [
+          62,
+          399
+        ],
+        "orientation": "tail",
+        "retained_words": "carry Chapter Sixteen describes that kind of meeting",
+        "removed_words": "uses a notification settings case An initial request for granular controls did",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 6,
+      "lesson_id": "L10",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a03-head-before-after.mp4",
+      "source_clip_sha256": "7447a3e109595c6d1bdd2e37effae32ca31c8c1b98d428e4d36b769a186ae633",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a03-head-receipt.json",
+      "source_receipt_sha256": "dd6826bacafe591fcaa1629e2b52bc9e43fd230fd8a009f3cc490ade57a36f27",
+      "source_candidate_sha256": "666dad3ac2771fde2e7625d0e5659b755faceed7c0bedd3b28697f71332c2d8c",
+      "source_clip_duration_seconds": 13.52,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-06.png",
+      "chapter_card_sha256": "3d80fc8d4f65122286bb195aec50ffff303b69e18cca6978dbedc5180192baf2",
+      "chapter_start_seconds": 74.679,
+      "source_clip_start_seconds": 77.079,
+      "chapter_end_seconds": 90.599,
+      "retained_probe_words": "says we cannot spare",
+      "removed_probe_words": "members understand and begin",
+      "approved_script_order": {
+        "approved_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+        "script_word_jump": [
+          455,
+          796
+        ],
+        "orientation": "head",
+        "retained_words": "says We cannot spare staff to watch a long session Do not",
+        "removed_words": "card and observe whether members understand and begin",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 7,
+      "lesson_id": "L10",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a04-head-before-after.mp4",
+      "source_clip_sha256": "ac730a9a020a5abac946e9b30707ae3648b1b7aced157f62e722fd2dfce71ef9",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a04-head-receipt.json",
+      "source_receipt_sha256": "286529ac0323f255220903761fd5c08b4e4c218538db84afbe47b2edcba7c0f2",
+      "source_candidate_sha256": "75a472c023da4916a637e532e3ad607b42948bfda1992395fe6cc6ec0940bfce",
+      "source_clip_duration_seconds": 10.48,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-07.png",
+      "chapter_card_sha256": "13993e53b481e21e3881b7a3c72f950d6c592d8e25d46f3bee0a79e4d466818e",
+      "chapter_start_seconds": 90.599,
+      "source_clip_start_seconds": 92.999,
+      "chapter_end_seconds": 103.479,
+      "retained_probe_words": "we will bring the",
+      "removed_probe_words": "and redesign the test",
+      "approved_script_order": {
+        "approved_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+        "script_word_jump": [
+          848,
+          1140
+        ],
+        "orientation": "head",
+        "retained_words": "We will bring the observations back on the agreed date That brief",
+        "removed_words": "none is feasible stop and redesign the test",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 8,
+      "lesson_id": "L11",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a03-head-before-after.mp4",
+      "source_clip_sha256": "2edea35a5a5fc0da4d3dbdfa94c0727bd451a4a2ef902712754e61fc63fd8afa",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a03-head-receipt.json",
+      "source_receipt_sha256": "c32c9b33ab15146b4641d66f3900a78bc8f0426f48dfdbc88d1e1c4b02a1ae82",
+      "source_candidate_sha256": "738161cb90eb59e5f0660e9c7268b4c1c3f28888d4372936a4916d65b0fddf5b",
+      "source_clip_duration_seconds": 11.68,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-08.png",
+      "chapter_card_sha256": "5870059ff10c6d08e30a1c454170cf5d738b56dcadcb50aa1ec6ff03993d43c4",
+      "chapter_start_seconds": 103.479,
+      "source_clip_start_seconds": 105.879,
+      "chapter_end_seconds": 117.559,
+      "retained_probe_words": "imagine joining this work",
+      "removed_probe_words": "action starts the service",
+      "approved_script_order": {
+        "approved_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+        "script_word_jump": [
+          471,
+          847
+        ],
+        "orientation": "head",
+        "retained_words": "Imagine joining this work six weeks later You should be able to",
+        "removed_words": "members cannot tell which action starts the service",
+        "verified": true
+      }
+    }
+  ],
+  "native_manifest_sha256": "91f5f2a41da382c5b906d43355f3f35e6b0087eb2aa4d108c38cf74a48fc6638",
+  "native_asr_validation_sha256": "61355c5bb8e32087a8a7c6c28bd169543ae398e5fd4550df45dec5dde464ecd7",
+  "source_audio_packets_preserved_in_order": true,
+  "source_audio_packet_counts": [
+    658,
+    507,
+    520,
+    621,
+    641,
+    635,
+    494,
+    550
+  ],
+  "visual_contact_sheets": {
+    "chapter": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-chapter-contact-sheet.png",
+      "sha256": "aa84262763ccca091b2211c83fd96443807a3c221edfb16069e59e2993aeed29"
+    },
+    "source": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-source-contact-sheet.png",
+      "sha256": "de68d2e2f53bcc64fbbf24db6807cdbc69b7c3844406d1ce97eee9fc667af684"
+    }
+  },
+  "browser_compatible_probe": {
+    "stream_count": 2,
+    "video_codec": "H.264 High Profile",
+    "video_level": 41,
+    "pixel_format": "yuv420p",
+    "frame_rate": "25/1",
+    "audio_codec": "AAC LC",
+    "audio_sample_rate": "48000",
+    "audio_channels": 2,
+    "faststart_moov_before_mdat": true,
+    "no_data_or_chapter_track": true
+  },
+  "audio_treatment": "Existing sequential before/after AAC packet payloads copied unchanged; chapter-card silence newly AAC-encoded. One CFR H.264 video stream re-encoded for browser playback.",
+  "conditional_alternate_clips": [
+    "L08 A02"
+  ],
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "canonical_media_or_learner_binding_changed": false,
+  "residual_uncertainty": "All eight cuts still need audible first/last-word review; conditional A02 packet cuts differ from their approved coordinated joins."
+}

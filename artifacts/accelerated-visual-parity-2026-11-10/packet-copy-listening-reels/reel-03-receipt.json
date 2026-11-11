@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "status": "review_only_not_audibly_signed_off",
+  "reel_number": 3,
+  "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/packet-copy-listening-reel-03.mp4",
+  "reel_sha256": "cb68408ebb5b8c9170999f592f02c0d56eb92f81c042a46a9de4ebc93e90506d",
+  "duration_seconds": 122.048,
+  "chapter_card_duration_seconds": 2.4,
+  "chapter_count": 8,
+  "chapters": [
+    {
+      "chapter": 1,
+      "lesson_id": "L11",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a04-head-before-after.mp4",
+      "source_clip_sha256": "d3f35ccdefa316979d1011a453765e7b114f21bbd570db27eb8e474f890ac5f5",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a04-head-receipt.json",
+      "source_receipt_sha256": "a6040f1d42fca0c56b45dc5e69a380631f3a44d856a4d468cdc1e77345877732",
+      "source_candidate_sha256": "a80b7daa32b8ca1c37e325cabbca9ced06b3761e17bdcde62f36c5a32f8a0c25",
+      "source_clip_duration_seconds": 11.44,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-01.png",
+      "chapter_card_sha256": "bb8a80c03e4fc03c232a0c6b3624af01be88cc0c2ec868ebead0621477ac97fd",
+      "chapter_start_seconds": 0.0,
+      "source_clip_start_seconds": 2.4,
+      "chapter_end_seconds": 13.84,
+      "retained_probe_words": "the learning system loop",
+      "removed_probe_words": "and the next owner",
+      "approved_script_order": {
+        "approved_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+        "script_word_jump": [
+          906,
+          1179
+        ],
+        "orientation": "head",
+        "retained_words": "The Learning System Loop from the course kit can help you see",
+        "removed_words": "reviewer the decision date and the next owner",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 2,
+      "lesson_id": "L12",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l12-a03-head-before-after.mp4",
+      "source_clip_sha256": "7775f733dada7fa80b5209da16d2933c1d2ee887cf306c30671fd080a4d25f9a",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l12-a03-head-receipt.json",
+      "source_receipt_sha256": "763f6bf1301daf7257e05013e0aa5c15499db30dd655eb8ac37d2229b78edbab",
+      "source_candidate_sha256": "9bef64f4231f07ab639527f7fa672087a0b51addbb91606d988d3524360ab715",
+      "source_clip_duration_seconds": 11.28,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-02.png",
+      "chapter_card_sha256": "85de36e64da273633b7a69d7c94eb79291122eaac4f044fae1899cdd7dfb21b9",
+      "chapter_start_seconds": 13.84,
+      "source_clip_start_seconds": 16.24,
+      "chapter_end_seconds": 27.52,
+      "retained_probe_words": "the simulation points to",
+      "removed_probe_words": "separate from observed research",
+      "approved_script_order": {
+        "approved_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+        "script_word_jump": [
+          479,
+          856
+        ],
+        "orientation": "head",
+        "retained_words": "The simulation points to two questions not two answers First can an",
+        "removed_words": "are imagined member notes separate from observed research",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 3,
+      "lesson_id": "L12",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l12-a04-head-before-after.mp4",
+      "source_clip_sha256": "ee56f95e05c05ca4663d4b3fdddfb397f8d598a5bdd264a0b9a3e8eff6d8c0f1",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l12-a04-head-receipt.json",
+      "source_receipt_sha256": "649957b32307c6c1826121c52661a820aecf9d426975019e4a0c174265ea1d5f",
+      "source_candidate_sha256": "5393cc3e5e4ca9d543e785edce5e7b008805bd0395c259782bcd0bff9ed9a924",
+      "source_clip_duration_seconds": 11.92,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-03.png",
+      "chapter_card_sha256": "b69c56663414b5c33c86c9a6b2578caf37829c351b828497b84fef3129a8ecec",
+      "chapter_start_seconds": 27.52,
+      "source_clip_start_seconds": 29.92,
+      "chapter_end_seconds": 41.84,
+      "retained_probe_words": "the structure helps you",
+      "removed_probe_words": "record the observed hesitation",
+      "approved_script_order": {
+        "approved_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+        "script_word_jump": [
+          913,
+          1217
+        ],
+        "orientation": "head",
+        "retained_words": "The structure helps you see where a source ends and an inference",
+        "removed_words": "what they expect and record the observed hesitation",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 4,
+      "lesson_id": "L13",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a01-tail-before-after.mp4",
+      "source_clip_sha256": "0e274bfe6789bff6f5d8e93b16085c8dad094d6fbf532292660bea0565cbf5bd",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a01-tail-receipt.json",
+      "source_receipt_sha256": "df3e036f81eb3dd96cddc996a13e1252228752d6ca45df26c4f64295557a28f4",
+      "source_candidate_sha256": "1758203a4b76190d3b08e8abef1faeff07eac39fd64dede4b55488d1a4a836ce",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-04.png",
+      "chapter_card_sha256": "0583c358ff4d055d1d80563ca63361f66e1bd0871288e87551135e35535527e2",
+      "chapter_start_seconds": 41.84,
+      "source_clip_start_seconds": 44.24,
+      "chapter_end_seconds": 58.24,
+      "retained_probe_words": "result for this exercise",
+      "removed_probe_words": "the fourth stratquest session",
+      "approved_script_order": {
+        "approved_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+        "script_word_jump": [
+          69,
+          471
+        ],
+        "orientation": "tail",
+        "retained_words": "have observed no customer result for this exercise",
+        "removed_words": "The fourth StratQuest session turns a preferred option into a test In",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 5,
+      "lesson_id": "L13",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a02-tail-before-after.mp4",
+      "source_clip_sha256": "bb3347f57f6e08ab22771fd898b056b8e724f24c2e1e8530d96dcb501304758d",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a02-tail-receipt.json",
+      "source_receipt_sha256": "880464bda4a67ff25fa5dbcf0129a83d79fcb0f7e9ffb367774c19bd2b938911",
+      "source_candidate_sha256": "6c3dd1080540bd4b26befa5d2238bca6081365dbefca0d4410d50b2a7b39876b",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-05.png",
+      "chapter_card_sha256": "7ed60ed15262bcfb5785eddd4613fbff9ff0d8102e7608037efece9bec2a38df",
+      "chapter_start_seconds": 58.24,
+      "source_clip_start_seconds": 60.64,
+      "chapter_end_seconds": 74.64,
+      "retained_probe_words": "help new members begin",
+      "removed_probe_words": "the book's collaboration example",
+      "approved_script_order": {
+        "approved_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+        "script_word_jump": [
+          525,
+          931
+        ],
+        "orientation": "tail",
+        "retained_words": "a shorter commitment would help new members begin",
+        "removed_words": "The book's collaboration example surfaces questions about differentiation infrastructure notifications and data",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 6,
+      "lesson_id": "L14",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l14-a04-head-before-after.mp4",
+      "source_clip_sha256": "9d234635e81b74a0f631b49c629939deb3aa7567fc02f101ff8561c629429f7d",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l14-a04-head-receipt.json",
+      "source_receipt_sha256": "4fc5883cffeee26255f40411b7ed0472010db4a86b985ac6832f848f44426454",
+      "source_candidate_sha256": "d8a2a1460bd14d2338730182264976496841c55f46d08531c14aa22f59041185",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-06.png",
+      "chapter_card_sha256": "a7d65fe32d2201d8f013e24e786703690b70aa9052ee0bcd997da8271e668926",
+      "chapter_start_seconds": 74.64,
+      "source_clip_start_seconds": 77.04,
+      "chapter_end_seconds": 91.04,
+      "retained_probe_words": "we have created an",
+      "removed_probe_words": "the evidence cannot carry",
+      "approved_script_order": {
+        "approved_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+        "script_word_jump": [
+          779,
+          978
+        ],
+        "orientation": "head",
+        "retained_words": "We have created an editorial teaching card not proof of a deployed",
+        "removed_words": "write a promise that the evidence cannot carry",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 7,
+      "lesson_id": "L15",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a01-tail-before-after.mp4",
+      "source_clip_sha256": "f600a9b576ccac997011714b1cb15d7d4515c8c8600081f6f02453d81d40f999",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a01-tail-receipt.json",
+      "source_receipt_sha256": "eaabe517f8315defefd2fb3673dbc270ed50c78ece745a01f7adbe76d70f83b5",
+      "source_candidate_sha256": "224b53787f4b6faeab4a87958d385d6b2d19ca60fb6f51779a182d30c9e790f2",
+      "source_clip_duration_seconds": 13.668,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-07.png",
+      "chapter_card_sha256": "0f49099b98b92a1336feb0f5fd7b1b9c42f3d61f1df05c61d0e4425c3759284d",
+      "chapter_start_seconds": 91.04,
+      "source_clip_start_seconds": 93.44,
+      "chapter_end_seconds": 107.108,
+      "retained_probe_words": "between those two moments",
+      "removed_probe_words": "names five scaling mistakes",
+      "approved_script_order": {
+        "approved_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+        "script_word_jump": [
+          66,
+          554
+        ],
+        "orientation": "tail",
+        "retained_words": "Context can disappear between those two moments Chapter",
+        "removed_words": "names five scaling mistakes A central team can become a bottleneck Documentation",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 8,
+      "lesson_id": "L15",
+      "presenter_window": "A03",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a03-tail-before-after.mp4",
+      "source_clip_sha256": "73f67a314b94c51da3a1469ba34d8ea363045de6773a040b609830a9cac87a49",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a03-tail-receipt.json",
+      "source_receipt_sha256": "095cc0ca60eef94a3ca11aca2fb3bb2139e6f5f3d6edddc1197a4f2527adb2fd",
+      "source_candidate_sha256": "863df845ae13b931139d2359c772810527396d11cd5477f2fa3e7e6688a7e37b",
+      "source_clip_duration_seconds": 12.52,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-08.png",
+      "chapter_card_sha256": "d56aa74cb667fa2d576342b36e46a59c954459d6049f8a987708c8f392f23f56",
+      "chapter_start_seconds": 107.108,
+      "source_clip_start_seconds": 109.508,
+      "chapter_end_seconds": 122.028,
+      "retained_probe_words": "to defer say why",
+      "removed_probe_words": "end with a decision",
+      "approved_script_order": {
+        "approved_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+        "script_word_jump": [
+          1162,
+          1566
+        ],
+        "orientation": "tail",
+        "retained_words": "If the decision was to defer say why",
+        "removed_words": "End with a decision about readiness even if the answer is wait",
+        "verified": true
+      }
+    }
+  ],
+  "native_manifest_sha256": "91f5f2a41da382c5b906d43355f3f35e6b0087eb2aa4d108c38cf74a48fc6638",
+  "native_asr_validation_sha256": "61355c5bb8e32087a8a7c6c28bd169543ae398e5fd4550df45dec5dde464ecd7",
+  "source_audio_packets_preserved_in_order": true,
+  "source_audio_packet_counts": [
+    539,
+    532,
+    561,
+    658,
+    658,
+    659,
+    642,
+    588
+  ],
+  "visual_contact_sheets": {
+    "chapter": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-chapter-contact-sheet.png",
+      "sha256": "09c19849d724d02a538641a9883fd8871640228b75a93da6e866ef9d71790247"
+    },
+    "source": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-source-contact-sheet.png",
+      "sha256": "6c85fa5f63d293543d0743ec27fe1f8729eca05bc346753ddde4c7cc740a7a10"
+    }
+  },
+  "browser_compatible_probe": {
+    "stream_count": 2,
+    "video_codec": "H.264 High Profile",
+    "video_level": 41,
+    "pixel_format": "yuv420p",
+    "frame_rate": "25/1",
+    "audio_codec": "AAC LC",
+    "audio_sample_rate": "48000",
+    "audio_channels": 2,
+    "faststart_moov_before_mdat": true,
+    "no_data_or_chapter_track": true
+  },
+  "audio_treatment": "Existing sequential before/after AAC packet payloads copied unchanged; chapter-card silence newly AAC-encoded. One CFR H.264 video stream re-encoded for browser playback.",
+  "conditional_alternate_clips": [],
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "canonical_media_or_learner_binding_changed": false,
+  "residual_uncertainty": "All eight cuts still need audible first/last-word review; conditional A02 packet cuts differ from their approved coordinated joins."
+}
