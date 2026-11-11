@@ -33,6 +33,12 @@ Open the review page from `python3 -m http.server 8765 --bind 127.0.0.1` at `/do
 
 ## Production handoff boundary
 
+### Illustration gate
+
+Audit every timed scene against its approved narration and shot before treating a lesson visual as ready. A frame should show the situation, source artifact, decision, or change that the presenter is describing. Sparse labels in generic boxes, repeated stick-figure handoffs, empty worksheets, and abstract timelines need scene-specific evidence or a deliberate teaching reason to remain. Keep the approved SAM, Signals, Alignment, and Momentum art as the visual vocabulary; use each plate at the exact beat it supports rather than letting a short plate clear the surrounding scene. Give each scene a one-second read, a small visible-text budget, and a caption-safe mobile composition. Check the actual full-resolution frame and rendered player, not only a layout label or contact sheet.
+
+The source-bound [98-scene illustration audit](../../../artifacts/accelerated-illustration-audit-2026-11-11/README.md) records current visual proposal frames, approved shot specificity, source conflicts, and proposed treatments. It is review-only; its L02 specimen does not authorize a learner-media change.
+
 ### Lesson media voice and screen contract
 
 Spoken teaching continues when the presenter is off screen. A silent learner-work hold is allowed only when the scene explicitly names the pause, gives a learner action, and records its start and end time. After compositing, reject any unmarked audio gap over two seconds. Preserve native presenter footage and audio in their exact windows; avoid overlapping narration or changing frame sync. Captions must match the final spoken mix and stay clear of instructional art and player controls.
