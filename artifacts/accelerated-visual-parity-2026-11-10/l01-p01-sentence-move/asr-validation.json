@@ -1,0 +1,57 @@
+{
+  "method": "Local faster-whisper small.en CPU int8 beam 5, FFmpeg PCM16 16 kHz, VAD enabled; machine evidence only",
+  "reel_sha256": "d06f1b0987a08d1fa095c34e7a5463f3d15c66f75cb4066ebf3a08ad2d867dd3",
+  "segments": [
+    {
+      "start": 0.91,
+      "end": 1.59,
+      "text": "Now what?"
+    },
+    {
+      "start": 2.25,
+      "end": 4.15,
+      "text": "Who will decide which idea matters?"
+    },
+    {
+      "start": 4.95,
+      "end": 6.79,
+      "text": "That story makes the pressure visible."
+    },
+    {
+      "start": 8.96,
+      "end": 13.2,
+      "text": "It is a teaching story from the book, not a claim about a current customer."
+    },
+    {
+      "start": 14.14,
+      "end": 19.12,
+      "text": "Keep that distinction in view as we move between story, worksheet, and public proof."
+    },
+    {
+      "start": 20.1,
+      "end": 20.68,
+      "text": "Now what?"
+    },
+    {
+      "start": 21.24,
+      "end": 23.32,
+      "text": "Who will decide which idea matters?"
+    },
+    {
+      "start": 25.12,
+      "end": 27.16,
+      "text": "That story makes the pressure visible."
+    },
+    {
+      "start": 27.16,
+      "end": 31.58,
+      "text": "It is a teaching story from the book, not a claim about a current customer."
+    },
+    {
+      "start": 32.68,
+      "end": 37.48,
+      "text": "Keep that distinction in view as we move between story, worksheet, and public proof."
+    }
+  ],
+  "check": "before sequence has early sentence once; after sequence has moved sentence once before P02 continuation; no machine-detected missing or duplicated target words"
+}

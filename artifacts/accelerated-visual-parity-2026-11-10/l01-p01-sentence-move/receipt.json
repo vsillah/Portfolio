@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "status": "review_only_native_sentence_move_candidate",
+  "source": {
+    "path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
+    "sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725"
+  },
+  "approved_script": {
+    "path": "docs/accelerated-course-modules/curriculum/scripts/L01.md",
+    "sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad"
+  },
+  "source_edl": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/full-lesson-timing-decisions.json",
+    "sha256": "50846b9c7a966cf51dfc4540bb88aa311318b7d199f18c3c09797904ea753326"
+  },
+  "existing_a02_correction": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-a02-native-trim-candidate-235-252.json",
+    "sha256": "5af0d2ba0337b9d86480d16f0e64c8d7efedaf8657ec5b278d249858c0d05909",
+    "cut_seconds": 245.133333,
+    "scope": "previously owner-confirmed isolated cut; full lesson unapproved"
+  },
+  "word_evidence": {
+    "prior_complete_sentence": "Who will decide which idea matters?",
+    "prior_last_word_end_seconds": 27.98,
+    "moved_exact_sentence": "That story makes the pressure visible.",
+    "moved_source_words_seconds": [
+      28.7,
+      30.54
+    ],
+    "following_sentence": "It is a teaching story from the book, not a claim about a current customer.",
+    "following_source_start_seconds": 235.0,
+    "method": "local small.en word-timed ASR plus source-script ordering; machine evidence, not human listening signoff"
+  },
+  "cut_points": {
+    "p01_pause_cut_seconds": 28.4,
+    "moved_source_end_seconds": 30.8,
+    "silence_before_move_seconds": [
+      28.07,
+      28.728
+    ],
+    "silence_after_move_seconds": [
+      30.627,
+      31.52
+    ]
+  },
+  "candidate_timeline": [
+    {
+      "kind": "P01 native",
+      "target_seconds": [
+        0,
+        28.4
+      ],
+      "source_seconds": [
+        0,
+        28.4
+      ]
+    },
+    {
+      "kind": "C01 cutaway and J01",
+      "target_seconds": [
+        28.4,
+        235.0
+      ],
+      "status": "mapping only; not rendered in comparison reel"
+    },
+    {
+      "kind": "P02 moved native sentence",
+      "target_seconds": [
+        235.0,
+        237.4
+      ],
+      "source_seconds": [
+        28.4,
+        30.8
+      ]
+    },
+    {
+      "kind": "P02 retained native audio and picture",
+      "target_seconds": [
+        237.4,
+        247.53333299999997
+      ],
+      "source_seconds": [
+        235.0,
+        245.133333
+      ]
+    },
+    {
+      "kind": "P02 transition reserve",
+      "target_seconds": [
+        247.533333,
+        248.2
+      ]
+    },
+    {
+      "kind": "C02 cutaway and J01",
+      "target_seconds": [
+        248.2,
+        345.0
+      ],
+      "status": "mapping only; not rendered in comparison reel"
+    }
+  ],
+  "reel": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-p01-sentence-move/l01-p01-sentence-move-before-after.mp4",
+    "sha256": "d06f1b0987a08d1fa095c34e7a5463f3d15c66f75cb4066ebf3a08ad2d867dd3",
+    "duration_seconds": 37.407667,
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 2
+      }
+    ],
+    "scope": "short before/after source snippets; no complete C01 or C02"
+  },
+  "encoded_audio_asr_check": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-p01-sentence-move/asr-validation.json",
+    "sha256": "b0713e19b522530bbea09d1b156f75dd87950ce9334999f169b760fa13aa2507",
+    "status": "machine_word_order_pass; human listening pending"
+  },
+  "limits": [
+    "Original native presenter inset pixels and words are reused over a P02 map background; comparison MP4 resizes video and re-encodes H.264/AAC for playback.",
+    "No full C01/C02 composite or learner binding was produced.",
+    "Human listening must confirm phoneme-safe cut boundaries, visual jump, and native presenter voice continuity.",
+    "J01 timing placement and J02/C03 remain separate gates."
+  ]
+}
