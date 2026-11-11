@@ -29,6 +29,11 @@ SEQUENCE_CONDITIONS = {
     ('L06', 'A02'): 'A03 begins “and finds”; it needs the removed “Imagine the team tests the card” immediately before it.',
     ('L08', 'A02'): 'A03 begins “Walk the plan”; it needs the removed “Before there is any data” immediately before it.',
 }
+COORDINATED_PROPOSALS = {
+    ('L05', 'A02'): 'artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-sequence-before-after.mp4',
+    ('L06', 'A02'): 'artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-sequence-before-after.mp4',
+    ('L08', 'A02'): 'artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-sequence-before-after.mp4',
+}
 
 
 def run(cmd):
@@ -238,6 +243,7 @@ def main():
                 if condition and row['machine_result'].startswith('passed'):
                     result['status'] = 'machine_pass_conditional_on_following_window'
                     result['sequence_condition'] = condition
+                    result['coordinated_proposal'] = COORDINATED_PROPOSALS[(result['lesson_id'], result['presenter_window'])]
     manifest = {'schema_version': 1, 'status': 'review_only',
                 'source_pack_sha256': digest(PACK), 'triage_sha256': digest(TRIAGE),
                 'approved_existing_l01_a02_candidate': 'l01-a02-native-trim-candidate-235-252.mp4',

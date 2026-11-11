@@ -43,7 +43,7 @@ Times are the available gaps in the **current native MP4**, before any word-leve
 
 The [isolated L01 A02 correction candidate and 28-jump triage](l01-a02-native-correction-review-2026-11-10.md) now provide a packet-preserving native trim proposal and a sequential before/after MP4. The canonical MP4 and this pack’s cutaway text, timing, and speech payload hashes remain unchanged pending audible review.
 
-The [remaining presenter-jump listening queue](presenter-jump-candidate-review-2026-11-10.md) has 24 additional isolated review clips passed machine phrase-retention checks. L06 A01, L16 A01, and L16 A02 failed the packet-copy cut; separate re-encoded PCM review candidates now pass two-model ASR but await audible phoneme checks. L05 A02, L06 A02, and L08 A02 additionally require a coordinated following-window sentence treatment. Their diagnostics and exact review clips are linked in the listening queue. None has an audible sign-off or changes this pack.
+The [remaining presenter-jump listening queue](presenter-jump-candidate-review-2026-11-10.md) has 24 additional isolated review clips passed machine phrase-retention checks. L06 A01, L16 A01, and L16 A02 failed the packet-copy cut; separate re-encoded PCM review candidates now pass two-model ASR but await audible phoneme checks. L05 A02, L06 A02, and L08 A02 now have local coordinated A02→A03 source-audio proposals that pass two-model sentence-order ASR; the extra 2.00–2.42 seconds before A03 have no validated full-lesson timing assignment. Their diagnostics and exact review clips are linked in the listening queue. None has an audible sign-off or changes this pack.
 
 ## Exact unresolved presenter windows
 
