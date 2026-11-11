@@ -1,0 +1,3207 @@
+{
+  "schema_version": 1,
+  "status": "review_only_visual_text_diagnostic",
+  "source_manifest": {
+    "path": "docs/accelerated-course-modules/visual-production/manifest.json",
+    "sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf"
+  },
+  "composite_receipt": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/composite-receipt.json",
+    "sha256": "cf916889edbc480fd652be72850c196618fe829b86da75410503f356e13c9560"
+  },
+  "frame_receipt": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/scene-receipt.json",
+    "sha256": "2b0ce4ad9fea5ff9f6b08c15d2c5767f32b429a807928971cfaf3515faf3b896"
+  },
+  "scene_concepts": {
+    "path": "scripts/qa/accelerated-scene-concepts.tsv",
+    "sha256": "e1e47e35598c116ec1bfb8733c79871c31125bb3985d1a3bbd217a8781d0b38d"
+  },
+  "source_renderer": {
+    "path": "scripts/qa/render-accelerated-visual-parity.py",
+    "sha256": "678d8de5e281f8b722de3b943090b02e638055139fcd95e8d122d5c0d39cf966"
+  },
+  "lesson_count": 15,
+  "scene_count": 92,
+  "repeated_shared_shell_scene_count": 92,
+  "dense_card_scene_count": 7,
+  "internal_copy_scene_count": 1,
+  "contact_sheets": [
+    {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/current-mp4-contact-sheet-01.png",
+      "sha256": "8e6b9a243126f18b2199b7449f3fb317a3a77c922792d0b9bfbabc04a6666c6b",
+      "scene_count": 24
+    },
+    {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/current-mp4-contact-sheet-02.png",
+      "sha256": "572eae444c293690799776f014103014a8f1ec27c024c71c6f1fce4361cfebb7",
+      "scene_count": 24
+    },
+    {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/current-mp4-contact-sheet-03.png",
+      "sha256": "8f08e24ac37cab8aecb8664a4a34b0501ddf3d83114756f85b4d8dc165799fa1",
+      "scene_count": 24
+    },
+    {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/current-mp4-contact-sheet-04.png",
+      "sha256": "80ae112fb05a3670d2f1d46faee97e58de0f31596a3343ca4b8f1eda13a9d0b4",
+      "scene_count": 20
+    }
+  ],
+  "critical_stills": [
+    {
+      "scene_id": "L05-02",
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l05-02-current-frame.png",
+      "sha256": "8ab31c34647bbe3d30ad9b8fd71b27dfb2ec0455f189ea6fabd1cdb280136713"
+    },
+    {
+      "scene_id": "L06-02",
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l06-02-current-frame.png",
+      "sha256": "81be02a57a068e3c6caa4c6687427627bb0809a15a877f437b0bb657436dd1cd"
+    },
+    {
+      "scene_id": "L08-02",
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l08-02-current-frame.png",
+      "sha256": "c45c4669a26f41d6688077f5e76ab44d7036e7745fd01765e74dfe52ebc6c2c6"
+    },
+    {
+      "scene_id": "L16-02",
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l16-02-current-frame.png",
+      "sha256": "6647ad20debeed6183d9d9aa9964afef13045a5081135e5191472c6150101b3e"
+    }
+  ],
+  "scenes": [
+    {
+      "scene_id": "L02-01",
+      "lesson_id": "L02",
+      "source_seconds": [
+        0,
+        90
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "current_mp4_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "current_mp4_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-01.png",
+      "current_frame_sha256": "fe8724da5dd93d6d075510e881e3fca9b8dbe14ac8a598760338e92aca394572",
+      "source_vtt_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "source_vtt_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L02 / 01",
+        "learner_artifact_footer": "Priority decision and two alternatives",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "priority",
+      "concept_labels": [
+        "15 possible priorities",
+        "Which choice matters now?",
+        "One decision"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 107,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L02-02",
+      "lesson_id": "L02",
+      "source_seconds": [
+        90,
+        180
+      ],
+      "sample_seconds": 98,
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "current_mp4_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "current_mp4_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-02.png",
+      "current_frame_sha256": "776cc7f517ca1f9968943cc885d02ac8f9d17700e4a16059bf583c0a6e91d9a9",
+      "source_vtt_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "source_vtt_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L02 / 02",
+        "learner_artifact_footer": "Priority decision and two alternatives",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "comparison",
+      "concept_labels": [
+        "WELCOME EMAIL",
+        "GUIDED FIRST TASK",
+        "STAFF DASHBOARD",
+        "Keep two alternatives visible"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 123,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L02-03",
+      "lesson_id": "L02",
+      "source_seconds": [
+        180,
+        273
+      ],
+      "sample_seconds": 188,
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "current_mp4_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "current_mp4_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-03.png",
+      "current_frame_sha256": "8f1c2d8bf361167d9eb9a16559c9edbd3e3cd092725ba1b010c9eb4981b4973b",
+      "source_vtt_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "source_vtt_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L02 / 03",
+        "learner_artifact_footer": "Priority decision and two alternatives",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "matrix",
+      "concept_labels": [
+        "CUSTOMER · pain",
+        "COMPANY · value",
+        "COMPETITION · difference",
+        "PRODUCT · learning"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 108,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L02-04",
+      "lesson_id": "L02",
+      "source_seconds": [
+        273,
+        366
+      ],
+      "sample_seconds": 281,
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "current_mp4_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "current_mp4_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-04.png",
+      "current_frame_sha256": "ed236c8ae9fbe877865428530e664281317d1af569467ff60cedfac9d9029ec3",
+      "source_vtt_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "source_vtt_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L02 / 04",
+        "learner_artifact_footer": "Priority decision and two alternatives",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "ledger",
+      "concept_labels": [
+        "OPTION",
+        "PAIN",
+        "VALUE",
+        "LEARNING",
+        "RISK",
+        "REVERSIBLE?"
+      ],
+      "dense_card_risk": true,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 167,
+      "caption_competition": "dense_art_and_shared_footer_need_rendered_caption_review",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L02-05",
+      "lesson_id": "L02",
+      "source_seconds": [
+        366,
+        451
+      ],
+      "sample_seconds": 374,
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "current_mp4_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "current_mp4_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-05.png",
+      "current_frame_sha256": "4d791b2f2b4e88cd7a400ce8368de5e049130a478931f9c3355685ddfc2cf8dd",
+      "source_vtt_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "source_vtt_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L02 / 05",
+        "learner_artifact_footer": "Priority decision and two alternatives",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "cards",
+      "concept_labels": [
+        "Who benefits?",
+        "What changes economically?",
+        "What can we operate?",
+        "What can we learn?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 11,
+      "source_vtt_longest_cue_characters": 168,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L02-06",
+      "lesson_id": "L02",
+      "source_seconds": [
+        451,
+        546
+      ],
+      "sample_seconds": 459,
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "current_mp4_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "current_mp4_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-06.png",
+      "current_frame_sha256": "caba7833b192a5e724a7c585fef6d6a9a23c78f5a5cbb6c2d464399bde3b498b",
+      "source_vtt_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "source_vtt_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L02 / 06",
+        "learner_artifact_footer": "Priority decision and two alternatives",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "branch",
+      "concept_labels": [
+        "CURRENT BET",
+        "ALTERNATIVE A",
+        "ALTERNATIVE B",
+        "Assumption that could reopen the choice"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 11,
+      "source_vtt_longest_cue_characters": 171,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L02-07",
+      "lesson_id": "L02",
+      "source_seconds": [
+        546,
+        600
+      ],
+      "sample_seconds": 554,
+      "source_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+      "current_mp4_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+      "current_mp4_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L02-07.png",
+      "current_frame_sha256": "bb23b9e7ce6b2d176251651ddf59d5408630d2e0474b2a09d648c955c9f619a2",
+      "source_vtt_path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+      "source_vtt_sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L02 / 07",
+        "learner_artifact_footer": "Priority decision and two alternatives",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "question",
+      "concept_labels": [
+        "What could overturn this choice?",
+        "Evidence gap",
+        "Next discovery move"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 10,
+      "source_vtt_longest_cue_characters": 118,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L03-01",
+      "lesson_id": "L03",
+      "source_seconds": [
+        0,
+        86
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "current_mp4_path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "current_mp4_sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-01.png",
+      "current_frame_sha256": "35db4eaa52a56427febb5b903cdbb49baf6c5e6276213680f95b7992b8519d6b",
+      "source_vtt_path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "source_vtt_sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L03 / 01",
+        "learner_artifact_footer": "Decision question and evidence-gap card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "decision",
+      "concept_labels": [
+        "DASHBOARD IN THE ROOM",
+        "Decision requested",
+        "Numbers on screen",
+        "Missing question"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 129,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L03-02",
+      "lesson_id": "L03",
+      "source_seconds": [
+        86,
+        174
+      ],
+      "sample_seconds": 94,
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "current_mp4_path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "current_mp4_sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-02.png",
+      "current_frame_sha256": "9153b32a8a70363aab3ac666bbb95a3968c0f6bc5a84f6eec31c02b88593a3b6",
+      "source_vtt_path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "source_vtt_sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L03 / 02",
+        "learner_artifact_footer": "Decision question and evidence-gap card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "reverse",
+      "concept_labels": [
+        "DECISION",
+        "ANSWER NEEDED",
+        "EVIDENCE TO COLLECT"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 12,
+      "source_vtt_longest_cue_characters": 330,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L03-03",
+      "lesson_id": "L03",
+      "source_seconds": [
+        174,
+        262
+      ],
+      "sample_seconds": 182,
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "current_mp4_path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "current_mp4_sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-03.png",
+      "current_frame_sha256": "99d7055febf334f10b2d6d9ed61b8f75e73e9f448ff7b2c09b177781538fe32a",
+      "source_vtt_path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "source_vtt_sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L03 / 03",
+        "learner_artifact_footer": "Decision question and evidence-gap card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "comparison",
+      "concept_labels": [
+        "QUICK CHANGE",
+        "DEEPER BET",
+        "DELIBERATE DELAY",
+        "Strongest fair objection"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 136,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L03-04",
+      "lesson_id": "L03",
+      "source_seconds": [
+        262,
+        349
+      ],
+      "sample_seconds": 270,
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "current_mp4_path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "current_mp4_sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-04.png",
+      "current_frame_sha256": "c16adce48e1aedcd659a58ec9996d650452f8a8ab3e610e670a17c02e1dbcdff",
+      "source_vtt_path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "source_vtt_sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L03 / 04",
+        "learner_artifact_footer": "Decision question and evidence-gap card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "RESEARCH QUESTION",
+        "What would change your mind?",
+        "Evidence missing",
+        "Source to check"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 137,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L03-05",
+      "lesson_id": "L03",
+      "source_seconds": [
+        349,
+        441
+      ],
+      "sample_seconds": 357,
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "current_mp4_path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "current_mp4_sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-05.png",
+      "current_frame_sha256": "724cbc7a6c0213710609111dbe8b45f65f71e4f6fa14e57c00015dfc4ce9ef0f",
+      "source_vtt_path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "source_vtt_sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L03 / 05",
+        "learner_artifact_footer": "Decision question and evidence-gap card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "branch",
+      "concept_labels": [
+        "QUICK CHANGE",
+        "DEEPER BET",
+        "DELIBERATE DELAY",
+        "Small evidence move"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 125,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L03-06",
+      "lesson_id": "L03",
+      "source_seconds": [
+        441,
+        540
+      ],
+      "sample_seconds": 449,
+      "source_script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+      "current_mp4_path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+      "current_mp4_sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L03-06.png",
+      "current_frame_sha256": "f7332609b480c2e4e8be599d1ce4f92e8ca685f6a93feda2587d382c7b1f5ceb",
+      "source_vtt_path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+      "source_vtt_sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L03 / 06",
+        "learner_artifact_footer": "Decision question and evidence-gap card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "archive",
+      "concept_labels": [
+        "SOURCE + DATE",
+        "UNCERTAINTY",
+        "DECISION FILE"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 137,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L04-01",
+      "lesson_id": "L04",
+      "source_seconds": [
+        0,
+        80
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "current_mp4_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "current_mp4_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-01.png",
+      "current_frame_sha256": "8e5bb3e22ee186fbea4da5bd3e178f24b90520faa1ebdb47130ea13135d27ecb",
+      "source_vtt_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "source_vtt_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L04 / 01",
+        "learner_artifact_footer": "Living persona card with source and review date",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "focus",
+      "concept_labels": [
+        "Q3 PLAN",
+        "ONE MOMENT",
+        "ONE TEST"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 197,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L04-02",
+      "lesson_id": "L04",
+      "source_seconds": [
+        80,
+        165
+      ],
+      "sample_seconds": 88,
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "current_mp4_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "current_mp4_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-02.png",
+      "current_frame_sha256": "0eee0a6f503466fbdf5b78fe5261635b14528c853ffa858df90e51194237249c",
+      "source_vtt_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "source_vtt_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L04 / 02",
+        "learner_artifact_footer": "Living persona card with source and review date",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "PERSONA DECK",
+        "JOB IN CONTEXT",
+        "Observed evidence still needed"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 153,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L04-03",
+      "lesson_id": "L04",
+      "source_seconds": [
+        165,
+        260
+      ],
+      "sample_seconds": 173,
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "current_mp4_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "current_mp4_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-03.png",
+      "current_frame_sha256": "ba5f2ba3d875552a3333371e2f37b31157894f67fb9c465f853e8c01c482bdf1",
+      "source_vtt_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "source_vtt_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L04 / 03",
+        "learner_artifact_footer": "Living persona card with source and review date",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "WHO WE IMAGINE",
+        "WHAT THEY TRY TO DO",
+        "Observed signal ≠ proposed signal"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 219,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L04-04",
+      "lesson_id": "L04",
+      "source_seconds": [
+        260,
+        350
+      ],
+      "sample_seconds": 268,
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "current_mp4_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "current_mp4_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-04.png",
+      "current_frame_sha256": "325064b0339802b4b06ebb1fe03e72d71be5ed6d876965ad068e7a6d1dac1210",
+      "source_vtt_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "source_vtt_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L04 / 04",
+        "learner_artifact_footer": "Living persona card with source and review date",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "comparison",
+      "concept_labels": [
+        "VERSION 1 · prompt",
+        "VERSION 2 · guided first task",
+        "VERSION 3 · human help",
+        "Provisional choice"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 152,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L04-05",
+      "lesson_id": "L04",
+      "source_seconds": [
+        350,
+        440
+      ],
+      "sample_seconds": 358,
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "current_mp4_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "current_mp4_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-05.png",
+      "current_frame_sha256": "9662e36cd331fcd70d94fba8af91bb927a1fa91af340083923822b909e65cd7e",
+      "source_vtt_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "source_vtt_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L04 / 05",
+        "learner_artifact_footer": "Living persona card with source and review date",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "LIVING PERSONA",
+        "Job + context",
+        "Observed signal: missing",
+        "Next validation question"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 145,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L04-06",
+      "lesson_id": "L04",
+      "source_seconds": [
+        440,
+        529
+      ],
+      "sample_seconds": 448,
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "current_mp4_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "current_mp4_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-06.png",
+      "current_frame_sha256": "dc3568722975f2b94dd295a64c2087a7259c68f2ccc349ed1ea21cb2fbb9f4c9",
+      "source_vtt_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "source_vtt_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L04 / 06",
+        "learner_artifact_footer": "Living persona card with source and review date",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "EARLIER ASSUMPTION",
+        "NEW QUESTION",
+        "Source + review date"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 11,
+      "source_vtt_longest_cue_characters": 154,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L04-07",
+      "lesson_id": "L04",
+      "source_seconds": [
+        529,
+        600
+      ],
+      "sample_seconds": 537,
+      "source_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+      "current_mp4_path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+      "current_mp4_sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L04-07.png",
+      "current_frame_sha256": "6f4a86de68ab2aecca3d8a52954552eca6b320b57619adff76631befda7d8489",
+      "source_vtt_path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+      "source_vtt_sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L04 / 07",
+        "learner_artifact_footer": "Living persona card with source and review date",
+        "decorative_scene_progress_dots": 7
+      },
+      "layout": "archive",
+      "concept_labels": [
+        "BOUNDARY",
+        "PRIORITY",
+        "EVIDENCE",
+        "PERSONA"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 203,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L05-01",
+      "lesson_id": "L05",
+      "source_seconds": [
+        0,
+        100
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "current_mp4_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "current_mp4_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-01.png",
+      "current_frame_sha256": "9eefdb59337f6eeee9aaaf67779e5c28a79dc6285ae2620739997b1956c4bcb5",
+      "source_vtt_path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "source_vtt_sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L05 / 01",
+        "learner_artifact_footer": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "inbox",
+      "concept_labels": [
+        "F01",
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F06",
+        "Decision before theme"
+      ],
+      "dense_card_risk": true,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 20,
+      "source_vtt_longest_cue_characters": 118,
+      "caption_competition": "dense_art_and_shared_footer_need_rendered_caption_review",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L05-02",
+      "lesson_id": "L05",
+      "source_seconds": [
+        100,
+        200
+      ],
+      "sample_seconds": 108,
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "current_mp4_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "current_mp4_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-02.png",
+      "current_frame_sha256": "b950d325b457bbbba304d7448af83f4b6c52b9cdb6ba8b1a4199cdc48f63d447",
+      "source_vtt_path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "source_vtt_sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L05 / 02",
+        "learner_artifact_footer": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "feedback",
+      "concept_labels": [
+        "F01–F06",
+        "SOURCE NOTE",
+        "MOMENT",
+        "POSSIBLE JOB"
+      ],
+      "dense_card_risk": true,
+      "internal_copy_in_renderer": [
+        "F05 · source note pending",
+        "F06 · source note pending"
+      ],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 190,
+      "caption_competition": "dense_art_and_shared_footer_need_rendered_caption_review",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L05-03",
+      "lesson_id": "L05",
+      "source_seconds": [
+        200,
+        300
+      ],
+      "sample_seconds": 208,
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "current_mp4_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "current_mp4_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-03.png",
+      "current_frame_sha256": "84330ae8a22518541d1cf5473a42c39554420a361e4eba2f228f6a24e1f7c32d",
+      "source_vtt_path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "source_vtt_sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L05 / 03",
+        "learner_artifact_footer": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "branch",
+      "concept_labels": [
+        "ONE COMPLAINT",
+        "CONFIRMATION",
+        "RESUME",
+        "INSTRUCTION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 182,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L05-04",
+      "lesson_id": "L05",
+      "source_seconds": [
+        300,
+        400
+      ],
+      "sample_seconds": 308,
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "current_mp4_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "current_mp4_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-04.png",
+      "current_frame_sha256": "10f24d768326f33a3d61508432be7231e609166c848d921cdd91d6dc576cb5cc",
+      "source_vtt_path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "source_vtt_sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L05 / 04",
+        "learner_artifact_footer": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "correction",
+      "concept_labels": [
+        "DRAFT CLUSTER",
+        "RETURN TO F01",
+        "HUMAN CORRECTION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 115,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L05-05",
+      "lesson_id": "L05",
+      "source_seconds": [
+        400,
+        500
+      ],
+      "sample_seconds": 408,
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "current_mp4_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "current_mp4_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-05.png",
+      "current_frame_sha256": "15a59bc971e53bc2068141502d5ea4a073dba5e2c388d94eb799237204c875ab",
+      "source_vtt_path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "source_vtt_sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L05 / 05",
+        "learner_artifact_footer": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "evidence",
+      "concept_labels": [
+        "PATTERN",
+        "COUNTEREXAMPLE",
+        "PROPOSED DECISION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 171,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L05-06",
+      "lesson_id": "L05",
+      "source_seconds": [
+        500,
+        600
+      ],
+      "sample_seconds": 508,
+      "source_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "current_mp4_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+      "current_mp4_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L05-06.png",
+      "current_frame_sha256": "b312275a82c901dfcef7dd5e07eae7e7fb7821a2e41ccbf0c83c834a049ed4ae",
+      "source_vtt_path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+      "source_vtt_sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L05 / 06",
+        "learner_artifact_footer": "Feedback-to-signal ledger with input IDs, pattern, counterexample, and proposed decision",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "FEEDBACK LEDGER",
+        "Code six notes",
+        "Keep one contrary note",
+        "Human review"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 113,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L06-01",
+      "lesson_id": "L06",
+      "source_seconds": [
+        0,
+        110
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "current_mp4_path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "current_mp4_sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-01.png",
+      "current_frame_sha256": "ddfd949964b4148bdd2f0ba84b0c3a4cc38610263a4ffd8367d6cea6f61b3c54",
+      "source_vtt_path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "source_vtt_sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L06 / 01",
+        "learner_artifact_footer": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "comparison",
+      "concept_labels": [
+        "ADD A REMINDER",
+        "REWRITE FIRST TASK",
+        "STAFF DASHBOARD",
+        "Current bet remains provisional"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 227,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L06-02",
+      "lesson_id": "L06",
+      "source_seconds": [
+        110,
+        220
+      ],
+      "sample_seconds": 118,
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "current_mp4_path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "current_mp4_sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-02.png",
+      "current_frame_sha256": "e6f8cf063327a999865f21c80002de7c577db38c98cf2e631b3ea6aace1edf73",
+      "source_vtt_path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "source_vtt_sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L06 / 02",
+        "learner_artifact_footer": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "ledger",
+      "concept_labels": [
+        "OPTION",
+        "WHY NOW?",
+        "EVIDENCE",
+        "RISK",
+        "REOPEN WHEN"
+      ],
+      "dense_card_risk": true,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 255,
+      "caption_competition": "dense_art_and_shared_footer_need_rendered_caption_review",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L06-03",
+      "lesson_id": "L06",
+      "source_seconds": [
+        220,
+        330
+      ],
+      "sample_seconds": 228,
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "current_mp4_path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "current_mp4_sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-03.png",
+      "current_frame_sha256": "868849456c36fa4f726382f715287c6df75e70daac7c611069865c1eacab8cfe",
+      "source_vtt_path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "source_vtt_sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L06 / 03",
+        "learner_artifact_footer": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "PRODUCT BRIEF",
+        "Problem",
+        "Person",
+        "Evidence",
+        "Behavior sought"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 160,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L06-04",
+      "lesson_id": "L06",
+      "source_seconds": [
+        330,
+        440
+      ],
+      "sample_seconds": 338,
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "current_mp4_path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "current_mp4_sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-04.png",
+      "current_frame_sha256": "71a88bfd765e746fb544522baeade6b33a204d9dce5f8b3b2a7b6993989585ef",
+      "source_vtt_path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "source_vtt_sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L06 / 04",
+        "learner_artifact_footer": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "handoff",
+      "concept_labels": [
+        "BEGIN FAILS",
+        "WHO SEES IT?",
+        "WHAT HAPPENS NEXT?",
+        "Who owns recovery?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 158,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L06-05",
+      "lesson_id": "L06",
+      "source_seconds": [
+        440,
+        550
+      ],
+      "sample_seconds": 448,
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "current_mp4_path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "current_mp4_sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-05.png",
+      "current_frame_sha256": "b5861ed8d6d38dc2189f8cdffebbc20c62badf47a8948c78770e532612d61296",
+      "source_vtt_path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "source_vtt_sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L06 / 05",
+        "learner_artifact_footer": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "trace",
+      "concept_labels": [
+        "SOURCE",
+        "OWNER",
+        "SCOPE",
+        "MEASURE",
+        "CHANGE REASON"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 152,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L06-06",
+      "lesson_id": "L06",
+      "source_seconds": [
+        550,
+        660
+      ],
+      "sample_seconds": 558,
+      "source_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "current_mp4_path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+      "current_mp4_sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L06-06.png",
+      "current_frame_sha256": "febc148cd57bd3e5380c337197f0f7793c81a92d2d635db7e2e50a7365186be9",
+      "source_vtt_path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+      "source_vtt_sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L06 / 06",
+        "learner_artifact_footer": "Roadmap/PRD trace card with source, decision, owner, scope, exclusions, and measure",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "flow",
+      "concept_labels": [
+        "SOURCE ID",
+        "CURRENT BET",
+        "PRODUCT BRIEF",
+        "OBSERVATION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 141,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L07-01",
+      "lesson_id": "L07",
+      "source_seconds": [
+        0,
+        100
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "current_mp4_path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "current_mp4_sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-01.png",
+      "current_frame_sha256": "60fdbb335dc3a32a5682f2bb963ebf345202215447c138c1e25f3213609589dc",
+      "source_vtt_path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "source_vtt_sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L07 / 01",
+        "learner_artifact_footer": "Two-checkpoint learning roadmap",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "DELIVERY DATE",
+        "LEARNING QUESTION",
+        "Customer outcome"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 129,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L07-02",
+      "lesson_id": "L07",
+      "source_seconds": [
+        100,
+        200
+      ],
+      "sample_seconds": 108,
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "current_mp4_path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "current_mp4_sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-02.png",
+      "current_frame_sha256": "76c1d7fd68ba8a03b555de161d3187f6085bbf39272e330d3c9a265bb085af8f",
+      "source_vtt_path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "source_vtt_sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L07 / 02",
+        "learner_artifact_footer": "Two-checkpoint learning roadmap",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "checkpoint",
+      "concept_labels": [
+        "CHECKPOINT 1",
+        "Question",
+        "Method",
+        "Owner",
+        "Date",
+        "Adjustment"
+      ],
+      "dense_card_risk": true,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 134,
+      "caption_competition": "dense_art_and_shared_footer_need_rendered_caption_review",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L07-03",
+      "lesson_id": "L07",
+      "source_seconds": [
+        200,
+        300
+      ],
+      "sample_seconds": 208,
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "current_mp4_path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "current_mp4_sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-03.png",
+      "current_frame_sha256": "b2cee2b560077a525ba96c68876124401e75f92745a8f6422066fa46f0d0e5dc",
+      "source_vtt_path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "source_vtt_sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L07 / 03",
+        "learner_artifact_footer": "Two-checkpoint learning roadmap",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "checkpoint",
+      "concept_labels": [
+        "CHECKPOINT 2",
+        "Smaller test",
+        "Owner",
+        "Date",
+        "What changes?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 12,
+      "source_vtt_longest_cue_characters": 326,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L07-04",
+      "lesson_id": "L07",
+      "source_seconds": [
+        300,
+        400
+      ],
+      "sample_seconds": 308,
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "current_mp4_path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "current_mp4_sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-04.png",
+      "current_frame_sha256": "441561fec439386d03c12ecde746517cdd18214c4ac20d420c5de8734144ae71",
+      "source_vtt_path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "source_vtt_sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L07 / 04",
+        "learner_artifact_footer": "Two-checkpoint learning roadmap",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "cards",
+      "concept_labels": [
+        "SAM'S BOOK STORY",
+        "Customer outcome?",
+        "What will we learn?",
+        "What changes next?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 142,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L07-05",
+      "lesson_id": "L07",
+      "source_seconds": [
+        400,
+        500
+      ],
+      "sample_seconds": 408,
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "current_mp4_path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "current_mp4_sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-05.png",
+      "current_frame_sha256": "0de81701a09103409d5770510c4623eee0774f102021f84eff73d1d0cbce097b",
+      "source_vtt_path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "source_vtt_sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L07 / 05",
+        "learner_artifact_footer": "Two-checkpoint learning roadmap",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "reverse",
+      "concept_labels": [
+        "FAILED PREVIEW TEST",
+        "WHAT DID WE LEARN?",
+        "NEXT SEARCH QUESTION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 119,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L07-06",
+      "lesson_id": "L07",
+      "source_seconds": [
+        500,
+        600
+      ],
+      "sample_seconds": 508,
+      "source_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "current_mp4_path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+      "current_mp4_sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L07-06.png",
+      "current_frame_sha256": "6db61f56aa59ffd75b1bff885bf35a77f3e4116ff193b5e9d3e362ee4137a69e",
+      "source_vtt_path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+      "source_vtt_sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L07 / 06",
+        "learner_artifact_footer": "Two-checkpoint learning roadmap",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "timeline",
+      "concept_labels": [
+        "CHECKPOINT 1 · diagnose",
+        "CHECKPOINT 2 · test",
+        "Two decisions, two dates"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 130,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L08-01",
+      "lesson_id": "L08",
+      "source_seconds": [
+        0,
+        120
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "current_mp4_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "current_mp4_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-01.png",
+      "current_frame_sha256": "225306a7781ea8ea14fd53825a9893158dd83d6e274eb5c5f80874a4c5cd6ad1",
+      "source_vtt_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "source_vtt_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L08 / 01",
+        "learner_artifact_footer": "Ten-component learning plan and metric definition",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "ACTIVITY LOOKS HEALTHY",
+        "TASK STILL UNCLEAR",
+        "Outcome unanswered"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 19,
+      "source_vtt_longest_cue_characters": 126,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L08-02",
+      "lesson_id": "L08",
+      "source_seconds": [
+        120,
+        240
+      ],
+      "sample_seconds": 128,
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "current_mp4_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "current_mp4_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-02.png",
+      "current_frame_sha256": "d3dfed33e32648db8584fc3500266a8687f2c3aae448b4f50fcabf58e76ed0e6",
+      "source_vtt_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "source_vtt_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L08 / 02",
+        "learner_artifact_footer": "Ten-component learning plan and metric definition",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "measure",
+      "concept_labels": [
+        "OPENS",
+        "SUCCESSFUL STARTS",
+        "GUARDRAIL",
+        "Source and owner"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 182,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L08-03",
+      "lesson_id": "L08",
+      "source_seconds": [
+        240,
+        360
+      ],
+      "sample_seconds": 248,
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "current_mp4_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "current_mp4_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-03.png",
+      "current_frame_sha256": "ce19cf7f16baef40c1b4ac60f1fcaea56c4e9f7ae7e4e54516ef7707b448257b",
+      "source_vtt_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "source_vtt_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L08 / 03",
+        "learner_artifact_footer": "Ten-component learning plan and metric definition",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "numbered",
+      "concept_labels": [
+        "1 · Problem",
+        "2 · Cohort",
+        "3 · Hypothesis",
+        "4 · Scope",
+        "5 · Metrics"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 21,
+      "source_vtt_longest_cue_characters": 151,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L08-04",
+      "lesson_id": "L08",
+      "source_seconds": [
+        360,
+        480
+      ],
+      "sample_seconds": 368,
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "current_mp4_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "current_mp4_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-04.png",
+      "current_frame_sha256": "c419a34b2c1826f8011cd4ca85a13815b589f0451239e605024a8dce1f137704",
+      "source_vtt_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "source_vtt_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L08 / 04",
+        "learner_artifact_footer": "Ten-component learning plan and metric definition",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "numbered",
+      "concept_labels": [
+        "6 · Timing",
+        "7 · Tripwires",
+        "8 · Pivots",
+        "9 · Future path",
+        "10 · Backlog"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 20,
+      "source_vtt_longest_cue_characters": 137,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L08-05",
+      "lesson_id": "L08",
+      "source_seconds": [
+        480,
+        600
+      ],
+      "sample_seconds": 488,
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "current_mp4_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "current_mp4_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-05.png",
+      "current_frame_sha256": "7f0943f0609e21677921fa4cbe610d725fd6d3790a6d159c4832ae681a658626",
+      "source_vtt_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "source_vtt_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L08 / 05",
+        "learner_artifact_footer": "Ten-component learning plan and metric definition",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "branch",
+      "concept_labels": [
+        "POSSIBLE RESULT",
+        "CLEARER START",
+        "NEXT QUESTION",
+        "NO CHANGE",
+        "REVISIT THE JOB"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 21,
+      "source_vtt_longest_cue_characters": 117,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L08-06",
+      "lesson_id": "L08",
+      "source_seconds": [
+        600,
+        720
+      ],
+      "sample_seconds": 608,
+      "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "current_mp4_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+      "current_mp4_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L08-06.png",
+      "current_frame_sha256": "3be5040ada49d2af02d5963dc9b68295d586509f3780550442f0acf4cd2b75ee",
+      "source_vtt_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+      "source_vtt_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L08 / 06",
+        "learner_artifact_footer": "Ten-component learning plan and metric definition",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "LEARNING PLAN",
+        "Ten fields",
+        "Measure + guardrail",
+        "Stop condition before results"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 154,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L09-01",
+      "lesson_id": "L09",
+      "source_seconds": [
+        0,
+        110
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "current_mp4_path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "current_mp4_sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-01.png",
+      "current_frame_sha256": "c75311b9e5e98eab765ae4068b98e24c7f14487d0969cf54c8f091c9c003e457",
+      "source_vtt_path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "source_vtt_sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L09 / 01",
+        "learner_artifact_footer": "Decision theater map and pre-meeting sequence",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "handoff",
+      "concept_labels": [
+        "SOUND RECOMMENDATION",
+        "SLOW NO",
+        "Whose decision is missing?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 20,
+      "source_vtt_longest_cue_characters": 109,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L09-02",
+      "lesson_id": "L09",
+      "source_seconds": [
+        110,
+        220
+      ],
+      "sample_seconds": 118,
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "current_mp4_path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "current_mp4_sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-02.png",
+      "current_frame_sha256": "78a40e9a916c063f112027b01bb90d6079076dac673bb44e1768d45b56c134a1",
+      "source_vtt_path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "source_vtt_sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L09 / 02",
+        "learner_artifact_footer": "Decision theater map and pre-meeting sequence",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "numbered",
+      "concept_labels": [
+        "Problem",
+        "Opportunity",
+        "Options",
+        "Recommendation",
+        "Tradeoffs",
+        "Outcome"
+      ],
+      "dense_card_risk": true,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 117,
+      "caption_competition": "dense_art_and_shared_footer_need_rendered_caption_review",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L09-03",
+      "lesson_id": "L09",
+      "source_seconds": [
+        220,
+        330
+      ],
+      "sample_seconds": 228,
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "current_mp4_path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "current_mp4_sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-03.png",
+      "current_frame_sha256": "7fec3e5cf175eab7285fd7984978e3c1ee379166f140c5f1ffcc37a62b6fa3c3",
+      "source_vtt_path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "source_vtt_sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L09 / 03",
+        "learner_artifact_footer": "Decision theater map and pre-meeting sequence",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "roles",
+      "concept_labels": [
+        "WHO DECIDES?",
+        "WHO SHAPES?",
+        "WHO CONTROLS ACCESS?",
+        "WHO CAN CHALLENGE?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 25,
+      "source_vtt_longest_cue_characters": 108,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L09-04",
+      "lesson_id": "L09",
+      "source_seconds": [
+        330,
+        440
+      ],
+      "sample_seconds": 338,
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "current_mp4_path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "current_mp4_sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-04.png",
+      "current_frame_sha256": "ea057bc1477d45b8b80c8f0aabd4d3acc85f00782cf655be57ed81b28540756f",
+      "source_vtt_path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "source_vtt_sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L09 / 04",
+        "learner_artifact_footer": "Decision theater map and pre-meeting sequence",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "matrix",
+      "concept_labels": [
+        "MANAGE CLOSELY",
+        "KEEP SATISFIED",
+        "KEEP INFORMED",
+        "MONITOR"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 20,
+      "source_vtt_longest_cue_characters": 137,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L09-05",
+      "lesson_id": "L09",
+      "source_seconds": [
+        440,
+        550
+      ],
+      "sample_seconds": 448,
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "current_mp4_path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "current_mp4_sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-05.png",
+      "current_frame_sha256": "d95f226b23d1a3aac86bfe54a5e93d9763ddd8775dab6b5b83986c3bd6cce7e9",
+      "source_vtt_path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "source_vtt_sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L09 / 05",
+        "learner_artifact_footer": "Decision theater map and pre-meeting sequence",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "timeline",
+      "concept_labels": [
+        "ASK EARLY",
+        "LISTEN",
+        "REVISE",
+        "BRING THE DECISION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 145,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L09-06",
+      "lesson_id": "L09",
+      "source_seconds": [
+        550,
+        660
+      ],
+      "sample_seconds": 558,
+      "source_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "current_mp4_path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+      "current_mp4_sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L09-06.png",
+      "current_frame_sha256": "ad071b6e7b3f93161c322cf8cc648dd6df820b49c00ace261809f36f391fe700",
+      "source_vtt_path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+      "source_vtt_sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L09 / 06",
+        "learner_artifact_footer": "Decision theater map and pre-meeting sequence",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "roles",
+      "concept_labels": [
+        "DECIDER",
+        "RESOURCE OWNER",
+        "CUSTOMER VOICE",
+        "CHALLENGER"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 19,
+      "source_vtt_longest_cue_characters": 149,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L10-01",
+      "lesson_id": "L10",
+      "source_seconds": [
+        0,
+        90
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "current_mp4_sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-01.png",
+      "current_frame_sha256": "b54cea8174d513bfa6545849598ad02cd84292307e26464492a0841417817999",
+      "source_vtt_path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "source_vtt_sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L10 / 01",
+        "learner_artifact_footer": "Stakeholder-specific decision brief",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "handoff",
+      "concept_labels": [
+        "STRONG CASE",
+        "MISSED DECISION",
+        "Find the path to the owner"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 19,
+      "source_vtt_longest_cue_characters": 122,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L10-02",
+      "lesson_id": "L10",
+      "source_seconds": [
+        90,
+        180
+      ],
+      "sample_seconds": 98,
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "current_mp4_sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-02.png",
+      "current_frame_sha256": "21b1ed827f2533d735ac5ded2c7e82309d0ef90c81671cc5bd7374926d78dcca",
+      "source_vtt_path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "source_vtt_sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L10 / 02",
+        "learner_artifact_footer": "Stakeholder-specific decision brief",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "SAME EVIDENCE",
+        "ROOM A · concern",
+        "ROOM B · concern"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 11,
+      "source_vtt_longest_cue_characters": 427,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L10-03",
+      "lesson_id": "L10",
+      "source_seconds": [
+        180,
+        270
+      ],
+      "sample_seconds": 188,
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "current_mp4_sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-03.png",
+      "current_frame_sha256": "b175eab657e6550da5a1ddc6a75950b28d6fbc92cfc129d8c30c4d479dc44c32",
+      "source_vtt_path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "source_vtt_sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L10 / 03",
+        "learner_artifact_footer": "Stakeholder-specific decision brief",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "comparison",
+      "concept_labels": [
+        "CARD TEST",
+        "GUIDED INTRODUCTION",
+        "DEFER",
+        "Name the rejected option"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 111,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L10-04",
+      "lesson_id": "L10",
+      "source_seconds": [
+        270,
+        360
+      ],
+      "sample_seconds": 278,
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "current_mp4_sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-04.png",
+      "current_frame_sha256": "cef21f458b8b3cd8b0b19593474240f9a2592105c218166b10d6de7c14919b24",
+      "source_vtt_path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "source_vtt_sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L10 / 04",
+        "learner_artifact_footer": "Stakeholder-specific decision brief",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "TRADEOFF CARD",
+        "Cost",
+        "Exclusion",
+        "Owner",
+        "Review date"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 156,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L10-05",
+      "lesson_id": "L10",
+      "source_seconds": [
+        360,
+        450
+      ],
+      "sample_seconds": 368,
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "current_mp4_sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-05.png",
+      "current_frame_sha256": "308be44ddfffa6390c98ddd6abd708182d7319457766c77e570f5ef45e77b0b0",
+      "source_vtt_path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "source_vtt_sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L10 / 05",
+        "learner_artifact_footer": "Stakeholder-specific decision brief",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "correction",
+      "concept_labels": [
+        "OBJECTION",
+        "EVIDENCE NEEDED",
+        "POSSIBLE REVISION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 167,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L10-06",
+      "lesson_id": "L10",
+      "source_seconds": [
+        450,
+        540
+      ],
+      "sample_seconds": 458,
+      "source_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+      "current_mp4_sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L10-06.png",
+      "current_frame_sha256": "ebc0b175cb55ca7a1a4a1720ab1377bab785ba1180eca0ecb7b44db0a496a6e7",
+      "source_vtt_path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+      "source_vtt_sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L10 / 06",
+        "learner_artifact_footer": "Stakeholder-specific decision brief",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "90-SECOND BRIEF",
+        "Decision requested",
+        "Source",
+        "What changes your mind?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 110,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L11-01",
+      "lesson_id": "L11",
+      "source_seconds": [
+        0,
+        100
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "current_mp4_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-01.png",
+      "current_frame_sha256": "c84fa559437285c78b6af0b6256e7df51c6106dbd438388ca0bb2d94a0dd46f6",
+      "source_vtt_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "source_vtt_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L11 / 01",
+        "learner_artifact_footer": "Signal-to-decision loop map with owner and review gate",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "decision",
+      "concept_labels": [
+        "MEETING BEGINS",
+        "DECISION FIRST",
+        "Evidence within reach"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 134,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L11-02",
+      "lesson_id": "L11",
+      "source_seconds": [
+        100,
+        200
+      ],
+      "sample_seconds": 108,
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "current_mp4_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-02.png",
+      "current_frame_sha256": "b9794c12a7f117d5d61728dd4a4e4c003d2f0a596a1f4988cfdad70f94508f22",
+      "source_vtt_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "source_vtt_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L11 / 02",
+        "learner_artifact_footer": "Signal-to-decision loop map with owner and review gate",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "trace",
+      "concept_labels": [
+        "TEST FAILED",
+        "QUESTION ANSWERED",
+        "NEXT MOVE"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 163,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L11-03",
+      "lesson_id": "L11",
+      "source_seconds": [
+        200,
+        300
+      ],
+      "sample_seconds": 208,
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "current_mp4_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-03.png",
+      "current_frame_sha256": "97fa76f3aeb8aa6afe6cab212205226a988408d8d24d4726531dfc9dd142a01a",
+      "source_vtt_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "source_vtt_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L11 / 03",
+        "learner_artifact_footer": "Signal-to-decision loop map with owner and review gate",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "numbered",
+      "concept_labels": [
+        "1 · Signal",
+        "2 · Insight",
+        "3 · Test",
+        "4 · Decision",
+        "5 · Momentum"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 121,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L11-04",
+      "lesson_id": "L11",
+      "source_seconds": [
+        300,
+        400
+      ],
+      "sample_seconds": 308,
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "current_mp4_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-04.png",
+      "current_frame_sha256": "7e1a42a958afee953b5f4cb0f73a0dfc191ede732584e73571130c5d63204bfc",
+      "source_vtt_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "source_vtt_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L11 / 04",
+        "learner_artifact_footer": "Signal-to-decision loop map with owner and review gate",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "handoff",
+      "concept_labels": [
+        "AUTOMATED MOVEMENT",
+        "HUMAN REVIEW",
+        "Meaning checked here"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 146,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L11-05",
+      "lesson_id": "L11",
+      "source_seconds": [
+        400,
+        500
+      ],
+      "sample_seconds": 408,
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "current_mp4_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-05.png",
+      "current_frame_sha256": "654bfb78c7cd0a01e70688ae5c2a754310fa758606d639d9d3980725fdfbe883",
+      "source_vtt_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "source_vtt_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L11 / 05",
+        "learner_artifact_footer": "Signal-to-decision loop map with owner and review gate",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "archive",
+      "concept_labels": [
+        "WHAT WE BELIEVED",
+        "WHAT WE SAW",
+        "WHAT WE DECIDED"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 157,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L11-06",
+      "lesson_id": "L11",
+      "source_seconds": [
+        500,
+        600
+      ],
+      "sample_seconds": 508,
+      "source_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "current_mp4_path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+      "current_mp4_sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L11-06.png",
+      "current_frame_sha256": "0661acdc2280bccae08229d3031b990ff20694b64ce1977aa337f11239115bed",
+      "source_vtt_path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+      "source_vtt_sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L11 / 06",
+        "learner_artifact_footer": "Signal-to-decision loop map with owner and review gate",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "loop",
+      "concept_labels": [
+        "SIGNAL",
+        "INSIGHT",
+        "TEST",
+        "DECISION",
+        "MISSING HANDOFF"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 153,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L12-01",
+      "lesson_id": "L12",
+      "source_seconds": [
+        0,
+        110
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "current_mp4_path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "current_mp4_sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-01.png",
+      "current_frame_sha256": "c7dfa733fcae520e5f31a703a8f66badc9ec2f9e6cfac96fb9d2ac6ae3838509",
+      "source_vtt_path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "source_vtt_sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L12 / 01",
+        "learner_artifact_footer": "Jobs card and synthetic-signal caveat/validation card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "feedback",
+      "concept_labels": [
+        "SOURCE NOTE",
+        "CONTEXT",
+        "PROPOSED JOB",
+        "Question still open"
+      ],
+      "dense_card_risk": true,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 145,
+      "caption_competition": "dense_art_and_shared_footer_need_rendered_caption_review",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L12-02",
+      "lesson_id": "L12",
+      "source_seconds": [
+        110,
+        220
+      ],
+      "sample_seconds": 118,
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "current_mp4_path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "current_mp4_sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-02.png",
+      "current_frame_sha256": "dec43aa5cf396256d0aae589dac573d217df59542565fa795c7f2ef3e2b4e973",
+      "source_vtt_path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "source_vtt_sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L12 / 02",
+        "learner_artifact_footer": "Jobs card and synthetic-signal caveat/validation card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "flow",
+      "concept_labels": [
+        "SOURCE ID",
+        "CONTEXT",
+        "JOB",
+        "QUESTION"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 215,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L12-03",
+      "lesson_id": "L12",
+      "source_seconds": [
+        220,
+        330
+      ],
+      "sample_seconds": 228,
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "current_mp4_path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "current_mp4_sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-03.png",
+      "current_frame_sha256": "30a8d5aa3349d121b33a1bd38f095f89d2cfd838e7587d2e1d7b985763f7c82e",
+      "source_vtt_path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "source_vtt_sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L12 / 03",
+        "learner_artifact_footer": "Jobs card and synthetic-signal caveat/validation card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "boundary",
+      "concept_labels": [
+        "BOOK CASE · ClientQ",
+        "CLASSROOM EXERCISE",
+        "OBSERVED EVIDENCE · missing"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 126,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L12-04",
+      "lesson_id": "L12",
+      "source_seconds": [
+        330,
+        440
+      ],
+      "sample_seconds": 338,
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "current_mp4_path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "current_mp4_sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-04.png",
+      "current_frame_sha256": "9e6aca4f3e1ebcc84cf040ae903336b3f312b7a407ead81965243d843c748bf1",
+      "source_vtt_path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "source_vtt_sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L12 / 04",
+        "learner_artifact_footer": "Jobs card and synthetic-signal caveat/validation card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "correction",
+      "concept_labels": [
+        "SIMULATED OBJECTION",
+        "QUESTION FOR A PERSON",
+        "REAL EVIDENCE"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 116,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L12-05",
+      "lesson_id": "L12",
+      "source_seconds": [
+        440,
+        550
+      ],
+      "sample_seconds": 448,
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "current_mp4_path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "current_mp4_sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-05.png",
+      "current_frame_sha256": "c605a1038f474035d6d15ed91f096a3cdf059f85752d2a62084904b56c8383dd",
+      "source_vtt_path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "source_vtt_sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L12 / 05",
+        "learner_artifact_footer": "Jobs card and synthetic-signal caveat/validation card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "checkpoint",
+      "concept_labels": [
+        "HYPOTHESIS NOW",
+        "VALIDATION BEFORE LAUNCH",
+        "Owner",
+        "Stop condition"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 135,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L12-06",
+      "lesson_id": "L12",
+      "source_seconds": [
+        550,
+        660
+      ],
+      "sample_seconds": 558,
+      "source_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "current_mp4_path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+      "current_mp4_sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L12-06.png",
+      "current_frame_sha256": "e7199a496b1cb0c38b1daa06ea35fd997fcd5c8beeda77d11c9ca8427c74d36c",
+      "source_vtt_path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+      "source_vtt_sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L12 / 06",
+        "learner_artifact_footer": "Jobs card and synthetic-signal caveat/validation card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "TWO CARDS",
+        "One job",
+        "Two questions",
+        "A real test"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 171,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L13-01",
+      "lesson_id": "L13",
+      "source_seconds": [
+        0,
+        117
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "current_mp4_path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "current_mp4_sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-01.png",
+      "current_frame_sha256": "b5f91865d69b47a9eac60ee1f8b89ed59ba68ff2d6888e0c9b3358f1b087794f",
+      "source_vtt_path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "source_vtt_sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L13 / 01",
+        "learner_artifact_footer": "Strategic alternatives sheet and concept-test card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "measure",
+      "concept_labels": [
+        "FLAT METRIC",
+        "POSSIBLE CAUSES",
+        "DIAGNOSIS FIRST"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 24,
+      "source_vtt_longest_cue_characters": 144,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L13-02",
+      "lesson_id": "L13",
+      "source_seconds": [
+        117,
+        226
+      ],
+      "sample_seconds": 125,
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "current_mp4_path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "current_mp4_sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-02.png",
+      "current_frame_sha256": "2834103619dcddd1032d7451c846f1e2aa7b08ec6f81753ad9ca70ca4265be09",
+      "source_vtt_path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "source_vtt_sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L13 / 02",
+        "learner_artifact_footer": "Strategic alternatives sheet and concept-test card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "comparison",
+      "concept_labels": [
+        "USAGE-BASED",
+        "SEASONAL FREE TIER",
+        "SERVICES HYBRID",
+        "Compare operating costs"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 141,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L13-03",
+      "lesson_id": "L13",
+      "source_seconds": [
+        226,
+        340
+      ],
+      "sample_seconds": 234,
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "current_mp4_path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "current_mp4_sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-03.png",
+      "current_frame_sha256": "b3d38f5332fe2478ea0ef3ba0eee0f93864f0454324608c2e069b0f9eb460361",
+      "source_vtt_path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "source_vtt_sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L13 / 03",
+        "learner_artifact_footer": "Strategic alternatives sheet and concept-test card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "checkpoint",
+      "concept_labels": [
+        "ONE OPTION",
+        "FALSIFIABLE TEST",
+        "Owner",
+        "Stop rule"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 175,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L13-04",
+      "lesson_id": "L13",
+      "source_seconds": [
+        340,
+        446
+      ],
+      "sample_seconds": 348,
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "current_mp4_path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "current_mp4_sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-04.png",
+      "current_frame_sha256": "484da9f4a345abb92ec58f36552f42757a0ab3bdf5a6283fbb51d94f1da33e6b",
+      "source_vtt_path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "source_vtt_sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L13 / 04",
+        "learner_artifact_footer": "Strategic alternatives sheet and concept-test card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "FUTURE CONCEPT",
+        "Who is it for?",
+        "What changes?",
+        "What remains uncertain?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 19,
+      "source_vtt_longest_cue_characters": 137,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L13-05",
+      "lesson_id": "L13",
+      "source_seconds": [
+        446,
+        553
+      ],
+      "sample_seconds": 454,
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "current_mp4_path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "current_mp4_sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-05.png",
+      "current_frame_sha256": "a7a3fec9a504bc9896c436370824d390f85dc14cbca9bf1bc6a5c6ea4359c7b6",
+      "source_vtt_path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "source_vtt_sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L13 / 05",
+        "learner_artifact_footer": "Strategic alternatives sheet and concept-test card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "correction",
+      "concept_labels": [
+        "REACTION",
+        "QUESTION TO TEST",
+        "Different context"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 19,
+      "source_vtt_longest_cue_characters": 115,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L13-06",
+      "lesson_id": "L13",
+      "source_seconds": [
+        553,
+        660
+      ],
+      "sample_seconds": 561,
+      "source_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "current_mp4_path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+      "current_mp4_sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L13-06.png",
+      "current_frame_sha256": "3cdb98e12bc1697c2b7b2ccd0e7790925e2a04ced1c916026be38b1dfbfa9c69",
+      "source_vtt_path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+      "source_vtt_sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L13 / 06",
+        "learner_artifact_footer": "Strategic alternatives sheet and concept-test card",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "STRATEGIC CHOICE",
+        "Cost",
+        "Test",
+        "Owner",
+        "Review date"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 172,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L14-01",
+      "lesson_id": "L14",
+      "source_seconds": [
+        0,
+        82
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "current_mp4_path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "current_mp4_sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-01.png",
+      "current_frame_sha256": "5e7338c23e3c1194e8ef1b579762d083765b54a744c31807bd23947b8f173e35",
+      "source_vtt_path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "source_vtt_sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L14 / 01",
+        "learner_artifact_footer": "Two-audience pitch card with source annotations",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "ONE PROPOSAL",
+        "ROOM A · operations",
+        "ROOM B · funding"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 20,
+      "source_vtt_longest_cue_characters": 109,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L14-02",
+      "lesson_id": "L14",
+      "source_seconds": [
+        82,
+        164
+      ],
+      "sample_seconds": 90,
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "current_mp4_path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "current_mp4_sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-02.png",
+      "current_frame_sha256": "a1fd300e4ac933f00c577f13535bc3239a9bf13b6ba97d8351b44714bcdc6779",
+      "source_vtt_path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "source_vtt_sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L14 / 02",
+        "learner_artifact_footer": "Two-audience pitch card with source annotations",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "trace",
+      "concept_labels": [
+        "SOURCE STAYS",
+        "EMPHASIS A",
+        "EMPHASIS B"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 175,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L14-03",
+      "lesson_id": "L14",
+      "source_seconds": [
+        164,
+        249
+      ],
+      "sample_seconds": 172,
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "current_mp4_path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "current_mp4_sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-03.png",
+      "current_frame_sha256": "4d50534b056061a8301e3f4263f633ce974228d2b0b0bd224821793fb78be5f9",
+      "source_vtt_path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "source_vtt_sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L14 / 03",
+        "learner_artifact_footer": "Two-audience pitch card with source annotations",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sheet",
+      "concept_labels": [
+        "TRADEOFF BEFORE ASK",
+        "Cost",
+        "Rejected option",
+        "Decision requested"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 16,
+      "source_vtt_longest_cue_characters": 117,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L14-04",
+      "lesson_id": "L14",
+      "source_seconds": [
+        249,
+        330
+      ],
+      "sample_seconds": 257,
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "current_mp4_path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "current_mp4_sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-04.png",
+      "current_frame_sha256": "a7b3b03b97cc2f79d01e1178b9a54b89b0f57174e2182b06329b23bc4ebdc571",
+      "source_vtt_path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "source_vtt_sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L14 / 04",
+        "learner_artifact_footer": "Two-audience pitch card with source annotations",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "correction",
+      "concept_labels": [
+        "REHEARSED OBJECTION",
+        "PERSON TO ASK",
+        "Evidence to seek"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 142,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L14-05",
+      "lesson_id": "L14",
+      "source_seconds": [
+        330,
+        406
+      ],
+      "sample_seconds": 338,
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "current_mp4_path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "current_mp4_sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-05.png",
+      "current_frame_sha256": "8a0cd8b6c6c06c5bbf084c031cc9cbfeac212a6984bc6cc6fa49cb73b2875a25",
+      "source_vtt_path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "source_vtt_sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L14 / 05",
+        "learner_artifact_footer": "Two-audience pitch card with source annotations",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "comparison",
+      "concept_labels": [
+        "60 SEC · ROOM A",
+        "60 SEC · ROOM B",
+        "Same cited evidence"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 116,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L14-06",
+      "lesson_id": "L14",
+      "source_seconds": [
+        406,
+        480
+      ],
+      "sample_seconds": 414,
+      "source_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "current_mp4_path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+      "current_mp4_sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L14-06.png",
+      "current_frame_sha256": "07e972369b57df972ef1f6859e0901105dd566e6a26c4b87fee3cb300d934ebc",
+      "source_vtt_path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+      "source_vtt_sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L14 / 06",
+        "learner_artifact_footer": "Two-audience pitch card with source annotations",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "archive",
+      "concept_labels": [
+        "DECISION REQUESTED",
+        "SOURCE ID",
+        "OBJECTION",
+        "REVIEW DATE"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 12,
+      "source_vtt_longest_cue_characters": 135,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L15-01",
+      "lesson_id": "L15",
+      "source_seconds": [
+        0,
+        122
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "current_mp4_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "current_mp4_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-01.png",
+      "current_frame_sha256": "c58669974fba0317d72ca416ea3278e28a03b4e6b8fa11b5837c3eb877644308",
+      "source_vtt_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "source_vtt_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L15 / 01",
+        "learner_artifact_footer": "Scale-readiness checklist and decision-memory record",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "handoff",
+      "concept_labels": [
+        "LOCAL WIN",
+        "SECOND TEAM",
+        "Record must travel"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 23,
+      "source_vtt_longest_cue_characters": 160,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L15-02",
+      "lesson_id": "L15",
+      "source_seconds": [
+        122,
+        243
+      ],
+      "sample_seconds": 130,
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "current_mp4_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "current_mp4_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-02.png",
+      "current_frame_sha256": "9074413f8725c565d5bc1f4865bfa40c83a9d9babb125dc8ba50da7f0096181e",
+      "source_vtt_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "source_vtt_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L15 / 02",
+        "learner_artifact_footer": "Scale-readiness checklist and decision-memory record",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "contrast",
+      "concept_labels": [
+        "SHARED FORMAT",
+        "LOCAL JUDGMENT",
+        "Context still checked"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 21,
+      "source_vtt_longest_cue_characters": 193,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L15-03",
+      "lesson_id": "L15",
+      "source_seconds": [
+        243,
+        364
+      ],
+      "sample_seconds": 251,
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "current_mp4_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "current_mp4_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-03.png",
+      "current_frame_sha256": "e9c0654ac889f22baf31cd5e49bba0ad92b10e11f83ddc47792b44dc8a9b7041",
+      "source_vtt_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "source_vtt_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L15 / 03",
+        "learner_artifact_footer": "Scale-readiness checklist and decision-memory record",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "numbered",
+      "concept_labels": [
+        "Bottleneck",
+        "Paperwork",
+        "Tool fixation",
+        "Resistance",
+        "Haste"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 22,
+      "source_vtt_longest_cue_characters": 155,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L15-04",
+      "lesson_id": "L15",
+      "source_seconds": [
+        364,
+        481
+      ],
+      "sample_seconds": 372,
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "current_mp4_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "current_mp4_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-04.png",
+      "current_frame_sha256": "a56c0cf1a2dfa48c96ea885e87cf08f7c5ea32639437bae6ed31e838ea8e921d",
+      "source_vtt_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "source_vtt_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L15 / 04",
+        "learner_artifact_footer": "Scale-readiness checklist and decision-memory record",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "boundary",
+      "concept_labels": [
+        "SAM · BOOK STORY",
+        "LOCAL EVIDENCE",
+        "No borrowed proof"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 20,
+      "source_vtt_longest_cue_characters": 183,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L15-05",
+      "lesson_id": "L15",
+      "source_seconds": [
+        481,
+        603
+      ],
+      "sample_seconds": 489,
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "current_mp4_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "current_mp4_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-05.png",
+      "current_frame_sha256": "fd0154ccc4637287cc93deb3e3e2066db7eb807a13e2ce6d99f09e1202957a4e",
+      "source_vtt_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "source_vtt_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L15 / 05",
+        "learner_artifact_footer": "Scale-readiness checklist and decision-memory record",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "archive",
+      "concept_labels": [
+        "WHAT WE KNEW",
+        "WHY WE CHOSE",
+        "WHEN TO REVISIT"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 23,
+      "source_vtt_longest_cue_characters": 134,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L15-06",
+      "lesson_id": "L15",
+      "source_seconds": [
+        603,
+        720
+      ],
+      "sample_seconds": 611,
+      "source_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "current_mp4_path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+      "current_mp4_sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L15-06.png",
+      "current_frame_sha256": "9be62a89c37f4273960c5c3b1d89b0988ba24d7dcefc4a8453fecae5f46dbaae",
+      "source_vtt_path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+      "source_vtt_sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L15 / 06",
+        "learner_artifact_footer": "Scale-readiness checklist and decision-memory record",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "checkpoint",
+      "concept_labels": [
+        "REUSE?",
+        "OWNER",
+        "CONTEXT CHECK",
+        "STOP RULE"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 18,
+      "source_vtt_longest_cue_characters": 172,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L16-01",
+      "lesson_id": "L16",
+      "source_seconds": [
+        0,
+        81
+      ],
+      "sample_seconds": 8,
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "current_mp4_path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "current_mp4_sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-01.png",
+      "current_frame_sha256": "19a00c2b0706f8227823fc3a01b6fa394f2aa0f837eb4c079c3c2d313ce60622",
+      "source_vtt_path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "source_vtt_sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L16 / 01",
+        "learner_artifact_footer": "One-week learning commitment and assembled decision file",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "sam",
+      "concept_labels": [
+        "FIRST DECISION",
+        "OPEN EVIDENCE QUESTION",
+        "NEXT WEEK"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 156,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L16-02",
+      "lesson_id": "L16",
+      "source_seconds": [
+        81,
+        161
+      ],
+      "sample_seconds": 89,
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "current_mp4_path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "current_mp4_sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-02.png",
+      "current_frame_sha256": "bd011df2798fd90bd1589244b98f0e34248725b9e1b491ca8ac5abf9e07703a0",
+      "source_vtt_path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "source_vtt_sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L16 / 02",
+        "learner_artifact_footer": "One-week learning commitment and assembled decision file",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "trace",
+      "concept_labels": [
+        "ORIGINAL CHOICE",
+        "SOURCE EVIDENCE",
+        "CURRENT VIEW",
+        "WHAT CHANGED"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 105,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L16-03",
+      "lesson_id": "L16",
+      "source_seconds": [
+        161,
+        239
+      ],
+      "sample_seconds": 169,
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "current_mp4_path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "current_mp4_sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-03.png",
+      "current_frame_sha256": "c778dade4ae032e514e44d62dbe34f9337bf4568d85028702c8650d1c11bd86a",
+      "source_vtt_path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "source_vtt_sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L16 / 03",
+        "learner_artifact_footer": "One-week learning commitment and assembled decision file",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "checkpoint",
+      "concept_labels": [
+        "ACTION",
+        "OWNER",
+        "EVIDENCE",
+        "DATE WITHIN SEVEN DAYS"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 14,
+      "source_vtt_longest_cue_characters": 138,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L16-04",
+      "lesson_id": "L16",
+      "source_seconds": [
+        239,
+        316
+      ],
+      "sample_seconds": 247,
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "current_mp4_path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "current_mp4_sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-04.png",
+      "current_frame_sha256": "079d2a47d5db1ad97908ec008ce78b5e4bc88436b586e011a486bf0bfbba0732",
+      "source_vtt_path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "source_vtt_sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L16 / 04",
+        "learner_artifact_footer": "One-week learning commitment and assembled decision file",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "boundary",
+      "concept_labels": [
+        "OBSERVATION",
+        "INTERPRETATION",
+        "SIMULATION · label it"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 13,
+      "source_vtt_longest_cue_characters": 148,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L16-05",
+      "lesson_id": "L16",
+      "source_seconds": [
+        316,
+        408
+      ],
+      "sample_seconds": 324,
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "current_mp4_path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "current_mp4_sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-05.png",
+      "current_frame_sha256": "2c917c7d6dcf255f85a24b3d2ec651b42b384798d94bc0b741beceadeb34b2da",
+      "source_vtt_path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "source_vtt_sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L16 / 05",
+        "learner_artifact_footer": "One-week learning commitment and assembled decision file",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "handoff",
+      "concept_labels": [
+        "REVIEW CONVERSATION",
+        "WHAT CHANGED YOUR MIND?",
+        "WHO DECIDES NEXT?"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 15,
+      "source_vtt_longest_cue_characters": 120,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    },
+    {
+      "scene_id": "L16-06",
+      "lesson_id": "L16",
+      "source_seconds": [
+        408,
+        480
+      ],
+      "sample_seconds": 416,
+      "source_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "current_mp4_path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+      "current_mp4_sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02",
+      "current_frame_path": "artifacts/accelerated-visual-parity-2026-11-10/frames/L16-06.png",
+      "current_frame_sha256": "dda88f963583f7e5fc75c38bc61939498f0d050b2a5de9f7239a6dedf24882a3",
+      "source_vtt_path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+      "source_vtt_sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+      "visible_shared_shell": {
+        "lesson_scene_code": "L16 / 06",
+        "learner_artifact_footer": "One-week learning commitment and assembled decision file",
+        "decorative_scene_progress_dots": 6
+      },
+      "layout": "finale",
+      "concept_labels": [
+        "CHOOSE ONE PAIN POINT",
+        "RUN ONE TEST",
+        "SET ONE REVIEW"
+      ],
+      "dense_card_risk": false,
+      "internal_copy_in_renderer": [],
+      "source_vtt_cues_overlapping_scene": 17,
+      "source_vtt_longest_cue_characters": 135,
+      "caption_competition": "shared_footer_and_progress_dots_near_caption_band",
+      "review_status": "source_bound_visual_diagnostic_not_learner_edit"
+    }
+  ],
+  "caption_safe_geometry": {
+    "frame": [
+      1920,
+      1080
+    ],
+    "content_panel_bottom_y": 815,
+    "shared_footer_progress_bottom_y": 801,
+    "intended_caption_band_start_y": 885,
+    "minimum_vertical_gap_to_caption_band_pixels": 70,
+    "gap_at_350_pixel_wide_player_pixels": 12.76,
+    "qualification": "geometry risk; 1728x962 desktop and 390x844 mobile browser review observed native captions over the existing footer area at 8s in L08-01. Clean-shell candidate removed the competing footer and dots; title and presenter face remained clear. Browser controls cover part of the caption while paused and hovered, so this is a layout check, not final playback qualification."
+  },
+  "excluded_scope": [
+    "L01 prior clean-card proof",
+    "end-screen parity owned elsewhere",
+    "canonical or learner media edits",
+    "final caption synchronization"
+  ]
+}
