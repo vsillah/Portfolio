@@ -50,8 +50,9 @@
     {
       "lesson_id": "L06",
       "presenter_window": "A01",
-      "status": "machine_blocked_cut_boundary",
-      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a01-tail-receipt.json"
+      "status": "blocked_no_clean_packet_gap",
+      "reason": "“cards” ends against “Now”; both ASR comparisons lose the final plural sound.",
+      "diagnostic_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/rejected-boundary-diagnostics.json"
     },
     {
       "lesson_id": "L06",
@@ -158,19 +159,22 @@
     {
       "lesson_id": "L16",
       "presenter_window": "A01",
-      "status": "machine_blocked_cut_boundary",
-      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a01-tail-receipt.json"
+      "status": "blocked_no_clean_packet_gap",
+      "reason": "“pain point” ends against “Write”; both ASR comparisons lose the retained final words.",
+      "diagnostic_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/rejected-boundary-diagnostics.json"
     },
     {
       "lesson_id": "L16",
       "presenter_window": "A02",
-      "status": "machine_blocked_cut_boundary",
-      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a02-tail-receipt.json"
+      "status": "blocked_no_clean_packet_gap",
+      "reason": "“it” ends against “Put”; both ASR comparisons lose the retained final word.",
+      "diagnostic_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/rejected-boundary-diagnostics.json"
     }
   ],
   "asr_validation_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/asr-validation.json",
-  "rendered_count": 27,
+  "rendered_count": 24,
   "machine_pass_count": 24,
-  "machine_blocked_count": 3,
-  "render_blocked_count": 0
+  "machine_blocked_count": 0,
+  "render_blocked_count": 0,
+  "boundary_blocked_count": 3
 }

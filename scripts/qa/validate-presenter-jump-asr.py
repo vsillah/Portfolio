@@ -82,7 +82,7 @@ def main():
     assert args.whisper_cli.exists() and all(model.exists() for model in models.values())
     manifest = json.loads((OUT / 'manifest.json').read_text())
     audit = json.loads(AUDIT.read_text())
-    jobs = [row for row in manifest['results'] if row['status'] != 'blocked']
+    jobs = [row for row in manifest['results'] if not row['status'].startswith('blocked')]
     with tempfile.TemporaryDirectory(prefix='accelerated-jump-asr-') as tmp:
         scratch = pathlib.Path(tmp)
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:

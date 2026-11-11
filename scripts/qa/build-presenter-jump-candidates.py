@@ -19,6 +19,11 @@ FONT = '/System/Library/Fonts/Supplemental/Arial.ttf'
 ONSET_OVERRIDES = {('L02', 'A01'): 21.81, ('L08', 'A01'): 24.80,
                    ('L10', 'A01'): 22.63, ('L15', 'A01'): 22.51,
                    ('L10', 'A03'): 3.24}
+BLOCKED_CUTS = {
+    ('L06', 'A01'): '“cards” ends against “Now”; machine check loses the final plural sound.',
+    ('L16', 'A01'): '“pain point” ends against “Write”; machine check loses the final words.',
+    ('L16', 'A02'): '“it” ends against “Put”; machine check loses the final word.',
+}
 
 
 def run(cmd):
@@ -195,6 +200,11 @@ def main():
     for entry in triage['entries']:
         if entry['lesson_id'] == 'L01' and entry['presenter_window'] == 'A02':
             continue  # Already has the approved review clip and isolated candidate.
+        blocked_reason = BLOCKED_CUTS.get((entry['lesson_id'], entry['presenter_window']))
+        if blocked_reason:
+            results.append({'lesson_id': entry['lesson_id'], 'presenter_window': entry['presenter_window'],
+                            'status': 'blocked_no_clean_packet_gap', 'reason': blocked_reason})
+            continue
         lesson = next(x for x in pack['lessons'] if x['lesson_id'] == entry['lesson_id'])
         try:
             receipt = build_one(entry, lesson)
@@ -211,7 +221,7 @@ def main():
         checked = {(r['lesson_id'], r['presenter_window']): r
                    for r in json.loads(validation.read_text())['results']}
         for result in results:
-            if result['status'] == 'blocked':
+            if result['status'].startswith('blocked'):
                 continue
             row = checked.get((result['lesson_id'], result['presenter_window']))
             receipt = json.loads((ROOT / result['receipt']).read_text())
@@ -223,13 +233,15 @@ def main():
                 'source_pack_sha256': digest(PACK), 'triage_sha256': digest(TRIAGE),
                 'approved_existing_l01_a02_candidate': 'l01-a02-native-trim-candidate-235-252.mp4',
                 'asr_validation_path': str(validation.relative_to(ROOT)) if validation.exists() else None,
-                'results': results, 'rendered_count': sum(r['status'] != 'blocked' for r in results),
+                'results': results, 'rendered_count': sum(not r['status'].startswith('blocked') for r in results),
                 'machine_pass_count': sum(r['status'] == 'machine_pass_pending_audible_review' for r in results),
                 'machine_blocked_count': sum(r['status'] == 'machine_blocked_cut_boundary' for r in results),
+                'boundary_blocked_count': sum(r['status'] == 'blocked_no_clean_packet_gap' for r in results),
                 'render_blocked_count': sum(r['status'] == 'blocked' for r in results)}
     (OUT / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(f"Rendered {manifest['rendered_count']}; machine pass {manifest['machine_pass_count']}; "
-          f"machine blocked {manifest['machine_blocked_count']}; render blocked {manifest['render_blocked_count']}")
+          f"machine blocked {manifest['machine_blocked_count']}; boundary blocked "
+          f"{manifest['boundary_blocked_count']}; render blocked {manifest['render_blocked_count']}")
 
 
 if __name__ == '__main__':

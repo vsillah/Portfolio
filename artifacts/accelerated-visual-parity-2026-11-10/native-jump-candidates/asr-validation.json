@@ -11,7 +11,7 @@
       "sha256": "c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d"
     }
   ],
-  "candidate_count": 27,
+  "candidate_count": 24,
   "results": [
     {
       "lesson_id": "L02",
@@ -222,36 +222,6 @@
       },
       "status": "machine_comparison_not_audible_signoff",
       "machine_result": "passed_removed_phrase_and_retained_context"
-    },
-    {
-      "lesson_id": "L06",
-      "presenter_window": "A01",
-      "orientation": "tail",
-      "candidate_sha256": "96256097d817aa90d38eb82259306bfc4dd37a0ac1b5d343102861503a176faa",
-      "removed_probe_words": "now the bet enters",
-      "retained_probe_words": "lesson beside the cards",
-      "before_transcripts": {
-        "base.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document.",
-        "small.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document,"
-      },
-      "after_transcripts": {
-        "base.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the card.",
-        "small.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the card."
-      },
-      "model_checks": {
-        "base.en": {
-          "removed_phrase_in_before": true,
-          "removed_phrase_in_after": false,
-          "retained_phrase_in_after": false
-        },
-        "small.en": {
-          "removed_phrase_in_before": true,
-          "removed_phrase_in_after": false,
-          "retained_phrase_in_after": false
-        }
-      },
-      "status": "machine_comparison_not_audible_signoff",
-      "machine_result": "blocked_retained_word_boundary_uncertain"
     },
     {
       "lesson_id": "L06",
@@ -762,73 +732,9 @@
       },
       "status": "machine_comparison_not_audible_signoff",
       "machine_result": "passed_removed_phrase_and_retained_context"
-    },
-    {
-      "lesson_id": "L16",
-      "presenter_window": "A01",
-      "orientation": "tail",
-      "candidate_sha256": "beca1ae935d177dc8b36272350ea46f43bee4d8c6f0238fe0b5c6362b9f229b9",
-      "removed_probe_words": "write the next action",
-      "retained_probe_words": "with one pain point",
-      "before_transcripts": {
-        "base.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb.",
-        "small.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb."
-      },
-      "after_transcripts": {
-        "base.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one",
-        "small.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one"
-      },
-      "model_checks": {
-        "base.en": {
-          "removed_phrase_in_before": true,
-          "removed_phrase_in_after": false,
-          "retained_phrase_in_after": false
-        },
-        "small.en": {
-          "removed_phrase_in_before": true,
-          "removed_phrase_in_after": false,
-          "retained_phrase_in_after": false
-        }
-      },
-      "status": "machine_comparison_not_audible_signoff",
-      "machine_result": "blocked_retained_word_boundary_uncertain"
-    },
-    {
-      "lesson_id": "L16",
-      "presenter_window": "A02",
-      "orientation": "tail",
-      "candidate_sha256": "27b43fb914e86f7e4bb1495010126f1b7ac54e30b790c0642136c66154cc1c4c",
-      "removed_probe_words": "put a short review",
-      "retained_probe_words": "person who owns it",
-      "before_transcripts": {
-        "base.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,",
-        "small.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,"
-      },
-      "after_transcripts": {
-        "base.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns",
-        "small.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns"
-      },
-      "model_checks": {
-        "base.en": {
-          "removed_phrase_in_before": true,
-          "removed_phrase_in_after": false,
-          "retained_phrase_in_after": false
-        },
-        "small.en": {
-          "removed_phrase_in_before": true,
-          "removed_phrase_in_after": false,
-          "retained_phrase_in_after": false
-        }
-      },
-      "status": "machine_comparison_not_audible_signoff",
-      "machine_result": "blocked_retained_word_boundary_uncertain"
     }
   ],
   "machine_pass_count": 24,
-  "machine_blocked_count": 3,
-  "machine_blocked_windows": [
-    "L06 A01",
-    "L16 A01",
-    "L16 A02"
-  ]
+  "machine_blocked_count": 0,
+  "machine_blocked_windows": []
 }
