@@ -64,7 +64,7 @@ def main():
         pattern = scratch / '%02d.png'
         run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-ss', str(START), '-i', str(SOURCE),
              '-framerate', '1', '-i', str(pattern), '-filter_complex',
-             '[0:v][1:v]overlay=shortest=1:format=auto,format=yuv420p[v]',
+             '[0:v][1:v]overlay=shortest=0:repeatlast=1:format=auto,format=yuv420p[v]',
              '-map', '[v]', '-map', '0:a:0', '-t', str(DURATION), '-r', str(FPS),
              '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'copy',
              '-movflags', '+faststart', '-y', str(OUTPUT)])

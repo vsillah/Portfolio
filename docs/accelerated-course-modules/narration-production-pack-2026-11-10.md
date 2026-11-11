@@ -41,6 +41,8 @@ Times are the available gaps in the **current native MP4**, before any word-leve
 
 **L01 listening checkpoint:** [review-only 03:55–04:12 MP4](../../artifacts/accelerated-visual-parity-2026-11-10/l01-a02-boundary-review-235-252.mp4) with a visible source clock and phase labels. Listen at **04:05.13–04:08.23** for the suspected first-page sentence, then check the **04:08.20** A02→C02 cut. The [render receipt](../../artifacts/accelerated-visual-parity-2026-11-10/l01-a02-boundary-review-235-252.json) binds the source and output hashes and confirms all copied AAC packets match a source extract. The overlay changes video pixels only; the native audio packet payload is unchanged. This excerpt is a review aid, not a listening sign-off or learner asset.
 
+The [isolated L01 A02 correction candidate and 28-jump triage](l01-a02-native-correction-review-2026-11-10.md) now provide a packet-preserving native trim proposal and a sequential before/after MP4. The canonical MP4 and this pack’s cutaway text, timing, and speech payload hashes remain unchanged pending audible review.
+
 ## Exact unresolved presenter windows
 
 For each row in the [audit JSON](../../artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json), open the `native_source.path` from the corresponding lesson entry in the pack, confirm its SHA-256, and listen across the recorded `start_seconds` and `end_seconds` with context on both sides. Enter the first and last spoken words and the reviewed source hash in `audible_review`; note any trim or reorder decision. Reconcile against the approved script before changing a cutaway span. The ASR transcript and VTT are comparison aids, not the sign-off.
