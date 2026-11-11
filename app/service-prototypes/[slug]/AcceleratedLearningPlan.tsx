@@ -94,6 +94,13 @@ const acts: { name: Act; line: string }[] = [
 
 const LOCAL_SAVED_AT_KEY = `${DECISION_FILE_STORAGE_KEY}:saved-at`
 const savedTime = (value: string) => new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(value))
+const progressFingerprint = (state: Pick<LearningState, 'worksheet' | 'completed' | 'videoSeconds' | 'currentLessonId'>) => JSON.stringify({
+  worksheetId: state.worksheet.worksheetId,
+  answers: state.worksheet.answers,
+  completed: state.completed,
+  videoSeconds: state.videoSeconds,
+  currentLessonId: state.currentLessonId,
+})
 
 export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'decision-file' }) {
   const detailRef = useRef<HTMLElement>(null)
@@ -101,6 +108,8 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const memberUserRef = useRef<string | null>(null)
   const memberRevisionRef = useRef<number>(0)
   const memberSaveQueueRef = useRef<Promise<void>>(Promise.resolve())
+  const persistedProgressRef = useRef<string | null>(null)
+  const pendingProgressRef = useRef<string | null>(null)
   const persistedAnswersRef = useRef<string | null>(null)
   const workspaceActionRef = useRef(false)
   const [selected, setSelected] = useState('L01')
@@ -227,12 +236,18 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         if (!active) return
         if (typeof result.profileName === 'string' && result.profileName.trim()) setShareName(result.profileName.trim())
         if (!result.enrollment) return
+        const remoteDraft = result.worksheet
+          ? { version: DECISION_FILE_VERSION, worksheetId: result.worksheet.worksheet_id, answers: result.worksheet.answers, updatedAt: result.worksheet.updated_at }
+          : emptyDecisionFile(crypto.randomUUID())
+        const remoteCompleted = result.lessons.filter((item: { completed_at: string | null }) => item.completed_at).map((item: { lesson_id: string }) => item.lesson_id)
+        const remoteVideoSeconds = Object.fromEntries(result.lessons.map((item: { lesson_id: string; video_seconds: number }) => [item.lesson_id, item.video_seconds]))
         memberRevisionRef.current = result.enrollment.revision
-        setMemberClaimed(true)
+        persistedProgressRef.current = progressFingerprint({ worksheet: remoteDraft, completed: remoteCompleted, videoSeconds: remoteVideoSeconds, currentLessonId: result.enrollment.current_lesson_id })
+        setDraft(remoteDraft)
         setSelected(result.enrollment.current_lesson_id)
-        setCompleted(result.lessons.filter((item: { completed_at: string | null }) => item.completed_at).map((item: { lesson_id: string }) => item.lesson_id))
-        setVideoSeconds(Object.fromEntries(result.lessons.map((item: { lesson_id: string; video_seconds: number }) => [item.lesson_id, item.video_seconds])))
-        if (result.worksheet) setDraft({ version: DECISION_FILE_VERSION, worksheetId: result.worksheet.worksheet_id, answers: result.worksheet.answers, updatedAt: result.worksheet.updated_at })
+        setCompleted(remoteCompleted)
+        setVideoSeconds(remoteVideoSeconds)
+        setMemberClaimed(true)
         if (result.worksheet && typeof result.worksheet.updated_at === 'string' && !Number.isNaN(Date.parse(result.worksheet.updated_at))) setAccountSavedAt(result.worksheet.updated_at)
       } catch { setMemberNotice('Member progress is unavailable. Your local work is still here.') }
     }
@@ -254,12 +269,19 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
       } catch { /* The current validated state remains the claim source. */ }
     }
     const snapshot = state
+    const fingerprint = progressFingerprint(snapshot)
+    if (action === 'save') pendingProgressRef.current = fingerprint
     memberSaveQueueRef.current = memberSaveQueueRef.current.then(async () => {
       const response = await fetch('/api/accelerated/member', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${memberToken}` }, body: JSON.stringify({ action, consent: action === 'claim', expectedRevision: memberRevisionRef.current, state: snapshot }) })
       const result = await response.json()
       if (!response.ok) { setMemberNotice(result.error || 'Could not save member progress. Reload to reconcile your latest copy.'); return }
       memberRevisionRef.current = result.revision
+      persistedProgressRef.current = fingerprint
       if (action === 'claim') {
+        setDraft(snapshot.worksheet)
+        setCompleted(snapshot.completed)
+        setVideoSeconds(snapshot.videoSeconds)
+        setSelected(snapshot.currentLessonId)
         setMemberClaimed(true)
         localStorage.removeItem(GUEST_PROGRESS_KEY)
         localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
@@ -268,12 +290,17 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
       setAccountSavedAt(new Date().toISOString())
       setMemberNotice(action === 'claim' ? 'Guest progress is now linked to your member account.' : 'Saved to your member account.')
     }).catch(() => { setMemberNotice('Member progress could not be saved. Reload to reconcile your latest copy.') })
+      .finally(() => { if (pendingProgressRef.current === fingerprint) pendingProgressRef.current = null })
     await memberSaveQueueRef.current
   }
   useEffect(() => {
     if (!ready || !memberClaimed || !draft || mode === 'decision-file' || workspaceActionRef.current) return
+    const fingerprint = progressFingerprint({ worksheet: draft, completed, videoSeconds, currentLessonId: selected })
+    if (fingerprint === persistedProgressRef.current) return
     setMemberNotice('Saving this lesson and worksheet to your profile…')
-    const timer = window.setTimeout(() => { void saveMember('save') }, 1200)
+    const timer = window.setTimeout(() => {
+      if (fingerprint !== persistedProgressRef.current && fingerprint !== pendingProgressRef.current) void saveMember('save')
+    }, 1200)
     return () => window.clearTimeout(timer)
     // Saving is driven by the current lesson and worksheet changes, after claim.
     // eslint-disable-next-line react-hooks/exhaustive-deps

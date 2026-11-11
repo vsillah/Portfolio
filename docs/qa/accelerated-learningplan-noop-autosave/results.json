@@ -1,0 +1,43 @@
+{
+  "captureRevision": "15014e68",
+  "runs": [
+    {
+      "label": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "fixtureUrl": "http://localhost:3211/accelerated/learningplan?fixture=synthetic-member-autosave&rev=15014e68",
+      "initialRevision": 12,
+      "finalRevision": 13,
+      "memberPosts": [
+        {
+          "action": "save",
+          "expectedRevision": 12,
+          "answer": "One real synthetic edit"
+        }
+      ],
+      "mp4": "docs/qa/accelerated-learningplan-noop-autosave/desktop-walkthrough.mp4",
+      "durationSeconds": 8.92
+    },
+    {
+      "label": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fixtureUrl": "http://localhost:3211/accelerated/learningplan?fixture=synthetic-member-autosave&rev=15014e68",
+      "initialRevision": 12,
+      "finalRevision": 13,
+      "memberPosts": [
+        {
+          "action": "save",
+          "expectedRevision": 12,
+          "answer": "One real synthetic edit"
+        }
+      ],
+      "mp4": "docs/qa/accelerated-learningplan-noop-autosave/mobile-walkthrough.mp4",
+      "durationSeconds": 8.6
+    }
+  ]
+}
