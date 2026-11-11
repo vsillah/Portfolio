@@ -2,6 +2,8 @@
 
 This package is a **local review candidate**. It does not change the learner-player binding, provider state, or production media. The source is the approved L01 visual-parity MP4 identified by `review-receipt.json`. The teaching words come from its approved VTT; the presenter video and native audio stay in their recorded windows. The off-screen teaching track uses the macOS `Samantha` system voice to prove timing only. Its voice identity and performance are **not approved for release**.
 
+The clean frame applies only when the presenter is off screen. Native presenter frames still show `SCENE 03` at 04:00 and `SCENE 06` at 08:48; the 04:00 SAM plate and adjacent heading also carry substantial text. This local proof resolves the silence and the first cutaway card, **not** all visible production labels. A safe presenter-frame overlay or source-background redesign remains a separate visual QA task.
+
 ## Watch
 
 - `l01-candidate-025-to-105.mp4` is the **primary 40-second narrated review clip** from source 00:25–01:05, with its caption stream. At source 00:36 the candidate removes the scene code, repeated artifact line, progress dots, and two worksheet fields. At source 00:45 the page changes to the decision question.

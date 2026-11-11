@@ -27,6 +27,8 @@ This is a source-bound audit of the 16 learner-player MP4s in `public/accelerate
 
 L01 at 00:36 illustrates the copy issue. The frame stacks “The blank document,” “Q3 Innovation Plan,” three worksheet fields, “Decision File cover sheet and data-use boundary,” `L01 / 01`, the brand line, and six scene progress dots. The bottom caption band is reserved, but captions compete with the amount of reading above it. The reusable frame renderer adds the artifact line, technical scene code, and dots to all 98 teaching scenes. Other scene cards and source plates still need a visual pass at desktop and narrow mobile widths after narration is repaired.
 
+The clean-frame option does **not** change the native presenter/source frames. L01 at **04:00** still shows `SCENE 03` beside a dense SAM plate and a second large three-part heading; at **08:48** it still shows `SCENE 06` above the presenter and closing card. Those are confirmed outstanding internal-label and reading-load defects in the local proof. The remaining presenter windows across L01–L16 need a frame-by-frame sweep before anyone calls the presentation visually clean.
+
 ## Smallest coherent repair
 
 1. Build a **local L01 review composite** first. Keep the native presenter pixels and audio in their exact windows. Add continuous, sentence-complete narration only in the three off-screen teaching spans. Regenerate timed captions against that actual mix. Any silence longer than two seconds requires an explicit learner-work marker and timecode.
