@@ -16,6 +16,8 @@ L09–L16 have **48 title-only shot fields** in the source manifest. The gallery
 
 Agentified is a useful comparison because its reviewed scenes keep a recognizable work surface while the decision changes. Accelerated should keep its own approved SAM, Signals, Alignment, and Momentum vocabulary: dark navy, teal, warm gold, source notes, decision files, and chapter art. Let the illustration show the situation, the evidence, and the change. Keep labels short and tied to a visible artifact.
 
+For L01, use each distinct approved high-resolution Signals, Alignment, and Momentum plate when that path is the focus. Use the complete SAM infographic for an overview or to explain relationships between paths. Keep source arrow labels complete and readable; a cropped path panel must not leave fragments of neighboring labels. A book character may be introduced with the approved cover and a short name label when narration first names them, without inventing a portrait.
+
 | Lesson | Persistent illustration anchor |
 | --- | --- |
 | L01 | the open Q3 plan and the approved SAM map |
