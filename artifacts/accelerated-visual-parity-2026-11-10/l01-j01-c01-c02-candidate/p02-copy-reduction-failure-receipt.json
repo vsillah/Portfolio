@@ -1,0 +1,34 @@
+{
+  "status": "REJECT_STOPPED_AT_MOBILE_INFORMATION_READABILITY",
+  "review_date": "2026-11-11",
+  "source_commit": "975db635",
+  "scope": "remove duplicate P02 overlay text only, preserving source SAM art and fixed middle-right presenter",
+  "artifact": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4",
+  "artifact_sha256": "820c42a81311152c454318d47549ca5ed90c8e44dfb8713d6aa5007b5d382461",
+  "removed_overlays": [
+    "WORKSHOP MAP",
+    "Signals · Alignment · Momentum",
+    "Book parts: Systems · Align · Momentum"
+  ],
+  "passed_before_stop": [
+    "source art, small ACCELERATED brand, and presenter reserved region pixel-identical to prior base",
+    "320 encoded frames and full technical decode",
+    "native audio decoded PCM SHA-256 b86a0394c94c793529d3b4c75ea8031975ddd328cac7de4962bcace963b76c97 identical to prior middle-anchor reel",
+    "presenter visible and fixed at both handoffs in sampled rendered frames",
+    "desktop Chrome player with controls shows P02 map and footer unobstructed",
+    "390x844 Chrome player with controls shows full map and footer unobstructed"
+  ],
+  "failure": {
+    "viewport_css_px": [390, 844],
+    "player": "Chrome native MP4 player with controls visible",
+    "observation": "The source SAM map's built-in SIGNALS, ALIGNMENT, and MOMENTUM headings render at only a few pixels in the narrow player. After removing the large duplicate overlay, those words cannot reliably carry the teaching point at normal mobile viewing size.",
+    "gate": "preserve one-second teaching idea and source-art legibility after overlay reduction",
+    "result": "failed"
+  },
+  "not_claimed_after_stop": [
+    "human QA readiness",
+    "full caption-safe learner composite",
+    "C01/C02 J01 timing render"
+  ],
+  "actions": "At the render stop, no corrective rerender, candidate commit, learner media or binding change, HeyGen call, credit spend, merge, or release occurred. Voice-bearing MP4 and proposed source/stills stay local and uncommitted; this failure receipt may be committed separately."
+}
