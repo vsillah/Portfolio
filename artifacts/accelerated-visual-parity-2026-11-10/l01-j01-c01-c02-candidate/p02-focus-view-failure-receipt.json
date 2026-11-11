@@ -1,0 +1,32 @@
+{
+  "status": "REJECT_STOPPED_AT_NATIVE_AUDIO_JOIN",
+  "review_date": "2026-11-11",
+  "source_commit": "ad9d8345",
+  "branch": "codex/accelerated-lesson-pacing-audit",
+  "scope": "one review-only P02 revision with enlarged crops from the owned SAM illustration",
+  "reel": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4",
+  "reel_sha256": "da4f4c23d00dfc95c9750ae7a26d11f7f5bc972f2cd7abd970ea9d501050dca1",
+  "render_count": 1,
+  "passed_before_stop": [
+    "320 frames, 12.821333 seconds, full ffmpeg decode",
+    "fixed presenter anchor (1136,348,672,384) in sampled desktop and 390x844 Chrome playback",
+    "Signals and Momentum source-art headings readable in sampled 390x844 Chrome playback with native controls",
+    "whole-map view retains the original source labels and gold footer; focused stills show all three original section headings without added overlay text"
+  ],
+  "failure": {
+    "gate": "preserve native audio windows and joins",
+    "prior_reel_pcm_sha256": "b86a0394c94c793529d3b4c75ea8031975ddd328cac7de4962bcace963b76c97",
+    "prior_reel_pcm_bytes": 2482176,
+    "revised_reel_pcm_sha256": "f36b12e8a106c9af5a2cccf744f932c4f77834af30875db37a0a978b2988b7ee",
+    "revised_reel_pcm_bytes": 2506752,
+    "observation": "Decoded audio differs after splitting the P02 native window into additional AAC-encoded segments; the revised reel contains 24576 more PCM bytes. Audio continuity is not established.",
+    "result": "failed"
+  },
+  "not_claimed_after_stop": [
+    "Human QA readiness",
+    "all focused views in actual mobile playback",
+    "caption-safe learner composite",
+    "J01/C01/C02 timing correction"
+  ],
+  "actions": "No second render, retry, HeyGen call, credit spend, learner-media or binding change, merge, or release. Voice-bearing reels and candidate art/scripts remain local and uncommitted."
+}
