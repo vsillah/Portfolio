@@ -9,7 +9,7 @@
   },
   "audio_audit": {
     "path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json",
-    "sha256": "34015e06790ad1f779e2869a978d5feb4a36d9224d7b701068718dfb69a70394",
+    "sha256": "9868f58242b53d15c99507ce861cccb2a2a6440cfbc6cc86d412ceeee341da4c",
     "status": "machine_diagnostic_only; all 64 windows unresolved for audible confirmation and native edit decision"
   },
   "credit_plan": {

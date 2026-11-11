@@ -1,6 +1,6 @@
 # Accelerated presenter audio listening index
 
-**Status:** review-only. These clips use existing native source audio. The 16 canonical lessons, learner bindings, approved cutaway text, speech payloads, and source timings are unchanged. Listen to each before/after comparison with an audio-capable reviewer; the machine checks are not audible approval.
+**Status:** review-only; Vambah has audibly approved the six priority comparisons and 24 packet-copy local cuts at their exact reviewed commits. These clips use existing native source audio. The 16 canonical lessons, learner bindings, approved cutaway text, and speech payloads are unchanged. Local-cut approval does not sign off full presenter windows, full lessons, or final voice timing.
 
 ## One-pass review reel
 
@@ -15,7 +15,7 @@
 | 01:33.50 | L16 A01 · retain “pain point” | [Open clip](../../artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a01-tail-pcm-before-after.mp4) |
 | 01:49.90 | L16 A02 · retain “it” | [Open clip](../../artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a02-tail-pcm-before-after.mp4) |
 
-The [human listening receipt](../../artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json) records Vambah’s approval of these six local comparisons at PR #1270 commit `9aaf109874a9ef4f302233aeb07914a88af4493e`: retained words and joins sounded clean, with no clipped, repeated, or missing speech. This signoff covers only those six clips; it does not approve the 24 packet-copy cuts or full-lesson timing.
+The [human listening receipt](../../artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json) records Vambah’s approval of these six local comparisons at PR #1270 commit `9aaf109874a9ef4f302233aeb07914a88af4493e`: retained words and joins sounded clean, with no clipped, repeated, or missing speech. This signoff covers only those six clips. The 24 packet-copy cuts have a separate later receipt; neither approval establishes full-lesson timing.
 
 ## Priority 1: coordinated A02→A03 joins
 
@@ -39,11 +39,11 @@ Both ASR models found the approved sentence in each local joined A03 and omitted
 
 These three candidates re-encode their audio after a sample-accurate cut. The [PCM receipts and ASR](../../artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/manifest.json) distinguish them from packet-copy candidates.
 
-## Remaining 24 packet-copy cuts: three listening reels
+## 24 packet-copy local cuts: three listening reels
 
-These 24 cuts remain **pending audible review**. Each card gives the exact lesson/window, cut direction, retained phrase, and phrase to omit; the clip then plays **ORIGINAL → CANDIDATE**. Chapter starts below are seek times in the reel, followed by the individual source clip and its hash-bound receipt. All three reels preserve the existing comparison clips’ AAC packet payloads in order. Chapter-card silence was newly AAC-encoded, and video was re-encoded to browser-compatible H.264 High Profile 4.1/yuv420p, constant 25 fps, with faststart. Full MP4 decode, two-stream probe, dual-model ASR, approved-script order, and audio-packet sequence checks passed. The [master manifest](../../artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/manifest.json) binds every reel and source receipt.
+Vambah approved these 24 local cuts after listening to all three reels at PR #1270 commit `31b05313e98376da9b2a29d2e12d7cc8983b22cc`: retained words intact, overlaps removed, and no clipped, repeated, or missing speech. The [scoped human listening receipt](../../artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json) binds each clip hash and chapter. This approval does not sign off full presenter windows or full lessons. Each card gives the exact lesson/window, cut direction, retained phrase, and phrase to omit; the clip then plays **ORIGINAL → CANDIDATE**. Chapter starts below are seek times in the reel, followed by the individual source clip and its hash-bound receipt. All three reels preserve the existing comparison clips’ AAC packet payloads in order. Chapter-card silence was newly AAC-encoded, and video was re-encoded to browser-compatible H.264 High Profile 4.1/yuv420p, constant 25 fps, with faststart. Full MP4 decode, two-stream probe, dual-model ASR, approved-script order, and audio-packet sequence checks passed. The [master manifest](../../artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/manifest.json) binds every reel and source receipt.
 
-Listen at each first/last phoneme and at the before/after transition. The three **alternate** packet cuts—L05 A02, L06 A02, and L08 A02—use a different split from the approved coordinated A02→A03 joins above. Review them as local cut inspections; the six-clip signoff does not cover these alternates.
+The three **alternate** packet cuts—L05 A02, L06 A02, and L08 A02—use a different split from the approved coordinated A02→A03 joins above. Their signoff is local-cut only; the coordinated joins govern sentence continuity.
 
 ### Reel 1 · 2:03.18
 
@@ -90,6 +90,6 @@ Listen at each first/last phoneme and at the before/after transition. The three 
 | 01:31.04 | L15 A01 tail | Keep “between those two moments”; omit “names five scaling mistakes” | [Clip](../../artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a01-tail-before-after.mp4) / [Receipt](../../artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a01-tail-receipt.json) |
 | 01:47.11 | L15 A03 tail | Keep “to defer say why”; omit “end with a decision” | [Clip](../../artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a03-tail-before-after.mp4) / [Receipt](../../artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l15-a03-tail-receipt.json) |
 
-The separately approved L01 A02 isolated cut remains in its [own review](l01-a02-native-correction-review-2026-11-10.md). All 24 cuts listed here remain unresolved until Vambah listens and explicitly signs off.
+The separately approved L01 A02 isolated cut remains in its [own review](l01-a02-native-correction-review-2026-11-10.md). The [full-lesson timing decision list](full-lesson-timing-decision-list-2026-11-11.md) is the next review-only planning artifact; final voice fit and caption synchronization remain unresolved.
 
 No full-lesson edit, narration submission, provider call, purchase, upload, learner rebind, merge, or release is part of this listening index.

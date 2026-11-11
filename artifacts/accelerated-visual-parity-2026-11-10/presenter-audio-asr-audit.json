@@ -2940,6 +2940,198 @@
       "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
       "outcome": "passed_local_audible_listening_only",
       "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L02 A01",
+      "review_clip_sha256": "911675491d456f5df2b2ea7dc6fdd2b3cd26a18f3f324075a9170386a475ab74",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L02 A02",
+      "review_clip_sha256": "13fba38cccba5b4c00f80b27adc6d49c920a385c6bafd4d3b953f81a6f0eee07",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L02 A03",
+      "review_clip_sha256": "9e9e3b473d3bc178b0b18a3cbf3e9b01ed6c1d79aeb5da76d7cad4a3f42f5b88",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L04 A02",
+      "review_clip_sha256": "e4aaf2e7cc262b7f0c8d2d03b67acf9a0ae9d36568a12bb00cb06a478b44a0c2",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L04 A03",
+      "review_clip_sha256": "b0d996495ccf6dfaf8e748fc0b4c812a22b3727116b3e3a7dfb646ba071b5b00",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L05 A01",
+      "review_clip_sha256": "65b023785e1953a10a0884b9c9aa5e968e074d7ed41426c86fea10d83c8791fe",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L05 A02",
+      "review_clip_sha256": "71a50e971d3d87bb0ee084a1e72f57985be2fb27833a75aad44140cea5da5614",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": true,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L06 A02",
+      "review_clip_sha256": "47d0d068c105755ef65e83ad4affd8f54379261daab37f9bc1b1ae2be07c9330",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": true,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L08 A01",
+      "review_clip_sha256": "2888aadafcb2734410c0c7147c50bbd53d132232a5b27d71929fe1e569a14222",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L08 A02",
+      "review_clip_sha256": "bd7bc3667869eb9e23df41b9fe2fbf0e7a2ab5f7556f615e662a579d990ddc4f",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": true,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L09 A03",
+      "review_clip_sha256": "c5b7e6299c0fe4649cbefbc321bc1b2c5a5046f6de491aea2d1b03fcd83637d5",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L09 A04",
+      "review_clip_sha256": "a00888f0aaa136727ff4b460f1bb7324ed039b900aeaac63665270bad7d495df",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L10 A01",
+      "review_clip_sha256": "ced387a9f9260a3a977892b41bea5350e7e7c2e538822fbd4bf70c7426cec1bc",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L10 A03",
+      "review_clip_sha256": "7447a3e109595c6d1bdd2e37effae32ca31c8c1b98d428e4d36b769a186ae633",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L10 A04",
+      "review_clip_sha256": "ac730a9a020a5abac946e9b30707ae3648b1b7aced157f62e722fd2dfce71ef9",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L11 A03",
+      "review_clip_sha256": "2edea35a5a5fc0da4d3dbdfa94c0727bd451a4a2ef902712754e61fc63fd8afa",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L11 A04",
+      "review_clip_sha256": "d3f35ccdefa316979d1011a453765e7b114f21bbd570db27eb8e474f890ac5f5",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L12 A03",
+      "review_clip_sha256": "7775f733dada7fa80b5209da16d2933c1d2ee887cf306c30671fd080a4d25f9a",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L12 A04",
+      "review_clip_sha256": "ee56f95e05c05ca4663d4b3fdddfb397f8d598a5bdd264a0b9a3e8eff6d8c0f1",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L13 A01",
+      "review_clip_sha256": "0e274bfe6789bff6f5d8e93b16085c8dad094d6fbf532292660bea0565cbf5bd",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L13 A02",
+      "review_clip_sha256": "bb3347f57f6e08ab22771fd898b056b8e724f24c2e1e8530d96dcb501304758d",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L14 A04",
+      "review_clip_sha256": "9d234635e81b74a0f631b49c629939deb3aa7567fc02f101ff8561c629429f7d",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L15 A01",
+      "review_clip_sha256": "f600a9b576ccac997011714b1cb15d7d4515c8c8600081f6f02453d81d40f999",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+    },
+    {
+      "scope": "L15 A03",
+      "review_clip_sha256": "73f67a314b94c51da3a1469ba34d8ea363045de6773a040b609830a9cac87a49",
+      "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+      "outcome": "passed_local_audible_listening_only",
+      "local_cut_only_alternate_split": false,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
     }
   ]
 }
