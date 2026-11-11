@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render one review-only P02 SAM motif redraw with a fixed presenter."""
+"""Build review-only P02 stills from the approved high-resolution SAM plates."""
 import hashlib
 import json
 import subprocess
@@ -9,8 +9,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = ROOT / 'docs/accelerated-course-modules/visual-production/p02-redraw'
-OUT = ROOT / 'artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-redraw-stills'
+ART = ROOT / 'public/showcases/service-prototypes/v2'
+OUT = ROOT / 'artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-approved-plate-stills'
 BASE = OUT.parent / 'p02-clean-base.png'
 SAM = ROOT / 'public/showcases/service-prototypes/accelerated-sam-infographic.png'
 VIDEO = ROOT / 'public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4'
@@ -18,13 +18,15 @@ ANCHOR = (1136, 348, 672, 384)
 FONT = Path('/System/Library/Fonts/Supplemental/Arial.ttf')
 BOLD = Path('/System/Library/Fonts/Supplemental/Arial Bold.ttf')
 SECTIONS = {
-    'signals': {'heading': 'SIGNALS', 'svg': 'signals-target.svg',
-                'reference_region_xyxy': [160, 590, 285, 744]},
-    'alignment': {'heading': 'ALIGNMENT', 'svg': 'alignment-trophy.svg',
-                  'reference_region_xyxy': [505, 208, 635, 325]},
-    'momentum': {'heading': 'MOMENTUM', 'svg': 'momentum-loop.svg',
-                 'reference_region_xyxy': [808, 350, 1032, 581]},
+    'signals': {'heading': 'SIGNALS', 'plate': 'sam-signals-plate.webp',
+                'sha256': '8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c'},
+    'alignment': {'heading': 'ALIGNMENT', 'plate': 'sam-alignment-plate.webp',
+                  'sha256': '82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0'},
+    'momentum': {'heading': 'MOMENTUM', 'plate': 'sam-momentum-plate.webp',
+                 'sha256': '8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3'},
 }
+HEADING_BOX = (270, 235, 810, 318)
+ART_BOX = (205, 340, 875, 800)
 
 
 def sha(path):
@@ -59,14 +61,22 @@ def presenter():
         return frame.crop((1420, 790, 1868, 1046)).resize(ANCHOR[2:], Image.Resampling.LANCZOS)
 
 
-def render_svg(source, target):
-    js = '''const {chromium}=require('playwright');
-    (async()=>{const b=await chromium.launch({headless:true});
-      const p=await b.newPage({viewport:{width:400,height:400},deviceScaleFactor:1});
-      await p.goto('file://'+process.argv[1]);
-      await p.locator('svg').screenshot({path:process.argv[2],omitBackground:true});
-      await b.close();})().catch(e=>{console.error(e);process.exit(1)});'''
-    subprocess.run(['node', '-e', js, str(source), str(target)], cwd=ROOT, check=True)
+def focus_frame(clean, name):
+    section = SECTIONS[name]
+    plate_path = ART / section['plate']
+    assert sha(plate_path) == section['sha256']
+    frame = clean.copy().convert('RGBA')
+    draw = ImageDraw.Draw(frame)
+    draw.rounded_rectangle(HEADING_BOX, radius=5, fill='#80601d', outline='#bc913e', width=3)
+    draw.text(((HEADING_BOX[0]+HEADING_BOX[2])//2, (HEADING_BOX[1]+HEADING_BOX[3])//2),
+              section['heading'], font=ImageFont.truetype(str(BOLD), 60),
+              fill='#fff3cd', anchor='mm', stroke_width=1, stroke_fill='#473519')
+    plate = Image.open(plate_path).convert('RGBA')
+    plate.thumbnail((ART_BOX[2]-ART_BOX[0], ART_BOX[3]-ART_BOX[1]), Image.Resampling.LANCZOS)
+    x = (ART_BOX[0]+ART_BOX[2]-plate.width)//2
+    y = (ART_BOX[1]+ART_BOX[3]-plate.height)//2
+    frame.alpha_composite(plate, (x,y))
+    return frame.convert('RGB'), [x,y,plate.width,plate.height]
 
 
 def stills(frame, name, face):
@@ -106,30 +116,25 @@ def main():
     full = clean.copy()
     full.paste(source.crop((190, 165, 990, 830)).resize((530,440), Image.Resampling.LANCZOS), (275,320))
     paths += stills(full, 'p02-full-map', face)
-    for name, spec in SECTIONS.items():
-        frame = clean.copy().convert('RGBA')
-        draw = ImageDraw.Draw(frame)
-        draw.rounded_rectangle((270, 328, 810, 420), radius=5, fill='#80601d', outline='#bc913e', width=3)
-        draw.text((540, 374), spec['heading'], font=ImageFont.truetype(str(BOLD), 62),
-                  fill='#fff3cd', anchor='mm', stroke_width=1, stroke_fill='#473519')
-        png = OUT / f'{name}-motif.png'
-        render_svg(ART / spec['svg'], png)
-        motif = Image.open(png).convert('RGBA').resize((350,350), Image.Resampling.LANCZOS)
-        frame.alpha_composite(motif, (365,410))
-        paths += stills(frame.convert('RGB'), f'p02-{name}', face)
+    placements = {}
+    for name in SECTIONS:
+        frame, placement = focus_frame(clean, name)
+        placements[name] = placement
+        paths += stills(frame, f'p02-{name}', face)
     receipt = {
         'status': 'review_only_stills_no_video_render',
-        'source_sam': {'path': str(SAM.relative_to(ROOT)), 'sha256': sha(SAM),
-                       'reference_regions_xyxy': {name: spec['reference_region_xyxy'] for name,spec in SECTIONS.items()}},
+        'source_sam': {'path': str(SAM.relative_to(ROOT)), 'sha256': sha(SAM)},
         'source_base': {'path': str(BASE.relative_to(ROOT)), 'sha256': sha(BASE)},
         'source_video_sha256': sha(VIDEO),
         'presenter_anchor_xywh': list(ANCHOR),
-        'heading_destination_xyxy': [270,328,810,420],
-        'motif_destination_xywh': [365,410,350,350],
+        'heading_destination_xyxy': list(HEADING_BOX),
+        'art_box_xyxy': list(ART_BOX),
+        'plate_destinations_xywh': placements,
         'whole_map_destination_xywh': [275,320,530,440],
-        'redraw_sources': {name: {'path': str((ART/spec['svg']).relative_to(ROOT)),
-                                   'sha256': sha(ART/spec['svg']),
-                                   'meaning': spec['heading'] + ' source motif'} for name,spec in SECTIONS.items()},
+        'approved_plates': {name: {'path': str((ART/spec['plate']).relative_to(ROOT)),
+                                   'sha256': sha(ART/spec['plate']),
+                                   'source_size': Image.open(ART/spec['plate']).size}
+                             for name,spec in SECTIONS.items()},
         'stills': {path.name: sha(path) for path in paths},
         'limits': ['Simulated controls; actual player/captions untested.',
                    'No video, audio, learner media, or binding changed.'],

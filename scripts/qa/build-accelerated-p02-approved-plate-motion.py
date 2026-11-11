@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build one local P01→P02 redraw reel using the preserved native audio track."""
+"""Build one local P01→P02 reel with approved SAM plates and copied native audio."""
 import argparse
 import hashlib
 import importlib.util
@@ -8,20 +8,20 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 PARENT = ROOT / 'artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate'
-OUT = PARENT / 'p02-redraw-motion'
+OUT = PARENT / 'p02-approved-plate-motion'
 SOURCE = ROOT / 'public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4'
 P01 = PARENT / 'p01-middle-base.png'
 P02 = OUT / 'p02-full-base.png'
 FOCUS = {name: OUT / f'p02-focus-{name}-base.png'
          for name in ('signals', 'alignment', 'momentum')}
-REDRAW = ROOT / 'scripts/qa/build-accelerated-p02-redraw-stills.py'
-STILL_RECEIPT = PARENT / 'p02-redraw-stills/receipt.json'
+PLATES = ROOT / 'scripts/qa/build-accelerated-p02-approved-plate-stills.py'
+STILL_RECEIPT = PARENT / 'p02-approved-plate-stills/receipt.json'
 SAM = ROOT / 'public/showcases/service-prototypes/accelerated-sam-infographic.png'
-VIDEO = OUT / 'l01-p01-p02-redraw-motion.mp4'
+VIDEO = OUT / 'l01-p01-p02-approved-plate-motion.mp4'
 PRIOR_AUDIO = PARENT / 'l01-p01-p02-middle-motion-failed-copy-reduction.mp4'
 RECEIPT = OUT / 'motion-receipt.json'
 FPS = 25
@@ -36,6 +36,9 @@ SEGMENTS = [
     {'id': 'P02_MOMENTUM', 'start': 238.56, 'end': 240.04, 'crop_y': 790, 'base': FOCUS['momentum']},
     {'id': 'P02_FULL_OUT', 'start': 240.04, 'end': 241.0, 'crop_y': 790, 'base': P02},
 ]
+for index in (1, 3, 4, 5, 6):
+    SEGMENTS[index]['previous_base'] = SEGMENTS[index - 1]['base']
+FADE_SECONDS = 0.20
 
 
 def sha(path):
@@ -54,35 +57,27 @@ def source_check():
     assert sha(PRIOR_AUDIO) == '820c42a81311152c454318d47549ca5ed90c8e44dfb8713d6aa5007b5d382461'
     assert sha(P01) == 'ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071'
     assert sha(SAM) == '13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6'
-    assert sha(REDRAW) == '797141b8bdc5522442e665a63c4b9b180ce7894e9f17ee70837d237f16d5c4ba'
+    assert sha(PLATES) == '189a44c119ce2e3b6696073fba4b4ca1844d344c4abdd44dd613311adf22462d'
     stills = json.loads(STILL_RECEIPT.read_text())
     assert stills['presenter_anchor_xywh'] == list(ANCHOR)
     assert stills['source_sam']['sha256'] == sha(SAM)
     assert stills['status'] == 'review_only_stills_no_video_render'
     assert all(sha(ROOT / row['path']) == row['sha256']
-               for row in stills['redraw_sources'].values())
+               for row in stills['approved_plates'].values())
     assert sum(round((row['end'] - row['start']) * FPS) for row in SEGMENTS) == 320
 
 
 def prepare_bases():
-    spec = importlib.util.spec_from_file_location('p02_redraw_still_builder', REDRAW)
-    redraw = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(redraw)
-    source, clean = redraw.background()
+    spec = importlib.util.spec_from_file_location('p02_approved_plate_still_builder', PLATES)
+    plates = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(plates)
+    source, clean = plates.background()
     full = clean.copy()
     full.paste(source.crop((190, 165, 990, 830)).resize((530,440), Image.Resampling.LANCZOS), (275,320))
     full.save(P02)
-    for name, section in redraw.SECTIONS.items():
-        frame = clean.copy().convert('RGBA')
-        draw = ImageDraw.Draw(frame)
-        draw.rounded_rectangle((270, 328, 810, 420), radius=5, fill='#80601d', outline='#bc913e', width=3)
-        draw.text((540, 374), section['heading'], font=ImageFont.truetype(str(redraw.BOLD), 62),
-                  fill='#fff3cd', anchor='mm', stroke_width=1, stroke_fill='#473519')
-        png = OUT / f'{name}-motif.png'
-        redraw.render_svg(redraw.ART / section['svg'], png)
-        motif = Image.open(png).convert('RGBA').resize((350,350), Image.Resampling.LANCZOS)
-        frame.alpha_composite(motif, (365,410))
-        frame.convert('RGB').save(FOCUS[name])
+    for name in plates.SECTIONS:
+        frame, _ = plates.focus_frame(clean, name)
+        frame.save(FOCUS[name])
 
 
 def render_segment(row, path):
@@ -92,14 +87,21 @@ def render_segment(row, path):
     # native video frame for 40 ms. Audio is copied as one prior passing track.
     first = .04 if row.get('hold_first_frame') else 0
     hold = ',tpad=start_mode=clone:start_duration=0.04' if first else ''
+    background = ('[0:v][2:v]blend=all_expr='
+                  f"'A*min(T/{FADE_SECONDS},1)+B*(1-min(T/{FADE_SECONDS},1))'[bg];"
+                  if row.get('previous_base') else '[0:v]null[bg];')
     graph = (
+        background +
         f'[1:v]trim=start={first}:duration={duration-first:.6f},setpts=PTS-STARTPTS{hold},'
         f'crop=448:256:1420:{row["crop_y"]},scale={ANCHOR[2]}:{ANCHOR[3]}:flags=lanczos[presenter];'
-        f'[0:v][presenter]overlay={ANCHOR[0]}:{ANCHOR[1]}:shortest=0,'
+        f'[bg][presenter]overlay={ANCHOR[0]}:{ANCHOR[1]}:shortest=0,'
         'scale=1280:720:flags=lanczos,fps=25[v]'
     )
-    run('ffmpeg', '-v', 'error', '-y', '-loop', '1', '-framerate', '25', '-i', str(row['base']),
-        '-ss', str(row['start']), '-i', str(SOURCE), '-filter_complex', graph,
+    args = ['ffmpeg', '-v', 'error', '-y', '-loop', '1', '-framerate', '25', '-i', str(row['base']),
+            '-ss', str(row['start']), '-i', str(SOURCE)]
+    if row.get('previous_base'):
+        args += ['-loop', '1', '-framerate', '25', '-i', str(row['previous_base'])]
+    run(*args, '-filter_complex', graph,
         '-map', '[v]', '-an', '-frames:v', str(frames), '-t', str(duration),
         '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p',
         str(path))
@@ -151,6 +153,8 @@ def inspect(write=False):
         'status': 'local_native_motion_review_only_not_learner_media',
         'source': {'path': str(SOURCE.relative_to(ROOT)), 'sha256': sha(SOURCE)},
         'approved_still_receipt_sha256': sha(STILL_RECEIPT),
+        'transition_seconds': FADE_SECONDS,
+        'transition_method': 'five-frame background dissolve only; native presenter and one copied audio track remain continuous',
         'sam_source_sha256': sha(SAM),
         'backgrounds': {'P01': sha(P01), 'P02': sha(P02),
                         **{name: sha(path) for name, path in FOCUS.items()}},
