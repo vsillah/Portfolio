@@ -1,0 +1,110 @@
+{
+  "status": "review_only_fit_failed",
+  "scope": "one authorized L01 J01 provider WAV; no retry, stretch, learner media, or binding",
+  "source_pack": {
+    "path": "docs/accelerated-course-modules/narration-production-pack-2026-11-10.json",
+    "sha256": "a0952c90bdea643245e69ef64cee022dc6b670a129c455bec4e57c394de2c245"
+  },
+  "source_edl": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/full-lesson-timing-decisions.json",
+    "sha256": "50846b9c7a966cf51dfc4540bb88aa311318b7d199f18c3c09797904ea753326"
+  },
+  "approved_job": {
+    "id": "L01 J01",
+    "window_ids": [
+      "C01",
+      "C02"
+    ],
+    "characters": 3518,
+    "text_sha256": "33e4fced3cde522647ec92a08840b2c56b28becfc86a1f2f11f3d24e4b4d6a4a"
+  },
+  "original_wav": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/narration-pilot/l01-j01-original.wav",
+    "sha256": "24ce83730c2112a52fee7e765794c29c771886ad103094ddff53511d33491360",
+    "duration_seconds": 209.029161,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 44100,
+    "channels": 1
+  },
+  "provider_report": {
+    "source": "integration captain report; balance not rechecked in this lane",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "model": "heygen-voice-1",
+    "language": "en",
+    "credits_debited": 2,
+    "cash_usd": 0
+  },
+  "asr_evidence": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/narration-pilot/l01-j01-asr-evidence.json",
+    "sha256": "f99f4cdef6407c986274d72695f5e36effa80635dc45a12e5ac97243396be10e",
+    "method": "Local faster-whisper small.en, CPU int8, beam 5, English, word timestamps, no VAD, no previous-text conditioning; FFmpeg PCM16 16 kHz input",
+    "normalized_approved_tokens": 611,
+    "normalized_asr_tokens": 611,
+    "exact_normalized_order_match": true,
+    "segment_count": 58,
+    "limit": "ASR is a machine check, not a human listening signoff; punctuation and prosody are not certified."
+  },
+  "window_fit": [
+    {
+      "id": "C01",
+      "approved_word_count": 414,
+      "planned_start_seconds": 31.52,
+      "planned_end_seconds": 235.0,
+      "planned_duration_seconds": 203.48,
+      "pilot_audio_start_seconds": 0,
+      "pilot_audio_end_seconds": 138.06,
+      "pilot_audio_duration_seconds": 138.06,
+      "unfilled_window_seconds": 65.42,
+      "pilot_words_per_minute": 179.9
+    },
+    {
+      "id": "C02",
+      "approved_word_count": 194,
+      "planned_start_seconds": 248.2,
+      "planned_end_seconds": 345.0,
+      "planned_duration_seconds": 96.8,
+      "pilot_audio_start_seconds": 138.06,
+      "pilot_audio_end_seconds": 209.029161,
+      "pilot_audio_duration_seconds": 70.969,
+      "unfilled_window_seconds": 25.831,
+      "pilot_words_per_minute": 164.0
+    }
+  ],
+  "boundary": {
+    "last_c01_word_end_seconds": 137.68,
+    "first_c02_word_start_seconds": 138.44,
+    "provisional_split_seconds": 138.06,
+    "method": "midpoint of ASR-timed pause after reactive work and before Before you try any prompt"
+  },
+  "silence_scan": {
+    "threshold_dbfs": -40,
+    "minimum_duration_seconds": 0.25,
+    "pause_count": 52,
+    "total_pause_seconds": 21.214,
+    "longest_pause_seconds": 0.796,
+    "pauses_over_one_second": 0
+  },
+  "total_planned_cutaway_seconds": 300.28,
+  "total_pilot_seconds": 209.029161,
+  "total_unfilled_seconds": 91.251,
+  "decision": "Do not place or stretch this J01 WAV into the approved L01 C01/C02 windows. Review pace and the large unfilled spans before any further provider request.",
+  "unresolved": [
+    "Human audible pace and voice-match signoff",
+    "Full L01 source-to-output composite and caption timing",
+    "Any decision to revise timing, wording, or provider settings"
+  ],
+  "local_listening_segments": [
+    {
+      "window_id": "C01",
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/narration-pilot/l01-j01-c01-review.mp3",
+      "sha256": "5b51ada6699c0f88c0c5348e55091de74ab1a0c16dfecc64cef135ad4a284f8e",
+      "origin": "local MP3 excerpt from unchanged original WAV; playback convenience only"
+    },
+    {
+      "window_id": "C02",
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/narration-pilot/l01-j01-c02-review.mp3",
+      "sha256": "672e43b1e19ee6a73a19032bd0a879a09af2715c09d688ee4271b88fe0f02bdf",
+      "origin": "local MP3 excerpt from unchanged original WAV; playback convenience only"
+    }
+  ]
+}
