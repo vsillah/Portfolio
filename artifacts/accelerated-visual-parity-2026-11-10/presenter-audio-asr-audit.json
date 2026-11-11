@@ -1,0 +1,650 @@
+{
+  "schema_version": 1,
+  "status": "diagnostic_not_word_level_proof",
+  "model": "whisper.cpp ggml-base.en",
+  "model_sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002",
+  "method": "FFmpeg extracted each recorded presenter window at 16 kHz mono; whisper-cli base.en transcribed each full window. Short isolation clips checked L01 boundaries. ASR can hallucinate or omit words near silence and is not an audible sign-off.",
+  "source_receipt_sha256": "cf916889edbc480fd652be72850c196618fe829b86da75410503f356e13c9560",
+  "windows": [
+    {
+      "lesson_id": "L01",
+      "presenter_window": "A01",
+      "start_seconds": 0.0,
+      "end_seconds": 31.52,
+      "asr_transcript": "The document is open. At the top it says Q3 Innovation Plan. The cursor blinks, your inbox is full of requests, your team wants a direction, and somebody wants a polished plan by Friday. I know that room. The pressure makes the blank page feel like the problem. So you open a tool, ask for ideas, and in 30 seconds you have a confident looking answer. Now what? Who will decide which idea matters? That story makes the pressure you're visible.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L01",
+      "presenter_window": "A02",
+      "start_seconds": 235.0,
+      "end_seconds": 248.2,
+      "asr_transcript": "It is a teaching story from the book, not a claim about a current customer. Keep that distinction in view as we move between story, worksheet, and public proof. Let's make the first page of your decision file",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L01",
+      "presenter_window": "A03",
+      "start_seconds": 345.0,
+      "end_seconds": 358.96,
+      "asr_transcript": "It starts with a decision, not a tool. Write one sentence. We need to decide whether to -- it could be whether to change an onboarding step, simplify a service request, or test a different way to explain an offer.",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L01",
+      "presenter_window": "A04",
+      "start_seconds": 515.0,
+      "end_seconds": 529.48,
+      "asr_transcript": "A good first page does not pretend to know the answer. It tells the truth about the decision, the evidence you have, and the information you have permission to use. Keep that first page open. The rest of this workshop will build on it.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A01",
+      "start_seconds": 0.0,
+      "end_seconds": 29.76,
+      "asr_transcript": "The meeting has barely started and the board is full. 15 roadmap items, 15 top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck. Chapter 3 gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A02",
+      "start_seconds": 180.0,
+      "end_seconds": 194.28,
+      "asr_transcript": "If you are asking whether a market is attractive, the book offers a market frame. There is another question that can make a promising idea fail. How does the value reach a customer and how does the work sustain itself?",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A03",
+      "start_seconds": 366.0,
+      "end_seconds": 376.2,
+      "asr_transcript": "Chapter 3 brings business model options into the case after the customer and product question is clear. Is it something you know or something you hope?",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A04",
+      "start_seconds": 573.88,
+      "end_seconds": 587.24,
+      "asr_transcript": "In the next lesson, we will work backward from that sentence. We will ask what answer the decision owner needs and what evidence would change the conversation. The Board of 15 priorities will still exist tomorrow.",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L03",
+      "presenter_window": "A01",
+      "start_seconds": 0.0,
+      "end_seconds": 22.28,
+      "asr_transcript": "Imagine walking into a review with a dashboard redesign. You have evidence that people struggle with the current screen. You have a proposed fix. You put up the first slide and someone asks, \"Is this the best use of engineering time right now?\" That is a reasonable question. It may feel like a rejection, but it is also a clue.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L03",
+      "presenter_window": "A02",
+      "start_seconds": 174.0,
+      "end_seconds": 190.84,
+      "asr_transcript": "A single polished idea invites a yes or no. Chapter 4 calls this the binary trap. The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L03",
+      "presenter_window": "A03",
+      "start_seconds": 349.0,
+      "end_seconds": 360.28,
+      "asr_transcript": "Let's fill the rest of the card. The decision is whether to test a guided first task. Our current answer is yes, because the team suspects people need a clearer starting point.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L03",
+      "presenter_window": "A04",
+      "start_seconds": 513.96,
+      "end_seconds": 526.24,
+      "asr_transcript": "You do not have to win the room with a perfect story today. You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A01",
+      "start_seconds": 0.0,
+      "end_seconds": 25.72,
+      "asr_transcript": "We are back at the Q3 Innovation Plan. The page is no longer empty. You have chosen a priority and written down the evidence that could change your mind. But the broad idea is still sitting there. Improve the member experience. Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything. Those ambitions can be useful.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A02",
+      "start_seconds": 165.0,
+      "end_seconds": 178.84,
+      "asr_transcript": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment. A living persona needs a record of where it came from.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A03",
+      "start_seconds": 350.0,
+      "end_seconds": 365.24,
+      "asr_transcript": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question at a source and a review date. That is a real working file, even if much of it is still provisional.",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A04",
+      "start_seconds": 572.92,
+      "end_seconds": 585.44,
+      "asr_transcript": "In the next lesson, the workshop will turn more raw feedback into traceable signal. For now, hold on to the small question, build only enough to learn. Keep the card open to correction.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 19.24,
+      "asr_transcript": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change. The book has a useful warning here.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A02",
+      "start_seconds": 200.0,
+      "end_seconds": 220.88,
+      "asr_transcript": "In the Just Make It Faster case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views. Our six notes support a question",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A03",
+      "start_seconds": 400.0,
+      "end_seconds": 414.32,
+      "asr_transcript": "Not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation. And one suggests an entry point that helped.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A04",
+      "start_seconds": 573.92,
+      "end_seconds": 584.96,
+      "asr_transcript": "You can make a decision under uncertainty as long as the uncertainty travels with it. In the next lesson, this proposed choice enters a roadmap and then a product requirements document.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 20.92,
+      "asr_transcript": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A02",
+      "start_seconds": 220.0,
+      "end_seconds": 236.8,
+      "asr_transcript": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs. Imagine the team tests the card",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A03",
+      "start_seconds": 440.0,
+      "end_seconds": 453.4,
+      "asr_transcript": "and finds that people understand the action, but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A04",
+      "start_seconds": 630.84,
+      "end_seconds": 646.08,
+      "asr_transcript": "For now, the trace is the safeguard. It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review. Ask a teammate to point to the original feedback note and the success check.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L07",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 18.0,
+      "asr_transcript": "The quarter is full before it starts. A new first task card is due in two weeks. A reminder system is penciled in after that. Someone has promised a dashboard by the end of the month. The schedule looks responsible, but the team still cannot answer a basic question. Why do new members hesitate at the first task?",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L07",
+      "presenter_window": "A02",
+      "start_seconds": 200.0,
+      "end_seconds": 214.56,
+      "asr_transcript": "Checkpoint 2 follows only if the first review supports the instruction hypothesis. The team tests the smaller first task card against the existing version in a planned study. Before observing anyone, define what clear enough means.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L07",
+      "presenter_window": "A03",
+      "start_seconds": 400.0,
+      "end_seconds": 411.92,
+      "asr_transcript": "The book gives Sam's team a test that does not support the feature they built. They try document previews, expecting people to find the right file faster. The review points them toward a different need.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L07",
+      "presenter_window": "A04",
+      "start_seconds": 569.96,
+      "end_seconds": 585.92,
+      "asr_transcript": "Better search. The two checkpoint cards make the next decision visible to everyone who owns the work. In the next lesson, we will define the measures and write the full learning plan before results arrive. A plan becomes more trustworthy when it shows where it can change.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 28.52,
+      "asr_transcript": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter 12 tells a version of this failure. A dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision. Chapter 13 gives the learning plan 10 components.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A02",
+      "start_seconds": 240.0,
+      "end_seconds": 258.0,
+      "asr_transcript": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise. Before there is any data,",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A03",
+      "start_seconds": 480.0,
+      "end_seconds": 495.36,
+      "asr_transcript": "Walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful start measure may look promising. The guardrail tells us the work is not finished.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A04",
+      "start_seconds": 681.04,
+      "end_seconds": 702.8,
+      "asr_transcript": "You have a named problem, a source ledger, a living persona, a roadmap bet, a traceable handoff, two learning checkpoints, and a plan for reading results. The work is still open to correction. That is what makes it usable. In the next module, the question moves into a decision room with other people's risks and authority.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 22.92,
+      "asr_transcript": "You bring a careful recommendation into the room. The research is sound. The test plan has a measure and a stop condition. Someone asks about a competing priority. Engineering asks whose work will move. A person who was not in the meeting raises a concern afterward. The answer becomes let's revisit this next quarter. Chapter 14 opens with a version of that slow no.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A02",
+      "start_seconds": 220.0,
+      "end_seconds": 241.16,
+      "asr_transcript": "Chapter 15 says an org chart is a start, but it will not show every decision path. Its first stakeholder lens is roll type. A decision maker can approve or stop the work. An influencer shapes that person's view. A gatekeeper controls access, capacity, or information. A champion advocates.",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A03",
+      "start_seconds": 440.0,
+      "end_seconds": 456.52,
+      "asr_transcript": "A skeptic asks hard questions. The book calls the pre-meeting work shuttle diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take.",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A04",
+      "start_seconds": 630.72,
+      "end_seconds": 645.8,
+      "asr_transcript": "and which staffing constraint would make it unsafe. A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 25.92,
+      "asr_transcript": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research, finance sees an unpriced commitment, engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter 16 describes that kind of meeting. Chapter 16 uses a notification settings case.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A02",
+      "start_seconds": 180.0,
+      "end_seconds": 199.96,
+      "asr_transcript": "An initial request for granular controls did not land. The revised case made the underlying problem, options, and trade-offs easier to judge. We are borrowing that decision structure, not its reported results. In our exercise, option one is to rewrite the first task card",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A03",
+      "start_seconds": 360.0,
+      "end_seconds": 382.2,
+      "asr_transcript": "and observe whether members understand and begin. Imagine operation says we cannot spare staff to watch a long session. Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment if none is feasible,",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A04",
+      "start_seconds": 511.6,
+      "end_seconds": 531.96,
+      "asr_transcript": "Stop and redesign the test. We will bring the observations back on the agreed date. That brief does not claim success in advance. Write a second opening for the operations lead using the same facts and their concern. Then answer one final question. What would change your mind? If the answer is nothing, revisit the learning plan.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 21.48,
+      "asr_transcript": "In chapter 17, Sam arrives at a roadmap meeting that feels different. The team has already gathered feedback, translated it into a question, and prepared a learning choice. The meeting can spend its time on the decision. Sam is a character in the book's story, not a member of a team we are showing live. What changed was the work before the meeting.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A02",
+      "start_seconds": 200.0,
+      "end_seconds": 221.28,
+      "asr_transcript": "Chapter 18 moves from scattered tools to a connected system. Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum. A signal is a traceable observation such as a set of first-task notes with source, IDs. An insight is an interpretation. Perhaps members cannot tell",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A03",
+      "start_seconds": 400.0,
+      "end_seconds": 422.04,
+      "asr_transcript": "Which action starts the service? Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer,",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A04",
+      "start_seconds": 561.56,
+      "end_seconds": 580.68,
+      "asr_transcript": "The decision date and the next owner. The learning system loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 24.52,
+      "asr_transcript": "The feedback pile is growing again. One note says, \"I could not tell where to start.\" Another asks for a reminder. A third says the task looked complete, but the page gave no confirmation. These are fictional member comments carried forward from our earlier exercise, and if we group them too quickly under \"improve on boarding,\" we lose the difference between finding an action, remembering it, and knowing it worked.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A02",
+      "start_seconds": 220.0,
+      "end_seconds": 241.28,
+      "asr_transcript": "The book calls client Q a translator for customer language. It describes clustering comments, extracting jobs, and moving possible opportunities toward a hypothesis backlog. That is a case in the book. Our six card exercise is separate. The cards in this exercise are imagine member notes,",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A03",
+      "start_seconds": 440.0,
+      "end_seconds": 460.72,
+      "asr_transcript": "separate from observed research. The simulation points to two questions, not two answers. First, can an eligible new member explain the first action before beginning it? Second, after acting, can they tell whether it worked? Put each beside a real observation method? The research owner can watch an approved session, ask the person what they expect,",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A04",
+      "start_seconds": 622.68,
+      "end_seconds": 645.72,
+      "asr_transcript": "and record the observed hesitation. The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward if the evidence is weak, say so.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 28.04,
+      "asr_transcript": "Picture a Monday meeting, the dashboard is flat, someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In chapter 21, Sam faces that pressure and opens StratQuest. This is a book story. Our membership service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise. The fourth StratQuest session turns a preferred option into a test.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A02",
+      "start_seconds": 226.0,
+      "end_seconds": 246.28,
+      "asr_transcript": "In the book case, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin. The book's collaboration example surfaces questions about differentiation,",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A03",
+      "start_seconds": 446.0,
+      "end_seconds": 471.68,
+      "asr_transcript": "infrastructure, notifications, and data. We can use that discipline with our fictional concept. Ask how a new member, a busy staff operator, and a funding partner might understand the same sentence. If a model generates their reactions, keep simulation visible. These are possible objections, not interviews. A new member may ask whether the shorter commitment changes access,",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A04",
+      "start_seconds": 632.28,
+      "end_seconds": 649.88,
+      "asr_transcript": "Bring the chosen option and its unresolved question forward. A future story earns resources when the people who must live with it can understand and challenge it. The sheet can remain incomplete. An empty evidence cell is a request for work, not a failure of presentation.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L14",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 26.28,
+      "asr_transcript": "The plan is ready. The evidence ledger is organized. Yet the first person hearing the recommendation asks about delivery cost while the second asks who benefits. Chapter 23 calls this the last mile problem and introduces persuasive business case GPT. That is a bookcase, not a live demonstration here. Return to the membership service alternative from lesson 13. Imagine asking for permission to test a shorter commitment.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L14",
+      "presenter_window": "A02",
+      "start_seconds": 164.0,
+      "end_seconds": 189.12,
+      "asr_transcript": "A persuasive pitch must make the cost visible. The shorter commitment test could require staff training, a clearer cancellation path, and a way to handle pauses. Those are possible operating requirements in our fictional exercise, not measured costs. Put them on the card before the recommendation. Add the option to keep the current model, and the option to defer until the job is verified.",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L14",
+      "presenter_window": "A03",
+      "start_seconds": 330.0,
+      "end_seconds": 352.44,
+      "asr_transcript": "Draft the first 60-second version for the operations owner. Name the decision, the delivery change, the review date, and what would stop the test. Draft the second for the person accountable to members. Name the job, the proposed experience, the consent boundary, and what remains unverified. These are two ways into one decision.",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L14",
+      "presenter_window": "A04",
+      "start_seconds": 451.32,
+      "end_seconds": 468.48,
+      "asr_transcript": "Do not write a promise that the evidence cannot carry. We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 25.84,
+      "asr_transcript": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments. Chapter 24 names five scaling mistakes.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A02",
+      "start_seconds": 243.0,
+      "end_seconds": 267.96,
+      "asr_transcript": "A central team can become a bottleneck. Documentation can grow so heavy that people stop testing. The organization can fixate on one tool instead of shared learning. Teams can resist a process they did not help shape. And leaders can expand across the whole organization before the first handoff works. Put those five labels on the checklist and test your own proposal against them.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A03",
+      "start_seconds": 481.0,
+      "end_seconds": 508.84,
+      "asr_transcript": "The decision memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why. End with a decision about readiness.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A04",
+      "start_seconds": 688.08,
+      "end_seconds": 708.52,
+      "asr_transcript": "Even if the answer is wait. Choose one neighboring team for a future handoff only after the record survives a dry run. State which safeguards belong to the shared process and which must be set locally. This keeps a successful local experiment from becoming an organization-wide promise by accident.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A01",
+      "start_seconds": 0,
+      "end_seconds": 28.48,
+      "asr_transcript": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb.",
+      "request_head_match": true,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A02",
+      "start_seconds": 161.0,
+      "end_seconds": 187.08,
+      "asr_transcript": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,",
+      "request_head_match": false,
+      "request_tail_match": false,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A03",
+      "start_seconds": 316.0,
+      "end_seconds": 341.4,
+      "asr_transcript": "and anyone who's work or accessed the test effects. Send the decision question and the source links in advance. At the meeting, open with what happened, including the observations that complicate your preferred story. Compare the result with the threshold you wrote before the test. Record one of four next states. Continue, revise, stop, or gather a specific missing piece of evidence.",
+      "request_head_match": false,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A04",
+      "start_seconds": 449.44,
+      "end_seconds": 472.52,
+      "asr_transcript": "The final chapter says the system is unfinished. That is a useful ending because real work changes. People change. Conditions change. A decision file should make revision possible without erasing the path that brought you here. Next week, do the one move you wrote down? Then return to the record. What did you observe? What did it change?",
+      "request_head_match": true,
+      "request_tail_match": true,
+      "status": "machine_transcript_requires_audible_confirmation"
+    }
+  ]
+}

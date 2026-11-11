@@ -2,6 +2,8 @@
 
 **Status:** read-only planning packet. No provider call, purchase, upload, learner binding, or release is authorized here. The local [pacing audit](lesson-media-pacing-audit-2026-11-10.md) identifies the currently silent teaching spans; the L01 system-voice MP4 is a timing proof, not an approved narrator.
 
+**Updated production candidate:** [Narration production pack](narration-production-pack-2026-11-10.md) now contains exact script-derived cutaway text and hashes for all 16 lessons, including the final tail after the fourth presenter window. Its machine-audio audit found draft-request/native-media boundary differences that still require audible confirmation. The VTT-midpoint table and single-L01 authorization template below remain historical planning references; they are not the whole-scope payload, quote, or authority to execute.
+
 ## Source and voice identity
 
 - The narration authority is each `docs/accelerated-course-modules/curriculum/scripts/Lxx.md`. The exact scene text and script SHA-256 are bound in `visual-production/manifest.json` (manifest SHA-256 `3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf`). Every current script file matches its manifest hash. The existing VTT and native presenter MP4 paths and SHA-256 values are in `artifacts/accelerated-visual-parity-2026-11-10/composite-receipt.json`.
