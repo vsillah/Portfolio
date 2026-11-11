@@ -85,6 +85,11 @@ def approved_copy(scene):
                     assert spoken.casefold() in scene['narration'].casefold(), (scene['id'], phrase)
                 else:
                     assert phrase.casefold() in scene['narration'].casefold(), (scene['id'], phrase)
+    if scene['id'] == 'L05-03':
+        for heading, detail in renderer.CLEAN_NOTE_REVEALS.values():
+            spoken = {'F05': 'F zero five', 'F06': 'F zero six'}[heading]
+            assert spoken.casefold() in scene['narration'].casefold()
+            assert detail.casefold() in scene['narration'].casefold()
 
 
 def save_preview(image, path):
@@ -176,6 +181,14 @@ def main():
                 target = OUT / 'frames' / f"{scene['id']}-second.jpg"
                 variants.append({'kind': 'second_script_beat', **save_preview(
                     renderer.render(lesson, scene, index, variant='second', clean=True), target)})
+            if scene['id'] == 'L05-03':
+                caption_path = pathlib.Path(media['caption_path'])
+                for note, phrase in [('f05', 'Now read F zero five'), ('f06', 'F zero six says')]:
+                    target = OUT / 'frames' / f"{scene['id']}-{note}.jpg"
+                    variants.append({'kind': f'scripted_note_reveal:{note}',
+                                     'source_start_seconds': cue_start(caption_path, phrase),
+                                     **save_preview(renderer.render(lesson, scene, index,
+                                                                    variant=note, clean=True), target)})
             for art, _ in renderer.ART_BEATS.get(scene['id'], []):
                 if art == 'main':
                     continue
@@ -205,8 +218,11 @@ def main():
     second_starts = {
         'L05-02': cue_start(pathlib.Path(by_media['L05']['caption_path']), 'Add F zero three'),
         'L09-02': cue_start(pathlib.Path(by_media['L09']['caption_path']), 'Fourth, the recommendation'),
+        'L05-03-F05': cue_start(pathlib.Path(by_media['L05']['caption_path']), 'Now read F zero five'),
+        'L05-03-F06': cue_start(pathlib.Path(by_media['L05']['caption_path']), 'F zero six says'),
     }
-    assert second_starts == {'L05-02': 157.674, 'L09-02': 152.664}, second_starts
+    assert second_starts == {'L05-02': 157.674, 'L09-02': 152.664,
+                             'L05-03-F05': 252.093, 'L05-03-F06': 273.953}, second_starts
     receipt = {'schema_version': 1, 'status': 'review_only_clean_shell_frames',
                'source_manifest': {'path': str(MANIFEST), 'sha256': sha(MANIFEST)},
                'source_audit': {'path': str(SOURCE_AUDIT), 'sha256': sha(SOURCE_AUDIT)},

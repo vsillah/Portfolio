@@ -11,13 +11,15 @@
   },
   "source_renderer": {
     "path": "scripts/qa/render-accelerated-visual-parity.py",
-    "sha256": "159c7a8237125a1ad75837cf83f8087c02326cee7577ea23c6487e91f90b3c33"
+    "sha256": "47e68798f2f1aedff656d430718d73fabe0c530f081a11e003d4e0a47797c1c5"
   },
   "scene_count": 91,
   "excluded_scene": "L16-06",
   "second_beat_source_vtt_starts": {
     "L05-02": 157.674,
-    "L09-02": 152.664
+    "L09-02": 152.664,
+    "L05-03-F05": 252.093,
+    "L05-03-F06": 273.953
   },
   "contact_sheets": [
     {
@@ -554,7 +556,20 @@
         "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-03.jpg",
         "sha256": "074ae1bf77fb22ac6c770c3c76af85b1c2771eeef8e18fea976c27c598489ba9"
       },
-      "variants": [],
+      "variants": [
+        {
+          "kind": "scripted_note_reveal:f05",
+          "source_start_seconds": 252.093,
+          "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-03-f05.jpg",
+          "sha256": "2f0dd5dbcf4cc4f67ec9998504447786f00fafb154f45f6b4889de3303ac0379"
+        },
+        {
+          "kind": "scripted_note_reveal:f06",
+          "source_start_seconds": 273.953,
+          "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-03-f06.jpg",
+          "sha256": "6cd44ef1ce37d83536b6be970524a043b07208d4083a6bebc5e3411d3e0e1a7c"
+        }
+      ],
       "clean_shell": [
         "scene code removed",
         "artifact footer removed",

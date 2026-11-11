@@ -120,6 +120,10 @@ CLEAN_DENSE_CARDS={
                 ('context','in which it mattered'),
                 ('outcome','they wanted')]],
 }
+CLEAN_NOTE_REVEALS={
+    'f05': ('F05','The first task loaded quickly, but I did not know whether it mattered.'),
+    'f06': ('F06','I started after the welcome email showed the first step.'),
+}
 
 def concept_text(draw,value,box,size=39,color=CREAM,center=False):
     value=value.replace('→','to').replace('≠','differs from')
@@ -159,9 +163,12 @@ def source_focus_art(image,name,box):
     image.paste(art,(x,y),art)
 
 def draw_clean_dense(image,scene,variant=None):
-    beats=CLEAN_DENSE_CARDS[scene['id']]
-    index=1 if variant=='second' and len(beats)>1 else 0
-    cards=beats[index]
+    if scene['id']=='L05-03' and variant in CLEAN_NOTE_REVEALS:
+        cards=[CLEAN_NOTE_REVEALS[variant]]
+    else:
+        beats=CLEAN_DENSE_CARDS[scene['id']]
+        index=1 if variant=='second' and len(beats)>1 else 0
+        cards=beats[index]
     d=ImageDraw.Draw(image)
     rounded(d,(670,165,1810,815),DEEP,GOLD,42,6)
     gap=26
@@ -328,6 +335,9 @@ def draw_semantic(d,layout,labels):
 
 def draw_concept(image,scene,variant=None,clean=False):
     layout,labels=CONCEPTS[scene['id']]
+    if clean and scene['id']=='L05-03' and variant in CLEAN_NOTE_REVEALS:
+        draw_clean_dense(image,scene,variant)
+        return
     if clean and scene['id'] in CLEAN_DENSE_CARDS and variant not in ART_ASSETS:
         draw_clean_dense(image,scene,variant)
         return
