@@ -24,6 +24,11 @@ BLOCKED_CUTS = {
     ('L16', 'A01'): '“pain point” ends against “Write”; machine check loses the final words.',
     ('L16', 'A02'): '“it” ends against “Put”; machine check loses the final word.',
 }
+SEQUENCE_CONDITIONS = {
+    ('L05', 'A02'): 'A03 begins “Not a verdict”; it needs the removed “Our six notes support a question” immediately before it.',
+    ('L06', 'A02'): 'A03 begins “and finds”; it needs the removed “Imagine the team tests the card” immediately before it.',
+    ('L08', 'A02'): 'A03 begins “Walk the plan”; it needs the removed “Before there is any data” immediately before it.',
+}
 
 
 def run(cmd):
@@ -229,12 +234,18 @@ def main():
                 result['status'] = ('machine_pass_pending_audible_review'
                                     if row['machine_result'].startswith('passed')
                                     else 'machine_blocked_cut_boundary')
+                condition = SEQUENCE_CONDITIONS.get((result['lesson_id'], result['presenter_window']))
+                if condition and row['machine_result'].startswith('passed'):
+                    result['status'] = 'machine_pass_conditional_on_following_window'
+                    result['sequence_condition'] = condition
     manifest = {'schema_version': 1, 'status': 'review_only',
                 'source_pack_sha256': digest(PACK), 'triage_sha256': digest(TRIAGE),
                 'approved_existing_l01_a02_candidate': 'l01-a02-native-trim-candidate-235-252.mp4',
                 'asr_validation_path': str(validation.relative_to(ROOT)) if validation.exists() else None,
                 'results': results, 'rendered_count': sum(not r['status'].startswith('blocked') for r in results),
-                'machine_pass_count': sum(r['status'] == 'machine_pass_pending_audible_review' for r in results),
+                'machine_pass_count': sum(r['status'] in ('machine_pass_pending_audible_review',
+                                                        'machine_pass_conditional_on_following_window') for r in results),
+                'sequence_conditional_count': sum(r['status'] == 'machine_pass_conditional_on_following_window' for r in results),
                 'machine_blocked_count': sum(r['status'] == 'machine_blocked_cut_boundary' for r in results),
                 'boundary_blocked_count': sum(r['status'] == 'blocked_no_clean_packet_gap' for r in results),
                 'render_blocked_count': sum(r['status'] == 'blocked' for r in results)}

@@ -44,8 +44,9 @@
     {
       "lesson_id": "L05",
       "presenter_window": "A02",
-      "status": "machine_pass_pending_audible_review",
-      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a02-tail-receipt.json"
+      "status": "machine_pass_conditional_on_following_window",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a02-tail-receipt.json",
+      "sequence_condition": "A03 begins “Not a verdict”; it needs the removed “Our six notes support a question” immediately before it."
     },
     {
       "lesson_id": "L06",
@@ -57,8 +58,9 @@
     {
       "lesson_id": "L06",
       "presenter_window": "A02",
-      "status": "machine_pass_pending_audible_review",
-      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a02-tail-receipt.json"
+      "status": "machine_pass_conditional_on_following_window",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a02-tail-receipt.json",
+      "sequence_condition": "A03 begins “and finds”; it needs the removed “Imagine the team tests the card” immediately before it."
     },
     {
       "lesson_id": "L08",
@@ -69,8 +71,9 @@
     {
       "lesson_id": "L08",
       "presenter_window": "A02",
-      "status": "machine_pass_pending_audible_review",
-      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a02-tail-receipt.json"
+      "status": "machine_pass_conditional_on_following_window",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a02-tail-receipt.json",
+      "sequence_condition": "A03 begins “Walk the plan”; it needs the removed “Before there is any data” immediately before it."
     },
     {
       "lesson_id": "L09",
@@ -176,5 +179,6 @@
   "machine_pass_count": 24,
   "machine_blocked_count": 0,
   "render_blocked_count": 0,
-  "boundary_blocked_count": 3
+  "boundary_blocked_count": 3,
+  "sequence_conditional_count": 3
 }

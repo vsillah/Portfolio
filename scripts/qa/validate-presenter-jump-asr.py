@@ -77,10 +77,12 @@ def main():
                         default=pathlib.Path('/tmp/accelerated-whisper/models/ggml-base.en.bin'))
     parser.add_argument('--small-model', type=pathlib.Path,
                         default=pathlib.Path('/tmp/accelerated-whisper/models/ggml-small.en.bin'))
+    parser.add_argument('--manifest', type=pathlib.Path, default=OUT / 'manifest.json')
+    parser.add_argument('--output', type=pathlib.Path, default=OUT / 'asr-validation.json')
     args = parser.parse_args()
     models = {'base.en': args.base_model, 'small.en': args.small_model}
     assert args.whisper_cli.exists() and all(model.exists() for model in models.values())
-    manifest = json.loads((OUT / 'manifest.json').read_text())
+    manifest = json.loads(args.manifest.read_text())
     audit = json.loads(AUDIT.read_text())
     jobs = [row for row in manifest['results'] if not row['status'].startswith('blocked')]
     with tempfile.TemporaryDirectory(prefix='accelerated-jump-asr-') as tmp:
@@ -95,7 +97,7 @@ def main():
               'machine_blocked_count': sum(r['machine_result'].startswith('blocked') for r in results),
               'machine_blocked_windows': [r['lesson_id'] + ' ' + r['presenter_window'] for r in results
                                           if r['machine_result'].startswith('blocked')]}
-    (OUT / 'asr-validation.json').write_text(json.dumps(output, ensure_ascii=False, indent=2) + '\n')
+    args.output.write_text(json.dumps(output, ensure_ascii=False, indent=2) + '\n')
     print(f"Machine pass {output['machine_pass_count']}; blocked {output['machine_blocked_windows']}")
 
 

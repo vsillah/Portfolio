@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "status": "machine_evidence_not_audible_signoff",
+  "source_method": "whisper-cli small.en -owts on exact native presenter window; word times are approximate and were corroborated with both full-MP4 ASR models",
+  "results": [
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A01",
+      "source_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "source_window_seconds": [
+        0,
+        20.92
+      ],
+      "small_en_word_estimate": {
+        "retained": "cards",
+        "retained_window_local_seconds": [
+          17.64,
+          17.98
+        ],
+        "next_removed": "Now",
+        "next_removed_window_local_seconds": [
+          18.24,
+          18.4
+        ]
+      },
+      "selected_cut_seconds": 18.08,
+      "fade_start_seconds": 18.04,
+      "fade_duration_seconds": 0.04,
+      "cut_sample_index_48000hz": 867840,
+      "post_cut_silence_peak_dbfs": -91.0,
+      "full_mp4_asr_result": "passed_base_en_and_small_en",
+      "candidate_sha256": "0d02558733ce311529409efb6d37b2feea3f4dcda18a73984ada852161c05ee9",
+      "before_after_sha256": "d469f892645006daa7305285369662c3901a776317461662dd5a5e8757e8c1ad",
+      "word_estimates_not_audible_signoff": true
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A01",
+      "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "source_window_seconds": [
+        0,
+        28.48
+      ],
+      "small_en_word_estimate": {
+        "retained": "point",
+        "retained_window_local_seconds": [
+          24.44,
+          24.74
+        ],
+        "next_removed": "Write",
+        "next_removed_window_local_seconds": [
+          25.0,
+          25.39
+        ]
+      },
+      "selected_cut_seconds": 24.9,
+      "fade_start_seconds": 24.86,
+      "fade_duration_seconds": 0.04,
+      "cut_sample_index_48000hz": 1195200,
+      "post_cut_silence_peak_dbfs": -91.0,
+      "full_mp4_asr_result": "passed_base_en_and_small_en",
+      "candidate_sha256": "3e2036dffe7497bf0f55ec701573a9ca93b8a50ee8193cb7f5ee1c30fefca8a4",
+      "before_after_sha256": "07aef614c352d57a2f5d2de2186454a78561c586c45ca532703efb9370e40a46",
+      "word_estimates_not_audible_signoff": true
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A02",
+      "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "source_window_seconds": [
+        161.0,
+        187.08
+      ],
+      "small_en_word_estimate": {
+        "retained": "it",
+        "retained_window_local_seconds": [
+          22.93,
+          23.07
+        ],
+        "next_removed": "Put",
+        "next_removed_window_local_seconds": [
+          23.55,
+          23.56
+        ]
+      },
+      "selected_cut_seconds": 184.2,
+      "fade_start_seconds": 184.16,
+      "fade_duration_seconds": 0.04,
+      "cut_sample_index_48000hz": 1113600,
+      "post_cut_silence_peak_dbfs": -91.0,
+      "full_mp4_asr_result": "passed_base_en_and_small_en",
+      "candidate_sha256": "46e18254a27a4ff36fbcf9b5469e7131f064933156e5387a4c5886e8bfc2d4e1",
+      "before_after_sha256": "14d47b974948772243bdcbe8df9b0459d0e697eacc6c0e123595fd5ce1f6fe05",
+      "word_estimates_not_audible_signoff": true
+    }
+  ],
+  "follow_on_sequence_conditions": [
+    {
+      "lesson_id": "L05",
+      "cut_window": "A02",
+      "following_window": "A03",
+      "condition": "A03 begins “Not a verdict”; it needs the removed “Our six notes support a question” immediately before it.",
+      "safe_as_standalone_full_lesson_edit": false
+    },
+    {
+      "lesson_id": "L06",
+      "cut_window": "A02",
+      "following_window": "A03",
+      "condition": "A03 begins “and finds”; it needs the removed “Imagine the team tests the card” immediately before it.",
+      "safe_as_standalone_full_lesson_edit": false
+    },
+    {
+      "lesson_id": "L08",
+      "cut_window": "A02",
+      "following_window": "A03",
+      "condition": "A03 begins “Walk the plan”; it needs the removed “Before there is any data” immediately before it.",
+      "safe_as_standalone_full_lesson_edit": false
+    }
+  ]
+}
