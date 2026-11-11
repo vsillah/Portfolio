@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "status": "review_only_not_audible_signoff",
+  "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/accelerated-presenter-priority-listening-reel.mp4",
+  "reel_sha256": "a4cffa1a77a9d7e7e20a57840f2d95d38b87e8ceb17449c252dd9d5d3a72176b",
+  "duration_seconds": 125.101333,
+  "chapter_card_duration_seconds": 2.4,
+  "chapter_count": 6,
+  "chapters": [
+    {
+      "index": 1,
+      "title": "L05 A02 → A03",
+      "phrase_to_check": "Our six notes support a question, not a verdict.",
+      "instruction": "Listen for “views” at the cut and “question, not” at the join.",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-receipt.json",
+      "source_receipt_sha256": "c199092cdde543fc2c15ee9c1122e1d93df2e59f0f36373a2056acbfad8435f8",
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-sequence-before-after.mp4",
+      "source_clip_sha256": "963224f84e103c600581fd58dd28c7c68daf0e9cccd76327259b41478ab833e3",
+      "source_clip_duration_seconds": 24.28,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-01.png",
+      "chapter_card_sha256": "ecb3caac8f75ad29072ed1a9bf41eb9e11540a24034508f3a3b16a7001e22066",
+      "chapter_start_seconds": 0.0,
+      "source_clip_start_seconds": 2.4,
+      "chapter_end_seconds": 26.68
+    },
+    {
+      "index": 2,
+      "title": "L06 A02 → A03",
+      "phrase_to_check": "Imagine the team tests the card and finds…",
+      "instruction": "Listen for “IDs” at the cut and “card and” at the join.",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-receipt.json",
+      "source_receipt_sha256": "9a3c0bcd81c62a8a804dc4b80500ed5e0ee0d424bf5b432f614af6b61319d479",
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-sequence-before-after.mp4",
+      "source_clip_sha256": "5c3bd26a4d68f9993235d495d9d93482a8d035cdbb701a80ec15628dc8b17472",
+      "source_clip_duration_seconds": 23.88,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-02.png",
+      "chapter_card_sha256": "d53374beba9af1b195fbb6e705c6f60d6d66cf6f540f69eb26a2f92b73e3d484",
+      "chapter_start_seconds": 26.68,
+      "source_clip_start_seconds": 29.08,
+      "chapter_end_seconds": 52.96
+    },
+    {
+      "index": 3,
+      "title": "L08 A02 → A03",
+      "phrase_to_check": "Before there is any data, walk the plan…",
+      "instruction": "Listen for “exercise” at the cut and “data, walk” at the join.",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-receipt.json",
+      "source_receipt_sha256": "1f18b9e6b4d2ab1df9f2994d9a7f5848c279e8a5d467c052265211f6deb1403d",
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-sequence-before-after.mp4",
+      "source_clip_sha256": "3f90ad6facbad2135371ec4bb0ff233e07cd33057f0bd9b3a2bb1f7bff9a6729",
+      "source_clip_duration_seconds": 23.04,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-03.png",
+      "chapter_card_sha256": "8bc3592d5d69bedef1820b5f6233bc2ef73efc54e3836b5b65fc0c083dc89fcb",
+      "chapter_start_seconds": 52.96,
+      "source_clip_start_seconds": 55.36,
+      "chapter_end_seconds": 78.4
+    },
+    {
+      "index": 4,
+      "title": "L06 A01",
+      "phrase_to_check": "Keep the final “s” in “cards.”",
+      "instruction": "The candidate must omit “Now” with no partial onset.",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l06-a01-tail-pcm-receipt.json",
+      "source_receipt_sha256": "9bb4a4f834e56aedfe892eca4615d64ab4d74c0b22974d0d6d336e2329b272dc",
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l06-a01-tail-pcm-before-after.mp4",
+      "source_clip_sha256": "d469f892645006daa7305285369662c3901a776317461662dd5a5e8757e8c1ad",
+      "source_clip_duration_seconds": 12.7,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-04.png",
+      "chapter_card_sha256": "b298bd94ac78aa46cb4268e8fde3a8afb8cf046b819f797da467bbf5a003d2d2",
+      "chapter_start_seconds": 78.4,
+      "source_clip_start_seconds": 80.8,
+      "chapter_end_seconds": 93.5
+    },
+    {
+      "index": 5,
+      "title": "L16 A01",
+      "phrase_to_check": "Keep all of “pain point.”",
+      "instruction": "The candidate must omit “Write” with no partial onset.",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a01-tail-pcm-receipt.json",
+      "source_receipt_sha256": "ceb36db3b448f3105667aba30a62ff5f1a73fb3fc999360c8471732a9a2cd44d",
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a01-tail-pcm-before-after.mp4",
+      "source_clip_sha256": "07aef614c352d57a2f5d2de2186454a78561c586c45ca532703efb9370e40a46",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-05.png",
+      "chapter_card_sha256": "dd3343a79fc82bc27a05f9fc0146042fc069882ef25761b58789d64db58d41be",
+      "chapter_start_seconds": 93.5,
+      "source_clip_start_seconds": 95.9,
+      "chapter_end_seconds": 109.9
+    },
+    {
+      "index": 6,
+      "title": "L16 A02",
+      "phrase_to_check": "Keep the complete word “it.”",
+      "instruction": "The candidate must omit “Put” with no partial onset.",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a02-tail-pcm-receipt.json",
+      "source_receipt_sha256": "b8fa86a322f0d129e7060226585edefbadb68fa416811fc93b0e4337d7bf9217",
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a02-tail-pcm-before-after.mp4",
+      "source_clip_sha256": "14d47b974948772243bdcbe8df9b0459d0e697eacc6c0e123595fd5ce1f6fe05",
+      "source_clip_duration_seconds": 12.78,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-06.png",
+      "chapter_card_sha256": "dc6ab1b5604dceb892fc3860e1ec24706b4ea461a89725a8379caf559f454deb",
+      "chapter_start_seconds": 109.9,
+      "source_clip_start_seconds": 112.3,
+      "chapter_end_seconds": 125.08
+    }
+  ],
+  "source_audio_packets_preserved_in_order": true,
+  "source_video_packet_hashes_preserved": false,
+  "source_packet_counts": {
+    "1": {
+      "audio": 1142
+    },
+    "2": {
+      "audio": 1123
+    },
+    "3": {
+      "audio": 1083
+    },
+    "4": {
+      "audio": 597
+    },
+    "5": {
+      "audio": 658
+    },
+    "6": {
+      "audio": 601
+    }
+  },
+  "visual_contact_sheets": {
+    "chapter": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-contact-sheet.png",
+      "sha256": "ab5c58f01690dbeefa5ea8b1a24d39edd94c97bed5509ae80e26fff4e9cba7b6"
+    },
+    "source": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/source-contact-sheet.png",
+      "sha256": "e01db541620c3bf47b10c4976da980a84ee767d7762fa8b24839992ea5268bc1"
+    }
+  },
+  "audio_treatment": "Six pre-existing before/after MP4s were remuxed by concat demuxer with -c copy. Chapter-card silence was newly AAC-encoded; all source comparison AAC packet payload hashes match the reel in order. Video packet payload hashes differ after remuxing; visual frames and full decode are checked separately.",
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "canonical_media_or_learner_binding_changed": false,
+  "residual_uncertainty": "Listening judgment remains open; the reel does not qualify full-lesson timing or final narration."
+}
