@@ -94,6 +94,33 @@ ART_ASSETS={
     'cover':'public/accelerated_cover_ebook.jpg',
 }
 
+# Review-only clean cards. Each phrase is checked against its approved scene
+# narration by the clean-shell builder before these frames are exported.
+CLEAN_DENSE_CARDS={
+    'L02-04': [[('welcome email','low effort and easy to undo'),
+                ('guided first task','clearer starting point'),
+                ('staff dashboard','more build work')]],
+    'L05-02': [[('F01','could not tell if anything happened'),
+                ('F02','could not find where I left off')],
+               [('F03','instructions are too long'),
+                ('F04','a staff member explained the task')]],
+    'L06-02': [[('first-task guide','small test path'),
+                ('reminder','forgetting is the main barrier'),
+                ('staff dashboard','need staff evidence')]],
+    'L07-02': [[('first instruction','purpose of the task'),
+                ('small observation','starting moment'),
+                ('recording a decision','reopen the problem')]],
+    'L09-02': [[('Problem','new members struggle'),
+                ('Opportunity','a clearer entry'),
+                ('Options','clarify the card')],
+               [('Recommendation','test the smallest card change'),
+                ('Tradeoffs','delay another small task'),
+                ('Outcome','what a successful start looks like')]],
+    'L12-01': [[('source note','what the person was trying to do'),
+                ('context','in which it mattered'),
+                ('outcome','they wanted')]],
+}
+
 def concept_text(draw,value,box,size=39,color=CREAM,center=False):
     value=value.replace('→','to').replace('≠','differs from')
     x0,y0,x1,y1=box
@@ -130,6 +157,26 @@ def source_focus_art(image,name,box):
     x=box[0]+(box[2]-box[0]-art.width)//2
     y=box[1]+(box[3]-box[1]-art.height)//2
     image.paste(art,(x,y),art)
+
+def draw_clean_dense(image,scene,variant=None):
+    beats=CLEAN_DENSE_CARDS[scene['id']]
+    index=1 if variant=='second' and len(beats)>1 else 0
+    cards=beats[index]
+    d=ImageDraw.Draw(image)
+    rounded(d,(670,165,1810,815),DEEP,GOLD,42,6)
+    gap=26
+    width=(1050-gap*(len(cards)-1))//len(cards)
+    for i,(heading,detail) in enumerate(cards):
+        x=715+i*(width+gap)
+        rounded(d,(x,205,x+width,495),INK if i==0 else TEAL,GOLD,25,5)
+        if re.fullmatch(r'F\d\d', heading):
+            face=font(42)
+            left=d.textbbox((0,0),heading,font=face)[2]
+            d.text((x+(width-left)//2,235),heading,font=face,fill=GOLD_LIGHT)
+        else:
+            concept_text(d,heading,(x+20,225,x+width-20,295),36,GOLD_LIGHT,True)
+        line(d,[(x+32,310),(x+width-32,310)],GOLD,4)
+        concept_text(d,detail,(x+25,325,x+width-25,480),36,CREAM,True)
 
 def draw_semantic(d,layout,labels):
     """Large, labeled artifact shapes; no invented measures or customer results."""
@@ -281,6 +328,9 @@ def draw_semantic(d,layout,labels):
 
 def draw_concept(image,scene,variant=None,clean=False):
     layout,labels=CONCEPTS[scene['id']]
+    if clean and scene['id'] in CLEAN_DENSE_CARDS and variant not in ART_ASSETS:
+        draw_clean_dense(image,scene,variant)
+        return
     if clean and scene['id'] in ('L01-02','L01-03'):
         focus = ('signals' if scene['id']=='L01-02' else
                  variant if variant in ('signals','alignment','momentum') else 'signals')
