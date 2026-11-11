@@ -1,0 +1,54 @@
+# Accelerated L01–L16 continuous-voice production packet
+
+**Status:** read-only planning packet. No provider call, purchase, upload, learner binding, or release is authorized here. The local [pacing audit](lesson-media-pacing-audit-2026-11-10.md) identifies the currently silent teaching spans; the L01 system-voice MP4 is a timing proof, not an approved narrator.
+
+## Source and voice identity
+
+- The narration authority is each `docs/accelerated-course-modules/curriculum/scripts/Lxx.md`. The exact scene text and script SHA-256 are bound in `visual-production/manifest.json` (manifest SHA-256 `3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf`). Every current script file matches its manifest hash. The existing VTT and native presenter MP4 paths and SHA-256 values are in `artifacts/accelerated-visual-parity-2026-11-10/composite-receipt.json`.
+- The approved Accelerated presenter receipts identify the historical **Vambah green sweater** HeyGen Avatar IV look `329ae68b92d342f6a4362cc656d486a0` and avatar-native voice `14b592b937744404a4fa7c01aafd7dbe` on the AmaduTown Portfolio account. This identifies the current presenter source; it is not a fresh right or permission for new off-screen voice generation.
+- Agentified's separate continuous-narration precedent used HeyGen off-screen voice `4f53988b1c314610b514db98432fd0ef` for later lessons. Its purpose-specific rights and audible match to the Accelerated presenter have **not** been established for this course. Keep the two voice IDs distinct. Compare a permitted voice sample by ear before choosing a production voice; the macOS `Samantha` proof is not a release candidate.
+
+## Cutaway inventory
+
+Each cell is **start–end · approved VTT words · estimated speech seconds / available seconds**. Times are from the current native composite receipt, not early storyboard estimates. Word counts assign a VTT cue to the interval containing its midpoint; they are planning counts, not sentence-complete edit points. The estimate uses **135 words/minute**, excluding breath, transitions, and deliberate learner work. The native audio owns the four presenter windows per lesson. The unmarked final silent card after the last presenter is outside these three intervals and needs a separate end treatment.
+
+| Lesson · script SHA prefix | Cutaway 1 | Cutaway 2 | Cutaway 3 |
+| --- | --- | --- | --- |
+| L01 · `b32720889eea` | 00:31.5–03:55.0 · 425w · 189/203s | 04:08.2–05:45.0 · 202w · 90/97s | 05:59.0–08:35.0 · 309w · 137/156s |
+| L02 · `73119dd526db` | 00:29.8–03:00.0 · 294w · 131/150s | 03:14.3–06:06.0 · 335w · 149/172s | 06:16.2–09:33.9 · 394w · 175/198s |
+| L03 · `41d9233ab15a` | 00:22.3–02:54.0 · 295w · 131/152s | 03:10.8–05:49.0 · 302w · 134/158s | 06:00.3–08:34.0 · 301w · 134/154s |
+| L04 · `3b6a268fa8d1` | 00:25.7–02:45.0 · 285w · 127/139s | 02:58.8–05:50.0 · 336w · 149/171s | 06:05.2–09:32.9 · 412w · 183/208s |
+| L05 · `48fdf9358e85` | 00:19.2–03:20.0 · 380w · 169/181s | 03:40.9–06:40.0 · 374w · 166/179s | 06:54.3–09:33.9 · 344w · 153/160s |
+| L06 · `f4708e088f65` | 00:20.9–03:40.0 · 373w · 166/199s | 03:56.8–07:20.0 · 404w · 180/203s | 07:33.4–10:30.8 · 343w · 152/177s |
+| L07 · `394d030424d8` | 00:18.0–03:20.0 · 372w · 165/182s | 03:34.6–06:40.0 · 365w · 162/185s | 06:51.9–09:30.0 · 305w · 136/158s |
+| L08 · `e4647b07ebaf` | 00:28.5–04:00.0 · 410w · 182/211s | 04:18.0–08:00.0 · 433w · 192/222s | 08:15.4–11:21.0 · 359w · 160/186s |
+| L09 · `72f88ce4aa6c` | 00:22.9–03:40.0 · 395w · 176/197s | 04:01.2–07:20.0 · 426w · 189/199s | 07:36.5–10:30.7 · 363w · 161/174s |
+| L10 · `582238a183ab` | 00:25.9–03:00.0 · 338w · 150/154s | 03:20.0–06:00.0 · 356w · 158/160s | 06:22.2–08:31.6 · 289w · 128/129s |
+| L11 · `705152fdd1f3` | 00:21.5–03:20.0 · 379w · 168/179s | 03:41.3–06:40.0 · 376w · 167/179s | 07:02.0–09:21.6 · 296w · 132/140s |
+| L12 · `e8eaeb962881` | 00:24.5–03:40.0 · 383w · 170/195s | 04:01.3–07:20.0 · 387w · 172/199s | 07:40.7–10:22.7 · 321w · 143/162s |
+| L13 · `3acceee93022` | 00:28.0–03:46.0 · 414w · 184/198s | 04:06.3–07:26.0 · 414w · 184/200s | 07:51.7–10:32.3 · 330w · 147/161s |
+| L14 · `5ea7d162d964` | 00:26.3–02:44.0 · 296w · 132/138s | 03:09.1–05:30.0 · 310w · 138/141s | 05:52.4–07:31.3 · 215w · 96/99s |
+| L15 · `64a2691ab3c6` | 00:25.8–04:03.0 · 488w · 217/217s | 04:28.0–08:01.0 · 481w · 214/213s | 08:28.8–11:28.1 · 399w · 177/179s |
+| L16 · `aef51b9f3fce` | 00:28.5–02:41.0 · 303w · 135/133s | 03:07.1–05:16.0 · 291w · 129/129s | 05:41.4–07:29.4 · 250w · 111/108s |
+
+**Totals:** about 16,852 cutaway words in 8,182.7 available seconds (136.4 minutes). At 135 words/minute, speech alone would take about 124.8 minutes. This is a *capacity check*, not a provider quote or proof of natural pacing. L10, L14, L15 and L16 have windows with roughly five seconds or less of margin; L15-02 and L16-01/-03 already exceed the estimate. Stop if actual sentence-complete audio cannot fit naturally. A separate timing decision may shorten approved copy or extend/reposition the scene and later presenter entry; do not silently speed speech or alter the approved script.
+
+## Caption and composite plan
+
+1. Freeze the manifest, script, source MP4, VTT, rights, and chosen voice hashes. Split text at **sentence boundaries** around the actual native presenter audio, not by VTT cue midpoint. Confirm the cut with a native-audio listen and transcript. Preserve native presenter clip speed, audio, frame rate, frame count, and lip sync. Do not place a second voice under a presenter window.
+2. Obtain a native narration source with word or sentence timing. Measure each take before compositing. Place the exact sentences in the three teaching windows with natural breaths and no unmarked gap above two seconds. A learner-work pause needs a visible action and explicit start/end receipt. The unmarked end-card tails need a spoken close or a documented duration trim; the L01 local proof trims its 10.84-second tail to 08:49.48.
+3. Generate new VTT and embedded subtitle timing from the **final mixed audio**, then inspect at narrow mobile, tablet, and desktop widths with native controls on. Keep visual concepts above the caption band. Verify source/narration hashes, privacy-safe synthetic art, source plate rights, final frame count/duration, MP4 decode, no double speech, and a full silence report.
+
+## Provider, voice, and spending gate
+
+The prior Accelerated jobs used HeyGen for **presenter** footage; they did not authorize 136.4 minutes of new off-screen narration. **This packet's execution and spend cap are $0.** No current all-in quote, balance, rights receipt for this off-screen use, or enforceable cap is established. The historical L02 provider receipt observed **auto-reload enabled** at a $5 threshold with a $10 reload amount; later L13–L16 receipts show it **off**. Current account state must be inspected afresh. Auto-reload, overage, retries, and duplicate submissions could defeat a cap.
+
+Before **one L01 narration job** is submitted, obtain and bind: (a) the provider account and chosen voice ID with purpose-specific voice/likeness rights; (b) exact sentence-complete L01 input text and hashes, with a privacy review; (c) current wallet/credits, billing units, rounding, fees, taxes and binding pre-submit quote; (d) an **enforceable** maximum for that job with auto-reload and overage off; (e) explicit current authorization naming that exact job, source hashes, voice, cap, and stop/no-retry rules. Historical presenter spend or an existing wallet balance does not approve a new voice job. The 16-lesson workload must be priced as one real scope; it cannot be split into sub-$10 submissions to evade the standing small-expense rule. Unknown, recurring, or $10-plus total cost requires separate approval.
+
+Use the authenticated provider account only to **inspect** balance, voice identity and settings, and obtain a quote without submitting. If the interface cannot provide a binding quote or a technical cap, stop; do not infer cost from old receipts or rely on a prompt as a billing control. After one authorized job, return the provider receipt, exact debit, native audio and timing, hashes, and a local composite for review. Provider output does not grant upload, learner rebind, publication, distribution, or further jobs.
+
+### Fill-in authorization for a later L01 decision
+
+> I authorize **one review-only Accelerated L01 off-screen narration job**, using script SHA-256 `b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad`, manifest SHA-256 `3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf`, the sentence-complete cutaway text and text hash `[APPROVED_TEXT_HASH]`, HeyGen account `[ACCOUNT]`, voice `[VOICE_ID]`, and purpose-specific rights/privacy receipts `[RIGHTS]`/`[PRIVACY]`. The binding all-in quote is `[QUOTE_AND_UNITS]`; the technically enforced maximum is `[CAP_AND_EVIDENCE]`, with auto-reload and overage off. Submit once, with no retry. Stop on source/text drift, voice or rights mismatch, insufficient balance, missing or above-cap quote, billing-control uncertainty, privacy concern, provider error, uncertain submission state, unexpected debit, or unusable output. Return the native audio, word timing, provider/debit receipts and hashes for a local composite. This authorizes no other lesson, purchase outside the cap, upload, learner binding, publication, distribution, credential change, or release.
+
+The bracketed values are deliberately unfilled. This template is **not an approval**.
