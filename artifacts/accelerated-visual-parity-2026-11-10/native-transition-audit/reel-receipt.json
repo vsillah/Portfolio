@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "status": "review_only_native_transition_excerpt_reel",
+  "source_edl": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/full-lesson-timing-decisions.json",
+    "sha256": "50846b9c7a966cf51dfc4540bb88aa311318b7d199f18c3c09797904ea753326"
+  },
+  "source_audit": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/full-l01-l16.json",
+    "sha256": "4fa4fc4bb12a76866d479fea6b19a30a501ed7d44a808fee0ce16b55adbd2b9c"
+  },
+  "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/native-transition-review-reel.mp4",
+  "reel_sha256": "449d64a322ec9849e08d148286b845e457d7856267b70f977f7647cd7ad6b960",
+  "duration_seconds": 125.44,
+  "chapter_count": 8,
+  "chapters": [
+    {
+      "chapter": 1,
+      "lesson_id": "L01",
+      "kind": "source",
+      "source_boundary_seconds": 248.2,
+      "chapter_start_seconds": 0.0,
+      "clip_start_seconds": 2.4,
+      "source_excerpt_start_seconds": 244.7,
+      "source_clip_duration_seconds": 7.0,
+      "source_path": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+      "source_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-01.png",
+      "card_sha256": "8fea1031e7684cd41a5ffc92c6b84b633919d2742e3e5ec2d24a89886eab774e",
+      "review_note": "Existing VTT cue 245.06–252.51 crosses this boundary.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    },
+    {
+      "chapter": 2,
+      "lesson_id": "L02",
+      "kind": "source",
+      "source_boundary_seconds": 29.76,
+      "chapter_start_seconds": 9.4,
+      "clip_start_seconds": 11.8,
+      "source_excerpt_start_seconds": 26.26,
+      "source_clip_duration_seconds": 7.0,
+      "source_path": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+      "source_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-02.png",
+      "card_sha256": "828313b724cc352609b6335757432aac773bb5c7a8d4ccd5764703dd763b784b",
+      "review_note": "Existing VTT cue 29.48–40.35 crosses this boundary.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    },
+    {
+      "chapter": 3,
+      "lesson_id": "L04",
+      "kind": "source",
+      "source_boundary_seconds": 365.24,
+      "chapter_start_seconds": 18.8,
+      "clip_start_seconds": 21.2,
+      "source_excerpt_start_seconds": 361.74,
+      "source_clip_duration_seconds": 7.0,
+      "source_path": "public/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+      "source_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-03.png",
+      "card_sha256": "d1c92a1d1d2bff20ef0667633bc728175959986f38395bc3025dccb8c8a3f356",
+      "review_note": "Existing VTT cue 355.56–365.67 crosses this boundary.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    },
+    {
+      "chapter": 4,
+      "lesson_id": "L05",
+      "kind": "coordinated",
+      "source_boundary_seconds": 397.58,
+      "chapter_start_seconds": 28.2,
+      "clip_start_seconds": 30.6,
+      "source_excerpt_start_seconds": 0.0,
+      "source_clip_duration_seconds": 24.28,
+      "source_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-sequence-before-after.mp4",
+      "source_sha256": "963224f84e103c600581fd58dd28c7c68daf0e9cccd76327259b41478ab833e3",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-04.png",
+      "card_sha256": "db0dddaf4c4ec2dd94ee86768ad10a71454961cbf53ca765a9a4f7ba8749d6a3",
+      "review_note": "C02 ends 397.58 · zero planned transition reserve.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    },
+    {
+      "chapter": 5,
+      "lesson_id": "L06",
+      "kind": "coordinated",
+      "source_boundary_seconds": 437.72,
+      "chapter_start_seconds": 54.88,
+      "clip_start_seconds": 57.28,
+      "source_excerpt_start_seconds": 0.0,
+      "source_clip_duration_seconds": 23.88,
+      "source_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-sequence-before-after.mp4",
+      "source_sha256": "5c3bd26a4d68f9993235d495d9d93482a8d035cdbb701a80ec15628dc8b17472",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-05.png",
+      "card_sha256": "96286f1253c51bd0c1659b2d02459e18e20450c52a845e3e735b8d1a85170d29",
+      "review_note": "C02 ends 437.72 · zero planned transition reserve.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    },
+    {
+      "chapter": 6,
+      "lesson_id": "L08",
+      "kind": "coordinated",
+      "source_boundary_seconds": 478.0,
+      "chapter_start_seconds": 81.16,
+      "clip_start_seconds": 83.56,
+      "source_excerpt_start_seconds": 0.0,
+      "source_clip_duration_seconds": 23.04,
+      "source_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-sequence-before-after.mp4",
+      "source_sha256": "3f90ad6facbad2135371ec4bb0ff233e07cd33057f0bd9b3a2bb1f7bff9a6729",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-06.png",
+      "card_sha256": "17415286428855c3bd6f42b5ec7ed0e7cf6b1ba0beef4df65f0a8dc5768f9f67",
+      "review_note": "C02 ends 478.00 · zero planned transition reserve.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    },
+    {
+      "chapter": 7,
+      "lesson_id": "L10",
+      "kind": "source",
+      "source_boundary_seconds": 382.2,
+      "chapter_start_seconds": 106.6,
+      "clip_start_seconds": 109.0,
+      "source_excerpt_start_seconds": 378.7,
+      "source_clip_duration_seconds": 7.0,
+      "source_path": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+      "source_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-07.png",
+      "card_sha256": "43ad4418f51db8ac2ae3d91cc0a0273344ffb6d0f82cf733c06d6b8d23c8f2ed",
+      "review_note": "Existing VTT cue crosses; C03 needs 135.4 wpm.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    },
+    {
+      "chapter": 8,
+      "lesson_id": "L15",
+      "kind": "source",
+      "source_boundary_seconds": 508.84,
+      "chapter_start_seconds": 116.0,
+      "clip_start_seconds": 118.4,
+      "source_excerpt_start_seconds": 505.34,
+      "source_clip_duration_seconds": 7.0,
+      "source_path": "public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+      "source_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "card_path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-08.png",
+      "card_sha256": "148996d9dfd442c95d68a20f27f6b8ce2d97dea037ad1a8b437812a5a6f2a697",
+      "review_note": "Existing VTT cue crosses; C03 needs 135.2 wpm.",
+      "qualification": "native source audio only; coordinated clips remain local joins, not full-lesson fit"
+    }
+  ],
+  "visual_contact_sheets": {
+    "chapter": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/chapter-contact-sheet.png",
+      "sha256": "01dde0dd5e7a5cb0e05be048171a2ae34d3eb711d6d71b13b87af8fdfde21c4f"
+    },
+    "source": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/native-transition-audit/source-contact-sheet.png",
+      "sha256": "89d8b09d64e850306db2b1de5f3caecc62b35f322d4b8397591cdd0063bea047"
+    }
+  },
+  "full_decode": "passed",
+  "video_audio_treatment": "Native source footage and existing local joined clips only; video and audio re-encoded for one browser-compatible H.264/AAC reel. Chapter silence newly encoded. No generated speech.",
+  "limits": [
+    "Source boundary excerpts show current native media, not a completed lesson edit.",
+    "Coordinated joins omit actual C02 narration; final presenter-matched voice fit remains unverified.",
+    "Source VTT cue spans are listed on cards but captions are not burned into this reel."
+  ]
+}

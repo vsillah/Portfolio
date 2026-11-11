@@ -58,7 +58,7 @@ def packet_hashes(path, stream):
     return [row['data_hash'] for row in data['packets']]
 
 
-def card(path, index, title, phrase, instruction, total=6):
+def card(path, index, title, phrase, instruction, total=6, comparison_label='ORIGINAL  →  CANDIDATE'):
     image = Image.new('RGB', (1920, 1080), (8, 28, 40))
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((100, 104, 1820, 976), radius=42,
@@ -68,7 +68,7 @@ def card(path, index, title, phrase, instruction, total=6):
               font=ImageFont.truetype(FONT, 36), fill=(8, 28, 40))
     draw.text((152, 282), title, font=ImageFont.truetype(FONT, 72),
               fill=(246, 249, 244))
-    draw.text((152, 408), 'ORIGINAL  →  CANDIDATE',
+    draw.text((152, 408), comparison_label,
               font=ImageFont.truetype(FONT, 42), fill=(234, 192, 112))
     draw.multiline_text((152, 535), phrase, font=ImageFont.truetype(FONT, 52),
                         fill=(246, 249, 244), spacing=18)
