@@ -80,16 +80,6 @@ def card(path, index, title, phrase, instruction):
     image.save(path)
 
 
-def metadata_file(path, entries):
-    lines = [';FFMETADATA1']
-    for row in entries:
-        lines += ['[CHAPTER]', 'TIMEBASE=1/1000',
-                  f"START={round(row['chapter_start_seconds']*1000)}",
-                  f"END={round(row['chapter_end_seconds']*1000)}",
-                  f"title={row['title']}"]
-    path.write_text('\n'.join(lines) + '\n')
-
-
 def qa_sheets(entries):
     outputs = {}
     with tempfile.TemporaryDirectory(prefix='accelerated-reel-frames-') as tmp:
@@ -162,14 +152,30 @@ def main():
         run(['ffmpeg', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', str(listing),
              '-map', '0:v:0', '-map', '0:a:0', '-c', 'copy',
              '-movflags', '+faststart', '-y', str(concatenated)])
-        chapters = scratch / 'chapters.ffmeta'
-        metadata_file(chapters, entries)
-        run(['ffmpeg', '-v', 'error', '-i', str(concatenated), '-i', str(chapters),
-             '-map', '0:v:0', '-map', '0:a:0', '-map_metadata', '1', '-map_chapters', '1',
-             '-c', 'copy', '-movflags', '+faststart', '-y', str(REEL)])
+        # Different H.264 sequence headers in the source clips can survive a
+        # packet-copy concat yet fail in a browser. Normalize one CFR video
+        # stream, omit the MP4 chapter/data track, and copy AAC untouched.
+        run(['ffmpeg', '-v', 'error', '-i', str(concatenated),
+             '-map', '0:v:0', '-map', '0:a:0', '-map_metadata', '-1', '-map_chapters', '-1',
+             '-dn', '-sn', '-vf', 'fps=25,format=yuv420p', '-r', '25',
+             '-c:v', 'libx264', '-profile:v', 'high', '-level:v', '4.1',
+             '-preset', 'medium', '-crf', '20', '-c:a', 'copy',
+             '-movflags', '+faststart', '-y', str(REEL)])
     run(['ffmpeg', '-v', 'error', '-xerror', '-i', str(REEL), '-f', 'null', '-'])
     duration = float(probe(REEL)['format']['duration'])
     assert abs(duration - cursor) < .15, (duration, cursor)
+    browser_probe = json.loads(run(['ffprobe', '-v', 'error', '-show_streams',
+                                    '-show_format', '-of', 'json', str(REEL)]).stdout)
+    streams = browser_probe['streams']
+    assert len(streams) == 2 and [x['codec_type'] for x in streams] == ['video', 'audio']
+    video, audio = streams
+    assert (video['codec_name'], video['pix_fmt'], video['r_frame_rate'],
+            video['avg_frame_rate']) == ('h264', 'yuv420p', '25/1', '25/1')
+    assert video['profile'] == 'High' and video['level'] <= 41
+    assert audio['codec_name'] == 'aac' and audio['profile'] == 'LC'
+    assert audio['sample_rate'] == '48000' and audio['channels'] == 2
+    data = REEL.read_bytes()
+    assert data.find(b'moov') < data.find(b'mdat')
     output_audio = packet_hashes(REEL, 'a:0')
     audio_position = 0
     packet_counts = {}
@@ -186,10 +192,24 @@ def main():
                'duration_seconds': duration, 'chapter_card_duration_seconds': CHAPTER_SECONDS,
                'chapter_count': len(entries), 'chapters': entries,
                'source_audio_packets_preserved_in_order': True,
-               'source_video_packet_hashes_preserved': False,
+               'source_video_reencoded_as_single_browser_compatible_stream': True,
                'source_packet_counts': packet_counts,
                'visual_contact_sheets': visual_sheets,
-               'audio_treatment': 'Six pre-existing before/after MP4s were remuxed by concat demuxer with -c copy. Chapter-card silence was newly AAC-encoded; all source comparison AAC packet payload hashes match the reel in order. Video packet payload hashes differ after remuxing; visual frames and full decode are checked separately.',
+               'audio_treatment': 'Six pre-existing before/after MP4s were concatenated, then only video was re-encoded. Chapter-card silence was newly AAC-encoded; all six source comparison AAC packet payload hashes match the browser-safe reel in order.',
+               'video_treatment': 'One constant-25-fps H.264 High Profile 4.1 yuv420p stream; no MP4 chapter/data track; faststart moov precedes mdat.',
+               'embedded_mp4_chapter_track': False,
+               'chapter_timestamps_in_listening_index': True,
+               'browser_compatible_probe': {'stream_count': len(streams),
+                                            'video_codec': video['codec_name'],
+                                            'video_profile': video['profile'],
+                                            'video_level': video['level'],
+                                            'video_pixel_format': video['pix_fmt'],
+                                            'video_frame_rate': video['avg_frame_rate'],
+                                            'audio_codec': audio['codec_name'],
+                                            'audio_profile': audio['profile'],
+                                            'audio_sample_rate': audio['sample_rate'],
+                                            'audio_channels': audio['channels'],
+                                            'faststart_moov_before_mdat': True},
                'full_mp4_decode': 'passed', 'voice_generation': False,
                'canonical_media_or_learner_binding_changed': False,
                'residual_uncertainty': 'Listening judgment remains open; the reel does not qualify full-lesson timing or final narration.'}

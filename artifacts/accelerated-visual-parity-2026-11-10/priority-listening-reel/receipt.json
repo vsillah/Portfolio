@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "review_only_not_audible_signoff",
   "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/accelerated-presenter-priority-listening-reel.mp4",
-  "reel_sha256": "a4cffa1a77a9d7e7e20a57840f2d95d38b87e8ceb17449c252dd9d5d3a72176b",
+  "reel_sha256": "c00c8a26cecd6f7baa0e0f56a613bb8cc34625f3ae7000a9d980b12c9e70a959",
   "duration_seconds": 125.101333,
   "chapter_card_duration_seconds": 2.4,
   "chapter_count": 6,
@@ -105,7 +105,7 @@
     }
   ],
   "source_audio_packets_preserved_in_order": true,
-  "source_video_packet_hashes_preserved": false,
+  "source_video_reencoded_as_single_browser_compatible_stream": true,
   "source_packet_counts": {
     "1": {
       "audio": 1142
@@ -129,14 +129,30 @@
   "visual_contact_sheets": {
     "chapter": {
       "path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/chapter-contact-sheet.png",
-      "sha256": "ab5c58f01690dbeefa5ea8b1a24d39edd94c97bed5509ae80e26fff4e9cba7b6"
+      "sha256": "9b4e697df627e3215d87a0046638843e9ce0eff906c26dd09ac027cf5fe566df"
     },
     "source": {
       "path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/source-contact-sheet.png",
-      "sha256": "e01db541620c3bf47b10c4976da980a84ee767d7762fa8b24839992ea5268bc1"
+      "sha256": "5ba966a45831651ab898fb13730a68a819ad22c1bc77535972f1599979f348c5"
     }
   },
-  "audio_treatment": "Six pre-existing before/after MP4s were remuxed by concat demuxer with -c copy. Chapter-card silence was newly AAC-encoded; all source comparison AAC packet payload hashes match the reel in order. Video packet payload hashes differ after remuxing; visual frames and full decode are checked separately.",
+  "audio_treatment": "Six pre-existing before/after MP4s were concatenated, then only video was re-encoded. Chapter-card silence was newly AAC-encoded; all six source comparison AAC packet payload hashes match the browser-safe reel in order.",
+  "video_treatment": "One constant-25-fps H.264 High Profile 4.1 yuv420p stream; no MP4 chapter/data track; faststart moov precedes mdat.",
+  "embedded_mp4_chapter_track": false,
+  "chapter_timestamps_in_listening_index": true,
+  "browser_compatible_probe": {
+    "stream_count": 2,
+    "video_codec": "h264",
+    "video_profile": "High",
+    "video_level": 41,
+    "video_pixel_format": "yuv420p",
+    "video_frame_rate": "25/1",
+    "audio_codec": "aac",
+    "audio_profile": "LC",
+    "audio_sample_rate": "48000",
+    "audio_channels": 2,
+    "faststart_moov_before_mdat": true
+  },
   "full_mp4_decode": "passed",
   "voice_generation": false,
   "canonical_media_or_learner_binding_changed": false,
