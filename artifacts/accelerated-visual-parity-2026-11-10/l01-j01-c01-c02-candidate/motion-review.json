@@ -108,7 +108,8 @@
     "full_decode": "passed",
     "frame_count": 320,
     "same_inset_geometry": true,
-    "desktop_and_narrow_playback": "pending visual inspection"
+    "desktop_and_narrow_playback": "passed in Chrome at desktop and 390x844 with controls visible",
+    "human_audio_listening": "pending"
   },
   "limits": [
     "Native excerpts are re-encoded for this local review; the original MP4 is unchanged.",
