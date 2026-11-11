@@ -36,7 +36,10 @@ def bases():
     p01 = p01_source.copy()
     fill_region(p01, p01_source, 615, 320, 1550, 850, 600, 1570)
     worksheet = p01_source.crop((620, 325, 1540, 852))
-    p01.paste(worksheet, (100, 330))
+    # Keep the printed heading, field, and complete border. Remove 127px of
+    # empty worksheet interior so the bottom edge clears narrow player controls.
+    p01.paste(worksheet.crop((0, 0, 920, 280)), (100, 285))
+    p01.paste(worksheet.crop((0, 407, 920, 527)), (100, 565))
     p01_path = OUT / 'p01-middle-base.png'
     p01.save(p01_path)
 
@@ -54,7 +57,7 @@ def bases():
     draw.text((1136, 155), 'WORKSHOP MAP', font=small, fill='#b88735')
     draw.text((1136, 215), 'Signals · Alignment', font=title, fill='#f5efe6')
     draw.text((1136, 282), 'Momentum', font=title, fill='#f5efe6')
-    draw.text((1136, 785), 'Book parts: Systems · Align · Momentum', font=sub, fill='#d9e1e3')
+    draw.text((1136, 85), 'Book parts: Systems · Align · Momentum', font=sub, fill='#d9e1e3')
     p02_path = OUT / 'p02-middle-base.png'
     p02.save(p02_path)
     return p01_path, p02_path
@@ -90,6 +93,16 @@ def review_still(base, face, label):
     desktop.save(desktop_path)
     mobile = Image.new('RGB', (390, 844), 'black')
     mobile.paste(desktop.resize((390, 250), Image.Resampling.LANCZOS), (0, 297))
+    # Chrome keeps a near-constant-height control layer as the video shrinks.
+    # Simulate that mobile layer independently instead of scaling desktop UI.
+    wash = Image.new('RGBA', mobile.size, (0, 0, 0, 0))
+    shade = ImageDraw.Draw(wash)
+    for y in range(455, 516):
+        shade.line((0, y, 389, y), fill=(0, 0, 0, min(220, (y - 455) * 4)))
+    shade.text((19, 478), 'Play  00:00 / 00:12',
+               font=ImageFont.truetype(str(FONT_DIR / 'Arial.ttf'), 13), fill=(255, 255, 255, 255))
+    shade.rectangle((18, 510, 372, 512), fill=(255, 255, 255, 255))
+    mobile = Image.alpha_composite(mobile.convert('RGBA'), wash).convert('RGB')
     mobile_path = OUT / f'{label}-middle-390x844-controls.png'
     mobile.save(mobile_path)
     return desktop_path, mobile_path
@@ -113,16 +126,18 @@ def main():
         'proposed_normalized_xywh': [0.5917, 0.3222, 0.35, 0.3556],
         'native_presenter_crop_xywh': [1420, 260, 448, 256],
         'native_p02_crop_xywh': [1420, 790, 448, 256],
-        'layout': {'P01_worksheet_xywh': [100, 330, 920, 527],
+        'layout': {'P01_worksheet_xywh': [100, 285, 920, 400],
+                   'P01_blank_interior_removed_source_px': 127,
+                   'P01_worksheet_bottom_to_mobile_control_guard_source_px': 770 - 685,
                    'P02_map_xywh': [160, 130, 760, 632],
                    'P02_title': 'redrawn above presenter; all source wording retained',
-                   'P02_book_parts': 'below presenter; source wording retained',
+                   'P02_book_parts': 'source x=1136,y=85 above workshop title; source wording retained',
                    'presenter_bottom_to_control_guard_source_px': 920 - (ANCHOR[1] + ANCHOR[3]),
                    'map_bottom_to_control_guard_source_px': 920 - 762,
                    'caption_band_review_y_px': [720, 820]},
         'observed_still_review': {
             'desktop': 'P01 worksheet and P02 map occupy the left teaching column; title and presenter occupy the right without overlap. P02 map footer and book-parts line remain above the simulated control strip.',
-            '390x844': 'Presenter, main title, map silhouette, worksheet field, and map footer remain visible; detailed infographic labels are too small to serve as standalone mobile reading text.',
+            '390x844': 'Presenter, main title, map silhouette, worksheet field and full lower border, and map footer remain visible above a simulated Chrome-sized control layer; detailed infographic labels are too small to serve as standalone mobile reading text.',
             'visual_balance': 'P01 card center is near the presenter center; P02 map was lowered to y=130 and its title sits above the middle-right presenter. Neither scene rests wholly at the top.',
             'reading_boundary': 'The narration and large title must carry the one-second message on mobile; map micro-label comprehension remains a later scene-specific illustration gate.'},
         'stills': {path.name: sha(path) for path in paths},

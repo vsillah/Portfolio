@@ -51,10 +51,12 @@
   "layout": {
     "P01_worksheet_xywh": [
       100,
-      330,
+      285,
       920,
-      527
+      400
     ],
+    "P01_blank_interior_removed_source_px": 127,
+    "P01_worksheet_bottom_to_mobile_control_guard_source_px": 85,
     "P02_map_xywh": [
       160,
       130,
@@ -62,7 +64,7 @@
       632
     ],
     "P02_title": "redrawn above presenter; all source wording retained",
-    "P02_book_parts": "below presenter; source wording retained",
+    "P02_book_parts": "source x=1136,y=85 above workshop title; source wording retained",
     "presenter_bottom_to_control_guard_source_px": 188,
     "map_bottom_to_control_guard_source_px": 158,
     "caption_band_review_y_px": [
@@ -72,17 +74,17 @@
   },
   "observed_still_review": {
     "desktop": "P01 worksheet and P02 map occupy the left teaching column; title and presenter occupy the right without overlap. P02 map footer and book-parts line remain above the simulated control strip.",
-    "390x844": "Presenter, main title, map silhouette, worksheet field, and map footer remain visible; detailed infographic labels are too small to serve as standalone mobile reading text.",
+    "390x844": "Presenter, main title, map silhouette, worksheet field and full lower border, and map footer remain visible above a simulated Chrome-sized control layer; detailed infographic labels are too small to serve as standalone mobile reading text.",
     "visual_balance": "P01 card center is near the presenter center; P02 map was lowered to y=130 and its title sits above the middle-right presenter. Neither scene rests wholly at the top.",
     "reading_boundary": "The narration and large title must carry the one-second message on mobile; map micro-label comprehension remains a later scene-specific illustration gate."
   },
   "stills": {
-    "p01-middle-base.png": "fb4d6486ae6b8b563eab3e91ca2da740aba8c3158182a213a559c4a6b450b190",
-    "p02-middle-base.png": "4ffa3b910291d520669234aeaa99de00aa6febcd8593fa56591ced64c3df1c59",
-    "P01-middle-desktop-controls.png": "3bad37d4a3e6bbba4a458e7ba315c245a236576e3d75fd5f1310b008685af01f",
-    "P01-middle-390x844-controls.png": "fba98b4c4b5fb7d02106ad56546938940ceb86e04828baa294ed669a31102c33",
-    "P02-middle-desktop-controls.png": "48a27bfef2c218d249814b747c1c41a4fd776df3590dfdcde1b398a73825ef58",
-    "P02-middle-390x844-controls.png": "ba1f05f995bf58b2b2c5f9561a4f9fd973c09bfc3ded3d228607fc3263a6b7c6"
+    "p01-middle-base.png": "ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071",
+    "p02-middle-base.png": "d68c58e29bd91498c181f87f359f93430abefdb36c0f51f5cdf943877b036faa",
+    "P01-middle-desktop-controls.png": "b5a84e536049ea6f3bc9804684f71abd3b26576b27eee4e1a7d9f2efaf2c520d",
+    "P01-middle-390x844-controls.png": "1f6f5cb46963fef38a446a0bba588e74ee7858acb2360d2e53ab8314c6ead55a",
+    "P02-middle-desktop-controls.png": "310c48f1d4a35ac1a8092e58ba90f3ab9b449ad9d07b9c1e482e4c7457fb5c65",
+    "P02-middle-390x844-controls.png": "47fdd2bc7fb762087da84abdbcc27adfdb183463d1ab4473bafd9fcfe64bdbec"
   },
   "limits": [
     "Controls in stills are simulated; actual Chrome playback needs the single authorized render.",

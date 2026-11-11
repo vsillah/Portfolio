@@ -1,0 +1,28 @@
+{
+  "status": "REJECT_STOPPED_AT_FIRST_PLAYER_FAILURE",
+  "review_date": "2026-11-11",
+  "source_commit": "dfc27662",
+  "artifact": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4",
+  "artifact_sha256": "a1af03debe30b74bfb9eb707be5d6af43f5abbe6396d403f82aa96176a67bdd2",
+  "presenter_source_1920x1080_xywh": [1136, 348, 672, 384],
+  "passed_before_stop": [
+    "320 video frames and full technical decode",
+    "contact frames at 4.36/4.44 and 6.76/6.80/6.84/6.88 show fixed presenter geometry",
+    "desktop Chrome map and presenter clear of native controls"
+  ],
+  "failure": {
+    "viewport_css_px": [390, 844],
+    "player": "Chrome native MP4 player with controls visible",
+    "scene": "P02 workshop map",
+    "observation": "The Book parts: Systems · Align · Momentum line along the lower right falls into the native control overlay and becomes hard to read. The map image footer remains above the controls.",
+    "gate": "all teaching text and map/footer clear of controls at narrow width",
+    "result": "failed"
+  },
+  "not_claimed_after_stop": [
+    "native audio listening continuity",
+    "complete caption-safe playback",
+    "human QA readiness",
+    "C01/C02 J01 timing render"
+  ],
+  "actions": "No corrective rerender, learner media or binding change, HeyGen call, credit spend, merge, or release. Local MP4 remains ignored by Git; source script and receipts remain uncommitted."
+}
