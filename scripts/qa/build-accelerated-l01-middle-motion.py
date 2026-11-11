@@ -12,15 +12,23 @@ OUT = ROOT / 'artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-can
 SOURCE = ROOT / 'public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4'
 P01 = OUT / 'p01-middle-base.png'
 P02 = OUT / 'p02-middle-base.png'
+FOCUS = {name: OUT / f'p02-focus-{name}-base.png'
+         for name in ('signals', 'alignment', 'momentum')}
 LAYOUT = OUT / 'middle-anchor-layout-receipt.json'
 VIDEO = OUT / 'l01-p01-p02-middle-motion.mp4'
+PRIOR_AUDIO = OUT / 'l01-p01-p02-middle-motion-failed-copy-reduction.mp4'
 RECEIPT = OUT / 'middle-motion-technical-receipt.json'
 FPS = 25
 ANCHOR = (1136, 348, 672, 384)
 SEGMENTS = [
     {'id': 'P01', 'start': 24.0, 'end': 28.4, 'crop_y': 260, 'base': P01},
     {'id': 'P01_MOVED', 'start': 28.4, 'end': 30.8, 'crop_y': 260, 'base': P02},
-    {'id': 'P02', 'start': 235.0, 'end': 241.0, 'crop_y': 790, 'base': P02},
+    {'id': 'P02_FULL_IN', 'start': 235.0, 'end': 235.6, 'crop_y': 790, 'base': P02,
+     'hold_first_frame': True},
+    {'id': 'P02_SIGNALS', 'start': 235.6, 'end': 237.08, 'crop_y': 790, 'base': FOCUS['signals']},
+    {'id': 'P02_ALIGNMENT', 'start': 237.08, 'end': 238.56, 'crop_y': 790, 'base': FOCUS['alignment']},
+    {'id': 'P02_MOMENTUM', 'start': 238.56, 'end': 240.04, 'crop_y': 790, 'base': FOCUS['momentum']},
+    {'id': 'P02_FULL_OUT', 'start': 240.04, 'end': 241.0, 'crop_y': 790, 'base': P02},
 ]
 
 
@@ -37,9 +45,14 @@ def run(*args):
 
 def source_check():
     assert sha(SOURCE) == 'a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725'
+    assert sha(PRIOR_AUDIO) == '820c42a81311152c454318d47549ca5ed90c8e44dfb8713d6aa5007b5d382461'
     assert sha(P01) == 'ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071'
-    assert sha(P02) == 'd68c58e29bd91498c181f87f359f93430abefdb36c0f51f5cdf943877b036faa'
-    assert sha(LAYOUT) == 'b678c228e9a2efa051bff776c196e40c40f0d2ce74965b6d6108b112fbbb4a7d'
+    assert sha(P02) == 'b83df117c6606b3d7fea3e1ccc2752146073454923f23e2c37031b88a7341196'
+    assert sha(LAYOUT) == 'b1cb2dbb6628e3f2855a9e580859d2fc86b030d167a082206c2d52662d71833a'
+    assert {name: sha(path) for name, path in FOCUS.items()} == {
+        'signals': '41d6c0415ffdbca61a15586d166ad169e0b91363c854140f23207b29dee23962',
+        'alignment': '9bca38c9c470b804bcffb681ed832697f93f39b337dad0ad301d38a7c8f48de5',
+        'momentum': '353fcbc5a4347af0d084f3c45177d1450d89df51dfe395ffba65cd04314701e2'}
     layout = json.loads(LAYOUT.read_text())
     assert layout['proposed_source_1920x1080_xywh'] == list(ANCHOR)
     assert sum(round((row['end'] - row['start']) * FPS) for row in SEGMENTS) == 320
@@ -49,21 +62,20 @@ def render_segment(row, path):
     duration = round(row['end'] - row['start'], 6)
     frames = round(duration * FPS)
     # The native P02 inset has one blank frame at 235.00. Hold its first valid
-    # native video frame for 40 ms; preserve the untouched 235.0s audio window.
-    first = .04 if row['id'] == 'P02' else 0
+    # native video frame for 40 ms. Audio is copied as one prior passing track.
+    first = .04 if row.get('hold_first_frame') else 0
     hold = ',tpad=start_mode=clone:start_duration=0.04' if first else ''
     graph = (
         f'[1:v]trim=start={first}:duration={duration-first:.6f},setpts=PTS-STARTPTS{hold},'
         f'crop=448:256:1420:{row["crop_y"]},scale={ANCHOR[2]}:{ANCHOR[3]}:flags=lanczos[presenter];'
         f'[0:v][presenter]overlay={ANCHOR[0]}:{ANCHOR[1]}:shortest=0,'
-        'scale=1280:720:flags=lanczos,fps=25[v];'
-        f'[1:a]atrim=duration={duration},asetpts=PTS-STARTPTS[a]'
+        'scale=1280:720:flags=lanczos,fps=25[v]'
     )
     run('ffmpeg', '-v', 'error', '-y', '-loop', '1', '-framerate', '25', '-i', str(row['base']),
         '-ss', str(row['start']), '-i', str(SOURCE), '-filter_complex', graph,
-        '-map', '[v]', '-map', '[a]', '-frames:v', str(frames), '-t', str(duration),
+        '-map', '[v]', '-an', '-frames:v', str(frames), '-t', str(duration),
         '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p',
-        '-c:a', 'aac', '-b:a', '256k', str(path))
+        str(path))
     probe = json.loads(run('ffprobe', '-v', 'error', '-count_frames', '-select_streams', 'v:0',
                            '-show_entries', 'stream=nb_read_frames', '-of', 'json', str(path)))
     assert int(probe['streams'][0]['nb_read_frames']) == frames
@@ -80,8 +92,11 @@ def render():
             parts.append(part)
         listing = temp / 'parts.txt'
         listing.write_text(''.join(f"file '{path}'\n" for path in parts))
+        joined_video = temp / 'joined-video.mp4'
         run('ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', str(listing),
-            '-c', 'copy', '-movflags', '+faststart', str(VIDEO))
+            '-c:v', 'copy', str(joined_video))
+        run('ffmpeg', '-v', 'error', '-y', '-i', str(joined_video), '-i', str(PRIOR_AUDIO),
+            '-map', '0:v:0', '-map', '1:a:0', '-c', 'copy', '-movflags', '+faststart', str(VIDEO))
     inspect(write=True)
 
 
@@ -95,22 +110,34 @@ def inspect(write=False):
     assert (video['width'], video['height'], int(video['nb_read_frames'])) == (1280, 720, 320)
     assert abs(float(probe['format']['duration']) - 12.8) <= .05
     run('ffmpeg', '-v', 'error', '-i', str(VIDEO), '-f', 'null', '-')
+    def pcm_info(path):
+        decoded = subprocess.run(['ffmpeg', '-v', 'error', '-i', str(path), '-map', '0:a:0',
+                                  '-f', 's16le', '-ac', '2', '-ar', '48000', '-'],
+                                 cwd=ROOT, capture_output=True, check=True).stdout
+        return {'bytes': len(decoded), 'sha256': hashlib.sha256(decoded).hexdigest()}
+    prior_pcm = pcm_info(PRIOR_AUDIO)
+    reel_pcm = pcm_info(VIDEO)
+    assert prior_pcm == reel_pcm, f'Native audio mismatch: {prior_pcm} != {reel_pcm}'
     receipt = {
         'status': 'local_native_motion_review_only_not_learner_media',
         'source': {'path': str(SOURCE.relative_to(ROOT)), 'sha256': sha(SOURCE)},
         'layout_receipt_sha256': sha(LAYOUT),
-        'backgrounds': {'P01': sha(P01), 'P02': sha(P02)},
+        'backgrounds': {'P01': sha(P01), 'P02': sha(P02),
+                        **{name: sha(path) for name, path in FOCUS.items()}},
         'presenter_source_1920x1080_xywh': list(ANCHOR),
         'segments': [{**{k: row[k] for k in ('id', 'start', 'end', 'crop_y')},
                       'base': str(row['base'].relative_to(ROOT)),
-                      'audio': 'same native source window, AAC re-encoded; no J01'} for row in SEGMENTS],
+                      'audio': 'one copied prior-reel AAC track spans all visual segments; no J01'} for row in SEGMENTS],
+        'audio_source': {'path': str(PRIOR_AUDIO.relative_to(ROOT)), 'sha256': sha(PRIOR_AUDIO),
+                         'decoded_pcm': prior_pcm},
         'native_visual_frame_hold': 'P02 source 235.04s held for first 40 ms frame; 235.0s audio unchanged',
         'reel': {'path': str(VIDEO.relative_to(ROOT)), 'sha256': sha(VIDEO),
                  'duration_seconds': float(probe['format']['duration']),
                  'video': video, 'audio': audio},
         'checks': {'full_decode': 'passed', 'frame_count': 320,
-                   'browser_desktop_mobile_controls': 'see separate middle-motion-validation.json',
-                   'native_audio_listening': 'not claimed; technical continuity in separate validation receipt'},
+                   'decoded_pcm_identity': reel_pcm,
+                   'browser_desktop_mobile_controls': 'see p02-focus-audio-preserved-review.md',
+                   'native_audio_listening': 'not performed; decoded PCM identity to prior reel passed'},
         'limits': ['Local voice-bearing MP4 remains ignored by Git.',
                    'No J01, learner binding, provider action, merge, or release.']
     }

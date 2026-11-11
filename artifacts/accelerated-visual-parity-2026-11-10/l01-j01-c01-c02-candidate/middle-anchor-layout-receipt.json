@@ -18,6 +18,37 @@
     ],
     "observed": "finished L01 at 5s and 520s, L05 at 5s and 590s, and L08 at 5s show a middle-right presenter"
   },
+  "agentified_text_hierarchy_reference": [
+    {
+      "source": "public/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-composite.mp4",
+      "sha256": "10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14",
+      "sample_seconds": [
+        5,
+        40,
+        250
+      ],
+      "finding": "one teaching sentence beside presenter; cutaway adds owner context and operating-file artifact; timed exercise uses one number and instruction"
+    },
+    {
+      "source": "agentified/workshop/l05-l08-native-composite/agentified-l05-native-composite.mp4",
+      "sha256": "5dfd073aa0b22fa724cd13ebdb7b43799b1ffe3db5a20ee1d72babba1438d4d1",
+      "sample_seconds": [
+        5,
+        90,
+        100
+      ],
+      "finding": "one main point and short context; 100s two-line workflow headline above text card is a density caution"
+    },
+    {
+      "source": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "sample_seconds": [
+        5,
+        90
+      ],
+      "finding": "headline hierarchy is clear, but text-led cutaway alone does not qualify Accelerated illustration"
+    }
+  ],
   "accelerated_existing_anchor_xywh": [
     1420,
     48,
@@ -63,8 +94,38 @@
       760,
       632
     ],
-    "P02_title": "redrawn above presenter; all source wording retained",
-    "P02_book_parts": "source x=1136,y=85 above workshop title; source wording retained",
+    "P02_focus_source_crops_xyxy": {
+      "signals": [
+        230,
+        250,
+        450,
+        435
+      ],
+      "alignment": [
+        480,
+        250,
+        700,
+        435
+      ],
+      "momentum": [
+        725,
+        250,
+        945,
+        435
+      ]
+    },
+    "P02_focus_destination_xywh": [
+      180,
+      145,
+      720,
+      606
+    ],
+    "P02_overlays_removed": [
+      "WORKSHOP MAP",
+      "Signals \u00b7 Alignment \u00b7 Momentum",
+      "Book parts: Systems \u00b7 Align \u00b7 Momentum"
+    ],
+    "P02_source_art_text": "preserved inside the original map crop",
     "presenter_bottom_to_control_guard_source_px": 188,
     "map_bottom_to_control_guard_source_px": 158,
     "caption_band_review_y_px": [
@@ -73,18 +134,25 @@
     ]
   },
   "observed_still_review": {
-    "desktop": "P01 worksheet and P02 map occupy the left teaching column; title and presenter occupy the right without overlap. P02 map footer and book-parts line remain above the simulated control strip.",
-    "390x844": "Presenter, main title, map silhouette, worksheet field and full lower border, and map footer remain visible above a simulated Chrome-sized control layer; detailed infographic labels are too small to serve as standalone mobile reading text.",
-    "visual_balance": "P01 card center is near the presenter center; P02 map was lowered to y=130 and its title sits above the middle-right presenter. Neither scene rests wholly at the top.",
-    "reading_boundary": "The narration and large title must carry the one-second message on mobile; map micro-label comprehension remains a later scene-specific illustration gate."
+    "desktop": "P01 worksheet and P02 source map occupy the left teaching column with the presenter on the right. No duplicate P02 headings or book-parts overlay remains; source map footer clears the simulated control strip.",
+    "390x844": "Focused source-art headings require actual-player readability review; simulated controls only establish preliminary clearance.",
+    "visual_balance": "P01 card center is near the presenter center; P02 source map and middle-right presenter occupy the same vertical band. Neither scene rests wholly at the top.",
+    "P01_teaching_idea": "The blank decision field makes the named blank document visible; full scene illustration remains open.",
+    "reading_boundary": "Whole-map micro-labels failed the prior 390px gate; enlarged native source-art headings require a single short-reel check before any readiness claim."
   },
   "stills": {
     "p01-middle-base.png": "ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071",
-    "p02-middle-base.png": "d68c58e29bd91498c181f87f359f93430abefdb36c0f51f5cdf943877b036faa",
+    "p02-middle-base.png": "b83df117c6606b3d7fea3e1ccc2752146073454923f23e2c37031b88a7341196",
     "P01-middle-desktop-controls.png": "b5a84e536049ea6f3bc9804684f71abd3b26576b27eee4e1a7d9f2efaf2c520d",
     "P01-middle-390x844-controls.png": "1f6f5cb46963fef38a446a0bba588e74ee7858acb2360d2e53ab8314c6ead55a",
-    "P02-middle-desktop-controls.png": "310c48f1d4a35ac1a8092e58ba90f3ab9b449ad9d07b9c1e482e4c7457fb5c65",
-    "P02-middle-390x844-controls.png": "47fdd2bc7fb762087da84abdbcc27adfdb183463d1ab4473bafd9fcfe64bdbec"
+    "P02-middle-desktop-controls.png": "8fe4ef5ad7aeab4ad6be3d31b1adc5228d2fa3824687337cbbb5b3ead1b2ee34",
+    "P02-middle-390x844-controls.png": "ebc82bd49e3d89fdbc1f4d0f545dd70ea6e889885ab2489f38ad7280b11ab30f",
+    "P02-signals-middle-desktop-controls.png": "900b796686f90d7e0cc3a3678bd2c89db2ab7b7959d04e4b6ff2c6d21ca8dcf9",
+    "P02-signals-middle-390x844-controls.png": "946dd1f34fcd28f769aa044bb1bb259e199551684f153d24b94062a567644e51",
+    "P02-alignment-middle-desktop-controls.png": "7e7d31e5d3f8240d9f49e9bfdcf5ba165827225af1a566f22113d181dd285b99",
+    "P02-alignment-middle-390x844-controls.png": "bff3fbcb0468b6cf6a5adc073c8d2053d5b52dc9b84a3b9dda8c61cd650ba285",
+    "P02-momentum-middle-desktop-controls.png": "fd1f4373abcef193addcdfc4132a7764a47ed5d3a22a9b1e98464621c6b8e5ca",
+    "P02-momentum-middle-390x844-controls.png": "34e765b59f42393487356facfb0dd313c1928a644d0219b08476451d001b4b33"
   },
   "limits": [
     "Controls in stills are simulated; actual Chrome playback needs the single authorized render.",

@@ -48,18 +48,22 @@ def bases():
     fill_region(p02, p02_source, 180, 155, 1006, 835, 160, 1050)
     fill_region(p02, p02_source, 1100, 275, 1885, 725, 1080, 1895)
     fill_region(p02, p02_source, 1680, 40, 1865, 100, 1660, 1885)
+    focus_background = p02.copy()
     art = p02_source.crop((190, 165, 990, 830)).resize((760, 632), Image.Resampling.LANCZOS)
     p02.paste(art, (160, 130))
-    draw = ImageDraw.Draw(p02)
-    small = ImageFont.truetype(str(FONT_DIR / 'Arial Bold.ttf'), 34)
-    title = ImageFont.truetype(str(FONT_DIR / 'Georgia Bold.ttf'), 57)
-    sub = ImageFont.truetype(str(FONT_DIR / 'Arial.ttf'), 31)
-    draw.text((1136, 155), 'WORKSHOP MAP', font=small, fill='#b88735')
-    draw.text((1136, 215), 'Signals · Alignment', font=title, fill='#f5efe6')
-    draw.text((1136, 282), 'Momentum', font=title, fill='#f5efe6')
-    draw.text((1136, 85), 'Book parts: Systems · Align · Momentum', font=sub, fill='#d9e1e3')
     p02_path = OUT / 'p02-middle-base.png'
     p02.save(p02_path)
+    # Use only enlarged crops from the owned SAM plate. The opening whole-map
+    # view preserves context; the three native headings then become readable.
+    focus_crops = {
+        'signals': (230, 250, 450, 435),
+        'alignment': (480, 250, 700, 435),
+        'momentum': (725, 250, 945, 435),
+    }
+    for name, box in focus_crops.items():
+        focused = focus_background.copy()
+        focused.paste(p02_source.crop(box).resize((720, 606), Image.Resampling.LANCZOS), (180, 145))
+        focused.save(OUT / f'p02-focus-{name}-base.png')
     return p01_path, p02_path
 
 
@@ -113,6 +117,9 @@ def main():
     paths = [p01, p02]
     paths.extend(review_still(p01, presenter(24.4, 260), 'P01'))
     paths.extend(review_still(p02, presenter(240.5, 790), 'P02'))
+    for name in ('signals', 'alignment', 'momentum'):
+        paths.extend(review_still(OUT / f'p02-focus-{name}-base.png',
+                                  presenter(240.5, 790), f'P02-{name}'))
     receipt = {
         'status': 'still_only_middle_anchor_proposal_render_held',
         'source_video_sha256': sha(SOURCE),
@@ -121,6 +128,16 @@ def main():
                                  'source_1920x1080_xywh': [1048, 326, 768, 432],
                                  'normalized_xywh': [0.5458, 0.3019, 0.4, 0.4],
                                  'observed': 'finished L01 at 5s and 520s, L05 at 5s and 590s, and L08 at 5s show a middle-right presenter'},
+        'agentified_text_hierarchy_reference': [
+            {'source': 'public/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-composite.mp4',
+             'sha256': '10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14',
+             'sample_seconds': [5, 40, 250], 'finding': 'one teaching sentence beside presenter; cutaway adds owner context and operating-file artifact; timed exercise uses one number and instruction'},
+            {'source': 'agentified/workshop/l05-l08-native-composite/agentified-l05-native-composite.mp4',
+             'sha256': '5dfd073aa0b22fa724cd13ebdb7b43799b1ffe3db5a20ee1d72babba1438d4d1',
+             'sample_seconds': [5, 90, 100], 'finding': 'one main point and short context; 100s two-line workflow headline above text card is a density caution'},
+            {'source': 'public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4',
+             'sha256': '3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648',
+             'sample_seconds': [5, 90], 'finding': 'headline hierarchy is clear, but text-led cutaway alone does not qualify Accelerated illustration'}],
         'accelerated_existing_anchor_xywh': [1420, 48, 448, 256],
         'proposed_source_1920x1080_xywh': list(ANCHOR),
         'proposed_normalized_xywh': [0.5917, 0.3222, 0.35, 0.3556],
@@ -130,16 +147,22 @@ def main():
                    'P01_blank_interior_removed_source_px': 127,
                    'P01_worksheet_bottom_to_mobile_control_guard_source_px': 770 - 685,
                    'P02_map_xywh': [160, 130, 760, 632],
-                   'P02_title': 'redrawn above presenter; all source wording retained',
-                   'P02_book_parts': 'source x=1136,y=85 above workshop title; source wording retained',
+                   'P02_focus_source_crops_xyxy': {'signals': [230, 250, 450, 435],
+                                                   'alignment': [480, 250, 700, 435],
+                                                   'momentum': [725, 250, 945, 435]},
+                   'P02_focus_destination_xywh': [180, 145, 720, 606],
+                   'P02_overlays_removed': ['WORKSHOP MAP', 'Signals · Alignment · Momentum',
+                                            'Book parts: Systems · Align · Momentum'],
+                   'P02_source_art_text': 'preserved inside the original map crop',
                    'presenter_bottom_to_control_guard_source_px': 920 - (ANCHOR[1] + ANCHOR[3]),
                    'map_bottom_to_control_guard_source_px': 920 - 762,
                    'caption_band_review_y_px': [720, 820]},
         'observed_still_review': {
-            'desktop': 'P01 worksheet and P02 map occupy the left teaching column; title and presenter occupy the right without overlap. P02 map footer and book-parts line remain above the simulated control strip.',
-            '390x844': 'Presenter, main title, map silhouette, worksheet field and full lower border, and map footer remain visible above a simulated Chrome-sized control layer; detailed infographic labels are too small to serve as standalone mobile reading text.',
-            'visual_balance': 'P01 card center is near the presenter center; P02 map was lowered to y=130 and its title sits above the middle-right presenter. Neither scene rests wholly at the top.',
-            'reading_boundary': 'The narration and large title must carry the one-second message on mobile; map micro-label comprehension remains a later scene-specific illustration gate.'},
+            'desktop': 'P01 worksheet and P02 source map occupy the left teaching column with the presenter on the right. No duplicate P02 headings or book-parts overlay remains; source map footer clears the simulated control strip.',
+            '390x844': 'Focused source-art headings require actual-player readability review; simulated controls only establish preliminary clearance.',
+            'visual_balance': 'P01 card center is near the presenter center; P02 source map and middle-right presenter occupy the same vertical band. Neither scene rests wholly at the top.',
+            'P01_teaching_idea': 'The blank decision field makes the named blank document visible; full scene illustration remains open.',
+            'reading_boundary': 'Whole-map micro-labels failed the prior 390px gate; enlarged native source-art headings require a single short-reel check before any readiness claim.'},
         'stills': {path.name: sha(path) for path in paths},
         'limits': ['Controls in stills are simulated; actual Chrome playback needs the single authorized render.',
                    'Presenter is enlarged from a 448x256 native crop; inspect softness at full size.',

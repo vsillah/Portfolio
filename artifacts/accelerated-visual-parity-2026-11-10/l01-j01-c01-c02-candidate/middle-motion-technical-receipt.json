@@ -4,10 +4,13 @@
     "path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
     "sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725"
   },
-  "layout_receipt_sha256": "b678c228e9a2efa051bff776c196e40c40f0d2ce74965b6d6108b112fbbb4a7d",
+  "layout_receipt_sha256": "b1cb2dbb6628e3f2855a9e580859d2fc86b030d167a082206c2d52662d71833a",
   "backgrounds": {
     "P01": "ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071",
-    "P02": "d68c58e29bd91498c181f87f359f93430abefdb36c0f51f5cdf943877b036faa"
+    "P02": "b83df117c6606b3d7fea3e1ccc2752146073454923f23e2c37031b88a7341196",
+    "signals": "41d6c0415ffdbca61a15586d166ad169e0b91363c854140f23207b29dee23962",
+    "alignment": "9bca38c9c470b804bcffb681ed832697f93f39b337dad0ad301d38a7c8f48de5",
+    "momentum": "353fcbc5a4347af0d084f3c45177d1450d89df51dfe395ffba65cd04314701e2"
   },
   "presenter_source_1920x1080_xywh": [
     1136,
@@ -22,7 +25,7 @@
       "end": 28.4,
       "crop_y": 260,
       "base": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p01-middle-base.png",
-      "audio": "same native source window, AAC re-encoded; no J01"
+      "audio": "one copied prior-reel AAC track spans all visual segments; no J01"
     },
     {
       "id": "P01_MOVED",
@@ -30,21 +33,61 @@
       "end": 30.8,
       "crop_y": 260,
       "base": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-middle-base.png",
-      "audio": "same native source window, AAC re-encoded; no J01"
+      "audio": "one copied prior-reel AAC track spans all visual segments; no J01"
     },
     {
-      "id": "P02",
+      "id": "P02_FULL_IN",
       "start": 235.0,
+      "end": 235.6,
+      "crop_y": 790,
+      "base": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-middle-base.png",
+      "audio": "one copied prior-reel AAC track spans all visual segments; no J01"
+    },
+    {
+      "id": "P02_SIGNALS",
+      "start": 235.6,
+      "end": 237.08,
+      "crop_y": 790,
+      "base": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-focus-signals-base.png",
+      "audio": "one copied prior-reel AAC track spans all visual segments; no J01"
+    },
+    {
+      "id": "P02_ALIGNMENT",
+      "start": 237.08,
+      "end": 238.56,
+      "crop_y": 790,
+      "base": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-focus-alignment-base.png",
+      "audio": "one copied prior-reel AAC track spans all visual segments; no J01"
+    },
+    {
+      "id": "P02_MOMENTUM",
+      "start": 238.56,
+      "end": 240.04,
+      "crop_y": 790,
+      "base": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-focus-momentum-base.png",
+      "audio": "one copied prior-reel AAC track spans all visual segments; no J01"
+    },
+    {
+      "id": "P02_FULL_OUT",
+      "start": 240.04,
       "end": 241.0,
       "crop_y": 790,
       "base": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/p02-middle-base.png",
-      "audio": "same native source window, AAC re-encoded; no J01"
+      "audio": "one copied prior-reel AAC track spans all visual segments; no J01"
     }
   ],
+  "audio_source": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion-failed-copy-reduction.mp4",
+    "sha256": "820c42a81311152c454318d47549ca5ed90c8e44dfb8713d6aa5007b5d382461",
+    "decoded_pcm": {
+      "bytes": 2482176,
+      "sha256": "b86a0394c94c793529d3b4c75ea8031975ddd328cac7de4962bcace963b76c97"
+    }
+  },
   "native_visual_frame_hold": "P02 source 235.04s held for first 40 ms frame; 235.0s audio unchanged",
   "reel": {
     "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4",
-    "sha256": "d5ba1883dc047fc1671a14a2c7726b592c47f0047ff2e5fed5c1cdf592fa2896",
+    "sha256": "216bad878f593fccdfc0ea56b77479be5cb7b85c7111fbc98fb14ff5030c1449",
     "duration_seconds": 12.821333,
     "video": {
       "codec_name": "h264",
@@ -62,8 +105,12 @@
   "checks": {
     "full_decode": "passed",
     "frame_count": 320,
-    "browser_desktop_mobile_controls": "see separate middle-motion-validation.json",
-    "native_audio_listening": "not claimed; technical continuity in separate validation receipt"
+    "decoded_pcm_identity": {
+      "bytes": 2482176,
+      "sha256": "b86a0394c94c793529d3b4c75ea8031975ddd328cac7de4962bcace963b76c97"
+    },
+    "browser_desktop_mobile_controls": "see p02-focus-audio-preserved-review.md",
+    "native_audio_listening": "not performed; decoded PCM identity to prior reel passed"
   },
   "limits": [
     "Local voice-bearing MP4 remains ignored by Git.",
