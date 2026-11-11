@@ -2,6 +2,8 @@
 
 **Status:** review-only, no-provider local media. The 16 canonical MP4s, learner bindings, curriculum scripts, VTTs, and narration-pack text and timing remain unchanged. The already-reviewed L01 A02 isolated candidate is documented [separately](l01-a02-native-correction-review-2026-11-10.md). This round retained **24 additional isolated candidates** and rejected three unsafe packet boundaries from the [28-jump triage](../../artifacts/accelerated-visual-parity-2026-11-10/presenter-jump-triage.json).
 
+The [short listening index](presenter-jump-listening-index-2026-11-10.md) puts the three coordinated joins and three PCM cuts first, then links this document's 24 packet-copy clips.
+
 Each [candidate receipt](../../artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/manifest.json) binds the exact canonical source hash, presenter window, intended words retained and removed, machine onset, AAC packet cut, copied native-audio packet counts, measured adjacent silence, output hashes, and before/after route. The [render script](../../scripts/qa/build-presenter-jump-candidates.py) copies native source speech packets and pre-existing silent source packets, then advances the neighboring source card over the removed phrase. It does not synthesize a voice. The paired before/after clips re-encode audio solely for sequential review; the isolated candidates retain source AAC payloads.
 
 ## Machine gate
@@ -28,6 +30,16 @@ Three packet-copy cuts pass the phrase-retention machine gate but are **conditio
 The [coordinated local proposals](../../artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/manifest.json) move each opening from A02 to directly before A03 using only native source audio: [L05 before/after](../../artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-sequence-before-after.mp4), [L06 before/after](../../artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-sequence-before-after.mp4), and [L08 before/after](../../artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-sequence-before-after.mp4). Each sequence has a revised A02 clip and an A03 clip with the moved source tail prepended. The split points are **218.46 s**, **234.52 s**, and **256.00 s**, respectively; these differ from the earlier standalone packet-copy candidates. The [renderer](../../scripts/qa/build-coordinated-presenter-sequences.py) decodes/re-encodes local audio and records hashes and sample indices in per-lesson receipts. The [full-MP4 validation](../../artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/asr-validation.json) passes both ASR models for all three: revised A02 retains its last approved phrase, omits the moved opening, and revised A03 starts with the complete approved sentence. The approved C02 text contains none of those openings, so the local move does not duplicate the sentence. The A02 post-cut noise floors are −91 dBFS; all nine new MP4s decoded.
 
 **Timing gate:** the moved opening adds **2.42 s** to L05 A03, **2.28 s** to L06 A03, and **2.00 s** to L08 A03. These local clips do not assign that time in the full lesson. A reviewer must confirm the audible joins and decide how C02 ends or A03 starts without squeezing approved cutaway narration. The earlier A02 packet-copy candidates remain useful for cut inspection, but none of the three sequences is a timeline-ready full-lesson correction. The narration pack, C02 text/timing, canonical media, and learner bindings were not changed.
+
+The [source-checked timing budget](../../artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/timing-budget.json) gives one review-only placement that keeps every approved C02 word and its original planned duration. Start C02 when A02's moved opening begins, finish C02 earlier by the measured native opening duration, play that source opening immediately before the original A03 start, then resume the original A03 audio.
+
+| Lesson | Approved C02 text / original span | Proposed C02 span | Native opening before A03 | C02 duration margin |
+| --- | --- | --- | --- | ---: |
+| L05 | 374 words / 220.88–400.00 s (179.12 s) | 218.46–397.58 s (179.12 s) | 397.58–400.00 s (2.42 s) | 0.00 s |
+| L06 | 378 words / 236.80–440.00 s (203.20 s) | 234.52–437.72 s (203.20 s) | 437.72–440.00 s (2.28 s) | 0.00 s |
+| L08 | 425 words / 258.00–480.00 s (222.00 s) | 256.00–478.00 s (222.00 s) | 478.00–480.00 s (2.00 s) | 0.00 s |
+
+The added time is exactly balanced by the former A02 tail; C02's planned word rate does not change. **There is no spare transition buffer.** C02 still exists as approved text rather than final voice audio, so this arithmetic does not prove final-voice pace, audible joins, or visual handoffs. No timeline or payload was edited.
 
 ## Per-lesson listening queue
 
