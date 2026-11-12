@@ -1,0 +1,56 @@
+{
+  "status": "local_review_only_clean_master_technical_pass",
+  "source_commit": "d5c1afec05215a77638b7bdc4e26e9ebdc72a102",
+  "source_hashes": {
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v13-playback-review/l01-c01-c02-v13-review.mp4": "e900e636b6f63eac2f177f8f585d4e14fcf166b8435af218327939ec5976e518",
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v17-raster-caption-review/l01-c01-c02-v17-four-section-caption-review.mp4": "80a1be496b7b05e1ae7bf6bff2cd00e2410374e6c8abe65e280fe7e4c444d0d1",
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v17-raster-caption-review/caption-plan.json": "d917317e98f7dc05590e714097af9faf00a9c09236ce894a18c214ce9138b21e",
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v18-optional-caption-feasibility/lower-captions.vtt": "427376480d444d321513ddc09c226e7896967909d8baa790b1569dd4a79b508b"
+  },
+  "video_path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v19-clean-master-review/l01-c01-c02-v19-clean-master-review.mp4",
+  "video_sha256": "7002f7d9ffe917294969e24a17d98459f9d700f319fa576f30613c63442a9e3f",
+  "video": {
+    "duration": 345.0,
+    "width": 1280,
+    "height": 1080,
+    "fps": "25/1",
+    "frames": 8625
+  },
+  "encoded_audio_stream_sha256": "5bef7336fbd6b0716007208d8481ba8bd896768a8ed3c9b7f206a7e1d859c655",
+  "decoded_audio_sha256": "31933e7f13669c8b3c0e1b6189b147f412bf44df3cdb44c962bc067e5a9da825",
+  "sections": [
+    {
+      "id": "P01",
+      "start_frame": 0,
+      "end_frame": 710
+    },
+    {
+      "id": "C01",
+      "start_frame": 710,
+      "end_frame": 5875
+    },
+    {
+      "id": "P02",
+      "start_frame": 5875,
+      "end_frame": 6205
+    },
+    {
+      "id": "C02",
+      "start_frame": 6205,
+      "end_frame": 8625
+    }
+  ],
+  "validation": [
+    "full decode",
+    "345.000 seconds",
+    "8625 frames",
+    "encoded and decoded audio identity",
+    "175-cue optional VTT exact parity"
+  ],
+  "remaining": [
+    "visual and actual-player review",
+    "speech joins",
+    "Human QA"
+  ],
+  "scope": "caption-free local P01/C01/P02/C02 review master; no learner binding"
+}
