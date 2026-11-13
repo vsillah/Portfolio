@@ -1,0 +1,92 @@
+{
+  "status": "review_excerpt_from_exact_rendered_pair",
+  "outputs": {
+    "desktop": {
+      "path": "/Users/vambahsillah/.codex/worktrees/f9bd/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/qa/l02-presenter-desktop-human-qa-walkthrough.mp4",
+      "sha256": "680fd20b2fee50ee378e3567d27a693435e723c0627d949eecf0961a4f201ac1",
+      "segments": [
+        {
+          "scene": "P01 opening",
+          "source_start_seconds": 10,
+          "duration_seconds": 2,
+          "optional_caption_overlay": null
+        },
+        {
+          "scene": "P02 case",
+          "source_start_seconds": 120,
+          "duration_seconds": 2,
+          "optional_caption_overlay": "The first move is to decide what question the case is answering."
+        },
+        {
+          "scene": "P03 value",
+          "source_start_seconds": 243,
+          "duration_seconds": 3,
+          "optional_caption_overlay": "does the value reach a customer, and how does the work sustain"
+        },
+        {
+          "scene": "C03 cutaway",
+          "source_start_seconds": 275,
+          "duration_seconds": 2,
+          "optional_caption_overlay": null
+        },
+        {
+          "scene": "Question bridge",
+          "source_start_seconds": 384,
+          "duration_seconds": 1.5,
+          "optional_caption_overlay": "Is it something you know, or something you hope?"
+        },
+        {
+          "scene": "P04 return",
+          "source_start_seconds": 392,
+          "duration_seconds": 1.5,
+          "optional_caption_overlay": "We will ask what answer the decision owner needs and what evidence"
+        }
+      ]
+    },
+    "portrait": {
+      "path": "/Users/vambahsillah/.codex/worktrees/f9bd/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/qa/l02-presenter-portrait-human-qa-walkthrough.mp4",
+      "sha256": "9ee153d79dbc6bd1e24d86ccf9d437889ad750861d5f4ab66cfd2f5dabf8349f",
+      "segments": [
+        {
+          "scene": "P01 opening",
+          "source_start_seconds": 10,
+          "duration_seconds": 2,
+          "optional_caption_overlay": null
+        },
+        {
+          "scene": "P02 case",
+          "source_start_seconds": 120,
+          "duration_seconds": 2,
+          "optional_caption_overlay": "The first move is to decide what question the case is answering."
+        },
+        {
+          "scene": "P03 value",
+          "source_start_seconds": 243,
+          "duration_seconds": 3,
+          "optional_caption_overlay": "does the value reach a customer, and how does the work sustain"
+        },
+        {
+          "scene": "C03 cutaway",
+          "source_start_seconds": 275,
+          "duration_seconds": 2,
+          "optional_caption_overlay": null
+        },
+        {
+          "scene": "Question bridge",
+          "source_start_seconds": 384,
+          "duration_seconds": 1.5,
+          "optional_caption_overlay": "Is it something you know, or something you hope?"
+        },
+        {
+          "scene": "P04 return",
+          "source_start_seconds": 392,
+          "duration_seconds": 1.5,
+          "optional_caption_overlay": "We will ask what answer the decision owner needs and what evidence"
+        }
+      ]
+    }
+  },
+  "caption_source": "/Users/vambahsillah/.codex/worktrees/f9bd/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-optional-captions.vtt",
+  "privacy": "synthetic teaching art and approved presenter only; no private app state",
+  "limitation": "MP4 excerpts show the exact rendered media and cue states; browser player interaction was separately checked in the in-app review route."
+}

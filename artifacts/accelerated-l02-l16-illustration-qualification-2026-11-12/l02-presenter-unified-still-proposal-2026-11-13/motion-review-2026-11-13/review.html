@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L02 native presenter local motion review</title>
+<style>
+  body{margin:0;background:#102730;color:#f8f2e5;font:16px system-ui,sans-serif}
+  main{max-width:1180px;margin:auto;padding:20px}
+  h1{font-size:22px;margin:0 0 12px}p{margin:8px 0 16px;color:#d3dfdd}
+  button{background:#f8f2e5;color:#102730;border:2px solid #d8b774;border-radius:6px;padding:8px 12px;margin:3px;cursor:pointer}
+  button[aria-pressed="true"]{background:#d8b774}
+  video{display:block;width:100%;max-height:calc(100vh - 220px);background:#000;margin:12px auto;object-fit:contain}
+  .portrait video{width:min(390px,100%)}
+</style>
+<main id="root"><h1>Lesson 02 · native presenter motion review</h1>
+<p>Local review only · qualified source audio · 25 fps · 403.6 seconds · optional English captions</p>
+<nav aria-label="Review aspect"><button id="desktop" aria-pressed="true">Desktop 1920 × 1080</button><button id="portrait" aria-pressed="false">Portrait 390 × 844</button><button id="captions" aria-pressed="false">Captions off</button></nav>
+<video id="player" controls playsinline preload="metadata"><source src="l02-presenter-desktop-review-1920x1080.mp4" type="video/mp4"><track kind="captions" src="l02-optional-captions.vtt" srclang="en" label="English"></video>
+<nav aria-label="Review cues"><button data-time="12">P01 opening</button><button data-time="122">P02 case</button><button data-time="245">P03 value</button><button data-time="384">Question bridge</button><button data-time="392">P04 return</button><button data-time="275">C03 cutaway</button></nav>
+</main><script>
+const root=document.getElementById('root'),player=document.getElementById('player');
+let captionsOn=false;
+function applyCaptions(){for(const track of player.textTracks)track.mode=captionsOn?'showing':'disabled';document.getElementById('captions').setAttribute('aria-pressed',String(captionsOn));document.getElementById('captions').textContent=captionsOn?'Captions on':'Captions off';}
+document.getElementById('captions').onclick=()=>{captionsOn=!captionsOn;applyCaptions();};
+for(const aspect of ['desktop','portrait'])document.getElementById(aspect).onclick=()=>{
+  const time=player.currentTime,playing=!player.paused;
+  player.querySelector('source').src=aspect==='desktop'?'l02-presenter-desktop-review-1920x1080.mp4':'l02-presenter-portrait-review-390x844.mp4';
+  player.load();player.addEventListener('loadedmetadata',()=>{player.currentTime=time;applyCaptions();if(playing)player.play();},{once:true});
+  root.classList.toggle('portrait',aspect==='portrait');
+  for(const name of ['desktop','portrait'])document.getElementById(name).setAttribute('aria-pressed',String(name===aspect));
+};
+for(const button of document.querySelectorAll('[data-time]'))button.onclick=()=>{player.currentTime=Number(button.dataset.time);};
+</script></html>

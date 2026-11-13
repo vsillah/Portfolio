@@ -1,0 +1,410 @@
+{
+  "fps": 25,
+  "states": [
+    {
+      "id": "c02-compare",
+      "start_frame": 4530,
+      "end_frame_exclusive": 5049,
+      "start_seconds": 181.2,
+      "end_seconds": 201.96,
+      "plate": "choice-options",
+      "overlay_label": "Compare three options",
+      "focus": null,
+      "source_anchor": "Now put the three options side by side."
+    },
+    {
+      "id": "c02-email",
+      "start_frame": 5049,
+      "end_frame_exclusive": 5224,
+      "start_seconds": 201.96,
+      "end_seconds": 208.96,
+      "plate": "choice-options",
+      "overlay_label": "Welcome email",
+      "focus": "email",
+      "source_anchor": "On our sample sheet, the welcome email is low effort and easy to undo."
+    },
+    {
+      "id": "c02-task",
+      "start_frame": 5224,
+      "end_frame_exclusive": 5452,
+      "start_seconds": 208.96,
+      "end_seconds": 218.08,
+      "plate": "choice-options",
+      "overlay_label": "Guided first task",
+      "focus": "task",
+      "source_anchor": "The guided first task could expose whether people need a clearer starting point."
+    },
+    {
+      "id": "c02-dashboard",
+      "start_frame": 5452,
+      "end_frame_exclusive": 5739,
+      "start_seconds": 218.08,
+      "end_seconds": 229.56,
+      "plate": "choice-options",
+      "overlay_label": "Staff dashboard",
+      "focus": "dashboard",
+      "source_anchor": "The staff dashboard might help the team see where members pause."
+    },
+    {
+      "id": "c02-evidence-question",
+      "start_frame": 5739,
+      "end_frame_exclusive": 5930,
+      "start_seconds": 229.56,
+      "end_seconds": 237.2,
+      "plate": "choice-options",
+      "overlay_label": "What evidence changes the ranking?",
+      "focus": "evidence",
+      "source_anchor": "You can disagree with my provisional ranking if you can name what evidence changes it."
+    },
+    {
+      "id": "c03-preroll",
+      "start_frame": 6327,
+      "end_frame_exclusive": 6446,
+      "start_seconds": 253.08,
+      "end_seconds": 257.84,
+      "plate": "economic-fit",
+      "overlay_label": "",
+      "focus": null,
+      "source_anchor": ""
+    },
+    {
+      "id": "c03-opening-base",
+      "start_frame": 6446,
+      "end_frame_exclusive": 6457,
+      "start_seconds": 257.84,
+      "end_seconds": 258.28,
+      "plate": "economic-fit",
+      "overlay_label": "",
+      "focus": null,
+      "source_anchor": ""
+    },
+    {
+      "id": "c03-value-before-pay",
+      "start_frame": 6457,
+      "end_frame_exclusive": 6541,
+      "start_seconds": 258.28,
+      "end_seconds": 261.64,
+      "plate": "economic-fit",
+      "overlay_label": "Value before paying?",
+      "focus": null,
+      "source_anchor": "whether people need to experience value before paying"
+    },
+    {
+      "id": "c03-value-over-time",
+      "start_frame": 6541,
+      "end_frame_exclusive": 6598,
+      "start_seconds": 261.64,
+      "end_seconds": 263.92,
+      "plate": "economic-fit",
+      "overlay_label": "Value over time?",
+      "focus": null,
+      "source_anchor": "whether value accumulates over time"
+    },
+    {
+      "id": "c03-free-tier",
+      "start_frame": 6598,
+      "end_frame_exclusive": 6656,
+      "start_seconds": 263.92,
+      "end_seconds": 266.24,
+      "plate": "economic-fit",
+      "overlay_label": "Can a free tier work?",
+      "focus": null,
+      "source_anchor": "whether a free tier is affordable"
+    },
+    {
+      "id": "c03-predictable-use",
+      "start_frame": 6656,
+      "end_frame_exclusive": 6693,
+      "start_seconds": 266.24,
+      "end_seconds": 267.72,
+      "plate": "economic-fit",
+      "overlay_label": "Predictable use?",
+      "focus": null,
+      "source_anchor": "whether usage is predictable"
+    },
+    {
+      "id": "c03-economic-focus",
+      "start_frame": 6693,
+      "end_frame_exclusive": 6927,
+      "start_seconds": 267.72,
+      "end_seconds": 277.08,
+      "plate": "economic-fit",
+      "overlay_label": "Economic fit",
+      "focus": null,
+      "source_anchor": "Those are decision questions, not a menu that automatically picks your business."
+    },
+    {
+      "id": "c03-who-help",
+      "start_frame": 6927,
+      "end_frame_exclusive": 7007,
+      "start_seconds": 277.08,
+      "end_seconds": 280.28,
+      "plate": "economic-fit",
+      "overlay_label": "Who gets help?",
+      "focus": null,
+      "source_anchor": "who gets help"
+    },
+    {
+      "id": "c03-who-pays",
+      "start_frame": 7007,
+      "end_frame_exclusive": 7041,
+      "start_seconds": 280.28,
+      "end_seconds": 281.64,
+      "plate": "economic-fit",
+      "overlay_label": "Who pays?",
+      "focus": null,
+      "source_anchor": "who pays for it"
+    },
+    {
+      "id": "c03-book-context",
+      "start_frame": 7041,
+      "end_frame_exclusive": 7266,
+      "start_seconds": 281.64,
+      "end_seconds": 290.64,
+      "plate": "book-case",
+      "overlay_label": "The book case",
+      "focus": null,
+      "source_anchor": "The book includes a B2B analytics case"
+    },
+    {
+      "id": "c03-book-structure",
+      "start_frame": 7266,
+      "end_frame_exclusive": 7367,
+      "start_seconds": 290.64,
+      "end_seconds": 294.68,
+      "plate": "book-case",
+      "overlay_label": "Structure the case",
+      "focus": null,
+      "source_anchor": "first structure the case"
+    },
+    {
+      "id": "c03-book-economics",
+      "start_frame": 7367,
+      "end_frame_exclusive": 7407,
+      "start_seconds": 294.68,
+      "end_seconds": 296.28,
+      "plate": "book-case",
+      "overlay_label": "Consider economic fit",
+      "focus": null,
+      "source_anchor": "then consider the economic fit"
+    },
+    {
+      "id": "c03-evidence-base",
+      "start_frame": 7407,
+      "end_frame_exclusive": 7425,
+      "start_seconds": 296.28,
+      "end_seconds": 297.0,
+      "plate": "evidence-check",
+      "overlay_label": "",
+      "focus": null,
+      "source_anchor": ""
+    },
+    {
+      "id": "c03-ideas",
+      "start_frame": 7425,
+      "end_frame_exclusive": 7488,
+      "start_seconds": 297.0,
+      "end_seconds": 299.52,
+      "plate": "evidence-check",
+      "overlay_label": "Possibilities",
+      "focus": null,
+      "source_anchor": "An AI brainstorm can offer possibilities."
+    },
+    {
+      "id": "c03-missing-evidence",
+      "start_frame": 7488,
+      "end_frame_exclusive": 7596,
+      "start_seconds": 299.52,
+      "end_seconds": 303.84,
+      "plate": "evidence-check",
+      "overlay_label": "Missing evidence",
+      "focus": null,
+      "source_anchor": "It cannot supply the missing customer and operating evidence"
+    },
+    {
+      "id": "c03-small-test",
+      "start_frame": 7596,
+      "end_frame_exclusive": 7785,
+      "start_seconds": 303.84,
+      "end_seconds": 311.4,
+      "plate": "small-test",
+      "overlay_label": "Small test",
+      "focus": null,
+      "source_anchor": "I would choose a small test of the guided first task."
+    },
+    {
+      "id": "c03-consenting-participants",
+      "start_frame": 7785,
+      "end_frame_exclusive": 7879,
+      "start_seconds": 311.4,
+      "end_seconds": 315.16,
+      "plate": "small-test",
+      "overlay_label": "A few participants",
+      "focus": null,
+      "source_anchor": "a few consenting participants"
+    },
+    {
+      "id": "c03-helped-begin",
+      "start_frame": 7879,
+      "end_frame_exclusive": 7997,
+      "start_seconds": 315.16,
+      "end_seconds": 319.88,
+      "plate": "small-test",
+      "overlay_label": "Did it help them begin?",
+      "focus": null,
+      "source_anchor": "ask whether it helped them begin"
+    },
+    {
+      "id": "c03-email-alternative",
+      "start_frame": 7997,
+      "end_frame_exclusive": 8131,
+      "start_seconds": 319.88,
+      "end_seconds": 325.24,
+      "plate": "choice-options",
+      "overlay_label": "Welcome email",
+      "focus": "email",
+      "source_anchor": "I would keep the welcome email as an alternative"
+    },
+    {
+      "id": "c03-dashboard-hold",
+      "start_frame": 8131,
+      "end_frame_exclusive": 8275,
+      "start_seconds": 325.24,
+      "end_seconds": 331.0,
+      "plate": "choice-options",
+      "overlay_label": "Staff dashboard",
+      "focus": "dashboard",
+      "source_anchor": "I would hold the staff dashboard"
+    },
+    {
+      "id": "c03-test-assumption",
+      "start_frame": 8275,
+      "end_frame_exclusive": 8451,
+      "start_seconds": 331.0,
+      "end_seconds": 338.04,
+      "plate": "choice-options",
+      "overlay_label": "Test the starting point",
+      "focus": "task",
+      "source_anchor": "test the starting-point assumption"
+    },
+    {
+      "id": "c03-choice-open",
+      "start_frame": 8451,
+      "end_frame_exclusive": 8499,
+      "start_seconds": 338.04,
+      "end_seconds": 339.96,
+      "plate": "decision-record",
+      "overlay_label": "A choice to challenge",
+      "focus": null,
+      "source_anchor": "Your decision may go another way."
+    },
+    {
+      "id": "c03-choice-page",
+      "start_frame": 8499,
+      "end_frame_exclusive": 8560,
+      "start_seconds": 339.96,
+      "end_seconds": 342.4,
+      "plate": "decision-record",
+      "overlay_label": "Put your choice on the page",
+      "focus": null,
+      "source_anchor": "Put your choice at the top of the page"
+    },
+    {
+      "id": "c03-choice-reason",
+      "start_frame": 8560,
+      "end_frame_exclusive": 8724,
+      "start_seconds": 342.4,
+      "end_seconds": 348.96,
+      "plate": "decision-record",
+      "overlay_label": "We choose this because\u2026",
+      "focus": null,
+      "source_anchor": "We choose this because..."
+    },
+    {
+      "id": "c03-choice-alternatives",
+      "start_frame": 8724,
+      "end_frame_exclusive": 8892,
+      "start_seconds": 348.96,
+      "end_seconds": 355.68,
+      "plate": "decision-record",
+      "overlay_label": "Two alternatives",
+      "focus": null,
+      "source_anchor": "record the two alternatives you are setting aside"
+    },
+    {
+      "id": "c03-choice-new-evidence",
+      "start_frame": 8892,
+      "end_frame_exclusive": 9031,
+      "start_seconds": 355.68,
+      "end_seconds": 361.24,
+      "plate": "decision-record",
+      "overlay_label": "What changes the choice?",
+      "focus": null,
+      "source_anchor": "When new evidence arrives"
+    },
+    {
+      "id": "c03-worksheet",
+      "start_frame": 9031,
+      "end_frame_exclusive": 9176,
+      "start_seconds": 361.24,
+      "end_seconds": 367.04,
+      "plate": "decision-record",
+      "overlay_label": "Finish the decision file",
+      "focus": null,
+      "source_anchor": "Pause here and finish the page."
+    },
+    {
+      "id": "c03-assumption",
+      "start_frame": 9176,
+      "end_frame_exclusive": 9561,
+      "start_seconds": 367.04,
+      "end_seconds": 382.44,
+      "plate": "decision-record",
+      "overlay_label": "One assumption to test",
+      "focus": null,
+      "source_anchor": "one assumption that could overturn your choice"
+    }
+  ],
+  "macro_scene_boundaries": {
+    "C02-choice": [
+      4530,
+      5930
+    ],
+    "C03-preroll": [
+      6327,
+      6446
+    ],
+    "C03-opening": [
+      6446,
+      6693
+    ],
+    "C03-checks": [
+      6693,
+      7041
+    ],
+    "C03-book": [
+      7041,
+      7407
+    ],
+    "C03-evidence": [
+      7407,
+      7596
+    ],
+    "C03-test": [
+      7596,
+      7997
+    ],
+    "C03-alternatives": [
+      7997,
+      8451
+    ],
+    "C03-choice": [
+      8451,
+      9031
+    ],
+    "C03-worksheet": [
+      9031,
+      9561
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "source_timeline": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-full-corrected-local-review-2026-11-13/render-attempt.json",
+  "source_timeline_sha256": "3adb66a10137285958b3df627f7cfee78547bc15ae8774bdded5969a0e5d5276",
+  "source_narration": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-narration-job-pack/l02-narration-job-pack.json",
+  "source_narration_sha256": "47167614ddbc7ea3dca5afc0f0a13ecabcd1326a6ad2efdd4bdee4b644311914",
+  "j01_provider_word_timing": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-narration-job-pack/l02-j01-provider-words-aede32ab14e6484ca8fb74c9381ce532.json",
+  "j01_provider_word_timing_sha256": "60614a00602bfcbe811b3a0d667c9ac9e6874ef1969c050a3ca4e57192c66a81",
+  "j02_local_alignment": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-narration-job-pack/l02-j02-c03-c04-local-alignment-2026-11-12.json",
+  "j02_local_alignment_sha256": "1c8f76c9da44cca234844c0d242c5d93a8e9963e842e8c2f46fa3c79fd7adbad",
+  "caption_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-full-corrected-local-review-2026-11-13/l02-full-optional-captions.vtt",
+  "caption_source_sha256": "6d1ec9a1b64a1a05aa884a17a5f1e795b16986519c84cfd366e970fdd9dc0803",
+  "plates": {
+    "choice-options": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.png",
+      "sha256": "de1427795b195ffbe53092cb485443ad331f33523f9f46442a4a510057cc2003"
+    },
+    "economic-fit": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.png",
+      "sha256": "ce5026acda4e7f6626fd173ec5700c5a31a9380d76d14a6c6baf84cf697a49e8"
+    },
+    "evidence-check": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.png",
+      "sha256": "b79a047b80756e4b3f8e98f4788aa71637c598baab6d5f86eb70a0e2ed18b7e9"
+    },
+    "small-test": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.png",
+      "sha256": "40f11e0471936eed57567fc70e25d966bcbe6cced3afa2db8ba83287fcc8b716"
+    },
+    "book-case": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/book-case-matte.png",
+      "sha256": "9e9f4117a49f462cf7a91775aba1763569e158d17a3edc42fd131ff50c372438"
+    },
+    "decision-record": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/decision-record-matte.png",
+      "sha256": "7bd72d053cc50a37fc7a91c715b4e0281ece87ad7e5caa9d9a775ae014a7a6ad"
+    }
+  },
+  "source_boundary": "Synthetic teaching artwork. No observed customer outcome or product-performance claim."
+}

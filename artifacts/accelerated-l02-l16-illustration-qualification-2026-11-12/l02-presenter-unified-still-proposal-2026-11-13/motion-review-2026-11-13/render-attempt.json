@@ -1,0 +1,82 @@
+{
+  "status": "RENDERED_UNVERIFIED",
+  "approved_still_receipt_sha256": "54e4010643f877e290e4c8bbdb1097baffbc9ff705fd9c94f5dfe71d539cdb4a",
+  "source_hashes": {
+    "still_receipt": "54e4010643f877e290e4c8bbdb1097baffbc9ff705fd9c94f5dfe71d539cdb4a",
+    "native": "2beae8254c76a6f8bf168afb8483e83e63c13b621ec3934c81397d3167cd1a3d",
+    "audio": "54676d5d74e880828d3397d4650525ad12f873867904013782c6176cd0d65560",
+    "captions": "6d1ec9a1b64a1a05aa884a17a5f1e795b16986519c84cfd366e970fdd9dc0803",
+    "prior_desktop": "e0713b41a1ec50251df98e4cf6dadb38c4beb370595fa534f0f1af3f2a417d74",
+    "prior_portrait": "86cefb8416ec86ee25abcdad5c2e8b68260a99eddaed12d082d95afb8cc89290"
+  },
+  "fps": 25,
+  "frames": 10090,
+  "seconds": 403.6,
+  "presenter_segments": {
+    "P01": {
+      "lo": 0,
+      "hi": 545,
+      "frames": 545,
+      "start": 0
+    },
+    "P02": {
+      "lo": 545,
+      "hi": 879,
+      "frames": 357,
+      "start": 2888
+    },
+    "P03": {
+      "lo": 879,
+      "hi": 1276,
+      "frames": 397,
+      "start": 5930
+    },
+    "question-bridge": {
+      "lo": 1276,
+      "hi": 1356,
+      "frames": 80,
+      "start": 9561
+    },
+    "P04": {
+      "lo": 1356,
+      "hi": 1690,
+      "frames": 334,
+      "start": 9641
+    }
+  },
+  "outputs": {
+    "desktop": {
+      "sha256": "09b606c4ff15862355b401e260d2aa56ff947dd0eaeeed33ea70217060d7b716",
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-presenter-desktop-review-1920x1080.mp4",
+      "replaced_parts": {
+        "P01": "8093f37eb2e69dc738341cbb7fd5d271e8ba987a8117f56bf2867ab62f733170",
+        "P02": "d530be37ce5e7243bb4ddd2b92ac596a5ad3abea010159d8b78d36215c83dc4b",
+        "P03": "ba6e74ffb488abfc6122331a89998b2c016c83b9aac71b803e2d33f240f2c1e1",
+        "question-bridge": "d166d63e5e99919f004d5984f14391f96a4ec03e220531e6cf79ee7d33c6c80a",
+        "P04": "be536aa34074cf799af23f8972dceaa6723b0a9330b3fd7a3948309f8a0b281d"
+      }
+    },
+    "portrait": {
+      "sha256": "492847faf3c7178b18f2812b038a3b4d3d7f7fde48f57fe978dbbf81646f70d3",
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-presenter-portrait-review-390x844.mp4",
+      "replaced_parts": {
+        "P01": "661fa8ab9d37ffc77ecadfa879228d195e10e335b281a258b55f81a84be97e8e",
+        "P02": "04b57d2446b2b88092af487462b4c73410470a7aba2d6b1384c164123700097a",
+        "P03": "f4b25611c992b961252bc3a0591ad99d4748463769cd39e773a15df365f63ebe",
+        "question-bridge": "02099f7f149afd78f70fd0447de1cf4e5610e26d4716517570b4080c23253184",
+        "P04": "822568c0e716f1ec9dc607423ead688119558a4fd1488543a1f6eb5924a005ab"
+      }
+    }
+  },
+  "excluded": [
+    "HeyGen",
+    "speech generation",
+    "spending",
+    "learner media",
+    "PR #1270",
+    "merge",
+    "deployment",
+    "publication",
+    "release"
+  ]
+}
