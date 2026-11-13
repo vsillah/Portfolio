@@ -1,0 +1,212 @@
+{
+  "status": "passed_for_one_bounded_mobile_render",
+  "source": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/source/options.png",
+  "source_sha256": "1bda3aeb713d829462881336590547ddb6d42bcd46e1f686d56dec45ba9beef7",
+  "word_windows": {
+    "welcome_email": {
+      "word_indices": [
+        318,
+        324
+      ],
+      "spoken_seconds": [
+        145.643,
+        147.264
+      ],
+      "single_crop": "email envelope at center_x_fraction 0.19"
+    },
+    "guided_task": {
+      "word_indices": [
+        326,
+        332
+      ],
+      "spoken_seconds": [
+        147.947,
+        149.867
+      ],
+      "single_crop": "guided task path at center_x_fraction 0.50"
+    },
+    "staff_dashboard": {
+      "word_indices": [
+        334,
+        339
+      ],
+      "spoken_seconds": [
+        150.744,
+        153.091
+      ],
+      "single_crop": "staff dashboard screen at center_x_fraction 0.79"
+    }
+  },
+  "frame_cuts_seconds": [
+    134.44,
+    147.8,
+    150.56,
+    153.6,
+    153.88
+  ],
+  "transition_stills": [
+    {
+      "name": "before_leadin",
+      "time": 144.04,
+      "crop_center_fraction": 0.19
+    },
+    {
+      "name": "leadin_email",
+      "time": 144.08,
+      "crop_center_fraction": 0.19
+    },
+    {
+      "name": "before_guided",
+      "time": 147.76,
+      "crop_center_fraction": 0.19
+    },
+    {
+      "name": "after_guided",
+      "time": 147.8,
+      "crop_center_fraction": 0.5
+    },
+    {
+      "name": "before_staff",
+      "time": 150.52,
+      "crop_center_fraction": 0.5
+    },
+    {
+      "name": "after_staff",
+      "time": 150.56,
+      "crop_center_fraction": 0.79
+    },
+    {
+      "name": "before_general",
+      "time": 153.56,
+      "crop_center_fraction": 0.79
+    },
+    {
+      "name": "after_general",
+      "time": 153.6,
+      "crop_center_fraction": 0.5
+    },
+    {
+      "name": "next_segment",
+      "time": 153.92,
+      "crop_center_fraction": 0.5
+    }
+  ],
+  "stills": [
+    {
+      "name": "welcome_start",
+      "time": 145.643,
+      "crop_center_fraction": 0.19,
+      "sha256": "ed8eb76ada700d6e20738bfccce047d18915118b1e4138cadc5d2a22206e3643"
+    },
+    {
+      "name": "welcome_mid",
+      "time": 146.45350000000002,
+      "crop_center_fraction": 0.19,
+      "sha256": "ed8eb76ada700d6e20738bfccce047d18915118b1e4138cadc5d2a22206e3643"
+    },
+    {
+      "name": "welcome_end",
+      "time": 147.264,
+      "crop_center_fraction": 0.19,
+      "sha256": "ed8eb76ada700d6e20738bfccce047d18915118b1e4138cadc5d2a22206e3643"
+    },
+    {
+      "name": "guided_start",
+      "time": 147.947,
+      "crop_center_fraction": 0.5,
+      "sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    },
+    {
+      "name": "guided_mid",
+      "time": 148.90699999999998,
+      "crop_center_fraction": 0.5,
+      "sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    },
+    {
+      "name": "guided_end",
+      "time": 149.867,
+      "crop_center_fraction": 0.5,
+      "sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    },
+    {
+      "name": "staff_start",
+      "time": 150.744,
+      "crop_center_fraction": 0.79,
+      "sha256": "96e3fcc4425c8f3f4c3a83d1d580903e078ee4a70de368f2e6f96bd8d1334c0c"
+    },
+    {
+      "name": "staff_mid",
+      "time": 151.91750000000002,
+      "crop_center_fraction": 0.79,
+      "sha256": "96e3fcc4425c8f3f4c3a83d1d580903e078ee4a70de368f2e6f96bd8d1334c0c"
+    },
+    {
+      "name": "staff_end",
+      "time": 153.091,
+      "crop_center_fraction": 0.79,
+      "sha256": "96e3fcc4425c8f3f4c3a83d1d580903e078ee4a70de368f2e6f96bd8d1334c0c"
+    },
+    {
+      "name": "before_leadin",
+      "time": 144.04,
+      "crop_center_fraction": 0.19,
+      "sha256": "ed8eb76ada700d6e20738bfccce047d18915118b1e4138cadc5d2a22206e3643"
+    },
+    {
+      "name": "leadin_email",
+      "time": 144.08,
+      "crop_center_fraction": 0.19,
+      "sha256": "ed8eb76ada700d6e20738bfccce047d18915118b1e4138cadc5d2a22206e3643"
+    },
+    {
+      "name": "before_guided",
+      "time": 147.76,
+      "crop_center_fraction": 0.19,
+      "sha256": "ed8eb76ada700d6e20738bfccce047d18915118b1e4138cadc5d2a22206e3643"
+    },
+    {
+      "name": "after_guided",
+      "time": 147.8,
+      "crop_center_fraction": 0.5,
+      "sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    },
+    {
+      "name": "before_staff",
+      "time": 150.52,
+      "crop_center_fraction": 0.5,
+      "sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    },
+    {
+      "name": "after_staff",
+      "time": 150.56,
+      "crop_center_fraction": 0.79,
+      "sha256": "96e3fcc4425c8f3f4c3a83d1d580903e078ee4a70de368f2e6f96bd8d1334c0c"
+    },
+    {
+      "name": "before_general",
+      "time": 153.56,
+      "crop_center_fraction": 0.79,
+      "sha256": "96e3fcc4425c8f3f4c3a83d1d580903e078ee4a70de368f2e6f96bd8d1334c0c"
+    },
+    {
+      "name": "after_general",
+      "time": 153.6,
+      "crop_center_fraction": 0.5,
+      "sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    },
+    {
+      "name": "next_segment",
+      "time": 153.92,
+      "crop_center_fraction": 0.5,
+      "sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    }
+  ],
+  "visual_preflight": "PASS: all nine start/mid/end stills depict the named alternative; transition stills at 144.04/144.08, 147.76/147.80, 150.52/150.56, and 153.56/153.60/153.92 depict adjacent spoken concepts without duplicate art.",
+  "frame_counts": {
+    "email_including_leadin": 334,
+    "guided": 69,
+    "staff": 76,
+    "general_followon": 7,
+    "total_options_segment": 486
+  }
+}
