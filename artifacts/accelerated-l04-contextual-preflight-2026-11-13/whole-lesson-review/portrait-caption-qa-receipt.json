@@ -1,0 +1,45 @@
+{
+  "schema": "accelerated_l04_aspect_caption_qa_v1",
+  "status": "current_tracks_verified_with_single_image_portrait_pending_captain_review",
+  "source_commit": "d4479c5b75506d4d2ceb778061d48c72f755ad68",
+  "tracks": {
+    "desktop": {
+      "file": "l04-local-review-optional.vtt",
+      "sha256": "3773ab5ceec12987ddf3837bc30390613f5b0d18cbf527bcea4a6e3f615e6691",
+      "placement": "qualified original native placement"
+    },
+    "portrait": {
+      "file": "l04-local-review-portrait-optional.vtt",
+      "sha256": "597f740705c236174463180a57cafb94deb7c784c67f7e7f14f74960719f18a5",
+      "placement": "presenter cues at line 82 percent, centered, size 96 percent; cutaway cues retain original placement; long presenter cues explicitly wrapped into two lines"
+    }
+  },
+  "invariants": {
+    "cues_each": 149,
+    "words_each": 1211,
+    "presenter_cues_positioned": 23,
+    "all_cue_start_end_and_word_sequences_identical": true,
+    "no_cue_overlaps": true,
+    "video_canvas_unchanged": false,
+    "audio_unchanged": true,
+    "desktop_composition_expanded_only": true,
+    "portrait_presenter_picture_single_image": true
+  },
+  "browser_checks": [
+    "P01 00:12 two-line caption inside native presenter lower torso, face and controls clear.",
+    "P02 01:56 one-line and 02:01 two-line captions inside native presenter lower torso, face and controls clear.",
+    "P03 04:00 longest presenter cue wraps to two lines inside native presenter section, face, outline, teaching art, and controls clear.",
+    "P04 06:26 two-line caption inside native presenter lower torso, face and controls clear.",
+    "Cutaway 00:25 short cue and 04:29 two-line cue use unchanged lower placement with key illustration and controls legible.",
+    "Caption-off P03 frame shows no text or reserved caption band; illustration and presenter sections remain full size.",
+    "Current expanded desktop P02 caption-on and P04 caption-off inspected with native controls; portrait source remains byte-identical.",
+    "Current portrait P03 long cue and P04 cue rendered over native lower frame, clear of face and controls; P04 caption-off has no reserved band."
+  ],
+  "browser_url": "http://127.0.0.1:8768/artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/review.html?rev=a56cee03-85c0a94b-597f7407",
+  "scope": "Current local single-image portrait candidate for Integration Captain first-pass review; caption tracks and desktop MP4 unchanged; prior portrait MP4 superseded locally.",
+  "remaining_gate": "Captain review and renewed human full-lesson listening/visual QA.",
+  "current_mp4_sha256": {
+    "desktop": "a56cee03509ebb46030a4582a19887875c3568cea94cf8a4141ba47ee91efd86",
+    "portrait": "85c0a94bebfa0934da942070a812685be7397077607edf634409b6cd3472d1a8"
+  }
+}

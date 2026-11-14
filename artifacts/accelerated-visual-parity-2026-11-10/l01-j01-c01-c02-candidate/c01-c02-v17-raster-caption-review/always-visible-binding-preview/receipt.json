@@ -1,0 +1,25 @@
+{
+  "status": "review_only_unbound",
+  "sourceCommit": "3a2df476a96d3106823537c2442a72bd69a95080",
+  "approvedLocalVideoSha256": "80a1be496b7b05e1ae7bf6bff2cd00e2410374e6c8abe65e280fe7e4c444d0d1",
+  "captionPlanSha256": "d917317e98f7dc05590e714097af9faf00a9c09236ce894a18c214ce9138b21e",
+  "durationSeconds": 345,
+  "cueCount": 175,
+  "sectionCounts": {
+    "P01": 18,
+    "C01": 102,
+    "P02": 8,
+    "C02": 47
+  },
+  "lastCueEnd": "00:05:44.581",
+  "lastCueText": "of your decision file.",
+  "vttSha256": "2f901811edd0ca09c417a39d2a64c550cd49126608b7f4c52c6aa6dec4612e9b",
+  "transcriptSha256": "1680cb852fbd924023691b6c462dbb927e2810fb5f1b04cb78912cc3a69b8dde",
+  "rendering": "MP4 contains always-visible raster captions; prototype has no video caption track or caption on/off control. Timed text is supplied as VTT and synchronized read-along below the video.",
+  "limits": [
+    "Cue timing and words are derived from the approved plan; no new human audio-to-text listening pass was performed.",
+    "No learner media or production/player binding changed.",
+    "Accessible playback and assistive-technology behavior require human review.",
+    "Local-only voice-bearing MP4 is not committed or copied into public."
+  ]
+}

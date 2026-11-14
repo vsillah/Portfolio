@@ -1,0 +1,185 @@
+{
+  "schema": "accelerated_l09_l16_consolidated_human_qa_v1",
+  "purpose": "Contextual visual, narration, presenter, transition, responsive, and optional-caption review",
+  "lessons": {
+    "L09": {
+      "source_start": 0.0,
+      "source_end": 34.561,
+      "duration": 34.561,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l09/l09-desktop-contextual-review.mp4",
+          "source_sha256": "14a01eaa905ad96b0a5312081da8b1d6b19c335d3072faaf109381df9534f3ab",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l09-desktop-contextual-clip.mp4",
+          "clip_sha256": "88b8b8ce9f2f79e9f1dc2279aafb3c60fe61e1eee7bde27926968ed9177273bc"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l09/l09-portrait-contextual-review.mp4",
+          "source_sha256": "a0a4a6be59d77824b07cb97976e45a59cacc48fcaaf16d7acccf7eb0ad491ab9",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l09-portrait-contextual-clip.mp4",
+          "clip_sha256": "f237ff2883e9a7329cbe13a82b69cb14e5bd8729234a9fc62172dae317fa3046"
+        }
+      }
+    },
+    "L10": {
+      "source_start": 0.0,
+      "source_end": 30.973,
+      "duration": 30.973,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l10/l10-desktop-contextual-review.mp4",
+          "source_sha256": "0d25977792ba3bc0abe55bf8c620d51e417cec8f202bb81d430d93e1b1ae9179",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l10-desktop-contextual-clip.mp4",
+          "clip_sha256": "cbdb0372551fa3d0b289ff17d4af13e07925b369d44a97a0a10708cc146a6a1e"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l10/l10-portrait-contextual-review.mp4",
+          "source_sha256": "588094f6befe9b83181c5b1ebabd2d0e7001e866f75600604e04135e9559129a",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l10-portrait-contextual-clip.mp4",
+          "clip_sha256": "d979a37d2526bd5ab87d0a840d78575807b54e5362a95a8d999aa0c553256689"
+        }
+      }
+    },
+    "L11": {
+      "source_start": 0.0,
+      "source_end": 34.312,
+      "duration": 34.312,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l11/l11-desktop-contextual-review.mp4",
+          "source_sha256": "2f7425b884592a4fa9344d76a5a41feffd39753d70bc6959ef14011547c106e4",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l11-desktop-contextual-clip.mp4",
+          "clip_sha256": "deb304b005565a99356a88421636691ebae262f3157fa66f5722f01b73280e4d"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l11/l11-portrait-contextual-review.mp4",
+          "source_sha256": "9c8896d13f26b2bd945535913ec2a4c875faec15c3ad59c1b87b773091ffbac7",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l11-portrait-contextual-clip.mp4",
+          "clip_sha256": "4cdde72dfd76ba7a337189db74601362dd1781dc2fe3912effb4b3fea62f2d42"
+        }
+      }
+    },
+    "L12": {
+      "source_start": 0.0,
+      "source_end": 32.759,
+      "duration": 32.759,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l12/l12-desktop-contextual-review.mp4",
+          "source_sha256": "b46934d58dccb0349bd0297e2e3637159701d75ad55fc3d57ed08c2c761ffb5b",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l12-desktop-contextual-clip.mp4",
+          "clip_sha256": "2e6bb681f331e0ae24c2308ad8efb3809f4b91bae492b0b1b5f0f70b46850ba7"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l12/l12-portrait-contextual-review.mp4",
+          "source_sha256": "38b1e02876052efa3383f176b0e946fe392fa444b928abe374fef84393bdcaaf",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l12-portrait-contextual-clip.mp4",
+          "clip_sha256": "1c22e8cf554bf808226c18d96ddc271c93044fd8aeae7e23d156d1b021a2481d"
+        }
+      }
+    },
+    "L13": {
+      "source_start": 0.0,
+      "source_end": 33.551,
+      "duration": 33.551,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l13/l13-desktop-contextual-review.mp4",
+          "source_sha256": "356d466617873ba3d64b8e2d000d2e49c60e948750370c9ec0b2f45b48974135",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l13-desktop-contextual-clip.mp4",
+          "clip_sha256": "cbe64cc20e46f007342bc763a4275553b7bd9332b9dfa81eb40a4eda3050e4ce"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l13/l13-portrait-contextual-review.mp4",
+          "source_sha256": "89e0cac32efa3c8ef0eddfc1e8e1d8a8d9ddd713c94fb66f66f258fb20404b12",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l13-portrait-contextual-clip.mp4",
+          "clip_sha256": "1a7d9811b6963a19a03497245e9093facc9336975883e6b2b6947da15c2e3094"
+        }
+      }
+    },
+    "L14": {
+      "source_start": 0.0,
+      "source_end": 31.398,
+      "duration": 31.398,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l14/l14-desktop-contextual-review.mp4",
+          "source_sha256": "c1f1426d0d8639018f5519e7ae1a868cbb8e8a8b10435718f2942f50a00bf521",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l14-desktop-contextual-clip.mp4",
+          "clip_sha256": "05440332a052d72d971a5cf2e9b51813cd4a05506493004d88863e635b9e757d"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l14/l14-portrait-contextual-review.mp4",
+          "source_sha256": "e4d3fdbd5804d543c5158bec4ec74b09b7922de1b23cbc1fbe293877c86d64cb",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l14-portrait-contextual-clip.mp4",
+          "clip_sha256": "19834de40cfd9cf3b782c8abb2168a679201a3214ae1c7ae812304081cf19555"
+        }
+      }
+    },
+    "L15": {
+      "source_start": 0.0,
+      "source_end": 32.046,
+      "duration": 32.046,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l15/l15-desktop-contextual-review.mp4",
+          "source_sha256": "23db53dc2fd8690f4ca1796ba7fd8750aa91f70a81d2c6a40589cd8549a9f3b3",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l15-desktop-contextual-clip.mp4",
+          "clip_sha256": "37b0b47e569f01fb40e7d8381225c54a221967f8a55e733a8a44a6264fae10dc"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l15/l15-portrait-contextual-review.mp4",
+          "source_sha256": "1fa59dfd96eebd84511a99018d823f52aff55f4f04e0fdddc2a702b12b9625d7",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l15-portrait-contextual-clip.mp4",
+          "clip_sha256": "e58c64f57b5a0190343a8516e58c4e6e5a8a5ae9d5faec624b2df861a6da0b7e"
+        }
+      }
+    },
+    "L16": {
+      "source_start": 0.0,
+      "source_end": 33.033,
+      "duration": 33.033,
+      "variants": {
+        "desktop": {
+          "source": "$REVIEW_OUTPUT/l16/l16-desktop-contextual-review.mp4",
+          "source_sha256": "f00e2adc417dec8bcba5a2f25fcd51d48e2dbd5439616f89bbaaf83b297e19da",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l16-desktop-contextual-clip.mp4",
+          "clip_sha256": "d90bba3d4fe2491f8738635c1e0a9ae24c12c8c3eade3dd2f5cd932aae7f20d9"
+        },
+        "portrait": {
+          "source": "$REVIEW_OUTPUT/l16/l16-portrait-contextual-review.mp4",
+          "source_sha256": "7ef4e52b12f2ae6565256d9305d3ccff14d2cdea9079bd0ae7fd54d53e5c5c1e",
+          "clip": "$REVIEW_OUTPUT/consolidated-human-qa/l16-portrait-contextual-clip.mp4",
+          "clip_sha256": "034efcb22fbb47ecdcd9cf0b189eb2c10804c2f8368e1d847ba0f5adf4b05c0a"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "desktop": {
+      "path": "$REVIEW_OUTPUT/consolidated-human-qa/accelerated-l09-l16-desktop-human-qa.mp4",
+      "sha256": "e3d56170ac6e5ba2d9968c139de17dbd9848ac4b15da7bfa96c9b70a4eea03d3",
+      "duration": 262.781016
+    },
+    "portrait": {
+      "path": "$REVIEW_OUTPUT/consolidated-human-qa/accelerated-l09-l16-portrait-human-qa.mp4",
+      "sha256": "77670556bc97a1bc729bc09c94c315b09d8a38e84bf928739edf5fe11c4540f8",
+      "duration": 262.781016
+    }
+  },
+  "exclusions": [
+    "provider contact",
+    "spend",
+    "learner media change",
+    "PR update",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ],
+  "captions": {
+    "path": "$REVIEW_OUTPUT/consolidated-human-qa/accelerated-l09-l16-human-qa.vtt",
+    "sha256": "ab452cfc9eec468d3f1f69d48684f7f5abf9daa2a5d138deaa00be81b3fde6da",
+    "cues": 62
+  }
+}

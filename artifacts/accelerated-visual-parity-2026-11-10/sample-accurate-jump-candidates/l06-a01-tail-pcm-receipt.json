@@ -1,0 +1,38 @@
+{
+  "status": "review_only_pcm_candidate_not_audibly_signed_off",
+  "lesson_id": "L06",
+  "presenter_window": "A01",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+  "source_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+  "source_window_seconds": [
+    0,
+    20.92
+  ],
+  "candidate_cut_seconds": 18.08,
+  "cut_sample_index_48000hz": 867840,
+  "fade_start_seconds": 18.04,
+  "fade_duration_seconds": 0.04,
+  "audio_treatment": "Decode source AAC to 48 kHz PCM; retain through the sample-accurate cut with a 40 ms final fade; pad the rest with digital silence; encode the entire candidate AAC at 192 kb/s.",
+  "audio_reencoded_entire_window": true,
+  "source_aac_packets_copied": false,
+  "intended_words": {
+    "retained_approved_words_end": "ledger from the last lesson beside the cards",
+    "removed_later_phrase_start": "Now the bet enters a product requirements document. A blank template can"
+  },
+  "post_cut_silence_peak_dbfs": -91.0,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l06-a01-tail-pcm-candidate.mp4",
+  "candidate_sha256": "0d02558733ce311529409efb6d37b2feea3f4dcda18a73984ada852161c05ee9",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l06-a01-tail-pcm-before-after.mp4",
+  "before_after_sha256": "d469f892645006daa7305285369662c3901a776317461662dd5a5e8757e8c1ad",
+  "before_after_source_excerpt_seconds": [
+    14.579999999999998,
+    20.92
+  ],
+  "candidate_duration_seconds": 20.92,
+  "before_after_duration_seconds": 12.7,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "ASR and waveform timing cannot replace audible first/last-phoneme review; the full lesson and adjacent presenter windows remain unresolved."
+}

@@ -1,0 +1,528 @@
+{
+  "status": "human_qa_approved_for_bounded_pr_review_only",
+  "source_hashes": {
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v19-clean-master-review/l01-c01-c02-v19-clean-master-review.mp4": "7002f7d9ffe917294969e24a17d98459f9d700f319fa576f30613c63442a9e3f",
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v18-optional-caption-feasibility/lower-captions.vtt": "427376480d444d321513ddc09c226e7896967909d8baa790b1569dd4a79b508b",
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c02-v23-player-still-review/generated-desk-source.png": "c2df07cb81d6f0e5e3591d9c0f7c97f0fac087a9f4980c899179203fc7267b55",
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v25-full-lesson-still-board/decision-file-approved-source-crop.png": "3dc3c8501c2c0720cb7a10c775b703539255bad541e9d59e38b2b640399c7792"
+  },
+  "picture_sources": {
+    "P01": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/P01.png",
+      "sha256": "6b0c0f57c4f03f7e58f02dc7de7ba2981f996f8ea479d6b7d5e1aed9fa23074d"
+    },
+    "C01-blank": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C01-blank.png",
+      "sha256": "74e2378a5425d4f00c8fb90d8dabe3e42c77f8dd3319674c418324463011d3b4"
+    },
+    "C01-inputs": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C01-inputs.png",
+      "sha256": "2b5be594a64857bde2cc2a594a6ced104f1dc4a709636348e89b03851905cc30"
+    },
+    "C01-evidence": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C01-evidence.png",
+      "sha256": "63a8ba77fd41d3c63554679b49217e60065a5cf9d237eb70be8efa1036fe194c"
+    },
+    "C01-human": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C01-human.png",
+      "sha256": "e798abde7d24f904800c607c2e8cd3afdeaf1342b1d40d67160bd9242308ed49"
+    },
+    "Signals": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/Signals.png",
+      "sha256": "186d625f76da7763569355b087f273f48d9836a170388d1207c8c03ecd320a8f"
+    },
+    "SAM-orientation": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/SAM-orientation.png",
+      "sha256": "90344e7127bcedbf18246509df915e5fb2dc2c570bfa4a1c2e1d34ecb3112044"
+    },
+    "Alignment": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/Alignment.png",
+      "sha256": "f6def798c515e3c18a8d329865d1152af70806e874d47c8cdcd9f5a8dd6465ce"
+    },
+    "Momentum": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/Momentum.png",
+      "sha256": "c65ef938d8ec61a9672d4b63ccfe913cb8d69111fa8e8b2fb9c36e04760a9529"
+    },
+    "Book": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/Book.png",
+      "sha256": "a372c18d7170cbeb90fe0ec886d3e17b57e3b920c62655b1039e404441b295f1"
+    },
+    "SAM-crossing": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/SAM-crossing.png",
+      "sha256": "90344e7127bcedbf18246509df915e5fb2dc2c570bfa4a1c2e1d34ecb3112044"
+    },
+    "P02-Sam": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/P02-Sam.png",
+      "sha256": "f9c4f33f9bbbfa740b8632100ff86c2ad510f1d21cdf0d12982b79bcd31cc620"
+    },
+    "C02-desk": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-desk.png",
+      "sha256": "f256224bdbd9dc7206e03d9c269ec1f5477ba10eb6675d6da4278168bfa5e1cb"
+    },
+    "C02-synthetic": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-synthetic.png",
+      "sha256": "50e84b8b87df2db606ea8282c9f19836e6e811404bfdac8704ad8e5dab63db64"
+    },
+    "C02-columns": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-columns.png",
+      "sha256": "f2f0693eb9ca91131e816b7da0f7643b63c5701a387b3b75541c954fdf5e9d5d"
+    },
+    "C02-enter": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-enter.png",
+      "sha256": "75a934dadcd44037489d68a4d62eb939d5804d9f928722745363dcef8e02fbb9"
+    },
+    "C02-two": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-two.png",
+      "sha256": "1d7110d684885192e3aef267a5173ade5dec830f0b2f5ffe5ccd467fd7d609f4"
+    },
+    "C02-three": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-three.png",
+      "sha256": "7959a587bcf3a5fa5c195f055f9d4a37e4d7851faecc862df75e57c7d49a614a"
+    },
+    "C02-review": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-review.png",
+      "sha256": "7959a587bcf3a5fa5c195f055f9d4a37e4d7851faecc862df75e57c7d49a614a"
+    },
+    "C02-handoff": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/pictures/C02-handoff.png",
+      "sha256": "fae784f9f280d491d05d52eb03f852624577a85425070383747c072cd0794834"
+    }
+  },
+  "timeline": [
+    {
+      "name": "P01",
+      "spoken_start_seconds": 0.0,
+      "frame_start": 0,
+      "frame_end": 710,
+      "frame_start_seconds": 0.0,
+      "frame_end_seconds": 28.4,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "6b0c0f57c4f03f7e58f02dc7de7ba2981f996f8ea479d6b7d5e1aed9fa23074d"
+    },
+    {
+      "name": "C01-blank",
+      "spoken_start_seconds": 28.4,
+      "frame_start": 710,
+      "frame_end": 1875,
+      "frame_start_seconds": 28.4,
+      "frame_end_seconds": 75.0,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "74e2378a5425d4f00c8fb90d8dabe3e42c77f8dd3319674c418324463011d3b4"
+    },
+    {
+      "name": "C01-inputs",
+      "spoken_start_seconds": 75.0,
+      "frame_start": 1875,
+      "frame_end": 2250,
+      "frame_start_seconds": 75.0,
+      "frame_end_seconds": 90.0,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "2b5be594a64857bde2cc2a594a6ced104f1dc4a709636348e89b03851905cc30"
+    },
+    {
+      "name": "C01-evidence",
+      "spoken_start_seconds": 90.0,
+      "frame_start": 2250,
+      "frame_end": 2625,
+      "frame_start_seconds": 90.0,
+      "frame_end_seconds": 105.0,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "63a8ba77fd41d3c63554679b49217e60065a5cf9d237eb70be8efa1036fe194c"
+    },
+    {
+      "name": "C01-human",
+      "spoken_start_seconds": 105.0,
+      "frame_start": 2625,
+      "frame_end": 3742,
+      "frame_start_seconds": 105.0,
+      "frame_end_seconds": 149.68,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "e798abde7d24f904800c607c2e8cd3afdeaf1342b1d40d67160bd9242308ed49"
+    },
+    {
+      "name": "Signals",
+      "spoken_start_seconds": 149.695,
+      "frame_start": 3742,
+      "frame_end": 3939,
+      "frame_start_seconds": 149.68,
+      "frame_end_seconds": 157.56,
+      "frame_drift_seconds": -0.015,
+      "picture_sha256": "186d625f76da7763569355b087f273f48d9836a170388d1207c8c03ecd320a8f"
+    },
+    {
+      "name": "SAM-orientation",
+      "spoken_start_seconds": 157.558,
+      "frame_start": 3939,
+      "frame_end": 4326,
+      "frame_start_seconds": 157.56,
+      "frame_end_seconds": 173.04,
+      "frame_drift_seconds": 0.002,
+      "picture_sha256": "90344e7127bcedbf18246509df915e5fb2dc2c570bfa4a1c2e1d34ecb3112044"
+    },
+    {
+      "name": "Signals",
+      "spoken_start_seconds": 173.048,
+      "frame_start": 4326,
+      "frame_end": 4485,
+      "frame_start_seconds": 173.04,
+      "frame_end_seconds": 179.4,
+      "frame_drift_seconds": -0.008,
+      "picture_sha256": "186d625f76da7763569355b087f273f48d9836a170388d1207c8c03ecd320a8f"
+    },
+    {
+      "name": "Alignment",
+      "spoken_start_seconds": 179.398,
+      "frame_start": 4485,
+      "frame_end": 4618,
+      "frame_start_seconds": 179.4,
+      "frame_end_seconds": 184.72,
+      "frame_drift_seconds": 0.002,
+      "picture_sha256": "f6def798c515e3c18a8d329865d1152af70806e874d47c8cdcd9f5a8dd6465ce"
+    },
+    {
+      "name": "Momentum",
+      "spoken_start_seconds": 184.71,
+      "frame_start": 4618,
+      "frame_end": 4750,
+      "frame_start_seconds": 184.72,
+      "frame_end_seconds": 190.0,
+      "frame_drift_seconds": 0.01,
+      "picture_sha256": "c65ef938d8ec61a9672d4b63ccfe913cb8d69111fa8e8b2fb9c36e04760a9529"
+    },
+    {
+      "name": "Book",
+      "spoken_start_seconds": 190.0,
+      "frame_start": 4750,
+      "frame_end": 4939,
+      "frame_start_seconds": 190.0,
+      "frame_end_seconds": 197.56,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "a372c18d7170cbeb90fe0ec886d3e17b57e3b920c62655b1039e404441b295f1"
+    },
+    {
+      "name": "Signals",
+      "spoken_start_seconds": 197.57,
+      "frame_start": 4939,
+      "frame_end": 5006,
+      "frame_start_seconds": 197.56,
+      "frame_end_seconds": 200.24,
+      "frame_drift_seconds": -0.01,
+      "picture_sha256": "186d625f76da7763569355b087f273f48d9836a170388d1207c8c03ecd320a8f"
+    },
+    {
+      "name": "Alignment",
+      "spoken_start_seconds": 200.23,
+      "frame_start": 5006,
+      "frame_end": 5108,
+      "frame_start_seconds": 200.24,
+      "frame_end_seconds": 204.32,
+      "frame_drift_seconds": 0.01,
+      "picture_sha256": "f6def798c515e3c18a8d329865d1152af70806e874d47c8cdcd9f5a8dd6465ce"
+    },
+    {
+      "name": "SAM-crossing",
+      "spoken_start_seconds": 204.32,
+      "frame_start": 5108,
+      "frame_end": 5209,
+      "frame_start_seconds": 204.32,
+      "frame_end_seconds": 208.36,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "90344e7127bcedbf18246509df915e5fb2dc2c570bfa4a1c2e1d34ecb3112044"
+    },
+    {
+      "name": "Book",
+      "spoken_start_seconds": 208.35,
+      "frame_start": 5209,
+      "frame_end": 5320,
+      "frame_start_seconds": 208.36,
+      "frame_end_seconds": 212.8,
+      "frame_drift_seconds": 0.01,
+      "picture_sha256": "a372c18d7170cbeb90fe0ec886d3e17b57e3b920c62655b1039e404441b295f1"
+    },
+    {
+      "name": "C01-evidence",
+      "spoken_start_seconds": 212.82,
+      "frame_start": 5320,
+      "frame_end": 5625,
+      "frame_start_seconds": 212.8,
+      "frame_end_seconds": 225.0,
+      "frame_drift_seconds": -0.02,
+      "picture_sha256": "63a8ba77fd41d3c63554679b49217e60065a5cf9d237eb70be8efa1036fe194c"
+    },
+    {
+      "name": "Book",
+      "spoken_start_seconds": 225.0,
+      "frame_start": 5625,
+      "frame_end": 5875,
+      "frame_start_seconds": 225.0,
+      "frame_end_seconds": 235.0,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "a372c18d7170cbeb90fe0ec886d3e17b57e3b920c62655b1039e404441b295f1"
+    },
+    {
+      "name": "P02-Sam",
+      "spoken_start_seconds": 235.0,
+      "frame_start": 5875,
+      "frame_end": 6217,
+      "frame_start_seconds": 235.0,
+      "frame_end_seconds": 248.68,
+      "frame_drift_seconds": 0.0,
+      "picture_sha256": "f9c4f33f9bbbfa740b8632100ff86c2ad510f1d21cdf0d12982b79bcd31cc620"
+    },
+    {
+      "name": "C02-desk",
+      "spoken_start_seconds": 248.69,
+      "frame_start": 6217,
+      "frame_end": 7399,
+      "frame_start_seconds": 248.68,
+      "frame_end_seconds": 295.96,
+      "frame_drift_seconds": -0.01,
+      "picture_sha256": "f256224bdbd9dc7206e03d9c269ec1f5477ba10eb6675d6da4278168bfa5e1cb"
+    },
+    {
+      "name": "C02-synthetic",
+      "spoken_start_seconds": 295.977,
+      "frame_start": 7399,
+      "frame_end": 7866,
+      "frame_start_seconds": 295.96,
+      "frame_end_seconds": 314.64,
+      "frame_drift_seconds": -0.017,
+      "picture_sha256": "50e84b8b87df2db606ea8282c9f19836e6e811404bfdac8704ad8e5dab63db64"
+    },
+    {
+      "name": "C02-columns",
+      "spoken_start_seconds": 314.637,
+      "frame_start": 7866,
+      "frame_end": 7903,
+      "frame_start_seconds": 314.64,
+      "frame_end_seconds": 316.12,
+      "frame_drift_seconds": 0.003,
+      "picture_sha256": "f2f0693eb9ca91131e816b7da0f7643b63c5701a387b3b75541c954fdf5e9d5d"
+    },
+    {
+      "name": "C02-enter",
+      "spoken_start_seconds": 316.137,
+      "frame_start": 7903,
+      "frame_end": 7959,
+      "frame_start_seconds": 316.12,
+      "frame_end_seconds": 318.36,
+      "frame_drift_seconds": -0.017,
+      "picture_sha256": "75a934dadcd44037489d68a4d62eb939d5804d9f928722745363dcef8e02fbb9"
+    },
+    {
+      "name": "C02-two",
+      "spoken_start_seconds": 318.357,
+      "frame_start": 7959,
+      "frame_end": 8021,
+      "frame_start_seconds": 318.36,
+      "frame_end_seconds": 320.84,
+      "frame_drift_seconds": 0.003,
+      "picture_sha256": "1d7110d684885192e3aef267a5173ade5dec830f0b2f5ffe5ccd467fd7d609f4"
+    },
+    {
+      "name": "C02-three",
+      "spoken_start_seconds": 320.837,
+      "frame_start": 8021,
+      "frame_end": 8090,
+      "frame_start_seconds": 320.84,
+      "frame_end_seconds": 323.6,
+      "frame_drift_seconds": 0.003,
+      "picture_sha256": "7959a587bcf3a5fa5c195f055f9d4a37e4d7851faecc862df75e57c7d49a614a"
+    },
+    {
+      "name": "C02-review",
+      "spoken_start_seconds": 323.597,
+      "frame_start": 8090,
+      "frame_end": 8299,
+      "frame_start_seconds": 323.6,
+      "frame_end_seconds": 331.96,
+      "frame_drift_seconds": 0.003,
+      "picture_sha256": "7959a587bcf3a5fa5c195f055f9d4a37e4d7851faecc862df75e57c7d49a614a"
+    },
+    {
+      "name": "C02-handoff",
+      "spoken_start_seconds": 331.977,
+      "frame_start": 8299,
+      "frame_end": 8625,
+      "frame_start_seconds": 331.96,
+      "frame_end_seconds": 345.0,
+      "frame_drift_seconds": -0.017,
+      "picture_sha256": "fae784f9f280d491d05d52eb03f852624577a85425070383747c072cd0794834"
+    }
+  ],
+  "source_v19_audio": "AAC 48 kHz stereo from unchanged 345s v19 review master",
+  "optional_vtt": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v18-optional-caption-feasibility/lower-captions.vtt",
+  "C02_concept_state": "Human QA approved only as shown in the exact 345-second review candidate; fictional illustration, not learner media or live enforcement.",
+  "notes": [
+    "C02 desk represents a human choice about what may enter an external tool; no automatic enforcement is claimed.",
+    "The fictional first-week request card moves from the desk into a full-width Review before use tray that is visually separate from all three category boxes; it remains there unassigned as category labels appear. Its wording comes from L01 narration and adds no case facts.",
+    "The boundary categories use v23 approved-for-this-use wording; the later Decision File image comes from an approved L01 source frame.",
+    "SAM overview/crossing uses the approved three-plate mobile reflow for one 16:9 video at desktop and narrow widths.",
+    "This is a local still-composite review, not motion-qualified learner media."
+  ],
+  "preflight_visual_gate": {
+    "status": "pass_for_local_render_only",
+    "checked_times_seconds": [
+      315.0,
+      316.5,
+      318.5,
+      321.0,
+      327.0,
+      344.0
+    ],
+    "viewports": [
+      "desktop",
+      "390x844"
+    ],
+    "caption_states": [
+      "off",
+      "on"
+    ],
+    "finding": "The card enters a separate full-width Review before use tray, remains unclassified as category labels appear, and the Decision File handoff follows. Sampled text stays legible with captions and controls outside the picture.",
+    "qa_stills": {
+      "C02-columns-390x844-captions-off.png": "d1fdc9e1c61a6eab463379f3eed692190b80cdec748bfd8bc6f4851e0c96c2e9",
+      "C02-columns-390x844-captions-on.png": "1f52fe37a9ab53f75ca00fcc9407f2e51a2e30224825aef30d04707357d5aa77",
+      "C02-columns-desktop-captions-off.png": "c6bf493a57dea8d0f761bc8177881c3879e79c2dbe181efc64f15d8f4c4834b3",
+      "C02-columns-desktop-captions-on.png": "7426e01e13fcb474e9df93caa3ae8a08bee7ad210ee96b765393a93fe73b36ad",
+      "C02-enter-390x844-captions-off.png": "f54e9b4568fd121f851de91f54ca05ccb51437e7ab334f7b912f55f495a1920a",
+      "C02-enter-390x844-captions-on.png": "942f32ad13c0545d251efe799ef25db4c027e72c9d8b23f7285c93d54ae45f5e",
+      "C02-enter-desktop-captions-off.png": "a2786a99e9084f1aaa5283e9bf287f31b42c11c89a74af2f58d70ec929514be8",
+      "C02-enter-desktop-captions-on.png": "aa0250214e6a79086e0c2fbf54dd2607719a904d745d232507fffd8c00968557",
+      "C02-handoff-390x844-captions-off.png": "6ad304ef3840023954bc8977079d5d2baac47c80cbc52b0e6a1a69c52d9b1759",
+      "C02-handoff-390x844-captions-on.png": "38818ff8cbcd64f5c83ea61c5e72eb3e9088f6c0106da9a5ca8956f1dbe23bbc",
+      "C02-handoff-desktop-captions-off.png": "aee28f52047ad3941a5fbbc3f36253d42a1f181a4456c81b7e9ef169fcff4c35",
+      "C02-handoff-desktop-captions-on.png": "b057d50d81554b2ba81d7565607f9b2ea294e21d752faa2127dcf387cd329fa5",
+      "C02-review-390x844-captions-off.png": "63b8526a839551de4c3751d8bed2a464ae1e40d022f309dbe2322ea35308ca04",
+      "C02-review-390x844-captions-on.png": "0548748f4090328f00508b26ec21181c41a0c4c3da9d64f2fa1dcf9b8a2d45ec",
+      "C02-review-desktop-captions-off.png": "101ebfb964a152fd9ba87818339f61baafba58dccc3dc7a91b67b58baeb1a9e1",
+      "C02-review-desktop-captions-on.png": "976f08db47c3365dc835a265f383eb93c3c45db87cfc14a1759ed978a1c156d7",
+      "C02-three-390x844-captions-off.png": "5a6115eaa3ad02137ebee70d0a455f805b12cae28d49bc452141f4d29735da2a",
+      "C02-three-390x844-captions-on.png": "6f86a82759b19e874b5e7d8f88a2443bb2ed961d809160aab3262664004d064f",
+      "C02-three-desktop-captions-off.png": "2b79d881ed10383683cb26caf58b3521aa45745f19231b90389c80c2b1ae024e",
+      "C02-three-desktop-captions-on.png": "c653033a64cc1b9ee707aa115f46adf2bc97e4c03f505ba77c60158997944dbe",
+      "C02-two-390x844-captions-off.png": "9145364ab2288743661180b109c3fb5f0c99fd189440c0e3e435a7171544341a",
+      "C02-two-390x844-captions-on.png": "bb194745363c51227a3e48ad0c9984e1b6298904033737035fe4dbbb4007776e",
+      "C02-two-desktop-captions-off.png": "d6fba2e75290430047085d9376f6056dcb53fd1c6aaf9a9baf5793167557ea8c",
+      "C02-two-desktop-captions-on.png": "d3e99320309ea7c59c72a06917263c1782ea3d663791bd17f7603d220715de43"
+    }
+  },
+  "render_command": [
+    "ffmpeg",
+    "-v",
+    "error",
+    "-safe",
+    "0",
+    "-f",
+    "concat",
+    "-i",
+    "/Users/vambahsillah/.codex/worktrees/f9bd/Portfolio/artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/timeline.ffconcat",
+    "-i",
+    "/Users/vambahsillah/.codex/worktrees/f9bd/Portfolio/artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v19-clean-master-review/l01-c01-c02-v19-clean-master-review.mp4",
+    "-map",
+    "0:v:0",
+    "-map",
+    "1:a:0",
+    "-c:v",
+    "libx264",
+    "-preset",
+    "medium",
+    "-crf",
+    "18",
+    "-pix_fmt",
+    "yuv420p",
+    "-r",
+    "25",
+    "-frames:v",
+    "8625",
+    "-c:a",
+    "copy",
+    "-movflags",
+    "+faststart",
+    "-y",
+    "/Users/vambahsillah/.codex/worktrees/f9bd/Portfolio/artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/l01-345s-unapproved-c02-local-review.mp4"
+  ],
+  "output": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/l01-345s-unapproved-c02-local-review.mp4",
+    "sha256": "b09b4e6839d2cc0483f0bc32c02ae8e5271dc97f25435218d88e65487b58617f"
+  },
+  "post_render_validation": {
+    "video": "H.264 1280x720 25 fps 8625 frames; 345.000000 seconds; full ffmpeg decode passed",
+    "audio": "AAC 48 kHz stereo; all 16173 packet payload hashes and PTS values match v19; decoded PCM SHA256 31933e7f13669c8b3c0e1b6189b147f412bf44df3cdb44c962bc067e5a9da825 matches v19",
+    "encoded_picture": "52 head/tail segment frame probes matched source pictures; highest mean RGB difference 2.104",
+    "stills": "44 desktop and 390x844 caption-off/on wrapped states plus 11 raw encoded frames under qa/encoded; representative C02 frames visually reviewed",
+    "browser": "Re-tested after local caption-player repair: desktop and 390x844 playback, seeking, CC off/on before and after VTT load, and representative cues passed. See caption_player_repair.",
+    "audio_identity_current_check": {
+      "packet_count": 16173,
+      "packet_pts_and_payload_signature_sha256": "4c0212c765a44efda0b9cd9cc2cc632941c0c64e5489c6971fc722abb8c255d6",
+      "decoded_pcm_bytes": 66240512,
+      "decoded_pcm_sha256": "31933e7f13669c8b3c0e1b6189b147f412bf44df3cdb44c962bc067e5a9da825",
+      "comparison": "v26 candidate exactly matched v19 source on all fields"
+    }
+  },
+  "caption_player_repair": {
+    "prior_failure": "The VTT load event unconditionally disabled the text track after CC had been turned on, leaving a visible but empty caption rail.",
+    "change": "The load handler now reapplies the current aria-pressed choice; caption rail visibility, text-track mode, and cue text derive from that choice.",
+    "review_html_sha256": "e71ff39dee20ede96b458bfc3545e9a6e20c871b20945d93889fd9f1934b06ce",
+    "range_server_sha256": "935320ad3421e3186ddcfcd9bad501e141651af7ff1b9e2fc679ca9f303e14c0",
+    "range_server_check": "HTTP 206, Accept-Ranges: bytes, Content-Range bytes 100-200/15665128 for a 101-byte request",
+    "browser": "Chrome existing Accelerated review tab; local range-aware URL with rev=caption-fix-1 and rev=caption-fix-off-race; desktop and 390x844 viewport",
+    "checks": [
+      "CC on before VTT load remained aria-pressed=true, track mode hidden, rail visible, readyState=2, with cue text at 5 seconds.",
+      "CC on then off during VTT loading remained aria-pressed=false, track mode disabled, rail hidden, empty cue text after readyState=2.",
+      "CC on after VTT load displayed cues at 5, 320, and 344 seconds; C02 cue at 320 seconds read public, approved internal, and final cue at 344 seconds read of your decision file.",
+      "Desktop CC off produced rail height 0 and controls top equal to video bottom.",
+      "390x844 CC off produced rail height 0, controls top equal to video bottom, and no horizontal overflow.",
+      "390x844 CC on placed the caption rail between picture and controls with rail bottom equal to controls top; screenshots showed no control or picture overlap at 5, 320, and 344 seconds.",
+      "Playback advanced with CC off and CC on; seek to 320 seconds worked in both states; video readyState=4, muted=false during browser playback."
+    ],
+    "media_immutability": {
+      "mp4_sha256": "b09b4e6839d2cc0483f0bc32c02ae8e5271dc97f25435218d88e65487b58617f",
+      "vtt_sha256": "427376480d444d321513ddc09c226e7896967909d8baa790b1569dd4a79b508b",
+      "mp4_rerendered": false,
+      "narration_audio_timing_changed": false
+    },
+    "scope": "Local review player only. C02 concept remains unapproved; learner media and binding unchanged."
+  },
+  "walkthrough": {
+    "status": "human_qa_approved_for_bounded_pr_review_only",
+    "format": "Silent, selected-state montage of actual browser screenshots; not continuous interaction footage.",
+    "source_route": "http://127.0.0.1:59663/artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/review.html?rev=b09b4e68-walkthrough",
+    "source_captures": {
+      "01-desktop-p01-off.jpg": "b6d000205a4f4a3a57b8751ad6ac060afbdf2a019fea863fd12d63d71ecee3e4",
+      "02-desktop-p02-off.jpg": "e668ef474f0d645b5359756198b4093877170d9b2fcb09d3e2515b0476720cf9",
+      "03-desktop-c02-315-off.jpg": "e1b6c6e0da45e3bf9d3e5a7d85712d6cb865d21a68dab5796517fdb719e8d649",
+      "04-desktop-c02-320-off.jpg": "3395e2118090e4421de9d2e258f0de0632e10c731976a34e52e70f23450664ec",
+      "05-desktop-c02-320-on.jpg": "b31718850b3a498a697c94e16f9b494b90d305035c9f962c423eef27c748fd66",
+      "06-desktop-c02-324-on.jpg": "014ccb601c6a35b098cad9820813e885d9bb9ecff99249a53eb4ea51981234a4",
+      "07-desktop-c02-324-off.jpg": "662e15f0d1bedead14b5d2b7527d14ccea3268dd6743d09db17dd26e64380271",
+      "08-desktop-final-off.jpg": "619830a718c4a7efd4d7cc7f250a493e04850a230709a2e2e32511242e786dc6",
+      "09-mobile-p01-off.jpg": "0e41a7183e43be62d9fafb01fe4784008effdedd18e2bbe75b29d1d48449f01b",
+      "10-mobile-c02-320-off.jpg": "d96aed752a270634eb7e29119c9c6fda41a4008a0463200a938ad14357fa329d",
+      "11-mobile-c02-320-on.jpg": "e2e1dec390df90fd116f189312dee7b1107056f8f10c129faba4eb165b47b0ec",
+      "12-mobile-c02-324-on.jpg": "d64b04594d52fdcd436ab775f73d491512199703c6842aa6fb031fa7d65fbae3",
+      "13-mobile-c02-324-off.jpg": "7517b2a9ce3c6c29cc8835ff4a289833811cdd3d1cd73eb9ec482fc026ada99e",
+      "14-mobile-final-off.jpg": "76b46702b72f2b1baac1fd65deed23f4ac3a6365153928975be55cc35346b75e"
+    },
+    "capture_viewports": "Desktop 1440x1100 (8 captures); mobile 390x844 (6 captures)",
+    "build_source": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/walkthrough/build.py",
+    "build_source_sha256": "14e04d585f5a1bfc644a8ba8bef4c733cbc88f8b592cfbc71b60753ec374c79c",
+    "candidate_mp4_sha256": "b09b4e6839d2cc0483f0bc32c02ae8e5271dc97f25435218d88e65487b58617f",
+    "vtt_sha256": "427376480d444d321513ddc09c226e7896967909d8baa790b1569dd4a79b508b",
+    "walkthrough_path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-v26-local-review-video/walkthrough/l01-local-player-illustration-walkthrough-v2.mp4",
+    "walkthrough_sha256": "c69bb20982e0d34f831b34be4eec246a53651fdd480a4702e3fbb8dc2ae659c6",
+    "technical_validation": "H.264 1600x1200 25 fps 937 frames 37.48 seconds; full ffmpeg decode passed; no audio stream.",
+    "visual_validation": "Inspected decoded frames at 1, 11, 26, 31, and 36 seconds. Presenter, neutral C02 tray, CC-on cue, repaired CC-off mobile detail, control clearance, and final Decision File handoff are legible; footer excluded from enlarged detail.",
+    "prior_rejected_encode_sha256": "4609dc0ef2eaef30a46e9e103f7dc4f80aae440d26cb85f5d9eda4469677d357",
+    "scope": "Local review walkthrough only. Candidate MP4 and VTT unchanged; C02 concept remains unapproved; learner binding unchanged."
+  },
+  "human_qa_approval": {
+    "recorded_utc": "2026-11-12T15:34:47.826609+00:00",
+    "source": "Integration Captain task 01a1c704-3bcc-7d63-a927-c409241c061b relayed the user approval for this exact bounded candidate.",
+    "pr": "https://github.com/vsillah/Portfolio/pull/1270",
+    "branch": "codex/accelerated-lesson-pacing-audit",
+    "candidate_mp4_sha256": "b09b4e6839d2cc0483f0bc32c02ae8e5271dc97f25435218d88e65487b58617f",
+    "walkthrough_sha256": "c69bb20982e0d34f831b34be4eec246a53651fdd480a4702e3fbb8dc2ae659c6",
+    "vtt_sha256": "427376480d444d321513ddc09c226e7896967909d8baa790b1569dd4a79b508b",
+    "scope": "C02 is approved only as depicted in the bound review candidate. Approval permits packaging in draft PR #1270; it does not authorize learner-media binding, merge, deployment, publication, provider action, generation, or spend."
+  }
+}

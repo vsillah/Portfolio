@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-13",
+  "tool": "built-in image_gen.imagegen",
+  "source_thread_id": "01a1c806-7d74-7d90-9452-b22532bd88dd",
+  "selection": "Six generated plates selected for a review-only still package. Each was copied from the Codex generated-images directory into plates/ without modifying the original.",
+  "shared_prompt_contract": "Wide educational book illustration; flattened matte ink and gouache; imperial navy, silicon slate, platinum white, bronze, radiant gold, and gold-light; gold restrained as an accent; culturally diverse people; rich full-frame storytelling; no words or logos; no blank forms, invented customer outcomes, glossy 3D, grayscale, disabled treatment, or permanent caption band.",
+  "plates": [
+    {
+      "name": "choice-options",
+      "prompt_subject": "A diverse membership-service team compares a welcome email, a guided first-step test, and a staff dashboard around one evidence question. The guided task is provisional and the alternatives remain visible.",
+      "generated_original": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-356b1e82-ce99-4fb0-bd5f-23b115e8e940.png",
+      "selected_copy": "plates/choice-options-matte.png",
+      "sha256": "de1427795b195ffbe53092cb485443ad331f33523f9f46442a4a510057cc2003"
+    },
+    {
+      "name": "economic-fit",
+      "prompt_subject": "A diverse operator team considers who receives help, who may pay, and the open economic-fit question. No payment or product outcome is claimed. Full-strength color is required at the 259-second beat.",
+      "generated_original": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-399dc1e8-1737-4ca5-96ba-a020300151c2.png",
+      "selected_copy": "plates/economic-fit-matte.png",
+      "sha256": "ce5026acda4e7f6626fd173ec5700c5a31a9380d76d14a6c6baf84cf697a49e8"
+    },
+    {
+      "name": "evidence-check",
+      "prompt_subject": "A diverse team sees AI possibilities while customer and operating evidence remain open questions. No fabricated research or outcomes. Full-strength color is required.",
+      "generated_original": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-08ab8151-b649-401b-9284-57f3abb5c607.png",
+      "selected_copy": "plates/evidence-check-matte.png",
+      "sha256": "b79a047b80756e4b3f8e98f4788aa71637c598baab6d5f86eb70a0e2ed18b7e9"
+    },
+    {
+      "name": "small-test",
+      "prompt_subject": "A consenting participant tries a modest guided first step while an operator observes an unresolved learning question. The test is hypothetical and reversible.",
+      "generated_original": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-2d1329a4-717f-4f8f-948d-43301afe5f91.png",
+      "selected_copy": "plates/small-test-matte.png",
+      "sha256": "40f11e0471936eed57567fc70e25d966bcbe6cced3afa2db8ba83287fcc8b716"
+    },
+    {
+      "name": "book-case",
+      "prompt_subject": "An open teaching book links the three-option decision structure to economic fit. It is conceptual artwork, not a StratQuest screenshot or product claim.",
+      "generated_original": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-bfa49747-a4b8-45b6-a53c-2ca48f10f90f.png",
+      "selected_copy": "plates/book-case-matte.png",
+      "sha256": "9e9f4117a49f462cf7a91775aba1763569e158d17a3edc42fd131ff50c372438"
+    },
+    {
+      "name": "decision-record",
+      "prompt_subject": "A diverse team records a provisional guided-task choice, keeps two alternatives and reasons visible, and tests one assumption that could overturn the decision.",
+      "generated_original": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-2e40f225-92c0-422a-a843-395c0249e670.png",
+      "selected_copy": "plates/decision-record-matte.png",
+      "sha256": "7bd72d053cc50a37fc7a91c715b4e0281ece87ad7e5caa9d9a775ae014a7a6ad"
+    }
+  ],
+  "boundaries": "No private customer records, source audio, or video were sent to image generation. Generated imagery depicts synthetic teaching examples and must not be presented as observed user research. The short overlay text was composed deterministically from canonical narration cues after image generation."
+}

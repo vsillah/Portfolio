@@ -1,0 +1,45 @@
+{
+  "motion_receipt": "artifacts/accelerated-overlay-normalization-2026-11-14/normalization-motion-receipt.json",
+  "motion_receipt_sha256": "68f74f7c1773e0b812e54f8ba7ea1f465e0ae74fd80808d2cfa1e11387a8d4f5",
+  "encoded_contacts": [
+    {
+      "lesson": "L01",
+      "variant": "desktop",
+      "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/motion/l01-desktop-encoded-contact.jpg",
+      "sha256": "c9552382f1c3e0a8af3ce3de0063f5057cf7a758245c5364a687ace085242691",
+      "sample_count": 5
+    },
+    {
+      "lesson": "L02",
+      "variant": "desktop",
+      "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/motion/l02-desktop-encoded-contact.jpg",
+      "sha256": "cfb5007be5799f0f4fdba28f12326102fe4527a4a552855612e9cc29fa7398f2",
+      "sample_count": 8
+    },
+    {
+      "lesson": "L02",
+      "variant": "portrait",
+      "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/motion/l02-portrait-encoded-contact.jpg",
+      "sha256": "ea1dd8c37cfc80ce8c4f668932bb939480405e62a4863d0c9f0e07422dbe4cfa",
+      "sample_count": 8
+    },
+    {
+      "lesson": "L03",
+      "variant": "desktop",
+      "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/motion/l03-desktop-encoded-contact.jpg",
+      "sha256": "5685f3926d75b6c4d8537f790227899cc8c332b3693c439c702f66070698d99c",
+      "sample_count": 8
+    },
+    {
+      "lesson": "L03",
+      "variant": "portrait",
+      "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/motion/l03-portrait-encoded-contact.jpg",
+      "sha256": "a341116f62dd0d6feaa68d17c8f06ded9392bd3200a60c564655662341bd35ec",
+      "sample_count": 8
+    }
+  ],
+  "walkthrough": "artifacts/accelerated-overlay-normalization-2026-11-14/human-qa/l01-l03-overlay-normalization-contextual-walkthrough.mp4",
+  "walkthrough_sha256": "bc3c39089a2b84d53b02e7df4061bcd43e057806b5e415d9a08eb30c4f6bdd95",
+  "walkthrough_full_decode": "pass",
+  "scope": "contextual review of the shared teaching-plate treatment; no provider or learner-media change"
+}

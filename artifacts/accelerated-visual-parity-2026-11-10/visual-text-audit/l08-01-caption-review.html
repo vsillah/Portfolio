@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L08 clean shell caption review</title>
+<style>
+  body { margin: 0; background: #0b2029; color: #eee6d8; font: 16px system-ui, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p { margin: 0 0 20px; line-height: 1.4; }
+  section { margin: 20px 0 32px; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  video { display: block; width: 100%; height: auto; background: #000; }
+  @media (max-width: 440px) { main { padding: 20px; } h1 { font-size: 20px; } }
+</style>
+<main>
+  <h1>L08 presenter shell · review only</h1>
+  <p>Both players show the same source caption at 8 seconds. The second removes repeated scene code, artifact footer, and progress dots.</p>
+  <section><h2>Current visual</h2><video controls playsinline preload="auto" data-review-time="8">
+    <source src="l08-01-before-12s.mp4" type="video/mp4">
+    <track default kind="captions" srclang="en" label="English" src="../../../public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt">
+  </video></section>
+  <section><h2>Clean shell candidate</h2><video controls playsinline preload="auto" data-review-time="8">
+    <source src="l08-01-clean-shell-12s.mp4" type="video/mp4">
+    <track default kind="captions" srclang="en" label="English" src="../../../public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt">
+  </video></section>
+</main>
+<script>
+  for (const video of document.querySelectorAll('video')) {
+    const cue = () => { video.currentTime = Number(video.dataset.reviewTime); video.pause(); };
+    const captions = () => { if (video.textTracks[0]) video.textTracks[0].mode = 'showing'; };
+    video.addEventListener('loadedmetadata', cue);
+    video.addEventListener('loadeddata', captions);
+    if (video.readyState >= 1) cue();
+    if (video.readyState >= 2) captions();
+  }
+</script>
+</html>

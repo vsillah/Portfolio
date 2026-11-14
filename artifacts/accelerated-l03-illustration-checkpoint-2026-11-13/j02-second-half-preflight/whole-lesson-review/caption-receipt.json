@@ -1,0 +1,38 @@
+{
+  "status": "local_review_caption_track_pending_player_qa",
+  "source": "canonical L03 pack; J01 local whisper.cpp base.en timing; native P03/P04 local base.en timing; J02 original provider word timing",
+  "source_asr_sha256": {
+    "l03-j01-24-49.json": "87e91375e521d3f0eb5f416c29e371987dae668fa2efb243b44bbb6c72697b80",
+    "l03-j01-asr.json": "50fb7e096d18686206160eb45b5809a78856cbab4a095e91474e35c828230013",
+    "l03-p03-asr.json": "3081abad5959cc07dca9b276a89ac2df2dc98343579f1c13ac934c67ba41ca81",
+    "l03-p04-asr.json": "f95e708581a5b5220d0c43c137c17d5c0115cfd212f921186e895f4a4def8d4a",
+    "l03-j01-43-73.json": "0a4569cf240f21586e04548b074d6d636846abdf26205a1480ff766fc466f8e0"
+  },
+  "j01_canonical_words": 586,
+  "j02_canonical_words": 302,
+  "cue_count": 158,
+  "cue_kind_counts": {
+    "C01-local-alignment": 41,
+    "C02-local-alignment": 48,
+    "C03-provider-timing": 45,
+    "C04-provider-timing": 2,
+    "P01-native": 7,
+    "P02-native": 5,
+    "P03-native-local-alignment": 5,
+    "P04-native-local-alignment": 5
+  },
+  "vtt_sha256": "bfa7d760ae0bb41439e04736839d251ac4e0f6ffbf1b943cf4bc74fcd8a6f845",
+  "first_cue": {
+    "start": 0,
+    "end": 4.47,
+    "text": "Imagine walking into a review with a dashboard redesign.",
+    "kind": "P01-native"
+  },
+  "last_cue": {
+    "start": 355.967,
+    "end": 357.048,
+    "text": "We are going to use it again.",
+    "kind": "C04-provider-timing"
+  },
+  "qualification_limit": "J01 original provider timing JSON was removed with the prior worktree. This track uses recorded local ASR plus two targeted rescans; source wording is exact, timing needs actual-player review."
+}

@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L02",
+  "presenter_window": "A03",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+  "source_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+  "source_window_seconds": [
+    366.0,
+    376.2
+  ],
+  "candidate_cut_seconds": 373.104,
+  "machine_onset_seconds": 373.12,
+  "aac_snap_delta_seconds": 0.016,
+  "intended_words": {
+    "retained_approved_words_end": "after the customer and product question is clear",
+    "removed_later_phrase_start": "Is it something you know, or something you hope? In the next"
+  },
+  "silent_packet_source_start_seconds": 378.2,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 334,
+  "copied_silence_packet_count": 145,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a03-tail-candidate.mp4",
+  "candidate_sha256": "1b160d6ae709550f01b6c65004e667603d5a0b608d11371e4cbafcee56e35064",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a03-tail-before-after.mp4",
+  "before_after_sha256": "9e9e3b473d3bc178b0b18a3cbf3e9b01ed6c1d79aeb5da76d7cad4a3f42f5b88",
+  "before_after_source_excerpt_seconds": [
+    369.604,
+    376.2
+  ],
+  "before_after_segment_seconds": 6.596,
+  "candidate_duration_seconds": 10.2,
+  "before_after_duration_seconds": 13.18,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

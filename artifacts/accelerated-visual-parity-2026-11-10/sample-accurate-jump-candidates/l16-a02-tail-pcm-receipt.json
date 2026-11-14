@@ -1,0 +1,38 @@
+{
+  "status": "review_only_pcm_candidate_not_audibly_signed_off",
+  "lesson_id": "L16",
+  "presenter_window": "A02",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+  "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+  "source_window_seconds": [
+    161.0,
+    187.08
+  ],
+  "candidate_cut_seconds": 184.2,
+  "cut_sample_index_48000hz": 1113600,
+  "fade_start_seconds": 184.16,
+  "fade_duration_seconds": 0.04,
+  "audio_treatment": "Decode source AAC to 48 kHz PCM; retain through the sample-accurate cut with a 40 ms final fade; pad the rest with digital silence; encode the entire candidate AAC at 192 kb/s.",
+  "audio_reencoded_entire_window": true,
+  "source_aac_packets_copied": false,
+  "intended_words": {
+    "retained_approved_words_end": "and capacity. Add a person who owns it",
+    "removed_later_phrase_start": "Put a short review on the calendar with the owner and anyone"
+  },
+  "post_cut_silence_peak_dbfs": -91.0,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a02-tail-pcm-candidate.mp4",
+  "candidate_sha256": "46e18254a27a4ff36fbcf9b5469e7131f064933156e5387a4c5886e8bfc2d4e1",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a02-tail-pcm-before-after.mp4",
+  "before_after_sha256": "14d47b974948772243bdcbe8df9b0459d0e697eacc6c0e123595fd5ce1f6fe05",
+  "before_after_source_excerpt_seconds": [
+    180.7,
+    187.08
+  ],
+  "candidate_duration_seconds": 26.08,
+  "before_after_duration_seconds": 12.78,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "ASR and waveform timing cannot replace audible first/last-phoneme review; the full lesson and adjacent presenter windows remain unresolved."
+}

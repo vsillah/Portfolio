@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "review_only_24_pending_packet_copy_cuts",
+  "native_manifest_sha256": "91f5f2a41da382c5b906d43355f3f35e6b0087eb2aa4d108c38cf74a48fc6638",
+  "native_asr_validation_sha256": "61355c5bb8e32087a8a7c6c28bd169543ae398e5fd4550df45dec5dde464ecd7",
+  "source_pack_sha256": "eb9b4b5201439ca6810d6cd226a29af700be2fd3cc4f38e2a38c94778b35207c",
+  "source_triage_sha256": "c845d9b58edd6692fcb4641b2034379f24ad9f2514f1f5c9a2c95f20b1d23198",
+  "reels": [
+    {
+      "reel_number": 1,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-receipt.json",
+      "receipt_sha256": "10cc2f7db1dd3ff3f9f250c88544cafaf9cc585eff46de1a9fd68b470bb1f06b",
+      "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/packet-copy-listening-reel-01.mp4",
+      "reel_sha256": "0fc9416fde9399b7d20a3c31f437e975fdfa5352d802ec8d6dad0ffabd049fdf",
+      "chapter_count": 8,
+      "duration_seconds": 123.180667
+    },
+    {
+      "reel_number": 2,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-02-receipt.json",
+      "receipt_sha256": "43a174261121a02f35bc37238ec40971669129abdbb4ed0a2280867208e5c901",
+      "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/packet-copy-listening-reel-02.mp4",
+      "reel_sha256": "e9217d1821cea9c86ed66d485ba49546baf47059764ac0e241589b696769490c",
+      "chapter_count": 8,
+      "duration_seconds": 117.6
+    },
+    {
+      "reel_number": 3,
+      "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-03-receipt.json",
+      "receipt_sha256": "6981ad187e6bc09b66234e11bdbbac5e2c3fb3e6e3d3f5afc4c546df19b8af17",
+      "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/packet-copy-listening-reel-03.mp4",
+      "reel_sha256": "cb68408ebb5b8c9170999f592f02c0d56eb92f81c042a46a9de4ebc93e90506d",
+      "chapter_count": 8,
+      "duration_seconds": 122.048
+    }
+  ],
+  "reel_count": 3,
+  "clips_per_reel": 8,
+  "total_pending_clips": 24,
+  "audibly_approved_packet_copy_clips": 0,
+  "priority_six_clip_approval_does_not_extend_to_these_reels": true
+}

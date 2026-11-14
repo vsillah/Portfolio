@@ -1,0 +1,68 @@
+{
+  "status": "anchor_stills_only_timing_validation_stopped",
+  "source_video_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+  "p01_source_background_sha256": "e36785b2c1889e036278a7ff464893d8f80ac35478686ce0fce184e32eb9764e",
+  "p01_reflow_background_sha256": "3a33f7e9def34886188e00833f3fe03c05b7edbc0d405a349b98c67148b13ead",
+  "p02_clean_base_sha256": "1bb646676d7b37efbac05b5afe9c9cfc8e0894107d01e7aa7600fb467076f682",
+  "anchor": {
+    "source_1920x1080_xywh": [
+      1420,
+      48,
+      448,
+      256
+    ],
+    "review_1280x720_xywh": [
+      947,
+      32,
+      299,
+      171
+    ],
+    "P01_original_inset_xywh": [
+      1420,
+      260,
+      448,
+      256
+    ],
+    "P02_original_inset_xywh": [
+      1420,
+      790,
+      448,
+      256
+    ],
+    "bottom_control_guard_source_px": 160,
+    "caption_band_review_y_px": [
+      720,
+      820
+    ],
+    "source_bottom_clearance_px": 776,
+    "rule": "same upper-right anchor and size in P01 and P02; slide content reflowed around it; no player-control or caption overlap; presenter-free cutaways use full frame"
+  },
+  "clearance": {
+    "right_source_px": 52,
+    "top_source_px": 48,
+    "below_inset_to_control_guard_source_px": 616,
+    "below_inset_to_caption_band_review_px": 517
+  },
+  "stills": {
+    "p01-anchor-desktop.png": "76619c8974c64cedd500c1aab700c27e39463f2abf4a2c1b048774ecdad39d4a",
+    "p01-anchor-mobile.png": "c3f71513aca7877f88876b9333e8f8e3121d5cbb487282371ab59e7f2fb9eaf0",
+    "p02-anchor-desktop.png": "42dab3bfb8a39043b7fe3485821215522a319a967456b5a7d3a7aae6a7fc0c4b",
+    "p02-anchor-mobile.png": "ea15d5f3b1cecc83489f74e7ced3e9613037fcfd957cdfe999dc2f92a794acf6"
+  },
+  "observed_still_review": {
+    "desktop_1280x820": "P01 card and P02 map/title clear the fixed inset; captions occupy the separate bottom band.",
+    "mobile_390x250": "Inset remains fully inside the video image and above the caption band; text legibility and native player controls require later playback review.",
+    "p01_reflow": "Q3 card moved below the reserved inset; full card border visible.",
+    "p02_reflow": "Original lower-right inset removed from the map slide before placing the presenter above the title."
+  },
+  "limits": [
+    "Stills show 5s P01 and 240.5s P02 only; no full-motion or native-player interaction check.",
+    "C01/C02 candidate failed the ordinary-pause gate and was not rerendered.",
+    "No learner media or binding changed."
+  ],
+  "previous_failed_mp4": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-j01-c01-c02-review.mp4",
+    "sha256": "1db428a55f03e7dad822501fe8f781daefc278013b83aa5e407dc92844069588",
+    "status": "stale_lower_right_anchor_and_failed_pause_check_do_not_use_for_QA"
+  }
+}

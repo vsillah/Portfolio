@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "lesson": "L03",
+  "source": {
+    "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L03.md",
+    "desktop_video": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/l03-whole-lesson-desktop-local-review.mp4",
+    "portrait_video": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/l03-whole-lesson-mobile-local-review.mp4",
+    "captions": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/l03-whole-lesson-optional-captions.vtt"
+  },
+  "style": {
+    "contract": "accelerated-editorial-teaching-plate-v1",
+    "panel": "temporary deep AmaduTown-blue contrast field",
+    "type": "warm cream Avenir Next Demi Bold",
+    "accent": "thin AmaduTown-gold rule and border",
+    "motion": "reveal, hold, replace, clear"
+  },
+  "events": [
+    {
+      "id": "owner-belief",
+      "start": 52.88,
+      "end": 57.4,
+      "text": "What must the owner believe?",
+      "source_cue": "What would an owner need to believe before moving engineering time?",
+      "desktop": {"x": 76, "y": 148, "font_size": 56},
+      "portrait": {"x": 20, "y": 110, "font_size": 27}
+    },
+    {
+      "id": "owners-question",
+      "start": 64.64,
+      "end": 69.08,
+      "text": "Write the owner's question.",
+      "source_cue": "Now write the decision owner's question in their words.",
+      "desktop": {"x": 76, "y": 148, "font_size": 58},
+      "portrait": {"x": 20, "y": 110, "font_size": 28}
+    },
+    {
+      "id": "work-backward",
+      "start": 108.86,
+      "end": 112.31,
+      "text": "Decision / answer / objection / evidence",
+      "source_cue": "So we work backward: decision, likely answer, objection, evidence.",
+      "desktop": {"x": 76, "y": 148, "font_size": 48},
+      "portrait": {"x": 20, "y": 110, "font_size": 22}
+    },
+    {
+      "id": "visible-trade",
+      "start": 155.7,
+      "end": 160.85,
+      "text": "Make the trade visible.",
+      "source_cue": "They are ways to make the trade visible.",
+      "desktop": {"x": 76, "y": 148, "font_size": 60},
+      "portrait": {"x": 20, "y": 110, "font_size": 29}
+    },
+    {
+      "id": "change-mind",
+      "start": 181.0,
+      "end": 184.83,
+      "text": "What would change your mind?",
+      "source_cue": "What would change your mind?",
+      "desktop": {"x": 76, "y": 148, "font_size": 56},
+      "portrait": {"x": 20, "y": 110, "font_size": 27}
+    },
+    {
+      "id": "rehearsal-not-evidence",
+      "start": 213.56,
+      "end": 221.04,
+      "text": "Simulation is rehearsal, not evidence.",
+      "source_cue": "An AI tool can help you rehearse the questions. It cannot turn a simulated objection into a customer interview.",
+      "desktop": {"x": 76, "y": 148, "font_size": 52},
+      "portrait": {"x": 20, "y": 110, "font_size": 24}
+    },
+    {
+      "id": "safe-test",
+      "start": 259.877,
+      "end": 264.67,
+      "text": "Seek evidence with a safe test.",
+      "source_cue": "A safe test could use a prototype and willing participants under an approved research process.",
+      "desktop": {"x": 76, "y": 148, "font_size": 54},
+      "portrait": {"x": 20, "y": 110, "font_size": 25}
+    },
+    {
+      "id": "priority-to-evidence",
+      "start": 315.785,
+      "end": 319.469,
+      "text": "Priority choice / evidence gap",
+      "source_cue": "Your file should now show a line from priority choice to evidence gap.",
+      "desktop": {"x": 76, "y": 148, "font_size": 54},
+      "portrait": {"x": 20, "y": 110, "font_size": 25}
+    }
+  ]
+}

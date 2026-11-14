@@ -1,0 +1,10 @@
+{
+  "source": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.vtt",
+  "source_sha256": "fb76dce31cc8762698a67bc362722ab285ebc1a711bf94110661a804aae136f7",
+  "output": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/l01-optional-captions-control-safe.vtt",
+  "output_sha256": "e873621766374a9b61d4cbac3bc304c5c6664c387a7f0c72948b7a818e41d1e3",
+  "cue_count": 278,
+  "words_and_times": "byte-identical after removing WebVTT placement settings",
+  "placement": "line:78% position:50% size:88% align:middle",
+  "scope": "optional-caption placement metadata only; video, audio, cue times, words, and learner media unchanged"
+}

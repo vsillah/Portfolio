@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L02",
+  "presenter_window": "A01",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+  "source_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+  "source_window_seconds": [
+    0.0,
+    29.76
+  ],
+  "candidate_cut_seconds": 21.802667,
+  "machine_onset_seconds": 21.81,
+  "aac_snap_delta_seconds": 0.007333,
+  "intended_words": {
+    "retained_approved_words_end": "note. That is why the room is stuck",
+    "removed_later_phrase_start": "gives us a way to structure a messy opportunity. The first move"
+  },
+  "silent_packet_source_start_seconds": 31.76,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 1022,
+  "copied_silence_packet_count": 373,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a01-tail-candidate.mp4",
+  "candidate_sha256": "a541bc886634f934d685b8e126303bc5c36085d1ef7cfb66e99f8e1ae577704f",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a01-tail-before-after.mp4",
+  "before_after_sha256": "911675491d456f5df2b2ea7dc6fdd2b3cd26a18f3f324075a9170386a475ab74",
+  "before_after_source_excerpt_seconds": [
+    18.302667,
+    25.302667
+  ],
+  "before_after_segment_seconds": 7.0,
+  "candidate_duration_seconds": 29.76,
+  "before_after_duration_seconds": 14.0,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

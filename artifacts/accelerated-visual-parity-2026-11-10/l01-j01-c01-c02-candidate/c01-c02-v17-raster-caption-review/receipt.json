@@ -1,0 +1,71 @@
+{
+  "status": "HUMAN_QA_PASSED_LOCAL_REVIEW_ONLY",
+  "source_commit": "3a2df476a96d3106823537c2442a72bd69a95080",
+  "source_mp4_sha256": "3fba2f2bd724f4da1e5778138a95765b4b5946e478e8b52598ac9124e5a0d869",
+  "source_plan_sha256": "d917317e98f7dc05590e714097af9faf00a9c09236ce894a18c214ce9138b21e",
+  "source_preflight_sha256": "4d9a64aeb7a648c1019a65424455e338d964316903aa9ce3dff84e7b0fa3d1a9",
+  "j01_original_wav_sha256": "24ce83730c2112a52fee7e765794c29c771886ad103094ddff53511d33491360",
+  "caption_cues_preserved": 175,
+  "presenter_raster_runs": 46,
+  "video": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v17-raster-caption-review/l01-c01-c02-v17-four-section-caption-review.mp4",
+    "sha256": "80a1be496b7b05e1ae7bf6bff2cd00e2410374e6c8abe65e280fe7e4c444d0d1"
+  },
+  "change": "P01/P02 bottom captions replaced with transparent top-right raster captions; their approved visuals and presenter coordinates are unchanged. C01/C02 top captions unchanged.",
+  "limits": [
+    "Local review and source/evidence only; no learner binding, merge, release, provider call, or spend.",
+    "Exact MP4 output and voice-bearing upstream input remain local and are not committed.",
+    "Subjective speech-join listening was unavailable to the agent; the approved audio stream matches the source bit-for-bit."
+  ],
+  "validation": {
+    "source_binding": "Bound commit, source MP4, approved source preflight, plan and J01 WAV hashes matched.",
+    "encode": "Full ffmpeg decode passed; ffprobe reported 345.000 seconds, 8625 frames, 1280x900 H.264 and AAC.",
+    "audio_stream_sha256": "5bef7336fbd6b0716007208d8481ba8bd896768a8ed3c9b7f206a7e1d859c655; identical to the source AAC stream.",
+    "server": "Range bytes=0-1023 returned HTTP 206, Accept-Ranges bytes, Content-Range bytes 0-1023/11426376.",
+    "review_url": "http://127.0.0.1:64602/review.html?rev=3a2df476-v17",
+    "browser": "Chrome through Codex Computer Use; integrated in-app browser was unavailable in inventory.",
+    "desktop": [
+      "Native player loaded duration 345 and seekable [0,345], then played from the opening.",
+      "Paused at P01 0 and 10.5, P02 235.3, C01 174.4 and C02 250; captions matched the expected cue text and were clear of controls."
+    ],
+    "mobile_390x844": [
+      "Native player displayed the 350x246.09375 CSS-pixel video with seekable [0,345].",
+      "Paused P01 10.5, P02 235.3, C01 174.4 and C02 250 showed planned captions above visible controls.",
+      "P01 and P02 presenter remained in the fixed right inset.",
+      "Native playback advanced from 242.009402 through the P02 to C02 join to 249.483451 seconds; the C02 caption appeared above controls."
+    ],
+    "first_failure": null,
+    "not_claimed": [
+      "Subjective speech continuity and joins by agent listening; no audio input was available.",
+      "Visual inspection of every individual cue frame; all words/times are source-plan bound, with representative browser checks.",
+      "Learner-media binding, deployment, merge, or release."
+    ]
+  },
+  "human_qa": {
+    "status": "passed",
+    "date": "2026-11-11",
+    "approval_source": "Vambah Sillah, relayed in the Integration Captain delegation",
+    "project": "Portfolio Accelerated L01",
+    "pull_request": 1270,
+    "source_commit": "3a2df476a96d3106823537c2442a72bd69a95080",
+    "approved_local_mp4_sha256": "80a1be496b7b05e1ae7bf6bff2cd00e2410374e6c8abe65e280fe7e4c444d0d1",
+    "scope": "Local P01/C01/P02/C02 caption and illustration review artifact only",
+    "next_action_authorized": "Add scoped reproducible source and evidence to existing draft PR #1270, commit, push, and validate updated draft PR.",
+    "exclusions": [
+      "Learner media binding",
+      "HeyGen or credit spend",
+      "Merge",
+      "Release"
+    ]
+  },
+  "source_reproducibility": {
+    "renderer": "build-local-review.py",
+    "caption_plan": "caption-plan.json",
+    "caption_plan_sha256": "d917317e98f7dc05590e714097af9faf00a9c09236ce894a18c214ce9138b21e",
+    "required_local_voice_bearing_input": "../c01-c02-v15-all-captions-review/l01-c01-c02-v15-all-captions-review.mp4",
+    "required_local_input_sha256": "3fba2f2bd724f4da1e5778138a95765b4b5946e478e8b52598ac9124e5a0d869",
+    "input_committed": false,
+    "approved_output_committed": false,
+    "method": "Hash-bound final-stage transform; P01/P02 captions are transparent raster overlays at the top right, C01/C02 top captions and approved imagery are carried from the bound input."
+  }
+}

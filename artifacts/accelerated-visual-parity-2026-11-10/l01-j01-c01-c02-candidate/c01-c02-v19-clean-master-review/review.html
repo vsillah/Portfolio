@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L01 clean-master local review</title>
+<style>
+  :root{color-scheme:dark;font:16px system-ui;background:#0c202a;color:#f3eadc}
+  body{margin:0}main{max-width:1320px;margin:auto;padding:18px}
+  h1{font:32px Georgia;margin:0 0 10px}p{line-height:1.4;max-width:75ch}
+  video{display:block;width:100%;aspect-ratio:1280/1080;object-fit:contain;background:#0b1c26}
+  .stage{max-width:1280px;border:1px solid #d9ad54}
+  button{margin:14px 5px 0 0;padding:10px 15px;font:inherit;background:#234751;color:white;border:1px solid #d9ad54;border-radius:6px}
+  button:focus-visible{outline:3px solid white;outline-offset:2px}
+  video::cue{background:rgba(4,19,27,.84);color:white}
+</style>
+<main>
+  <h1>L01 · clean-master local review</h1>
+  <p>345-second review master with unchanged P01/C01/P02/C02 source art and audio. Captions are an optional 175-cue WebVTT track.</p>
+  <div class="stage"><video id="lesson" controls playsinline preload="metadata" aria-label="L01 caption-free local review master">
+    <source src="/clean-master.mp4" type="video/mp4">
+    <track kind="captions" src="/lower-captions.vtt" srclang="en" label="English">
+  </video></div>
+  <button id="toggle" type="button" aria-pressed="false">Turn captions on</button>
+  <p id="status" aria-live="polite">Captions off.</p>
+  <nav aria-label="Review sections">
+    <button type="button" data-time="5">P01 · 5s</button>
+    <button type="button" data-time="174.4">C01 · 174s</button>
+    <button type="button" data-time="240.05">P02 · 240s</button>
+    <button type="button" data-time="250">C02 · 250s</button>
+  </nav>
+  <script>
+    const video=document.querySelector('#lesson'),button=document.querySelector('#toggle'),status=document.querySelector('#status');
+    function track(){return video.textTracks[0]}
+    button.addEventListener('click',()=>{const on=track().mode!=='showing';track().mode=on?'showing':'disabled';button.textContent=on?'Turn captions off':'Turn captions on';button.setAttribute('aria-pressed',String(on));status.textContent=on?'Captions on.':'Captions off.'});
+    video.addEventListener('loadedmetadata',()=>{track().mode='disabled'});
+    for(const seek of document.querySelectorAll('[data-time]'))seek.addEventListener('click',()=>{video.currentTime=Number(seek.dataset.time);video.pause()});
+  </script>
+</main>
+</html>

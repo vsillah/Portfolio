@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "status": "review_only_not_timeline_ready",
+  "source_pack_sha256": "86b0fbbe24e5f0dc60c9205e2e43c3d414d8afc2d6e97affe0cc39da681bf3cf",
+  "rendered_count": 3,
+  "results": [
+    {
+      "lesson_id": "L05",
+      "status": "machine_pass_pending_audible_and_timing_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-receipt.json"
+    },
+    {
+      "lesson_id": "L06",
+      "status": "machine_pass_pending_audible_and_timing_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-receipt.json"
+    },
+    {
+      "lesson_id": "L08",
+      "status": "machine_pass_pending_audible_and_timing_review",
+      "receipt": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-receipt.json"
+    }
+  ],
+  "narration_pack_modified": false,
+  "learner_media_modified": false,
+  "asr_validation_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/asr-validation.json",
+  "machine_pass_count": 3
+}

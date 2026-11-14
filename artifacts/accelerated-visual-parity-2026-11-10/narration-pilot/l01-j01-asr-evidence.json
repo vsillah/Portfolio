@@ -1,0 +1,3452 @@
+{
+  "method": "Local faster-whisper small.en, CPU int8, beam 5, English, word timestamps, no VAD, no previous-text conditioning; FFmpeg PCM16 16 kHz input",
+  "source_sha256": "24ce83730c2112a52fee7e765794c29c771886ad103094ddff53511d33491360",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.28,
+      "text": " What evidence would make that choice responsible?",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.46,
+          "text": "What"
+        },
+        {
+          "start": 0.46,
+          "end": 0.9,
+          "text": "evidence"
+        },
+        {
+          "start": 0.9,
+          "end": 1.14,
+          "text": "would"
+        },
+        {
+          "start": 1.14,
+          "end": 1.34,
+          "text": "make"
+        },
+        {
+          "start": 1.34,
+          "end": 1.54,
+          "text": "that"
+        },
+        {
+          "start": 1.54,
+          "end": 1.82,
+          "text": "choice"
+        },
+        {
+          "start": 1.82,
+          "end": 2.28,
+          "text": "responsible?"
+        }
+      ]
+    },
+    {
+      "start": 3.02,
+      "end": 5.22,
+      "text": " What data did you put into the tool to get there?",
+      "words": [
+        {
+          "start": 3.02,
+          "end": 3.2,
+          "text": "What"
+        },
+        {
+          "start": 3.2,
+          "end": 3.52,
+          "text": "data"
+        },
+        {
+          "start": 3.52,
+          "end": 3.74,
+          "text": "did"
+        },
+        {
+          "start": 3.74,
+          "end": 3.88,
+          "text": "you"
+        },
+        {
+          "start": 3.88,
+          "end": 4.04,
+          "text": "put"
+        },
+        {
+          "start": 4.04,
+          "end": 4.26,
+          "text": "into"
+        },
+        {
+          "start": 4.26,
+          "end": 4.4,
+          "text": "the"
+        },
+        {
+          "start": 4.4,
+          "end": 4.6,
+          "text": "tool"
+        },
+        {
+          "start": 4.6,
+          "end": 4.8,
+          "text": "to"
+        },
+        {
+          "start": 4.8,
+          "end": 4.94,
+          "text": "get"
+        },
+        {
+          "start": 4.94,
+          "end": 5.22,
+          "text": "there?"
+        }
+      ]
+    },
+    {
+      "start": 5.68,
+      "end": 8.54,
+      "text": " A beautiful page can hide those questions for a little while.",
+      "words": [
+        {
+          "start": 5.68,
+          "end": 5.88,
+          "text": "A"
+        },
+        {
+          "start": 5.88,
+          "end": 6.26,
+          "text": "beautiful"
+        },
+        {
+          "start": 6.26,
+          "end": 6.58,
+          "text": "page"
+        },
+        {
+          "start": 6.58,
+          "end": 6.84,
+          "text": "can"
+        },
+        {
+          "start": 6.84,
+          "end": 7.12,
+          "text": "hide"
+        },
+        {
+          "start": 7.12,
+          "end": 7.36,
+          "text": "those"
+        },
+        {
+          "start": 7.36,
+          "end": 7.76,
+          "text": "questions"
+        },
+        {
+          "start": 7.76,
+          "end": 8.02,
+          "text": "for"
+        },
+        {
+          "start": 8.02,
+          "end": 8.12,
+          "text": "a"
+        },
+        {
+          "start": 8.12,
+          "end": 8.2,
+          "text": "little"
+        },
+        {
+          "start": 8.2,
+          "end": 8.54,
+          "text": "while."
+        }
+      ]
+    },
+    {
+      "start": 8.86,
+      "end": 10.04,
+      "text": " It cannot answer them.",
+      "words": [
+        {
+          "start": 8.86,
+          "end": 8.98,
+          "text": "It"
+        },
+        {
+          "start": 8.98,
+          "end": 9.4,
+          "text": "cannot"
+        },
+        {
+          "start": 9.4,
+          "end": 9.78,
+          "text": "answer"
+        },
+        {
+          "start": 9.78,
+          "end": 10.04,
+          "text": "them."
+        }
+      ]
+    },
+    {
+      "start": 10.56,
+      "end": 11.84,
+      "text": " In the opening of Accelerated,",
+      "words": [
+        {
+          "start": 10.56,
+          "end": 10.68,
+          "text": "In"
+        },
+        {
+          "start": 10.68,
+          "end": 10.78,
+          "text": "the"
+        },
+        {
+          "start": 10.78,
+          "end": 11.06,
+          "text": "opening"
+        },
+        {
+          "start": 11.06,
+          "end": 11.22,
+          "text": "of"
+        },
+        {
+          "start": 11.22,
+          "end": 11.84,
+          "text": "Accelerated,"
+        }
+      ]
+    },
+    {
+      "start": 12.1,
+      "end": 14.54,
+      "text": " I start with that blinking cursor because it is familiar.",
+      "words": [
+        {
+          "start": 12.1,
+          "end": 12.24,
+          "text": "I"
+        },
+        {
+          "start": 12.24,
+          "end": 12.5,
+          "text": "start"
+        },
+        {
+          "start": 12.5,
+          "end": 12.66,
+          "text": "with"
+        },
+        {
+          "start": 12.66,
+          "end": 12.84,
+          "text": "that"
+        },
+        {
+          "start": 12.84,
+          "end": 13.12,
+          "text": "blinking"
+        },
+        {
+          "start": 13.12,
+          "end": 13.6,
+          "text": "cursor"
+        },
+        {
+          "start": 13.6,
+          "end": 13.92,
+          "text": "because"
+        },
+        {
+          "start": 13.92,
+          "end": 14.06,
+          "text": "it"
+        },
+        {
+          "start": 14.06,
+          "end": 14.2,
+          "text": "is"
+        },
+        {
+          "start": 14.2,
+          "end": 14.54,
+          "text": "familiar."
+        }
+      ]
+    },
+    {
+      "start": 15.26,
+      "end": 17.88,
+      "text": " The book begins with product teams carrying noise,",
+      "words": [
+        {
+          "start": 15.26,
+          "end": 15.4,
+          "text": "The"
+        },
+        {
+          "start": 15.4,
+          "end": 15.56,
+          "text": "book"
+        },
+        {
+          "start": 15.56,
+          "end": 15.92,
+          "text": "begins"
+        },
+        {
+          "start": 15.92,
+          "end": 16.18,
+          "text": "with"
+        },
+        {
+          "start": 16.18,
+          "end": 16.52,
+          "text": "product"
+        },
+        {
+          "start": 16.52,
+          "end": 16.9,
+          "text": "teams"
+        },
+        {
+          "start": 16.9,
+          "end": 17.34,
+          "text": "carrying"
+        },
+        {
+          "start": 17.34,
+          "end": 17.88,
+          "text": "noise,"
+        }
+      ]
+    },
+    {
+      "start": 18.26,
+      "end": 21.86,
+      "text": " conflicting priorities, and documents that do not move decisions.",
+      "words": [
+        {
+          "start": 18.26,
+          "end": 18.56,
+          "text": "conflicting"
+        },
+        {
+          "start": 18.56,
+          "end": 19.26,
+          "text": "priorities,"
+        },
+        {
+          "start": 19.52,
+          "end": 19.88,
+          "text": "and"
+        },
+        {
+          "start": 19.88,
+          "end": 20.36,
+          "text": "documents"
+        },
+        {
+          "start": 20.36,
+          "end": 20.66,
+          "text": "that"
+        },
+        {
+          "start": 20.66,
+          "end": 20.84,
+          "text": "do"
+        },
+        {
+          "start": 20.84,
+          "end": 21.16,
+          "text": "not"
+        },
+        {
+          "start": 21.16,
+          "end": 21.42,
+          "text": "move"
+        },
+        {
+          "start": 21.42,
+          "end": 21.86,
+          "text": "decisions."
+        }
+      ]
+    },
+    {
+      "start": 22.52,
+      "end": 25.18,
+      "text": " The work here is to give the team a way to learn,",
+      "words": [
+        {
+          "start": 22.52,
+          "end": 22.74,
+          "text": "The"
+        },
+        {
+          "start": 22.74,
+          "end": 23.0,
+          "text": "work"
+        },
+        {
+          "start": 23.0,
+          "end": 23.36,
+          "text": "here"
+        },
+        {
+          "start": 23.36,
+          "end": 23.6,
+          "text": "is"
+        },
+        {
+          "start": 23.6,
+          "end": 23.78,
+          "text": "to"
+        },
+        {
+          "start": 23.78,
+          "end": 23.94,
+          "text": "give"
+        },
+        {
+          "start": 23.94,
+          "end": 24.12,
+          "text": "the"
+        },
+        {
+          "start": 24.12,
+          "end": 24.34,
+          "text": "team"
+        },
+        {
+          "start": 24.34,
+          "end": 24.48,
+          "text": "a"
+        },
+        {
+          "start": 24.48,
+          "end": 24.62,
+          "text": "way"
+        },
+        {
+          "start": 24.62,
+          "end": 24.82,
+          "text": "to"
+        },
+        {
+          "start": 24.82,
+          "end": 25.18,
+          "text": "learn,"
+        }
+      ]
+    },
+    {
+      "start": 25.58,
+      "end": 28.62,
+      "text": " choose, and keep its judgment when the page fills up.",
+      "words": [
+        {
+          "start": 25.58,
+          "end": 26.0,
+          "text": "choose,"
+        },
+        {
+          "start": 26.48,
+          "end": 26.7,
+          "text": "and"
+        },
+        {
+          "start": 26.7,
+          "end": 26.92,
+          "text": "keep"
+        },
+        {
+          "start": 26.92,
+          "end": 27.14,
+          "text": "its"
+        },
+        {
+          "start": 27.14,
+          "end": 27.44,
+          "text": "judgment"
+        },
+        {
+          "start": 27.44,
+          "end": 27.72,
+          "text": "when"
+        },
+        {
+          "start": 27.72,
+          "end": 27.84,
+          "text": "the"
+        },
+        {
+          "start": 27.84,
+          "end": 28.1,
+          "text": "page"
+        },
+        {
+          "start": 28.1,
+          "end": 28.34,
+          "text": "fills"
+        },
+        {
+          "start": 28.34,
+          "end": 28.62,
+          "text": "up."
+        }
+      ]
+    },
+    {
+      "start": 28.62,
+      "end": 32.04,
+      "text": " A product system sounds larger than it needs to be.",
+      "words": [
+        {
+          "start": 28.62,
+          "end": 29.64,
+          "text": "A"
+        },
+        {
+          "start": 29.64,
+          "end": 29.92,
+          "text": "product"
+        },
+        {
+          "start": 29.92,
+          "end": 30.3,
+          "text": "system"
+        },
+        {
+          "start": 30.3,
+          "end": 30.68,
+          "text": "sounds"
+        },
+        {
+          "start": 30.68,
+          "end": 31.06,
+          "text": "larger"
+        },
+        {
+          "start": 31.06,
+          "end": 31.3,
+          "text": "than"
+        },
+        {
+          "start": 31.3,
+          "end": 31.42,
+          "text": "it"
+        },
+        {
+          "start": 31.42,
+          "end": 31.6,
+          "text": "needs"
+        },
+        {
+          "start": 31.6,
+          "end": 31.8,
+          "text": "to"
+        },
+        {
+          "start": 31.8,
+          "end": 32.04,
+          "text": "be."
+        }
+      ]
+    },
+    {
+      "start": 32.62,
+      "end": 34.8,
+      "text": " Think about the last idea that arrived in a meeting.",
+      "words": [
+        {
+          "start": 32.62,
+          "end": 32.72,
+          "text": "Think"
+        },
+        {
+          "start": 32.72,
+          "end": 32.92,
+          "text": "about"
+        },
+        {
+          "start": 32.92,
+          "end": 33.08,
+          "text": "the"
+        },
+        {
+          "start": 33.08,
+          "end": 33.36,
+          "text": "last"
+        },
+        {
+          "start": 33.36,
+          "end": 33.8,
+          "text": "idea"
+        },
+        {
+          "start": 33.8,
+          "end": 34.02,
+          "text": "that"
+        },
+        {
+          "start": 34.02,
+          "end": 34.32,
+          "text": "arrived"
+        },
+        {
+          "start": 34.32,
+          "end": 34.5,
+          "text": "in"
+        },
+        {
+          "start": 34.5,
+          "end": 34.6,
+          "text": "a"
+        },
+        {
+          "start": 34.6,
+          "end": 34.8,
+          "text": "meeting."
+        }
+      ]
+    },
+    {
+      "start": 35.32,
+      "end": 36.9,
+      "text": " Someone noticed a customer problem.",
+      "words": [
+        {
+          "start": 35.32,
+          "end": 35.62,
+          "text": "Someone"
+        },
+        {
+          "start": 35.62,
+          "end": 35.94,
+          "text": "noticed"
+        },
+        {
+          "start": 35.94,
+          "end": 36.12,
+          "text": "a"
+        },
+        {
+          "start": 36.12,
+          "end": 36.46,
+          "text": "customer"
+        },
+        {
+          "start": 36.46,
+          "end": 36.9,
+          "text": "problem."
+        }
+      ]
+    },
+    {
+      "start": 37.26,
+      "end": 38.84,
+      "text": " Someone else had a competing story.",
+      "words": [
+        {
+          "start": 37.26,
+          "end": 37.54,
+          "text": "Someone"
+        },
+        {
+          "start": 37.54,
+          "end": 37.76,
+          "text": "else"
+        },
+        {
+          "start": 37.76,
+          "end": 37.98,
+          "text": "had"
+        },
+        {
+          "start": 37.98,
+          "end": 38.1,
+          "text": "a"
+        },
+        {
+          "start": 38.1,
+          "end": 38.38,
+          "text": "competing"
+        },
+        {
+          "start": 38.38,
+          "end": 38.84,
+          "text": "story."
+        }
+      ]
+    },
+    {
+      "start": 39.28,
+      "end": 41.86,
+      "text": " A third person asked for a number nobody had.",
+      "words": [
+        {
+          "start": 39.28,
+          "end": 39.46,
+          "text": "A"
+        },
+        {
+          "start": 39.46,
+          "end": 39.74,
+          "text": "third"
+        },
+        {
+          "start": 39.74,
+          "end": 40.08,
+          "text": "person"
+        },
+        {
+          "start": 40.08,
+          "end": 40.4,
+          "text": "asked"
+        },
+        {
+          "start": 40.4,
+          "end": 40.62,
+          "text": "for"
+        },
+        {
+          "start": 40.62,
+          "end": 40.76,
+          "text": "a"
+        },
+        {
+          "start": 40.76,
+          "end": 41.0,
+          "text": "number"
+        },
+        {
+          "start": 41.0,
+          "end": 41.4,
+          "text": "nobody"
+        },
+        {
+          "start": 41.4,
+          "end": 41.86,
+          "text": "had."
+        }
+      ]
+    },
+    {
+      "start": 42.26,
+      "end": 44.28,
+      "text": " The team left with another document to write.",
+      "words": [
+        {
+          "start": 42.26,
+          "end": 42.46,
+          "text": "The"
+        },
+        {
+          "start": 42.46,
+          "end": 42.68,
+          "text": "team"
+        },
+        {
+          "start": 42.68,
+          "end": 42.92,
+          "text": "left"
+        },
+        {
+          "start": 42.92,
+          "end": 43.14,
+          "text": "with"
+        },
+        {
+          "start": 43.14,
+          "end": 43.4,
+          "text": "another"
+        },
+        {
+          "start": 43.4,
+          "end": 43.84,
+          "text": "document"
+        },
+        {
+          "start": 43.84,
+          "end": 44.08,
+          "text": "to"
+        },
+        {
+          "start": 44.08,
+          "end": 44.28,
+          "text": "write."
+        }
+      ]
+    },
+    {
+      "start": 44.7,
+      "end": 46.56,
+      "text": " A system gives those moments a path.",
+      "words": [
+        {
+          "start": 44.7,
+          "end": 44.84,
+          "text": "A"
+        },
+        {
+          "start": 44.84,
+          "end": 45.08,
+          "text": "system"
+        },
+        {
+          "start": 45.08,
+          "end": 45.42,
+          "text": "gives"
+        },
+        {
+          "start": 45.42,
+          "end": 45.7,
+          "text": "those"
+        },
+        {
+          "start": 45.7,
+          "end": 46.04,
+          "text": "moments"
+        },
+        {
+          "start": 46.04,
+          "end": 46.22,
+          "text": "a"
+        },
+        {
+          "start": 46.22,
+          "end": 46.56,
+          "text": "path."
+        }
+      ]
+    },
+    {
+      "start": 47.02,
+      "end": 51.86,
+      "text": " It helps you record the signal, name the decision, state what you believe, and come",
+      "words": [
+        {
+          "start": 47.02,
+          "end": 47.16,
+          "text": "It"
+        },
+        {
+          "start": 47.16,
+          "end": 47.34,
+          "text": "helps"
+        },
+        {
+          "start": 47.34,
+          "end": 47.52,
+          "text": "you"
+        },
+        {
+          "start": 47.52,
+          "end": 47.8,
+          "text": "record"
+        },
+        {
+          "start": 47.8,
+          "end": 48.02,
+          "text": "the"
+        },
+        {
+          "start": 48.02,
+          "end": 48.46,
+          "text": "signal,"
+        },
+        {
+          "start": 48.84,
+          "end": 49.06,
+          "text": "name"
+        },
+        {
+          "start": 49.06,
+          "end": 49.24,
+          "text": "the"
+        },
+        {
+          "start": 49.24,
+          "end": 49.76,
+          "text": "decision,"
+        },
+        {
+          "start": 50.1,
+          "end": 50.46,
+          "text": "state"
+        },
+        {
+          "start": 50.46,
+          "end": 50.64,
+          "text": "what"
+        },
+        {
+          "start": 50.64,
+          "end": 50.8,
+          "text": "you"
+        },
+        {
+          "start": 50.8,
+          "end": 51.2,
+          "text": "believe,"
+        },
+        {
+          "start": 51.4,
+          "end": 51.68,
+          "text": "and"
+        },
+        {
+          "start": 51.68,
+          "end": 51.86,
+          "text": "come"
+        }
+      ]
+    },
+    {
+      "start": 51.86,
+      "end": 52.7,
+      "text": " back to what happened.",
+      "words": [
+        {
+          "start": 51.86,
+          "end": 52.08,
+          "text": "back"
+        },
+        {
+          "start": 52.08,
+          "end": 52.24,
+          "text": "to"
+        },
+        {
+          "start": 52.24,
+          "end": 52.38,
+          "text": "what"
+        },
+        {
+          "start": 52.38,
+          "end": 52.7,
+          "text": "happened."
+        }
+      ]
+    },
+    {
+      "start": 52.7,
+      "end": 58.52,
+      "text": " AI can help organize messy input, test the shape of an argument, and make a first draft.",
+      "words": [
+        {
+          "start": 52.7,
+          "end": 53.5,
+          "text": "AI"
+        },
+        {
+          "start": 53.5,
+          "end": 53.8,
+          "text": "can"
+        },
+        {
+          "start": 53.8,
+          "end": 54.0,
+          "text": "help"
+        },
+        {
+          "start": 54.0,
+          "end": 54.54,
+          "text": "organize"
+        },
+        {
+          "start": 54.54,
+          "end": 54.96,
+          "text": "messy"
+        },
+        {
+          "start": 54.96,
+          "end": 55.5,
+          "text": "input,"
+        },
+        {
+          "start": 55.84,
+          "end": 56.06,
+          "text": "test"
+        },
+        {
+          "start": 56.06,
+          "end": 56.3,
+          "text": "the"
+        },
+        {
+          "start": 56.3,
+          "end": 56.48,
+          "text": "shape"
+        },
+        {
+          "start": 56.48,
+          "end": 56.64,
+          "text": "of"
+        },
+        {
+          "start": 56.64,
+          "end": 56.76,
+          "text": "an"
+        },
+        {
+          "start": 56.76,
+          "end": 57.22,
+          "text": "argument,"
+        },
+        {
+          "start": 57.32,
+          "end": 57.64,
+          "text": "and"
+        },
+        {
+          "start": 57.64,
+          "end": 57.78,
+          "text": "make"
+        },
+        {
+          "start": 57.78,
+          "end": 57.92,
+          "text": "a"
+        },
+        {
+          "start": 57.92,
+          "end": 58.1,
+          "text": "first"
+        },
+        {
+          "start": 58.1,
+          "end": 58.52,
+          "text": "draft."
+        }
+      ]
+    },
+    {
+      "start": 59.2,
+      "end": 62.34,
+      "text": " The judgment still belongs to people who understand the consequences.",
+      "words": [
+        {
+          "start": 59.2,
+          "end": 59.32,
+          "text": "The"
+        },
+        {
+          "start": 59.32,
+          "end": 59.66,
+          "text": "judgment"
+        },
+        {
+          "start": 59.66,
+          "end": 60.06,
+          "text": "still"
+        },
+        {
+          "start": 60.06,
+          "end": 60.44,
+          "text": "belongs"
+        },
+        {
+          "start": 60.44,
+          "end": 60.7,
+          "text": "to"
+        },
+        {
+          "start": 60.7,
+          "end": 60.94,
+          "text": "people"
+        },
+        {
+          "start": 60.94,
+          "end": 61.1,
+          "text": "who"
+        },
+        {
+          "start": 61.1,
+          "end": 61.64,
+          "text": "understand"
+        },
+        {
+          "start": 61.64,
+          "end": 61.84,
+          "text": "the"
+        },
+        {
+          "start": 61.84,
+          "end": 62.34,
+          "text": "consequences."
+        }
+      ]
+    },
+    {
+      "start": 62.92,
+      "end": 64.72,
+      "text": " That is the argument in the first chapter.",
+      "words": [
+        {
+          "start": 62.92,
+          "end": 63.22,
+          "text": "That"
+        },
+        {
+          "start": 63.22,
+          "end": 63.36,
+          "text": "is"
+        },
+        {
+          "start": 63.36,
+          "end": 63.5,
+          "text": "the"
+        },
+        {
+          "start": 63.5,
+          "end": 63.8,
+          "text": "argument"
+        },
+        {
+          "start": 63.8,
+          "end": 63.98,
+          "text": "in"
+        },
+        {
+          "start": 63.98,
+          "end": 64.1,
+          "text": "the"
+        },
+        {
+          "start": 64.1,
+          "end": 64.26,
+          "text": "first"
+        },
+        {
+          "start": 64.26,
+          "end": 64.72,
+          "text": "chapter."
+        }
+      ]
+    },
+    {
+      "start": 65.12,
+      "end": 70.04,
+      "text": " I describe AI as a strategy partner, a signal amplifier, and a structure builder.",
+      "words": [
+        {
+          "start": 65.12,
+          "end": 65.24,
+          "text": "I"
+        },
+        {
+          "start": 65.24,
+          "end": 65.62,
+          "text": "describe"
+        },
+        {
+          "start": 65.62,
+          "end": 66.08,
+          "text": "AI"
+        },
+        {
+          "start": 66.08,
+          "end": 66.34,
+          "text": "as"
+        },
+        {
+          "start": 66.34,
+          "end": 66.52,
+          "text": "a"
+        },
+        {
+          "start": 66.52,
+          "end": 66.84,
+          "text": "strategy"
+        },
+        {
+          "start": 66.84,
+          "end": 67.32,
+          "text": "partner,"
+        },
+        {
+          "start": 67.68,
+          "end": 67.74,
+          "text": "a"
+        },
+        {
+          "start": 67.74,
+          "end": 68.12,
+          "text": "signal"
+        },
+        {
+          "start": 68.12,
+          "end": 68.68,
+          "text": "amplifier,"
+        },
+        {
+          "start": 68.98,
+          "end": 69.28,
+          "text": "and"
+        },
+        {
+          "start": 69.28,
+          "end": 69.48,
+          "text": "a"
+        },
+        {
+          "start": 69.48,
+          "end": 69.7,
+          "text": "structure"
+        },
+        {
+          "start": 69.7,
+          "end": 70.04,
+          "text": "builder."
+        }
+      ]
+    },
+    {
+      "start": 70.62,
+      "end": 73.34,
+      "text": " Those are jobs it may help with, under the right conditions.",
+      "words": [
+        {
+          "start": 70.62,
+          "end": 70.82,
+          "text": "Those"
+        },
+        {
+          "start": 70.82,
+          "end": 70.96,
+          "text": "are"
+        },
+        {
+          "start": 70.96,
+          "end": 71.28,
+          "text": "jobs"
+        },
+        {
+          "start": 71.28,
+          "end": 71.42,
+          "text": "it"
+        },
+        {
+          "start": 71.42,
+          "end": 71.58,
+          "text": "may"
+        },
+        {
+          "start": 71.58,
+          "end": 71.8,
+          "text": "help"
+        },
+        {
+          "start": 71.8,
+          "end": 72.12,
+          "text": "with,"
+        },
+        {
+          "start": 72.38,
+          "end": 72.52,
+          "text": "under"
+        },
+        {
+          "start": 72.52,
+          "end": 72.66,
+          "text": "the"
+        },
+        {
+          "start": 72.66,
+          "end": 72.84,
+          "text": "right"
+        },
+        {
+          "start": 72.84,
+          "end": 73.34,
+          "text": "conditions."
+        }
+      ]
+    },
+    {
+      "start": 73.94,
+      "end": 76.52,
+      "text": " They are not permission to trust every output.",
+      "words": [
+        {
+          "start": 73.94,
+          "end": 74.14,
+          "text": "They"
+        },
+        {
+          "start": 74.14,
+          "end": 74.26,
+          "text": "are"
+        },
+        {
+          "start": 74.26,
+          "end": 74.6,
+          "text": "not"
+        },
+        {
+          "start": 74.6,
+          "end": 74.98,
+          "text": "permission"
+        },
+        {
+          "start": 74.98,
+          "end": 75.3,
+          "text": "to"
+        },
+        {
+          "start": 75.3,
+          "end": 75.6,
+          "text": "trust"
+        },
+        {
+          "start": 75.6,
+          "end": 76.1,
+          "text": "every"
+        },
+        {
+          "start": 76.1,
+          "end": 76.52,
+          "text": "output."
+        }
+      ]
+    },
+    {
+      "start": 77.04,
+      "end": 81.46,
+      "text": " If it gives you five polished options, you still need to ask who benefits, what is",
+      "words": [
+        {
+          "start": 77.04,
+          "end": 77.24,
+          "text": "If"
+        },
+        {
+          "start": 77.24,
+          "end": 77.32,
+          "text": "it"
+        },
+        {
+          "start": 77.32,
+          "end": 77.46,
+          "text": "gives"
+        },
+        {
+          "start": 77.46,
+          "end": 77.64,
+          "text": "you"
+        },
+        {
+          "start": 77.64,
+          "end": 77.98,
+          "text": "five"
+        },
+        {
+          "start": 77.98,
+          "end": 78.36,
+          "text": "polished"
+        },
+        {
+          "start": 78.36,
+          "end": 78.82,
+          "text": "options,"
+        },
+        {
+          "start": 79.12,
+          "end": 79.32,
+          "text": "you"
+        },
+        {
+          "start": 79.32,
+          "end": 79.54,
+          "text": "still"
+        },
+        {
+          "start": 79.54,
+          "end": 79.7,
+          "text": "need"
+        },
+        {
+          "start": 79.7,
+          "end": 79.84,
+          "text": "to"
+        },
+        {
+          "start": 79.84,
+          "end": 80.06,
+          "text": "ask"
+        },
+        {
+          "start": 80.06,
+          "end": 80.3,
+          "text": "who"
+        },
+        {
+          "start": 80.3,
+          "end": 80.7,
+          "text": "benefits,"
+        },
+        {
+          "start": 81.12,
+          "end": 81.34,
+          "text": "what"
+        },
+        {
+          "start": 81.34,
+          "end": 81.46,
+          "text": "is"
+        }
+      ]
+    },
+    {
+      "start": 81.46,
+      "end": 86.48,
+      "text": " missing and which option you can test safely. Speed can create room to think. It can also",
+      "words": [
+        {
+          "start": 81.46,
+          "end": 81.82,
+          "text": "missing"
+        },
+        {
+          "start": 81.82,
+          "end": 82.3,
+          "text": "and"
+        },
+        {
+          "start": 82.3,
+          "end": 82.5,
+          "text": "which"
+        },
+        {
+          "start": 82.5,
+          "end": 82.82,
+          "text": "option"
+        },
+        {
+          "start": 82.82,
+          "end": 83.02,
+          "text": "you"
+        },
+        {
+          "start": 83.02,
+          "end": 83.16,
+          "text": "can"
+        },
+        {
+          "start": 83.16,
+          "end": 83.36,
+          "text": "test"
+        },
+        {
+          "start": 83.36,
+          "end": 83.82,
+          "text": "safely."
+        },
+        {
+          "start": 84.46,
+          "end": 84.48,
+          "text": "Speed"
+        },
+        {
+          "start": 84.48,
+          "end": 84.7,
+          "text": "can"
+        },
+        {
+          "start": 84.7,
+          "end": 84.98,
+          "text": "create"
+        },
+        {
+          "start": 84.98,
+          "end": 85.22,
+          "text": "room"
+        },
+        {
+          "start": 85.22,
+          "end": 85.42,
+          "text": "to"
+        },
+        {
+          "start": 85.42,
+          "end": 85.68,
+          "text": "think."
+        },
+        {
+          "start": 86.02,
+          "end": 86.14,
+          "text": "It"
+        },
+        {
+          "start": 86.14,
+          "end": 86.26,
+          "text": "can"
+        },
+        {
+          "start": 86.26,
+          "end": 86.48,
+          "text": "also"
+        }
+      ]
+    },
+    {
+      "start": 86.48,
+      "end": 92.82,
+      "text": " fill that room with more noise. Look at this map. Signals. Alignment. Momentum. It is a",
+      "words": [
+        {
+          "start": 86.48,
+          "end": 86.76,
+          "text": "fill"
+        },
+        {
+          "start": 86.76,
+          "end": 86.98,
+          "text": "that"
+        },
+        {
+          "start": 86.98,
+          "end": 87.2,
+          "text": "room"
+        },
+        {
+          "start": 87.2,
+          "end": 87.36,
+          "text": "with"
+        },
+        {
+          "start": 87.36,
+          "end": 87.58,
+          "text": "more"
+        },
+        {
+          "start": 87.58,
+          "end": 87.98,
+          "text": "noise."
+        },
+        {
+          "start": 88.4,
+          "end": 88.52,
+          "text": "Look"
+        },
+        {
+          "start": 88.52,
+          "end": 88.6,
+          "text": "at"
+        },
+        {
+          "start": 88.6,
+          "end": 88.74,
+          "text": "this"
+        },
+        {
+          "start": 88.74,
+          "end": 89.02,
+          "text": "map."
+        },
+        {
+          "start": 89.56,
+          "end": 89.92,
+          "text": "Signals."
+        },
+        {
+          "start": 90.46,
+          "end": 90.98,
+          "text": "Alignment."
+        },
+        {
+          "start": 91.52,
+          "end": 92.04,
+          "text": "Momentum."
+        },
+        {
+          "start": 92.46,
+          "end": 92.6,
+          "text": "It"
+        },
+        {
+          "start": 92.6,
+          "end": 92.7,
+          "text": "is"
+        },
+        {
+          "start": 92.7,
+          "end": 92.82,
+          "text": "a"
+        }
+      ]
+    },
+    {
+      "start": 92.82,
+      "end": 97.92,
+      "text": " way to navigate the workshop. First, take the raw material coming at you and find a question",
+      "words": [
+        {
+          "start": 92.82,
+          "end": 92.94,
+          "text": "way"
+        },
+        {
+          "start": 92.94,
+          "end": 93.12,
+          "text": "to"
+        },
+        {
+          "start": 93.12,
+          "end": 93.46,
+          "text": "navigate"
+        },
+        {
+          "start": 93.46,
+          "end": 93.72,
+          "text": "the"
+        },
+        {
+          "start": 93.72,
+          "end": 94.08,
+          "text": "workshop."
+        },
+        {
+          "start": 94.64,
+          "end": 94.88,
+          "text": "First,"
+        },
+        {
+          "start": 95.14,
+          "end": 95.48,
+          "text": "take"
+        },
+        {
+          "start": 95.48,
+          "end": 95.68,
+          "text": "the"
+        },
+        {
+          "start": 95.68,
+          "end": 95.9,
+          "text": "raw"
+        },
+        {
+          "start": 95.9,
+          "end": 96.32,
+          "text": "material"
+        },
+        {
+          "start": 96.32,
+          "end": 96.64,
+          "text": "coming"
+        },
+        {
+          "start": 96.64,
+          "end": 96.9,
+          "text": "at"
+        },
+        {
+          "start": 96.9,
+          "end": 97.1,
+          "text": "you"
+        },
+        {
+          "start": 97.1,
+          "end": 97.26,
+          "text": "and"
+        },
+        {
+          "start": 97.26,
+          "end": 97.44,
+          "text": "find"
+        },
+        {
+          "start": 97.44,
+          "end": 97.6,
+          "text": "a"
+        },
+        {
+          "start": 97.6,
+          "end": 97.92,
+          "text": "question"
+        }
+      ]
+    },
+    {
+      "start": 97.92,
+      "end": 102.92,
+      "text": " worth answering. Then give the people carrying the decision a shared direction. Then build",
+      "words": [
+        {
+          "start": 97.92,
+          "end": 98.16,
+          "text": "worth"
+        },
+        {
+          "start": 98.16,
+          "end": 98.62,
+          "text": "answering."
+        },
+        {
+          "start": 99.04,
+          "end": 99.36,
+          "text": "Then"
+        },
+        {
+          "start": 99.36,
+          "end": 99.62,
+          "text": "give"
+        },
+        {
+          "start": 99.62,
+          "end": 99.76,
+          "text": "the"
+        },
+        {
+          "start": 99.76,
+          "end": 100.0,
+          "text": "people"
+        },
+        {
+          "start": 100.0,
+          "end": 100.34,
+          "text": "carrying"
+        },
+        {
+          "start": 100.34,
+          "end": 100.56,
+          "text": "the"
+        },
+        {
+          "start": 100.56,
+          "end": 100.96,
+          "text": "decision"
+        },
+        {
+          "start": 100.96,
+          "end": 101.24,
+          "text": "a"
+        },
+        {
+          "start": 101.24,
+          "end": 101.52,
+          "text": "shared"
+        },
+        {
+          "start": 101.52,
+          "end": 102.04,
+          "text": "direction."
+        },
+        {
+          "start": 102.38,
+          "end": 102.72,
+          "text": "Then"
+        },
+        {
+          "start": 102.72,
+          "end": 102.92,
+          "text": "build"
+        }
+      ]
+    },
+    {
+      "start": 102.92,
+      "end": 107.94,
+      "text": " a rhythm that lets the next round of evidence change the plan. The book organizes its printed",
+      "words": [
+        {
+          "start": 102.92,
+          "end": 103.08,
+          "text": "a"
+        },
+        {
+          "start": 103.08,
+          "end": 103.34,
+          "text": "rhythm"
+        },
+        {
+          "start": 103.34,
+          "end": 103.56,
+          "text": "that"
+        },
+        {
+          "start": 103.56,
+          "end": 103.72,
+          "text": "lets"
+        },
+        {
+          "start": 103.72,
+          "end": 103.94,
+          "text": "the"
+        },
+        {
+          "start": 103.94,
+          "end": 104.2,
+          "text": "next"
+        },
+        {
+          "start": 104.2,
+          "end": 104.44,
+          "text": "round"
+        },
+        {
+          "start": 104.44,
+          "end": 104.58,
+          "text": "of"
+        },
+        {
+          "start": 104.58,
+          "end": 104.92,
+          "text": "evidence"
+        },
+        {
+          "start": 104.92,
+          "end": 105.24,
+          "text": "change"
+        },
+        {
+          "start": 105.24,
+          "end": 105.44,
+          "text": "the"
+        },
+        {
+          "start": 105.44,
+          "end": 105.72,
+          "text": "plan."
+        },
+        {
+          "start": 106.36,
+          "end": 106.6,
+          "text": "The"
+        },
+        {
+          "start": 106.6,
+          "end": 106.76,
+          "text": "book"
+        },
+        {
+          "start": 106.76,
+          "end": 107.36,
+          "text": "organizes"
+        },
+        {
+          "start": 107.36,
+          "end": 107.58,
+          "text": "its"
+        },
+        {
+          "start": 107.58,
+          "end": 107.94,
+          "text": "printed"
+        }
+      ]
+    },
+    {
+      "start": 107.94,
+      "end": 114.02,
+      "text": " chapters as systems, align, and momentum. The workshop uses the three labels on this",
+      "words": [
+        {
+          "start": 107.94,
+          "end": 108.44,
+          "text": "chapters"
+        },
+        {
+          "start": 108.44,
+          "end": 108.8,
+          "text": "as"
+        },
+        {
+          "start": 108.8,
+          "end": 109.3,
+          "text": "systems,"
+        },
+        {
+          "start": 109.82,
+          "end": 110.2,
+          "text": "align,"
+        },
+        {
+          "start": 110.52,
+          "end": 110.74,
+          "text": "and"
+        },
+        {
+          "start": 110.74,
+          "end": 111.14,
+          "text": "momentum."
+        },
+        {
+          "start": 111.86,
+          "end": 112.02,
+          "text": "The"
+        },
+        {
+          "start": 112.02,
+          "end": 112.36,
+          "text": "workshop"
+        },
+        {
+          "start": 112.36,
+          "end": 112.74,
+          "text": "uses"
+        },
+        {
+          "start": 112.74,
+          "end": 113.0,
+          "text": "the"
+        },
+        {
+          "start": 113.0,
+          "end": 113.24,
+          "text": "three"
+        },
+        {
+          "start": 113.24,
+          "end": 113.6,
+          "text": "labels"
+        },
+        {
+          "start": 113.6,
+          "end": 113.84,
+          "text": "on"
+        },
+        {
+          "start": 113.84,
+          "end": 114.02,
+          "text": "this"
+        }
+      ]
+    },
+    {
+      "start": 114.02,
+      "end": 119.42,
+      "text": " existing infographic as a visual guide. You will see where those paths cross. The graphic",
+      "words": [
+        {
+          "start": 114.02,
+          "end": 114.52,
+          "text": "existing"
+        },
+        {
+          "start": 114.52,
+          "end": 115.06,
+          "text": "infographic"
+        },
+        {
+          "start": 115.06,
+          "end": 115.48,
+          "text": "as"
+        },
+        {
+          "start": 115.48,
+          "end": 115.62,
+          "text": "a"
+        },
+        {
+          "start": 115.62,
+          "end": 115.88,
+          "text": "visual"
+        },
+        {
+          "start": 115.88,
+          "end": 116.24,
+          "text": "guide."
+        },
+        {
+          "start": 116.8,
+          "end": 116.98,
+          "text": "You"
+        },
+        {
+          "start": 116.98,
+          "end": 117.12,
+          "text": "will"
+        },
+        {
+          "start": 117.12,
+          "end": 117.34,
+          "text": "see"
+        },
+        {
+          "start": 117.34,
+          "end": 117.52,
+          "text": "where"
+        },
+        {
+          "start": 117.52,
+          "end": 117.74,
+          "text": "those"
+        },
+        {
+          "start": 117.74,
+          "end": 118.08,
+          "text": "paths"
+        },
+        {
+          "start": 118.08,
+          "end": 118.46,
+          "text": "cross."
+        },
+        {
+          "start": 119.02,
+          "end": 119.12,
+          "text": "The"
+        },
+        {
+          "start": 119.12,
+          "end": 119.42,
+          "text": "graphic"
+        }
+      ]
+    },
+    {
+      "start": 119.42,
+      "end": 123.8,
+      "text": " is not a replacement for the chapters. In these first lessons, we stay close to the",
+      "words": [
+        {
+          "start": 119.42,
+          "end": 119.64,
+          "text": "is"
+        },
+        {
+          "start": 119.64,
+          "end": 119.92,
+          "text": "not"
+        },
+        {
+          "start": 119.92,
+          "end": 120.02,
+          "text": "a"
+        },
+        {
+          "start": 120.02,
+          "end": 120.36,
+          "text": "replacement"
+        },
+        {
+          "start": 120.36,
+          "end": 120.62,
+          "text": "for"
+        },
+        {
+          "start": 120.62,
+          "end": 120.74,
+          "text": "the"
+        },
+        {
+          "start": 120.74,
+          "end": 121.12,
+          "text": "chapters."
+        },
+        {
+          "start": 121.6,
+          "end": 121.8,
+          "text": "In"
+        },
+        {
+          "start": 121.8,
+          "end": 121.98,
+          "text": "these"
+        },
+        {
+          "start": 121.98,
+          "end": 122.2,
+          "text": "first"
+        },
+        {
+          "start": 122.2,
+          "end": 122.66,
+          "text": "lessons,"
+        },
+        {
+          "start": 122.66,
+          "end": 122.9,
+          "text": "we"
+        },
+        {
+          "start": 122.9,
+          "end": 123.1,
+          "text": "stay"
+        },
+        {
+          "start": 123.1,
+          "end": 123.44,
+          "text": "close"
+        },
+        {
+          "start": 123.44,
+          "end": 123.66,
+          "text": "to"
+        },
+        {
+          "start": 123.66,
+          "end": 123.8,
+          "text": "the"
+        }
+      ]
+    },
+    {
+      "start": 123.8,
+      "end": 129.06,
+      "text": " signal side. We will choose one decision, work backward to evidence, and ask what a",
+      "words": [
+        {
+          "start": 123.8,
+          "end": 124.02,
+          "text": "signal"
+        },
+        {
+          "start": 124.02,
+          "end": 124.36,
+          "text": "side."
+        },
+        {
+          "start": 124.92,
+          "end": 125.06,
+          "text": "We"
+        },
+        {
+          "start": 125.06,
+          "end": 125.22,
+          "text": "will"
+        },
+        {
+          "start": 125.22,
+          "end": 125.48,
+          "text": "choose"
+        },
+        {
+          "start": 125.48,
+          "end": 125.92,
+          "text": "one"
+        },
+        {
+          "start": 125.92,
+          "end": 126.38,
+          "text": "decision,"
+        },
+        {
+          "start": 126.64,
+          "end": 126.92,
+          "text": "work"
+        },
+        {
+          "start": 126.92,
+          "end": 127.3,
+          "text": "backward"
+        },
+        {
+          "start": 127.3,
+          "end": 127.5,
+          "text": "to"
+        },
+        {
+          "start": 127.5,
+          "end": 127.88,
+          "text": "evidence,"
+        },
+        {
+          "start": 128.04,
+          "end": 128.44,
+          "text": "and"
+        },
+        {
+          "start": 128.44,
+          "end": 128.72,
+          "text": "ask"
+        },
+        {
+          "start": 128.72,
+          "end": 128.94,
+          "text": "what"
+        },
+        {
+          "start": 128.94,
+          "end": 129.06,
+          "text": "a"
+        }
+      ]
+    },
+    {
+      "start": 129.06,
+      "end": 134.3,
+      "text": " small test could teach us. There is a human thread through the book, too. Sam, a product",
+      "words": [
+        {
+          "start": 129.06,
+          "end": 129.36,
+          "text": "small"
+        },
+        {
+          "start": 129.36,
+          "end": 129.62,
+          "text": "test"
+        },
+        {
+          "start": 129.62,
+          "end": 129.84,
+          "text": "could"
+        },
+        {
+          "start": 129.84,
+          "end": 130.06,
+          "text": "teach"
+        },
+        {
+          "start": 130.06,
+          "end": 130.36,
+          "text": "us."
+        },
+        {
+          "start": 130.86,
+          "end": 131.04,
+          "text": "There"
+        },
+        {
+          "start": 131.04,
+          "end": 131.14,
+          "text": "is"
+        },
+        {
+          "start": 131.14,
+          "end": 131.26,
+          "text": "a"
+        },
+        {
+          "start": 131.26,
+          "end": 131.54,
+          "text": "human"
+        },
+        {
+          "start": 131.54,
+          "end": 131.9,
+          "text": "thread"
+        },
+        {
+          "start": 131.9,
+          "end": 132.12,
+          "text": "through"
+        },
+        {
+          "start": 132.12,
+          "end": 132.26,
+          "text": "the"
+        },
+        {
+          "start": 132.26,
+          "end": 132.48,
+          "text": "book,"
+        },
+        {
+          "start": 132.64,
+          "end": 132.78,
+          "text": "too."
+        },
+        {
+          "start": 133.26,
+          "end": 133.46,
+          "text": "Sam,"
+        },
+        {
+          "start": 133.86,
+          "end": 134.04,
+          "text": "a"
+        },
+        {
+          "start": 134.04,
+          "end": 134.3,
+          "text": "product"
+        }
+      ]
+    },
+    {
+      "start": 134.3,
+      "end": 139.66,
+      "text": " manager who has talent but keeps getting pulled into reactive work. Before you try any prompt,",
+      "words": [
+        {
+          "start": 134.3,
+          "end": 134.76,
+          "text": "manager"
+        },
+        {
+          "start": 134.76,
+          "end": 134.96,
+          "text": "who"
+        },
+        {
+          "start": 134.96,
+          "end": 135.14,
+          "text": "has"
+        },
+        {
+          "start": 135.14,
+          "end": 135.58,
+          "text": "talent"
+        },
+        {
+          "start": 135.58,
+          "end": 135.82,
+          "text": "but"
+        },
+        {
+          "start": 135.82,
+          "end": 136.0,
+          "text": "keeps"
+        },
+        {
+          "start": 136.0,
+          "end": 136.26,
+          "text": "getting"
+        },
+        {
+          "start": 136.26,
+          "end": 136.6,
+          "text": "pulled"
+        },
+        {
+          "start": 136.6,
+          "end": 136.88,
+          "text": "into"
+        },
+        {
+          "start": 136.88,
+          "end": 137.28,
+          "text": "reactive"
+        },
+        {
+          "start": 137.28,
+          "end": 137.68,
+          "text": "work."
+        },
+        {
+          "start": 138.44,
+          "end": 138.62,
+          "text": "Before"
+        },
+        {
+          "start": 138.62,
+          "end": 138.78,
+          "text": "you"
+        },
+        {
+          "start": 138.78,
+          "end": 139.0,
+          "text": "try"
+        },
+        {
+          "start": 139.0,
+          "end": 139.26,
+          "text": "any"
+        },
+        {
+          "start": 139.26,
+          "end": 139.66,
+          "text": "prompt,"
+        }
+      ]
+    },
+    {
+      "start": 140.02,
+      "end": 144.82,
+      "text": " decide what information can leave your desk. The book's data safety note comes before the",
+      "words": [
+        {
+          "start": 140.02,
+          "end": 140.4,
+          "text": "decide"
+        },
+        {
+          "start": 140.4,
+          "end": 140.74,
+          "text": "what"
+        },
+        {
+          "start": 140.74,
+          "end": 141.2,
+          "text": "information"
+        },
+        {
+          "start": 141.2,
+          "end": 141.54,
+          "text": "can"
+        },
+        {
+          "start": 141.54,
+          "end": 141.74,
+          "text": "leave"
+        },
+        {
+          "start": 141.74,
+          "end": 141.92,
+          "text": "your"
+        },
+        {
+          "start": 141.92,
+          "end": 142.22,
+          "text": "desk."
+        },
+        {
+          "start": 142.68,
+          "end": 142.84,
+          "text": "The"
+        },
+        {
+          "start": 142.84,
+          "end": 143.12,
+          "text": "book's"
+        },
+        {
+          "start": 143.12,
+          "end": 143.34,
+          "text": "data"
+        },
+        {
+          "start": 143.34,
+          "end": 143.68,
+          "text": "safety"
+        },
+        {
+          "start": 143.68,
+          "end": 144.0,
+          "text": "note"
+        },
+        {
+          "start": 144.0,
+          "end": 144.28,
+          "text": "comes"
+        },
+        {
+          "start": 144.28,
+          "end": 144.66,
+          "text": "before"
+        },
+        {
+          "start": 144.66,
+          "end": 144.82,
+          "text": "the"
+        }
+      ]
+    },
+    {
+      "start": 144.82,
+      "end": 151.84,
+      "text": " chapters for a reason. Customer details, finances, internal strategy, and company records can carry",
+      "words": [
+        {
+          "start": 144.82,
+          "end": 145.14,
+          "text": "chapters"
+        },
+        {
+          "start": 145.14,
+          "end": 145.44,
+          "text": "for"
+        },
+        {
+          "start": 145.44,
+          "end": 145.58,
+          "text": "a"
+        },
+        {
+          "start": 145.58,
+          "end": 145.88,
+          "text": "reason."
+        },
+        {
+          "start": 146.78,
+          "end": 146.78,
+          "text": "Customer"
+        },
+        {
+          "start": 146.78,
+          "end": 147.3,
+          "text": "details,"
+        },
+        {
+          "start": 147.94,
+          "end": 148.38,
+          "text": "finances,"
+        },
+        {
+          "start": 149.02,
+          "end": 149.34,
+          "text": "internal"
+        },
+        {
+          "start": 149.34,
+          "end": 149.96,
+          "text": "strategy,"
+        },
+        {
+          "start": 150.34,
+          "end": 150.5,
+          "text": "and"
+        },
+        {
+          "start": 150.5,
+          "end": 150.86,
+          "text": "company"
+        },
+        {
+          "start": 150.86,
+          "end": 151.24,
+          "text": "records"
+        },
+        {
+          "start": 151.24,
+          "end": 151.5,
+          "text": "can"
+        },
+        {
+          "start": 151.5,
+          "end": 151.84,
+          "text": "carry"
+        }
+      ]
+    },
+    {
+      "start": 151.84,
+      "end": 157.3,
+      "text": " obligations that a convenient text box does not erase. My working rule for this course is simple.",
+      "words": [
+        {
+          "start": 151.84,
+          "end": 152.48,
+          "text": "obligations"
+        },
+        {
+          "start": 152.48,
+          "end": 152.78,
+          "text": "that"
+        },
+        {
+          "start": 152.78,
+          "end": 152.9,
+          "text": "a"
+        },
+        {
+          "start": 152.9,
+          "end": 153.3,
+          "text": "convenient"
+        },
+        {
+          "start": 153.3,
+          "end": 153.7,
+          "text": "text"
+        },
+        {
+          "start": 153.7,
+          "end": 153.98,
+          "text": "box"
+        },
+        {
+          "start": 153.98,
+          "end": 154.28,
+          "text": "does"
+        },
+        {
+          "start": 154.28,
+          "end": 154.62,
+          "text": "not"
+        },
+        {
+          "start": 154.62,
+          "end": 154.96,
+          "text": "erase."
+        },
+        {
+          "start": 155.46,
+          "end": 155.68,
+          "text": "My"
+        },
+        {
+          "start": 155.68,
+          "end": 156.0,
+          "text": "working"
+        },
+        {
+          "start": 156.0,
+          "end": 156.22,
+          "text": "rule"
+        },
+        {
+          "start": 156.22,
+          "end": 156.38,
+          "text": "for"
+        },
+        {
+          "start": 156.38,
+          "end": 156.54,
+          "text": "this"
+        },
+        {
+          "start": 156.54,
+          "end": 156.74,
+          "text": "course"
+        },
+        {
+          "start": 156.74,
+          "end": 156.98,
+          "text": "is"
+        },
+        {
+          "start": 156.98,
+          "end": 157.3,
+          "text": "simple."
+        }
+      ]
+    },
+    {
+      "start": 157.7,
+      "end": 161.8,
+      "text": " Use public information, material your organization has approved for that use,",
+      "words": [
+        {
+          "start": 157.7,
+          "end": 157.88,
+          "text": "Use"
+        },
+        {
+          "start": 157.88,
+          "end": 158.24,
+          "text": "public"
+        },
+        {
+          "start": 158.24,
+          "end": 158.86,
+          "text": "information,"
+        },
+        {
+          "start": 159.22,
+          "end": 159.66,
+          "text": "material"
+        },
+        {
+          "start": 159.66,
+          "end": 159.92,
+          "text": "your"
+        },
+        {
+          "start": 159.92,
+          "end": 160.4,
+          "text": "organization"
+        },
+        {
+          "start": 160.4,
+          "end": 160.72,
+          "text": "has"
+        },
+        {
+          "start": 160.72,
+          "end": 161.08,
+          "text": "approved"
+        },
+        {
+          "start": 161.08,
+          "end": 161.3,
+          "text": "for"
+        },
+        {
+          "start": 161.3,
+          "end": 161.48,
+          "text": "that"
+        },
+        {
+          "start": 161.48,
+          "end": 161.8,
+          "text": "use,"
+        }
+      ]
+    },
+    {
+      "start": 161.8,
+      "end": 163.32,
+      "text": " or a made up example.",
+      "words": [
+        {
+          "start": 161.8,
+          "end": 162.34,
+          "text": "or"
+        },
+        {
+          "start": 162.34,
+          "end": 162.56,
+          "text": "a"
+        },
+        {
+          "start": 162.56,
+          "end": 162.74,
+          "text": "made"
+        },
+        {
+          "start": 162.74,
+          "end": 162.88,
+          "text": "up"
+        },
+        {
+          "start": 162.88,
+          "end": 163.32,
+          "text": "example."
+        }
+      ]
+    },
+    {
+      "start": 163.7,
+      "end": 166.4,
+      "text": " If you are unsure, stop and check the policy",
+      "words": [
+        {
+          "start": 163.7,
+          "end": 163.88,
+          "text": "If"
+        },
+        {
+          "start": 163.88,
+          "end": 164.02,
+          "text": "you"
+        },
+        {
+          "start": 164.02,
+          "end": 164.14,
+          "text": "are"
+        },
+        {
+          "start": 164.14,
+          "end": 164.58,
+          "text": "unsure,"
+        },
+        {
+          "start": 165.04,
+          "end": 165.38,
+          "text": "stop"
+        },
+        {
+          "start": 165.38,
+          "end": 165.68,
+          "text": "and"
+        },
+        {
+          "start": 165.68,
+          "end": 165.9,
+          "text": "check"
+        },
+        {
+          "start": 165.9,
+          "end": 166.06,
+          "text": "the"
+        },
+        {
+          "start": 166.06,
+          "end": 166.4,
+          "text": "policy"
+        }
+      ]
+    },
+    {
+      "start": 166.4,
+      "end": 167.44,
+      "text": " that governs your work.",
+      "words": [
+        {
+          "start": 166.4,
+          "end": 166.66,
+          "text": "that"
+        },
+        {
+          "start": 166.66,
+          "end": 166.92,
+          "text": "governs"
+        },
+        {
+          "start": 166.92,
+          "end": 167.14,
+          "text": "your"
+        },
+        {
+          "start": 167.14,
+          "end": 167.44,
+          "text": "work."
+        }
+      ]
+    },
+    {
+      "start": 168.04,
+      "end": 170.66,
+      "text": " Do not put restricted material into an external model",
+      "words": [
+        {
+          "start": 168.04,
+          "end": 168.12,
+          "text": "Do"
+        },
+        {
+          "start": 168.12,
+          "end": 168.32,
+          "text": "not"
+        },
+        {
+          "start": 168.32,
+          "end": 168.52,
+          "text": "put"
+        },
+        {
+          "start": 168.52,
+          "end": 168.92,
+          "text": "restricted"
+        },
+        {
+          "start": 168.92,
+          "end": 169.4,
+          "text": "material"
+        },
+        {
+          "start": 169.4,
+          "end": 169.72,
+          "text": "into"
+        },
+        {
+          "start": 169.72,
+          "end": 169.88,
+          "text": "an"
+        },
+        {
+          "start": 169.88,
+          "end": 170.3,
+          "text": "external"
+        },
+        {
+          "start": 170.3,
+          "end": 170.66,
+          "text": "model"
+        }
+      ]
+    },
+    {
+      "start": 170.66,
+      "end": 172.26,
+      "text": " to make the worksheet feel realistic.",
+      "words": [
+        {
+          "start": 170.66,
+          "end": 170.86,
+          "text": "to"
+        },
+        {
+          "start": 170.86,
+          "end": 171.0,
+          "text": "make"
+        },
+        {
+          "start": 171.0,
+          "end": 171.16,
+          "text": "the"
+        },
+        {
+          "start": 171.16,
+          "end": 171.56,
+          "text": "worksheet"
+        },
+        {
+          "start": 171.56,
+          "end": 171.8,
+          "text": "feel"
+        },
+        {
+          "start": 171.8,
+          "end": 172.26,
+          "text": "realistic."
+        }
+      ]
+    },
+    {
+      "start": 172.78,
+      "end": 174.72,
+      "text": " We can learn the method with a synthetic case.",
+      "words": [
+        {
+          "start": 172.78,
+          "end": 172.98,
+          "text": "We"
+        },
+        {
+          "start": 172.98,
+          "end": 173.1,
+          "text": "can"
+        },
+        {
+          "start": 173.1,
+          "end": 173.26,
+          "text": "learn"
+        },
+        {
+          "start": 173.26,
+          "end": 173.4,
+          "text": "the"
+        },
+        {
+          "start": 173.4,
+          "end": 173.66,
+          "text": "method"
+        },
+        {
+          "start": 173.66,
+          "end": 173.82,
+          "text": "with"
+        },
+        {
+          "start": 173.82,
+          "end": 173.94,
+          "text": "a"
+        },
+        {
+          "start": 173.94,
+          "end": 174.24,
+          "text": "synthetic"
+        },
+        {
+          "start": 174.24,
+          "end": 174.72,
+          "text": "case."
+        }
+      ]
+    },
+    {
+      "start": 175.22,
+      "end": 177.5,
+      "text": " Imagine a team trying to improve the first week",
+      "words": [
+        {
+          "start": 175.22,
+          "end": 175.44,
+          "text": "Imagine"
+        },
+        {
+          "start": 175.44,
+          "end": 175.68,
+          "text": "a"
+        },
+        {
+          "start": 175.68,
+          "end": 175.92,
+          "text": "team"
+        },
+        {
+          "start": 175.92,
+          "end": 176.2,
+          "text": "trying"
+        },
+        {
+          "start": 176.2,
+          "end": 176.38,
+          "text": "to"
+        },
+        {
+          "start": 176.38,
+          "end": 176.76,
+          "text": "improve"
+        },
+        {
+          "start": 176.76,
+          "end": 176.96,
+          "text": "the"
+        },
+        {
+          "start": 176.96,
+          "end": 177.24,
+          "text": "first"
+        },
+        {
+          "start": 177.24,
+          "end": 177.5,
+          "text": "week"
+        }
+      ]
+    },
+    {
+      "start": 177.5,
+      "end": 178.22,
+      "text": " for new members.",
+      "words": [
+        {
+          "start": 177.5,
+          "end": 177.7,
+          "text": "for"
+        },
+        {
+          "start": 177.7,
+          "end": 177.84,
+          "text": "new"
+        },
+        {
+          "start": 177.84,
+          "end": 178.22,
+          "text": "members."
+        }
+      ]
+    },
+    {
+      "start": 178.78,
+      "end": 180.92,
+      "text": " We can invent a harmless request list",
+      "words": [
+        {
+          "start": 178.78,
+          "end": 178.98,
+          "text": "We"
+        },
+        {
+          "start": 178.98,
+          "end": 179.12,
+          "text": "can"
+        },
+        {
+          "start": 179.12,
+          "end": 179.52,
+          "text": "invent"
+        },
+        {
+          "start": 179.52,
+          "end": 179.78,
+          "text": "a"
+        },
+        {
+          "start": 179.78,
+          "end": 180.16,
+          "text": "harmless"
+        },
+        {
+          "start": 180.16,
+          "end": 180.6,
+          "text": "request"
+        },
+        {
+          "start": 180.6,
+          "end": 180.92,
+          "text": "list"
+        }
+      ]
+    },
+    {
+      "start": 180.92,
+      "end": 183.62,
+      "text": " and test our reasoning without using anyone's account,",
+      "words": [
+        {
+          "start": 180.92,
+          "end": 181.22,
+          "text": "and"
+        },
+        {
+          "start": 181.22,
+          "end": 181.48,
+          "text": "test"
+        },
+        {
+          "start": 181.48,
+          "end": 181.72,
+          "text": "our"
+        },
+        {
+          "start": 181.72,
+          "end": 182.1,
+          "text": "reasoning"
+        },
+        {
+          "start": 182.1,
+          "end": 182.42,
+          "text": "without"
+        },
+        {
+          "start": 182.42,
+          "end": 182.74,
+          "text": "using"
+        },
+        {
+          "start": 182.74,
+          "end": 183.24,
+          "text": "anyone's"
+        },
+        {
+          "start": 183.24,
+          "end": 183.62,
+          "text": "account,"
+        }
+      ]
+    },
+    {
+      "start": 183.94,
+      "end": 185.3,
+      "text": " message, or history.",
+      "words": [
+        {
+          "start": 183.94,
+          "end": 184.28,
+          "text": "message,"
+        },
+        {
+          "start": 184.52,
+          "end": 184.88,
+          "text": "or"
+        },
+        {
+          "start": 184.88,
+          "end": 185.3,
+          "text": "history."
+        }
+      ]
+    },
+    {
+      "start": 185.78,
+      "end": 187.96,
+      "text": " On the screen, watch the example move",
+      "words": [
+        {
+          "start": 185.78,
+          "end": 186.02,
+          "text": "On"
+        },
+        {
+          "start": 186.02,
+          "end": 186.16,
+          "text": "the"
+        },
+        {
+          "start": 186.16,
+          "end": 186.48,
+          "text": "screen,"
+        },
+        {
+          "start": 186.76,
+          "end": 187.08,
+          "text": "watch"
+        },
+        {
+          "start": 187.08,
+          "end": 187.28,
+          "text": "the"
+        },
+        {
+          "start": 187.28,
+          "end": 187.64,
+          "text": "example"
+        },
+        {
+          "start": 187.64,
+          "end": 187.96,
+          "text": "move"
+        }
+      ]
+    },
+    {
+      "start": 187.96,
+      "end": 189.5,
+      "text": " into a three column boundary.",
+      "words": [
+        {
+          "start": 187.96,
+          "end": 188.24,
+          "text": "into"
+        },
+        {
+          "start": 188.24,
+          "end": 188.4,
+          "text": "a"
+        },
+        {
+          "start": 188.4,
+          "end": 188.68,
+          "text": "three"
+        },
+        {
+          "start": 188.68,
+          "end": 188.92,
+          "text": "column"
+        },
+        {
+          "start": 188.92,
+          "end": 189.5,
+          "text": "boundary."
+        }
+      ]
+    },
+    {
+      "start": 189.5,
+      "end": 195.7,
+      "text": " public, approved internal, restricted. Approved internal means approved for this",
+      "words": [
+        {
+          "start": 189.5,
+          "end": 190.28,
+          "text": "public,"
+        },
+        {
+          "start": 190.66,
+          "end": 191.1,
+          "text": "approved"
+        },
+        {
+          "start": 191.1,
+          "end": 191.6,
+          "text": "internal,"
+        },
+        {
+          "start": 191.98,
+          "end": 192.34,
+          "text": "restricted."
+        },
+        {
+          "start": 193.18,
+          "end": 193.48,
+          "text": "Approved"
+        },
+        {
+          "start": 193.48,
+          "end": 193.96,
+          "text": "internal"
+        },
+        {
+          "start": 193.96,
+          "end": 194.56,
+          "text": "means"
+        },
+        {
+          "start": 194.56,
+          "end": 195.06,
+          "text": "approved"
+        },
+        {
+          "start": 195.06,
+          "end": 195.34,
+          "text": "for"
+        },
+        {
+          "start": 195.34,
+          "end": 195.7,
+          "text": "this"
+        }
+      ]
+    },
+    {
+      "start": 195.7,
+      "end": 200.38,
+      "text": " particular tool and purpose, not merely available to you at work. This boundary",
+      "words": [
+        {
+          "start": 195.7,
+          "end": 196.1,
+          "text": "particular"
+        },
+        {
+          "start": 196.1,
+          "end": 196.52,
+          "text": "tool"
+        },
+        {
+          "start": 196.52,
+          "end": 196.7,
+          "text": "and"
+        },
+        {
+          "start": 196.7,
+          "end": 197.06,
+          "text": "purpose,"
+        },
+        {
+          "start": 197.42,
+          "end": 197.66,
+          "text": "not"
+        },
+        {
+          "start": 197.66,
+          "end": 197.96,
+          "text": "merely"
+        },
+        {
+          "start": 197.96,
+          "end": 198.36,
+          "text": "available"
+        },
+        {
+          "start": 198.36,
+          "end": 198.66,
+          "text": "to"
+        },
+        {
+          "start": 198.66,
+          "end": 198.78,
+          "text": "you"
+        },
+        {
+          "start": 198.78,
+          "end": 198.9,
+          "text": "at"
+        },
+        {
+          "start": 198.9,
+          "end": 199.16,
+          "text": "work."
+        },
+        {
+          "start": 199.74,
+          "end": 199.94,
+          "text": "This"
+        },
+        {
+          "start": 199.94,
+          "end": 200.38,
+          "text": "boundary"
+        }
+      ]
+    },
+    {
+      "start": 200.38,
+      "end": 204.82,
+      "text": " follows the decision file through every lesson. It is part of product judgment,",
+      "words": [
+        {
+          "start": 200.38,
+          "end": 200.88,
+          "text": "follows"
+        },
+        {
+          "start": 200.88,
+          "end": 201.1,
+          "text": "the"
+        },
+        {
+          "start": 201.1,
+          "end": 201.46,
+          "text": "decision"
+        },
+        {
+          "start": 201.46,
+          "end": 201.86,
+          "text": "file"
+        },
+        {
+          "start": 201.86,
+          "end": 202.14,
+          "text": "through"
+        },
+        {
+          "start": 202.14,
+          "end": 202.6,
+          "text": "every"
+        },
+        {
+          "start": 202.6,
+          "end": 202.96,
+          "text": "lesson."
+        },
+        {
+          "start": 203.38,
+          "end": 203.5,
+          "text": "It"
+        },
+        {
+          "start": 203.5,
+          "end": 203.64,
+          "text": "is"
+        },
+        {
+          "start": 203.64,
+          "end": 203.88,
+          "text": "part"
+        },
+        {
+          "start": 203.88,
+          "end": 204.02,
+          "text": "of"
+        },
+        {
+          "start": 204.02,
+          "end": 204.4,
+          "text": "product"
+        },
+        {
+          "start": 204.4,
+          "end": 204.82,
+          "text": "judgment,"
+        }
+      ]
+    },
+    {
+      "start": 205.1,
+      "end": 208.68,
+      "text": " not an appendix. Let's make the first page of your decision file.",
+      "words": [
+        {
+          "start": 205.1,
+          "end": 205.34,
+          "text": "not"
+        },
+        {
+          "start": 205.34,
+          "end": 205.48,
+          "text": "an"
+        },
+        {
+          "start": 205.48,
+          "end": 205.86,
+          "text": "appendix."
+        },
+        {
+          "start": 206.68,
+          "end": 206.86,
+          "text": "Let's"
+        },
+        {
+          "start": 206.86,
+          "end": 207.0,
+          "text": "make"
+        },
+        {
+          "start": 207.0,
+          "end": 207.18,
+          "text": "the"
+        },
+        {
+          "start": 207.18,
+          "end": 207.38,
+          "text": "first"
+        },
+        {
+          "start": 207.38,
+          "end": 207.7,
+          "text": "page"
+        },
+        {
+          "start": 207.7,
+          "end": 207.9,
+          "text": "of"
+        },
+        {
+          "start": 207.9,
+          "end": 208.02,
+          "text": "your"
+        },
+        {
+          "start": 208.02,
+          "end": 208.3,
+          "text": "decision"
+        },
+        {
+          "start": 208.3,
+          "end": 208.68,
+          "text": "file."
+        }
+      ]
+    }
+  ]
+}

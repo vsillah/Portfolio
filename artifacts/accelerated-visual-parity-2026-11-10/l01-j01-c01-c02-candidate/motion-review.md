@@ -1,0 +1,11 @@
+# L01 P01→P02 fixed-anchor motion check
+
+**Result: PASS for this bounded local motion review.** The 12.8-second reel at `l01-p01-p02-anchor-motion.mp4` has SHA-256 `43f1dbe785356b66fded14ec8e41af5c6f31923ba46b3576211bbe3cb617e17a`. It is local and ignored by Git because it contains voice media. The [technical receipt](motion-review.json) binds the source, map background, fixed anchor, native audio windows, 320 encoded frames, and full decode. It is not a Human-QA artifact or learner replacement.
+
+The P02 workshop map and its footer were moved intact to source-frame x=310–1070, y=60–692. Chrome playback showed the map, footer, title, and upper-right presenter unobstructed with native controls visible at the desktop default viewport and at 390×844. The P01→moved-sentence and moved-sentence→P02 frame checks at reel 4.36, 4.44, 6.76, 6.80, 6.84, and 6.88 seconds showed the presenter inside the same fixed upper-right rectangle. The prior one-frame blank inset at 6.84 seconds was repaired by holding the first valid **native** P02 presenter frame (source 235.04s) for one 40 ms frame. The source audio window remains 235.0–241.0s. The former bottom review label was removed so player controls have clear space. This short reel has no caption track.
+
+The native audio windows are P01 24.0–28.4s, moved P01 sentence 28.4–30.8s, and P02 235.0–241.0s. FFmpeg decoded the entire AAC track. Decoded PCM has nonzero RMS in the 100 ms windows immediately before and after both joins at reel 4.4 and 6.8 seconds; no inserted silent interval was found in those windows. This is a technical continuity check, not a human listening signoff.
+
+The [historical failure receipt](motion-failure-receipt.json) and [failed 6.84s still](motion-fail-6p84.png) describe the superseded local render. The separate C01/C02 candidate remains stopped at two ordinary pauses over 2.5 seconds. No J01 timing retry, full lesson render, HeyGen, learner media binding, provider action, merge, or release was performed.
+
+Reproduce the review reel with `python3 -B scripts/qa/build-accelerated-l01-anchor-motion.py build`. Verify this exact existing reel and its technical receipt without rebuilding with `python3 -B scripts/qa/build-accelerated-l01-anchor-motion.py check`.

@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L10",
+  "presenter_window": "A04",
+  "orientation": "head",
+  "source_path": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+  "source_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+  "source_window_seconds": [
+    511.6,
+    531.96
+  ],
+  "candidate_cut_seconds": 513.328,
+  "machine_onset_seconds": 513.34,
+  "aac_snap_delta_seconds": 0.012,
+  "intended_words": {
+    "removed_earlier_phrase_end": "none is feasible, stop and redesign the test",
+    "retained_approved_words_start": "We will bring the observations back on the agreed date.\u201d That brief"
+  },
+  "silent_packet_source_start_seconds": 503.6,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 874,
+  "copied_silence_packet_count": 81,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a04-head-candidate.mp4",
+  "candidate_sha256": "75a472c023da4916a637e532e3ad607b42948bfda1992395fe6cc6ec0940bfce",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a04-head-before-after.mp4",
+  "before_after_sha256": "ac730a9a020a5abac946e9b30707ae3648b1b7aced157f62e722fd2dfce71ef9",
+  "before_after_source_excerpt_seconds": [
+    511.6,
+    516.828
+  ],
+  "before_after_segment_seconds": 5.228,
+  "candidate_duration_seconds": 20.373333,
+  "before_after_duration_seconds": 10.48,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

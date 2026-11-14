@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accelerated L01 four-section caption review</title>
+<style>
+  html { background: #081822; color: #f1eadc; font: 16px Arial, sans-serif; }
+  body { margin: 0; padding: 20px; }
+  main { max-width: 1280px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 12px; }
+  video { display: block; width: 100%; height: auto; background: #0c202a; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  button { padding: 8px 10px; border: 1px solid #d9ad54; border-radius: 8px;
+           background: #102633; color: #f1eadc; cursor: pointer; }
+</style>
+<main>
+  <h1>Local L01 four-section caption review</h1>
+  <video id="review" controls playsinline preload="metadata" src="l01-c01-c02-v17-four-section-caption-review.mp4"></video>
+  <nav aria-label="Review checkpoints">
+    <button data-time="0">P01 start</button>
+    <button data-time="10.5">P01 middle</button>
+    <button data-time="28.5">C01 entry</button>
+    <button data-time="174.4">Signals</button>
+    <button data-time="205.4">SAM relationship</button>
+    <button data-time="230.12">Sam</button>
+    <button data-time="235.2">Presenter return</button>
+    <button data-time="235.3">P02 caption</button>
+    <button data-time="242">P02 middle</button>
+    <button data-time="250">C02</button>
+    <button data-time="300">C02 middle</button>
+    <button data-time="340">C02 end</button>
+  </nav>
+</main>
+<script>
+  const video = document.getElementById('review');
+  for (const button of document.querySelectorAll('button[data-time]')) {
+    button.addEventListener('click', () => { video.currentTime = Number(button.dataset.time); });
+  }
+</script>
+</html>

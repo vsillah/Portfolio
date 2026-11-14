@@ -1,0 +1,76 @@
+{
+  "schema": "accelerated_l04_illustration_provenance_v1",
+  "scope": "review_candidate_only",
+  "scenes": [
+    {
+      "scene": 1,
+      "selected_source": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-b12d748e-f931-4608-9772-0396c4f7d4c2.png",
+      "project_path": "scene-art/l04-scene-01.png",
+      "prompt": "Use case: illustration-story\nAsset type: widescreen 16:9 Accelerated Lesson 04 scene 1, source-faithful correction\nPrimary request: A diverse team around a desk narrows a broad Q3 innovation plan to ONE generic new-member first-task moment. On a large physical plan, a wide cluster of indistinct service ambitions stays visible, but a magnifier isolates a new member at a neutral start point with one first-step choice. Beside it, a tiny paper prototype of that start point shows a single action. The service domain is unspecified: this is about a member beginning a task, not any particular industry or task content. The visual chain broad plan \u2192 one moment \u2192 small test must be precise and clear at first glance.\nStyle: premium flat book editorial illustration, strong hand-drawn ink contours, matte tactile gouache/screenprint grain, colorful AmaduTown palette with deep teal, terra cotta, coral, olive, cream, warm gold. Warm people and meaningful workplace detail.\nComposition: landscape, plan and human first-task situation central, human team visible but not crowding the core diagram, safe lower margin for optional captions.\nText: no words, fake writing, numerals, brand marks or watermark; exact labels overlaid later.\nAvoid: plants as task content, gardening, cleaning, commerce, medical or other invented domain, decorative city scene, generic blank UI boxes, glossy 3D, imprecise arrows.",
+      "method": "built_in_image_gen",
+      "status": "selected_for_full_size_and_portrait_inspection",
+      "rights": "Original generated illustration for this project; fictional educational scene; no private customer material or third-party image edit.",
+      "sha256": "091fc588745ae0dd6aa9bd6412c3e1376fcbe2cf80722be9e61ea6dfc76acb6d"
+    },
+    {
+      "scene": 2,
+      "selected_source": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-ae9f2a71-ad1c-4351-9919-aea2550f4ee4.png",
+      "project_path": "scene-art/l04-scene-02.png",
+      "prompt": "Use case: illustration-story\nAsset type: widescreen 16:9 Accelerated Lesson 04 scene 2\nPrimary request: A team at a real work table has a polished persona portrait deck on the left, full of decorative demographic icons but no useful first-task guidance. A South Asian woman and Black man look from that deck to a new member trying to start their first task on the right; the member pauses at a clear but unresolved entry point. One teammate turns a blank working note toward the member to ask what they are trying to do. The image's visual tension is beautiful portrait versus concrete job in context. No fake quote, no made-up evidence.\nStyle: flat premium editorial book illustration, strong hand ink lines, matte tactile screenprint grain, not glossy, not photorealistic. Broad AmaduTown palette: deep teal, rust, cream, muted green, warm gold, coral. Distinct from scene 1: over-shoulder diagonal composition with actual human activity, no neat card grid.\nText: no words, pseudo-text, numbers or labels; exact course copy will be overlaid.\nConstraints: portrait visibly decorative, working note visibly still blank, member genuinely facing a first task; no real customer implication, no logos or watermarks, no 3D, no generic computer icon scene, no sparse title card.",
+      "method": "built_in_image_gen",
+      "status": "selected_for_full_size_and_portrait_inspection",
+      "rights": "Original generated illustration for this project; fictional educational scene; no private customer material or third-party image edit.",
+      "sha256": "d5f59c9963e808947d6803d957b5a874a37a78c89c90f0e8f96393c23194f153"
+    },
+    {
+      "scene": 3,
+      "selected_source": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-a2f86459-6706-4f49-9609-c9e910d2b37c.png",
+      "project_path": "scene-art/l04-scene-03.png",
+      "prompt": "Use case: illustration-story\nAsset type: widescreen 16:9 Accelerated Lesson 04 scene 3\nPrimary request: Illustrate the book case of Sarah preparing for a Monday team meeting. She is a professional Black woman at a desk, looking at a Monday calendar and a project progress board. She holds a draft message to ask colleagues for updates, but hesitates because repeated pings might feel like micromanagement. In the background a coworker is at work, treated with dignity. The visual relationship is time pressure + need for progress + risk to trust. Make Sarah's expression thoughtful rather than distressed. This is a book case, not a portrait of a real customer.\nStyle: premium flat editorial book illustration, ink contour, matte gouache and subtle printed-paper grain, broad teal, clay, ochre, olive, coral, cream palette. Show a recognizable office and human situation, not a slide of text or cards.\nComposition: landscape, Sarah and physical desk prominent, calendar clock and message draft visible through pictorial icons only; ample safe margins, controls/captions may sit along lower edge.\nText: absolutely no words, numbers, fake lettering or brand logo. Exact case cue will be overlaid.\nAvoid: glossy 3D, generic AI office, elaborate dashboard UI, illegible diagram connectors, invented customer result, watermark.",
+      "method": "built_in_image_gen",
+      "status": "selected_for_full_size_and_portrait_inspection",
+      "rights": "Original generated illustration for this project; fictional educational scene; no private customer material or third-party image edit.",
+      "sha256": "55f3f0547a3726b77bf46d4b8c2e48691135da65de7953e56f4a04ceb0b44f8b"
+    },
+    {
+      "scene": 4,
+      "selected_source": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-aa97987a-c725-4d12-afa9-117b47f84acd.png",
+      "project_path": "scene-art/l04-scene-04.png",
+      "prompt": "Use case: illustration-story\nAsset type: widescreen 16:9 Accelerated Lesson 04 scene 4, corrected source-faithful version\nPrimary request: A diverse team at a service design workshop compares THREE versions of the SAME generic new-member first-task entry. Left: a single short instruction on paper, represented by one neutral outlined start arrow. Center: a guided sequence of two clear steps, represented by a neutral start circle connected to one next circle. Right: an option to ask a real staff person for help, represented by a neutral human support portrait. A new member's hand points to the CENTER version as the provisional first prototype; the other two remain clearly visible. The service's domain is deliberately unspecified. There is NO gardening, cleaning, shopping, healthcare, or other invented task content.\nStyle: matte flat editorial book illustration with confident hand ink lines and tactile paper grain, not glossy or photoreal. Broad AmaduTown palette: teal, rust, coral, ochre, olive, cream.\nComposition: elevated three-quarter tabletop view with human hands and partial faces; three tangible paper mockups on one table, visually connected by consistent page shape. At a glance, all three are alternatives for the same start moment and the guided option is tentatively selected. Full-frame landscape; safe bottom margin for optional captions.\nText: no generated words, pseudo-text, numerals or brand mark. Exact labels overlaid later.\nAvoid: brooms, plants, buckets, domain-specific icons, invented results, empty cards, pseudo-UI, imprecise connectors, watermarks, 3D.",
+      "method": "built_in_image_gen",
+      "status": "selected_for_full_size_and_portrait_inspection",
+      "rights": "Original generated illustration for this project; fictional educational scene; no private customer material or third-party image edit.",
+      "sha256": "d5d58701d2c9a76a723486b17796eaa9cec384b0ebd7ff7292c8afc693859815"
+    },
+    {
+      "scene": 5,
+      "selected_source": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-0fe3c439-9cf5-41a5-bf69-ddc9df6fce79.png",
+      "project_path": "scene-art/l04-scene-05.png",
+      "prompt": "Use case: illustration-story\nAsset type: widescreen 16:9 Accelerated Lesson 04 scene 5\nPrimary request: A Black woman researcher and a Southeast Asian colleague work on a physical living-persona record beside a small generic new-member first-task sketch. The paper has visually distinct spaces: a filled job-and-context area represented by a little person-at-start icon and a drawn path; a conspicuously EMPTY observed-evidence area; a penciled question mark for the next question; a source tab and a small review-calendar tab left unfilled. The researcher keeps her pen above the empty evidence slot, choosing honesty. The human situation and working record dominate, rather than an empty form alone.\nStyle: premium flat editorial book illustration, textured matte ink and gouache, confident hand line, varied AmaduTown colors (deep teal, rust, coral, olive, ochre, cream), no glossy 3D.\nComposition: close overhead three-quarter desk, people and hands at top/side, paper large enough to see distinct areas, arrows only if precise. Full-bleed landscape with captions-safe lower margin.\nText: no generated words, fake lettering, numbers, logos or watermarks; exact labels overlaid later.\nConstraints: observed area stays truly blank; no fake quote, data, metric, or implied customer research result. Service domain stays unspecified.",
+      "method": "built_in_image_gen",
+      "status": "selected_for_full_size_and_portrait_inspection",
+      "rights": "Original generated illustration for this project; fictional educational scene; no private customer material or third-party image edit.",
+      "sha256": "dc63aecbe978a07f0ea3031af13b94175384be02cfaf402076ed04e0de2aec25"
+    },
+    {
+      "scene": 6,
+      "selected_source": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-3a1bad91-e65b-4fd2-ab22-41a86f55009e.png",
+      "project_path": "scene-art/l04-scene-06.png",
+      "prompt": "Use case: illustration-story\nAsset type: widescreen 16:9 Accelerated Lesson 04 scene 6\nPrimary request: An editorial story illustration of how a living persona might be revised after an IMAGINED future test. At a desk, a researcher keeps an earlier assumption paper visible on the left, while drafting a new question on a fresh paper to the right. Between them, a small neutral new-member first-task sketch shows a person pausing beside a clock: perhaps the obstacle is the time needed to begin, rather than finding the action. A transparent thought-cloud or dotted imagined-note treatment makes clear this test is hypothetical, not observed. The person behind the task remains visible and dignified. No surveillance, no customer data, no success chart.\nStyle: premium flat editorial book illustration, confident ink line, matte tactile print grain, broad AmaduTown palette teal/rust/olive/coral/ochre/cream; distinct visual composition from other scenes, more close-up on dated revision work and human behind it.\nComposition: landscape with earlier sheet retained, new sheet being written, small imagined note floating clearly but subtly above; simple accurate visual relationship, safe bottom edge.\nText: no words, fake writing, numbers, logo, or watermark. Exact labels overlaid later.\nAvoid: two empty boxes, claim of observed results, invented metric, glossy AI art, photorealism, ambiguous connector, tiny interface.",
+      "method": "built_in_image_gen",
+      "status": "selected_for_full_size_and_portrait_inspection",
+      "rights": "Original generated illustration for this project; fictional educational scene; no private customer material or third-party image edit.",
+      "sha256": "b621d7888ac83fe37b640b5f6507c01f05285698db22ef0cb0c08539593a3ff7"
+    },
+    {
+      "scene": 7,
+      "selected_source": "/Users/vambahsillah/.codex/generated_images/01a1c806-7d74-7d90-9452-b22532bd88dd/exec-bda028db-3032-4596-b4d6-95a001c00e5a.png",
+      "project_path": "scene-art/l04-scene-07.png",
+      "prompt": "Use case: illustration-story\nAsset type: widescreen 16:9 Accelerated Lesson 04 scene 7\nPrimary request: A learner at a warm, practical desk assembles a four-page decision file from the course. The four physical pages have clearly DIFFERENT visual identities without words: a boundary page with a line around what may be used, a priority page with one of several options marked, an evidence-gap page with a visible open question, and a living-persona page with a human figure and an honestly empty observed-signal space. The learner has a pen and is finishing the last page. A small first-task sketch lies beside the file, linking the work to a real decision. The visual story is pages becoming a usable file, not a stack of labeled rectangles. People are diverse, believable, and dignified.\nStyle: premium flat editorial book illustration; confident hand ink, tactile matte paper/screenprint texture; broad deep teal, coral, clay, ochre, olive, cream palette. No glossy 3D or generic tech polish.\nComposition: wide three-quarter table view, learner visible upper left, four readable distinct pages fanned across central/lower area, spacious enough to crop for portrait. Safe bottom area for optional captions and player controls.\nText: no rendered words, fake lettering, numbers, logo or watermark; exact page names added programmatically.\nConstraints: no private answers, no fake research result, no sparse slide layout, no extra fifth page, no inaccurate connectors.",
+      "method": "built_in_image_gen",
+      "status": "selected_for_full_size_and_portrait_inspection",
+      "rights": "Original generated illustration for this project; fictional educational scene; no private customer material or third-party image edit.",
+      "sha256": "db73bcf32d37f0728c82329d0046d3c649b1ccc55f54ab52fd50c288573ddd97"
+    }
+  ]
+}

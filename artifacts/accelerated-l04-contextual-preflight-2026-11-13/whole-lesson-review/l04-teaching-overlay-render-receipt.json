@@ -1,0 +1,37 @@
+{
+  "renders": [
+    {
+      "variant": "desktop",
+      "source": "l04-whole-lesson-desktop-intact-native-background-local-review.mp4",
+      "output": "l04-whole-lesson-desktop-editorial-plates-local-review.mp4",
+      "output_sha256": "4ea135cbb7543116f82a9777067c74027331175a09122de74421e8064ff511ae",
+      "status": "unchanged by portrait correction"
+    },
+    {
+      "variant": "portrait",
+      "source": "l04-whole-lesson-portrait-intact-native-background-local-review.mp4",
+      "source_sha256": "413be8d5b7e9b74558773ccb1edb11d47da26c2a128db84d466eb28af480ffda",
+      "output": "l04-whole-lesson-portrait-editorial-plates-local-review.mp4",
+      "output_sha256": "9c49ae07f4605f15baca89eb52c2b304e339faaef3fd27a3bcadf5e0d3cb5498",
+      "plan_sha256": "5f18b878066193fbcd6e1141274d3a434d52e0f57223fb57d914a2f8c2444743"
+    }
+  ],
+  "portrait_correction": {
+    "issue": "Portrait presenter-free cutaways repeated each source illustration as an overview strip and a focused crop.",
+    "resolution": "Every portrait cutaway now uses one full-frame source illustration layer only.",
+    "portrait_cutaway_image_layers": 1,
+    "presenter_sections_changed": false,
+    "editorial_text_plates_changed": false,
+    "audio_or_timing_changed": false,
+    "optional_vtt_sha256": "597f740705c236174463180a57cafb94deb7c784c67f7e7f14f74960719f18a5",
+    "container_duration_seconds": 399.324,
+    "dimensions": [390, 844],
+    "fps": 25,
+    "decode": "ffmpeg -v error -i portrait.mp4 -f null - completed with exit 0",
+    "audio_packet_sha256": "8072f3e6d72ee5c7f14b4b6c81614fcc0646fb7eff43c82732294091b0c02c57",
+    "audio_identity": "Matches the unchanged desktop editorial-plates master packet-for-packet.",
+    "visual_review": "Representative encoded frames across all presenter-free sections show one illustration per frame; approved bordered text plates remain readable.",
+    "actual_player_review": "In the integrated browser, portrait playback at 390x844 passed with captions off and on, controls visible, a presenter-free cutaway, a native-background presenter interval, and a teaching plate plus optional caption. No duplicate illustration, caption/control collision, or teaching-plate obstruction was observed.",
+    "review_url": "http://127.0.0.1:64871/review.html?rev=4ea135cb-9c49ae07-597f7407"
+  }
+}

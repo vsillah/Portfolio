@@ -1,0 +1,138 @@
+{
+  "status": "corrected_local_review_only",
+  "supersedes": "outputs/l03-j01-first-half-mobile.mp4",
+  "corrected_mobile": "outputs/l03-j01-first-half-mobile-single-plate.mp4",
+  "corrected_sha256": "51ec5190b93fb655ee8a0b5955780b6a9b664316664738f4a14b7f7cebf8beb4",
+  "approved_scene1_sha256": "b689d516ef94bf3caf81d82d2840739e84afc144fe16674fbe31d76144d728fc",
+  "desktop_audio_source_sha256": "6cbca81b31e146e075d98c8ba3832e181e59af097a1f7cbfa95bade282b33a61",
+  "source_still_sha256": {
+    "priority": "865ed948a69d5b5b919f30cffd89a90ae5fc1d1cd442b0af34a810dc103d8e90",
+    "decision": "a279ad16f7591493d3ddeecef01c9e5be9a7786e0719f965ba52287c882ad3b2",
+    "options": "1bda3aeb713d829462881336590547ddb6d42bcd46e1f686d56dec45ba9beef7",
+    "evidence": "acd11bd6f747a598877b278f092312c1980c366bfcae9edaec0eec1599e829ee",
+    "gap": "a41bdc9c44677e3ebd99f018f964872af43167b7c3ad1f1fbd0d8af5ae103d4c"
+  },
+  "crop_beats": [
+    {
+      "segment": 0,
+      "beat": 0,
+      "source": "priority",
+      "center_x_fraction": 0.39,
+      "frames": 236
+    },
+    {
+      "segment": 0,
+      "beat": 1,
+      "source": "priority",
+      "center_x_fraction": 0.54,
+      "frames": 236
+    },
+    {
+      "segment": 1,
+      "beat": 0,
+      "source": "decision",
+      "center_x_fraction": 0.22,
+      "frames": 236
+    },
+    {
+      "segment": 1,
+      "beat": 1,
+      "source": "decision",
+      "center_x_fraction": 0.48,
+      "frames": 237
+    },
+    {
+      "segment": 2,
+      "beat": 0,
+      "source": "decision",
+      "center_x_fraction": 0.5,
+      "frames": 260
+    },
+    {
+      "segment": 2,
+      "beat": 1,
+      "source": "decision",
+      "center_x_fraction": 0.75,
+      "frames": 260
+    },
+    {
+      "segment": 3,
+      "beat": 0,
+      "source": "options",
+      "center_x_fraction": 0.19,
+      "frames": 243
+    },
+    {
+      "segment": 3,
+      "beat": 1,
+      "source": "options",
+      "center_x_fraction": 0.5,
+      "frames": 243
+    },
+    {
+      "segment": 4,
+      "beat": 0,
+      "source": "options",
+      "center_x_fraction": 0.5,
+      "frames": 246
+    },
+    {
+      "segment": 4,
+      "beat": 1,
+      "source": "options",
+      "center_x_fraction": 0.79,
+      "frames": 246
+    },
+    {
+      "segment": 5,
+      "beat": 0,
+      "source": "evidence",
+      "center_x_fraction": 0.22,
+      "frames": 231
+    },
+    {
+      "segment": 5,
+      "beat": 1,
+      "source": "evidence",
+      "center_x_fraction": 0.5,
+      "frames": 232
+    },
+    {
+      "segment": 6,
+      "beat": 0,
+      "source": "evidence",
+      "center_x_fraction": 0.52,
+      "frames": 271
+    },
+    {
+      "segment": 6,
+      "beat": 1,
+      "source": "evidence",
+      "center_x_fraction": 0.78,
+      "frames": 272
+    },
+    {
+      "segment": 7,
+      "beat": 0,
+      "source": "gap",
+      "center_x_fraction": 0.2,
+      "frames": 182
+    },
+    {
+      "segment": 7,
+      "beat": 1,
+      "source": "gap",
+      "center_x_fraction": 0.5,
+      "frames": 182
+    },
+    {
+      "segment": 7,
+      "beat": 2,
+      "source": "gap",
+      "center_x_fraction": 0.79,
+      "frames": 184
+    }
+  ],
+  "description": "One source illustration crop fills each post-Scene-1 cutaway frame; overview and detail never coexist. Native P02 was copied unchanged.",
+  "exclusions": "No provider, image or speech generation, spend, learner media change, PR update, commit, merge, deployment, publication or release."
+}
