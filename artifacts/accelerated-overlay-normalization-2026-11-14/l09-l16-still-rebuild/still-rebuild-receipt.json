@@ -1,0 +1,1806 @@
+{
+  "schema": "accelerated_l09_l16_still_rebuild_v1",
+  "contract": "accelerated-editorial-teaching-plate-v1",
+  "scope": "provider-free still-only visual-system proposal",
+  "rules": {
+    "illustrations": "approved high-resolution raster art only; no SVG",
+    "presenter": "not composited in still proposal; later use only in packet-authorized direct-address windows with native background intact",
+    "mobile": "one illustration layer; reflow, never duplicate or crop desktop text",
+    "captions": "optional overlay; no permanently reserved band",
+    "teaching_points": "each discrete point has its own restrained border; no bullets"
+  },
+  "source_register": [
+    {
+      "path": "docs/accelerated-course-modules/visual-production/packet-l09-l12.md",
+      "sha256": "771f937845f86d7be735485181efb6e2862e4650808c8c58c55351d084ace6bb"
+    },
+    {
+      "path": "docs/accelerated-course-modules/visual-production/packet-l13-l16.md",
+      "sha256": "1dcbdb680aec1e06deded0971e0272205c01ba56aeab91782a96a9640cd854ac"
+    },
+    {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c"
+    },
+    {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0"
+    },
+    {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3"
+    },
+    {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+      "sha256": "f7938703e3eeb751451d06abc19dd53ccf74efb17a26b14ffa9bcae405809353"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+      "sha256": "7ca65a3016dd6ed9501070ed1cdd22d694c02aaff68e9c7ebf20e19746c9f7af"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+      "sha256": "3b6f7f0f486ad3b20953a683a5ef0cb1f6fdc20a3630fd09de9ef98234ca697f"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+      "sha256": "db9425691f414d8961483598924a538cf4df68c17b43792900a60baa91b78d13"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+      "sha256": "12bf075e9db0621ec9012fe3be59e9266f6ad1c40e154a8113b157ea901ec5cb"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/product-flat-matte.webp",
+      "sha256": "fa280bc58f50d7f43977c980c5dca4256aa6b5a46deb31851d966ed12f74e20a"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+      "sha256": "a46d70c446b82d64b3674994da9b868625de7db0eb57c5d3b5d6bbcb9d991f26"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.webp",
+      "sha256": "4bac15b44844a55a3d7c0c5f98209b97d58b01a939ad56d7dbc3a037c03fbabb"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+      "sha256": "acd11bd6f747a598877b278f092312c1980c366bfcae9edaec0eec1599e829ee"
+    },
+    {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+      "sha256": "3c7128060c67473ca5148d957531ae7457ba0cc098a92857c0bcb7bd1178d64e"
+    },
+    {
+      "path": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+      "sha256": "091fc588745ae0dd6aa9bd6412c3e1376fcbe2cf80722be9e61ea6dfc76acb6d"
+    },
+    {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6"
+    },
+    {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0"
+    },
+    {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3"
+    },
+    {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c"
+    }
+  ],
+  "lessons": {
+    "L09": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L09.md",
+      "canonical_script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L09-01",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "A sound recommendation can still stall",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-01-desktop-clean.jpg",
+          "clean_sha256": "c029536dd9fcfcd9b1fa192636ee414e6c27294d09c5029cab2f7144bcf26b23",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "b0ed6d7d5ed8ff02471dc9aa8ccd182738fa8dd745a49bee2c4db24ff62c5fb5",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-02",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+          "point": "Problem \u00b7 Opportunity \u00b7 Options \u00b7 Recommendation \u00b7 Tradeoffs \u00b7 Outcome",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-02-desktop-clean.jpg",
+          "clean_sha256": "24c61579578a18ccfc7e752613b9b79604a1cad9f57f7db9e2fcd9c5eb4f972b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "5d3cbd369c8c51b49ab85084fb1e2813d6f94a3b8be948a42c30c4a88ad70e11",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-03",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "Who decides? Who shapes? Who controls access?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-03-desktop-clean.jpg",
+          "clean_sha256": "d73a25c702f41cd44e4ae4a0651e3a361e317c3140f06bd4d8a70d3ee934679a",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "b81d9305de8007bd80a5bcf648c88bcffa0ad9531f0404430c9aa8aff0b1585d",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-04",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "Manage Closely \u00b7 Keep Satisfied \u00b7 Keep Informed \u00b7 Monitor",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-04-desktop-clean.jpg",
+          "clean_sha256": "2d9e518b12172bf2dfe7c445a603c2b98bf4222501a0aa2eab59689228c289f7",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "4bb685922a6ef5c2427f0f33daa193da24d02d4e9e286271369e096fb9cddc8b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-05",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Ask early \u00b7 Listen \u00b7 Revise \u00b7 Bring the decision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-05-desktop-clean.jpg",
+          "clean_sha256": "52440993173387d1a44934a8b2439785d22d0c2e6939fd0b7ac911053d4267bc",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "3d547a061ed5831ebdc8b65590655601f3d9122d00209319d7a4f56cf0d4ed35",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-06",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "Map four roles before the meeting",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-06-desktop-clean.jpg",
+          "clean_sha256": "9f1c0df1e608231a1e7846700c563aaaed3e7828dc9591ed4c8b8446de52f947",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "e10dece7ea7b0524abb27df59c3173ffb69c4cef90f98fde8a0f2c999ad08ebc",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-01",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "A sound recommendation can still stall",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-01-portrait-clean.jpg",
+          "clean_sha256": "3b2d247ceda5f1b128bda9f04657cdcb7ddb633613606f7d2260df34690e72d8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "2e8bce5d0cbe11afb0645b78f984ecacf2cd6fa12f5c5e9a3e3dde8b36d9695f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-02",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+          "point": "Problem \u00b7 Opportunity \u00b7 Options \u00b7 Recommendation \u00b7 Tradeoffs \u00b7 Outcome",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-02-portrait-clean.jpg",
+          "clean_sha256": "21217ee1ce61ecf9b8c895ced739ffa3e2b49bd3c523a276110ebbf1691c07ac",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "63c5caa0e47843ff431b272ac66deeb53609c90564fb6787df7e65822c192ba2",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-03",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "Who decides? Who shapes? Who controls access?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-03-portrait-clean.jpg",
+          "clean_sha256": "ef6155e76b93fb906a507443935b2d55a2efa29767d788171160087ed3b509d3",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "d1f514d9865edda7a93dd504da1d170a157bf18c2b554509b471e22e1e92b942",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-04",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "Manage Closely \u00b7 Keep Satisfied \u00b7 Keep Informed \u00b7 Monitor",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-04-portrait-clean.jpg",
+          "clean_sha256": "7cce2fa8417ebf3981c1cee3ca2a624279bfb37e544e91030bd9c6adc0243020",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "7e3a2acc37c5547a261d4601c2f1e867d517de8872904555d747e4322887aaa9",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-05",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Ask early \u00b7 Listen \u00b7 Revise \u00b7 Bring the decision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-05-portrait-clean.jpg",
+          "clean_sha256": "0e98141a3dbbc42d5bf2d6837333f6e924295509f68b0dff8c0d1a3dcd6338e5",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "bf3ff583e5d63da33e795930390bd2968a07cc567bf6c6bba442903b7a55ff51",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L09-06",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "Map four roles before the meeting",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-06-portrait-clean.jpg",
+          "clean_sha256": "882801bc002257b1dcf63df620a44409c20cc92da2d6fc7f5479fcc35cad2a98",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l09/l09-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "8b3a5f4a3407e3b305a0f3dd760cb5e932906b85bd650cb9eeeb7c0e95aa3c3b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    },
+    "L10": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L10.md",
+      "canonical_script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L10-01",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "A strong case needs a path to the decision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-01-desktop-clean.jpg",
+          "clean_sha256": "f7305c1acb5491b59de9d65428d0cb87b1b57a2502e25d7431c9739acc5d5dde",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "0c4e12893c421d52a88352e8892992974bb31e98a12421e036d440fb82e65697",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-02",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "Same evidence \u00b7 Different decision concern",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-02-desktop-clean.jpg",
+          "clean_sha256": "3a9f644b177721e39a7b66461fd7e2053aaa259c0f90de557e1d576db745b19b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "fa7ea31001db81b84ba79c8e68c10208de67cd85a3dd7e7f1e15b0de49f195df",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-03",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+          "point": "Card test / guided introduction / defer",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-03-desktop-clean.jpg",
+          "clean_sha256": "2d85fdcb8292c7c9584fa243a740e5e045fe6d44f2c20c55dfc9aacbd191e980",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "941bcb2ed3163c67c4b9c3bf6abe86c54a80fb7f4d6f35c9225733232d5536ca",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-04",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Cost \u00b7 Exclusion \u00b7 Owner \u00b7 Review date",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-04-desktop-clean.jpg",
+          "clean_sha256": "1fbc43d357bbeb678d87bcda16b5c6b4a14a3d4359de54491ea978025dae1a26",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "d597d4f36ea4536186caea482be7d18a23002912c09e119c4fbc0ecf7647d427",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-05",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Objection \u2192 evidence needed \u2192 possible revision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-05-desktop-clean.jpg",
+          "clean_sha256": "4d7f1de85f7acff2ae4d04c47ffa33171c49006da67db5dc9dd315ab96af5ccb",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "885ecd015144819f9984e6f449d71f6238c76f8f7d347841b8cbb9208c378f18",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-06",
+          "variant": "desktop",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "What would change your mind?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-06-desktop-clean.jpg",
+          "clean_sha256": "3fc300c733388d9be9b03bbd00d1d98fccfa45730aa6523ca71a37e83b8f846b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "f8b6de8a69ae37791b2e978d493e29914276b6d580831d6981e16a92f15109dc",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-01",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "A strong case needs a path to the decision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-01-portrait-clean.jpg",
+          "clean_sha256": "a25ed1baac16b09234ac72971ceb1c13118b36dd8153981d234e04b8db7b64f5",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "7a72de22299a0fb9bcc525e1f6837c65ecd9517e8ea0d545f141b1885d80829f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-02",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "Same evidence \u00b7 Different decision concern",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-02-portrait-clean.jpg",
+          "clean_sha256": "09b4bfeab2c7cc63bc021da876671c62c7b3f599eb5cf4549d6def3df25c9030",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "1132ca0499f69c8788dbcae91ac966633fe30d355db05b59bd71dc7b3d1d031e",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-03",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+          "point": "Card test / guided introduction / defer",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-03-portrait-clean.jpg",
+          "clean_sha256": "30781ecfd93607160135ad8fe88e2fd7735ee1fa6cd66b434ca593f6eafd6a92",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "bfe56f082a742e964a02521ed68ef167d8c81de1d2ecbbaa5f7a0c491361323c",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-04",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Cost \u00b7 Exclusion \u00b7 Owner \u00b7 Review date",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-04-portrait-clean.jpg",
+          "clean_sha256": "d55be2a566e33e3f3e255a19aec96a85079591e4f96f606cb4b1bffae445a2b0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "99f7b35c2e354665a5036e6f37723f027a9c0a34497276be35c908d1ed3c1a37",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-05",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Objection \u2192 evidence needed \u2192 possible revision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-05-portrait-clean.jpg",
+          "clean_sha256": "a495816ec9ba8e5254d9d389fd94e3addb06365fd727b380a4ecf234f37fff36",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "f44926f2907ad78e9188b70e19c17e264d806a9b27bc1326b49cd340b7d85dbc",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L10-06",
+          "variant": "portrait",
+          "art": "alignment",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+          "point": "What would change your mind?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-06-portrait-clean.jpg",
+          "clean_sha256": "a8b84fd9ef934bdfecd8ae468d3ed2b0f1182da24b86475d304e1b46acd939bc",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l10/l10-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "48d37c11b7bd6c716c019d625c4e992ffa3f048b07dccdb2102307212ee64da7",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    },
+    "L11": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L11.md",
+      "canonical_script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L11-01",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "The meeting begins with the decision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-01-desktop-clean.jpg",
+          "clean_sha256": "c94fac16bf54cb071676b6983ffecd50d220d9739f463505d8400371e895ce2f",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "e3b40561e15b2613e7b9a5463b5e6659e4243f107331e92e36e4553c22ae93f4",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-02",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "A failed test can still answer a question",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-02-desktop-clean.jpg",
+          "clean_sha256": "084e77b43eaa4adef8aa036ac0ecbc33cc19f2acbb3997b94dce6c8e2b6341f8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "49acb6b1814741f35fa27d719ab8c03a2f13f71be496d3685cd0badf28b72a39",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-03",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "point": "Notice the signal \u00b7 Turn it into insight \u00b7 Run the test \u00b7 Make the decision \u00b7 Build repeatable momentum",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-03-desktop-clean.jpg",
+          "clean_sha256": "5ec8587d8730dad8c54ab40b1838e841c98b7418d51b6d98689e2d4ae06fabf1",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "c88b19e8705c9ee63af6aa0155227fd42fef1ec5d749fbc50dc6aac683ee2381",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-04",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "Automate movement; review meaning",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-04-desktop-clean.jpg",
+          "clean_sha256": "02d91de4a9ca497d9d1aa03d8e5e704eb226ab416881f2349ae1e4f464b72149",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "25c1a525aba225181176f26341848938199ff68499e3239caf7c27071f40abdc",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-05",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "What we believed \u00b7 What we saw \u00b7 What we decided",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-05-desktop-clean.jpg",
+          "clean_sha256": "4426142dc1c25c9e6ebb0d892e38796af22ae2a3fcac42749e2689567045b120",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "9f16ad6bfd1091f3bafd9c64136661b3a70e1fd3fc786e84d0a344843c22fec1",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-06",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Name the missing handoff",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-06-desktop-clean.jpg",
+          "clean_sha256": "ed76a8074067ecf567dd3f570ebc0a74e18e8dccf234c049873ed62b63b63094",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "e5a1e597d7bb877a8fdabf67ca05d1513ae8d6a24c807303a5ef2e14edba26f8",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-01",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "The meeting begins with the decision",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-01-portrait-clean.jpg",
+          "clean_sha256": "682f9b5323f3a4eaaea4fd9693ba286a9df5a0440e9d3bd3b34b1fd88b8af439",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "48438621582cce435ff08c1a5feaaf6f276099af9750304f8b9d7946a8d657c2",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-02",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "A failed test can still answer a question",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-02-portrait-clean.jpg",
+          "clean_sha256": "0e2f07f91492a307a474afbaf806d674dfa4681d3a9e33c3026440161885c31e",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "e7b45cf8e37d3a0b817fda579ef5da50d0eec79efec501158293dfa2465d96f1",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-03",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "point": "Notice the signal \u00b7 Turn it into insight \u00b7 Run the test \u00b7 Make the decision \u00b7 Build repeatable momentum",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-03-portrait-clean.jpg",
+          "clean_sha256": "2a15533f79b0cb7f5afa5919ecf6f637c70e7c5b0ae255bca11627b081ee27eb",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "84eedf50f6a056b1a7341fdddbbce0d1021cb18dc6ba4bd250d5882c8034679a",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-04",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "Automate movement; review meaning",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-04-portrait-clean.jpg",
+          "clean_sha256": "abf1160602ca81340084c1be806eecf0de899f94a414e1a7e6d9f2ed490a5866",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "c511a2e40b4c82c03dea64569d128f801cf3b10cb3aaf6f69df9435db72ce18b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-05",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "What we believed \u00b7 What we saw \u00b7 What we decided",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-05-portrait-clean.jpg",
+          "clean_sha256": "090aed25a8b27a87055d77e1cb70a58e5c891de3578f2578e01168165f3964c0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "b42ee07aa784f7c1cf5c84d24cd6fdcb094c55976915f563c5304c22489b4115",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L11-06",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Name the missing handoff",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-06-portrait-clean.jpg",
+          "clean_sha256": "1fc80ff407220a0b9d587f49adcba497e916d47f9a6224756a43c6749fc884de",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l11/l11-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "42c11fd81787973f270db12921a4ee5cae35b50dc75f6ee2956706ea9a1a0170",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    },
+    "L12": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L12.md",
+      "canonical_script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L12-01",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "Keep the source beside the job",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-01-desktop-clean.jpg",
+          "clean_sha256": "644eb2add57aa078c7882843124b03a74eeddc76a6c8dca79a82eaa924bca6eb",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "cc3e9cf8a4140a742200d3a92014561f6c2259335aa132ad152dc2d2753e53a9",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-02",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "Source ID \u2192 context \u2192 job \u2192 question",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-02-desktop-clean.jpg",
+          "clean_sha256": "404d9a93dc62ce23cd80602bb9832ea4d8dc689bc186b24a44bba3aa9218c51c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "3903ae2ac5a6b8427641c9182a83be982157c81484cb244f9c4ec80f8daf30b7",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-03",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/product-flat-matte.webp",
+          "point": "Book case / exercise / observed evidence",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-03-desktop-clean.jpg",
+          "clean_sha256": "96249aa844a1f7947ceb8112212f2c6a50e1cfb430242b38a5a0df609e879cc7",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "5bb00f31e9dadb0f54f0b50b1763aef724adbc219d08db72e08b789659c7ba7b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-04",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Simulation suggests a question; people supply evidence",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-04-desktop-clean.jpg",
+          "clean_sha256": "fe9e661f08b68d38bcbc2237cf5fb2b042feca9bfea2c8fac327b9aa4cfd777b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "b4dec5b0115241f211b2afdddb766b1fe45d10942a1c3800e863645caab64598",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-05",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "Hypothesis now \u00b7 Validation before launch",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-05-desktop-clean.jpg",
+          "clean_sha256": "c082ba66b104e84e487c009bbb336ac4b7114c6b888f904e7a64d7f491235565",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "f14ae5c295493e77997535d016b8f073fb37dd824de8b570e2634c969261a70b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-06",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "One job \u00b7 Two questions \u00b7 A real test",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-06-desktop-clean.jpg",
+          "clean_sha256": "4182342a0c76bac0ab156e63093ddd47ce6fab9170afaeb3ce30b57ce43ad1f8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "e70c2e7958d0ddc62768be1c91e87cf55c3b71fd096cb242c365c191a94bdd1f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-01",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "Keep the source beside the job",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-01-portrait-clean.jpg",
+          "clean_sha256": "e10cc3a380eb46db0768288a40dced06e2738bd5e30d358626e8fb1edb626b94",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "f2fc47611253a3c220a1cad7b6684f40f8e983cc1638461cdd53014b24487d71",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-02",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "Source ID \u2192 context \u2192 job \u2192 question",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-02-portrait-clean.jpg",
+          "clean_sha256": "2a6e5f2f45bc75a454fce4f8a6d666b8ba4c6497c26e14e97e43859eac6b9cbd",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "8c631efd77e55339e5bb801ed7f29f88063ebf4edfa7964c4219e3bab8fe13c5",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-03",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/product-flat-matte.webp",
+          "point": "Book case / exercise / observed evidence",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-03-portrait-clean.jpg",
+          "clean_sha256": "b112891c7b4468ac3c3666787c0c792b4888c27ed76351fe0010e45bb29a2c22",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "3a7d61e829e4175ea6216964f1b763c3da58d39031c664072282e59e363b66ce",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-04",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Simulation suggests a question; people supply evidence",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-04-portrait-clean.jpg",
+          "clean_sha256": "3fc6db5c977658f7b60decea66fab7b90e8c7c62bc9f39fcc6cc9f716791da5c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "c5ff011fcc3a7c718447c91c01bfd3e7d3524e15a174439d33d0a9979d10956a",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-05",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "Hypothesis now \u00b7 Validation before launch",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-05-portrait-clean.jpg",
+          "clean_sha256": "6c1eb0433f238ea15725cc1661bcafe3e67b83e529730ffbc2bedfb1605973ed",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "13981c5543b6a8c8705d2a9d0705dbf22b36f72dfece52f9e5a19d583a767bad",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L12-06",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "One job \u00b7 Two questions \u00b7 A real test",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-06-portrait-clean.jpg",
+          "clean_sha256": "fd4167e102f4d1db71d0286e8596ab157fa06e5b798cc53cea5dedcf584ce2a9",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l12/l12-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "1f8864b082be263665c6b065934f848b33baca15d0004ba1e8ca69fa701966b4",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    },
+    "L13": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L13.md",
+      "canonical_script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L13-01",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Flat metrics ask for a diagnosis",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-01-desktop-clean.jpg",
+          "clean_sha256": "22e2e813559730638e15cf9b3cbe1e605c72b76098e50e4dcc5364e79295e99d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "97eeeeb2c1c36ebf4881fb4dbed278af593f5129b36401ac4fc3542c680b61ba",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-02",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.webp",
+          "point": "Three models; three operating costs",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-02-desktop-clean.jpg",
+          "clean_sha256": "d990fbc4876e6474f9860f21bd8dd5c6771417eefa800e4d3019fc5cea01b901",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "15d15cc7251d578da45d196c7e9a0952076bd94fa410bb8b72ae4d5e52835e2c",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-03",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "One option \u00b7 One falsifiable test",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-03-desktop-clean.jpg",
+          "clean_sha256": "2729ab26b84179e93782c37bebf0c56e6c4e51a3f5d6d50ed29c5e7ea68556be",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "cbb71f79f0971e9da950edf8a37269bf1d182020caeb85c0568a83110692242f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-04",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/product-flat-matte.webp",
+          "point": "Explain the future before building it",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-04-desktop-clean.jpg",
+          "clean_sha256": "e53827120e88e9eb2f3488f35428b64af07ae04f9abb8c0e826330f7316af75d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "922da6765592f67b7b4921c2da92ac10964592fcab882096e223cb85d0264fcf",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-05",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "A reaction is a question to test",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-05-desktop-clean.jpg",
+          "clean_sha256": "6a67e08927d1b4841b6da09f73036c71cdd6549d6bd6b2957f90fbc3a046539f",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "58d3ca4ee921a3c31ca9984cb546d200c35fca0f9a58d14a6cf28baf3e865438",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-06",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Choice \u00b7 cost \u00b7 test \u00b7 owner",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-06-desktop-clean.jpg",
+          "clean_sha256": "6152b6cbe6c97cc433e8a915b58959d299952a958487c6eb73d1e45f45153017",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "709e6082dd454a6c35d895a28fbde2529fd9048b7274379f726ede4f2a86662b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-01",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Flat metrics ask for a diagnosis",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-01-portrait-clean.jpg",
+          "clean_sha256": "9091dacdc324b291824356b0a9e156e8e179758f675a36e4405d15dabc75fa7a",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "44c089a9d32c07d65c6555950982f3bbaf1bfc963cc92cd4285e4813b3585d3f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-02",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.webp",
+          "point": "Three models; three operating costs",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-02-portrait-clean.jpg",
+          "clean_sha256": "f640d26e654a473a29d01976e69e0e2428291483486b3baac9c98752ee6922d2",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "a09f00480bf8eec1b7c4596177be99fc7ff52e8508b27caa200a1ce79bb760b5",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-03",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "One option \u00b7 One falsifiable test",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-03-portrait-clean.jpg",
+          "clean_sha256": "5d9d74d41dfcb29f0a58bd659fa5664964bf5ad83d5bee11caaf6fbbdb7c7ad2",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "a94049f9f912e747eb48aabe691c7cdaf3cfbb9285c0d69d430bc618e5f2596f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-04",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/product-flat-matte.webp",
+          "point": "Explain the future before building it",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-04-portrait-clean.jpg",
+          "clean_sha256": "7ebbd9fdc8641259296b23417b65d76944ed42cb940541335b6fb360c01b52b8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "67d1aa30b1b264b9269af81f2684ed5e3362d4c66489022185b8e08769998be3",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-05",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "A reaction is a question to test",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-05-portrait-clean.jpg",
+          "clean_sha256": "cd6a38e9e281efa597d3e0faa63472afa3567ed569634b7d1499a9a16e4999ff",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "7f319bdced02b756941525fa0094cf292414a350de29695459b292717851ed13",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L13-06",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Choice \u00b7 cost \u00b7 test \u00b7 owner",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-06-portrait-clean.jpg",
+          "clean_sha256": "95d07ffa6d8a062c6e21ff79aa1b3ad0142ed5b93503e2e0c0f917ec36e02ad0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l13/l13-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "1d96b516980060a7ebb64fb7dba8da947f277c3cfc5c1b66ab2d75be28ccaa99",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    },
+    "L14": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L14.md",
+      "canonical_script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L14-01",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "One proposal; two decision rooms",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-01-desktop-clean.jpg",
+          "clean_sha256": "d90a506cfaa0b250407f3dfcf422b4f87ab6eae510068db4092c6d6ee091daf6",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "92566e63c479edf12a440a61ebd8ab97ccdb6da0eaba49365462dbaca515d91a",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-02",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Emphasis changes; evidence stays",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-02-desktop-clean.jpg",
+          "clean_sha256": "268c2f8ad403325a1dc2694166e4976cae53a10fcb63740de336e10cb8130a06",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "a3b03720194f232fda91981bf2b433a650254a56fa21d9276f09106ab0f94d2d",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-03",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+          "point": "Show the tradeoff before the ask",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-03-desktop-clean.jpg",
+          "clean_sha256": "9606772e3b4b1b4e16ade400d452d5b6c236548402dceb250c56f0690266bedc",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "d7c6194c753a9bba10629e6e1764010e9aa3422237a66f2c018155bf6a24d086",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-04",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Rehearse; then ask a person",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-04-desktop-clean.jpg",
+          "clean_sha256": "a1612af7fb4cdf9ec052c6844b9e1f3b0903b1bb47bc053f438d329994d91cd1",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "e862818eb01fedf356429d80460fb887b8bc2c393bff74cdaf488dd9d86e0986",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-05",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "Ask clearly; cite precisely",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-05-desktop-clean.jpg",
+          "clean_sha256": "0cca075e1717ef6e4b68881f2de978f12698ade61098bccc4da0f8627543dd73",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "e66453383d047ad0dd986f913aefc446a4452a6311f9f2db3a2133f92c61e2d8",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-06",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+          "point": "Decision requested \u00b7 source \u00b7 objection",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-06-desktop-clean.jpg",
+          "clean_sha256": "0c3e5cea76b2a68e0f28b36ca2096466ca36f1bf2d50f7b9eda220e873f718df",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "a034e5b2a56838bf03c6b6fb432313e762176e1ae2697c22992148906b3b6b3a",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-01",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "One proposal; two decision rooms",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-01-portrait-clean.jpg",
+          "clean_sha256": "77b270687611cd35f89f619a96998d92cd22186a552c094a8ac00477c428c276",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "4f504e34440ef717e0371d2cb7cdd49696407afc79401f1c15c7de1687eae3ae",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-02",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Emphasis changes; evidence stays",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-02-portrait-clean.jpg",
+          "clean_sha256": "b1605df194a93e6ded25bc5ba4eaa26beb08857554183139396dedf2d655666c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "82d24d5863088ab9ba0bab94409cb7f94a0a1ad236718dba71aa9d5b374bb8cb",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-03",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+          "point": "Show the tradeoff before the ask",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-03-portrait-clean.jpg",
+          "clean_sha256": "c4c8a3d80105db61987fb965d25d46920654d0d5e51f4b4c8ff4058f8f33190c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "dfb0725efe049abee0af414058acb22c1bd1f39127eef48fea3ee708f7ab8c48",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-04",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/competition-flat-matte-diverse.webp",
+          "point": "Rehearse; then ask a person",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-04-portrait-clean.jpg",
+          "clean_sha256": "2f80f13d7704ed067a275b3fcda06bfb249ce9cc2b422eac2e5b44a6a9c132ce",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "d617d8b39c4405aa1a4494b05885709b5e6ed2389fda6c9ce7d815af112c3fc7",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-05",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/company-flat-matte-diverse.webp",
+          "point": "Ask clearly; cite precisely",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-05-portrait-clean.jpg",
+          "clean_sha256": "d25239807e3aa9cafb1a792922a16ad800e6e8355592fc4887509b2650ba1ea8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "dddfd7e047c4a775422c7e6ab52410cb6ee5f8516db32a487a4f0c683a7a37c7",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L14-06",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+          "point": "Decision requested \u00b7 source \u00b7 objection",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-06-portrait-clean.jpg",
+          "clean_sha256": "67d84d9acf2200c0f30a5ecfce3093ac4fb4de10e285fc06ce7864605cf87118",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l14/l14-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "4e73bdce84f8f097b1af567e93849b181fe1040eeab4a86742c42d1fb91d4fc8",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    },
+    "L15": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L15.md",
+      "canonical_script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L15-01",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "A second team needs the record",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-01-desktop-clean.jpg",
+          "clean_sha256": "c21df5092c3996d502a02038166ae650a0384257f658f9eacdb28471b5e231d2",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "748b6f105fefc584572f7446dfc9ff2f38ec7eeb7904585ddb39fd0a73793e9a",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-02",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+          "point": "Shared format \u00b7 local judgment",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-02-desktop-clean.jpg",
+          "clean_sha256": "bc0beb3e03296a9047dc2a1c8d68929e2881ecc3293cf71bb32fe97ddc1c23a9",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "0d8fa41f9ac3da0a27c2d809a218683c528b9d42f240a4e360b084ec0faba8c6",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-03",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Bottleneck \u00b7 paperwork \u00b7 tool fixation \u00b7 resistance \u00b7 haste",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-03-desktop-clean.jpg",
+          "clean_sha256": "bb728adbb035bf19588e7d7e6a963f7adcbe6a972121d4e847e68a44d9cfb851",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "07e7f3d744fb1ec64df9ba68ef0f3e161330621da81fc6ec4f70e8bcc2ad9a15",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-04",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+          "point": "Book story \u00b7 local evidence still needed",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-04-desktop-clean.jpg",
+          "clean_sha256": "0f3c2abe437ed75d4b8c708a353572be4afe556830563fa2360d49bd3cde854d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "c56ef2f498c37ab590adc6bebc48a351b57c1aa51f12d5388c256a05d2219330",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-05",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "What we knew \u00b7 why we chose \u00b7 when to revisit",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-05-desktop-clean.jpg",
+          "clean_sha256": "4758299687e5612ec9ba356bbded7ba737eb1b5a75b1386e9406d0ebc59e90b3",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "8b0bd4ce97e5b23b2ea892c2029fde5e242803a1ee73a0a30c37fb52182be23f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-06",
+          "variant": "desktop",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Reuse only with an owner and a stop rule",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-06-desktop-clean.jpg",
+          "clean_sha256": "ce9c5dd3dcdecd6e57ee7d6c6af3d5e944ac14ded2984d62ef4df7ea57b42f91",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "f1f8ce7e25e0b997f6e85db5b21cbf0bf4d2885ae1b0bf53fedce33f9d19e3a5",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-01",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "A second team needs the record",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-01-portrait-clean.jpg",
+          "clean_sha256": "c5d76bb20dbc0491a3f0a79dff5466458ad4189303bf244eb123b7cfccb0ea1d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "f22473351ecfc3cfbbfa619a2f6a3e18ec879f3090d9a31c4c3f1445bb37d80b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-02",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+          "point": "Shared format \u00b7 local judgment",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-02-portrait-clean.jpg",
+          "clean_sha256": "5d8afbcf3e01f019651bb6861db88005b0bb75d2b98a0fce247fffdb3c82504b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "561751989509411a722a4f51052fb8c372597ddc5257f642c7bf73dfd3a22b4f",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-03",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Bottleneck \u00b7 paperwork \u00b7 tool fixation \u00b7 resistance \u00b7 haste",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-03-portrait-clean.jpg",
+          "clean_sha256": "885849d0e12fd9c877b601a54d40b0234b0c7d819523e58aeb0d9535f1dd49b0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "c50265a9a830f6dbc6e5f1521e739781632492ec0df524747f80441ebc270c46",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-04",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+          "point": "Book story \u00b7 local evidence still needed",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-04-portrait-clean.jpg",
+          "clean_sha256": "d2ee7225d36db0553ba07a15fd57dd404057b6f2bbe25fdca82ae0b83e088565",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "ddc576d629ae705161b2d32679bcb9df417a2480ce7b4652658bda2b83d36afa",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-05",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "point": "What we knew \u00b7 why we chose \u00b7 when to revisit",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-05-portrait-clean.jpg",
+          "clean_sha256": "47cd622d1eeffef511aa10f1e54724639abbe50157304fd2f19fd6a153ea7976",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "3cf0bc0fb97fe251bae87749b12ea9b7857d845ebd8c46bf31da3d5295507c5d",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L15-06",
+          "variant": "portrait",
+          "art": "momentum",
+          "framework_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+          "point": "Reuse only with an owner and a stop rule",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-06-portrait-clean.jpg",
+          "clean_sha256": "1498edae5735669407729bd9debfadbebf095a2149ff02928e3ec8824a0575eb",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l15/l15-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "9171815ff72a15aa8db5a04572a08ed5f43b975674b2199935702b856dc0bf42",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    },
+    "L16": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L16.md",
+      "canonical_script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "review_status": "source-qualified-proposal",
+      "states": [
+        {
+          "id": "L16-01",
+          "variant": "desktop",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "point": "Which decision can move next week?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-01-desktop-clean.jpg",
+          "clean_sha256": "4da393c2bcbdc5f8bf89b563468688f357bb5312b8b15584a61eebf14461c7e2",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-01-desktop-caption-on.jpg",
+          "caption_on_sha256": "08363120df82d6d0e88cff1b3d0de5dfd0fcb2422b1583d2f05023f1ea3d1496",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-02",
+          "variant": "desktop",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Trace the choice back to evidence",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-02-desktop-clean.jpg",
+          "clean_sha256": "860b0177441a51448a798ef45478e3d82d3bd3a24e9c5faf825df91055fc4078",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-02-desktop-caption-on.jpg",
+          "caption_on_sha256": "82c6f2cf4939b8d7805019d232779dde298e4117757d3f26914d0415858937a0",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-03",
+          "variant": "desktop",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "Action \u00b7 owner \u00b7 evidence \u00b7 date",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-03-desktop-clean.jpg",
+          "clean_sha256": "7648721dfab07b3861164df0612d14388e2b849a1810b50d1ac2b3ced06368d9",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-03-desktop-caption-on.jpg",
+          "caption_on_sha256": "a56d59c5d09bde0c3737b8136df0e393c18ab31648b7e8d672336d6ce578ed35",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-04",
+          "variant": "desktop",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+          "point": "Observation \u00b7 interpretation \u00b7 simulation",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-04-desktop-clean.jpg",
+          "clean_sha256": "1dff5c79c112704ff9bdd78316da9af5f648b37c836b21953a5f25994abbba17",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-04-desktop-caption-on.jpg",
+          "caption_on_sha256": "6128e10f4bc685b3deb81e6df67e76af5ac484cb643af54a7bef7b2d3ea20005",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-05",
+          "variant": "desktop",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "What changed your mind?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-05-desktop-clean.jpg",
+          "clean_sha256": "e0e1459f6a18142c126a2977ed4e5fd5da42e841d88fbbb290a4eef0d3c21685",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-05-desktop-caption-on.jpg",
+          "caption_on_sha256": "ec415a403cdbe53591510ac6a12de5a54c6840d65f91d0a892cc7a41a6dde8a6",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-06",
+          "variant": "desktop",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "point": "Choose one pain point \u00b7 Run one test \u00b7 Set one review",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-06-desktop-clean.jpg",
+          "clean_sha256": "1f17779e4e3fb6e783fab515d56fc342330cb16f6fb6c53316278c464be5efde",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-06-desktop-caption-on.jpg",
+          "caption_on_sha256": "cf417ce490e68a294f0ce027a19499cda24ae9d55294927935ab156777b16278",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-01",
+          "variant": "portrait",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "point": "Which decision can move next week?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-01-portrait-clean.jpg",
+          "clean_sha256": "50a3c11607a08ba274ca1ef9f4d95ac7b1bd650f332cac35d6d0b92e208ce5a5",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-01-portrait-caption-on.jpg",
+          "caption_on_sha256": "28bff7d0da9aaf27b64945b525ff09b404b090612c8e33d8c38a9764f875334d",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-02",
+          "variant": "portrait",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "point": "Trace the choice back to evidence",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-02-portrait-clean.jpg",
+          "clean_sha256": "369c0cf7cb49f7e50d4835ccfe4efc39701da8b110b03f8b71813aa54c8153d0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-02-portrait-caption-on.jpg",
+          "caption_on_sha256": "61bcb83f0fd98d37ded2dff22b57417169738d67b5ab884932de1e1202bfb22b",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-03",
+          "variant": "portrait",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+          "point": "Action \u00b7 owner \u00b7 evidence \u00b7 date",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-03-portrait-clean.jpg",
+          "clean_sha256": "806d57146b38d2529a540dbf5aeb81402c7fe6be5d2610330d8d1edcabe3c3c3",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-03-portrait-caption-on.jpg",
+          "caption_on_sha256": "ee36a3bb5beceb1310cfbf105879abd4adbb799d89ad9c156a7797966bd0d89d",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-04",
+          "variant": "portrait",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+          "point": "Observation \u00b7 interpretation \u00b7 simulation",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-04-portrait-clean.jpg",
+          "clean_sha256": "f10786951f52e7c3746687b3cf3f7e20a4a42647a6ed5ba19119dce6dadb8342",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-04-portrait-caption-on.jpg",
+          "caption_on_sha256": "106ab7ae0b4124c299f34b836bee206fd403aaeb787e6db3abb39a162b0c12df",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-05",
+          "variant": "portrait",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c02-book-style-flat-source-plates-2026-11-13/customer-flat-matte-diverse.webp",
+          "point": "What changed your mind?",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-05-portrait-clean.jpg",
+          "clean_sha256": "ea0aa00ae4fa0ad4d8413e69e08520e5f70924b28fb77c4be2bc6a3890230d4f",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-05-portrait-caption-on.jpg",
+          "caption_on_sha256": "34bf7d5499f781837e4a0c92f7067fc2124f9c55e5ab217ce029dfad8503369e",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        },
+        {
+          "id": "L16-06",
+          "variant": "portrait",
+          "art": "sam",
+          "framework_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "visual_source": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+          "point": "Choose one pain point \u00b7 Run one test \u00b7 Set one review",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-06-portrait-clean.jpg",
+          "clean_sha256": "c37e43c723082bea0d68fe88f0fb97d11bd14f31291ba39c507c8f339ecfe99b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/l16/l16-06-portrait-caption-on.jpg",
+          "caption_on_sha256": "c5b7f5e27e252ade952d6286257663c2526747002874d68cc096c069bf694e0c",
+          "checks": {
+            "source_wording": "packet-exact",
+            "single_illustration_layer": true,
+            "caption_control_clearance": "preflight-pass"
+          }
+        }
+      ]
+    }
+  },
+  "excluded": [
+    "lesson video render",
+    "provider contact",
+    "speech generation",
+    "spend",
+    "learner-media change",
+    "PR update",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ],
+  "review_evidence": {
+    "walkthrough": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/review-walkthrough/accelerated-l09-l16-still-direction-walkthrough.mp4",
+    "walkthrough_sha256": "fdcebd81d0e8e228ed2b0fcaaef286ef601b4d55f2da9c935e104f470284af77",
+    "review_html": "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild/review-walkthrough/review.html",
+    "review_html_sha256": "1ec080e9fe5be2a1cf07e6748a4bc2c38002f407ce859dd39f975aca1ec7579c"
+  }
+}
