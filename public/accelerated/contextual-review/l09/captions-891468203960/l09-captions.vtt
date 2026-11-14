@@ -1,0 +1,469 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.877
+You bring a careful recommendation into the room.
+
+2
+00:00:03.877 --> 00:00:05.815
+The research is sound.
+
+3
+00:00:05.815 --> 00:00:10.661
+The test plan has a measure and a stop condition.
+
+4
+00:00:10.661 --> 00:00:13.568
+Someone asks about a competing priority.
+
+5
+00:00:13.568 --> 00:00:16.476
+Engineering asks whose work will move.
+
+6
+00:00:16.476 --> 00:00:22.291
+A person who was not in the meeting raises a concern afterward.
+
+7
+00:00:22.291 --> 00:00:22.920
+The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no.
+
+8
+00:00:22.920 --> 00:00:28.373
+Its lesson is practical: the evidence may be strong while the path to a decision is weak.
+
+9
+00:00:28.373 --> 00:00:34.561
+People in the room have different information, responsibilities, and memories of the last failed bet.
+
+10
+00:00:34.561 --> 00:00:36.338
+A leader may see budget risk.
+
+11
+00:00:36.338 --> 00:00:39.218
+An engineer may see a promised platform change.
+
+12
+00:00:39.218 --> 00:00:43.262
+A support lead may see another workflow they will have to explain.
+
+13
+00:00:43.262 --> 00:00:48.837
+Before you call those reactions resistance, find out what each person is trying to protect.
+
+14
+00:00:48.837 --> 00:00:52.146
+Return to the learning plan you wrote in lesson eight.
+
+15
+00:00:52.146 --> 00:00:58.028
+You know the customer behavior you hope to change, the test you propose, and what would stop it.
+
+16
+00:00:58.028 --> 00:01:01.337
+Now write the actual decision you need from this room.
+
+17
+00:01:01.337 --> 00:01:07.709
+Is it permission to run the small test, funding for a larger build, or agreement to stop something else?
+
+18
+00:01:07.709 --> 00:01:09.240
+Those are different asks.
+
+19
+00:01:09.240 --> 00:01:14.939
+For our fictional membership service, the ask is a bounded test of a clearer first-task card.
+
+20
+00:01:14.939 --> 00:01:19.779
+We will map the people and conversations that would make that test responsible.
+
+21
+00:01:19.779 --> 00:01:23.088
+Chapter Fourteen names a Strategic Argument Blueprint.
+
+22
+00:01:23.088 --> 00:01:25.538
+It has six parts, and the order matters.
+
+23
+00:01:25.538 --> 00:01:31.420
+First, the problem: new members struggle to identify the first action without staff translation.
+
+24
+00:01:31.420 --> 00:01:35.832
+That is a hypothesis for this exercise, not a measured customer finding.
+
+25
+00:01:35.832 --> 00:01:41.285
+Second, the opportunity: a clearer entry might reduce that burden and help members begin.
+
+26
+00:01:41.285 --> 00:01:44.593
+We do not assign a revenue figure to that possibility.
+
+27
+00:01:44.593 --> 00:01:51.149
+Third, options: clarify the card, test a guided introduction, or hold the current flow until we learn more.
+
+28
+00:01:51.149 --> 00:01:58.134
+Fourth, the recommendation: test the smallest card change because it gives us an answer with limited build effort.
+
+29
+00:01:58.134 --> 00:02:04.077
+Fifth, tradeoffs: somebody must prepare the card, observe sessions, and delay another small task.
+
+30
+00:02:04.077 --> 00:02:05.670
+Put that cost in the open.
+
+31
+00:02:05.670 --> 00:02:12.839
+Sixth, outcome: the learning plan defines what a successful start looks like and what confusion would stop expansion.
+
+32
+00:02:12.839 --> 00:02:16.454
+This is an argument for a decision, not a list of features.
+
+33
+00:02:16.454 --> 00:02:19.027
+The same six fields can fit a short brief.
+
+34
+00:02:19.027 --> 00:02:21.846
+In an email, lead with the decision requested.
+
+35
+00:02:21.846 --> 00:02:25.951
+In a live meeting, let people see the problem and then the options.
+
+36
+00:02:25.951 --> 00:02:31.281
+In a one-to-one conversation, listen for a missing criterion before polishing the deck.
+
+37
+00:02:31.281 --> 00:02:33.916
+The blueprint does not guarantee agreement.
+
+38
+00:02:33.916 --> 00:02:38.879
+It makes the choice and its cost visible enough for people to challenge honestly.
+
+39
+00:02:38.879 --> 00:02:46.836
+Chapter Fifteen says an org chart is a start, but it will not show every decision path.
+
+40
+00:02:46.836 --> 00:02:50.113
+Its first stakeholder lens is role type.
+
+41
+00:02:50.113 --> 00:02:53.858
+A decision-maker can approve or stop the work.
+
+42
+00:02:53.858 --> 00:02:56.666
+An influencer shapes that person's view.
+
+43
+00:02:56.666 --> 00:02:59.943
+A gatekeeper controls access, capacity, or information.
+
+44
+00:02:59.943 --> 00:03:00.039
+A champion advocates.
+
+45
+00:03:00.076 --> 00:03:02.364
+A blocker may actively oppose the idea.
+
+46
+00:03:02.364 --> 00:03:08.698
+One person can occupy more than one role, and the label is a working hypothesis, not a verdict on character.
+
+47
+00:03:08.698 --> 00:03:12.510
+On the synthetic card, a service director can authorize the test.
+
+48
+00:03:12.510 --> 00:03:16.263
+An operations lead controls the staff time needed to observe it.
+
+49
+00:03:16.263 --> 00:03:19.548
+A front-line worker knows where members lose the thread.
+
+50
+00:03:19.548 --> 00:03:22.832
+A finance partner wants to know what the test displaces.
+
+51
+00:03:22.832 --> 00:03:28.403
+We use fictional roles because this exercise needs a map, not anyone's private contact history.
+
+52
+00:03:28.403 --> 00:03:29.459
+Add behavior next.
+
+53
+00:03:29.459 --> 00:03:31.746
+Who tends to ask for customer evidence?
+
+54
+00:03:31.746 --> 00:03:34.503
+Who trusts the team that must build the change?
+
+55
+00:03:34.503 --> 00:03:38.080
+Who remembers an earlier rollout that increased support work?
+
+56
+00:03:38.080 --> 00:03:41.247
+The answer changes what you bring into a conversation.
+
+57
+00:03:41.247 --> 00:03:43.887
+It should not change the underlying evidence.
+
+58
+00:03:43.887 --> 00:03:47.581
+Give the operations lead the observation burden and exclusions.
+
+59
+00:03:47.581 --> 00:03:50.983
+Give the service director the decision and stop condition.
+
+60
+00:03:50.983 --> 00:03:55.792
+Ask the front-line worker whether our assumed friction even matches what they see.
+
+61
+00:03:55.792 --> 00:03:59.135
+If they say no, revise the hypothesis before the meeting.
+
+62
+00:03:59.135 --> 00:04:03.534
+Mapping makes you more accurate about the work and the people who carry it.
+
+63
+00:04:03.534 --> 00:04:06.290
+The book's third lens is a power-interest grid.
+
+64
+00:04:06.290 --> 00:04:09.223
+High power and high interest means manage closely.
+
+65
+00:04:09.223 --> 00:04:12.096
+High power and low interest means keep satisfied.
+
+66
+00:04:12.096 --> 00:04:14.912
+Low power and high interest means keep informed.
+
+67
+00:04:14.912 --> 00:04:17.316
+Low power and low interest means monitor.
+
+68
+00:04:17.316 --> 00:04:19.252
+Those are the book's four labels.
+
+69
+00:04:19.252 --> 00:04:23.650
+Draw the two axes and place our four fictional roles for this one decision.
+
+70
+00:04:23.650 --> 00:04:29.046
+The service director has authority and cares about the member experience, so manage closely.
+
+71
+00:04:29.046 --> 00:04:35.790
+The operations lead can withhold observation time and has a strong interest in the workflow, so manage closely too.
+
+72
+00:04:35.790 --> 00:04:43.825
+The front-line worker may have little formal power but deep interest and useful evidence: keep informed and invite their challenge early.
+
+73
+00:04:43.825 --> 00:04:51.449
+The finance partner may have approval influence but only intermittent interest: keep satisfied with a clear cost and review point.
+
+74
+00:04:51.449 --> 00:04:53.209
+This placement is provisional.
+
+75
+00:04:53.209 --> 00:04:56.200
+A policy change could move finance into the center.
+
+76
+00:04:56.200 --> 00:05:02.299
+A staff member who has the director's trust may carry more informal influence than their title suggests.
+
+77
+00:05:02.299 --> 00:05:04.939
+Ask the people involved, then update the map.
+
+78
+00:05:04.939 --> 00:05:08.516
+Do not use the grid to silence people with less formal power.
+
+79
+00:05:08.516 --> 00:05:10.862
+They may know the customer burden first.
+
+80
+00:05:10.862 --> 00:05:15.495
+The visual helps plan communication; it does not decide whose knowledge counts.
+
+81
+00:05:15.495 --> 00:05:20.656
+Put an objection beside each role and one piece of evidence or question that would help.
+
+82
+00:05:20.656 --> 00:05:26.873
+If you cannot name what would change a person's mind, have a conversation before sending a finished pitch.
+
+83
+00:05:26.873 --> 00:05:28.868
+The book calls the pre-meeting work Shuttle Diplomacy.
+
+84
+00:05:28.868 --> 00:05:34.368
+Learn the decision criteria before a deck hardens around one answer.
+
+85
+00:05:34.368 --> 00:05:38.868
+Start with the person who will do the observation.
+
+86
+00:05:38.868 --> 00:05:41.388
+Ask the operations lead what time the test would take and which staffing constraint would make it unsafe.
+
+87
+00:05:41.388 --> 00:05:47.451
+Next, ask the front-line worker whether the proposed card addresses the moment they see members hesitate.
+
+88
+00:05:47.451 --> 00:05:50.511
+If the answer is another problem entirely, record it.
+
+89
+00:05:50.511 --> 00:05:55.997
+Then ask the finance partner what cost or displaced work they would expect to see in the brief.
+
+90
+00:05:55.997 --> 00:06:01.251
+Finally, give the service director the revised options and the specific decision requested.
+
+91
+00:06:01.251 --> 00:06:04.658
+These are conversations with real stakes in a real project.
+
+92
+00:06:04.658 --> 00:06:09.566
+Here they are a fictional sequence for practice, not a report that outreach happened.
+
+93
+00:06:09.566 --> 00:06:12.338
+Keep confidential notes out of a rehearsal tool.
+
+94
+00:06:12.338 --> 00:06:20.133
+If you rehearse objections with AI, use a synthetic brief and treat the output as questions to examine, never as that person's opinion.
+
+95
+00:06:20.133 --> 00:06:22.905
+Chapter Fourteen recommends rehearsing pushback.
+
+96
+00:06:22.905 --> 00:06:29.199
+The stronger version of that advice is to let people correct your understanding when you can speak with them.
+
+97
+00:06:29.199 --> 00:06:37.572
+Update the decision file after each conversation: concern raised, evidence supporting it, what remains unknown, and whether the proposal changed.
+
+98
+00:06:37.572 --> 00:06:43.693
+A meeting can focus on the live choice instead of surprising people with costs that were visible all week.
+
+99
+00:06:43.693 --> 00:06:49.409
+Pause here and use four fictional role names for the decision you have carried through this course.
+
+100
+00:06:49.409 --> 00:06:55.992
+Mark who can decide, who controls resources, who knows the customer situation, and who may challenge the proposal.
+
+101
+00:06:55.992 --> 00:06:58.475
+Put each on the book's power-interest grid.
+
+102
+00:06:58.475 --> 00:07:04.307
+Write their likely interest and objection as a question, because you have not heard their answer yet.
+
+103
+00:07:04.307 --> 00:07:09.042
+Choose one source of evidence or one conversation that could answer each question.
+
+104
+00:07:09.042 --> 00:07:10.716
+Then order the conversations.
+
+105
+00:07:10.716 --> 00:07:13.257
+Who must be heard before the brief is final?
+
+106
+00:07:13.257 --> 00:07:15.682
+Who needs the options and tradeoffs early?
+
+107
+00:07:15.682 --> 00:07:17.645
+Who will make the formal decision?
+
+108
+00:07:17.645 --> 00:07:26.249
+Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.
+
+109
+00:07:26.249 --> 00:07:29.771
+Keep private names and messages in your authorized workspace.
+
+110
+00:07:29.771 --> 00:07:31.966
+Use fictional roles for this exercise.
+
+111
+00:07:31.966 --> 00:07:36.296
+Look at the six fields of the Strategic Argument Blueprint beside your map.
+
+112
+00:07:36.296 --> 00:07:42.937
+The problem and recommendation may stay the same, but a real objection can change the options, timing, or tradeoff.
+
+113
+00:07:42.937 --> 00:07:44.323
+That is useful learning.
+
+114
+00:07:44.323 --> 00:07:45.488
+A map is not a way to manufacture agreement.
+
+115
+00:07:45.488 --> 00:07:52.097
+It helps you find missing information and name the people who bear the cost.
+
+116
+00:07:52.097 --> 00:07:56.309
+In the next lesson, we will take the same choice into a short, responsible pitch.
+
+117
+00:07:56.309 --> 00:08:01.596
+It must tell the truth about what we know, what we hope to learn, and what we would give up to run the test.

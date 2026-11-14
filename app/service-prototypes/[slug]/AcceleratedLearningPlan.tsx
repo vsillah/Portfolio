@@ -26,6 +26,7 @@ import { supabase } from '@/lib/supabase'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 import endScreenBindings from '@/lib/accelerated-end-screen-bindings.json'
 import visualParityBindings from '@/lib/accelerated-visual-parity-bindings.json'
+import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
 import CompletionCredential from '@/components/member/CompletionCredential'
 export { lessons } from '@/lib/accelerated-decision-file'
 export { default as visualParityBindings } from '@/lib/accelerated-visual-parity-bindings.json'
@@ -105,6 +106,8 @@ const progressFingerprint = (state: Pick<LearningState, 'worksheet' | 'completed
 export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'decision-file' }) {
   const detailRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const sourceSwitchRef = useRef<{ seconds: number; playing: boolean } | null>(null)
+  const restoringSourceRef = useRef(false)
   const memberUserRef = useRef<string | null>(null)
   const memberRevisionRef = useRef<number>(0)
   const memberSaveQueueRef = useRef<Promise<void>>(Promise.resolve())
@@ -116,6 +119,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const [posterRevealed, setPosterRevealed] = useState(false)
   const [endedLesson, setEndedLesson] = useState<string | null>(null)
   const [captionsOn, setCaptionsOn] = useState(true)
+  const [portraitMedia, setPortraitMedia] = useState(false)
   const [catalogCollapsed, setCatalogCollapsed] = useState(true)
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
@@ -154,16 +158,41 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         : approvedBatchMedia
   const endBinding = endScreenBindings.lessons.find((item) => item.lessonId === lesson.id)
   const visualBinding = visualParityBindings.lessons.find((item) => item.lessonId === lesson.id)
+  const contextualBinding = (contextualBindings.lessons as Record<string, typeof contextualBindings.lessons.L09>)[lesson.id]
+  const activeVideoPath = contextualBinding ? contextualBinding.variants[portraitMedia ? 'portrait' : 'desktop'].path : visualBinding?.videoPath ?? ''
+  const activeCaptionPath = contextualBinding?.caption.path ?? lessonMedia?.captions ?? ''
+  const activeDuration = contextualBinding?.duration_seconds ?? visualBinding?.durationSeconds ?? 0
+  const activeTranscript = contextualBinding?.transcript ?? lessonMedia?.transcript
   const nextBinding = endScreenBindings.lessons.find((item) => item.lessonId === next?.id)
-  const endBindingMatches = Boolean(endBinding && visualBinding && lessonMedia && endBinding.videoPath === lessonMedia.video && endBinding.videoSha256 === visualBinding.sourceVideoSha256 && endBinding.captionPath === lessonMedia.captions && endBinding.captionSha256 === visualBinding.captionSha256 && endBinding.posterPath === posterUrl && (!next || nextBinding?.posterPath === lessonPosters[next.id as keyof typeof lessonPosters]))
+  const endBindingMatches = Boolean(endBinding && lessonMedia && (contextualBinding
+    ? contextualBinding.caption.sha256 === contextualBinding.transcript.source_vtt_sha256 && Math.abs(activeDuration - contextualBinding.final_caption_end_seconds) < .02
+    : visualBinding && endBinding.videoPath === lessonMedia.video && endBinding.videoSha256 === visualBinding.sourceVideoSha256 && endBinding.captionPath === lessonMedia.captions && endBinding.captionSha256 === visualBinding.captionSha256)
+    && endBinding.posterPath === posterUrl && (!next || nextBinding?.posterPath === lessonPosters[next.id as keyof typeof lessonPosters]))
   const showEndScreen = endedLesson === lesson.id && endBindingMatches
   const handleVideoEnded = () => {
     const video = videoRef.current
     if (!video || !endBindingMatches || !endBinding) return
     const parts = endBinding.finalCaptionEnd.split(':').map(Number)
-    const captionEnd = parts.length === 3 ? parts[0] * 3600 + parts[1] * 60 + parts[2] : parts[0] * 60 + parts[1]
+    const captionEnd = contextualBinding?.final_caption_end_seconds ?? (parts.length === 3 ? parts[0] * 3600 + parts[1] * 60 + parts[2] : parts[0] * 60 + parts[1])
     if (Number.isFinite(video.duration) && Math.abs(video.duration - captionEnd) <= 0.15) setEndedLesson(lesson.id)
   }
+  useEffect(() => {
+    if (!window.matchMedia) return
+    const media = window.matchMedia('(max-width: 650px)')
+    const update = () => {
+      const nextPortrait = media.matches
+      setPortraitMedia((current) => {
+        if (current !== nextPortrait && videoRef.current) {
+          sourceSwitchRef.current = { seconds: videoRef.current.currentTime, playing: !videoRef.current.paused }
+          restoringSourceRef.current = true
+        }
+        return nextPortrait
+      })
+    }
+    update()
+    media.addEventListener?.('change', update)
+    return () => media.removeEventListener?.('change', update)
+  }, [])
   useEffect(() => {
     try {
       const saved = localStorage.getItem(DECISION_FILE_STORAGE_KEY)
@@ -395,6 +424,8 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
     } catch { setShareState('Could not connect. Your local copy is still here. Try again when you are online.') }
   }
   const selectLesson = (id: string) => {
+    sourceSwitchRef.current = null
+    restoringSourceRef.current = false
     setSelected(id)
     setPosterRevealed(false)
     setEndedLesson(null)
@@ -409,10 +440,20 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   }
   const restoreVideo = () => {
     setCaptionMode(captionsOn)
-    if (videoRef.current && videoSeconds[selected] > 0) videoRef.current.currentTime = videoSeconds[selected]
+    const video = videoRef.current
+    if (!video) return
+    const pending = sourceSwitchRef.current
+    sourceSwitchRef.current = null
+    const saved = pending?.seconds ?? videoSeconds[selected] ?? 0
+    const end = Math.min(Number.isFinite(video.duration) ? video.duration : activeDuration, activeDuration)
+    if (saved > 0 && end > 0) {
+      restoringSourceRef.current = Boolean(pending)
+      video.currentTime = Math.min(saved, Math.max(0, end - .25))
+    }
+    if (pending?.playing) void video.play().catch(() => { /* Browser gesture policy can leave playback paused. */ })
   }
   const recordVideo = () => {
-    const seconds = Math.floor(videoRef.current?.currentTime ?? 0)
+    const seconds = Math.floor(Math.min(videoRef.current?.currentTime ?? 0, activeDuration))
     if (seconds > 0 && seconds % 5 === 0 && seconds !== videoSeconds[selected]) setVideoSeconds((positions) => ({ ...positions, [selected]: seconds }))
   }
 
@@ -495,17 +536,17 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         </section>
         {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
-          <div className={styles.videoStage} data-ended={showEndScreen} style={{ backgroundImage: `url(${posterUrl})` }}><video key={lesson.id} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => setEndedLesson(null)} onEmptied={() => { setPosterRevealed(false); setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
-            <source src={visualBinding?.videoPath ?? ''} type="video/mp4" />
-            <track kind="captions" src={lessonMedia.captions} srcLang="en" label="English captions" default />
+          <div className={styles.videoStage} data-ended={showEndScreen} data-portrait={Boolean(contextualBinding && portraitMedia)} style={{ backgroundImage: `url(${posterUrl})` }}><video key={`${lesson.id}-${contextualBinding ? portraitMedia : 'legacy'}`} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => { if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onSeeked={() => { restoringSourceRef.current = false }} onEmptied={() => { setPosterRevealed(false); if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
+            <source src={activeVideoPath} type="video/mp4" />
+            <track kind="captions" src={activeCaptionPath} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
           </video>
           {showEndScreen && <div className={styles.lessonEndScreen} role="status" aria-label={`${lesson.id} video finished`}>
             <div className={styles.lessonEndSummary}><span>{!next && completed.length === lessons.length ? 'COURSE COMPLETE' : next ? 'LESSON VIDEO FINISHED' : 'FINAL VIDEO FINISHED'}</span><strong>{lesson.id} · {lesson.title}</strong><small>{completed.length} of {lessons.length} lessons marked complete</small><div className={styles.lessonEndProgress} role="progressbar" aria-label="Course lessons marked complete" aria-valuenow={completed.length} aria-valuemin={0} aria-valuemax={lessons.length}><span style={{ width: `${completed.length / lessons.length * 100}%` }} /></div></div>
             {next && nextBinding ? <button type="button" className={styles.lessonEndNext} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery(''); setEndedLesson(null) }} aria-label={`Continue to ${next.id}: ${next.title}`}><img src={nextBinding.posterPath} alt={`${next.id} ${next.title} lesson cover`} /><span><small>UP NEXT · {next.id}</small><strong>{next.title}</strong><em>Open lesson <ArrowRight aria-hidden="true" /></em></span></button> : <Link href="/accelerated/decision-file" className={styles.lessonEndDecision}><span>YOUR NEXT MOVE</span><strong>Open the Decision File</strong><small>Carry the choice, evidence, and review date into one accountable next step.</small><em>Open Decision File <ArrowRight aria-hidden="true" /></em></Link>}
           </div>}</div>
-          <div className={styles.playerTools}><span>Duration {lessonMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
-          <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{lessonMedia.transcript.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
+          <div className={styles.playerTools}><span>Duration {contextualBinding ? `${Math.floor(activeDuration / 60).toString().padStart(2, '0')}:${Math.floor(activeDuration % 60).toString().padStart(2, '0')}` : lessonMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
+          <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{activeTranscript?.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}
         <div className={styles.actions}>{(() => {
           const completionLabel = locked(lesson.id) ? 'Completion unavailable' : completed.includes(lesson.id) ? 'Mark as incomplete' : 'Mark lesson complete'

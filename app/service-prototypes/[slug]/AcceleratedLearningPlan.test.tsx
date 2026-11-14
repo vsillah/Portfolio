@@ -6,6 +6,7 @@ import { visualParityBindings, AcceleratedLearningPlan, l01Media, l02Media, less
 import { DECISION_FILE_STORAGE_KEY, emptyDecisionFile } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
+import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
 
 const authMocks = vi.hoisted(() => ({
   getSession: vi.fn(),
@@ -412,8 +413,9 @@ describe('Accelerated learning plan', () => {
       expect(video).toHaveAttribute('aria-description', expect.stringContaining(`${item.id} ${item.title} cover`))
       expect(video).toHaveAttribute('preload', 'metadata')
       expect(video).toHaveAttribute('controls')
-      expect(video.querySelector('source')).toHaveAttribute('src', visualParityBindings.lessons.find((binding) => binding.lessonId === item.id)?.videoPath)
-      expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
+      const contextual = (contextualBindings.lessons as Record<string, typeof contextualBindings.lessons.L09>)[item.id]
+      expect(video.querySelector('source')).toHaveAttribute('src', contextual?.variants.desktop.path ?? visualParityBindings.lessons.find((binding) => binding.lessonId === item.id)?.videoPath)
+      expect(video.querySelector('track')).toHaveAttribute('src', contextual?.caption.path ?? expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
     }
   })
 

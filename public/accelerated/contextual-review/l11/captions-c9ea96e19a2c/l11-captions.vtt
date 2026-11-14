@@ -1,0 +1,373 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.797
+In Chapter Seventeen, Sam arrives at a roadmap meeting that feels different.
+
+2
+00:00:05.797 --> 00:00:13.527
+The team has already gathered feedback, translated it into a question, and prepared a learning choice.
+
+3
+00:00:13.527 --> 00:00:17.874
+The meeting can spend its time on the decision.
+
+4
+00:00:17.874 --> 00:00:21.480
+Sam is a character in the book's story, not a member of a team we are showing live.
+
+5
+00:00:21.480 --> 00:00:23.280
+Evidence had a place to arrive.
+
+6
+00:00:23.280 --> 00:00:24.790
+A plan had a review point.
+
+7
+00:00:24.790 --> 00:00:28.912
+A failed test could be discussed without scrambling to explain it away.
+
+8
+00:00:28.912 --> 00:00:34.312
+Think about your last meeting that started with everyone retelling the same customer problem.
+
+9
+00:00:34.312 --> 00:00:37.158
+How much time went into finding the latest notes?
+
+10
+00:00:37.158 --> 00:00:40.177
+How much into arguing over which number was current?
+
+11
+00:00:40.177 --> 00:00:42.964
+Shorter meetings are not the goal by themselves.
+
+12
+00:00:42.964 --> 00:00:48.887
+The useful change is that the team can see what it knows, what it tried, and what it will decide next.
+
+13
+00:00:48.887 --> 00:00:54.577
+Your decision file already holds a source ledger, a learning plan, and a map of the decision room.
+
+14
+00:00:54.577 --> 00:00:56.261
+Today we connect those pages.
+
+15
+00:00:56.261 --> 00:01:04.042
+We will ask where a signal enters, who checks it, how a test is chosen, who decides, and where the result is kept for the next person.
+
+16
+00:01:04.042 --> 00:01:07.526
+That is the quiet infrastructure behind the changed meeting.
+
+17
+00:01:07.526 --> 00:01:09.674
+The book gives Sam a test that fails.
+
+18
+00:01:09.674 --> 00:01:19.139
+The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.
+
+19
+00:01:19.139 --> 00:01:22.971
+They could ask what the result meant and choose the next question.
+
+20
+00:01:22.971 --> 00:01:24.481
+Notice what that requires.
+
+21
+00:01:24.481 --> 00:01:27.152
+The original hypothesis must still be visible.
+
+22
+00:01:27.152 --> 00:01:29.997
+The trigger cannot be rewritten after the result.
+
+23
+00:01:29.997 --> 00:01:34.004
+Someone must inspect the evidence rather than accept a summary alone.
+
+24
+00:01:34.004 --> 00:01:37.255
+The decision and its reason need to survive the meeting.
+
+25
+00:01:37.255 --> 00:01:43.410
+In our membership exercise, imagine the new first-task card is tested and people still ask staff for help.
+
+26
+00:01:43.410 --> 00:01:45.907
+That is a conditional branch, not a result.
+
+27
+00:01:45.907 --> 00:01:51.249
+The team might learn that the instruction is unclear, or that the task itself is unfamiliar.
+
+28
+00:01:51.249 --> 00:01:55.139
+The observation notes would need to distinguish those explanations.
+
+29
+00:01:55.139 --> 00:02:01.759
+If participants understand the card but cannot tell whether the action worked, confirmation becomes the next test.
+
+30
+00:02:01.759 --> 00:02:04.546
+If recruitment fails, the study is inconclusive.
+
+31
+00:02:04.546 --> 00:02:09.133
+The file should preserve all three routes without pretending that one happened.
+
+32
+00:02:09.133 --> 00:02:15.811
+Sam's story shows an operating habit: a team can be wrong about a solution and still be disciplined about learning.
+
+33
+00:02:15.811 --> 00:02:19.701
+The record is what lets the next meeting start beyond the last one.
+
+34
+00:02:19.701 --> 00:02:24.206
+Chapter Eighteen moves from scattered tools to a connected system.
+
+35
+00:02:24.206 --> 00:02:30.061
+Its arrow sequence begins with signal, then insight, test, decision, and repeatable momentum.
+
+36
+00:02:30.061 --> 00:02:37.269
+A signal is a traceable observation, such as a set of first-task notes with source IDs.
+
+37
+00:02:37.269 --> 00:02:40.981
+An insight is an interpretation: perhaps members cannot tell which action starts the service.
+
+38
+00:02:41.013 --> 00:02:46.156
+That interpretation still needs a counterexample and a person willing to challenge it.
+
+39
+00:02:46.156 --> 00:02:50.283
+A test turns the interpretation into a question that can be answered.
+
+40
+00:02:50.283 --> 00:02:55.725
+The learning plan specifies who participates, what counts, and when the result is reviewed.
+
+41
+00:02:55.725 --> 00:02:59.552
+A decision says what the team will do in light of that evidence.
+
+42
+00:02:59.552 --> 00:03:06.191
+Repeatable momentum means the next person can find the record and use it without rebuilding the whole argument.
+
+43
+00:03:06.191 --> 00:03:10.018
+In our synthetic workflow, feedback note F04 reaches the ledger.
+
+44
+00:03:10.018 --> 00:03:15.879
+The reviewer groups it with similar notes, preserves the contrary case, and writes a proposed job.
+
+45
+00:03:15.879 --> 00:03:18.032
+The owner chooses a small card test.
+
+46
+00:03:18.032 --> 00:03:23.056
+The result, when one exists, returns to the decision file with a date and next move.
+
+47
+00:03:23.056 --> 00:03:27.660
+This path is still a proposal until a team names its owners and review gates.
+
+48
+00:03:27.660 --> 00:03:31.428
+Draw each arrow only after naming its input, owner, and output.
+
+49
+00:03:31.428 --> 00:03:38.664
+A line between boxes is not a handoff unless someone can tell when the work crosses it and what happens when it does not.
+
+50
+00:03:38.664 --> 00:03:42.970
+The book names tools that can collect, translate, and route information.
+
+51
+00:03:42.970 --> 00:03:46.379
+The trap is to connect them and call the system complete.
+
+52
+00:03:46.379 --> 00:03:51.582
+If an AI summary misreads a member's sentence, faster routing only spreads the mistake.
+
+53
+00:03:51.582 --> 00:04:00.134
+In this course, automation may move an approved note into a ledger, flag a possible pattern, or remind an owner that a review date has arrived.
+
+54
+00:04:00.134 --> 00:04:08.866
+A person checks the raw source, contrary evidence, privacy boundary, and decision consequence before a proposed insight becomes a team commitment.
+
+55
+00:04:08.866 --> 00:04:14.308
+That review gate needs a named owner and a visible way to reject or correct the suggestion.
+
+56
+00:04:14.308 --> 00:04:21.784
+For the fictional membership service, a coordinator could review the source IDs before the pattern reaches the product owner.
+
+57
+00:04:21.784 --> 00:04:29.438
+If the note contains private information, it stays in the protected research system and only an approved summary travels onward.
+
+58
+00:04:29.438 --> 00:04:35.359
+The book's minimum viable stack is about connecting the work, not collecting every tool on a shelf.
+
+59
+00:04:35.359 --> 00:04:38.768
+Choose the smallest path your team can actually maintain.
+
+60
+00:04:38.768 --> 00:04:41.878
+Write what happens when the reviewer is unavailable.
+
+61
+00:04:41.878 --> 00:04:45.705
+Does the item wait, move to another authorized owner, or expire?
+
+62
+00:04:45.705 --> 00:04:49.473
+A silent automated approval would change the decision boundary.
+
+63
+00:04:49.473 --> 00:04:54.078
+The loop should make that boundary plain enough for a new teammate to follow.
+
+64
+00:04:54.078 --> 00:04:55.168
+Imagine joining this work six weeks later.
+
+65
+00:04:55.168 --> 00:05:01.997
+You should be able to answer three questions without searching through a long chat.
+
+66
+00:05:01.997 --> 00:05:04.436
+What did the team believe?
+
+67
+00:05:04.436 --> 00:05:06.387
+What did it observe?
+
+68
+00:05:06.387 --> 00:05:08.338
+What did it decide?
+
+69
+00:05:08.338 --> 00:05:13.793
+The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner.
+
+70
+00:05:13.793 --> 00:05:16.831
+If the evidence is inconclusive, write that plainly.
+
+71
+00:05:16.831 --> 00:05:23.609
+If a later team repeats the test in a different setting, it should keep the earlier result rather than overwrite it.
+
+72
+00:05:23.609 --> 00:05:27.174
+Chapter Eighteen calls the real goal a system that remembers.
+
+73
+00:05:27.174 --> 00:05:31.615
+Memory here is operational: it keeps a small decision from becoming a rumor.
+
+74
+00:05:31.615 --> 00:05:36.173
+Sam's changed meeting in Chapter Seventeen depends on this kind of continuity.
+
+75
+00:05:36.173 --> 00:05:43.068
+In our exercise, a record might say the first-task card remains untested because observation capacity was unavailable.
+
+76
+00:05:43.068 --> 00:05:45.639
+That is not a failure dressed up as success.
+
+77
+00:05:45.639 --> 00:05:47.860
+It is a clear state and a next action.
+
+78
+00:05:47.860 --> 00:05:52.943
+Another possible record could say the test ran but the result is awaiting human review.
+
+79
+00:05:52.943 --> 00:05:55.397
+Neither should be described as an outcome.
+
+80
+00:05:55.397 --> 00:05:59.254
+Keep source links in the authorized system, not on a public slide.
+
+81
+00:05:59.254 --> 00:06:03.929
+The audience-facing card can show the shape of the record with fictional values.
+
+82
+00:06:03.929 --> 00:06:09.948
+Pause and draw one current workflow, using only information you can safely put in this course exercise.
+
+83
+00:06:09.948 --> 00:06:18.888
+Mark where a signal arrives, who turns it into a proposed insight, which test could challenge it, who makes the decision, and where the record will live.
+
+84
+00:06:18.888 --> 00:06:20.466
+Circle the weakest handoff.
+
+85
+00:06:20.466 --> 00:06:27.419
+It may be source review, ownership of the test, a missing stop condition, or a decision that never reaches the backlog.
+
+86
+00:06:27.419 --> 00:06:32.036
+Write the person responsible for that handoff and the condition that blocks it.
+
+87
+00:06:32.036 --> 00:06:37.119
+Resume when your map has a human review gate, a place for the result, and a next owner.
+
+88
+00:06:37.119 --> 00:06:42.729
+If you cannot name an owner, leave the arrow broken; the page should show the work that remains.
+
+89
+00:06:42.729 --> 00:06:45.242
+The book's arrow sequence gives the stages.
+
+90
+00:06:45.242 --> 00:06:56.832
+The Learning System Loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure.
+
+91
+00:06:56.832 --> 00:07:02.143
+You have now connected the decision file into a repeatable path.
+
+92
+00:07:02.143 --> 00:07:08.758
+We will translate feedback into a job, then use synthetic reactions to find questions worth asking real people.
+
+93
+00:07:08.758 --> 00:07:11.559
+The boundary between those two sources matters.
