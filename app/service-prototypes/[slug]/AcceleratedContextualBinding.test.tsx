@@ -64,6 +64,9 @@ describe('Accelerated L09-L16 responsive learner source', () => {
     expect(resized.currentTime).toBeLessThan(bindings.lessons.L16.duration_seconds)
     fireEvent.ended(resized)
     expect(screen.getByRole('status', { name: 'L16 video finished' })).toBeInTheDocument()
+    portrait = false
+    act(() => notify?.())
+    expect(screen.getByRole('status', { name: 'L16 video finished' })).toBeInTheDocument()
     expect(localStorage.getItem(GUEST_PROGRESS_KEY)).toBeTruthy()
   })
 })

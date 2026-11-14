@@ -107,6 +107,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const detailRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const sourceSwitchRef = useRef<{ seconds: number; playing: boolean } | null>(null)
+  const restoringSourceRef = useRef(false)
   const memberUserRef = useRef<string | null>(null)
   const memberRevisionRef = useRef<number>(0)
   const memberSaveQueueRef = useRef<Promise<void>>(Promise.resolve())
@@ -181,7 +182,10 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
     const update = () => {
       const nextPortrait = media.matches
       setPortraitMedia((current) => {
-        if (current !== nextPortrait && videoRef.current) sourceSwitchRef.current = { seconds: videoRef.current.currentTime, playing: !videoRef.current.paused }
+        if (current !== nextPortrait && videoRef.current) {
+          sourceSwitchRef.current = { seconds: videoRef.current.currentTime, playing: !videoRef.current.paused }
+          restoringSourceRef.current = true
+        }
         return nextPortrait
       })
     }
@@ -421,6 +425,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   }
   const selectLesson = (id: string) => {
     sourceSwitchRef.current = null
+    restoringSourceRef.current = false
     setSelected(id)
     setPosterRevealed(false)
     setEndedLesson(null)
@@ -441,7 +446,10 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
     sourceSwitchRef.current = null
     const saved = pending?.seconds ?? videoSeconds[selected] ?? 0
     const end = Math.min(Number.isFinite(video.duration) ? video.duration : activeDuration, activeDuration)
-    if (saved > 0 && end > 0) video.currentTime = Math.min(saved, Math.max(0, end - .25))
+    if (saved > 0 && end > 0) {
+      restoringSourceRef.current = Boolean(pending)
+      video.currentTime = Math.min(saved, Math.max(0, end - .25))
+    }
     if (pending?.playing) void video.play().catch(() => { /* Browser gesture policy can leave playback paused. */ })
   }
   const recordVideo = () => {
@@ -528,7 +536,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         </section>
         {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
-          <div className={styles.videoStage} data-ended={showEndScreen} data-portrait={Boolean(contextualBinding && portraitMedia)} style={{ backgroundImage: `url(${posterUrl})` }}><video key={`${lesson.id}-${contextualBinding ? portraitMedia : 'legacy'}`} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => setEndedLesson(null)} onEmptied={() => { setPosterRevealed(false); setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
+          <div className={styles.videoStage} data-ended={showEndScreen} data-portrait={Boolean(contextualBinding && portraitMedia)} style={{ backgroundImage: `url(${posterUrl})` }}><video key={`${lesson.id}-${contextualBinding ? portraitMedia : 'legacy'}`} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => { if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onSeeked={() => { restoringSourceRef.current = false }} onEmptied={() => { setPosterRevealed(false); if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={activeVideoPath} type="video/mp4" />
             <track kind="captions" src={activeCaptionPath} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.
