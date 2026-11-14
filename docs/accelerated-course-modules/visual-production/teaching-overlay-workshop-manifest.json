@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "contract": "accelerated-editorial-teaching-plate-v1",
+  "status_meanings": {
+    "compliant": "Plan passes the shared contract and its encoded candidate has been checked.",
+    "needs_normalization": "A current candidate exists but its text treatment predates the shared contract.",
+    "pending": "The lesson has not yet reached overlay planning under the current visual direction."
+  },
+  "lessons": [
+    {"lesson": "L01", "status": "needs_normalization", "review_ready": true},
+    {"lesson": "L02", "status": "needs_normalization", "review_ready": true},
+    {"lesson": "L03", "status": "needs_normalization", "review_ready": true},
+    {
+      "lesson": "L04",
+      "status": "compliant",
+      "review_ready": true,
+      "plan": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/l04-teaching-overlay-plan.json"
+    },
+    {"lesson": "L05", "status": "pending", "review_ready": false},
+    {"lesson": "L06", "status": "pending", "review_ready": false},
+    {"lesson": "L07", "status": "pending", "review_ready": false},
+    {"lesson": "L08", "status": "pending", "review_ready": false},
+    {"lesson": "L09", "status": "pending", "review_ready": false},
+    {"lesson": "L10", "status": "pending", "review_ready": false},
+    {"lesson": "L11", "status": "pending", "review_ready": false},
+    {"lesson": "L12", "status": "pending", "review_ready": false},
+    {"lesson": "L13", "status": "pending", "review_ready": false},
+    {"lesson": "L14", "status": "pending", "review_ready": false},
+    {"lesson": "L15", "status": "pending", "review_ready": false},
+    {"lesson": "L16", "status": "pending", "review_ready": false}
+  ]
+}

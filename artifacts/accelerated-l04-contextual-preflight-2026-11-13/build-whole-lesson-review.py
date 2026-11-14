@@ -39,6 +39,7 @@ segments = {s["id"]: s for s in CONTRACT["segments"]}
 beats = {b["scene"]: b["timeline_start_seconds"] for b in CONTRACT["picture_beats"]}
 presenter_ranges = {name: (segments[name]["source"]["frame_start"], segments[name]["source"]["frame_end_exclusive"])
                     for name in ("P01", "P02", "P03", "P04")}
+presenter_visible = {"P01": False, "P02": False, "P03": True, "P04": True}
 base_cuts = [
     ("P01", 1, 0, segments["P01"]["timeline_end_seconds"], presenter_ranges["P01"]),
     ("C01a", 1, segments["C01"]["timeline_start_seconds"], beats[2], None),
@@ -86,6 +87,10 @@ portrait_focus = {
     7: {"wide": (.30, .68), "detail": (.73, .68)},
 }
 desktop_focus = {1: (.52, .60), 2: (.70, .60), 3: (.50, .50), 4: (.52, .63), 5: (.52, .66), 6: (.65, .64), 7: (.67, .68)}
+presenter_focus = {"P01": (.43, .60), "P02": (.46, .52), "P03": (.50, .68), "P04": (.58, .66)}
+brand_blue = "#121E31"
+assert "--imperial-navy: #121E31;" in (ROOT / "app/globals.css").read_text()
+assert "'imperial-navy': '#121E31'" in (ROOT / "tailwind.config.ts").read_text()
 
 
 def artwork(scene, size, variant="wide"):
@@ -93,11 +98,12 @@ def artwork(scene, size, variant="wide"):
         scene, variant = 2, "detail"
     source = Image.open(ART / f"l04-scene-{scene:02d}.png").convert("RGB")
     if size == "portrait":
-        bg = Image.new("RGB", (390, 844), "#efe8d7")
-        bg.paste(ImageOps.fit(source, (390, 220), method=Image.Resampling.LANCZOS), (0, 0))
-        bg.paste(ImageOps.fit(source, (390, 624), method=Image.Resampling.LANCZOS,
-                              centering=portrait_focus[scene][variant]), (0, 220))
-        return bg
+        return ImageOps.fit(
+            source,
+            (390, 844),
+            method=Image.Resampling.LANCZOS,
+            centering=portrait_focus[scene][variant],
+        )
     if variant == "detail":
         cx, cy = desktop_focus[scene]
         w, h = 1200, 675
@@ -111,29 +117,50 @@ PRESENTER_PLACEMENT = {
     "desktop": {"xy": (1045, 312), "size": (810, 456)},
     "portrait": {"xy": (0, 526), "size": (390, 219)},
 }
+PRESENTER_IMAGE_LAYERS = {}
 
 
-def presenter_background(scene, size):
+def illustration_only(scene, name, size):
+    source = Image.open(ART / f"l04-scene-{scene:02d}.png").convert("RGB")
+    dimensions = (1920, 1080) if size == "desktop" else (390, 844)
+    return ImageOps.fit(source, dimensions, method=Image.Resampling.LANCZOS,
+                        centering=presenter_focus[name])
+
+
+def art_mask(size, portrait):
+    w, h = size
+    mask = Image.new("L", size, 0)
+    pixels = mask.load()
+    if portrait:
+        for y in range(h):
+            alpha = 255 if y <= h - 100 else max(0, round(255 * (h - y) / 100))
+            for x in range(w):
+                pixels[x, y] = alpha
+    else:
+        for y in range(h):
+            vertical = min(1, y / 100, (h - y) / 100)
+            for x in range(w):
+                horizontal = min(1, x / 32, (w - x) / 170)
+                pixels[x, y] = max(0, round(255 * min(vertical, horizontal)))
+    return mask
+
+
+def presenter_background(scene, name, size):
     source = Image.open(ART / f"l04-scene-{scene:02d}.png").convert("RGB")
     if size == "portrait":
-        bg = Image.new("RGB", (390, 844), "#e9dfcb")
-        # Keep the complete teaching image, then bring its working detail closer.
-        # Both sit above the dedicated native presenter section.
-        bg.paste(ImageOps.fit(source, (390, 220), method=Image.Resampling.LANCZOS), (0, 0))
-        bg.paste(ImageOps.fit(source, (390, 290), method=Image.Resampling.LANCZOS,
-                              centering=portrait_focus[scene]["detail"]), (0, 220))
+        bg = Image.new("RGB", (390, 844), brand_blue)
+        image_layers = 0
+        teaching = ImageOps.fit(source, (390, 510), method=Image.Resampling.LANCZOS,
+                                centering=presenter_focus[name])
+        bg.paste(teaching, (0, 0), art_mask(teaching.size, True))
+        image_layers += 1
+        assert image_layers == 1, f"Portrait presenter scene {scene} has {image_layers} teaching-image layers"
+        PRESENTER_IMAGE_LAYERS[scene] = image_layers
     else:
-        bg = Image.new("RGB", (1920, 1080), "#e9dfcb")
-        if scene == 7:
-            # Keep all four decision-file pages visible, then bring their
-            # working fields close enough to read beside the presenter.
-            bg.paste(ImageOps.fit(source, (975, 549), method=Image.Resampling.LANCZOS), (24, 100))
-            bg.paste(ImageOps.fit(source, (975, 331), method=Image.Resampling.LANCZOS,
-                                  centering=(.5, .85)), (24, 649))
-        else:
-            teaching = ImageOps.fit(source, (975, 880), method=Image.Resampling.LANCZOS,
-                                    centering=desktop_focus[scene])
-            bg.paste(teaching, (24, 100))
+        bg = Image.new("RGB", (1920, 1080), brand_blue)
+        teaching = ImageOps.fit(source, (1055, 830), method=Image.Resampling.LANCZOS,
+                                centering=presenter_focus[name])
+        bg.paste(teaching, (0, 95), art_mask(teaching.size, False))
     x, y = PRESENTER_PLACEMENT[size]["xy"]
     w, h = PRESENTER_PLACEMENT[size]["size"]
     ImageDraw.Draw(bg).rectangle((x-1, y-1, x+w, y+h), outline="#b9915a", width=1)
@@ -169,10 +196,20 @@ if "--stills-only" in sys.argv:
                                        "-frames:v", "1", "-f", "image2pipe", "-vcodec", "png", "-"])
         native_frame = Image.open(io.BytesIO(raw)).convert("RGB")
         for size in ("desktop", "portrait"):
-            bg = presenter_background(scene, size)
-            placement = PRESENTER_PLACEMENT[size]
-            bg.paste(native_frame.resize(placement["size"], Image.Resampling.LANCZOS), placement["xy"])
+            if presenter_visible[name]:
+                bg = presenter_background(scene, name, size)
+                placement = PRESENTER_PLACEMENT[size]
+                bg.paste(native_frame.resize(placement["size"], Image.Resampling.LANCZOS), placement["xy"])
+            else:
+                bg = illustration_only(scene, name, size)
             bg.save(previews / f"{name.lower()}-{size}.png")
+    (previews / "portrait-image-layer-gate.json").write_text(json.dumps({
+        "schema": "accelerated_l04_portrait_presenter_image_layer_gate_v1",
+        "active_image_layers": {name: (PRESENTER_IMAGE_LAYERS[scene] if presenter_visible[name] else 1)
+                                for name, scene in (("P01", 1), ("P02", 3), ("P03", 5), ("P04", 7))},
+        "required_layers_per_passage": 1,
+        "result": "pass" if all(count == 1 for count in PRESENTER_IMAGE_LAYERS.values()) else "fail",
+    }, indent=2) + "\n")
     print(f"Presenter section stills: {previews}")
     sys.exit(0)
 
@@ -202,16 +239,23 @@ if not audio.exists():
 assert sha(audio) == "c0bf25bbfa9599ba20fe744cbb04b98e7e94a97401ab33b67f850cd8929bdb97", "Audio master drift"
 
 frame_boundaries = [round(x[2] * 25) for x in cuts] + [round(CONTRACT["total_duration_seconds"] * 25)]
-sizes = ("desktop",) if "--desktop-only" in sys.argv else ("desktop", "portrait")
-portrait_unchanged = OUT / "l04-whole-lesson-portrait-presenter-section-local-review.mp4"
+sizes = (("desktop",) if "--desktop-only" in sys.argv else
+         ("portrait",) if "--portrait-only" in sys.argv else ("desktop", "portrait"))
+portrait_current = OUT / "l04-whole-lesson-portrait-single-image-local-review.mp4"
+desktop_unchanged = OUT / "l04-whole-lesson-desktop-expanded-presenter-local-review.mp4"
 if "--desktop-only" in sys.argv:
-    assert sha(portrait_unchanged) == "71fbfdafbcb7c29be9c23de2d5c5f40cc15a7fcbb82adb999ac90653d20635f4", "Portrait master drift"
+    assert sha(portrait_current) == "85c0a94bebfa0934da942070a812685be7397077607edf634409b6cd3472d1a8", "Portrait master drift"
+if "--portrait-only" in sys.argv:
+    assert sha(desktop_unchanged) == "a56cee03509ebb46030a4582a19887875c3568cea94cf8a4141ba47ee91efd86", "Desktop master drift"
 for size in sizes:
     clips = []
     for i, (name, scene, start, end, native_range, variant) in enumerate(cuts):
         target = OUT / f"{size}-{i+1:02d}-{name.lower()}.mp4"
-        if native_range:
-            encode_presenter(presenter_background(scene, size), target, native_range, size)
+        if native_range and presenter_visible[name]:
+            encode_presenter(presenter_background(scene, name, size), target, native_range, size)
+        elif native_range:
+            frames = frame_boundaries[i+1] - frame_boundaries[i]
+            encode_still(illustration_only(scene, name, size), target, frames)
         else:
             frames = frame_boundaries[i+1] - frame_boundaries[i]
             encode_still(artwork(scene, size, variant), target, frames)
@@ -220,8 +264,8 @@ for size in sizes:
     playlist.write_text("ffconcat version 1.0\n" + "".join(f"file '{p}'\n" for p in clips))
     silent = OUT / f"{size}-silent.mp4"
     run(["ffmpeg", "-v", "error", "-y", "-safe", "0", "-f", "concat", "-i", str(playlist), "-map", "0:v:0", "-c", "copy", str(silent)])
-    target = OUT / ("l04-whole-lesson-desktop-expanded-presenter-local-review.mp4" if size == "desktop"
-                    else "l04-whole-lesson-portrait-presenter-section-local-review.mp4")
+    target = OUT / ("l04-whole-lesson-desktop-intact-native-background-local-review.mp4" if size == "desktop"
+                    else "l04-whole-lesson-portrait-intact-native-background-local-review.mp4")
     run(["ffmpeg", "-v", "error", "-y", "-i", str(silent), "-i", str(audio), "-map", "0:v:0", "-map", "1:a:0",
          "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(target)])
 
@@ -233,13 +277,20 @@ receipt = {
     "frame_boundaries": frame_boundaries,
     "phrase_focus_changes_seconds": focus_changes,
     "presenter_source_ranges": [list(presenter_ranges[name]) for name in ("P01", "P02", "P03", "P04")],
+    "presenter_visibility": presenter_visible,
+    "presenter_background_treatment": "Native source video rectangle retained intact; no key, transparency, mask, blur, background replacement, background recolor, or crop.",
+    "slide_field": f"AmaduTown Imperial Navy {brand_blue}",
     "presenter_placement": PRESENTER_PLACEMENT,
+    "portrait_presenter_image_layers": {name: (PRESENTER_IMAGE_LAYERS[scene] if presenter_visible[name] else 1)
+                                          for name, scene in (("P01", 1), ("P02", 3), ("P03", 5), ("P04", 7))}
+    if "portrait" in sizes else None,
+    "portrait_cutaway_image_layers": 1 if "portrait" in sizes else None,
     "outputs": {p.name: sha(p) for p in (audio,
-        OUT / "l04-whole-lesson-desktop-expanded-presenter-local-review.mp4",
-        portrait_unchanged)},
+        OUT / "l04-whole-lesson-desktop-intact-native-background-local-review.mp4",
+        OUT / "l04-whole-lesson-portrait-intact-native-background-local-review.mp4") if p.exists()},
     "excluded_actions": "No HeyGen contact, spending, learner media change, commit, push, PR update, merge, deployment, publication or release.",
 }
-(OUT / ("render-receipt-desktop-expanded.json" if "--desktop-only" in sys.argv else "render-receipt-presenter-section.json")).write_text(json.dumps(receipt, indent=2) + "\n")
+(OUT / "render-receipt-intact-native-background.json").write_text(json.dumps(receipt, indent=2) + "\n")
 for size in sizes:
     for intermediate in OUT.glob(f"{size}-[0-9][0-9]-*"):
         intermediate.unlink()

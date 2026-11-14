@@ -70,4 +70,14 @@ for name, expected in manifest["approved_outputs_sha256"].items():
     if target.exists():
         assert sha(target) == expected, filename
 
+for name, expected in manifest.get("local_correction_candidate_outputs_sha256", {}).items():
+    filename = ("l04-whole-lesson-desktop-editorial-plates-local-review.mp4" if name == "desktop_mp4"
+                else "l04-whole-lesson-portrait-editorial-plates-local-review.mp4")
+    target = HERE / "whole-lesson-review" / filename
+    if target.exists():
+        assert sha(target) == expected, filename
+
+layer_gate = json.loads((HERE / "whole-lesson-review/presenter-section-preflight/portrait-image-layer-gate.json").read_text())
+assert layer_gate["active_image_layers"] == {name: 1 for name in ("P01", "P02", "P03", "P04")}
+
 print(f"L04 package validated: {len(manifest['files'])} files; 7 scene sources; 149 matched caption cues")

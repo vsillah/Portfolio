@@ -1,6 +1,6 @@
 # Accelerated Lesson 04 illustrated review source
 
-**Status:** local-only Human-QA candidate approved by Vambah for packaging into draft PR #1270. Integration Captain review, full-lesson listening, and any learner-media decision remain separate gates. Source branch at approval: `codex/accelerated-lesson-pacing-audit`, commit `d4479c5b75506d4d2ceb778061d48c72f755ad68`.
+**Status:** corrected local desktop and portrait editorial-plate candidates approved by Vambah for packaging into draft PR #1270. The portrait renderer now uses one illustration layer per cutaway. Integration Captain review, PR validation, and any learner-media decision remain separate gates. Source branch: `codex/accelerated-lesson-pacing-audit`.
 
 This bounded package reproduces the approved desktop and portrait review compositions. It contains seven selected original generated illustrations, their exact prompts, source paths, SHA-256 digests, and rights records in `scene-art-provenance.json`; the final timing contract; renderer and caption builders; optional VTT tracks; compact visual evidence; and hash-bound receipts. See `package-manifest.json` for the selected file list and excluded input bindings.
 
@@ -8,8 +8,8 @@ This bounded package reproduces the approved desktop and portrait review composi
 
 | Output | SHA-256 |
 | --- | --- |
-| Desktop 1920 × 1080 MP4, 399.324 s | `a56cee03509ebb46030a4582a19887875c3568cea94cf8a4141ba47ee91efd86` |
-| Portrait 390 × 844 MP4, 399.324 s | `71fbfdafbcb7c29be9c23de2d5c5f40cc15a7fcbb82adb999ac90653d20635f4` |
+| Desktop editorial-plate MP4, 1920 × 1080, 399.324 s | `4ea135cbb7543116f82a9777067c74027331175a09122de74421e8064ff511ae` |
+| Corrected portrait editorial-plate MP4, 390 × 844, 399.324 s | `9c49ae07f4605f15baca89eb52c2b304e339faaef3fd27a3bcadf5e0d3cb5498` |
 | Desktop optional VTT | `3773ab5ceec12987ddf3837bc30390613f5b0d18cbf527bcea4a6e3f615e6691` |
 | Portrait optional VTT | `597f740705c236174463180a57cafb94deb7c784c67f7e7f14f74960719f18a5` |
 
@@ -25,6 +25,7 @@ python3 -B artifacts/accelerated-l04-contextual-preflight-2026-11-13/build-optio
 python3 -B artifacts/accelerated-l04-contextual-preflight-2026-11-13/build-portrait-captions.py
 python3 -B artifacts/accelerated-l04-contextual-preflight-2026-11-13/build-whole-lesson-review.py --stills-only
 python3 -B artifacts/accelerated-l04-contextual-preflight-2026-11-13/build-whole-lesson-review.py
+python3 -B artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/build-teaching-overlay-review.py
 python3 -B artifacts/accelerated-l04-contextual-preflight-2026-11-13/validate-package.py
 ```
 
@@ -34,9 +35,10 @@ The first four commands should preserve the checked-in contract, caption, and pr
 
 - `scene-art-desktop-contact.jpg` and `scene-art-portrait-storyboard.jpg` show the seven source illustrations and portrait framing.
 - `whole-lesson-review/qa-desktop-expanded-presenter-encoded-contact.jpg` and `qa-portrait-presenter-section-encoded-contact.jpg` show P01–P04 from the exact approved encoded MP4s.
-- `whole-lesson-review/native-caption-alignment-gate.json`, `render-receipt-desktop-expanded.json`, `portrait-caption-qa-receipt.json`, and `desktop-expanded-qa-receipt.json` bind source, timing, render, captions, and technical checks.
+- `whole-lesson-review/l04-teaching-overlay-plan.json` binds every short teaching point to its narration cue and the shared `accelerated-editorial-teaching-plate-v1` contract.
+- `whole-lesson-review/l04-teaching-overlay-render-receipt.json`, `render-receipt-intact-native-background.json`, `portrait-caption-qa-receipt.json`, and `portrait-single-image-qa-receipt.json` bind source, timing, render, captions, image-layer count, and actual-player checks.
 - `whole-lesson-review/HUMAN-QA-PACKAGE.md` gives the local review path and remaining listening gate. The local player links work only where the excluded MP4s and range-capable server are present.
 
 ## Boundaries
 
-The package excludes provider-returned generated WAV and timing payloads, native presenter media, derived PCM/WAV, model weights and cache, transient clips/frames, superseded candidates, browser scratch, and full whole-lesson MP4 masters. It excludes unrelated untracked Lesson 03 files. No HeyGen contact, new spend, learner-media change, merge, deployment, publication, or release is part of this PR update.
+The package excludes provider-returned generated WAV and timing payloads, native presenter media, derived PCM/WAV, model weights and cache, transient clips/frames, superseded candidates, browser scratch, and full whole-lesson MP4 masters. It excludes unrelated untracked Lesson 03 files. No HeyGen contact, new spend, learner-media change, merge, deployment, publication, or release is part of this package update.
