@@ -49,6 +49,12 @@ function verifyAcceleratedContextualBinding(options = {}) {
       assert(statSync(path.join(root, `public${media.path}`)).size === receipt.bytes_after, `${id} ${variant} media size changed`)
       assert(receipt.ssim >= .995 && Math.abs(receipt.duration_seconds - item.duration_seconds) < .02, `${id} ${variant} encode gate failed`)
       assert(receipt.audio_stream_hash === proof.variants.desktop.audio_stream_hash, `${id} audio variants differ`)
+      if (id === 'L12' && variant === 'portrait') {
+        const correction = receipt.text_correction
+        assert(correction?.source_wording === 'Source ID → context → job → question', 'L12 correction wording changed')
+        assert(correction.start_seconds === 86.04 && correction.end_seconds === 147.56, 'L12 correction window changed')
+        assert(correction.overlay_sha256 === digest(correction.overlay_path), 'L12 correction overlay drifted')
+      }
     }
   }
   return true

@@ -2,7 +2,7 @@
   "schema": "accelerated_l09_l16_contextual_review_v1",
   "status": "human_qa_pending",
   "approved_excerpt_receipt_sha256": "7327975f1cc5922da3bd004f7b1af9b797f57005b6a220e4167da0f51aa97fdf",
-  "technical_receipt_sha256": "62c7c7681bcd2fb333111a72ddedb477636122636e672aae82670c1bf3d54bcb",
+  "technical_receipt_sha256": "802f64553e3169d7ad0c65e78385cfeee6c48c8329f9bdb19443081f666ec577",
   "lessons": {
     "L09": {
       "duration_seconds": 481.596167,
@@ -1599,8 +1599,8 @@
           "sha256": "ef2b26aaf3260aef32a8ea51d1318fa32691bd2586c74b51dbdda210c877da02"
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l12/contextual-2990188f9901/l12-portrait.mp4",
-          "sha256": "2990188f9901975aaaa5c0f8e11e46f7d1c42fc9abe29a527f3f5f3e4e1cf0a8"
+          "path": "/accelerated/contextual-review/l12/contextual-8a17969af47f/l12-portrait.mp4",
+          "sha256": "8a17969af47fe8620b5a843891e6186d5b9d2996947d9c208757f00b4a9f2a81"
         }
       },
       "caption": {

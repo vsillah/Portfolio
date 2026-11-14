@@ -144,18 +144,25 @@
           ]
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l12/contextual-2990188f9901/l12-portrait.mp4",
-          "sha256": "2990188f9901975aaaa5c0f8e11e46f7d1c42fc9abe29a527f3f5f3e4e1cf0a8",
+          "path": "/accelerated/contextual-review/l12/contextual-8a17969af47f/l12-portrait.mp4",
+          "sha256": "8a17969af47fe8620b5a843891e6186d5b9d2996947d9c208757f00b4a9f2a81",
           "source_sha256": "38b1e02876052efa3383f176b0e946fe392fa444b928abe374fef84393bdcaaf",
           "bytes_before": 20753224,
-          "bytes_after": 14730268,
+          "bytes_after": 14727740,
           "audio_stream_hash": "SHA256=60fa992c5d4a6fc134c8ab7599ecf160756523717ea7b08e434052e383092a23",
-          "ssim": 0.998529,
+          "ssim": 0.99738,
           "duration_seconds": 460.459,
           "dimensions": [
             390,
             844
-          ]
+          ],
+          "text_correction": {
+            "overlay_path": "scripts/qa/assets/l12-portrait-text-correction.png",
+            "overlay_sha256": "7166929dbb753b4765afde22cb2dfdda128176dd92ef131a836f0ad3931519cd",
+            "start_seconds": 86.04,
+            "end_seconds": 147.56,
+            "source_wording": "Source ID \u2192 context \u2192 job \u2192 question"
+          }
         }
       },
       "caption": {

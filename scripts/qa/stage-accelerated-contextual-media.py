@@ -44,6 +44,8 @@ def main():
         'portrait': '77670556bc97a1bc729bc09c94c315b09d8a38e84bf928739edf5fe11c4540f8',
         'receipt': '7327975f1cc5922da3bd004f7b1af9b797f57005b6a220e4167da0f51aa97fdf',
     }
+    correction_overlay = Path('scripts/qa/assets/l12-portrait-text-correction.png')
+    correction_window = (86.04, 147.56)
     consolidated = source / 'consolidated-human-qa'
     for name, filename in [('desktop', 'accelerated-l09-l16-desktop-human-qa.mp4'), ('portrait', 'accelerated-l09-l16-portrait-human-qa.mp4'), ('receipt', 'consolidated-human-qa-receipt.json')]:
         assert sha(consolidated / filename) == approved[name], f'Approved {name} review drifted'
@@ -63,7 +65,13 @@ def main():
             assert tuple((source_probe['streams'][0]['width'], source_probe['streams'][0]['height'])) == dimensions
             with tempfile.TemporaryDirectory() as temp:
                 candidate = Path(temp) / f'{low}-{variant}.mp4'
-                run('ffmpeg', '-y', '-v', 'error', '-i', str(src), '-map', '0:v:0', '-map', '0:a:0', '-c:v', 'libx264', '-preset', 'fast', '-crf', '21', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-movflags', '+faststart', str(candidate))
+                if low == 'l12' and variant == 'portrait':
+                    run('ffmpeg', '-y', '-v', 'error', '-i', str(src), '-loop', '1', '-i', str(correction_overlay),
+                        '-filter_complex', f'[0:v][1:v]overlay=0:0:enable=between(t\\,{correction_window[0]}\\,{correction_window[1]}):shortest=1:eof_action=pass[v]',
+                        '-map', '[v]', '-map', '0:a:0', '-c:v', 'libx264', '-preset', 'fast', '-crf', '21',
+                        '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-movflags', '+faststart', str(candidate))
+                else:
+                    run('ffmpeg', '-y', '-v', 'error', '-i', str(src), '-map', '0:v:0', '-map', '0:a:0', '-c:v', 'libx264', '-preset', 'fast', '-crf', '21', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-movflags', '+faststart', str(candidate))
                 assert audio_hash(src) == audio_hash(candidate), f'{low} {variant} audio changed'
                 result = run('ffmpeg', '-v', 'info', '-i', str(src), '-i', str(candidate), '-filter_complex', '[0:v][1:v]ssim', '-an', '-f', 'null', '-')
                 match = re.search(r'SSIM Y:[^\n]* All:([0-9.]+)', result.stderr)
@@ -74,6 +82,12 @@ def main():
             final_probe = probe(target)
             assert abs(float(final_probe['format']['duration']) - original['duration']) < .02
             entry['variants'][variant] = {'path': '/' + str(target.relative_to('public')), 'sha256': sha(target), 'source_sha256': upstream['sha256'], 'bytes_before': src.stat().st_size, 'bytes_after': target.stat().st_size, 'audio_stream_hash': audio_hash(target), 'ssim': float(match.group(1)), 'duration_seconds': float(final_probe['format']['duration']), 'dimensions': dimensions}
+            if low == 'l12' and variant == 'portrait':
+                entry['variants'][variant]['text_correction'] = {
+                    'overlay_path': str(correction_overlay), 'overlay_sha256': sha(correction_overlay),
+                    'start_seconds': correction_window[0], 'end_seconds': correction_window[1],
+                    'source_wording': 'Source ID → context → job → question',
+                }
         caption = lesson / f'{low}-captions.vtt'
         target = args.output_root / low / f'captions-{sha(caption)[:12]}' / f'{low}-captions.vtt'
         target.parent.mkdir(parents=True, exist_ok=True)
