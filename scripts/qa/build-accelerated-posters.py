@@ -2,6 +2,9 @@
 """Compose illustrated Accelerated lesson covers from receipted avatar art and owned proof."""
 import hashlib
 import json
+import subprocess
+import tempfile
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -43,11 +46,67 @@ ART = {
 SPECIAL = {1: 'public/accelerated_cover_ebook.webp', 5: 'public/showcases/accelerated-learning-plan/storyboard-l05.png', 8: 'public/showcases/accelerated-learning-plan/storyboard-l08.png', 11: 'public/showcases/accelerated-learning-plan/storyboard-l11.png', 16: 'public/showcases/accelerated-learning-plan/storyboard-l16.png'}
 FONT = '/System/Library/Fonts/Supplemental/Arial Bold.ttf'
 REG = '/System/Library/Fonts/Supplemental/Arial.ttf'
+CANONICAL_SAM = ROOT / 'agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png'
+CANONICAL_SAM_SHA = 'b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3'
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def fit(im, box): return ImageOps.fit(im, box, method=Image.Resampling.LANCZOS)
 
+def render_l12_sam():
+    """Build paused-player posters from the exact book plate and opening presenter frame."""
+    if sha(CANONICAL_SAM) != CANONICAL_SAM_SHA: raise RuntimeError('Canonical SAM source drifted')
+    binding = json.loads((ROOT / 'lib/accelerated-contextual-bindings.json').read_text())['lessons']['L12']
+    source = ROOT / 'public' / binding['variants']['desktop']['path'].lstrip('/')
+    if sha(source) != binding['variants']['desktop']['sha256']: raise RuntimeError('L12 opening video drifted')
+    with tempfile.TemporaryDirectory() as directory:
+        frame_path = Path(directory) / 'opening.png'
+        subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', str(source), '-frames:v', '1', str(frame_path)], check=True)
+        presenter = Image.open(frame_path).convert('RGB').crop((1136, 348, 1808, 732))
+        plate = Image.open(CANONICAL_SAM).convert('RGB')
+        outputs = {}
+        for variant, size in [('desktop', (1280, 720)), ('portrait', (390, 844))]:
+            image = Image.new('RGB', size, '#142137')
+            draw = ImageDraw.Draw(image)
+            if variant == 'desktop':
+                draw.rounded_rectangle((20, 20, 1260, 700), radius=16, outline='#dfb959', width=2)
+                draw.text((48, 44), 'ACCELERATED  ·  LESSON 12', font=ImageFont.truetype(FONT, 27), fill='#dfb959')
+                book = ImageOps.contain(plate, (680, 565), Image.Resampling.LANCZOS)
+                image.paste(book, (36 + (680 - book.width)//2, 104 + (565 - book.height)//2))
+                draw.rounded_rectangle((750, 185, 1226, 289), radius=12, fill='#123542', outline='#dfb959', width=2)
+                draw.text((774, 202), 'Keep the source beside', font=ImageFont.truetype(FONT, 30), fill='#f5f4ed')
+                draw.text((774, 239), 'the job', font=ImageFont.truetype(FONT, 30), fill='#f5f4ed')
+                native = ImageOps.contain(presenter, (476, 272), Image.Resampling.LANCZOS)
+                image.paste(native, (750, 319))
+                draw.rectangle((750, 319, 750 + native.width, 319 + native.height), outline='#dfb959', width=2)
+                output = OUT / 'l12-poster.webp'
+            else:
+                draw.rounded_rectangle((9, 12, 381, 832), radius=12, outline='#dfb959', width=2)
+                draw.text((22, 34), 'ACCELERATED  ·  L12', font=ImageFont.truetype(FONT, 18), fill='#dfb959')
+                book = ImageOps.contain(plate, (350, 330), Image.Resampling.LANCZOS)
+                image.paste(book, ((390-book.width)//2, 87 + (330-book.height)//2))
+                draw.rounded_rectangle((20, 439, 370, 505), radius=9, fill='#123542', outline='#dfb959', width=2)
+                draw.text((35, 453), 'Keep the source beside', font=ImageFont.truetype(FONT, 19), fill='#f5f4ed')
+                draw.text((35, 477), 'the job', font=ImageFont.truetype(FONT, 19), fill='#f5f4ed')
+                native = ImageOps.contain(presenter, (354, 202), Image.Resampling.LANCZOS)
+                image.paste(native, ((390-native.width)//2, 526))
+                draw.rectangle(((390-native.width)//2, 526, (390+native.width)//2, 526+native.height), outline='#dfb959', width=2)
+                output = OUT / 'l12-poster-portrait.webp'
+            image.save(output, 'WEBP', quality=94, method=6)
+            output_hash = sha(output)
+            immutable = OUT / f'l12-poster-{variant}-{output_hash[:12]}.webp'
+            output.replace(immutable)
+            outputs[variant] = {'path': str(immutable.relative_to(ROOT)), 'sha256': output_hash, 'dimensions': list(size)}
+    return {
+        'kind': 'canonical_sam', 'lesson': 'L12', 'title': TITLES[11], 'act': ACTS[11], 'lessonBinding': '/' + outputs['desktop']['path'].removeprefix('public/'),
+        'samOrBookAsset': str(CANONICAL_SAM.relative_to(ROOT)), 'samOrBookAssetSha256': CANONICAL_SAM_SHA,
+        'presenterFrameSource': str(source.relative_to(ROOT)), 'presenterFrameSourceSha256': binding['variants']['desktop']['sha256'],
+        'composition': 'Complete book plate with native opening presenter; source proportions and colors preserved',
+        'output': outputs['desktop']['path'], 'outputSha256': outputs['desktop']['sha256'], 'dimensions': outputs['desktop']['dimensions'],
+        'portraitOutput': outputs['portrait'], 'privacyRightsStatus': 'Owned book plate and native presenter footage; no private data',
+    }
+
 def render(index, prompt):
+    if index == 12: return render_l12_sam()
     lid = f'L{index:02d}'
     act = ACTS[index-1]
     accent, top, bottom = PALETTE[act]
@@ -109,6 +168,13 @@ def render(index, prompt):
     }
 
 if __name__=='__main__':
+    if '--l12-only' in sys.argv:
+        OUT.mkdir(parents=True,exist_ok=True)
+        manifest=json.loads(MANIFEST.read_text())
+        manifest['posters'][11]=render_l12_sam()
+        MANIFEST.write_text(json.dumps(manifest,indent=2)+'\n')
+        print('Built canonical L12 desktop and portrait posters')
+        sys.exit(0)
     if sha(IDENTITY)!=IDENTITY_SHA: raise RuntimeError('Approved identity reference hash drift')
     prompts=json.loads(PROMPTS.read_text())['prompts']
     if len(prompts)!=16 or [p['id'] for p in prompts]!=[f'accelerated-l{i:02d}-illustrated-avatar/v1' for i in range(1,17)]:raise RuntimeError('Incomplete prompt binding')

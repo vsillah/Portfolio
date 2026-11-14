@@ -23,7 +23,7 @@ import styles from './learning-plan.module.css'
 import { lessons, DECISION_FILE_VERSION, DECISION_FILE_STORAGE_KEY, emptyDecisionFile, validateDecisionFile, type Act, type DecisionFileDraft } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY, validateLearningState, type LearningState } from '@/lib/accelerated-member-progress'
 import { supabase } from '@/lib/supabase'
-import { lessonPosters } from '@/lib/accelerated-lesson-posters'
+import { lessonPosters, l12PortraitPoster } from '@/lib/accelerated-lesson-posters'
 import endScreenBindings from '@/lib/accelerated-end-screen-bindings.json'
 import visualParityBindings from '@/lib/accelerated-visual-parity-bindings.json'
 import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
@@ -159,6 +159,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const endBinding = endScreenBindings.lessons.find((item) => item.lessonId === lesson.id)
   const visualBinding = visualParityBindings.lessons.find((item) => item.lessonId === lesson.id)
   const contextualBinding = (contextualBindings.lessons as Record<string, typeof contextualBindings.lessons.L09>)[lesson.id]
+  const activePosterUrl = lesson.id === 'L12' && contextualBinding && portraitMedia ? l12PortraitPoster : posterUrl
   const activeVideoPath = contextualBinding ? contextualBinding.variants[portraitMedia ? 'portrait' : 'desktop'].path : visualBinding?.videoPath ?? ''
   const activeCaptionPath = contextualBinding?.caption.path ?? lessonMedia?.captions ?? ''
   const activeDuration = contextualBinding?.duration_seconds ?? visualBinding?.durationSeconds ?? 0
@@ -536,7 +537,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         </section>
         {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
-          <div className={styles.videoStage} data-ended={showEndScreen} data-portrait={Boolean(contextualBinding && portraitMedia)} style={{ backgroundImage: `url(${posterUrl})` }}><video key={`${lesson.id}-${contextualBinding ? portraitMedia : 'legacy'}`} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => { if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onSeeked={() => { restoringSourceRef.current = false }} onEmptied={() => { setPosterRevealed(false); if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
+          <div className={styles.videoStage} data-ended={showEndScreen} data-portrait={Boolean(contextualBinding && portraitMedia)} style={{ backgroundImage: `url(${activePosterUrl})` }}><video key={`${lesson.id}-${contextualBinding ? portraitMedia : 'legacy'}`} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => { if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onSeeked={() => { restoringSourceRef.current = false }} onEmptied={() => { setPosterRevealed(false); if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={activePosterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={activeVideoPath} type="video/mp4" />
             <track kind="captions" src={activeCaptionPath} srcLang="en" label="English captions" default />
             Your browser cannot play this video. The read-along transcript is available below.

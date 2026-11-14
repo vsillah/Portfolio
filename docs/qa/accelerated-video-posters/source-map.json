@@ -387,39 +387,31 @@
       }
     },
     {
+      "kind": "canonical_sam",
       "lesson": "L12",
       "title": "Jobs and synthetic signals",
       "act": "MOMENTUM",
-      "lessonBinding": "/accelerated/posters/l12-poster.webp",
-      "approvedLearnerVideo": "public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
-      "approvedLearnerVideoSha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
-      "identityReference": "public/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
-      "identityReferenceSha256": "b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
-      "avatarSource": "docs/qa/accelerated-video-posters/avatar-sources/l12-illustrated-avatar.png",
-      "avatarSourceSha256": "dba4aac54fb6d74a7b713dfc30726ecec6909671e68bb09dab5c13b62cb0945e",
-      "promptIdentity": "accelerated-l12-illustrated-avatar/v1",
-      "promptSha256": "7ef4766df82df446de16824610d770af6e7172bb4b0636281b28a6c583518929",
-      "generationProvenance": {
-        "tool": "openai.image_gen.imagegen",
-        "mode": "reference-guided new illustration",
-        "generatorJobId": "imagegen:exec-caf971d3-8012-4775-a63f-9002672f80c6",
-        "generatedPixels": "new illustrated avatar; no session-frame pixel reuse"
-      },
-      "samOrBookAsset": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
-      "samOrBookAssetSha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3",
-      "output": "public/accelerated/posters/l12-poster.webp",
-      "outputSha256": "efa6782801a66b0cbea9a1b09d274b6ea45edbdcae5c17b28fe8f54de274abe0",
+      "lessonBinding": "/accelerated/posters/l12-poster-desktop-440c7ec3e094.webp",
+      "samOrBookAsset": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+      "samOrBookAssetSha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3",
+      "presenterFrameSource": "public/accelerated/contextual-review/l12/contextual-abdbf06e6be3/l12-desktop.mp4",
+      "presenterFrameSourceSha256": "abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81",
+      "composition": "Complete book plate with native opening presenter; source proportions and colors preserved",
+      "output": "public/accelerated/posters/l12-poster-desktop-440c7ec3e094.webp",
+      "outputSha256": "440c7ec3e0941e1cf0140daa862235af42bd6c6e620ba1e5099ca6053681932a",
       "dimensions": [
         1280,
         720
       ],
-      "privacyRightsStatus": "Approved first-party likeness reference and owned SAM/book artwork; generated illustration for course review only",
-      "visualReview": {
-        "eyesOpen": true,
-        "mouthState": "intentional; no speech frame",
-        "anatomy": "intact hands and face",
-        "duplicatePose": false
-      }
+      "portraitOutput": {
+        "path": "public/accelerated/posters/l12-poster-portrait-42190c63e832.webp",
+        "sha256": "42190c63e832a9f9307e7bd8403fc374fb0493feedac54531c511d31c45484b4",
+        "dimensions": [
+          390,
+          844
+        ]
+      },
+      "privacyRightsStatus": "Owned book plate and native presenter footage; no private data"
     },
     {
       "lesson": "L13",
