@@ -20,11 +20,20 @@ function verifyAcceleratedContextualBinding(options = {}) {
   assert(binding.technical_receipt_sha256 === digest(technicalPath), 'technical receipt drifted')
   assert(approval.candidate_binding_sha256 === digest(bindingPath), 'candidate approval binding drifted')
   const ids = Array.from({ length: 8 }, (_, index) => `L${String(index + 9).padStart(2, '0')}`)
+  const samScenes = { L11: ['L11-03'], L12: ['L12-01'], L16: ['L16-01', 'L16-06'] }
+  const canonicalSam = 'agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png'
+  const canonicalSamHash = 'b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3'
+  assert(digest(canonicalSam) === canonicalSamHash, 'canonical SAM source drifted')
   assert(JSON.stringify(Object.keys(binding.lessons)) === JSON.stringify(ids), 'lesson set changed')
   for (const id of ids) {
     const item = binding.lessons[id]
     const proof = technical.lessons[id]
     assert(proof && Math.abs(item.duration_seconds - proof.duration_seconds) < .001, `${id} duration changed`)
+    if (samScenes[id]) {
+      const correction = proof.sam_framework_correction
+      assert(JSON.stringify(correction?.scene_ids) === JSON.stringify(samScenes[id]), `${id} SAM scene list changed`)
+      assert(correction.canonical_source_path === canonicalSam && correction.canonical_source_sha256 === canonicalSamHash, `${id} SAM source changed`)
+    }
     assert(Math.abs(item.final_caption_end_seconds - item.duration_seconds) < .02, `${id} final cue time changed`)
     assert(item.caption.path === proof.caption.path && item.caption.sha256 === proof.caption.sha256, `${id} caption binding changed`)
     assert(item.caption.sha256 === digest(`public${item.caption.path}`), `${id} caption drifted`)

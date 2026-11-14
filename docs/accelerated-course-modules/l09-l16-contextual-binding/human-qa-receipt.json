@@ -3,14 +3,26 @@
   "status": "human_qa_pending",
   "scope": "Responsive learner media binding for L09-L16 on Accelerated Learning Plan",
   "source_excerpt_receipt_sha256": "7327975f1cc5922da3bd004f7b1af9b797f57005b6a220e4167da0f51aa97fdf",
-  "candidate_binding_sha256": "49363f1ccd8090eb223ef58653d31010c016ea45d977006baa4b46ca39c9664b",
+  "candidate_binding_sha256": "a230568a5ff33de6e5c635294852d2e0e104f29baa978583c9fea423dffa16f8",
   "external_actions_authorized": false,
   "full_lesson_human_qa_claimed": false,
   "approved_at": null,
   "l12_portrait_text_correction": {
     "status": "human_qa_pending",
     "approved_wording": "Source ID \u2192 context \u2192 job \u2192 question",
-    "staged_media_sha256": "8a17969af47fe8620b5a843891e6186d5b9d2996947d9c208757f00b4a9f2a81",
-    "source_media_unchanged": true
+    "staged_media_sha256": "0fec271db0679876d4e53eb416864dce509dce161749a8e56c809f54f618da1e",
+    "source_media_unchanged": false
+  },
+  "sam_framework_consistency": {
+    "status": "human_qa_pending",
+    "scene_ids": [
+      "L11-03",
+      "L12-01",
+      "L16-01",
+      "L16-06"
+    ],
+    "canonical_source_sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3",
+    "audio_streams_unchanged": true,
+    "captions_and_timing_unchanged": true
   }
 }

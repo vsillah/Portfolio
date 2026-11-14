@@ -30,6 +30,8 @@ SLATE = "#2C3E50"
 CREAM = "#EAECEE"
 FONT = Path("/System/Library/Fonts/Avenir Next.ttc")
 PLACEMENT = {"desktop": (1136, 348, 672, 384), "portrait": (18, 526, 354, 200)}
+CANONICAL_SAM = REPO / "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png"
+CANONICAL_SAM_SHA256 = "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3"
 
 
 def run(args: list[str]) -> None:
@@ -101,11 +103,17 @@ def presenter_base(point: str, lesson: str, variant: str, art_source: Path, dest
     draw.rounded_rectangle((margin, margin, w - margin, h - margin), radius=18, outline=GOLD, width=2)
     draw.text((margin + 24, margin + 18), f"ACCELERATED · {lesson}", font=font(18 if variant == "desktop" else 12, 2), fill=GOLD)
     source_art = Image.open(art_source).convert("RGB")
+    sam_scene = art_source.name.startswith(("l12-01-", "l16-01-", "l16-06-"))
     if variant == "desktop":
-        # Reuse the approved high-resolution raster motif, not a simplified redraw.
-        motif = isolate_motif(source_art, (1040, 120, 1840, 970), (500, 610))
-        motif_position = (590 + (500 - motif.width) // 2, 170 + (610 - motif.height) // 2)
-        image.paste(motif, motif_position, motif)
+        if sam_scene:
+            if sha256(CANONICAL_SAM) != CANONICAL_SAM_SHA256:
+                raise RuntimeError("Canonical book SAM plate drifted")
+            motif = ImageOps.contain(Image.open(CANONICAL_SAM).convert("RGB"), (500, 430), Image.Resampling.LANCZOS)
+            image.paste(motif, (590 + (500 - motif.width) // 2, 170 + (430 - motif.height) // 2))
+        else:
+            motif = isolate_motif(source_art, (1040, 120, 1840, 970), (500, 610))
+            motif_position = (590 + (500 - motif.width) // 2, 170 + (610 - motif.height) // 2)
+            image.paste(motif, motif_position, motif)
 
         body_font = font(34, 2)
         lines = wrap_text(draw, point, body_font, 420)
@@ -117,9 +125,15 @@ def presenter_base(point: str, lesson: str, variant: str, art_source: Path, dest
         draw.rounded_rectangle(box, radius=9, fill=(18, 53, 66), outline=GOLD, width=2)
         draw.multiline_text((box[0] + pad_x, box[1] + pad_y - 2), "\n".join(lines), font=body_font, fill=CREAM, spacing=8)
     else:
-        motif = isolate_motif(source_art, (38, 112, 352, 555), (292, 310))
-        motif_position = ((w - motif.width) // 2, 88 + (310 - motif.height) // 2)
-        image.paste(motif, motif_position, motif)
+        if sam_scene:
+            if sha256(CANONICAL_SAM) != CANONICAL_SAM_SHA256:
+                raise RuntimeError("Canonical book SAM plate drifted")
+            motif = ImageOps.contain(Image.open(CANONICAL_SAM).convert("RGB"), (350, 292), Image.Resampling.LANCZOS)
+            image.paste(motif, ((w - motif.width) // 2, 88 + (292 - motif.height) // 2))
+        else:
+            motif = isolate_motif(source_art, (38, 112, 352, 555), (292, 310))
+            motif_position = ((w - motif.width) // 2, 88 + (310 - motif.height) // 2)
+            image.paste(motif, motif_position, motif)
 
         body_font = font(19, 2)
         lines = wrap_text(draw, point, body_font, 292)

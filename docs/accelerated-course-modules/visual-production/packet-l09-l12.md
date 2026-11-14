@@ -464,9 +464,9 @@ Runtime: 660 seconds. Learner artifact: Jobs card and synthetic-signal caveat/va
 
 On screen: `Keep the source beside the job`. Captions: exact narration in bottom 18%, two lines maximum, manually checked against final audio.
 
-Shot: A pile of feedback is not a job Artifact: six fictional feedback cards F01–F06 from L05 ledger; approved Momentum plate opens briefly.
+Shot: A pile of feedback is not a job Artifact: six fictional feedback cards F01–F06 from L05 ledger; the canonical book SAM framework plate opens briefly.
 
-Art: momentum. 16:9: 16:9 master; subject and copy in central 80%; preserve original SAM art and its natural aspect ratio Safe area: Reflow each card into a single-column portrait stack; keep source and decision labels together. 9:16: 9:16 reflow, not a crop of text; one worksheet field or comparison option per view; preserve captions below content
+Art: sam. 16:9: 16:9 master; subject and copy in central 80%; preserve original SAM art and its natural aspect ratio Safe area: Reflow each card into a single-column portrait stack; keep source and decision labels together. 9:16: 9:16 reflow, not a crop of text; one worksheet field or comparison option per view; preserve captions below content
 
 Motion: Reveal only the concept named in narration, then hold the complete card for at least six seconds; cut at scene end. Pace: Let conflicting wording remain visible. Transition: Cut or restrained dissolve at scene boundary; avoid meaning conveyed by movement alone Reduced motion: Show the final labeled state as a still for the same reading hold
 
