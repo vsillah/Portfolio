@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "lesson": "L02",
+  "source": {
+    "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L02.md",
+    "desktop_video": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-qualified-source-rebuild/l02-presenter-desktop-review-1920x1080.mp4",
+    "portrait_video": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-qualified-source-rebuild/l02-presenter-portrait-review-390x844.mp4",
+    "captions": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-optional-captions.vtt",
+    "cue_map": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/c03/cue-map.json"
+  },
+  "style": {
+    "contract": "accelerated-editorial-teaching-plate-v1",
+    "panel": "temporary deep AmaduTown-blue contrast field",
+    "type": "warm cream Avenir Next Demi Bold",
+    "accent": "thin AmaduTown-gold rule and border",
+    "motion": "reveal, hold, replace, clear"
+  },
+  "events": [
+    {
+      "id": "compare-options",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+      "start": 181.2,
+      "end": 201.96,
+      "text": "Compare three options.",
+      "source_cue": "Now put the three options side by side.",
+      "desktop_mask": [0, 0, 760, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 58},
+      "portrait": {"x": 12, "y": 18, "font_size": 28}
+    },
+    {
+      "id": "value-before-paying",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.webp",
+      "start": 258.28,
+      "end": 261.64,
+      "text": "Experience value before paying?",
+      "source_cue": "whether people need to experience value before paying",
+      "desktop_mask": [0, 0, 960, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 54},
+      "portrait": {"x": 12, "y": 18, "font_size": 25}
+    },
+    {
+      "id": "value-over-time",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.webp",
+      "start": 261.64,
+      "end": 263.92,
+      "text": "Does value accumulate over time?",
+      "source_cue": "whether value accumulates over time",
+      "desktop_mask": [0, 0, 980, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 52},
+      "portrait": {"x": 12, "y": 18, "font_size": 24}
+    },
+    {
+      "id": "affordable-free-tier",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.webp",
+      "start": 263.92,
+      "end": 266.24,
+      "text": "Is a free tier affordable?",
+      "source_cue": "whether a free tier is affordable",
+      "desktop_mask": [0, 0, 840, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 54},
+      "portrait": {"x": 12, "y": 18, "font_size": 26}
+    },
+    {
+      "id": "predictable-use",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.webp",
+      "start": 266.24,
+      "end": 267.72,
+      "text": "Is usage predictable?",
+      "source_cue": "whether usage is predictable",
+      "desktop_mask": [0, 0, 760, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 56},
+      "portrait": {"x": 12, "y": 18, "font_size": 27}
+    },
+    {
+      "id": "missing-evidence",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+      "start": 299.52,
+      "end": 303.84,
+      "text": "Name the missing evidence.",
+      "source_cue": "It cannot supply the missing customer and operating evidence...",
+      "desktop_mask": [0, 0, 820, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 56},
+      "portrait": {"x": 12, "y": 18, "font_size": 27}
+    },
+    {
+      "id": "small-test",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/small-test-matte.webp",
+      "start": 303.84,
+      "end": 311.4,
+      "text": "Choose a small test.",
+      "source_cue": "I would choose a small test of the guided first task.",
+      "desktop_mask": [0, 0, 730, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 60},
+      "portrait": {"x": 12, "y": 18, "font_size": 29}
+    },
+    {
+      "id": "challenge-choice",
+      "source_visual": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/decision-record-matte.webp",
+      "start": 338.04,
+      "end": 339.96,
+      "text": "Make the choice easy to challenge.",
+      "source_cue": "Your decision may go another way.",
+      "desktop_mask": [0, 0, 980, 150],
+      "portrait_mask": [0, 0, 390, 104],
+      "desktop": {"x": 40, "y": 28, "font_size": 52},
+      "portrait": {"x": 12, "y": 18, "font_size": 24}
+    }
+  ]
+}

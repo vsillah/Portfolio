@@ -14,7 +14,7 @@ CONTRACT_ID = "accelerated-editorial-teaching-plate-v1"
 FONT = Path("/System/Library/Fonts/Avenir Next.ttc")
 FONT_INDEX = 2
 
-PANEL_FILL = (10, 39, 50, 238)
+PANEL_FILL = (10, 39, 50, 255)
 PANEL_BORDER = (205, 171, 99, 255)
 ACCENT_FILL = (222, 183, 91, 255)
 TEXT_FILL = (249, 241, 219, 255)

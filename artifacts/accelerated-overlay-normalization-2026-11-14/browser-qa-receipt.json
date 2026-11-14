@@ -1,0 +1,17 @@
+{
+  "base_commit": "453d88d7f6db89436f8ddb4e6a145f360d9a9994",
+  "loaded_url": "http://127.0.0.1:8766/artifacts/accelerated-overlay-normalization-2026-11-14/review.html?rev=453d88d7-overlay-captiontoggle",
+  "review_html_sha256": "2ba5fc9f0ad9a6f66d6d9377995f0277cadaf6254046897d6c69a53d0de80b99",
+  "server": "range-capable local review server",
+  "checks": [
+    "L01 landscape cue seeking and overlay playback",
+    "L01 captions default off and explicit captions-on playback",
+    "L01 caption placement centered above native controls",
+    "L02 portrait single-illustration playback with no duplicate layer",
+    "L02 portrait bordered teaching point and caption/control clearance",
+    "L03 portrait single-illustration playback and bordered teaching point",
+    "lesson switching resets captions to off and retains a visible caption toggle"
+  ],
+  "result": "pass",
+  "scope": "local review only; learner media and PR unchanged"
+}

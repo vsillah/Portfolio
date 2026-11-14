@@ -7,9 +7,24 @@
     "pending": "The lesson has not yet reached overlay planning under the current visual direction."
   },
   "lessons": [
-    {"lesson": "L01", "status": "needs_normalization", "review_ready": true},
-    {"lesson": "L02", "status": "needs_normalization", "review_ready": true},
-    {"lesson": "L03", "status": "needs_normalization", "review_ready": true},
+    {
+      "lesson": "L01",
+      "status": "compliant",
+      "review_ready": true,
+      "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l01-teaching-overlay-plan.json"
+    },
+    {
+      "lesson": "L02",
+      "status": "compliant",
+      "review_ready": true,
+      "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-teaching-overlay-plan.json"
+    },
+    {
+      "lesson": "L03",
+      "status": "compliant",
+      "review_ready": true,
+      "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l03-teaching-overlay-plan.json"
+    },
     {
       "lesson": "L04",
       "status": "compliant",

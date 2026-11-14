@@ -1,0 +1,433 @@
+{
+  "contract": "accelerated-editorial-teaching-plate-v1",
+  "lessons": {
+    "L01": {
+      "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l01-teaching-overlay-plan.json",
+      "plan_sha256": "d6d2058dff22bbfc6a98037b1944d338acb438da7dce86f2e1b982178bbcc34d",
+      "desktop_video_sha256": "d61204d50b53e9e880921cacb295fba92da54f71375073f1822aee161052bdb7",
+      "portrait_video_sha256": "d61204d50b53e9e880921cacb295fba92da54f71375073f1822aee161052bdb7",
+      "caption_sha256": "fb76dce31cc8762698a67bc362722ab285ebc1a711bf94110661a804aae136f7",
+      "contact_sheets": {
+        "desktop": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/l01-desktop-contact.jpg",
+        "portrait": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/l01-portrait-contact.jpg"
+      },
+      "outputs": [
+        {
+          "event": "responsible-choice",
+          "variant": "desktop",
+          "second": 37.254,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/responsible-choice-desktop-clean.jpg",
+          "clean_sha256": "164264a7482da599f9975116aef52e192c05c9c2c8d669d7fbb2bfb37da55b28",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/responsible-choice-desktop-caption-on.jpg",
+          "caption_on_sha256": "63f5685a18fbfa571b08f20f2c9651cfcc532488605d5721846b4d308c40807c"
+        },
+        {
+          "event": "decision-path",
+          "variant": "desktop",
+          "second": 105.377,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/decision-path-desktop-clean.jpg",
+          "clean_sha256": "02dbb02b37ec6b1f8647a5934565331b925b7bad5a15f1614d5a10265d0f7950",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/decision-path-desktop-caption-on.jpg",
+          "caption_on_sha256": "6f3b787f6104327fbc3edd196df25b00235eb24f1ef192d6897c580c54f2a11d"
+        },
+        {
+          "event": "human-judgment",
+          "variant": "desktop",
+          "second": 124.117,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/human-judgment-desktop-clean.jpg",
+          "clean_sha256": "99b31ee433332f1c1c715eee21dd79bd13c3986bb95138e703fecbcbc3818355",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/human-judgment-desktop-caption-on.jpg",
+          "caption_on_sha256": "11791c7d776ea8bf46648bc7f30aaaae125552f257d90fe693d836bcc7497959"
+        },
+        {
+          "event": "signals-question",
+          "variant": "desktop",
+          "second": 175.127,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/signals-question-desktop-clean.jpg",
+          "clean_sha256": "3236dc7e4704ab14cb44fd3e475e40f0be7a221157057c04655e17a9860c73c0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/signals-question-desktop-caption-on.jpg",
+          "caption_on_sha256": "07105b0e20ed51bcdfa4056dc485c9f83be43433a96437176537e40590810fe1"
+        },
+        {
+          "event": "approved-inputs",
+          "variant": "desktop",
+          "second": 285.862,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/approved-inputs-desktop-clean.jpg",
+          "clean_sha256": "29d60f178fa2e3c6d461a5024b1d2f3b8c8a90b40f23521f48101590611ee7a1",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/approved-inputs-desktop-caption-on.jpg",
+          "caption_on_sha256": "68f9899bd41b7d999d4938defa36acd334acb098b799b5a7b0e26a761a0951a8"
+        },
+        {
+          "event": "responsible-choice",
+          "variant": "portrait",
+          "second": 37.254,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/responsible-choice-portrait-clean.jpg",
+          "clean_sha256": "db6dc0f604329edde6dcb38d3daac6b21fca13437a16c2b5ef12bdeff711b347",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/responsible-choice-portrait-caption-on.jpg",
+          "caption_on_sha256": "8754e77bcd2e7d563eaa201b37af7cadb1940c4929ab9617c7648bfb92a320f4"
+        },
+        {
+          "event": "decision-path",
+          "variant": "portrait",
+          "second": 105.377,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/decision-path-portrait-clean.jpg",
+          "clean_sha256": "8e67074b31d2b3ead1b9c8f504064ec56c687fe9255b80e764debbabe513f785",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/decision-path-portrait-caption-on.jpg",
+          "caption_on_sha256": "62b358785d127f0bce5251c524c1dc0b86b13fc3ec09adf3c17ec1fb1bb531dc"
+        },
+        {
+          "event": "human-judgment",
+          "variant": "portrait",
+          "second": 124.117,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/human-judgment-portrait-clean.jpg",
+          "clean_sha256": "a40b032cdf84d18cf743f8ddf0fed10f0cf0b02820786478d69956108f79c5a9",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/human-judgment-portrait-caption-on.jpg",
+          "caption_on_sha256": "37c3320359c512bf091b64eb8af11c933f3031fdfb44d751624c9cb339974e84"
+        },
+        {
+          "event": "signals-question",
+          "variant": "portrait",
+          "second": 175.127,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/signals-question-portrait-clean.jpg",
+          "clean_sha256": "eceb0976888adb17e66323d3d4bfcd8d9d1ad2c2e9c9ddb0e09bfc68c018069f",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/signals-question-portrait-caption-on.jpg",
+          "caption_on_sha256": "bddfd2637e112ad5ca80582782613459139255d684e6c882e6fdd3d5467b91a6"
+        },
+        {
+          "event": "approved-inputs",
+          "variant": "portrait",
+          "second": 285.862,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/approved-inputs-portrait-clean.jpg",
+          "clean_sha256": "6bf424f6e2b488383cdd86e3b6bd3ad7b6afcf7e9d846098043c81ce4ba26185",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/approved-inputs-portrait-caption-on.jpg",
+          "caption_on_sha256": "66567a6e2f8d7f7513f25e6cb20409eabcfe12fe5eade828113f0007f755ca2d"
+        }
+      ]
+    },
+    "L02": {
+      "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-teaching-overlay-plan.json",
+      "plan_sha256": "b710d276bbbc9e9f2dd7cedbe9f229017f3ecd31a325cf3b3137cd453c28bded",
+      "desktop_video_sha256": "09b606c4ff15862355b401e260d2aa56ff947dd0eaeeed33ea70217060d7b716",
+      "portrait_video_sha256": "492847faf3c7178b18f2812b038a3b4d3d7f7fde48f57fe978dbbf81646f70d3",
+      "caption_sha256": "2556e6dccdd051cc94ceace9530d80762ef2c2fe59abd970d8fab125021f3f6e",
+      "contact_sheets": {
+        "desktop": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/l02-desktop-contact.jpg",
+        "portrait": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/l02-portrait-contact.jpg"
+      },
+      "outputs": [
+        {
+          "event": "compare-options",
+          "variant": "desktop",
+          "second": 191.58,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/compare-options-desktop-clean.jpg",
+          "clean_sha256": "3d98cafb10f43682b964e42918a9ea33bd12f4ae80b088bdb5e3e42fad6f4881",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/compare-options-desktop-caption-on.jpg",
+          "caption_on_sha256": "4cbc59c964089136b7eba92706949f5232849a69ea84454f8e5f510f5312853a"
+        },
+        {
+          "event": "value-before-paying",
+          "variant": "desktop",
+          "second": 259.96,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-before-paying-desktop-clean.jpg",
+          "clean_sha256": "50f06fdab229a96313aa1006c8240655bb6519cc3907695207a3c36220a4a59f",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-before-paying-desktop-caption-on.jpg",
+          "caption_on_sha256": "a78fd53428a068940c551e1def172e88b170083c737f012f02f8a3c8b21feea5"
+        },
+        {
+          "event": "value-over-time",
+          "variant": "desktop",
+          "second": 262.78,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-over-time-desktop-clean.jpg",
+          "clean_sha256": "08aaf57b39a612abf8e24631e964d644231915ec7af8c9a7780da7821222da9c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-over-time-desktop-caption-on.jpg",
+          "caption_on_sha256": "50fc42e5aaf837f9c71a72d16f097fc27dcefc353b8c06b0e0acc4e7bbfb82d4"
+        },
+        {
+          "event": "affordable-free-tier",
+          "variant": "desktop",
+          "second": 265.08,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/affordable-free-tier-desktop-clean.jpg",
+          "clean_sha256": "aa066a34618b5d4ed8355305d85f6b926022a9d242245cef311a429830d27f53",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/affordable-free-tier-desktop-caption-on.jpg",
+          "caption_on_sha256": "5d6bafee175939004571d5d6aa2339a752714b7bf6aaec792e112aad7ef58c60"
+        },
+        {
+          "event": "predictable-use",
+          "variant": "desktop",
+          "second": 266.98,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/predictable-use-desktop-clean.jpg",
+          "clean_sha256": "ec8259f526e694be61d8ff0745fee813e1c8235e2e4fd7888084e54e635c6cf9",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/predictable-use-desktop-caption-on.jpg",
+          "caption_on_sha256": "4ce1d7b87ecc471f2007d5402c36d17dc9490052ed9cb6410562343ba9103ba8"
+        },
+        {
+          "event": "missing-evidence",
+          "variant": "desktop",
+          "second": 301.68,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/missing-evidence-desktop-clean.jpg",
+          "clean_sha256": "ba7fa968a70a2c32db6bcc3718b40cf4452588298621a43c662df471872220b8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/missing-evidence-desktop-caption-on.jpg",
+          "caption_on_sha256": "188e5398d9e9a8443305f0ed2dff8ef358d5b4d79b6c67f0ef2be6db6f3010bd"
+        },
+        {
+          "event": "small-test",
+          "variant": "desktop",
+          "second": 307.62,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/small-test-desktop-clean.jpg",
+          "clean_sha256": "972827641332a5677f6458373c63be0265a89e8c81c4fa9bf38f349cb8e0d57d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/small-test-desktop-caption-on.jpg",
+          "caption_on_sha256": "60c9ab4e2f745b0858cad91740891c6fc3a7b71a23b1c0cea5c544db36cf9043"
+        },
+        {
+          "event": "challenge-choice",
+          "variant": "desktop",
+          "second": 339.0,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/challenge-choice-desktop-clean.jpg",
+          "clean_sha256": "60485ee7a12bedc6415ce58c17b3438bad624910a0b370303941dbb4965b0126",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/challenge-choice-desktop-caption-on.jpg",
+          "caption_on_sha256": "c863133418a7595ce4a197d8b78b7de87c60bc89097fb5433584cda48495d684"
+        },
+        {
+          "event": "compare-options",
+          "variant": "portrait",
+          "second": 191.58,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/compare-options-portrait-clean.jpg",
+          "clean_sha256": "9aa970bfb40f8e877f2745ab7334122c1536a3137a98c765b252c8008e0328c8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/compare-options-portrait-caption-on.jpg",
+          "caption_on_sha256": "f5625d5d75ba54937387d79fd1a9f27047058f7c355325f67b6c6122a071f0eb"
+        },
+        {
+          "event": "value-before-paying",
+          "variant": "portrait",
+          "second": 259.96,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-before-paying-portrait-clean.jpg",
+          "clean_sha256": "df344e4f322127fa586bed75d1ecdc5b8fe02ae6038f70976330a225cbe61319",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-before-paying-portrait-caption-on.jpg",
+          "caption_on_sha256": "b7b0400bbb4d2d07b52753e992208248e60b71af25a8c37ad6292823e788ed49"
+        },
+        {
+          "event": "value-over-time",
+          "variant": "portrait",
+          "second": 262.78,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-over-time-portrait-clean.jpg",
+          "clean_sha256": "1ce26c7c82aa78363baeb2d6bfe478ffdd25d007940e28e9571df3b0d7ea64a3",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/value-over-time-portrait-caption-on.jpg",
+          "caption_on_sha256": "a16f7a91afbc458318c38b74279524e2517a8a3c61a1204d8b7b327785a25448"
+        },
+        {
+          "event": "affordable-free-tier",
+          "variant": "portrait",
+          "second": 265.08,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/affordable-free-tier-portrait-clean.jpg",
+          "clean_sha256": "0ba83b7692130b4a5c47f59fbbf6d6759416b0bf21643c3d93be64947c01af60",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/affordable-free-tier-portrait-caption-on.jpg",
+          "caption_on_sha256": "2b79c8998dec5cda5f73913d7abb9710c67d3031b29ebb117266d41461b23b6c"
+        },
+        {
+          "event": "predictable-use",
+          "variant": "portrait",
+          "second": 266.98,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/predictable-use-portrait-clean.jpg",
+          "clean_sha256": "53facb1dfb1e6e5a5ad1d9a4a906b732a0e64d0c17f2402baf4aa7c08f514b6d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/predictable-use-portrait-caption-on.jpg",
+          "caption_on_sha256": "806c3e84eaa6980f2b71a812bd92fa417d08697e4ce95fe2b538e5834e9ca5f7"
+        },
+        {
+          "event": "missing-evidence",
+          "variant": "portrait",
+          "second": 301.68,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/missing-evidence-portrait-clean.jpg",
+          "clean_sha256": "4141b069b21cd20cae2ef11565d24993eba1cabc96248614c310a60ca71ea7f1",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/missing-evidence-portrait-caption-on.jpg",
+          "caption_on_sha256": "51af1158e275af5c46f232566eebcf762871059d229fba9afd7ec846a463d07c"
+        },
+        {
+          "event": "small-test",
+          "variant": "portrait",
+          "second": 307.62,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/small-test-portrait-clean.jpg",
+          "clean_sha256": "47a49ce3c016b78d84edaa31c4ef97668f97cc9a0e63f9fd376cc65af5bb295b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/small-test-portrait-caption-on.jpg",
+          "caption_on_sha256": "11b2eafb7d285ea74a0b16698dd6482b5fe80575b989da700165a4b668e624de"
+        },
+        {
+          "event": "challenge-choice",
+          "variant": "portrait",
+          "second": 339.0,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/challenge-choice-portrait-clean.jpg",
+          "clean_sha256": "fa3fbb4d17713f439ea9ceec27275560d3f219d8defa9f05111adaf04b9864b5",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/challenge-choice-portrait-caption-on.jpg",
+          "caption_on_sha256": "a34cc454e46be4e07694ff91f9b65516074de5425807640225cd0a2a79e0d915"
+        }
+      ]
+    },
+    "L03": {
+      "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l03-teaching-overlay-plan.json",
+      "plan_sha256": "4fb9faf43fc1cd69750ea3b2b9b691089af4e30897790f9b80674121e4bf8056",
+      "desktop_video_sha256": "24e5daaa3989dc8ae4324bca4726a08bdc9c16475e264fdd7cd5b0bf5d2987d3",
+      "portrait_video_sha256": "bfbe6e377633cc2ff9c1fe3af216ee79e0a84957df847ffc2e26e3f374c1616c",
+      "caption_sha256": "bfa7d760ae0bb41439e04736839d251ac4e0f6ffbf1b943cf4bc74fcd8a6f845",
+      "contact_sheets": {
+        "desktop": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/l03-desktop-contact.jpg",
+        "portrait": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/l03-portrait-contact.jpg"
+      },
+      "outputs": [
+        {
+          "event": "owner-belief",
+          "variant": "desktop",
+          "second": 55.14,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owner-belief-desktop-clean.jpg",
+          "clean_sha256": "c2075d95ea202914d52b5e766cc583b4b668eb5fab3cd71a87a03f3287d962f7",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owner-belief-desktop-caption-on.jpg",
+          "caption_on_sha256": "256f5e4cabef3c703f156a3e88789ecc47a753fb64daa9241416735390863634"
+        },
+        {
+          "event": "owners-question",
+          "variant": "desktop",
+          "second": 66.86,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owners-question-desktop-clean.jpg",
+          "clean_sha256": "8467e1d4fb44ba48cbffffe1d1cf3a9fe411e57eebe4331b30f681b00fd5f0eb",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owners-question-desktop-caption-on.jpg",
+          "caption_on_sha256": "1687ef190f06f3d37be5cee35d36352ab213087a8ffff62cf0d28b2ebe4ec6d3"
+        },
+        {
+          "event": "work-backward",
+          "variant": "desktop",
+          "second": 110.585,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/work-backward-desktop-clean.jpg",
+          "clean_sha256": "5e56832c1a1dc0546a4acac963f403504cd89d781fdf137143dc7b3517f0eb69",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/work-backward-desktop-caption-on.jpg",
+          "caption_on_sha256": "219961b407829b6588c0984fd1acde3b8654894c16134c5dfd100baa2c2a6732"
+        },
+        {
+          "event": "visible-trade",
+          "variant": "desktop",
+          "second": 158.275,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/visible-trade-desktop-clean.jpg",
+          "clean_sha256": "c0b6608cb36a89d3a3dcfb714ee331bd323e3d0f4b3f34d15c9eeabed04cecf5",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/visible-trade-desktop-caption-on.jpg",
+          "caption_on_sha256": "127ff5b35025cf275eba185e261df6ffaff6941092579daaee0e5ea09d264921"
+        },
+        {
+          "event": "change-mind",
+          "variant": "desktop",
+          "second": 182.915,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/change-mind-desktop-clean.jpg",
+          "clean_sha256": "905821a385b631a3571988fb60ec9db2a7db80f73759cf8fa9ea340ecb28eb99",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/change-mind-desktop-caption-on.jpg",
+          "caption_on_sha256": "0c877c1ff7db9b1dda674bf240981cc7736cd88e739c9ace28a5281404244ade"
+        },
+        {
+          "event": "rehearsal-not-evidence",
+          "variant": "desktop",
+          "second": 217.3,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/rehearsal-not-evidence-desktop-clean.jpg",
+          "clean_sha256": "9f5a8ca729aa3dfee45cd699b0ead254f4d7c4527f205d702ee509b8d8b0cd14",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/rehearsal-not-evidence-desktop-caption-on.jpg",
+          "caption_on_sha256": "fb8b13c2df855aa893e5410751d82e69934875147c9a68fa55edf03f1c7a2c4c"
+        },
+        {
+          "event": "safe-test",
+          "variant": "desktop",
+          "second": 262.274,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/safe-test-desktop-clean.jpg",
+          "clean_sha256": "a464b8e2dc7cae6c9cfa754966d816243a52072772120f843c6c41a90bc2e34e",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/safe-test-desktop-caption-on.jpg",
+          "caption_on_sha256": "295fa9ef0a22d81404779ae2ea762fb7488edc5f62b3a83ed457c1805f50f571"
+        },
+        {
+          "event": "priority-to-evidence",
+          "variant": "desktop",
+          "second": 317.627,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/priority-to-evidence-desktop-clean.jpg",
+          "clean_sha256": "c4022457535e97334a4e092d3536e70dbfe9708b4b14e6e6e2d4c2353ee3cf52",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/priority-to-evidence-desktop-caption-on.jpg",
+          "caption_on_sha256": "d6178d6b651d2c3aed93647397a7f754fcf95cc4afeffa817e13356c0074312f"
+        },
+        {
+          "event": "owner-belief",
+          "variant": "portrait",
+          "second": 55.14,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owner-belief-portrait-clean.jpg",
+          "clean_sha256": "8aa1606161d50ae94c569df7e44e3884493d3996414e76c5e9b816c1feb817e0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owner-belief-portrait-caption-on.jpg",
+          "caption_on_sha256": "8ddbe6df2359a6b3e8db76e3dc34a9de9ec566b678868a7c43757d6910e2599a"
+        },
+        {
+          "event": "owners-question",
+          "variant": "portrait",
+          "second": 66.86,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owners-question-portrait-clean.jpg",
+          "clean_sha256": "8133a714461edc7f367caa3c571e694b224ce9bb3757053cb33f8ff60e939858",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/owners-question-portrait-caption-on.jpg",
+          "caption_on_sha256": "cbf6a31165930ad3cd80e79a98144828a9b5761d2ce4969f794e180c840d8f34"
+        },
+        {
+          "event": "work-backward",
+          "variant": "portrait",
+          "second": 110.585,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/work-backward-portrait-clean.jpg",
+          "clean_sha256": "f98c6fdd5e467fb7a752861528bc4570be5bad758628935a6fea5038183624da",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/work-backward-portrait-caption-on.jpg",
+          "caption_on_sha256": "442815bf8f209ea565e9ec82cadde0d9c5f77c45942630e52f33280d942ad2fa"
+        },
+        {
+          "event": "visible-trade",
+          "variant": "portrait",
+          "second": 158.275,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/visible-trade-portrait-clean.jpg",
+          "clean_sha256": "ad2e835fc7bde22432910cd964523dbcf90a23e30ec2bc8ce683e0e6e9a249fd",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/visible-trade-portrait-caption-on.jpg",
+          "caption_on_sha256": "4fd6571039d5a2b95937a8024f5cc36c5c80c37142d2dcd7daf85c5aa4a42971"
+        },
+        {
+          "event": "change-mind",
+          "variant": "portrait",
+          "second": 182.915,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/change-mind-portrait-clean.jpg",
+          "clean_sha256": "a6df1dff965eee112e7f226d9efb4a63ec5bd2437793309495ed989323334b10",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/change-mind-portrait-caption-on.jpg",
+          "caption_on_sha256": "83bd20b13cb817d2d1252b8bfe500f854316d146b4d8b2a5063307fefbb71508"
+        },
+        {
+          "event": "rehearsal-not-evidence",
+          "variant": "portrait",
+          "second": 217.3,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/rehearsal-not-evidence-portrait-clean.jpg",
+          "clean_sha256": "6c07457b746d8575aabd3d9072d0ec0e1d4daad663f7f896c222d6f21955f9fe",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/rehearsal-not-evidence-portrait-caption-on.jpg",
+          "caption_on_sha256": "47857fbdbfa5be9fdc469056787cb7a36aadf62e9c2e308b1998c6271e90be49"
+        },
+        {
+          "event": "safe-test",
+          "variant": "portrait",
+          "second": 262.274,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/safe-test-portrait-clean.jpg",
+          "clean_sha256": "e84ac1b3f9093cf12c70f6afe874a06a3715c73aa37f2aad72ac28334a286689",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/safe-test-portrait-caption-on.jpg",
+          "caption_on_sha256": "c678cf4c58c1bea938d794fe41dbdc7ee9827226a1e9f9e67ddee3fbfb3f17e5"
+        },
+        {
+          "event": "priority-to-evidence",
+          "variant": "portrait",
+          "second": 317.627,
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/priority-to-evidence-portrait-clean.jpg",
+          "clean_sha256": "c167db0efba684e190080486e3034c423230def4457939a5a8e83d95fe3974fa",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/priority-to-evidence-portrait-caption-on.jpg",
+          "caption_on_sha256": "3bb3cc188dc9b322ea5479ccb7c7314c41a5c670ec313e54b38ea8b5c8080d89"
+        }
+      ]
+    }
+  },
+  "scope": "local still-only normalization; source video, audio, captions, timing, and learner media unchanged",
+  "excluded": [
+    "provider call",
+    "spend",
+    "video render",
+    "learner-media change",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ]
+}
