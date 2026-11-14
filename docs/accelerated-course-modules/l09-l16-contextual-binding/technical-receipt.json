@@ -1,0 +1,323 @@
+{
+  "schema": "accelerated_l09_l16_contextual_binding_v1",
+  "review_sha256": {
+    "desktop": "e3d56170ac6e5ba2d9968c139de17dbd9848ac4b15da7bfa96c9b70a4eea03d3",
+    "portrait": "77670556bc97a1bc729bc09c94c315b09d8a38e84bf928739edf5fe11c4540f8",
+    "receipt": "7327975f1cc5922da3bd004f7b1af9b797f57005b6a220e4167da0f51aa97fdf"
+  },
+  "video_encoder": "libx264 preset=fast crf=21; source audio stream copied",
+  "lessons": {
+    "L09": {
+      "duration_seconds": 481.596167,
+      "source_receipt_sha256": "31db61eba80537194c0992a3369ba2db2cb98120000ef45e230a3aa752996845",
+      "caption_source_sha256": "891468203960ecfd612a13cdf7ed2fe9b26985396fd831fa91ff5777f0e8952c",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l09/contextual-7e853ba3a377/l09-desktop.mp4",
+          "sha256": "7e853ba3a377ea20f754039653032677690689bf543504a26875e0a2930aac32",
+          "source_sha256": "14a01eaa905ad96b0a5312081da8b1d6b19c335d3072faaf109381df9534f3ab",
+          "bytes_before": 49341635,
+          "bytes_after": 23968253,
+          "audio_stream_hash": "SHA256=a78092f8f14c463caf4a4aa286a4b5e7f2732c67feb87c7724d5fff7c883a3aa",
+          "ssim": 0.999019,
+          "duration_seconds": 481.6,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l09/contextual-9ff63eaeb2a7/l09-portrait.mp4",
+          "sha256": "9ff63eaeb2a70c4e9e14ac3cc150ba79407f27a63eb7fbeab669459c57cecdb6",
+          "source_sha256": "a0a4a6be59d77824b07cb97976e45a59cacc48fcaaf16d7acccf7eb0ad491ab9",
+          "bytes_before": 21617069,
+          "bytes_after": 15211670,
+          "audio_stream_hash": "SHA256=a78092f8f14c463caf4a4aa286a4b5e7f2732c67feb87c7724d5fff7c883a3aa",
+          "ssim": 0.998667,
+          "duration_seconds": 481.6,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l09/captions-891468203960/l09-captions.vtt",
+        "sha256": "891468203960ecfd612a13cdf7ed2fe9b26985396fd831fa91ff5777f0e8952c"
+      }
+    },
+    "L10": {
+      "duration_seconds": 419.238333,
+      "source_receipt_sha256": "b1158b7d7b78831c2b97320c3341c0bc3625516e2f01078508edacf5f3e9eb7b",
+      "caption_source_sha256": "b33204544e73e5da29b443fdb90f637d38cbb9407828ccdedd3e5eac0cc763b3",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l10/contextual-c1f12a7b6f50/l10-desktop.mp4",
+          "sha256": "c1f12a7b6f505b81fd7d74e5dfa4c9d24458d26ccc796e202f5e1752cd3e9fba",
+          "source_sha256": "0d25977792ba3bc0abe55bf8c620d51e417cec8f202bb81d430d93e1b1ae9179",
+          "bytes_before": 44708816,
+          "bytes_after": 21861124,
+          "audio_stream_hash": "SHA256=004ac1539379f707e6705870c95e5db74a1156f210d946a483ed677d0c06456e",
+          "ssim": 0.999025,
+          "duration_seconds": 419.24,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l10/contextual-b6caac716342/l10-portrait.mp4",
+          "sha256": "b6caac716342fc527a0a2a098704af15f3ee8632ddd2a0a2eef309bb98a011d1",
+          "source_sha256": "588094f6befe9b83181c5b1ebabd2d0e7001e866f75600604e04135e9559129a",
+          "bytes_before": 19170526,
+          "bytes_after": 13444221,
+          "audio_stream_hash": "SHA256=004ac1539379f707e6705870c95e5db74a1156f210d946a483ed677d0c06456e",
+          "ssim": 0.998603,
+          "duration_seconds": 419.24,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l10/captions-b33204544e73/l10-captions.vtt",
+        "sha256": "b33204544e73e5da29b443fdb90f637d38cbb9407828ccdedd3e5eac0cc763b3"
+      }
+    },
+    "L11": {
+      "duration_seconds": 431.5585,
+      "source_receipt_sha256": "2c2968699e5ec00fb7844fbc0f891f455e2c8deb6e1a3ea8d6550563decdd35b",
+      "caption_source_sha256": "c9ea96e19a2cec7fcf0c3e4dac533e00d2c0a7288935dc33b7c8547847f01b37",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l11/contextual-33831456047f/l11-desktop.mp4",
+          "sha256": "33831456047f92863773da0c3809b6b045b569825deb8f1c69c80ac5319504e8",
+          "source_sha256": "2f7425b884592a4fa9344d76a5a41feffd39753d70bc6959ef14011547c106e4",
+          "bytes_before": 51261396,
+          "bytes_after": 23423471,
+          "audio_stream_hash": "SHA256=c9ee58f0044831e01ba5c068fe642db93bc4850556b06d86a77ebcffe94e5268",
+          "ssim": 0.998861,
+          "duration_seconds": 431.56,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l11/contextual-4c32148de983/l11-portrait.mp4",
+          "sha256": "4c32148de9839520e4711e7b689d19536d00d2d59e0bb6a2006c396769101378",
+          "source_sha256": "9c8896d13f26b2bd945535913ec2a4c875faec15c3ad59c1b87b773091ffbac7",
+          "bytes_before": 20957841,
+          "bytes_after": 14267906,
+          "audio_stream_hash": "SHA256=c9ee58f0044831e01ba5c068fe642db93bc4850556b06d86a77ebcffe94e5268",
+          "ssim": 0.998444,
+          "duration_seconds": 431.56,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l11/captions-c9ea96e19a2c/l11-captions.vtt",
+        "sha256": "c9ea96e19a2cec7fcf0c3e4dac533e00d2c0a7288935dc33b7c8547847f01b37"
+      }
+    },
+    "L12": {
+      "duration_seconds": 460.459375,
+      "source_receipt_sha256": "541a48b15eca1596b2b2d4dc944912601c397d0a8763e3d59b1e7fa4186241d0",
+      "caption_source_sha256": "0363e17aba64d2986b417f7ac0fb6585896c9f5d43743fb5ec285de8c104f749",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l12/contextual-ef2b26aaf326/l12-desktop.mp4",
+          "sha256": "ef2b26aaf3260aef32a8ea51d1318fa32691bd2586c74b51dbdda210c877da02",
+          "source_sha256": "b46934d58dccb0349bd0297e2e3637159701d75ad55fc3d57ed08c2c761ffb5b",
+          "bytes_before": 47700172,
+          "bytes_after": 23790573,
+          "audio_stream_hash": "SHA256=60fa992c5d4a6fc134c8ab7599ecf160756523717ea7b08e434052e383092a23",
+          "ssim": 0.998981,
+          "duration_seconds": 460.459,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l12/contextual-2990188f9901/l12-portrait.mp4",
+          "sha256": "2990188f9901975aaaa5c0f8e11e46f7d1c42fc9abe29a527f3f5f3e4e1cf0a8",
+          "source_sha256": "38b1e02876052efa3383f176b0e946fe392fa444b928abe374fef84393bdcaaf",
+          "bytes_before": 20753224,
+          "bytes_after": 14730268,
+          "audio_stream_hash": "SHA256=60fa992c5d4a6fc134c8ab7599ecf160756523717ea7b08e434052e383092a23",
+          "ssim": 0.998529,
+          "duration_seconds": 460.459,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l12/captions-0363e17aba64/l12-captions.vtt",
+        "sha256": "0363e17aba64d2986b417f7ac0fb6585896c9f5d43743fb5ec285de8c104f749"
+      }
+    },
+    "L13": {
+      "duration_seconds": 485.91375,
+      "source_receipt_sha256": "01cf057125e2098a562900cc6b2055e7d54e7918957ab067db6f0400c01d4afc",
+      "caption_source_sha256": "87380ddf8fadce2e98cc8aee4a7aaebb4b64381d9a63117888e52295c1d0723a",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l13/contextual-e2ec988deb50/l13-desktop.mp4",
+          "sha256": "e2ec988deb5015a907c022de99691b929767e1972e855f9a85af561cb509f76e",
+          "source_sha256": "356d466617873ba3d64b8e2d000d2e49c60e948750370c9ec0b2f45b48974135",
+          "bytes_before": 55502343,
+          "bytes_after": 25023453,
+          "audio_stream_hash": "SHA256=28e37ea0466e412cc14cdd5043d4f675ebf9255f334d6285bb85aca5f59df8db",
+          "ssim": 0.99898,
+          "duration_seconds": 485.92,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l13/contextual-b10a013f0ab7/l13-portrait.mp4",
+          "sha256": "b10a013f0ab7c3477223258878386c6c15e8fce9feefd889ab15ab4411816573",
+          "source_sha256": "89e0cac32efa3c8ef0eddfc1e8e1d8a8d9ddd713c94fb66f66f258fb20404b12",
+          "bytes_before": 22526348,
+          "bytes_after": 15398562,
+          "audio_stream_hash": "SHA256=28e37ea0466e412cc14cdd5043d4f675ebf9255f334d6285bb85aca5f59df8db",
+          "ssim": 0.998612,
+          "duration_seconds": 485.92,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l13/captions-87380ddf8fad/l13-captions.vtt",
+        "sha256": "87380ddf8fadce2e98cc8aee4a7aaebb4b64381d9a63117888e52295c1d0723a"
+      }
+    },
+    "L14": {
+      "duration_seconds": 368.532979,
+      "source_receipt_sha256": "0b36d1b6a13d62ba530cdc47db1b3b15db23ca5c89bc2ef260bbb6c4b0063127",
+      "caption_source_sha256": "6b756f2773e572b63d6bea51013fff1b9d7f5acb8638bd0e91532fce2eaf5d33",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l14/contextual-202cfea6fab3/l14-desktop.mp4",
+          "sha256": "202cfea6fab3639c4d1a56e636188ea4101769a64312864d4c9a8327518a4ddf",
+          "source_sha256": "c1f1426d0d8639018f5519e7ae1a868cbb8e8a8b10435718f2942f50a00bf521",
+          "bytes_before": 40609487,
+          "bytes_after": 19842733,
+          "audio_stream_hash": "SHA256=c29bff63306ab049c0204724f11b9c0fcc4893033bb7abed8c88c221876d702a",
+          "ssim": 0.998895,
+          "duration_seconds": 368.533,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l14/contextual-6fe4b7594ecd/l14-portrait.mp4",
+          "sha256": "6fe4b7594ecd202549f368092f53f573e058884bde3b36f315b89039aedd61fb",
+          "source_sha256": "e4d3fdbd5804d543c5158bec4ec74b09b7922de1b23cbc1fbe293877c86d64cb",
+          "bytes_before": 17133615,
+          "bytes_after": 11942735,
+          "audio_stream_hash": "SHA256=c29bff63306ab049c0204724f11b9c0fcc4893033bb7abed8c88c221876d702a",
+          "ssim": 0.998441,
+          "duration_seconds": 368.533,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l14/captions-6b756f2773e5/l14-captions.vtt",
+        "sha256": "6b756f2773e572b63d6bea51013fff1b9d7f5acb8638bd0e91532fce2eaf5d33"
+      }
+    },
+    "L15": {
+      "duration_seconds": 582.974708,
+      "source_receipt_sha256": "04901a6293ff12c4863522ec4a6bf9cb8a44491961809ebff40edb1da8a4be12",
+      "caption_source_sha256": "b98349f550c5d63c34c4cd5aa3f064b384437b116811a556e400bc0d2743e345",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l15/contextual-48931b72b012/l15-desktop.mp4",
+          "sha256": "48931b72b012fc3e3cd98a373f63550482b9a7f48017a6ef9946037eac115fad",
+          "source_sha256": "23db53dc2fd8690f4ca1796ba7fd8750aa91f70a81d2c6a40589cd8549a9f3b3",
+          "bytes_before": 68009134,
+          "bytes_after": 30261009,
+          "audio_stream_hash": "SHA256=4214c693db1789e6b7efc81f87d4f6942f565e3794c70b2c7fee277b73281f81",
+          "ssim": 0.999011,
+          "duration_seconds": 582.975,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l15/contextual-378544de2c72/l15-portrait.mp4",
+          "sha256": "378544de2c728668a0281e80d4bcf5f60ed91d8e940d20d22ce916cd3ead0c2e",
+          "source_sha256": "1fa59dfd96eebd84511a99018d823f52aff55f4f04e0fdddc2a702b12b9625d7",
+          "bytes_before": 27387024,
+          "bytes_after": 18547967,
+          "audio_stream_hash": "SHA256=4214c693db1789e6b7efc81f87d4f6942f565e3794c70b2c7fee277b73281f81",
+          "ssim": 0.998696,
+          "duration_seconds": 582.975,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l15/captions-b98349f550c5/l15-captions.vtt",
+        "sha256": "b98349f550c5d63c34c4cd5aa3f064b384437b116811a556e400bc0d2743e345"
+      }
+    },
+    "L16": {
+      "duration_seconds": 376.246,
+      "source_receipt_sha256": "15639526a52939050277ebf51a4bdf89e98b6edcdd71a35255adebf64c543091",
+      "caption_source_sha256": "abfd3c5dd7eab493def965911d20adabc7b502a22bd29886136a267758fe14a9",
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/contextual-review/l16/contextual-f74b3fd02d69/l16-desktop.mp4",
+          "sha256": "f74b3fd02d6936cdec825d72c13a1e17f64dd4b0839fa9120940054555e8c5d2",
+          "source_sha256": "f00e2adc417dec8bcba5a2f25fcd51d48e2dbd5439616f89bbaaf83b297e19da",
+          "bytes_before": 42973063,
+          "bytes_after": 20659238,
+          "audio_stream_hash": "SHA256=3cb3705ec2a4a8d49293debdd97ef072527cc075f587a8d07c2ace4dc8013bc5",
+          "ssim": 0.99887,
+          "duration_seconds": 376.246,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "/accelerated/contextual-review/l16/contextual-2498c362aa22/l16-portrait.mp4",
+          "sha256": "2498c362aa22daa805df00f40651900d10780e699770978b2973492a7d67ea92",
+          "source_sha256": "7ef4e52b12f2ae6565256d9305d3ccff14d2cdea9079bd0ae7fd54d53e5c5c1e",
+          "bytes_before": 17998664,
+          "bytes_after": 12397900,
+          "audio_stream_hash": "SHA256=3cb3705ec2a4a8d49293debdd97ef072527cc075f587a8d07c2ace4dc8013bc5",
+          "ssim": 0.998387,
+          "duration_seconds": 376.246,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      },
+      "caption": {
+        "path": "/accelerated/contextual-review/l16/captions-abfd3c5dd7ea/l16-captions.vtt",
+        "sha256": "abfd3c5dd7eab493def965911d20adabc7b502a22bd29886136a267758fe14a9"
+      }
+    }
+  }
+}

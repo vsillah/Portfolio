@@ -1,0 +1,10 @@
+{
+  "schema": "accelerated_l09_l16_responsive_binding_review_v1",
+  "status": "human_qa_pending",
+  "scope": "Responsive learner media binding for L09-L16 on Accelerated Learning Plan",
+  "source_excerpt_receipt_sha256": "7327975f1cc5922da3bd004f7b1af9b797f57005b6a220e4167da0f51aa97fdf",
+  "candidate_binding_sha256": "5b3ae290e3e28ba6b28fc44132afa868229057e89db3f855a71f76705bc03b7c",
+  "external_actions_authorized": false,
+  "full_lesson_human_qa_claimed": false,
+  "approved_at": null
+}
