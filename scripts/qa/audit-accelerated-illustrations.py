@@ -356,6 +356,7 @@ def readme(data):
         f"L09–L16 have **{data['title_only_source_shot_count']} title-only shot fields** in the source manifest. The gallery proposes scene-specific directions from their approved narration and labels them as proposals. L05-02 has a source-shot timing conflict: it lists F01–F06 there, while its narration places F05/F06 in Scene 3.", '',
         '## Visual direction', '',
         'Agentified is a useful comparison because its reviewed scenes keep a recognizable work surface while the decision changes. Accelerated should keep its own approved SAM, Signals, Alignment, and Momentum vocabulary: dark navy, teal, warm gold, source notes, decision files, and chapter art. Let the illustration show the situation, the evidence, and the change. Keep labels short and tied to a visible artifact.', '',
+        'For L01, use each distinct approved high-resolution Signals, Alignment, and Momentum plate when that path is the focus. Use the complete SAM infographic for an overview or to explain relationships between paths. Keep source arrow labels complete and readable; a cropped path panel must not leave fragments of neighboring labels. A book character may be introduced with the approved cover and a short name label when narration first names them, without inventing a portrait.', '',
         '| Lesson | Persistent illustration anchor |', '| --- | --- |',
     ]
     lines += [f'| {lid} | {anchor} |' for lid, anchor in LESSON_ANCHORS.items()]
