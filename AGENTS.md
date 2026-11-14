@@ -125,6 +125,18 @@ When developing Portfolio admin, agent-ops, content, outreach, review, or approv
 - During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
 - Public-facing copy written in Vambah's voice must not refer to Vambah by name or in the third person. Normalize authored messaging to first person or fail messaging QA before Human QA. Internal provenance, audit, and reviewer-trace fields may retain the original source wording.
 
+## Course Presenter Composition Rule
+
+For Accelerated and other Portfolio course or workshop media, the presenter must remain a distinct native-video section within one coherent slide—not appear embedded in the teaching illustration.
+
+- Preserve the presenter's original recorded background and use one restrained Agentified-style thin outline. Do not remove, key, mask, feather, recolor, or replace the presenter background.
+- Use one continuous AmaduTown slide background, texture, and color field around the presenter section and teaching content. Do not add a thick frame, nested card, contrasting rail, or permanent split-screen enclosure.
+- Never place the presenter video on top of an illustration, inside an illustration's focal composition, or over art that continues visibly behind the presenter frame. The presenter source region and teaching-illustration region must have distinct, non-overlapping bounds within the continuous slide field.
+- Keep the presenter in the fixed Agentified-style middle-right position whenever shown. Reserve that presenter-safe zone before composing headings, diagrams, labels, connectors, or supporting art.
+- Show the presenter only when direct address materially helps the lesson: an opening or closing, a transition, an emphasis that benefits from human presence, or an explanation where seeing the speaker improves comprehension. Use a full-screen teaching illustration when the scene is primarily contextual, atmospheric, diagrammatic, or self-explanatory.
+- On mobile, recompose the same continuous slide field around the intact native presenter section. Do not duplicate the illustration, remove the recorded presenter background, or fall back to a boxed video tile.
+- Before rendering motion, create desktop and mobile stills that mark the presenter-safe zone and prove that no illustration subject, connector, text, or texture extends beneath the presenter frame. Any frame that makes the presenter look embedded in the illustration fails captain review and must be corrected before Human QA.
+
 ## Automatic Social Content Calendar Preparation Rule
 
 Treat `scheduled_for` as the deadline by which an evidenced, version-bound Social Content candidate must already be ready for Human QA. It must never start source discovery or package preparation at the event time. The existing campaign review backlog and calendar due-gate cron own this preparation path; do not create a second inbox.
