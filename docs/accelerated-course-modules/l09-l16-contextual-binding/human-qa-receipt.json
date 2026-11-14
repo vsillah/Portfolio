@@ -28,7 +28,7 @@
   "l12_paused_poster_correction": {
     "status": "human_qa_pending",
     "receipt_path": "docs/accelerated-course-modules/l09-l16-contextual-binding/l12-poster-receipt.json",
-    "receipt_sha256": "0120ff1a423b851d3a72b59b9026f0df45448b790122e27fde1cc66a96276f25",
+    "receipt_sha256": "50a3217c7119ba2c03d5513656db795d7cfdc980e3c4050793fa708ca257d861",
     "desktop_poster_sha256": "440c7ec3e0941e1cf0140daa862235af42bd6c6e620ba1e5099ca6053681932a",
     "portrait_poster_sha256": "42190c63e832a9f9307e7bd8403fc374fb0493feedac54531c511d31c45484b4"
   }

@@ -3,6 +3,7 @@
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageStat
@@ -59,6 +60,13 @@ def main():
         difference = ImageChops.difference(rendered.crop(upper), poster.crop(upper))
         mean = sum(ImageStat.Stat(difference).mean) / 3
         require(mean <= item['max_poster_mean_absolute_rgb'], f'{variant} rendered poster mismatch: mean RGB difference {mean:.2f}')
+        playback = item['playback']
+        movie = ROOT / playback['path']
+        require(digest(movie) == playback['sha256'], f'{variant} browser playback clip drifted')
+        probe = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration:stream=codec_name,width,height,r_frame_rate,nb_frames', '-of', 'json', str(movie)]))
+        video, audio = probe['streams']
+        require(abs(float(probe['format']['duration']) - 9.6) < .02 and video['r_frame_rate'] == '10/1' and int(video['nb_frames']) == 96, f'{variant} playback timeline changed')
+        require([video['width'], video['height']] == expected_size and audio['codec_name'] == 'aac', f'{variant} playback streams changed')
         print(f'{variant}: paused screenshot matches canonical poster (mean RGB difference {mean:.2f})')
 
 

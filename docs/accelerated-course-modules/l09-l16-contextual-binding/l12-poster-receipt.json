@@ -34,7 +34,19 @@
         1216,
         665
       ],
-      "max_poster_mean_absolute_rgb": 26
+      "max_poster_mean_absolute_rgb": 26,
+      "playback": {
+        "path": "artifacts/accelerated-l12-poster-qa/l12-paused-to-playback-desktop-a0fa465ab.mp4",
+        "sha256": "befb68816763ae5a3571fc2d939ba793059a50d891067c0e3c1477eba5b54a38",
+        "duration_seconds": 9.6,
+        "frame_rate": "10/1",
+        "video_frames": 96,
+        "dimensions": [
+          1280,
+          720
+        ],
+        "audio_codec": "aac"
+      }
     },
     "portrait": {
       "poster_path": "public/accelerated/posters/l12-poster-portrait-42190c63e832.webp",
@@ -57,7 +69,19 @@
         342,
         777
       ],
-      "max_poster_mean_absolute_rgb": 37
+      "max_poster_mean_absolute_rgb": 37,
+      "playback": {
+        "path": "artifacts/accelerated-l12-poster-qa/l12-paused-to-playback-mobile-a0fa465ab.mp4",
+        "sha256": "e16e7777a984ee597c69023881f9455a57835dcffce253fcd050e2df842ea3b8",
+        "duration_seconds": 9.6,
+        "frame_rate": "10/1",
+        "video_frames": 96,
+        "dimensions": [
+          390,
+          844
+        ],
+        "audio_codec": "aac"
+      }
     }
   }
 }
