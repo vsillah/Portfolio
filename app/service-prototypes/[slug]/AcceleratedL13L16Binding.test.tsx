@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createRequire } from 'node:module'
 import { visualParityBindings, AcceleratedLearningPlan, reviewL13L16Media, lessons } from './AcceleratedLearningPlan'
+import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
 
 const require = createRequire(import.meta.url)
 const originalApproval = require('../../../docs/accelerated-course-modules/l13-l16-learner-binding/human-qa-approval-receipt.json')
@@ -50,8 +51,8 @@ describe('Accelerated L13–L16 correction review binding', () => {
     expect(screen.getByRole('region', { name: `${id} guided video` })).toBeInTheDocument()
     const video = screen.getByLabelText(`${id} ${lesson.title} guided video`)
     expect(video).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === id)?.videoPath)
-    expect(document.querySelector('video track')).toHaveAttribute('src', reviewL13L16Media[id].captions)
+    expect(document.querySelector('video source')).toHaveAttribute('src', contextualBindings.lessons[id].variants.desktop.path)
+    expect(document.querySelector('video track')).toHaveAttribute('src', contextualBindings.lessons[id].caption.path)
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
     fireEvent.loadedMetadata(video)
@@ -59,7 +60,7 @@ describe('Accelerated L13–L16 correction review binding', () => {
     fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
     expect(track.mode).toBe('disabled')
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
-    expect(screen.getByText(reviewL13L16Media[id].transcript.cues[0].text)).toBeInTheDocument()
+    expect(screen.getByText(contextualBindings.lessons[id].transcript.cues[0].text)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
   })
