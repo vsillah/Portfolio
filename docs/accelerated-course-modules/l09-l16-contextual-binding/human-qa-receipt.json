@@ -24,5 +24,12 @@
     "canonical_source_sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3",
     "audio_streams_unchanged": true,
     "captions_and_timing_unchanged": true
+  },
+  "l12_paused_poster_correction": {
+    "status": "human_qa_pending",
+    "receipt_path": "docs/accelerated-course-modules/l09-l16-contextual-binding/l12-poster-receipt.json",
+    "receipt_sha256": "0120ff1a423b851d3a72b59b9026f0df45448b790122e27fde1cc66a96276f25",
+    "desktop_poster_sha256": "440c7ec3e0941e1cf0140daa862235af42bd6c6e620ba1e5099ca6053681932a",
+    "portrait_poster_sha256": "42190c63e832a9f9307e7bd8403fc374fb0493feedac54531c511d31c45484b4"
   }
 }
