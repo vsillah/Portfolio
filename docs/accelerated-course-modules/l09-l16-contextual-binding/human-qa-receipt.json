@@ -14,7 +14,7 @@
     "source_media_unchanged": false
   },
   "sam_framework_consistency": {
-    "status": "human_qa_pending",
+    "status": "visual_choice_superseded_still_review_pending",
     "scene_ids": [
       "L11-03",
       "L12-01",
@@ -26,9 +26,11 @@
     "captions_and_timing_unchanged": true
   },
   "l12_paused_poster_correction": {
-    "status": "human_qa_pending",
+    "status": "visual_choice_superseded_still_review_pending",
     "receipt_path": "docs/accelerated-course-modules/l09-l16-contextual-binding/l12-poster-receipt.json",
-    "receipt_sha256": "50a3217c7119ba2c03d5513656db795d7cfdc980e3c4050793fa708ca257d861",
+    "receipt_sha256": "7f764bcc60925801756711d0ddfcf17a722245fc5d4d9471cb71df38cde33af0",
+    "raster_still_receipt_path": "artifacts/accelerated-sam-focus-stills-2026-11-14/receipt.json",
+    "raster_still_receipt_sha256": "626c476aba289bd402ea4b24c242f08af8391caf3dc11c92a115219f59d03ce0",
     "desktop_poster_sha256": "440c7ec3e0941e1cf0140daa862235af42bd6c6e620ba1e5099ca6053681932a",
     "portrait_poster_sha256": "42190c63e832a9f9307e7bd8403fc374fb0493feedac54531c511d31c45484b4"
   }

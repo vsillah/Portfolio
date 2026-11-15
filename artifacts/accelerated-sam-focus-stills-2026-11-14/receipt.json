@@ -1,0 +1,245 @@
+{
+  "schema": "accelerated_sam_raster_focus_stills_v1",
+  "status": "still_only_visual_review_pending",
+  "source_book": {
+    "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+    "sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3",
+    "dimensions": [
+      3300,
+      2742
+    ]
+  },
+  "user_reference_sha256": "c530a383d89c125e2bbef4827f5cbde3ff124d58d9c68e34a1e4c68d05a51407",
+  "raster_recreations": {
+    "alignment": {
+      "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/alignment-raster.png",
+      "sha256": "496ec67b62d372b07bfcb3d939273879d80f177e3b34cf44ed1e9b8d98eaca71",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "method": "imagegen raster recreation grounded in canonical book plate; no source bitmap crop or SVG final art"
+    },
+    "momentum": {
+      "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/momentum-raster.png",
+      "sha256": "7d37baf2841fc7115c1a7d9bd3f6860ed9eebdbe10ffad8186019534c33010d6",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "method": "imagegen raster recreation grounded in canonical book plate; no source bitmap crop or SVG final art"
+    },
+    "clientq": {
+      "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/clientq-raster.png",
+      "sha256": "209dae1f622fef51c1d3714d1b72a399790b9eb17b99624b8d1149c2232bb56c",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "method": "imagegen raster recreation grounded in canonical book plate; no source bitmap crop or SVG final art"
+    }
+  },
+  "scenes": {
+    "L09-01": {
+      "class": "column-focus",
+      "focus": "alignment",
+      "statement": "A sound recommendation can still stall",
+      "presenter_source": {
+        "path": "public/accelerated/contextual-review/l09/contextual-7e853ba3a377/l09-desktop.mp4",
+        "sha256": "7e853ba3a377ea20f754039653032677690689bf543504a26875e0a2930aac32",
+        "frame_box": [
+          1136,
+          348,
+          1808,
+          732
+        ]
+      },
+      "narration_source": {
+        "path": "docs/accelerated-course-modules/l09-l12-learner-binding/l09-transcript.json",
+        "sha256": "89086087faf92f7557a026f1d5e5830223a69a77d310b3173febaf987119bde1"
+      },
+      "outputs": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/l09-01-alignment-1280x720.png",
+          "sha256": "5282c28a5b3877e36c69babbe0007b4d9bb20e540cc84d56108b974dc37e67ea",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "locator_source_box": [
+            1150,
+            350,
+            2150,
+            2370
+          ],
+          "presenter_box": [
+            809,
+            193,
+            1231,
+            434
+          ]
+        },
+        "portrait": {
+          "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/l09-01-alignment-390x844.png",
+          "sha256": "193ab3fa49fa221dbe651530fef7f6f188d688686495beeb2dea8585925d71d4",
+          "dimensions": [
+            390,
+            844
+          ],
+          "locator_source_box": [
+            1150,
+            350,
+            2150,
+            2370
+          ],
+          "presenter_box": [
+            18,
+            605,
+            372,
+            807
+          ]
+        }
+      }
+    },
+    "L12-01": {
+      "class": "column-focus",
+      "focus": "momentum",
+      "statement": "Keep the source beside the job",
+      "presenter_source": {
+        "path": "public/accelerated/contextual-review/l12/contextual-abdbf06e6be3/l12-desktop.mp4",
+        "sha256": "abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81",
+        "frame_box": [
+          1136,
+          348,
+          1808,
+          732
+        ]
+      },
+      "narration_source": {
+        "path": "docs/accelerated-course-modules/l09-l12-learner-binding/l12-transcript.json",
+        "sha256": "97f4fdfc5938b1f7ea8fda48e3f54987cfbfe11f04a078ec952005cf00841278"
+      },
+      "outputs": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/l12-01-momentum-1280x720.png",
+          "sha256": "4b0d7d9b04e479da01a854ce643e34a40209341d50cdf70aa395ee1eff02d8cc",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "locator_source_box": [
+            2195,
+            350,
+            3170,
+            2370
+          ],
+          "presenter_box": [
+            809,
+            193,
+            1231,
+            434
+          ]
+        },
+        "portrait": {
+          "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/l12-01-momentum-390x844.png",
+          "sha256": "f733edbd36336bd62e22c3a7cfeb5444bcc975d79c84e4cbedabd67f0a42c38a",
+          "dimensions": [
+            390,
+            844
+          ],
+          "locator_source_box": [
+            2195,
+            350,
+            3170,
+            2370
+          ],
+          "presenter_box": [
+            18,
+            605,
+            372,
+            807
+          ]
+        }
+      }
+    },
+    "L12-03": {
+      "class": "component-focus",
+      "focus": "clientq",
+      "statement": "A book case gives us a method, not proof",
+      "presenter_source": {
+        "path": "public/accelerated/contextual-review/l12/contextual-abdbf06e6be3/l12-desktop.mp4",
+        "sha256": "abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81",
+        "frame_box": [
+          1136,
+          348,
+          1808,
+          732
+        ]
+      },
+      "narration_source": {
+        "path": "docs/accelerated-course-modules/l09-l12-learner-binding/l12-transcript.json",
+        "sha256": "97f4fdfc5938b1f7ea8fda48e3f54987cfbfe11f04a078ec952005cf00841278"
+      },
+      "outputs": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/l12-03-clientq-1280x720.png",
+          "sha256": "32dc6330e0172cfa639b479ea1b09302dfcf13c8a33475c5ac7a64f7b54b1573",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "locator_source_box": [
+            2510,
+            600,
+            2820,
+            1200
+          ],
+          "presenter_box": [
+            809,
+            193,
+            1231,
+            434
+          ]
+        },
+        "portrait": {
+          "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/l12-03-clientq-390x844.png",
+          "sha256": "a6c74a9f9ea462e6e1930d099366f153917cc6791ad38783d9469214abe08f33",
+          "dimensions": [
+            390,
+            844
+          ],
+          "locator_source_box": [
+            2510,
+            600,
+            2820,
+            1200
+          ],
+          "presenter_box": [
+            18,
+            605,
+            372,
+            807
+          ]
+        }
+      }
+    }
+  },
+  "contact_sheets": {
+    "desktop": {
+      "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/contact-desktop.png",
+      "sha256": "d56123294988470998020e2190f992c0e1d149e897a554ae73773008539d4d5b",
+      "dimensions": [
+        1920,
+        360
+      ]
+    },
+    "portrait": {
+      "path": "artifacts/accelerated-sam-focus-stills-2026-11-14/contact-390x844.png",
+      "sha256": "76d4a92602f305a3815047111a8ac243512ccf50ca1ed64a77b500497ae404e4",
+      "dimensions": [
+        1170,
+        844
+      ]
+    }
+  }
+}

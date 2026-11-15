@@ -27,8 +27,10 @@ def main():
     manifest = json.loads((ROOT / 'docs/qa/accelerated-video-posters/source-map.json').read_text())['posters'][11]
     end_screen = json.loads((ROOT / 'lib/accelerated-end-screen-bindings.json').read_text())['lessons'][11]
     approval = json.loads((ROOT / 'docs/accelerated-course-modules/l09-l16-contextual-binding/human-qa-receipt.json').read_text())['l12_paused_poster_correction']
-    require(approval['status'] == 'human_qa_pending' and approval['receipt_sha256'] == digest(RECEIPT), 'pending Human QA receipt drifted')
-    require(receipt['schema'] == 'accelerated_l12_paused_poster_v1' and receipt['status'] == 'human_qa_pending', 'review receipt changed')
+    require(approval['status'] == 'visual_choice_superseded_still_review_pending' and approval['receipt_sha256'] == digest(RECEIPT), 'superseded poster receipt drifted')
+    require(receipt['schema'] == 'accelerated_l12_paused_poster_v1' and receipt['status'] == 'superseded_visual_choice_pending_replacement', 'review receipt changed')
+    still_receipt = ROOT / approval['raster_still_receipt_path']
+    require(digest(still_receipt) == approval['raster_still_receipt_sha256'], 'raster still receipt drifted')
     canonical = receipt['canonical_sam']
     require(canonical['sha256'] == 'b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3', 'canonical source identity changed')
     require(digest(ROOT / canonical['path']) == canonical['sha256'], 'canonical source drifted')

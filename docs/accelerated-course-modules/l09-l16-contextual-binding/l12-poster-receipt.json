@@ -1,6 +1,7 @@
 {
   "schema": "accelerated_l12_paused_poster_v1",
-  "status": "human_qa_pending",
+  "status": "superseded_visual_choice_pending_replacement",
+  "superseding_still_receipt": "artifacts/accelerated-sam-focus-stills-2026-11-14/receipt.json",
   "capture_commit": "a0fa465ab",
   "capture_url": "http://127.0.0.1:3008/accelerated/learningplan?review=a0fa465ab",
   "canonical_sam": {

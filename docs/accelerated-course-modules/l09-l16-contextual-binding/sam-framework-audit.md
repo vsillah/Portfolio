@@ -1,5 +1,7 @@
 # L09–L16 SAM visual audit
 
+> Superseded visual choice: the full-map treatment for L12-01 and its paused poster is pending replacement. See [the scene-selection audit](sam-scene-selection-audit.md) and [durable rule](sam-scene-selection-rule.md). The previously rendered media and poster remain in PR #1273; they are not approved by the new still-only review.
+
 The book plate is the visual source of truth whenever a scene depicts the Signals → Alignment → Momentum framework:
 
 `agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png`
