@@ -1,0 +1,1706 @@
+{
+  "url": "http://localhost:3107/service-prototypes/accelerated-cohort?qa=end-screen-fix",
+  "checks": [
+    {
+      "viewport": "desktop",
+      "lesson": "L01",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L02",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L03",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L04",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L05",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L06",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L07",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L08",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L09",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L10",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L11",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L12",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L13",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L14",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L15",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        523.03125,
+        392.703125
+      ],
+      "preview": [
+        489.03125,
+        275.078125
+      ],
+      "controlClearance": 109.09375,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L16",
+      "stage": [
+        1086,
+        610.875
+      ],
+      "stagePosition": [
+        279.234375,
+        890.109375
+      ],
+      "overlay": [
+        1086,
+        610.875
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L01",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L02",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L03",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L04",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L05",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L06",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L07",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L08",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L09",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L10",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L11",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L12",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L13",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L14",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L15",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        616,
+        181.3125
+      ],
+      "preview": [
+        261.890625,
+        147.3125
+      ],
+      "controlClearance": 56.96875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mid",
+      "lesson": "L16",
+      "stage": [
+        656,
+        390
+      ],
+      "stagePosition": [
+        509.890625,
+        899.890625
+      ],
+      "overlay": [
+        656,
+        390
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L01",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L02",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L03",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        249.21875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 101.421875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L04",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L05",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.359375,
+        834.359375
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 123.6875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L06",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L07",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.359375,
+        834.359375
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        249.21875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 113.65625,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L08",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L09",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L10",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.359375,
+        834.359375
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        249.21875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 113.65625,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L11",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L12",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        249.21875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 101.421875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L13",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L14",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        249.21875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 101.421875,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L15",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.03125,
+        834.03125
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextCard": [
+        280,
+        229.171875
+      ],
+      "preview": [
+        258,
+        145.125
+      ],
+      "controlClearance": 111.453125,
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L16",
+      "stage": [
+        306,
+        560
+      ],
+      "stagePosition": [
+        274.359375,
+        834.359375
+      ],
+      "overlay": [
+        306,
+        560
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "background": "linear-gradient(110deg, rgb(13, 38, 46), rgb(22, 51, 58))",
+      "pointerEvents": "none",
+      "bottomHit": "VIDEO",
+      "controls": true,
+      "overflow": false
+    }
+  ]
+}

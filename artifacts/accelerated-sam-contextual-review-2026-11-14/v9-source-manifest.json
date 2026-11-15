@@ -1,0 +1,179 @@
+{
+  "schema": "accelerated_sam_v9_review_source_manifest",
+  "status": "review_only",
+  "accepted_audio": {
+    "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accepted-signals-audio-carrier-v9.mp4",
+    "sha256": "fe5e51f23fdc84e10b0498aac9866b1a157401937ba20403cb2b81abb4451d8b",
+    "packet_stream_sha256": "5f5f92a73a6dbe1958ddf9598f38ff1c19b0fb2061ff3f3783eb035aedb4707d",
+    "usage": "audio stream only; carrier visuals are superseded and never shown or learner-bound"
+  },
+  "scenes": {
+    "L01-03": {
+      "source": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+      "source_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "start_seconds": 240,
+      "duration_seconds": 8,
+      "presenter_crop": [
+        1424,
+        792,
+        1867,
+        1045
+      ],
+      "input_stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/l01-03-book-desktop-sourcewide-preflight.png",
+          "sha256": "a221f3b5383ceea0c61328bd41b70a89e404941520dc6fd88b97565e7cb205bf"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/l01-03-book-mobile-sourcewide-preflight.png",
+          "sha256": "776b224cc9f6ccbe5c6928ae85917bbbbc0f1e9c17659672e095fd07ae8c1381"
+        }
+      },
+      "approved_v9_after": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-desktop-after.png",
+          "sha256": "600946d8c7b7345c0b28e0d1dc0cbe6c5855e525a8e430cb6bd37e8e4031a2b2"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-mobile-after.png",
+          "sha256": "6f3705c2c46b3032105586897a24ffc6e0fe560d01a1aa7775aeae983729863c"
+        }
+      }
+    },
+    "L02-02": {
+      "source": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+      "source_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "start_seconds": 100,
+      "duration_seconds": 8,
+      "presenter_crop": null,
+      "input_stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-layout-correction-2026-11-15/l02-02-signals-column-desktop-v8-intact-1280x720.png",
+          "sha256": "2a8c4224612d8ca6bf232584194353bcdac8b8ec14004030d4cc5410b26df813"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-layout-correction-2026-11-15/l02-02-signals-column-mobile-v8-intact-390x844.png",
+          "sha256": "124e3a124fd6008bd0a284b8625ea1e4216954f713b4ea2058cb67604fcf680e"
+        }
+      },
+      "approved_v9_after": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-desktop-after.png",
+          "sha256": "2a8c4224612d8ca6bf232584194353bcdac8b8ec14004030d4cc5410b26df813"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-mobile-after.png",
+          "sha256": "124e3a124fd6008bd0a284b8625ea1e4216954f713b4ea2058cb67604fcf680e"
+        }
+      }
+    },
+    "L05-01": {
+      "source": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+      "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "start_seconds": 2,
+      "duration_seconds": 8,
+      "presenter_crop": [
+        951,
+        168,
+        1895,
+        700
+      ],
+      "input_stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-layout-correction-2026-11-15/l05-01-signals-column-desktop-v8-intact-1280x720.png",
+          "sha256": "f82bcc117f50ec06babc32746aa7346e199de806fd34ae013089564cca557bc8"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-layout-correction-2026-11-15/l05-01-signals-column-mobile-v8-intact-390x844.png",
+          "sha256": "a3072053e7d5d9f3e2e09424f390f6e09f676ee7111aa75532afedc3e2da7815"
+        }
+      },
+      "approved_v9_after": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-desktop-after.png",
+          "sha256": "f82bcc117f50ec06babc32746aa7346e199de806fd34ae013089564cca557bc8"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-mobile-after.png",
+          "sha256": "4a202cb1a39fa34c3396c43f4a8f623df0da42d3c7df5733953df7d44c10f9ef"
+        }
+      },
+      "approved_v9_sequence_mobile": {
+        "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-mobile-after-copy-sequence.png",
+        "sha256": "4e673b7334a50f9c741ddbee8a953b3e215bac67f14c939f11d29e40e2882d89",
+        "copy": "Decision before theme",
+        "plate_visible_in_this_state": false
+      }
+    },
+    "L05-03": {
+      "source": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+      "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "start_seconds": 212,
+      "duration_seconds": 8,
+      "presenter_crop": [
+        951,
+        168,
+        1895,
+        700
+      ],
+      "input_stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-layout-correction-2026-11-15/l05-03-signals-funnel-desktop-v8-intact-1280x720.png",
+          "sha256": "e7c1f5f06cdeac6d9c4d1bbb5028f70825ef6d21cb599aa018d7d632fbad6aad"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-layout-correction-2026-11-15/l05-03-signals-funnel-mobile-v8-intact-390x844.png",
+          "sha256": "1d62303995fc2a91277c72f29f9556e6d7f64dc0c7f36f9a9ea388ff50dabd98"
+        }
+      },
+      "approved_v9_after": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-desktop-after.png",
+          "sha256": "edef76901526bf6587ee88d93a552b6981f9dbaab95cef91e0e7b217afdb27f3"
+        },
+        "mobile": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-mobile-after.png",
+          "sha256": "c4a0a04b287748e4f23e22fb09c812fc00e05b2fae64136a805cec449a9fbc21"
+        }
+      },
+      "approved_v9_sequence_mobile": {
+        "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-mobile-after-copy-sequence.png",
+        "sha256": "aec4dfa3e3a249282e5cddd4964609c75f01caf6ce5a679ab14aaa848385df34",
+        "copy": "One complaint, several jobs",
+        "plate_visible_in_this_state": false
+      }
+    }
+  },
+  "captions": {
+    "desktop": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-review-v9-conditional.vtt",
+      "sha256": "f0ef5938b26d72e8dd8178f9336080a9fbf55db76a0571f7ffcbcdec356e616e",
+      "cue_count": 8,
+      "words_and_times_match_accepted_v6": true
+    },
+    "mobile": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-review-v9-conditional.vtt",
+      "sha256": "0c6af3357d35495310612ce2588eb1bcebf5c3943ad63bb32d584b4b4217ab3c",
+      "cue_count": 8,
+      "words_and_times_match_accepted_v6": true
+    }
+  },
+  "approved_walkthroughs": {
+    "desktop": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "8439de0c32a218b23db27d962b951102783e691dd2d60d63689812c5284d7188",
+      "capture_source": {
+        "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-player-capture-v9-conditional.webm",
+        "sha256": "3212aeffa4661e1e65bfdde098c81824397e1eca7c253147a403931944ffb895"
+      }
+    },
+    "mobile": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "f49e6bf0182395a1809a8f560a8436d9675e8e5b9ef35a156a7b46340f69b650",
+      "capture_source": {
+        "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-player-capture-v9-conditional.webm",
+        "sha256": "a6770040be5471da2ee7443c1c1c6ab18d028fe6be3be98c67a1c3fb9f542d2a"
+      }
+    }
+  }
+}

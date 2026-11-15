@@ -7,7 +7,7 @@ This package redraws the 98 teaching scenes in L01–L16 while preserving the ap
 - The source script and scene timing are `manifest.json` in this directory.
 - `lib/accelerated-end-screen-bindings.json` pins the sixteen original MP4s, VTTs, and posters by SHA-256. Those originals remain in `public/accelerated/lessons/`.
 - `scripts/qa/accelerated-scene-concepts.tsv` supplies a source-specific visual model for each scene. The renderer checks the set of 98 IDs exactly.
-- The approved local SAM infographic, Signals/Alignment plates, and public Accelerated book cover are hashed in `artifacts/accelerated-visual-parity-2026-11-10/scene-receipt.json`. They keep their natural aspect ratios.
+- The book's canonical SAM framework plate is `agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png` (SHA-256 `b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3`). Signals/Alignment plates and the public Accelerated book cover retain their own source identities.
 - The scene receipt records every illustration and presenter background hash. `composite-receipt.json` records each derived MP4, source MP4, captions, presenter window, and duration. `lib/accelerated-visual-parity-bindings.json` is the learner-player binding for the derived MP4s.
 
 ## Rebuild and verify
@@ -24,3 +24,7 @@ python3 scripts/qa/verify-accelerated-visual-parity.py
 The compositor refuses source, caption, frame, or script drift. It replaces the teaching region with the corresponding illustration and preserves the original presenter panel during its exact native windows. L16 closes with a timed SAM-to-book-cover sequence before the final in-stage next-action overlay. The verifier checks all sixteen output hashes, durations, frame counts, byte-identical copied audio and subtitle streams, and presenter-pixel similarity at a native-window sample.
 
 The course player has no separate guided-work countdown. Its existing playback, seek, captions, progress, and Decision File behavior remains in the React player. The end slide appears only after native playback ends at the final caption boundary and clears on seeking or replay.
+
+## SAM framework visual rule
+
+Use the complete canonical book plate for framework overview and return-to-system scenes. For narration within one act or one book mechanism, create a source-faithful high-resolution raster recreation at teaching scale. Preserve the book's geometry, hierarchy, labels, connector meanings and endpoints, palette, ornament, and matte printed finish. A crop of the original bitmap is a source reference, not the finished focus view. Keep the presenter in a separate native-background section and the teaching statement outside the art. Do not substitute a generic icon, circular diagram, or SVG redraw. Lesson-specific diagrams that do not represent SAM retain their own source art. The [scene-selection rule](../l09-l16-contextual-binding/sam-scene-selection-rule.md) and [Signals audit](../sam-visual-system/signals-scene-audit.md) record the current still-only proposal; no learner media changes follow from the rule alone.

@@ -1,0 +1,487 @@
+{
+  "schema": "accelerated_player_state_audit_v1",
+  "route": "http://localhost:3108/accelerated/learningplan",
+  "scope": "read-only L01-L16 desktop and 390x844",
+  "results": [
+    {
+      "id": "L01",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L02",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L03",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L04",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L05",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L06",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L07",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L08",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L09",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L10",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L11",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L12",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L13",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L14",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L15",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L16",
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L01",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L02",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L03",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L04",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L05",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L06",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L07",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L08",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L09",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L10",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L11",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L12",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L13",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L14",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L15",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    },
+    {
+      "id": "L16",
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "checks": {
+        "resting_poster": true,
+        "paused_frame": true,
+        "ending_coverage": true,
+        "replay": true
+      },
+      "failures": []
+    }
+  ]
+}

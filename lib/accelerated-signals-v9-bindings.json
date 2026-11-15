@@ -1,0 +1,101 @@
+{
+  "schema": "accelerated_signals_v9_learner_binding_v1",
+  "status": "review_pending",
+  "source_head": "0e72afd83ca7b574f26034f8c462d6003edccf9c",
+  "lessons": {
+    "L01": {
+      "duration_seconds": 540,
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/signals-v9/l01/signals-f5b78eda4f22/l01-desktop.mp4",
+          "sha256": "f5b78eda4f223d39c5e3bd69fd1d89805dd501b6fac0cf92b0c13b2fa57f5a84",
+          "bytes": 44324474
+        },
+        "portrait": {
+          "path": "/accelerated/signals-v9/l01/signals-7d71357a8fff/l01-portrait.mp4",
+          "sha256": "7d71357a8fff15accfe1539a601fb292d9ff589ce6ebd8686ebd858309c6bf09",
+          "bytes": 7889725
+        }
+      },
+      "caption": {
+        "path": "/accelerated/lessons/l01/approved-ee09bf72/l01-approved-captions.vtt",
+        "sha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f"
+      },
+      "poster": {
+        "path": "/accelerated/posters/l01-poster.webp",
+        "sha256": "bd83a117c1c80c7579b9b25b7da5f63c95e462a5a0808d58b1a66acb7e27d72d"
+      },
+      "audio_stream_sha256": "SHA256=772e99f0e85a42fa676262eee405143f454142aa6c94289ff223ecddc6559276",
+      "focus_windows": [
+        {
+          "start_seconds": 240,
+          "end_seconds": 248
+        }
+      ]
+    },
+    "L02": {
+      "duration_seconds": 600,
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/signals-v9/l02/signals-2c00b11452d4/l02-desktop.mp4",
+          "sha256": "2c00b11452d45f2c3fbf366713b0f98e38f8cd3c6dcfcac38b3088bf873e6e2c",
+          "bytes": 39070535
+        },
+        "portrait": {
+          "path": "/accelerated/signals-v9/l02/signals-76b45f4f22c2/l02-portrait.mp4",
+          "sha256": "76b45f4f22c2dc1f244eb98da965dd1141f24cef67ca0d2a692f7ff49ca31a98",
+          "bytes": 8360151
+        }
+      },
+      "caption": {
+        "path": "/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+        "sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd"
+      },
+      "poster": {
+        "path": "/accelerated/posters/l02-poster.webp",
+        "sha256": "1497219fd502fe450e0fe9db04b821eaf3e5b9620e2f1b6652e1fa072bec0044"
+      },
+      "audio_stream_sha256": "SHA256=3b68d7c70412135062bf807dbc6fb127e12b73cb3cdd92ad2745d3b279294b12",
+      "focus_windows": [
+        {
+          "start_seconds": 100,
+          "end_seconds": 108
+        }
+      ]
+    },
+    "L05": {
+      "duration_seconds": 600,
+      "variants": {
+        "desktop": {
+          "path": "/accelerated/signals-v9/l05/signals-b8cdff6efc9f/l05-desktop.mp4",
+          "sha256": "b8cdff6efc9f0cd1235d80109b3c33eba27f5e3f9d75955d22a1d9afb4e61a9b",
+          "bytes": 43863026
+        },
+        "portrait": {
+          "path": "/accelerated/signals-v9/l05/signals-39349db79262/l05-portrait.mp4",
+          "sha256": "39349db79262da02853d90302b886059b90088212a463e966100c40e70dcf6f1",
+          "bytes": 8904284
+        }
+      },
+      "caption": {
+        "path": "/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+        "sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30"
+      },
+      "poster": {
+        "path": "/accelerated/posters/l05-poster.webp",
+        "sha256": "0122f6a4537bd778f2f889a40fca70a0d0355b8106bfd6eec3b207c674c92e1a"
+      },
+      "audio_stream_sha256": "SHA256=32ff490c75f8b1c64628f45466c793afcc626686d17107dd782a9aaae90b700e",
+      "focus_windows": [
+        {
+          "start_seconds": 2,
+          "end_seconds": 10
+        },
+        {
+          "start_seconds": 212,
+          "end_seconds": 220
+        }
+      ]
+    }
+  }
+}

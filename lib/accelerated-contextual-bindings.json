@@ -2,7 +2,7 @@
   "schema": "accelerated_l09_l16_contextual_review_v1",
   "status": "human_qa_pending",
   "approved_excerpt_receipt_sha256": "7327975f1cc5922da3bd004f7b1af9b797f57005b6a220e4167da0f51aa97fdf",
-  "technical_receipt_sha256": "802f64553e3169d7ad0c65e78385cfeee6c48c8329f9bdb19443081f666ec577",
+  "technical_receipt_sha256": "60382f737fe05d9f175e65cf9e83482619531bedb67fc147a307beb5892fe43f",
   "lessons": {
     "L09": {
       "duration_seconds": 481.596167,
@@ -1106,12 +1106,12 @@
       "duration_seconds": 431.5585,
       "variants": {
         "desktop": {
-          "path": "/accelerated/contextual-review/l11/contextual-33831456047f/l11-desktop.mp4",
-          "sha256": "33831456047f92863773da0c3809b6b045b569825deb8f1c69c80ac5319504e8"
+          "path": "/accelerated/contextual-review/l11/contextual-26609d825fd9/l11-desktop.mp4",
+          "sha256": "26609d825fd94e952b73daae6736398cf37cd4ec6146fafcaf5398ebe1404d52"
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l11/contextual-4c32148de983/l11-portrait.mp4",
-          "sha256": "4c32148de9839520e4711e7b689d19536d00d2d59e0bb6a2006c396769101378"
+          "path": "/accelerated/contextual-review/l11/contextual-c1cb23524858/l11-portrait.mp4",
+          "sha256": "c1cb23524858cdbaa4b8c6d4489f1b25b3349d15f4892c145eb532a31ae78c3c"
         }
       },
       "caption": {
@@ -1595,12 +1595,12 @@
       "duration_seconds": 460.459375,
       "variants": {
         "desktop": {
-          "path": "/accelerated/contextual-review/l12/contextual-ef2b26aaf326/l12-desktop.mp4",
-          "sha256": "ef2b26aaf3260aef32a8ea51d1318fa32691bd2586c74b51dbdda210c877da02"
+          "path": "/accelerated/contextual-review/l12/contextual-1f8ce8e1ed69/l12-desktop.mp4",
+          "sha256": "1f8ce8e1ed696353feccfc41fb0a0a8d88676788b4030ea613c813e56a223386"
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l12/contextual-8a17969af47f/l12-portrait.mp4",
-          "sha256": "8a17969af47fe8620b5a843891e6186d5b9d2996947d9c208757f00b4a9f2a81"
+          "path": "/accelerated/contextual-review/l12/contextual-05a80651834b/l12-portrait.mp4",
+          "sha256": "05a80651834b4ecb63895bc4bcccda723c2e9c9f49470a3ecb4032e5e0817829"
         }
       },
       "caption": {
@@ -3786,12 +3786,12 @@
       "duration_seconds": 376.246,
       "variants": {
         "desktop": {
-          "path": "/accelerated/contextual-review/l16/contextual-f74b3fd02d69/l16-desktop.mp4",
-          "sha256": "f74b3fd02d6936cdec825d72c13a1e17f64dd4b0839fa9120940054555e8c5d2"
+          "path": "/accelerated/contextual-review/l16/contextual-17dd91579767/l16-desktop.mp4",
+          "sha256": "17dd9157976715d37fe3780c56d3698f4c7b12048001b679c2db66f5f26f6e1c"
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l16/contextual-2498c362aa22/l16-portrait.mp4",
-          "sha256": "2498c362aa22daa805df00f40651900d10780e699770978b2973492a7d67ea92"
+          "path": "/accelerated/contextual-review/l16/contextual-5a40846b9c0b/l16-portrait.mp4",
+          "sha256": "5a40846b9c0b2d9f99deb949aa6ca350ab8d594b14000010a629436d42bae32d"
         }
       },
       "caption": {

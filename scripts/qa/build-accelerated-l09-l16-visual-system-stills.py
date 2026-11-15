@@ -21,6 +21,8 @@ from accelerated_overlay_style import CONTRACT_ID, render_teaching_plate
 
 
 ROOT = Path(__file__).resolve().parents[2]
+CANONICAL_SAM = ROOT / "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png"
+CANONICAL_SAM_SHA256 = "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3"
 OUT = ROOT / "artifacts/accelerated-overlay-normalization-2026-11-14/l09-l16-still-rebuild"
 FONT = Path("/System/Library/Fonts/Avenir Next.ttc")
 
@@ -32,7 +34,7 @@ ART = {
     "signals": ROOT / "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
     "alignment": ROOT / "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
     "momentum": ROOT / "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
-    "sam": ROOT / "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+    "sam": CANONICAL_SAM,
 }
 PLATES = ROOT / "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates"
 CHARACTERS = PLATES / "l02-c02-book-style-flat-source-plates-2026-11-13"
@@ -43,7 +45,7 @@ SUPPORT_ART = {
     "L09": [ART["alignment"], L04_ART / "l04-scene-01.png", CHARACTERS / "customer-flat-matte-diverse.webp", BOARD / "wayfinding-desktop.webp", CHARACTERS / "competition-flat-matte-diverse.webp", ART["alignment"]],
     "L10": [ART["alignment"], CHARACTERS / "company-flat-matte-diverse.webp", CHOICES / "choice-options-matte.webp", CHOICES / "evidence-check-matte.webp", CHARACTERS / "competition-flat-matte-diverse.webp", ART["alignment"]],
     "L11": [ART["momentum"], CHOICES / "small-test-matte.webp", ART["sam"], CHARACTERS / "customer-flat-matte-diverse.webp", BOARD / "wayfinding-desktop.webp", ART["momentum"]],
-    "L12": [CHARACTERS / "customer-flat-matte-diverse.webp", CHARACTERS / "company-flat-matte-diverse.webp", CHARACTERS / "product-flat-matte.webp", CHARACTERS / "competition-flat-matte-diverse.webp", CHOICES / "small-test-matte.webp", BOARD / "wayfinding-desktop.webp"],
+    "L12": [CANONICAL_SAM, CHARACTERS / "company-flat-matte-diverse.webp", CHARACTERS / "product-flat-matte.webp", CHARACTERS / "competition-flat-matte-diverse.webp", CHOICES / "small-test-matte.webp", BOARD / "wayfinding-desktop.webp"],
     "L13": [ART["momentum"], CHOICES / "economic-fit-matte.webp", CHOICES / "small-test-matte.webp", CHARACTERS / "product-flat-matte.webp", CHARACTERS / "competition-flat-matte-diverse.webp", ART["momentum"]],
     "L14": [CHARACTERS / "company-flat-matte-diverse.webp", CHOICES / "evidence-check-matte.webp", CHOICES / "choice-options-matte.webp", CHARACTERS / "competition-flat-matte-diverse.webp", CHARACTERS / "company-flat-matte-diverse.webp", BOARD / "board-desktop.webp"],
     "L15": [ART["momentum"], BOARD / "board-desktop.webp", CHOICES / "evidence-check-matte.webp", ART["signals"], BOARD / "wayfinding-desktop.webp", ART["momentum"]],
@@ -144,7 +146,8 @@ def paper_field(size: tuple[int, int]) -> Image.Image:
 def prepare_art(path: Path, box: tuple[int, int, int, int]) -> tuple[Image.Image, tuple[int, int]]:
     x1, y1, x2, y2 = box
     image = Image.open(path).convert("RGBA")
-    image = ImageEnhance.Color(image).enhance(.9)
+    if path != CANONICAL_SAM:
+        image = ImageEnhance.Color(image).enhance(.9)
     image.thumbnail((x2 - x1, y2 - y1), Image.Resampling.LANCZOS)
     return image, (x1 + (x2 - x1 - image.width) // 2, y1 + (y2 - y1 - image.height) // 2)
 
@@ -200,12 +203,12 @@ def compose(scene: dict[str, Any], portrait: bool, destination: Path, temp: Path
     teaching_plate(frame, scene["title"], portrait, temp)
     draw = ImageDraw.Draw(frame, "RGBA")
     if portrait:
-        art_box = (42, 145, 348, 435)
+        art_box = (20, 130, 370, 465) if scene["visual_source"] == CANONICAL_SAM else (42, 145, 348, 435)
         art, pos = prepare_art(scene["visual_source"], art_box)
         frame.alpha_composite(art, pos)
         draw.text((26, 692), scene["id"], font=font(13, 2), fill=GOLD_LIGHT)
     else:
-        art_box = (1010, 160, 1810, 940)
+        art_box = (970, 115, 1840, 940) if scene["visual_source"] == CANONICAL_SAM else (1010, 160, 1810, 940)
         art, pos = prepare_art(scene["visual_source"], art_box)
         frame.alpha_composite(art, pos)
         draw.text((80, 995), scene["id"], font=font(18, 2), fill=GOLD_LIGHT)
@@ -314,6 +317,8 @@ def build_review_walkthrough(scenes: dict[str, list[dict[str, Any]]]) -> tuple[P
 
 def main() -> None:
     scenes = packet_scenes()
+    if sha256(CANONICAL_SAM) != CANONICAL_SAM_SHA256:
+        raise SystemExit("Canonical book SAM plate drifted")
     support_sources = sorted({source for sources in SUPPORT_ART.values() for source in sources}, key=str)
     for source in (*PACKETS, *ART.values(), *support_sources):
         if not source.exists():

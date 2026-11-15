@@ -1,0 +1,208 @@
+{
+  "schema": "accelerated_sam_v9_conditional_contextual_review",
+  "status": "local_review_only",
+  "source_manifest_sha256": "33785b459ad4746af84fd0b78e370094a4c29694401345cb09ede3d9ee4f7b3d",
+  "v9_stills_receipt_sha256": "f3b3c0f2bd4c25db1303794b318de4c1f058c3135020d43e939e38468c09db28",
+  "scene_duration_seconds": 8,
+  "mobile_copy_state_seconds": 1.6,
+  "duration_seconds": 32,
+  "fps": 25,
+  "frames": 800,
+  "learner_bindings_changed": false,
+  "outputs": {
+    "desktop": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-review-v9-conditional.mp4",
+      "sha256": "c2bb416fb09770113049da171fd257cdbe9ebd44ad4bb53a4ab25270d495552e",
+      "scenes": [
+        {
+          "scene": "L01-03",
+          "source": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+          "source_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+          "start_seconds": 240,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-desktop-after.png",
+              "sha256": "600946d8c7b7345c0b28e0d1dc0cbe6c5855e525a8e430cb6bd37e8e4031a2b2",
+              "duration_seconds": 8
+            }
+          ],
+          "presenter_crop": [
+            1424,
+            792,
+            1867,
+            1045
+          ]
+        },
+        {
+          "scene": "L02-02",
+          "source": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+          "source_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+          "start_seconds": 100,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-desktop-after.png",
+              "sha256": "2a8c4224612d8ca6bf232584194353bcdac8b8ec14004030d4cc5410b26df813",
+              "duration_seconds": 8
+            }
+          ],
+          "presenter_crop": null
+        },
+        {
+          "scene": "L05-01",
+          "source": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+          "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+          "start_seconds": 2,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-desktop-after.png",
+              "sha256": "f82bcc117f50ec06babc32746aa7346e199de806fd34ae013089564cca557bc8",
+              "duration_seconds": 8
+            }
+          ],
+          "presenter_crop": [
+            951,
+            168,
+            1895,
+            700
+          ]
+        },
+        {
+          "scene": "L05-03",
+          "source": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+          "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+          "start_seconds": 212,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-desktop-after.png",
+              "sha256": "edef76901526bf6587ee88d93a552b6981f9dbaab95cef91e0e7b217afdb27f3",
+              "duration_seconds": 8
+            }
+          ],
+          "presenter_crop": [
+            951,
+            168,
+            1895,
+            700
+          ]
+        }
+      ],
+      "accepted_audio_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accepted-signals-audio-carrier-v9.mp4",
+      "accepted_audio_sha256": "fe5e51f23fdc84e10b0498aac9866b1a157401937ba20403cb2b81abb4451d8b",
+      "captions": {
+        "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-review-v9-conditional.vtt",
+        "sha256": "f0ef5938b26d72e8dd8178f9336080a9fbf55db76a0571f7ffcbcdec356e616e"
+      }
+    },
+    "mobile": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-review-v9-conditional.mp4",
+      "sha256": "af0459bb8fc25d53cc3cb2117e2a210c6174efb75b0ac146221793bb4fdac657",
+      "scenes": [
+        {
+          "scene": "L01-03",
+          "source": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+          "source_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+          "start_seconds": 240,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-mobile-after.png",
+              "sha256": "6f3705c2c46b3032105586897a24ffc6e0fe560d01a1aa7775aeae983729863c",
+              "duration_seconds": 8
+            }
+          ],
+          "presenter_crop": [
+            1424,
+            792,
+            1867,
+            1045
+          ]
+        },
+        {
+          "scene": "L02-02",
+          "source": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+          "source_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+          "start_seconds": 100,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-mobile-after.png",
+              "sha256": "124e3a124fd6008bd0a284b8625ea1e4216954f713b4ea2058cb67604fcf680e",
+              "duration_seconds": 8
+            }
+          ],
+          "presenter_crop": null
+        },
+        {
+          "scene": "L05-01",
+          "source": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+          "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+          "start_seconds": 2,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "copy",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-mobile-after-copy-sequence.png",
+              "sha256": "4e673b7334a50f9c741ddbee8a953b3e215bac67f14c939f11d29e40e2882d89",
+              "duration_seconds": 1.6
+            },
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-mobile-after.png",
+              "sha256": "4a202cb1a39fa34c3396c43f4a8f623df0da42d3c7df5733953df7d44c10f9ef",
+              "duration_seconds": 6.4
+            }
+          ],
+          "presenter_crop": [
+            951,
+            168,
+            1895,
+            700
+          ]
+        },
+        {
+          "scene": "L05-03",
+          "source": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+          "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+          "start_seconds": 212,
+          "duration_seconds": 8,
+          "states": [
+            {
+              "type": "copy",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-mobile-after-copy-sequence.png",
+              "sha256": "aec4dfa3e3a249282e5cddd4964609c75f01caf6ce5a679ab14aaa848385df34",
+              "duration_seconds": 1.6
+            },
+            {
+              "type": "plate",
+              "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-mobile-after.png",
+              "sha256": "c4a0a04b287748e4f23e22fb09c812fc00e05b2fae64136a805cec449a9fbc21",
+              "duration_seconds": 6.4
+            }
+          ],
+          "presenter_crop": [
+            951,
+            168,
+            1895,
+            700
+          ]
+        }
+      ],
+      "accepted_audio_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accepted-signals-audio-carrier-v9.mp4",
+      "accepted_audio_sha256": "fe5e51f23fdc84e10b0498aac9866b1a157401937ba20403cb2b81abb4451d8b",
+      "captions": {
+        "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-review-v9-conditional.vtt",
+        "sha256": "0c6af3357d35495310612ce2588eb1bcebf5c3943ad63bb32d584b4b4217ab3c"
+      }
+    }
+  }
+}

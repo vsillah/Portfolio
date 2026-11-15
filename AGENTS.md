@@ -125,6 +125,12 @@ When developing Portfolio admin, agent-ops, content, outreach, review, or approv
 - During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
 - Public-facing copy written in Vambah's voice must not refer to Vambah by name or in the third person. Normalize authored messaging to first person or fail messaging QA before Human QA. Internal provenance, audit, and reviewer-trace fields may retain the original source wording.
 
+## Course Illustration Raster Quality Rule
+
+Drilled-down framework views must be complete, standalone high-fidelity recreations or approved plates with a consistent border and complete geometry. Preserve the full subject, its connectors, and its output path. Never simulate a drill-down by cropping fragments from a larger approved plate or assembling those fragments into a new diagram.
+
+Teaching text overlays are conditional. First use genuinely non-essential negative space inside the illustration field only when text clears framework geometry, labels, connectors, people, presenter footage, captions, and controls at desktop and 390×844. Otherwise use another unobstructed region of the same frame. If neither is clean, shorten to the smallest source-faithful phrase or reveal it in a separate temporal state. Omit an overlay when the illustration already communicates the point and the text only duplicates or clutters it. Never shrink, crop, displace, or subordinate a complete approved plate merely to fit overlay text.
+
 ## Course Presenter Composition Rule
 
 For Accelerated and other Portfolio course or workshop media, the presenter must remain a distinct native-video section within one coherent slide—not appear embedded in the teaching illustration.

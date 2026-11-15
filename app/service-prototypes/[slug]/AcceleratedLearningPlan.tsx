@@ -23,10 +23,11 @@ import styles from './learning-plan.module.css'
 import { lessons, DECISION_FILE_VERSION, DECISION_FILE_STORAGE_KEY, emptyDecisionFile, validateDecisionFile, type Act, type DecisionFileDraft } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY, validateLearningState, type LearningState } from '@/lib/accelerated-member-progress'
 import { supabase } from '@/lib/supabase'
-import { lessonPosters } from '@/lib/accelerated-lesson-posters'
+import { lessonPosters, l12PortraitPoster } from '@/lib/accelerated-lesson-posters'
 import endScreenBindings from '@/lib/accelerated-end-screen-bindings.json'
 import visualParityBindings from '@/lib/accelerated-visual-parity-bindings.json'
 import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
+import signalsV9Bindings from '@/lib/accelerated-signals-v9-bindings.json'
 import CompletionCredential from '@/components/member/CompletionCredential'
 export { lessons } from '@/lib/accelerated-decision-file'
 export { default as visualParityBindings } from '@/lib/accelerated-visual-parity-bindings.json'
@@ -120,6 +121,8 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const [endedLesson, setEndedLesson] = useState<string | null>(null)
   const [captionsOn, setCaptionsOn] = useState(true)
   const [portraitMedia, setPortraitMedia] = useState(false)
+  const [signalsFocus, setSignalsFocus] = useState(false)
+  const [signalsCaption, setSignalsCaption] = useState('')
   const [catalogCollapsed, setCatalogCollapsed] = useState(true)
   const [filter, setFilter] = useState<Act | 'All'>('All')
   const [query, setQuery] = useState('')
@@ -159,9 +162,11 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const endBinding = endScreenBindings.lessons.find((item) => item.lessonId === lesson.id)
   const visualBinding = visualParityBindings.lessons.find((item) => item.lessonId === lesson.id)
   const contextualBinding = (contextualBindings.lessons as Record<string, typeof contextualBindings.lessons.L09>)[lesson.id]
-  const activeVideoPath = contextualBinding ? contextualBinding.variants[portraitMedia ? 'portrait' : 'desktop'].path : visualBinding?.videoPath ?? ''
+  const signalsBinding = (signalsV9Bindings.lessons as Record<string, typeof signalsV9Bindings.lessons.L01>)[lesson.id]
+  const activePosterUrl = lesson.id === 'L12' && contextualBinding && portraitMedia ? l12PortraitPoster : posterUrl
+  const activeVideoPath = signalsBinding ? signalsBinding.variants[portraitMedia ? 'portrait' : 'desktop'].path : contextualBinding ? contextualBinding.variants[portraitMedia ? 'portrait' : 'desktop'].path : visualBinding?.videoPath ?? ''
   const activeCaptionPath = contextualBinding?.caption.path ?? lessonMedia?.captions ?? ''
-  const activeDuration = contextualBinding?.duration_seconds ?? visualBinding?.durationSeconds ?? 0
+  const activeDuration = signalsBinding?.duration_seconds ?? contextualBinding?.duration_seconds ?? visualBinding?.durationSeconds ?? 0
   const activeTranscript = contextualBinding?.transcript ?? lessonMedia?.transcript
   const nextBinding = endScreenBindings.lessons.find((item) => item.lessonId === next?.id)
   const endBindingMatches = Boolean(endBinding && lessonMedia && (contextualBinding
@@ -428,6 +433,8 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
     restoringSourceRef.current = false
     setSelected(id)
     setPosterRevealed(false)
+    setSignalsFocus(false)
+    setSignalsCaption('')
     setEndedLesson(null)
     if (window.matchMedia?.('(max-width: 1050px)').matches) {
       detailRef.current?.scrollIntoView({ block: 'start' })
@@ -436,7 +443,9 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const setCaptionMode = (enabled: boolean) => {
     setCaptionsOn(enabled)
     const track = videoRef.current?.textTracks[0]
-    if (track) track.mode = enabled ? 'showing' : 'disabled'
+    if (track) track.mode = enabled ? signalsBinding ? 'hidden' : 'showing' : 'disabled'
+    if (!enabled) setSignalsCaption('')
+    else if (signalsBinding) queueMicrotask(syncSignalsCaption)
   }
   const restoreVideo = () => {
     setCaptionMode(captionsOn)
@@ -452,7 +461,22 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
     }
     if (pending?.playing) void video.play().catch(() => { /* Browser gesture policy can leave playback paused. */ })
   }
+  const syncSignalsFocus = () => {
+    const time = videoRef.current?.currentTime ?? 0
+    setSignalsFocus(Boolean(signalsBinding && portraitMedia && signalsBinding.focus_windows.some((window) => time >= window.start_seconds && time < window.end_seconds)))
+  }
+  const syncSignalsCaption = () => {
+    if (!signalsBinding) return
+    const track = videoRef.current?.textTracks[0]
+    if (!track || track.mode === 'disabled') return
+    if (track.mode !== 'hidden') track.mode = 'hidden'
+    const time = videoRef.current?.currentTime ?? 0
+    const cues = track.cues
+    setSignalsCaption(cues ? Array.from(cues).filter((cue) => cue.startTime <= time && time < cue.endTime).map((cue) => (cue as VTTCue).text).join(' ') : '')
+  }
   const recordVideo = () => {
+    syncSignalsFocus()
+    syncSignalsCaption()
     const seconds = Math.floor(Math.min(videoRef.current?.currentTime ?? 0, activeDuration))
     if (seconds > 0 && seconds % 5 === 0 && seconds !== videoSeconds[selected]) setVideoSeconds((positions) => ({ ...positions, [selected]: seconds }))
   }
@@ -536,15 +560,16 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
         </section>
         {lessonMedia ? <section className={styles.player} aria-label={`${lesson.id} guided video`}>
           <div className={styles.playerHeading}><strong>Guided video · {lesson.id}</strong></div>
-          <div className={styles.videoStage} data-ended={showEndScreen} data-portrait={Boolean(contextualBinding && portraitMedia)} style={{ backgroundImage: `url(${posterUrl})` }}><video key={`${lesson.id}-${contextualBinding ? portraitMedia : 'legacy'}`} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => { if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onSeeked={() => { restoringSourceRef.current = false }} onEmptied={() => { setPosterRevealed(false); if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={posterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
+          <div className={styles.videoStage} data-ended={showEndScreen} data-portrait={Boolean(contextualBinding && portraitMedia)} data-signals-mobile={Boolean(signalsBinding && portraitMedia)} data-signals-focus={signalsFocus} style={{ backgroundImage: `url(${activePosterUrl})` }}><video key={`${lesson.id}-${contextualBinding || signalsBinding ? portraitMedia : 'legacy'}`} ref={videoRef} className={posterRevealed ? styles.videoReveal : undefined} onPlaying={() => { setPosterRevealed(true); setEndedLesson(null) }} onSeeking={() => { if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onSeeked={() => { restoringSourceRef.current = false; syncSignalsFocus(); syncSignalsCaption() }} onEmptied={() => { setPosterRevealed(false); setSignalsFocus(false); setSignalsCaption(''); if (!sourceSwitchRef.current && !restoringSourceRef.current) setEndedLesson(null) }} onEnded={handleVideoEnded} controls playsInline preload="metadata" poster={activePosterUrl} aria-description={`${lesson.id} ${lesson.title} cover with presenter and ${lesson.act} learning artwork`} aria-label={`${lesson.id} ${lesson.title} guided video`} onLoadedMetadata={restoreVideo} onTimeUpdate={recordVideo}>
             <source src={activeVideoPath} type="video/mp4" />
-            <track kind="captions" src={activeCaptionPath} srcLang="en" label="English captions" default />
+            <track kind="captions" src={activeCaptionPath} srcLang="en" label="English captions" default onLoad={(event) => { event.currentTarget.track.oncuechange = syncSignalsCaption; setCaptionMode(captionsOn) }} />
             Your browser cannot play this video. The read-along transcript is available below.
           </video>
           {showEndScreen && <div className={styles.lessonEndScreen} role="status" aria-label={`${lesson.id} video finished`}>
             <div className={styles.lessonEndSummary}><span>{!next && completed.length === lessons.length ? 'COURSE COMPLETE' : next ? 'LESSON VIDEO FINISHED' : 'FINAL VIDEO FINISHED'}</span><strong>{lesson.id} · {lesson.title}</strong><small>{completed.length} of {lessons.length} lessons marked complete</small><div className={styles.lessonEndProgress} role="progressbar" aria-label="Course lessons marked complete" aria-valuenow={completed.length} aria-valuemin={0} aria-valuemax={lessons.length}><span style={{ width: `${completed.length / lessons.length * 100}%` }} /></div></div>
             {next && nextBinding ? <button type="button" className={styles.lessonEndNext} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery(''); setEndedLesson(null) }} aria-label={`Continue to ${next.id}: ${next.title}`}><img src={nextBinding.posterPath} alt={`${next.id} ${next.title} lesson cover`} /><span><small>UP NEXT · {next.id}</small><strong>{next.title}</strong><em>Open lesson <ArrowRight aria-hidden="true" /></em></span></button> : <Link href="/accelerated/decision-file" className={styles.lessonEndDecision}><span>YOUR NEXT MOVE</span><strong>Open the Decision File</strong><small>Carry the choice, evidence, and review date into one accountable next step.</small><em>Open Decision File <ArrowRight aria-hidden="true" /></em></Link>}
           </div>}</div>
+          {signalsBinding && captionsOn && signalsCaption && !showEndScreen && <div className={styles.signalsCaptionBand} role="status" aria-label={`${lesson.id} caption`}>{signalsCaption}</div>}
           <div className={styles.playerTools}><span>Duration {contextualBinding ? `${Math.floor(activeDuration / 60).toString().padStart(2, '0')}:${Math.floor(activeDuration % 60).toString().padStart(2, '0')}` : lessonMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button></div>
           <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{activeTranscript?.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}

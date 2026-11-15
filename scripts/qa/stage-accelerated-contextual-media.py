@@ -34,11 +34,19 @@ def probe(path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('source_root', type=Path)
+    parser.add_argument('--sam-source-root', type=Path, help='Rebuilt source masters for L11, L12, and L16')
     parser.add_argument('--output-root', type=Path, default=Path('public/accelerated/contextual-review'))
     parser.add_argument('--receipt', type=Path, default=Path('docs/accelerated-course-modules/l09-l16-contextual-binding/technical-receipt.json'))
     parser.add_argument('--binding', type=Path, default=Path('lib/accelerated-contextual-bindings.json'))
     args = parser.parse_args()
     source = args.source_root.resolve()
+    sam_source = args.sam_source_root.resolve() if args.sam_source_root else None
+    sam_lessons = {'l11': ['L11-03'], 'l12': ['L12-01'], 'l16': ['L16-01', 'L16-06']}
+    canonical_sam = Path('agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png')
+    canonical_hash = 'b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3'
+    if sam_source:
+        assert sha(canonical_sam) == canonical_hash, 'Canonical SAM plate drifted'
+        previous = json.loads(args.receipt.read_text())
     approved = {
         'desktop': 'e3d56170ac6e5ba2d9968c139de17dbd9848ac4b15da7bfa96c9b70a4eea03d3',
         'portrait': '77670556bc97a1bc729bc09c94c315b09d8a38e84bf928739edf5fe11c4540f8',
@@ -52,9 +60,16 @@ def main():
     record = {'schema': 'accelerated_l09_l16_contextual_binding_v1', 'review_sha256': approved, 'video_encoder': 'libx264 preset=fast crf=21; source audio stream copied', 'lessons': {}}
     for number in range(9, 17):
         low = f'l{number:02d}'
-        lesson = source / low
+        if sam_source and low not in sam_lessons:
+            record['lessons'][low.upper()] = previous['lessons'][low.upper()]
+            continue
+        lesson = (sam_source if sam_source else source) / low
+        if sam_source:
+            assert sha(lesson / f'{low}-captions.vtt') == previous['lessons'][low.upper()]['caption']['sha256'], f'{low} captions drifted'
         original = json.loads((lesson / 'receipt.json').read_text())
         entry = {'duration_seconds': original['duration'], 'source_receipt_sha256': sha(lesson / 'receipt.json'), 'caption_source_sha256': sha(lesson / f'{low}-captions.vtt'), 'variants': {}}
+        if sam_source:
+            entry['sam_framework_correction'] = {'scene_ids': sam_lessons[low], 'canonical_source_path': str(canonical_sam), 'canonical_source_sha256': canonical_hash}
         for variant, dimensions in [('desktop', (1920, 1080)), ('portrait', (390, 844))]:
             upstream = original['outputs'][variant]
             src = Path(upstream['path'])

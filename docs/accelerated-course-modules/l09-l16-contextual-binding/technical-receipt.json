@@ -87,17 +87,17 @@
     },
     "L11": {
       "duration_seconds": 431.5585,
-      "source_receipt_sha256": "2c2968699e5ec00fb7844fbc0f891f455e2c8deb6e1a3ea8d6550563decdd35b",
+      "source_receipt_sha256": "66043544977bc434fa35bacdc81a6a849189d17fb12479f98ae4e03ac823ca6d",
       "caption_source_sha256": "c9ea96e19a2cec7fcf0c3e4dac533e00d2c0a7288935dc33b7c8547847f01b37",
       "variants": {
         "desktop": {
-          "path": "/accelerated/contextual-review/l11/contextual-33831456047f/l11-desktop.mp4",
-          "sha256": "33831456047f92863773da0c3809b6b045b569825deb8f1c69c80ac5319504e8",
-          "source_sha256": "2f7425b884592a4fa9344d76a5a41feffd39753d70bc6959ef14011547c106e4",
-          "bytes_before": 51261396,
-          "bytes_after": 23423471,
+          "path": "/accelerated/contextual-review/l11/contextual-26609d825fd9/l11-desktop.mp4",
+          "sha256": "26609d825fd94e952b73daae6736398cf37cd4ec6146fafcaf5398ebe1404d52",
+          "source_sha256": "9e29a05bc8027032596d5c7a7bd30bfbd17db6a78e46c9c4583530f8fc938b7a",
+          "bytes_before": 51907864,
+          "bytes_after": 23560229,
           "audio_stream_hash": "SHA256=c9ee58f0044831e01ba5c068fe642db93bc4850556b06d86a77ebcffe94e5268",
-          "ssim": 0.998861,
+          "ssim": 0.998852,
           "duration_seconds": 431.56,
           "dimensions": [
             1920,
@@ -105,19 +105,26 @@
           ]
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l11/contextual-4c32148de983/l11-portrait.mp4",
-          "sha256": "4c32148de9839520e4711e7b689d19536d00d2d59e0bb6a2006c396769101378",
-          "source_sha256": "9c8896d13f26b2bd945535913ec2a4c875faec15c3ad59c1b87b773091ffbac7",
-          "bytes_before": 20957841,
-          "bytes_after": 14267906,
+          "path": "/accelerated/contextual-review/l11/contextual-c1cb23524858/l11-portrait.mp4",
+          "sha256": "c1cb23524858cdbaa4b8c6d4489f1b25b3349d15f4892c145eb532a31ae78c3c",
+          "source_sha256": "7c3da0da83e7e21b5bfe6fb1ccace9cdb7d42a967a42e57ed432000a40529ac5",
+          "bytes_before": 21177142,
+          "bytes_after": 14301290,
           "audio_stream_hash": "SHA256=c9ee58f0044831e01ba5c068fe642db93bc4850556b06d86a77ebcffe94e5268",
-          "ssim": 0.998444,
+          "ssim": 0.998433,
           "duration_seconds": 431.56,
           "dimensions": [
             390,
             844
           ]
         }
+      },
+      "sam_framework_correction": {
+        "scene_ids": [
+          "L11-03"
+        ],
+        "canonical_source_path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+        "canonical_source_sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3"
       },
       "caption": {
         "path": "/accelerated/contextual-review/l11/captions-c9ea96e19a2c/l11-captions.vtt",
@@ -126,17 +133,17 @@
     },
     "L12": {
       "duration_seconds": 460.459375,
-      "source_receipt_sha256": "541a48b15eca1596b2b2d4dc944912601c397d0a8763e3d59b1e7fa4186241d0",
+      "source_receipt_sha256": "d1fd5f1d41112e907461eb270eb5716b7b885cd55b5363546dd33b3d6e8a1bdd",
       "caption_source_sha256": "0363e17aba64d2986b417f7ac0fb6585896c9f5d43743fb5ec285de8c104f749",
       "variants": {
         "desktop": {
-          "path": "/accelerated/contextual-review/l12/contextual-ef2b26aaf326/l12-desktop.mp4",
-          "sha256": "ef2b26aaf3260aef32a8ea51d1318fa32691bd2586c74b51dbdda210c877da02",
-          "source_sha256": "b46934d58dccb0349bd0297e2e3637159701d75ad55fc3d57ed08c2c761ffb5b",
-          "bytes_before": 47700172,
-          "bytes_after": 23790573,
+          "path": "/accelerated/contextual-review/l12/contextual-abdbf06e6be3/l12-desktop.mp4",
+          "sha256": "abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81",
+          "source_sha256": "9ad65d625c5f5ec5516a2013f51bcf8812b290a257c893282366dc157a5686ab",
+          "bytes_before": 49842099,
+          "bytes_after": 24277013,
           "audio_stream_hash": "SHA256=60fa992c5d4a6fc134c8ab7599ecf160756523717ea7b08e434052e383092a23",
-          "ssim": 0.998981,
+          "ssim": 0.99893,
           "duration_seconds": 460.459,
           "dimensions": [
             1920,
@@ -144,13 +151,13 @@
           ]
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l12/contextual-8a17969af47f/l12-portrait.mp4",
-          "sha256": "8a17969af47fe8620b5a843891e6186d5b9d2996947d9c208757f00b4a9f2a81",
-          "source_sha256": "38b1e02876052efa3383f176b0e946fe392fa444b928abe374fef84393bdcaaf",
-          "bytes_before": 20753224,
-          "bytes_after": 14727740,
+          "path": "/accelerated/contextual-review/l12/contextual-0fec271db067/l12-portrait.mp4",
+          "sha256": "0fec271db0679876d4e53eb416864dce509dce161749a8e56c809f54f618da1e",
+          "source_sha256": "a80b00a832e8ad0c84bb18cb1b6d85e3e712e6b033eee25e0eaf533d37d622e5",
+          "bytes_before": 21760057,
+          "bytes_after": 14986193,
           "audio_stream_hash": "SHA256=60fa992c5d4a6fc134c8ab7599ecf160756523717ea7b08e434052e383092a23",
-          "ssim": 0.99738,
+          "ssim": 0.997291,
           "duration_seconds": 460.459,
           "dimensions": [
             390,
@@ -164,6 +171,13 @@
             "source_wording": "Source ID \u2192 context \u2192 job \u2192 question"
           }
         }
+      },
+      "sam_framework_correction": {
+        "scene_ids": [
+          "L12-01"
+        ],
+        "canonical_source_path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+        "canonical_source_sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3"
       },
       "caption": {
         "path": "/accelerated/contextual-review/l12/captions-0363e17aba64/l12-captions.vtt",
@@ -289,17 +303,17 @@
     },
     "L16": {
       "duration_seconds": 376.246,
-      "source_receipt_sha256": "15639526a52939050277ebf51a4bdf89e98b6edcdd71a35255adebf64c543091",
+      "source_receipt_sha256": "0bfbcf8cbef6709b5939a894632d0270b8722cec05e49bc90ee3debbcb17bdc2",
       "caption_source_sha256": "abfd3c5dd7eab493def965911d20adabc7b502a22bd29886136a267758fe14a9",
       "variants": {
         "desktop": {
-          "path": "/accelerated/contextual-review/l16/contextual-f74b3fd02d69/l16-desktop.mp4",
-          "sha256": "f74b3fd02d6936cdec825d72c13a1e17f64dd4b0839fa9120940054555e8c5d2",
-          "source_sha256": "f00e2adc417dec8bcba5a2f25fcd51d48e2dbd5439616f89bbaaf83b297e19da",
-          "bytes_before": 42973063,
-          "bytes_after": 20659238,
+          "path": "/accelerated/contextual-review/l16/contextual-17dd91579767/l16-desktop.mp4",
+          "sha256": "17dd9157976715d37fe3780c56d3698f4c7b12048001b679c2db66f5f26f6e1c",
+          "source_sha256": "1da10799b61b1814057b90f8d8e7624949fb2c69c5ed92929fc6e281f2963ce9",
+          "bytes_before": 43954675,
+          "bytes_after": 20894128,
           "audio_stream_hash": "SHA256=3cb3705ec2a4a8d49293debdd97ef072527cc075f587a8d07c2ace4dc8013bc5",
-          "ssim": 0.99887,
+          "ssim": 0.998856,
           "duration_seconds": 376.246,
           "dimensions": [
             1920,
@@ -307,19 +321,27 @@
           ]
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l16/contextual-2498c362aa22/l16-portrait.mp4",
-          "sha256": "2498c362aa22daa805df00f40651900d10780e699770978b2973492a7d67ea92",
-          "source_sha256": "7ef4e52b12f2ae6565256d9305d3ccff14d2cdea9079bd0ae7fd54d53e5c5c1e",
-          "bytes_before": 17998664,
-          "bytes_after": 12397900,
+          "path": "/accelerated/contextual-review/l16/contextual-5a40846b9c0b/l16-portrait.mp4",
+          "sha256": "5a40846b9c0b2d9f99deb949aa6ca350ab8d594b14000010a629436d42bae32d",
+          "source_sha256": "9986eba70a0dee17a603e5ded0d1eb3bb64a01f54bd95e91e7f15b69144ff0a7",
+          "bytes_before": 18796510,
+          "bytes_after": 12591162,
           "audio_stream_hash": "SHA256=3cb3705ec2a4a8d49293debdd97ef072527cc075f587a8d07c2ace4dc8013bc5",
-          "ssim": 0.998387,
+          "ssim": 0.998316,
           "duration_seconds": 376.246,
           "dimensions": [
             390,
             844
           ]
         }
+      },
+      "sam_framework_correction": {
+        "scene_ids": [
+          "L16-01",
+          "L16-06"
+        ],
+        "canonical_source_path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+        "canonical_source_sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3"
       },
       "caption": {
         "path": "/accelerated/contextual-review/l16/captions-abfd3c5dd7ea/l16-captions.vtt",

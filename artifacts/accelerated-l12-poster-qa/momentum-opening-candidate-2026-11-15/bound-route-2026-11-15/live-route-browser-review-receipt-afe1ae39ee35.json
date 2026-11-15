@@ -1,0 +1,196 @@
+{
+  "schema": "accelerated_l12_momentum_live_route_review_v1",
+  "status": "draft_pr_binding_review",
+  "candidate_sha256": {
+    "desktop": "1f8ce8e1ed696353feccfc41fb0a0a8d88676788b4030ea613c813e56a223386",
+    "portrait": "05a80651834b4ecb63895bc4bcccda723c2e9c9f49470a3ecb4032e5e0817829"
+  },
+  "results": [
+    {
+      "aspect": "desktop",
+      "viewport": [
+        1280,
+        720
+      ],
+      "route": "http://localhost:3108/accelerated/learningplan",
+      "candidate": {
+        "path": "/accelerated/contextual-review/l12/contextual-1f8ce8e1ed69/l12-desktop.mp4",
+        "sha256": "1f8ce8e1ed696353feccfc41fb0a0a8d88676788b4030ea613c813e56a223386",
+        "source_sha256": "abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81",
+        "bytes": 81076255
+      },
+      "poster": "/accelerated/posters/l12-poster-desktop-53dd8b6f8e15.webp",
+      "route_source": "/accelerated/contextual-review/l12/contextual-1f8ce8e1ed69/l12-desktop.mp4",
+      "current_src": "http://localhost:3108/accelerated/contextual-review/l12/contextual-1f8ce8e1ed69/l12-desktop.mp4",
+      "caption_path": "/accelerated/contextual-review/l12/captions-0363e17aba64/l12-captions.vtt",
+      "controls": true,
+      "seek_times": [
+        1,
+        24.48,
+        24.52,
+        86,
+        86.04,
+        100,
+        459
+      ],
+      "seeks": [
+        {
+          "time": 1,
+          "ready": 4,
+          "width": 1920,
+          "height": 1080,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 24.48,
+          "ready": 4,
+          "width": 1920,
+          "height": 1080,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 24.52,
+          "ready": 4,
+          "width": 1920,
+          "height": 1080,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 86,
+          "ready": 4,
+          "width": 1920,
+          "height": 1080,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 86.04,
+          "ready": 4,
+          "width": 1920,
+          "height": 1080,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 100,
+          "ready": 4,
+          "width": 1920,
+          "height": 1080,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 459,
+          "ready": 4,
+          "width": 1920,
+          "height": 1080,
+          "paused": true,
+          "error": null
+        }
+      ],
+      "replay_after_end": true,
+      "walkthrough": "artifacts/accelerated-l12-poster-qa/momentum-opening-candidate-2026-11-15/bound-route-2026-11-15/desktop-learner-paused-to-opening-walkthrough.mp4",
+      "walkthrough_audio": "silent browser capture; candidate audio independently validated",
+      "media_time_during_walkthrough": [
+        0.31019,
+        16.706075
+      ]
+    },
+    {
+      "aspect": "portrait",
+      "viewport": [
+        390,
+        844
+      ],
+      "route": "http://localhost:3108/accelerated/learningplan",
+      "candidate": {
+        "path": "/accelerated/contextual-review/l12/contextual-05a80651834b/l12-portrait.mp4",
+        "sha256": "05a80651834b4ecb63895bc4bcccda723c2e9c9f49470a3ecb4032e5e0817829",
+        "source_sha256": "0fec271db0679876d4e53eb416864dce509dce161749a8e56c809f54f618da1e",
+        "bytes": 30039364
+      },
+      "poster": "/accelerated/posters/l12-poster-portrait-167fd50d0554.webp",
+      "route_source": "/accelerated/contextual-review/l12/contextual-05a80651834b/l12-portrait.mp4",
+      "current_src": "http://localhost:3108/accelerated/contextual-review/l12/contextual-05a80651834b/l12-portrait.mp4",
+      "caption_path": "/accelerated/contextual-review/l12/captions-0363e17aba64/l12-captions.vtt",
+      "controls": true,
+      "seek_times": [
+        1,
+        24.48,
+        24.52,
+        86,
+        86.04,
+        100,
+        459
+      ],
+      "seeks": [
+        {
+          "time": 1,
+          "ready": 4,
+          "width": 390,
+          "height": 844,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 24.48,
+          "ready": 4,
+          "width": 390,
+          "height": 844,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 24.52,
+          "ready": 4,
+          "width": 390,
+          "height": 844,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 86,
+          "ready": 4,
+          "width": 390,
+          "height": 844,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 86.04,
+          "ready": 4,
+          "width": 390,
+          "height": 844,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 100,
+          "ready": 4,
+          "width": 390,
+          "height": 844,
+          "paused": true,
+          "error": null
+        },
+        {
+          "time": 459,
+          "ready": 4,
+          "width": 390,
+          "height": 844,
+          "paused": true,
+          "error": null
+        }
+      ],
+      "replay_after_end": true,
+      "walkthrough": "artifacts/accelerated-l12-poster-qa/momentum-opening-candidate-2026-11-15/bound-route-2026-11-15/portrait-learner-paused-to-opening-walkthrough.mp4",
+      "walkthrough_audio": "silent browser capture; candidate audio independently validated",
+      "media_time_during_walkthrough": [
+        0.312711,
+        10.737355
+      ]
+    }
+  ]
+}
