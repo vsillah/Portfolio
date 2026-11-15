@@ -1,0 +1,52 @@
+{
+  "schema": "accelerated_signals_v9_mobile_caption_sweep_v1",
+  "viewport": [
+    390,
+    844
+  ],
+  "observations": [
+    {
+      "lesson": "L01",
+      "cue_count": 84,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 99.9375,
+      "focus_windows": [
+        {
+          "start_seconds": 240,
+          "end_seconds": 248
+        }
+      ]
+    },
+    {
+      "lesson": "L02",
+      "cue_count": 94,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 119.921875,
+      "focus_windows": [
+        {
+          "start_seconds": 100,
+          "end_seconds": 108
+        }
+      ]
+    },
+    {
+      "lesson": "L05",
+      "cue_count": 104,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 119.921875,
+      "focus_windows": [
+        {
+          "start_seconds": 2,
+          "end_seconds": 10
+        },
+        {
+          "start_seconds": 212,
+          "end_seconds": 220
+        }
+      ]
+    }
+  ]
+}

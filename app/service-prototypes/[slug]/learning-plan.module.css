@@ -138,6 +138,9 @@
 @media(max-width:430px){.videoStage[data-ended=true]{min-height:560px}.lessonEndScreen{padding:13px;gap:14px}.lessonEndSummary>strong{font-size:24px}.lessonEndNext{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;gap:8px;padding:10px!important}.lessonEndNext img{min-width:0}.lessonEndNext strong{font-size:17px}.lessonEndDecision{gap:6px}.lessonEndDecision strong{font-size:17px}}
 @media(max-width:430px){.videoStage:not([data-ended=true]){aspect-ratio:auto;height:280px}.videoStage:not([data-ended=true]) video{height:100%;object-fit:contain;object-position:top}}
 @media(max-width:430px){.videoStage[data-portrait=true]:not([data-ended=true]){aspect-ratio:390/844;height:auto}.videoStage[data-portrait=true]:not([data-ended=true]) video{height:100%;object-fit:contain;object-position:center}}
+@media(max-width:650px){.videoStage[data-signals-mobile=true]:not([data-ended=true]){aspect-ratio:16/9;height:auto;background-size:contain;background-repeat:no-repeat}.videoStage[data-signals-mobile=true] video{width:100%;height:100%;aspect-ratio:auto;object-fit:cover}.videoStage[data-signals-mobile=true] video:not(.videoReveal){object-fit:contain}.videoStage[data-signals-mobile=true][data-signals-focus=true]:not([data-ended=true]){aspect-ratio:390/844;height:auto}.videoStage[data-signals-mobile=true][data-signals-focus=true] video{object-fit:contain}}
+@media(max-width:430px){.videoStage[data-signals-mobile=true]:not([data-ended=true]):not([data-signals-focus=true]){height:280px;aspect-ratio:auto}}
+.signalsCaptionBand{margin-top:8px;padding:10px 12px;border-radius:7px;background:#101827;color:#fff;font-size:clamp(14px,3.8vw,17px);line-height:1.35;text-align:center;white-space:pre-line;overflow-wrap:anywhere}
 .player .videoReveal{animation:posterToVideo 340ms ease-out both}
 @keyframes posterToVideo{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.player .videoReveal{animation:none}}
