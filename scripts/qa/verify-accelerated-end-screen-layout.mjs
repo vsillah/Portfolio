@@ -17,6 +17,7 @@ const browser = await chromium.launch({ headless: true })
 const results = []
 try {
   for (const [label, width, height] of [['desktop', 1440, 900], ['mid', 768, 900], ['mobile', 390, 844]]) {
+    if (process.env.QA_VIEWPORT && process.env.QA_VIEWPORT !== label) continue
     const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 })
     await page.goto(base, { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(500)
@@ -25,6 +26,7 @@ try {
     console.log(`Reviewing ${label} (${width}x${height})`)
     for (const item of endBindings.lessons) {
       const id = item.lessonId
+      if (process.env.QA_LESSON && process.env.QA_LESSON !== id) continue
       await page.locator(`button[aria-label^="${id}:"]`).evaluate((el) => el.click())
       const stage = page.locator(`section[aria-label="${id} guided video"] video`).locator('..')
       const video = stage.locator('video')
@@ -35,15 +37,23 @@ try {
       }, duration)
       const end = stage.locator(`[aria-label="${id} video finished"]`)
       await end.waitFor({ state: 'visible' })
-      await stage.evaluate((el) => el.scrollIntoView({ block: 'end' }))
-      await page.waitForTimeout(300)
+      await stage.evaluate((el) => {
+        document.documentElement.style.scrollBehavior = 'auto'
+        el.scrollIntoView({ block: 'end', behavior: 'instant' })
+        const bottom = el.getBoundingClientRect().bottom
+        if (bottom > innerHeight) window.scrollBy(0, bottom - innerHeight + 10)
+      })
       const geometry = await stage.evaluate((el) => {
         const overlay = el.querySelector('[role="status"]')
+        const next = overlay.querySelector('button')
+        const preview = next?.querySelector('img')
         const r = el.getBoundingClientRect()
         const o = overlay.getBoundingClientRect()
+        const n = next?.getBoundingClientRect()
+        const p = preview?.getBoundingClientRect()
         const style = getComputedStyle(overlay)
         const bottomHit = document.elementFromPoint(Math.min(innerWidth - 1, r.left + r.width / 2), Math.min(innerHeight - 1, r.bottom - 5))
-        return { stage: [r.width, r.height], stagePosition: [r.top, r.bottom], overlay: [o.width, o.height], offsets: [o.left - r.left, o.top - r.top, r.right - o.right, r.bottom - o.bottom], background: style.backgroundImage, pointerEvents: style.pointerEvents, bottomHit: bottomHit?.tagName, controls: el.querySelector('video').controls, overflow: el.scrollWidth > el.clientWidth || overlay.scrollHeight > overlay.clientHeight }
+        return { stage: [r.width, r.height], stagePosition: [r.top, r.bottom], overlay: [o.width, o.height], offsets: [o.left - r.left, o.top - r.top, r.right - o.right, r.bottom - o.bottom], nextCard: n && [n.width, n.height], preview: p && [p.width, p.height], controlClearance: n && r.bottom - n.bottom, background: style.backgroundImage, pointerEvents: style.pointerEvents, bottomHit: bottomHit?.tagName, controls: el.querySelector('video').controls, overflow: el.scrollWidth > el.clientWidth || overlay.scrollHeight > overlay.clientHeight }
       })
       assert(geometry.offsets.every((value) => Math.abs(value) <= 1), `${label} ${id}: overlay does not cover stage: ${JSON.stringify(geometry.offsets)}`)
       assert(!geometry.background.includes('rgba('), `${label} ${id}: translucent overlay`)
@@ -51,17 +61,17 @@ try {
       assert.equal(geometry.bottomHit, 'VIDEO', `${label} ${id}: lower player control layer inaccessible: ${JSON.stringify(geometry)}`)
       assert.equal(geometry.controls, true, `${label} ${id}: native controls missing`)
       assert.equal(geometry.overflow, false, `${label} ${id}: end screen overflows`)
+      if (id !== 'L16') {
+        assert(geometry.preview?.[0] >= (label === 'desktop' ? 380 : label === 'mid' ? 200 : 250), `${label} ${id}: Up Next preview remains too small`)
+        assert(geometry.nextCard?.[1] >= (label === 'desktop' ? 300 : label === 'mid' ? 130 : 220), `${label} ${id}: Up Next action is too small: ${JSON.stringify(geometry)}`)
+        assert(geometry.controlClearance >= 40, `${label} ${id}: Up Next action crowds video controls`)
+      }
       assert.equal(await video.locator('track[kind="captions"]').count(), 1, `${label} ${id}: caption track missing`)
       assert.equal(await page.getByRole('button', { name: /^English captions (on|off)$/ }).count(), 1, `${label} ${id}: caption control missing`)
       assert.equal(await page.locator(`section[aria-label="${id} guided video"] details`).count(), 1, `${label} ${id}: transcript missing`)
       if (id === 'L13') {
         await stage.scrollIntoViewIfNeeded()
-        await stage.screenshot({ path: path.join(out, `l13-after-${label}.png`) })
-        if (label === 'desktop') {
-          const before = await page.addStyleTag({ content: '[class*="lessonEndScreen"]{inset:0 0 25%!important;background:linear-gradient(110deg,rgba(13,38,46,.98),rgba(22,51,58,.95))!important;pointer-events:auto!important}' })
-          await stage.screenshot({ path: path.join(out, 'l13-before-desktop.png') })
-          await before.evaluate((el) => el.remove())
-        }
+        await stage.screenshot({ path: path.join(out, `l13-up-next-after-${label}.png`) })
         const nextAction = end.getByRole('button', { name: /^Continue to L14:/ })
         assert.equal(await nextAction.evaluate((el) => getComputedStyle(el).pointerEvents), 'auto', `${label}: next lesson action blocked`)
         await nextAction.click()
