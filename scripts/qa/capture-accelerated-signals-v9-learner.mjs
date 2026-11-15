@@ -22,14 +22,15 @@ try {
     const errors = []
     page.on('pageerror', error => errors.push(error.message))
     await page.goto(route, { waitUntil: 'domcontentloaded' })
-    await page.waitForTimeout(800)
     for (const id of ['L01', 'L02', 'L05']) {
+      await page.waitForFunction(id => { const button = document.querySelector(`button[aria-label^="${id}:"]`); return button && Object.keys(button).some(key => key.startsWith('__reactProps$') && typeof button[key]?.onClick === 'function') }, id, { timeout: 15000 })
       await page.locator(`button[aria-label^="${id}:"]`).evaluate(el => el.click())
       const section = page.locator(`section[aria-label="${id} guided video"]`)
       const video = section.locator('video')
-      await video.waitFor()
-      assert.equal(await video.locator('source').getAttribute('src'), bindings[id].variants[aspect === 'mobile' ? 'portrait' : 'desktop'].path)
-      await page.waitForFunction(id => document.querySelector(`section[aria-label="${id} guided video"] video`)?.readyState >= 1, id)
+      const expectedSource = bindings[id].variants[aspect === 'mobile' ? 'portrait' : 'desktop'].path
+      await page.waitForFunction(({ id, expectedSource }) => { const section = document.querySelector(`section[aria-label="${id} guided video"]`); return section?.querySelector('source')?.getAttribute('src') === expectedSource && section?.querySelector('video')?.readyState >= 1 && section?.querySelector('track')?.readyState === 2 && section?.querySelector('button[aria-pressed]')?.getAttribute('aria-pressed') === 'true' }, { id, expectedSource }, { timeout: 20000 })
+      assert.equal(await video.locator('source').getAttribute('src'), expectedSource)
+      const captionControl = section.locator('button[aria-pressed]')
       const scroll = async () => {
         await section.evaluate(el => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: 'instant' }))
         await page.waitForTimeout(250)
@@ -50,6 +51,9 @@ try {
           el.addEventListener('seeked', () => { clearTimeout(timer); resolve() }, { once: true })
           el.currentTime = t
         }), window.start_seconds + 1)
+        await video.evaluate(el => el.play())
+        await page.waitForFunction(({ id, time }) => document.querySelector(`section[aria-label="${id} guided video"] video`)?.currentTime >= time, { id, time: window.start_seconds + 3.5 }, { timeout: 10000 })
+        await video.evaluate(el => el.pause())
         await page.waitForTimeout(350)
         await scroll()
         if (aspect === 'mobile') {
@@ -58,11 +62,21 @@ try {
         }
         await page.screenshot({ path: path.join(out, `${aspect}-${id.toLowerCase()}-focus-${index}-caption-on.png`) })
         await page.waitForTimeout(700)
-        await page.getByRole('button', { name: 'English captions on' }).click()
+        await page.evaluate(id => {
+          const band = document.querySelector(`section[aria-label="${id} guided video"] [aria-label="${id} caption"]`)
+          if (band) window.scrollBy({ top: Math.max(0, band.getBoundingClientRect().bottom - window.innerHeight + 90), behavior: 'instant' })
+        }, id)
+        await page.waitForTimeout(400)
+        await page.screenshot({ path: path.join(out, `${aspect}-${id.toLowerCase()}-focus-${index}-caption-band.png`) })
+        await page.waitForTimeout(500)
+        await page.waitForFunction(({ id, expectedSource }) => { const section = document.querySelector(`section[aria-label="${id} guided video"]`); return section?.querySelector('source')?.getAttribute('src') === expectedSource && section?.querySelector('video')?.readyState >= 1 && section?.querySelector('track')?.readyState === 2 && section?.querySelector('button[aria-pressed]')?.getAttribute('aria-pressed') === 'true' }, { id, expectedSource }, { timeout: 10000 })
+        await captionControl.click()
+        await page.waitForFunction(id => { const section = document.querySelector(`section[aria-label="${id} guided video"]`); return section?.querySelector('button[aria-pressed]')?.getAttribute('aria-pressed') === 'false' && section?.querySelector('video')?.textTracks[0]?.mode === 'disabled' && !section?.querySelector(`[aria-label="${id} caption"]`) }, id, { timeout: 10000 })
         assert.equal(await section.locator(`[aria-label="${id} caption"]`).count(), 0)
         await page.screenshot({ path: path.join(out, `${aspect}-${id.toLowerCase()}-focus-${index}-caption-off.png`) })
         await page.waitForTimeout(500)
-        await page.getByRole('button', { name: 'English captions off' }).click()
+        await captionControl.click()
+        await page.waitForFunction(id => { const section = document.querySelector(`section[aria-label="${id} guided video"]`); return section?.querySelector('button[aria-pressed]')?.getAttribute('aria-pressed') === 'true' && section?.querySelector('video')?.textTracks[0]?.mode === 'hidden' }, id, { timeout: 10000 })
       }
       const duration = await video.evaluate(el => el.duration)
       await video.evaluate(async (el, t) => {
