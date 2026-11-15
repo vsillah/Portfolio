@@ -1,0 +1,299 @@
+{
+  "schema": "accelerated_sam_signals_raster_stills_v1",
+  "status": "still_only_visual_review_pending",
+  "book_source": {
+    "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+    "sha256": "b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3",
+    "dimensions": [
+      3300,
+      2742
+    ]
+  },
+  "superseded_focus_treatments": [
+    {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+      "note": "historical standalone workshop plate; retained but not the proposed focus view"
+    },
+    {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "note": "historical overview infographic; canonical book plate owns full-map orientation"
+    }
+  ],
+  "raster_recreations": {
+    "signals-column": {
+      "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/signals-column-raster.png",
+      "sha256": "9bde3903610af11b086fe5580117992118cdb60ef63a260a1c67397713b6766f",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "method": "new raster recreation guided by canonical book plate; no source bitmap crop or SVG final art"
+    },
+    "signals-funnel": {
+      "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/signals-funnel-raster.png",
+      "sha256": "f08dc644a0a941649abc76c19995f5ae3d29269bfecfe5c2a516c67cef43e948",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "method": "new raster recreation guided by canonical book plate; no source bitmap crop or SVG final art"
+    }
+  },
+  "scenes": {
+    "L01-03": {
+      "class": "full-map",
+      "asset": "book",
+      "teaching_line": "Signals \u00b7 Alignment \u00b7 Momentum",
+      "canonical_script": {
+        "path": "docs/accelerated-course-modules/curriculum/scripts/L01.md",
+        "sha256": "b32720889eea843df7aba1e7878033a996b05adbece1eed4db2804257b3095ad"
+      },
+      "presenter_source": {
+        "path": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+        "sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+        "native_frame_box": [
+          1424,
+          262,
+          1867,
+          515
+        ]
+      },
+      "stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l01-03-book-1280x720.png",
+          "sha256": "827148f28cd1b3dd9dd0aed704c1d23618918d5a745b91bf0c8529c5781d7e0a",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "locator_source_box": null,
+          "presenter_box": [
+            809,
+            193,
+            1231,
+            434
+          ]
+        },
+        "portrait": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l01-03-book-390x844.png",
+          "sha256": "b4cee44a834e52e28990fd93e2f1b3fc91cc4b8b94e9be92ead3e1b2b175cee2",
+          "dimensions": [
+            390,
+            844
+          ],
+          "locator_source_box": null,
+          "presenter_box": [
+            18,
+            605,
+            372,
+            807
+          ]
+        }
+      }
+    },
+    "L02-02": {
+      "class": "Signals-column",
+      "asset": "signals-column",
+      "teaching_line": "Choose one. Keep two alternatives.",
+      "canonical_script": {
+        "path": "docs/accelerated-course-modules/curriculum/scripts/L02.md",
+        "sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af"
+      },
+      "presenter_source": {
+        "path": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+        "sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+        "native_frame_box": [
+          957,
+          187,
+          1853,
+          698
+        ]
+      },
+      "stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l02-02-signals-column-1280x720.png",
+          "sha256": "7622f0517d8991b13d537e23792a4001d051cb3030578d0ea95c770480bfc7ac",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "locator_source_box": [
+            145,
+            350,
+            1150,
+            2370
+          ],
+          "presenter_box": [
+            809,
+            193,
+            1231,
+            434
+          ]
+        },
+        "portrait": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l02-02-signals-column-390x844.png",
+          "sha256": "67cea893510daaf4a371e4757cf345034c67b4f2dad48ade7ec9c8601becfc49",
+          "dimensions": [
+            390,
+            844
+          ],
+          "locator_source_box": [
+            145,
+            350,
+            1150,
+            2370
+          ],
+          "presenter_box": [
+            18,
+            605,
+            372,
+            807
+          ]
+        }
+      }
+    },
+    "L05-01": {
+      "class": "Signals-column",
+      "asset": "signals-column",
+      "teaching_line": "Decision before theme",
+      "canonical_script": {
+        "path": "docs/accelerated-course-modules/curriculum/scripts/L05.md",
+        "sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab"
+      },
+      "presenter_source": {
+        "path": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+        "sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+        "native_frame_box": [
+          951,
+          168,
+          1895,
+          700
+        ]
+      },
+      "stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l05-01-signals-column-1280x720.png",
+          "sha256": "a503612e678ea008c01c38bb36daed6befe6552608f33fc7d8e1fad269ab7eef",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "locator_source_box": [
+            145,
+            350,
+            1150,
+            2370
+          ],
+          "presenter_box": [
+            809,
+            193,
+            1231,
+            434
+          ]
+        },
+        "portrait": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l05-01-signals-column-390x844.png",
+          "sha256": "867b9ed65a557f011080c466d9f2fccc66d157f2d11a04ae1b45a6549fa72dac",
+          "dimensions": [
+            390,
+            844
+          ],
+          "locator_source_box": [
+            145,
+            350,
+            1150,
+            2370
+          ],
+          "presenter_box": [
+            18,
+            605,
+            372,
+            807
+          ]
+        }
+      }
+    },
+    "L05-03": {
+      "class": "Signals-component",
+      "asset": "signals-funnel",
+      "teaching_line": "One complaint can hide several jobs",
+      "canonical_script": {
+        "path": "docs/accelerated-course-modules/curriculum/scripts/L05.md",
+        "sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab"
+      },
+      "presenter_source": {
+        "path": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+        "sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+        "native_frame_box": [
+          951,
+          168,
+          1895,
+          700
+        ]
+      },
+      "stills": {
+        "desktop": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l05-03-signals-funnel-1280x720.png",
+          "sha256": "d561af16c849275e572f13062644a8c10af4276cf780f7dc7ac9ee961c9f17f8",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "locator_source_box": [
+            180,
+            590,
+            1090,
+            2000
+          ],
+          "presenter_box": [
+            809,
+            193,
+            1231,
+            434
+          ]
+        },
+        "portrait": {
+          "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/l05-03-signals-funnel-390x844.png",
+          "sha256": "3ccf957ed47bfa515246b05d696982cb16b890b197091cf9fec1324023276dae",
+          "dimensions": [
+            390,
+            844
+          ],
+          "locator_source_box": [
+            180,
+            590,
+            1090,
+            2000
+          ],
+          "presenter_box": [
+            18,
+            605,
+            372,
+            807
+          ]
+        }
+      }
+    }
+  },
+  "contact_sheets": {
+    "desktop": {
+      "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/signals-contact-desktop.png",
+      "sha256": "65c100a40b06cc60dd40b562fee9ba471fb71290f9d10b85cfec1f2944d1573c",
+      "dimensions": [
+        2560,
+        360
+      ]
+    },
+    "portrait": {
+      "path": "artifacts/accelerated-sam-signals-stills-2026-11-14/signals-contact-390x844.png",
+      "sha256": "4ff00d2d2bf8e8cc1ea263ee4575112628f075024c0bb39bfc5540f69359f7f3",
+      "dimensions": [
+        1560,
+        844
+      ]
+    }
+  },
+  "live_media_modified": false
+}
