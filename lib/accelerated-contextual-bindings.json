@@ -1595,12 +1595,12 @@
       "duration_seconds": 460.459375,
       "variants": {
         "desktop": {
-          "path": "/accelerated/contextual-review/l12/contextual-abdbf06e6be3/l12-desktop.mp4",
-          "sha256": "abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81"
+          "path": "/accelerated/contextual-review/l12/contextual-1f8ce8e1ed69/l12-desktop.mp4",
+          "sha256": "1f8ce8e1ed696353feccfc41fb0a0a8d88676788b4030ea613c813e56a223386"
         },
         "portrait": {
-          "path": "/accelerated/contextual-review/l12/contextual-0fec271db067/l12-portrait.mp4",
-          "sha256": "0fec271db0679876d4e53eb416864dce509dce161749a8e56c809f54f618da1e"
+          "path": "/accelerated/contextual-review/l12/contextual-05a80651834b/l12-portrait.mp4",
+          "sha256": "05a80651834b4ecb63895bc4bcccda723c2e9c9f49470a3ecb4032e5e0817829"
         }
       },
       "caption": {

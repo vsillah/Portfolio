@@ -52,61 +52,53 @@ CANONICAL_SAM_SHA = 'b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def fit(im, box): return ImageOps.fit(im, box, method=Image.Resampling.LANCZOS)
 
-def render_l12_sam():
-    """Build paused-player posters from the exact book plate and opening presenter frame."""
-    if sha(CANONICAL_SAM) != CANONICAL_SAM_SHA: raise RuntimeError('Canonical SAM source drifted')
-    binding = json.loads((ROOT / 'lib/accelerated-contextual-bindings.json').read_text())['lessons']['L12']
-    source = ROOT / 'public' / binding['variants']['desktop']['path'].lstrip('/')
-    if sha(source) != binding['variants']['desktop']['sha256']: raise RuntimeError('L12 opening video drifted')
-    with tempfile.TemporaryDirectory() as directory:
-        frame_path = Path(directory) / 'opening.png'
-        subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', str(source), '-frames:v', '1', str(frame_path)], check=True)
-        presenter = Image.open(frame_path).convert('RGB').crop((1136, 348, 1808, 732))
-        plate = Image.open(CANONICAL_SAM).convert('RGB')
-        outputs = {}
-        for variant, size in [('desktop', (1280, 720)), ('portrait', (390, 844))]:
-            image = Image.new('RGB', size, '#142137')
-            draw = ImageDraw.Draw(image)
-            if variant == 'desktop':
-                draw.rounded_rectangle((20, 20, 1260, 700), radius=16, outline='#dfb959', width=2)
-                draw.text((48, 44), 'ACCELERATED  ·  LESSON 12', font=ImageFont.truetype(FONT, 27), fill='#dfb959')
-                book = ImageOps.contain(plate, (680, 565), Image.Resampling.LANCZOS)
-                image.paste(book, (36 + (680 - book.width)//2, 104 + (565 - book.height)//2))
-                draw.rounded_rectangle((750, 185, 1226, 289), radius=12, fill='#123542', outline='#dfb959', width=2)
-                draw.text((774, 202), 'Keep the source beside', font=ImageFont.truetype(FONT, 30), fill='#f5f4ed')
-                draw.text((774, 239), 'the job', font=ImageFont.truetype(FONT, 30), fill='#f5f4ed')
-                native = ImageOps.contain(presenter, (476, 272), Image.Resampling.LANCZOS)
-                image.paste(native, (750, 319))
-                draw.rectangle((750, 319, 750 + native.width, 319 + native.height), outline='#dfb959', width=2)
-                output = OUT / 'l12-poster.webp'
-            else:
-                draw.rounded_rectangle((9, 12, 381, 832), radius=12, outline='#dfb959', width=2)
-                draw.text((22, 34), 'ACCELERATED  ·  L12', font=ImageFont.truetype(FONT, 18), fill='#dfb959')
-                book = ImageOps.contain(plate, (350, 330), Image.Resampling.LANCZOS)
-                image.paste(book, ((390-book.width)//2, 87 + (330-book.height)//2))
-                draw.rounded_rectangle((20, 439, 370, 505), radius=9, fill='#123542', outline='#dfb959', width=2)
-                draw.text((35, 453), 'Keep the source beside', font=ImageFont.truetype(FONT, 19), fill='#f5f4ed')
-                draw.text((35, 477), 'the job', font=ImageFont.truetype(FONT, 19), fill='#f5f4ed')
-                native = ImageOps.contain(presenter, (354, 202), Image.Resampling.LANCZOS)
-                image.paste(native, ((390-native.width)//2, 526))
-                draw.rectangle(((390-native.width)//2, 526, (390+native.width)//2, 526+native.height), outline='#dfb959', width=2)
-                output = OUT / 'l12-poster-portrait.webp'
-            image.save(output, 'WEBP', quality=94, method=6)
-            output_hash = sha(output)
-            immutable = OUT / f'l12-poster-{variant}-{output_hash[:12]}.webp'
-            output.replace(immutable)
-            outputs[variant] = {'path': str(immutable.relative_to(ROOT)), 'sha256': output_hash, 'dimensions': list(size)}
+def render_l12_momentum():
+    """Encode the approved L12 Momentum compositions without changing pixels."""
+    receipt_path = ROOT / 'artifacts/accelerated-sam-focus-stills-2026-11-14/receipt.json'
+    still_receipt = json.loads(receipt_path.read_text())
+    scene = still_receipt['scenes']['L12-01']
+    if scene['focus'] != 'momentum' or scene['statement'] != 'Keep the source beside the job':
+        raise RuntimeError('L12 Momentum scene identity drifted')
+    source = ROOT / 'public/accelerated/contextual-review/l12/contextual-abdbf06e6be3/l12-desktop.mp4'
+    if sha(source) != 'abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81' or scene['presenter_source']['sha256'] != sha(source):
+        raise RuntimeError('L12 native presenter source drifted')
+    outputs = {}
+    for variant in ('desktop', 'portrait'):
+        item = scene['outputs'][variant]
+        still = ROOT / item['path']
+        if sha(still) != item['sha256']:
+            raise RuntimeError(f'L12 {variant} approved composition drifted')
+        with Image.open(still) as image:
+            if list(image.size) != item['dimensions']:
+                raise RuntimeError(f'L12 {variant} dimensions drifted')
+            image = image.convert('RGB')
+            with tempfile.TemporaryDirectory() as directory:
+                candidate = Path(directory) / 'l12-poster.webp'
+                image.save(candidate, 'WEBP', lossless=True, method=6)
+                with Image.open(candidate) as decoded:
+                    if decoded.convert('RGB').tobytes() != image.tobytes():
+                        raise RuntimeError(f'L12 {variant} WebP pixel loss')
+                output_hash = sha(candidate)
+                immutable = OUT / f'l12-poster-{variant}-{output_hash[:12]}.webp'
+                if immutable.exists() and sha(immutable) != output_hash:
+                    raise RuntimeError(f'L12 {variant} immutable asset collision')
+                if not immutable.exists():
+                    immutable.write_bytes(candidate.read_bytes())
+        outputs[variant] = {'path': str(immutable.relative_to(ROOT)), 'sha256': output_hash, 'dimensions': item['dimensions'],
+                            'source_still': item['path'], 'source_still_sha256': item['sha256'], 'pixel_identity': 'lossless_rgb'}
     return {
-        'kind': 'canonical_sam', 'lesson': 'L12', 'title': TITLES[11], 'act': ACTS[11], 'lessonBinding': '/' + outputs['desktop']['path'].removeprefix('public/'),
-        'samOrBookAsset': str(CANONICAL_SAM.relative_to(ROOT)), 'samOrBookAssetSha256': CANONICAL_SAM_SHA,
-        'presenterFrameSource': str(source.relative_to(ROOT)), 'presenterFrameSourceSha256': binding['variants']['desktop']['sha256'],
-        'composition': 'Complete book plate with native opening presenter; source proportions and colors preserved',
+        'kind': 'momentum_focus', 'lesson': 'L12', 'title': TITLES[11], 'act': ACTS[11],
+        'lessonBinding': '/' + outputs['desktop']['path'].removeprefix('public/'),
+        'samOrBookAsset': scene['outputs']['desktop']['path'], 'samOrBookAssetSha256': scene['outputs']['desktop']['sha256'],
+        'sourceStillReceipt': str(receipt_path.relative_to(ROOT)), 'sourceStillReceiptSha256': sha(receipt_path),
+        'presenterFrameSource': str(source.relative_to(ROOT)), 'presenterFrameSourceSha256': sha(source),
+        'composition': 'Exact approved L12 Momentum focus compositions with native presenter; lossless WebP pixel identity',
         'output': outputs['desktop']['path'], 'outputSha256': outputs['desktop']['sha256'], 'dimensions': outputs['desktop']['dimensions'],
-        'portraitOutput': outputs['portrait'], 'privacyRightsStatus': 'Owned book plate and native presenter footage; no private data',
+        'portraitOutput': outputs['portrait'], 'privacyRightsStatus': 'Approved first-party composition and native presenter footage; no private data',
     }
 
 def render(index, prompt):
-    if index == 12: return render_l12_sam()
+    if index == 12: return render_l12_momentum()
     lid = f'L{index:02d}'
     act = ACTS[index-1]
     accent, top, bottom = PALETTE[act]
@@ -171,9 +163,9 @@ if __name__=='__main__':
     if '--l12-only' in sys.argv:
         OUT.mkdir(parents=True,exist_ok=True)
         manifest=json.loads(MANIFEST.read_text())
-        manifest['posters'][11]=render_l12_sam()
+        manifest['posters'][11]=render_l12_momentum()
         MANIFEST.write_text(json.dumps(manifest,indent=2)+'\n')
-        print('Built canonical L12 desktop and portrait posters')
+        print('Built lossless L12 Momentum desktop and portrait posters')
         sys.exit(0)
     if sha(IDENTITY)!=IDENTITY_SHA: raise RuntimeError('Approved identity reference hash drift')
     prompts=json.loads(PROMPTS.read_text())['prompts']

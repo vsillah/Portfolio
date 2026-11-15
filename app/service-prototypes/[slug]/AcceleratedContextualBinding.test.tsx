@@ -71,16 +71,20 @@ describe('Accelerated L09-L16 responsive learner source', () => {
     expect(localStorage.getItem(GUEST_PROGRESS_KEY)).toBeTruthy()
   })
 
-  it('uses the canonical L12 poster for the paused desktop and portrait player', () => {
+  it('binds the Momentum L12 video and poster at desktop and portrait widths', () => {
     render(<AcceleratedLearningPlan />)
     fireEvent.click(screen.getByRole('button', { name: /^L12:/ }))
     const desktop = screen.getByLabelText('L12 Jobs and synthetic signals guided video')
     expect(desktop).toHaveAttribute('poster', lessonPosters.L12)
+    expect(desktop.querySelector('source')).toHaveAttribute('src', '/accelerated/contextual-review/l12/contextual-1f8ce8e1ed69/l12-desktop.mp4')
+    expect(desktop.querySelector('track')).toHaveAttribute('src', bindings.lessons.L12.caption.path)
     expect(desktop.parentElement).toHaveStyle({ backgroundImage: `url(${lessonPosters.L12})` })
     portrait = true
     act(() => notify?.())
     const mobile = screen.getByLabelText('L12 Jobs and synthetic signals guided video')
     expect(mobile).toHaveAttribute('poster', l12PortraitPoster)
+    expect(mobile.querySelector('source')).toHaveAttribute('src', '/accelerated/contextual-review/l12/contextual-05a80651834b/l12-portrait.mp4')
+    expect(mobile.querySelector('track')).toHaveAttribute('src', bindings.lessons.L12.caption.path)
     expect(mobile.parentElement).toHaveStyle({ backgroundImage: `url(${l12PortraitPoster})` })
   })
 })
