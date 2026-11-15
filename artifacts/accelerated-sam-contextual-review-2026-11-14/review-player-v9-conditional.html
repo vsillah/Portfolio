@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accelerated Signals contextual review</title>
+<style>
+  * { box-sizing: border-box }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #101128; font-family: Arial, sans-serif }
+  .stage { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start }
+  video { display: block; width: 100%; height: 100%; object-fit: contain }
+  video::cue { color: white; background: rgba(5, 8, 18, .84); font-size: 20px; font-weight: 600 }
+  .caption-band { display: none }
+  .caption-toggle { position: fixed; z-index: 5; top: 14px; right: 24px; width: 38px; height: 28px; border: 1px solid #dbb75d; border-radius: 5px; background: #101128; color: #f5f4ed; font: 700 13px Arial, sans-serif; cursor: pointer }
+  .caption-toggle[aria-pressed="true"] { background: #123a49 }
+  @media (max-width: 600px) {
+    video::cue { font-size: 15px; line-height: 1.2 }
+    .stage.captions-on video { width: auto; height: calc(100vh - 96px); aspect-ratio: 390 / 844; flex: 0 0 auto }
+    .stage.captions-on .caption-band { display: flex; width: 100%; height: 96px; padding: 5px 12px 12px; align-items: center; justify-content: center; color: white; font-size: 13px; line-height: 17px; font-weight: 600; text-align: center; background: #101128 }
+  }
+</style>
+<div class="stage" id="stage">
+  <video id="video" controls playsinline preload="auto"><track id="captions" kind="captions" srclang="en" label="English captions"></video>
+  <div class="caption-band" id="caption-band" role="status" aria-live="polite"></div>
+</div>
+<button class="caption-toggle" id="caption-toggle" type="button" aria-label="Toggle captions" aria-pressed="false">CC</button>
+<script>
+  const aspect = new URLSearchParams(location.search).get('aspect') === 'mobile' ? 'mobile' : 'desktop'
+  const video = document.getElementById('video')
+  const trackElement = document.getElementById('captions')
+  const stage = document.getElementById('stage')
+  const band = document.getElementById('caption-band')
+  const toggle = document.getElementById('caption-toggle')
+  video.src = `accelerated-sam-signals-${aspect}-review-v9-conditional.mp4`
+  trackElement.src = `accelerated-sam-signals-${aspect}-review-v9-conditional.vtt`
+  video.textTracks[0].mode = 'hidden'
+  const mobile = aspect === 'mobile'
+  let captionsOn = false
+  let settingTrack = false
+  function refresh() {
+    if (!captionsOn) { stage.classList.remove('captions-on'); band.textContent = ''; return }
+    if (mobile) {
+      stage.classList.add('captions-on')
+      const cue = video.textTracks[0]?.activeCues?.[0]
+      band.textContent = cue ? cue.text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim() : ''
+    }
+  }
+  function setCaptions(on) {
+    captionsOn = Boolean(on)
+    const track = video.textTracks[0]
+    settingTrack = true
+    if (track) track.mode = !captionsOn ? 'disabled' : mobile ? 'hidden' : 'showing'
+    settingTrack = false
+    toggle.setAttribute('aria-pressed', String(captionsOn))
+    refresh()
+  }
+  toggle.addEventListener('click', () => setCaptions(!captionsOn))
+  video.textTracks.addEventListener('change', () => {
+    if (settingTrack) return
+    const mode = video.textTracks[0]?.mode
+    if (mode === 'showing' && mobile) setCaptions(true)
+    else if (mode === 'disabled' && captionsOn) setCaptions(false)
+  })
+  trackElement.addEventListener('load', () => {
+    const track = video.textTracks[0]
+    track.mode = 'hidden'
+    if (!mobile) for (const cue of track.cues) { cue.size = 38; cue.position = 80; cue.align = 'center' }
+    track.mode = 'disabled'
+  })
+  video.addEventListener('timeupdate', refresh)
+  video.addEventListener('seeked', refresh)
+  video.addEventListener('loadeddata', refresh)
+  window.reviewPlayer = { video, setCaptions, refresh, get captionsOn() { return captionsOn } }
+</script>
+</html>

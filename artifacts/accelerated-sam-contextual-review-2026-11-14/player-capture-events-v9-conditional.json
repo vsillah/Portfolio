@@ -1,0 +1,44 @@
+[
+  {
+    "aspect": "desktop",
+    "raw": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-player-capture-v9-conditional.webm",
+    "markerWall": 200.79999995231628,
+    "start": {
+      "wall": 802.0999999046326,
+      "media": 5.1e-05
+    },
+    "captionsOn": {
+      "wall": 4893.199999809265,
+      "media": 4.049242
+    },
+    "captionsOff": {
+      "wall": 30867.699999809265,
+      "media": 30.023469
+    },
+    "end": {
+      "wall": 32849.199999809265,
+      "media": 32
+    }
+  },
+  {
+    "aspect": "mobile",
+    "raw": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-player-capture-v9-conditional.webm",
+    "markerWall": 43.59999990463257,
+    "start": {
+      "wall": 645.2999999523163,
+      "media": 0.000116
+    },
+    "captionsOn": {
+      "wall": 4709,
+      "media": 4.021878
+    },
+    "captionsOff": {
+      "wall": 30714.200000047684,
+      "media": 30.027735
+    },
+    "end": {
+      "wall": 32695.89999985695,
+      "media": 32
+    }
+  }
+]

@@ -1,0 +1,114 @@
+{
+  "schema": "accelerated_sam_v9_conditional_validation",
+  "status": "local_review_only_captain_review_pending",
+  "human_qa_requested": false,
+  "scene_boundaries_seconds": [
+    0,
+    8,
+    16,
+    24,
+    32
+  ],
+  "mobile_copy_states": [
+    {
+      "scene": "L05-01",
+      "start_seconds": 16,
+      "end_seconds": 17.6,
+      "plate_start_seconds": 17.6
+    },
+    {
+      "scene": "L05-03",
+      "start_seconds": 24,
+      "end_seconds": 25.6,
+      "plate_start_seconds": 25.6
+    }
+  ],
+  "source_alignment": "Each mobile copy state begins at its existing scene and caption cue boundary; narration runs continuously and no scene is extended.",
+  "checks": {
+    "full_decode": true,
+    "h264_yuv420p": true,
+    "duration_seconds": 32,
+    "frames": 800,
+    "fps": 25,
+    "aac_packet_identity_vs_v6": true,
+    "aac_packet_stream_sha256": "5f5f92a73a6dbe1958ddf9598f38ff1c19b0fb2061ff3f3783eb035aedb4707d",
+    "keyframes_every_second": true,
+    "faststart": true,
+    "http_byte_range_status": 206,
+    "caption_cue_count": 8,
+    "caption_words_and_times_unchanged": true,
+    "caption_on_off_scene_and_plate_states": true,
+    "native_controls_clear": true,
+    "presenter_alignment_sample_offsets_at_most_seconds": 0.04,
+    "initial_playback_and_seeks_seconds": [
+      1,
+      8,
+      16,
+      24
+    ],
+    "replay_after_ended": true,
+    "plate_geometry_preserved": true,
+    "source_hashes_checked": true
+  },
+  "outputs": {
+    "desktop": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "8439de0c32a218b23db27d962b951102783e691dd2d60d63689812c5284d7188",
+      "bytes": 5513924,
+      "dimensions": [
+        1280,
+        720
+      ],
+      "caption_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-review-v9-conditional.vtt",
+      "caption_sha256": "f0ef5938b26d72e8dd8178f9336080a9fbf55db76a0571f7ffcbcdec356e616e"
+    },
+    "mobile": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "f49e6bf0182395a1809a8f560a8436d9675e8e5b9ef35a156a7b46340f69b650",
+      "bytes": 3182928,
+      "dimensions": [
+        390,
+        844
+      ],
+      "caption_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-review-v9-conditional.vtt",
+      "caption_sha256": "0c6af3357d35495310612ce2588eb1bcebf5c3943ad63bb32d584b4b4217ab3c"
+    }
+  },
+  "contacts": {
+    "desktop_scene": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/v9-conditional-desktop-scene-contact.png",
+      "sha256": "efb3a6fedb626f4c9baf0093d3427f713cedfb14a42c8aa4e77dad7c0bbe2004"
+    },
+    "desktop_walkthrough": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/v9-conditional-desktop-walkthrough-contact.png",
+      "sha256": "9f05c49bfe517aa8ea6305ea2bbd21bbfe7952838f8bf3d2b64b56a0a3a0ad62"
+    },
+    "mobile_scene": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/v9-conditional-mobile-scene-contact.png",
+      "sha256": "f162aeb3cf26cd738b4456c857cbabe2bef9a74940ae8a60131c4c3feeb3ca4f"
+    },
+    "mobile_walkthrough": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/v9-conditional-mobile-walkthrough-contact.png",
+      "sha256": "b3cafadb211865c624ba9c0e59aeefc6d3d91d976bd406eab28e7d8e9becca7a"
+    }
+  },
+  "input_receipts": {
+    "v9_stills": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-overlay-disposition-receipt.json",
+    "render": "artifacts/accelerated-sam-contextual-review-2026-11-14/render-receipt-v9-conditional.json",
+    "player": "artifacts/accelerated-sam-contextual-review-2026-11-14/v9-conditional-player-review.json",
+    "browser": "artifacts/accelerated-sam-contextual-review-2026-11-14/v9-conditional-browser-review.json",
+    "capture_events": "artifacts/accelerated-sam-contextual-review-2026-11-14/player-capture-events-v9-conditional.json",
+    "encode": "artifacts/accelerated-sam-contextual-review-2026-11-14/encode-receipt-v9-conditional.json"
+  },
+  "excluded": [
+    "learner media change",
+    "commit",
+    "PR update",
+    "provider contact",
+    "spend",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ]
+}
