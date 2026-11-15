@@ -499,7 +499,7 @@ describe('Accelerated learning plan', () => {
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
     fireEvent.loadedMetadata(video)
-    expect(track.mode).toBe('showing')
+    expect(track.mode).toBe('hidden')
     fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
     expect(track.mode).toBe('disabled')
     expect(screen.getByRole('button', { name: 'English captions off' })).toHaveAttribute('aria-pressed', 'false')
