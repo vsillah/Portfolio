@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { BookOpen, ExternalLink, ShoppingCart, ArrowRight, Download, Calendar, MailCheck } from 'lucide-react'
+import { BookOpen, ExternalLink, ShoppingCart, ArrowRight, Download, Calendar } from 'lucide-react'
 import ExpandableText from '@/components/ui/ExpandableText'
 import { formatPriceOrFree } from '@/lib/pricing-model'
 import Link from 'next/link'
@@ -14,6 +14,10 @@ import {
   agentifiedPublication,
   mergeAgentifiedIntoPublications,
 } from '@/lib/agentified-publication'
+import {
+  acceleratedPublication,
+  mergeAcceleratedIntoPublications,
+} from '@/lib/accelerated-publication'
 
 interface Publication {
   id: number
@@ -69,9 +73,31 @@ const agentifiedPublicationCard: Publication = {
   status_label: agentifiedPublication.statusLabel,
 }
 
+const acceleratedPublicationCard: Publication = {
+  id: -101,
+  title: acceleratedPublication.title,
+  description: acceleratedPublication.description,
+  publication_url: acceleratedPublication.route,
+  publication_url_label: 'Explore the book and workshop',
+  author: acceleratedPublication.author,
+  publication_date: null,
+  publisher: acceleratedPublication.publisher,
+  file_path: acceleratedPublication.coverImage,
+  file_type: 'image/jpeg',
+  elevenlabs_project_id: null,
+  elevenlabs_public_user_id: null,
+  elevenlabs_player_url: null,
+  linked_product: null,
+  linked_lead_magnet: null,
+  linked_audiobook_lead_magnet: null,
+  audio_preview_playable_url: null,
+  status_label: acceleratedPublication.statusLabel,
+}
+
 // Fallback data in case database table doesn't exist yet
 const fallbackPublications: Publication[] = [
   agentifiedPublicationCard,
+  acceleratedPublicationCard,
   {
     id: 1,
     title: 'The Equity Code',
@@ -93,7 +119,10 @@ const fallbackPublications: Publication[] = [
 ]
 
 function mergeLocalPublications(remotePublications: Publication[]) {
-  return mergeAgentifiedIntoPublications(remotePublications, agentifiedPublicationCard)
+  return mergeAcceleratedIntoPublications(
+    mergeAgentifiedIntoPublications(remotePublications, agentifiedPublicationCard),
+    acceleratedPublicationCard,
+  )
 }
 
 export default function Publications() {
@@ -104,7 +133,6 @@ export default function Publications() {
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [postDownloadOfferShown, setPostDownloadOfferShown] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [workshopNotifyStatus, setWorkshopNotifyStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const postDownloadRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -169,38 +197,6 @@ export default function Publications() {
       setDownloadingId(null)
     }
   }, [isAuthenticated, router])
-
-  const handleWorkshopNotify = useCallback(async () => {
-    if (workshopNotifyStatus !== 'idle') return
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.user?.email) {
-      setWorkshopNotifyStatus('error')
-      return
-    }
-    setWorkshopNotifyStatus('loading')
-    const name =
-      (session.user.user_metadata?.full_name as string)?.trim() ||
-      session.user.email?.split('@')[0] ||
-      'Ebook reader'
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email: session.user.email,
-          message: "I'd like to be notified when the Accelerated Workshop launches.",
-        }),
-      })
-      if (res.ok) {
-        setWorkshopNotifyStatus('success')
-      } else {
-        setWorkshopNotifyStatus('error')
-      }
-    } catch {
-      setWorkshopNotifyStatus('error')
-    }
-  }, [workshopNotifyStatus])
 
   const fetchPublications = async () => {
     try {
@@ -487,33 +483,16 @@ export default function Publications() {
               <div className="flex flex-col items-center gap-2">
                 {userEmail && (
                   <p className="text-muted-foreground/90 text-xs font-body">
-                    We&apos;ll notify you at <strong className="text-muted-foreground">{userEmail}</strong>
+                    Download sent to <strong className="text-muted-foreground">{userEmail}</strong>
                   </p>
                 )}
-                {workshopNotifyStatus === 'idle' && (
-                  <button
-                    type="button"
-                    onClick={handleWorkshopNotify}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-radiant-gold/30 bg-white/85 px-5 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-foreground shadow-[0_12px_30px_rgba(18,30,49,0.06)] transition-all hover:bg-white dark:bg-silicon-slate/40 dark:shadow-none dark:hover:bg-silicon-slate/60"
-                  >
-                    <MailCheck size={14} />
-                    <span>Notify me when the Accelerated Workshop opens</span>
-                  </button>
-                )}
-                {workshopNotifyStatus === 'loading' && (
-                  <span className="text-muted-foreground text-xs">Saving...</span>
-                )}
-                {workshopNotifyStatus === 'success' && (
-                  <p className="text-radiant-gold text-xs font-body inline-flex items-center gap-2">
-                    <MailCheck size={14} />
-                    You&apos;re on the list. We&apos;ll email you when the workshop opens.
-                  </p>
-                )}
-                {workshopNotifyStatus === 'error' && (
-                  <p className="text-red-400/90 text-xs font-body">
-                    Something went wrong. Please try again or use the contact form.
-                  </p>
-                )}
+                <Link
+                  href="/accelerated"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-radiant-gold/30 bg-white/85 px-5 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-foreground shadow-[0_12px_30px_rgba(18,30,49,0.06)] transition-all hover:bg-white dark:bg-silicon-slate/40 dark:shadow-none dark:hover:bg-silicon-slate/60"
+                >
+                  <span>Explore the Accelerated book and workshop</span>
+                  <ArrowRight size={14} />
+                </Link>
               </div>
             </div>
           </div>

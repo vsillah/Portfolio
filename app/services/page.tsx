@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { addServiceToCart, getCart } from '@/lib/cart'
 import Link from 'next/link'
 import ThemeToggle from '@/components/ThemeToggle'
+import FlagshipWorkshops from '@/components/FlagshipWorkshops'
 
 interface Service {
   id: string
@@ -198,7 +199,7 @@ function ServicesContent() {
                 <Users className="text-foreground" />
                 Services
               </h1>
-              <p className="text-muted-foreground">Training, consulting, coaching, and speaking engagements</p>
+              <p className="text-muted-foreground">Workshops, training, consulting, coaching, and speaking engagements</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
@@ -286,6 +287,8 @@ function ServicesContent() {
           </div>
           {!loading && <p className="mt-3 text-sm text-muted-foreground" aria-live="polite">Showing {filteredServices.length} of {services.length} services</p>}
         </motion.div>
+
+        <FlagshipWorkshops className="mb-10" />
 
         <Link href="/speaking" className="mb-8 flex flex-wrap items-center justify-between gap-3 border-l-4 border-accent bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
           <span><strong className="block text-lg">Planning a speaking event?</strong><span className="text-sm text-muted-foreground">Build a short Speaker Fit Brief before exploring the engagement.</span></span>
