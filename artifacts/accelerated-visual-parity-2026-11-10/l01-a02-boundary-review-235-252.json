@@ -1,0 +1,20 @@
+{
+  "status": "review_only_existing_native_media",
+  "source_path": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+  "source_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+  "start_seconds": 235,
+  "end_seconds": 252,
+  "a02_to_c02_boundary_seconds": 248.2,
+  "suspected_sentence_seconds": [
+    245.13,
+    248.23
+  ],
+  "output_path": "artifacts/accelerated-visual-parity-2026-11-10/l01-a02-boundary-review-235-252.mp4",
+  "output_sha256": "2cc5083b58add45f76aa2f813acdb6e9a57142481be4238c72b3a82cae7e63bf",
+  "audio_codec": "aac_stream_copy",
+  "audio_packet_hashes_match_reference_extract": true,
+  "audio_packet_count": 848,
+  "ffmpeg_full_decode": "passed",
+  "duration_seconds": 17.018,
+  "purpose": "timestamped listening checkpoint; no learner binding"
+}

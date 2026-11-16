@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { visualParityBindings, AcceleratedLearningPlan, approvedL05L08Media, approvedL09L12Media, l01Media, l02Media, l03Media, l04Media, lessons } from './AcceleratedLearningPlan'
+import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
 
 const source = 'artifacts/accelerated-l09-l12-native-composite-2026-11-04'
 const receipt = JSON.parse(readFileSync('docs/accelerated-course-modules/l09-l12-learner-binding/human-qa-approval-receipt.json', 'utf8'))
@@ -60,8 +61,8 @@ describe('Accelerated L09–L12 learner binding', () => {
     fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${id}:`) }))
     const video = screen.getByLabelText(`${id} ${item.title} guided video`)
     expect(video).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === id)?.videoPath)
-    expect(document.querySelector('video track')).toHaveAttribute('src', approvedL09L12Media[id].captions)
+    expect(document.querySelector('video source')).toHaveAttribute('src', contextualBindings.lessons[id].variants.desktop.path)
+    expect(document.querySelector('video track')).toHaveAttribute('src', contextualBindings.lessons[id].caption.path)
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
     fireEvent.loadedMetadata(video)
@@ -69,7 +70,7 @@ describe('Accelerated L09–L12 learner binding', () => {
     fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
     expect(track.mode).toBe('disabled')
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
-    expect(screen.getByText(approvedL09L12Media[id].transcript.cues[0].text)).toBeInTheDocument()
+    expect(screen.getByText(contextualBindings.lessons[id].transcript.cues[0].text)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mark lesson complete' }))
     expect(screen.getByRole('progressbar', { name: 'Lessons complete' })).toHaveAttribute('value', '1')
   })

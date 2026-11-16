@@ -1,0 +1,86 @@
+{
+  "schema": "accelerated_l04_native_caption_alignment_gate_v3",
+  "status": "local_source_boundaries_qualified",
+  "source_native_mp4_sha256": "cf8f8e78c48a8f4471e0a4bb53b57b4f71f3ad52d30f92cf356482b4d1be9c3e",
+  "model": {
+    "implementation": "mlx-whisper",
+    "version": "0.4.3",
+    "mlx_version": "0.32.4",
+    "model_repository": "https://huggingface.co/mlx-community/whisper-large-v3-turbo",
+    "revision": "a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb",
+    "weights_sha256": "951ed3fc1203e6a62467abb2144a96ce7eafca8fa77e3704fdb8635ff3e7f8a6",
+    "weights_bytes": 1613977612,
+    "inference": "on-device with HF_HUB_OFFLINE=1; no source audio uploaded"
+  },
+  "evidence": {
+    "full_native_asr_file": "native-local-asr.json",
+    "full_native_asr_sha256": "8afdb64921f2a2644eb9795a08a8a5cf66ac99c3ab1b9b7ba72382cca5e3166d",
+    "corrected_window_asr_file": "native-corrected-window-asr.json",
+    "corrected_window_asr_sha256": "a8eb31393a0b111751c171bfd10b7c388774ec0597ae79619dbace706c1d28ff",
+    "waveform_file": "native-waveform-silences.json",
+    "waveform_sha256": "731563f64353fffb49514c2282561f7921a6c2ae5d855990c292472ae4dae854",
+    "canonical_word_match": {
+      "P01": "60/60",
+      "P02": "30/30",
+      "P03": "38/38",
+      "P04": "47/47",
+      "total": "175/175"
+    },
+    "asr_role": "Supporting wording and timing evidence; canonical pack and source waveform govern final cut and caption text."
+  },
+  "corrected_native_frame_ranges": [
+    [
+      0,
+      632
+    ],
+    [
+      632,
+      900
+    ],
+    [
+      900,
+      1233
+    ],
+    [
+      1233,
+      1683
+    ]
+  ],
+  "cuts": [
+    {
+      "frame": 632,
+      "source_seconds": 25.28,
+      "pause_seconds": [
+        24.85575,
+        25.703063
+      ],
+      "preceding_canonical_last_word": "useful",
+      "following_canonical_first_word": "The"
+    },
+    {
+      "frame": 900,
+      "source_seconds": 36.0,
+      "pause_seconds": [
+        35.750625,
+        36.301625
+      ],
+      "preceding_canonical_last_word": "moment",
+      "following_canonical_first_word": "A"
+    },
+    {
+      "frame": 1233,
+      "source_seconds": 49.32,
+      "pause_seconds": [
+        49.071125,
+        49.548188
+      ],
+      "preceding_canonical_last_word": "date",
+      "following_canonical_first_word": "That"
+    }
+  ],
+  "contract_file": "../l04-timing-contract.json",
+  "contract_sha256": "2670d5db2859801051a845a4a94bdbfaf89e70704790a7162762d910fa4630b0",
+  "caption_file": "l04-local-review-optional.vtt",
+  "caption_sha256": "3773ab5ceec12987ddf3837bc30390613f5b0d18cbf527bcea4a6e3f615e6691",
+  "result": "All native frame cuts lie inside measured waveform pauses, and independent offline transcription of each resulting clip matches its canonical presenter window exactly. No native frame is omitted or repeated."
+}

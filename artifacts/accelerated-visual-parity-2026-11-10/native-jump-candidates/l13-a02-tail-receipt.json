@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L13",
+  "presenter_window": "A02",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+  "source_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+  "source_window_seconds": [
+    226.0,
+    246.28
+  ],
+  "candidate_cut_seconds": 241.594667,
+  "machine_onset_seconds": 241.61,
+  "aac_snap_delta_seconds": 0.015333,
+  "intended_words": {
+    "retained_approved_words_end": "a shorter commitment would help new members begin",
+    "removed_later_phrase_start": "The book's collaboration example surfaces questions about differentiation, infrastructure, notifications, and data"
+  },
+  "silent_packet_source_start_seconds": 248.28,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 732,
+  "copied_silence_packet_count": 220,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a02-tail-candidate.mp4",
+  "candidate_sha256": "6c3dd1080540bd4b26befa5d2238bca6081365dbefca0d4410d50b2a7b39876b",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l13-a02-tail-before-after.mp4",
+  "before_after_sha256": "bb3347f57f6e08ab22771fd898b056b8e724f24c2e1e8530d96dcb501304758d",
+  "before_after_source_excerpt_seconds": [
+    238.094667,
+    245.094667
+  ],
+  "before_after_segment_seconds": 7.0,
+  "candidate_duration_seconds": 20.28,
+  "before_after_duration_seconds": 14.0,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

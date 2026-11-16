@@ -1,0 +1,639 @@
+{
+  "schema": "accelerated_sam_v9_conditional_player_review",
+  "checks": [
+    {
+      "aspect": "desktop",
+      "label": "opening",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-desktop-opening-off-chromium.png",
+      "time": 1,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "opening",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-desktop-opening-on-chromium.png",
+      "time": 1,
+      "controls": true,
+      "trackMode": "showing",
+      "activeCueCount": 1,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "second",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-desktop-second-off-chromium.png",
+      "time": 9,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "second",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-desktop-second-on-chromium.png",
+      "time": 9,
+      "controls": true,
+      "trackMode": "showing",
+      "activeCueCount": 1,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "third-copy",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-desktop-third-copy-off-chromium.png",
+      "time": 17,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "third-copy",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-desktop-third-copy-on-chromium.png",
+      "time": 17,
+      "controls": true,
+      "trackMode": "showing",
+      "activeCueCount": 1,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "third-plate",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-desktop-third-plate-off-chromium.png",
+      "time": 18,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "third-plate",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-desktop-third-plate-on-chromium.png",
+      "time": 18,
+      "controls": true,
+      "trackMode": "showing",
+      "activeCueCount": 1,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "last-copy",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-desktop-last-copy-off-chromium.png",
+      "time": 25,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "last-copy",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-desktop-last-copy-on-chromium.png",
+      "time": 25,
+      "controls": true,
+      "trackMode": "showing",
+      "activeCueCount": 1,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "last-plate",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-desktop-last-plate-off-chromium.png",
+      "time": 26,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "last-plate",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-desktop-last-plate-on-chromium.png",
+      "time": 26,
+      "controls": true,
+      "trackMode": "showing",
+      "activeCueCount": 1,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "label": "replay-after-ended",
+      "passed": true
+    },
+    {
+      "aspect": "mobile",
+      "label": "opening",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-mobile-opening-off-chromium.png",
+      "time": 1,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        390,
+        844
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "opening",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-mobile-opening-on-chromium.png",
+      "time": 1,
+      "controls": true,
+      "trackMode": "hidden",
+      "activeCueCount": 1,
+      "bandText": "That story makes the pressure visible. It is a teaching story from the book, not",
+      "bandVisible": true,
+      "bandScrollHeight": 96,
+      "bandClientHeight": 96,
+      "videoBounds": [
+        22.1875,
+        0,
+        345.625,
+        748
+      ],
+      "bandBounds": [
+        0,
+        748,
+        390,
+        96
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "second",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-mobile-second-off-chromium.png",
+      "time": 9,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        390,
+        844
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "second",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-mobile-second-on-chromium.png",
+      "time": 9,
+      "controls": true,
+      "trackMode": "hidden",
+      "activeCueCount": 1,
+      "bandText": "But the list does not tell you which problem to solve first, and it cannot tell you why.",
+      "bandVisible": true,
+      "bandScrollHeight": 96,
+      "bandClientHeight": 96,
+      "videoBounds": [
+        22.1875,
+        0,
+        345.625,
+        748
+      ],
+      "bandBounds": [
+        0,
+        748,
+        390,
+        96
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "third-copy",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-mobile-third-copy-off-chromium.png",
+      "time": 17,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        390,
+        844
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "third-copy",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-mobile-third-copy-on-chromium.png",
+      "time": 17,
+      "controls": true,
+      "trackMode": "hidden",
+      "activeCueCount": 1,
+      "bandText": "One person says the service is slow.",
+      "bandVisible": true,
+      "bandScrollHeight": 96,
+      "bandClientHeight": 96,
+      "videoBounds": [
+        22.1875,
+        0,
+        345.625,
+        748
+      ],
+      "bandBounds": [
+        0,
+        748,
+        390,
+        96
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "third-plate",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-mobile-third-plate-off-chromium.png",
+      "time": 18,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        390,
+        844
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "third-plate",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-mobile-third-plate-on-chromium.png",
+      "time": 18,
+      "controls": true,
+      "trackMode": "hidden",
+      "activeCueCount": 1,
+      "bandText": "One person says the service is slow.",
+      "bandVisible": true,
+      "bandScrollHeight": 96,
+      "bandClientHeight": 96,
+      "videoBounds": [
+        22.1875,
+        0,
+        345.625,
+        748
+      ],
+      "bandBounds": [
+        0,
+        748,
+        390,
+        96
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "last-copy",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-mobile-last-copy-off-chromium.png",
+      "time": 25,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        390,
+        844
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "last-copy",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-mobile-last-copy-on-chromium.png",
+      "time": 25,
+      "controls": true,
+      "trackMode": "hidden",
+      "activeCueCount": 1,
+      "bandText": "When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views.",
+      "bandVisible": true,
+      "bandScrollHeight": 96,
+      "bandClientHeight": 96,
+      "videoBounds": [
+        22.1875,
+        0,
+        345.625,
+        748
+      ],
+      "bandBounds": [
+        0,
+        748,
+        390,
+        96
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "last-plate",
+      "captionsOn": false,
+      "screenshot": "v9-conditional-mobile-last-plate-off-chromium.png",
+      "time": 26,
+      "controls": true,
+      "trackMode": "disabled",
+      "activeCueCount": 0,
+      "bandText": "",
+      "bandVisible": false,
+      "bandScrollHeight": 0,
+      "bandClientHeight": 0,
+      "videoBounds": [
+        0,
+        0,
+        390,
+        844
+      ],
+      "bandBounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "last-plate",
+      "captionsOn": true,
+      "screenshot": "v9-conditional-mobile-last-plate-on-chromium.png",
+      "time": 26,
+      "controls": true,
+      "trackMode": "hidden",
+      "activeCueCount": 1,
+      "bandText": "When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views.",
+      "bandVisible": true,
+      "bandScrollHeight": 96,
+      "bandClientHeight": 96,
+      "videoBounds": [
+        22.1875,
+        0,
+        345.625,
+        748
+      ],
+      "bandBounds": [
+        0,
+        748,
+        390,
+        96
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "label": "replay-after-ended",
+      "passed": true
+    }
+  ]
+}

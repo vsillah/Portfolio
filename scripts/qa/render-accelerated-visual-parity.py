@@ -94,6 +94,37 @@ ART_ASSETS={
     'cover':'public/accelerated_cover_ebook.jpg',
 }
 
+# Review-only clean cards. Each phrase is checked against its approved scene
+# narration by the clean-shell builder before these frames are exported.
+CLEAN_DENSE_CARDS={
+    'L02-04': [[('welcome email','low effort and easy to undo'),
+                ('guided first task','clearer starting point'),
+                ('staff dashboard','more build work')]],
+    'L05-02': [[('F01','could not tell if anything happened'),
+                ('F02','could not find where I left off')],
+               [('F03','instructions are too long'),
+                ('F04','a staff member explained the task')]],
+    'L06-02': [[('first-task guide','small test path'),
+                ('reminder','forgetting is the main barrier'),
+                ('staff dashboard','need staff evidence')]],
+    'L07-02': [[('first instruction','purpose of the task'),
+                ('small observation','starting moment'),
+                ('recording a decision','reopen the problem')]],
+    'L09-02': [[('Problem','new members struggle'),
+                ('Opportunity','a clearer entry'),
+                ('Options','clarify the card')],
+               [('Recommendation','test the smallest card change'),
+                ('Tradeoffs','delay another small task'),
+                ('Outcome','what a successful start looks like')]],
+    'L12-01': [[('source note','what the person was trying to do'),
+                ('context','in which it mattered'),
+                ('outcome','they wanted')]],
+}
+CLEAN_NOTE_REVEALS={
+    'f05': ('F05','The first task loaded quickly, but I did not know whether it mattered.'),
+    'f06': ('F06','I started after the welcome email showed the first step.'),
+}
+
 def concept_text(draw,value,box,size=39,color=CREAM,center=False):
     value=value.replace('→','to').replace('≠','differs from')
     x0,y0,x1,y1=box
@@ -122,6 +153,37 @@ def source_art(image,name,box):
     x=box[0]+(box[2]-box[0]-art.width)//2
     y=box[1]+(box[3]-box[1]-art.height)//2
     image.paste(art,(x,y))
+
+def source_focus_art(image,name,box):
+    """Preserve the approved panel's alpha against the review card background."""
+    art=Image.open(ROOT/ART_ASSETS[name]).convert('RGBA')
+    art.thumbnail((box[2]-box[0],box[3]-box[1]),Image.Resampling.LANCZOS)
+    x=box[0]+(box[2]-box[0]-art.width)//2
+    y=box[1]+(box[3]-box[1]-art.height)//2
+    image.paste(art,(x,y),art)
+
+def draw_clean_dense(image,scene,variant=None):
+    if scene['id']=='L05-03' and variant in CLEAN_NOTE_REVEALS:
+        cards=[CLEAN_NOTE_REVEALS[variant]]
+    else:
+        beats=CLEAN_DENSE_CARDS[scene['id']]
+        index=1 if variant=='second' and len(beats)>1 else 0
+        cards=beats[index]
+    d=ImageDraw.Draw(image)
+    rounded(d,(670,165,1810,815),DEEP,GOLD,42,6)
+    gap=26
+    width=(1050-gap*(len(cards)-1))//len(cards)
+    for i,(heading,detail) in enumerate(cards):
+        x=715+i*(width+gap)
+        rounded(d,(x,205,x+width,495),INK if i==0 else TEAL,GOLD,25,5)
+        if re.fullmatch(r'F\d\d', heading):
+            face=font(42)
+            left=d.textbbox((0,0),heading,font=face)[2]
+            d.text((x+(width-left)//2,235),heading,font=face,fill=GOLD_LIGHT)
+        else:
+            concept_text(d,heading,(x+20,225,x+width-20,295),36,GOLD_LIGHT,True)
+        line(d,[(x+32,310),(x+width-32,310)],GOLD,4)
+        concept_text(d,detail,(x+25,325,x+width-25,480),36,CREAM,True)
 
 def draw_semantic(d,layout,labels):
     """Large, labeled artifact shapes; no invented measures or customer results."""
@@ -271,8 +333,26 @@ def draw_semantic(d,layout,labels):
         return True
     return False
 
-def draw_concept(image,scene,variant=None):
+def draw_concept(image,scene,variant=None,clean=False):
     layout,labels=CONCEPTS[scene['id']]
+    if clean and scene['id']=='L05-03' and variant in CLEAN_NOTE_REVEALS:
+        draw_clean_dense(image,scene,variant)
+        return
+    if clean and scene['id'] in CLEAN_DENSE_CARDS and variant not in ART_ASSETS:
+        draw_clean_dense(image,scene,variant)
+        return
+    if clean and scene['id'] in ('L01-02','L01-03'):
+        focus = ('signals' if scene['id']=='L01-02' else
+                 variant if variant in ('signals','alignment','momentum') else 'signals')
+        draw_l01_sam_focus(image,focus)
+        return
+    if clean and scene['id']=='L01-01':
+        if variant=='decision':
+            d=ImageDraw.Draw(image)
+            rounded(d,(670,165,1810,815),DEEP,GOLD,42,6)
+            concept_box(d,(770,285,1710,655),'Who will decide which idea matters?',fill=INK,size=58)
+            return
+        labels=['Q3 INNOVATION PLAN','Decision to make']
     d=ImageDraw.Draw(image)
     x0,y0,x1,y1=670,165,1810,815
     rounded(d,(x0,y0,x1,y1),DEEP,GOLD,42,6)
@@ -404,7 +484,17 @@ def draw_concept(image,scene,variant=None):
         return
     raise AssertionError((scene['id'],layout))
 
-def render(lesson, scene, index, presenter=False, variant=None):
+def draw_l01_sam_focus(image, focus, box=(670,165,1810,815)):
+    """One approved SAM panel at a time; full infographic remains source art."""
+    d=ImageDraw.Draw(image)
+    x0,y0,x1,y1=box
+    rounded(d,box,DEEP,GOLD,42,6)
+    name=focus.capitalize()
+    title=font(67,True)
+    d.text((x0+85,y0+245),name,font=title,fill=CREAM)
+    source_focus_art(image,focus,(x0+450,y0+35,x1-65,y1-35))
+
+def render(lesson, scene, index, presenter=False, variant=None, clean=False):
     image=Image.new('RGB',(1920,1080),DEEP)
     d=ImageDraw.Draw(image)
     for y in range(0,885):
@@ -414,20 +504,22 @@ def render(lesson, scene, index, presenter=False, variant=None):
         line(d,[(x,70),(x,870)],'#254650',1)
     line(d,[(0,885),(1920,885)],GOLD,5)
     d.text((95,55),'AMADUTOWN  /  ACCELERATED',font=font(29),fill=GOLD_LIGHT)
-    d.text((1520,55),f"{lesson['id']}  /  {scene['scene_number']:02d}",font=font(28),fill=MUTED)
+    if not clean:
+        d.text((1520,55),f"{lesson['id']}  /  {scene['scene_number']:02d}",font=font(28),fill=MUTED)
     title=short_title(scene)
     face=font(53,True)
     for i,part in enumerate(wrap(d,title,face,500)[:5]):
         d.text((95,185+i*68),part,font=face,fill=CREAM)
-    artifact=lesson['learner_artifact'].replace('Decision-file','Decision File').replace('PRD','product brief')
-    for j,part in enumerate(wrap(d,artifact,font(27),480)[:3]):
-        d.text((100,625+j*35),part,font=font(27),fill=MUTED)
-    line(d,[(100,750),(560,750)],GOLD,5)
-    for j in range(len(lesson['scenes'])):
-        px=115+j*(440/max(1,len(lesson['scenes'])-1))
-        d.ellipse((px-13,775,px+13,801),fill=GOLD_LIGHT if j==index else TEAL,outline=GOLD,width=3)
+    if not clean:
+        artifact=lesson['learner_artifact'].replace('Decision-file','Decision File').replace('PRD','product brief')
+        for j,part in enumerate(wrap(d,artifact,font(27),480)[:3]):
+            d.text((100,625+j*35),part,font=font(27),fill=MUTED)
+        line(d,[(100,750),(560,750)],GOLD,5)
+        for j in range(len(lesson['scenes'])):
+            px=115+j*(440/max(1,len(lesson['scenes'])-1))
+            d.ellipse((px-13,775,px+13,801),fill=GOLD_LIGHT if j==index else TEAL,outline=GOLD,width=3)
     if not presenter:
-        draw_concept(image,scene,variant)
+        draw_concept(image,scene,variant,clean)
     return image
 
 def main():

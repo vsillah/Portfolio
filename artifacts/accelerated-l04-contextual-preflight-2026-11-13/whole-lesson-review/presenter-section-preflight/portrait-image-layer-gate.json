@@ -1,0 +1,11 @@
+{
+  "schema": "accelerated_l04_portrait_presenter_image_layer_gate_v1",
+  "active_image_layers": {
+    "P01": 1,
+    "P02": 1,
+    "P03": 1,
+    "P04": 1
+  },
+  "required_layers_per_passage": 1,
+  "result": "pass"
+}

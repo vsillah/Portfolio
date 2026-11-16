@@ -1,0 +1,2793 @@
+{
+  "schema_version": 1,
+  "status": "review_only_clean_visual_edl",
+  "source_manifest": {
+    "path": "docs/accelerated-course-modules/visual-production/manifest.json",
+    "sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf"
+  },
+  "source_composite_receipt": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/composite-receipt.json",
+    "sha256": "cf916889edbc480fd652be72850c196618fe829b86da75410503f356e13c9560"
+  },
+  "clean_frame_receipt": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/receipt.json",
+    "sha256": "2b0ad6cffa9c91d4e1c0ddb2f20099e4b28b91bec921ec207c0bd94a2d9ac494"
+  },
+  "fps": 25,
+  "lessons": [
+    {
+      "lesson_id": "L02",
+      "runtime_seconds": 600,
+      "rendered_body_seconds": 600.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+        "sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+        "sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+        "sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c"
+      },
+      "presenter_windows_seconds": [
+        [
+          0.0,
+          29.76
+        ],
+        [
+          180.0,
+          194.28
+        ],
+        [
+          366.0,
+          376.2
+        ],
+        [
+          573.88,
+          587.24
+        ]
+      ],
+      "presenter_panel": [
+        949,
+        182,
+        916,
+        522
+      ],
+      "segments": [
+        {
+          "scene_id": "L02-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            90
+          ],
+          "start_frame": 0,
+          "end_frame": 2250,
+          "start_seconds": 0.0,
+          "end_seconds": 90.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-01.jpg",
+            "sha256": "999e8e9ae699b990122b21b9967a5a4f2adaebc3ed8616b71d8b2973a955eac7"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L02-02",
+          "variant": "signals",
+          "source_cue_seconds": [
+            90,
+            105
+          ],
+          "start_frame": 2250,
+          "end_frame": 2625,
+          "start_seconds": 90.0,
+          "end_seconds": 105.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "kind": "approved_source_art:signals",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-02-signals.jpg",
+            "sha256": "e2ffc416e1ca4d6dbfb8e7e858e20be5703a4cd56f8fdb6c41d17a030d429fd3"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L02-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            105,
+            180
+          ],
+          "start_frame": 2625,
+          "end_frame": 4500,
+          "start_seconds": 105.0,
+          "end_seconds": 180.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-02.jpg",
+            "sha256": "0e6bcb408c0d8ba47e37905c0ac8e137ccab88a9f290dd2984110efa0fa23044"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L02-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            180,
+            273
+          ],
+          "start_frame": 4500,
+          "end_frame": 6825,
+          "start_seconds": 180.0,
+          "end_seconds": 273.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-03.jpg",
+            "sha256": "ef6cadd7062128e70937814b15a802ceb354d66ca0a07e8d9aef24f67bb6133e"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L02-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            273,
+            366
+          ],
+          "start_frame": 6825,
+          "end_frame": 9150,
+          "start_seconds": 273.0,
+          "end_seconds": 366.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-04.jpg",
+            "sha256": "679f47078fa153c500658de39b8320cf03c211c8097abe5571fd4c0b4e15ebb6"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L02-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            366,
+            451
+          ],
+          "start_frame": 9150,
+          "end_frame": 11275,
+          "start_seconds": 366.0,
+          "end_seconds": 451.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-05.jpg",
+            "sha256": "c7ce1f683e6aafbcb017a4f21e378849af54c085cb91ded0ef3d34306b3865c7"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L02-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            451,
+            546
+          ],
+          "start_frame": 11275,
+          "end_frame": 13650,
+          "start_seconds": 451.0,
+          "end_seconds": 546.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-06.jpg",
+            "sha256": "eb2e8d39c33ef81d2688c78b2dbcbcde7ce3acc66459d09aa6e45d539333f571"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L02-07",
+          "variant": "main",
+          "source_cue_seconds": [
+            546,
+            600
+          ],
+          "start_frame": 13650,
+          "end_frame": 15000,
+          "start_seconds": 546.0,
+          "end_seconds": 600.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L02-07.jpg",
+            "sha256": "b75a939465aa78827e3e82fd76885fb9001953f56b3041830f0838cae6a61f5b"
+          },
+          "script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L03",
+      "runtime_seconds": 540,
+      "rendered_body_seconds": 540.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l03/approved-02b9c3ea/accelerated-l03-native-composite.mp4",
+        "sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+        "sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l03/visual-c0775b73/l03-visual-parity.mp4",
+        "sha256": "c0775b731c665037b5c5c1e60879f5386f416955f5fcb85bfbc640b69fbf7cce"
+      },
+      "presenter_windows_seconds": [
+        [
+          0.0,
+          22.28
+        ],
+        [
+          174.0,
+          190.84
+        ],
+        [
+          349.0,
+          360.28
+        ],
+        [
+          513.96,
+          526.24
+        ]
+      ],
+      "presenter_panel": [
+        949,
+        182,
+        916,
+        522
+      ],
+      "segments": [
+        {
+          "scene_id": "L03-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            86
+          ],
+          "start_frame": 0,
+          "end_frame": 2150,
+          "start_seconds": 0.0,
+          "end_seconds": 86.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L03-01.jpg",
+            "sha256": "f7974e9bb7d8e1e7b3a9822d0a98e7cb395d2bb0e483f44a878b31baf7884316"
+          },
+          "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L03-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            86,
+            174
+          ],
+          "start_frame": 2150,
+          "end_frame": 4350,
+          "start_seconds": 86.0,
+          "end_seconds": 174.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L03-02.jpg",
+            "sha256": "74d8f4989d3dcc88fb109add30041f2844209da7cba22be57e43aa9862744f89"
+          },
+          "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L03-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            174,
+            262
+          ],
+          "start_frame": 4350,
+          "end_frame": 6550,
+          "start_seconds": 174.0,
+          "end_seconds": 262.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L03-03.jpg",
+            "sha256": "eb9bbb30fc9379372240cd01682df6a8dfbda12c6467ad2a87b7080cb939ea07"
+          },
+          "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L03-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            262,
+            349
+          ],
+          "start_frame": 6550,
+          "end_frame": 8725,
+          "start_seconds": 262.0,
+          "end_seconds": 349.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L03-04.jpg",
+            "sha256": "8b06d8b9cb35d429f2cab987a93d2997db88f098ed1e66d5dfbcf2f020580d43"
+          },
+          "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L03-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            349,
+            441
+          ],
+          "start_frame": 8725,
+          "end_frame": 11025,
+          "start_seconds": 349.0,
+          "end_seconds": 441.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L03-05.jpg",
+            "sha256": "d2164d53501030de5003e26f07f1a8c902230cce4c8dced7cb7e9268a28bc371"
+          },
+          "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L03-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            441,
+            540
+          ],
+          "start_frame": 11025,
+          "end_frame": 13500,
+          "start_seconds": 441.0,
+          "end_seconds": 540.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L03-06.jpg",
+            "sha256": "237392edd1b184d4ad6945513c5cfd68e3a556b4c2eabf9e6d79f6e504a217e4"
+          },
+          "script_sha256": "41d9233ab15a1922748e455da8d31af1c33f356a4f569740121526a92cce8f6e",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L04",
+      "runtime_seconds": 600,
+      "rendered_body_seconds": 600.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+        "sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+        "sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l04/visual-64ee46ea/l04-visual-parity.mp4",
+        "sha256": "64ee46ea02f5df28e29d5c9489b86d6b17ec30d1bebc37b8a82799c5ff403554"
+      },
+      "presenter_windows_seconds": [
+        [
+          0.0,
+          25.72
+        ],
+        [
+          165.0,
+          178.84
+        ],
+        [
+          350.0,
+          365.24
+        ],
+        [
+          572.92,
+          585.44
+        ]
+      ],
+      "presenter_panel": [
+        949,
+        182,
+        916,
+        522
+      ],
+      "segments": [
+        {
+          "scene_id": "L04-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            80
+          ],
+          "start_frame": 0,
+          "end_frame": 2000,
+          "start_seconds": 0.0,
+          "end_seconds": 80.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L04-01.jpg",
+            "sha256": "d5abdff45d22b142aa0ff8f06afe56885d74a6ccf0f931577cd26a4927c8209b"
+          },
+          "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L04-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            80,
+            165
+          ],
+          "start_frame": 2000,
+          "end_frame": 4125,
+          "start_seconds": 80.0,
+          "end_seconds": 165.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L04-02.jpg",
+            "sha256": "17b1e03012906dba39f5eb61927d99005dd95194b77fdcbb086ed1f67856f112"
+          },
+          "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L04-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            165,
+            260
+          ],
+          "start_frame": 4125,
+          "end_frame": 6500,
+          "start_seconds": 165.0,
+          "end_seconds": 260.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L04-03.jpg",
+            "sha256": "07d079eb54076d3b992e1963cd54b90f6875c01ce1d15ef5fe3fda27b31d0193"
+          },
+          "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L04-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            260,
+            350
+          ],
+          "start_frame": 6500,
+          "end_frame": 8750,
+          "start_seconds": 260.0,
+          "end_seconds": 350.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L04-04.jpg",
+            "sha256": "a977b5b17e0cb1094288f6fa2bd40407825dc40acce096d2fc6327f8992ae813"
+          },
+          "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L04-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            350,
+            440
+          ],
+          "start_frame": 8750,
+          "end_frame": 11000,
+          "start_seconds": 350.0,
+          "end_seconds": 440.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L04-05.jpg",
+            "sha256": "5b12746b326ead87d420ee202d5719c1f3b2b0005de4bd73eb6d82ac11e02a9a"
+          },
+          "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L04-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            440,
+            529
+          ],
+          "start_frame": 11000,
+          "end_frame": 13225,
+          "start_seconds": 440.0,
+          "end_seconds": 529.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L04-06.jpg",
+            "sha256": "b77ad20169c62e8691ae2402f5d333ada700a3fa530cae2a136aea218383b28f"
+          },
+          "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L04-07",
+          "variant": "main",
+          "source_cue_seconds": [
+            529,
+            600
+          ],
+          "start_frame": 13225,
+          "end_frame": 15000,
+          "start_seconds": 529.0,
+          "end_seconds": 600.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L04-07.jpg",
+            "sha256": "e25087270e31b5c44488f75bfe77b8f6dd77903164fd69156f9b89e3a059ce72"
+          },
+          "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L05",
+      "runtime_seconds": 600,
+      "rendered_body_seconds": 600.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+        "sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+        "sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+        "sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          19.24
+        ],
+        [
+          200.0,
+          220.88
+        ],
+        [
+          400.0,
+          414.32
+        ],
+        [
+          573.92,
+          584.96
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L05-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            80
+          ],
+          "start_frame": 0,
+          "end_frame": 2000,
+          "start_seconds": 0.0,
+          "end_seconds": 80.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-01.jpg",
+            "sha256": "ca03e90a323469f4b3ebd86ede26f7967c5746ff16c273fe895cf9cf9961a4b1"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-01",
+          "variant": "signals",
+          "source_cue_seconds": [
+            80,
+            100
+          ],
+          "start_frame": 2000,
+          "end_frame": 2500,
+          "start_seconds": 80.0,
+          "end_seconds": 100.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "kind": "approved_source_art:signals",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-01-signals.jpg",
+            "sha256": "0e7c3609f0953ed9fb4f577b04c29dcfb7eb989ca02e5b350532a65877601a6b"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            100,
+            157.674
+          ],
+          "start_frame": 2500,
+          "end_frame": 3942,
+          "start_seconds": 100.0,
+          "end_seconds": 157.68,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-02.jpg",
+            "sha256": "ae5f62bff748392d5bd72317b1b7e41855682c54c52a4594797876418bf560a4"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-02",
+          "variant": "second",
+          "source_cue_seconds": [
+            157.674,
+            200
+          ],
+          "start_frame": 3942,
+          "end_frame": 5000,
+          "start_seconds": 157.68,
+          "end_seconds": 200.0,
+          "start_quantization_ms": 6.0,
+          "preview": {
+            "kind": "second_script_beat",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-02-second.jpg",
+            "sha256": "7c2eb9fe3b5185022b8e61b7717a82ccd8d0a6f10cb0d494cf33df9514e4799d"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            200,
+            252.093
+          ],
+          "start_frame": 5000,
+          "end_frame": 6302,
+          "start_seconds": 200.0,
+          "end_seconds": 252.08,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-03.jpg",
+            "sha256": "074ae1bf77fb22ac6c770c3c76af85b1c2771eeef8e18fea976c27c598489ba9"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-03",
+          "variant": "f05",
+          "source_cue_seconds": [
+            252.093,
+            273.953
+          ],
+          "start_frame": 6302,
+          "end_frame": 6849,
+          "start_seconds": 252.08,
+          "end_seconds": 273.96,
+          "start_quantization_ms": -13.0,
+          "preview": {
+            "kind": "scripted_note_reveal:f05",
+            "source_start_seconds": 252.093,
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-03-f05.jpg",
+            "sha256": "2f0dd5dbcf4cc4f67ec9998504447786f00fafb154f45f6b4889de3303ac0379"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "cleared_in_390px_product_size_player_excerpt"
+        },
+        {
+          "scene_id": "L05-03",
+          "variant": "f06",
+          "source_cue_seconds": [
+            273.953,
+            300
+          ],
+          "start_frame": 6849,
+          "end_frame": 7500,
+          "start_seconds": 273.96,
+          "end_seconds": 300.0,
+          "start_quantization_ms": 7.0,
+          "preview": {
+            "kind": "scripted_note_reveal:f06",
+            "source_start_seconds": 273.953,
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-03-f06.jpg",
+            "sha256": "6cd44ef1ce37d83536b6be970524a043b07208d4083a6bebc5e3411d3e0e1a7c"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "cleared_in_390px_product_size_player_excerpt"
+        },
+        {
+          "scene_id": "L05-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            300,
+            400
+          ],
+          "start_frame": 7500,
+          "end_frame": 10000,
+          "start_seconds": 300.0,
+          "end_seconds": 400.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-04.jpg",
+            "sha256": "91fb5136579686a357bc971990be878613328528b936dd6f11e73661c6b5b99a"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            400,
+            500
+          ],
+          "start_frame": 10000,
+          "end_frame": 12500,
+          "start_seconds": 400.0,
+          "end_seconds": 500.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-05.jpg",
+            "sha256": "e35d6ff924254ba676e63f9d813350c1ad72fccdce6ccad52354f519fa1bd42b"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            500,
+            550
+          ],
+          "start_frame": 12500,
+          "end_frame": 13750,
+          "start_seconds": 500.0,
+          "end_seconds": 550.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-06.jpg",
+            "sha256": "a94444ba647fcfd50b4970f9097e5695f6ec560086210bb231d4136a6854054b"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-06",
+          "variant": "alignment",
+          "source_cue_seconds": [
+            550,
+            570
+          ],
+          "start_frame": 13750,
+          "end_frame": 14250,
+          "start_seconds": 550.0,
+          "end_seconds": 570.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "kind": "approved_source_art:alignment",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-06-alignment.jpg",
+            "sha256": "522d669e7024c535d8b007d240c96fa9fa4134931ff2014095a255ac209c301c"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L05-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            570,
+            600
+          ],
+          "start_frame": 14250,
+          "end_frame": 15000,
+          "start_seconds": 570.0,
+          "end_seconds": 600.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L05-06.jpg",
+            "sha256": "a94444ba647fcfd50b4970f9097e5695f6ec560086210bb231d4136a6854054b"
+          },
+          "script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L06",
+      "runtime_seconds": 660,
+      "rendered_body_seconds": 660.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+        "sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+        "sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l06/visual-8fab0a13/l06-visual-parity.mp4",
+        "sha256": "8fab0a135d18a9aef66d9c25a3bdb6fb6bad420b55b7cd96f5ad80219320295c"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          20.92
+        ],
+        [
+          220.0,
+          236.8
+        ],
+        [
+          440.0,
+          453.4
+        ],
+        [
+          630.84,
+          646.08
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L06-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            110
+          ],
+          "start_frame": 0,
+          "end_frame": 2750,
+          "start_seconds": 0.0,
+          "end_seconds": 110.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L06-01.jpg",
+            "sha256": "49eb5b3dad04a6af350f9a48338322729a0d751752b177a18bc56ab1a0b121a9"
+          },
+          "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L06-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            110,
+            200
+          ],
+          "start_frame": 2750,
+          "end_frame": 5000,
+          "start_seconds": 110.0,
+          "end_seconds": 200.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L06-02.jpg",
+            "sha256": "2b2795e4f55a958b90e67a28b76b21794c0e1a7dc4ef9496a8770f393bf27a2b"
+          },
+          "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L06-02",
+          "variant": "alignment",
+          "source_cue_seconds": [
+            200,
+            220
+          ],
+          "start_frame": 5000,
+          "end_frame": 5500,
+          "start_seconds": 200.0,
+          "end_seconds": 220.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "kind": "approved_source_art:alignment",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L06-02-alignment.jpg",
+            "sha256": "b0b5d585c48f4ca59127e936e4c489fa59d87ba6bc66b9d87351418bfe5e0dbb"
+          },
+          "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L06-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            220,
+            330
+          ],
+          "start_frame": 5500,
+          "end_frame": 8250,
+          "start_seconds": 220.0,
+          "end_seconds": 330.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L06-03.jpg",
+            "sha256": "40fc638bc25221ca6ec6bfd07865fbbf82065146ed053c983e41a9dbe24eee18"
+          },
+          "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L06-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            330,
+            440
+          ],
+          "start_frame": 8250,
+          "end_frame": 11000,
+          "start_seconds": 330.0,
+          "end_seconds": 440.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L06-04.jpg",
+            "sha256": "65de63069234d75c7f5626bb9f3d06040f0ca0b0254f59784171a81887963d15"
+          },
+          "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L06-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            440,
+            550
+          ],
+          "start_frame": 11000,
+          "end_frame": 13750,
+          "start_seconds": 440.0,
+          "end_seconds": 550.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L06-05.jpg",
+            "sha256": "70a50aa3fdb1ce0571df9b85685b5fd6fd41aa3b33e9d420d1b4c6e7507c991f"
+          },
+          "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L06-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            550,
+            660
+          ],
+          "start_frame": 13750,
+          "end_frame": 16500,
+          "start_seconds": 550.0,
+          "end_seconds": 660.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L06-06.jpg",
+            "sha256": "4c3d6fa93718541f25fc4134c58f4e1edde363c1447558019ef69b09e8020ae9"
+          },
+          "script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L07",
+      "runtime_seconds": 600,
+      "rendered_body_seconds": 600.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4",
+        "sha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+        "sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l07/visual-46da2aee/l07-visual-parity.mp4",
+        "sha256": "46da2aeefa6581961e793b3578162b6de1600ffc29642d892d6a3e288ed782ee"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          18.0
+        ],
+        [
+          200.0,
+          214.56
+        ],
+        [
+          400.0,
+          411.92
+        ],
+        [
+          569.96,
+          585.92
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L07-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            100
+          ],
+          "start_frame": 0,
+          "end_frame": 2500,
+          "start_seconds": 0.0,
+          "end_seconds": 100.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-01.jpg",
+            "sha256": "0c68e3392374f6e3df57a24305a89156c367ca37ae01ffb77c6ebab7695d2954"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L07-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            100,
+            200
+          ],
+          "start_frame": 2500,
+          "end_frame": 5000,
+          "start_seconds": 100.0,
+          "end_seconds": 200.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-02.jpg",
+            "sha256": "6d5405317dc318f949acda52a2b225b844a8dafde9ea17a048765f517058ae67"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L07-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            200,
+            300
+          ],
+          "start_frame": 5000,
+          "end_frame": 7500,
+          "start_seconds": 200.0,
+          "end_seconds": 300.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-03.jpg",
+            "sha256": "49a88e1720484692319fd288edf4852ddf6fca5dbefe38096009067633e455f6"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L07-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            300,
+            400
+          ],
+          "start_frame": 7500,
+          "end_frame": 10000,
+          "start_seconds": 300.0,
+          "end_seconds": 400.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-04.jpg",
+            "sha256": "09d50d9569cb49072d89ea33813e961e1a2666ad9742b2583f1bd7d25fa473d8"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L07-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            400,
+            500
+          ],
+          "start_frame": 10000,
+          "end_frame": 12500,
+          "start_seconds": 400.0,
+          "end_seconds": 500.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-05.jpg",
+            "sha256": "447b51e775ac92ed6e8c907fd0ba788dd422b97c4a4235a7a96ec2d2bf885659"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L07-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            500,
+            550
+          ],
+          "start_frame": 12500,
+          "end_frame": 13750,
+          "start_seconds": 500.0,
+          "end_seconds": 550.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-06.jpg",
+            "sha256": "7b2941510578cef68019807cb77bb7735a6b318c1259a732793cf81d0c836dff"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L07-06",
+          "variant": "alignment",
+          "source_cue_seconds": [
+            550,
+            570
+          ],
+          "start_frame": 13750,
+          "end_frame": 14250,
+          "start_seconds": 550.0,
+          "end_seconds": 570.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "kind": "approved_source_art:alignment",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-06-alignment.jpg",
+            "sha256": "6f47d987e0110e7032dd809d8df7f0431e9198d254822a7814fcb94cf2c7627d"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L07-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            570,
+            600
+          ],
+          "start_frame": 14250,
+          "end_frame": 15000,
+          "start_seconds": 570.0,
+          "end_seconds": 600.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L07-06.jpg",
+            "sha256": "7b2941510578cef68019807cb77bb7735a6b318c1259a732793cf81d0c836dff"
+          },
+          "script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L08",
+      "runtime_seconds": 720,
+      "rendered_body_seconds": 720.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+        "sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+        "sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+        "sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          28.52
+        ],
+        [
+          240.0,
+          258.0
+        ],
+        [
+          480.0,
+          495.36
+        ],
+        [
+          681.04,
+          702.8
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L08-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            120
+          ],
+          "start_frame": 0,
+          "end_frame": 3000,
+          "start_seconds": 0.0,
+          "end_seconds": 120.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-01.jpg",
+            "sha256": "cfede31000736a78a1dc63396b3fdb1c54bf149434a9adc69713c5bb103fc218"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L08-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            120,
+            240
+          ],
+          "start_frame": 3000,
+          "end_frame": 6000,
+          "start_seconds": 120.0,
+          "end_seconds": 240.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-02.jpg",
+            "sha256": "5033ec82667991363f70dc7b5808209920fef09143c37747909006404c6e7e46"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L08-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            240,
+            360
+          ],
+          "start_frame": 6000,
+          "end_frame": 9000,
+          "start_seconds": 240.0,
+          "end_seconds": 360.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-03.jpg",
+            "sha256": "a991b29104cc20d193bec965ba06ca60cdf936f405f08a3118fa7f8569b16772"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L08-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            360,
+            480
+          ],
+          "start_frame": 9000,
+          "end_frame": 12000,
+          "start_seconds": 360.0,
+          "end_seconds": 480.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-04.jpg",
+            "sha256": "d8f57df717749d01bdb94af7fbffbc03b47fd59a95f1f21cfb4b1f456227dbd0"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L08-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            480,
+            600
+          ],
+          "start_frame": 12000,
+          "end_frame": 15000,
+          "start_seconds": 480.0,
+          "end_seconds": 600.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-05.jpg",
+            "sha256": "4e6b0e4e4df67f7d1445bc0de266604d912ee72b6e810d13b68283b835682cb6"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L08-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            600,
+            660
+          ],
+          "start_frame": 15000,
+          "end_frame": 16500,
+          "start_seconds": 600.0,
+          "end_seconds": 660.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-06.jpg",
+            "sha256": "940211eda6903bf62334b284b16bee91ebff4367b39b71f034754296108d5080"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L08-06",
+          "variant": "learning_loop",
+          "source_cue_seconds": [
+            660,
+            680
+          ],
+          "start_frame": 16500,
+          "end_frame": 17000,
+          "start_seconds": 660.0,
+          "end_seconds": 680.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "kind": "existing_concept_beat:learning_loop",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-06-learning_loop.jpg",
+            "sha256": "4ae8eb3af80072c162896e04e8fc370fcb322bc58a0e99be2d4924deae58643a"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L08-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            680,
+            720
+          ],
+          "start_frame": 17000,
+          "end_frame": 18000,
+          "start_seconds": 680.0,
+          "end_seconds": 720.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L08-06.jpg",
+            "sha256": "940211eda6903bf62334b284b16bee91ebff4367b39b71f034754296108d5080"
+          },
+          "script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L09",
+      "runtime_seconds": 660,
+      "rendered_body_seconds": 660.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+        "sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+        "sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l09/visual-fa272108/l09-visual-parity.mp4",
+        "sha256": "fa272108626d383f220fc5a3489c827e5e1eabacb7191b82824339a81a308bc6"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          22.92
+        ],
+        [
+          220.0,
+          241.16
+        ],
+        [
+          440.0,
+          456.52
+        ],
+        [
+          630.72,
+          645.8
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L09-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            110
+          ],
+          "start_frame": 0,
+          "end_frame": 2750,
+          "start_seconds": 0.0,
+          "end_seconds": 110.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L09-01.jpg",
+            "sha256": "47e529ca02e78cbb1802a231a100bed04d39b5964f5ddd3318c5e21503539dfa"
+          },
+          "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L09-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            110,
+            152.664
+          ],
+          "start_frame": 2750,
+          "end_frame": 3817,
+          "start_seconds": 110.0,
+          "end_seconds": 152.68,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L09-02.jpg",
+            "sha256": "ae15f36f03b0a5f61d9924045be590e9045632312b00a8b4a287eac8d556a7e6"
+          },
+          "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L09-02",
+          "variant": "second",
+          "source_cue_seconds": [
+            152.664,
+            220
+          ],
+          "start_frame": 3817,
+          "end_frame": 5500,
+          "start_seconds": 152.68,
+          "end_seconds": 220.0,
+          "start_quantization_ms": 16.0,
+          "preview": {
+            "kind": "second_script_beat",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L09-02-second.jpg",
+            "sha256": "2f59991aa4c37ff7e641d577ffefb62aad8c4489232bd9ab97710d6f1a37c0cd"
+          },
+          "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L09-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            220,
+            330
+          ],
+          "start_frame": 5500,
+          "end_frame": 8250,
+          "start_seconds": 220.0,
+          "end_seconds": 330.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L09-03.jpg",
+            "sha256": "e4eddbc7acac6d05c9f401e620b27e3153f7610d149a6c58f9c18a3f25ac38e2"
+          },
+          "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L09-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            330,
+            440
+          ],
+          "start_frame": 8250,
+          "end_frame": 11000,
+          "start_seconds": 330.0,
+          "end_seconds": 440.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L09-04.jpg",
+            "sha256": "57869b3651d100ab43bc2e617bcfd01878cbffe41a3af2603fd5702440ca9d81"
+          },
+          "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L09-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            440,
+            550
+          ],
+          "start_frame": 11000,
+          "end_frame": 13750,
+          "start_seconds": 440.0,
+          "end_seconds": 550.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L09-05.jpg",
+            "sha256": "320c2aa88afa8ca74e7d9d3deda319624c94f4606935e4fd49031772d20d5f1f"
+          },
+          "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L09-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            550,
+            660
+          ],
+          "start_frame": 13750,
+          "end_frame": 16500,
+          "start_seconds": 550.0,
+          "end_seconds": 660.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L09-06.jpg",
+            "sha256": "00a542370af10ea6cd41a7a8ba5fab4c67441e38e90e1ec3fb120f4afe510534"
+          },
+          "script_sha256": "72f88ce4aa6cb4f1276c7982a1a1f9672c1d041da0dc6d47303cbef2f8b3c4a8",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L10",
+      "runtime_seconds": 540,
+      "rendered_body_seconds": 540.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+        "sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+        "sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l10/visual-a566fe6f/l10-visual-parity.mp4",
+        "sha256": "a566fe6f25f4ec245fb5eb3e66fba73da56f93e47a28dc7696c5e0423ea73619"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          25.92
+        ],
+        [
+          180.0,
+          199.96
+        ],
+        [
+          360.0,
+          382.2
+        ],
+        [
+          511.6,
+          531.96
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L10-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            90
+          ],
+          "start_frame": 0,
+          "end_frame": 2250,
+          "start_seconds": 0.0,
+          "end_seconds": 90.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L10-01.jpg",
+            "sha256": "cb100ed83cf38a4cdf2c3ed9e8f3263e38a0ef320fcf5abcff0597c70945c2cc"
+          },
+          "script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L10-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            90,
+            180
+          ],
+          "start_frame": 2250,
+          "end_frame": 4500,
+          "start_seconds": 90.0,
+          "end_seconds": 180.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L10-02.jpg",
+            "sha256": "a8aad008f0cf760ea3c76e993dd3c29afc3e72c7edf54161464606cf7e544517"
+          },
+          "script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L10-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            180,
+            270
+          ],
+          "start_frame": 4500,
+          "end_frame": 6750,
+          "start_seconds": 180.0,
+          "end_seconds": 270.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L10-03.jpg",
+            "sha256": "e3894eeb6573dc81ad42c3c9846a36ff0fa6bbac8adeb0b2361a30f6cf381cff"
+          },
+          "script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L10-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            270,
+            360
+          ],
+          "start_frame": 6750,
+          "end_frame": 9000,
+          "start_seconds": 270.0,
+          "end_seconds": 360.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L10-04.jpg",
+            "sha256": "c2000278cc238dd0af1b414fd3b95d06b72c1be30c96486db80353311705959d"
+          },
+          "script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L10-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            360,
+            450
+          ],
+          "start_frame": 9000,
+          "end_frame": 11250,
+          "start_seconds": 360.0,
+          "end_seconds": 450.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L10-05.jpg",
+            "sha256": "e086313806830f763b25a56884e5c1534522cceab83d5879e5ad96bc7fdbd21c"
+          },
+          "script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L10-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            450,
+            540
+          ],
+          "start_frame": 11250,
+          "end_frame": 13500,
+          "start_seconds": 450.0,
+          "end_seconds": 540.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L10-06.jpg",
+            "sha256": "dae103168cb3f78b3294076f0de6af2d03aa8e05ed3b3e7714616a4507c6465b"
+          },
+          "script_sha256": "582238a183ab7171589533431d06ebbf641c4db83ecf94d42527670d305698a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L11",
+      "runtime_seconds": 600,
+      "rendered_body_seconds": 600.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+        "sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+        "sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l11/visual-7f05eb02/l11-visual-parity.mp4",
+        "sha256": "7f05eb02aacddce6952c513d07b38d634d3f965cc93e875967fad8ca278a7f20"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          21.48
+        ],
+        [
+          200.0,
+          221.28
+        ],
+        [
+          400.0,
+          422.04
+        ],
+        [
+          561.56,
+          580.68
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L11-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            100
+          ],
+          "start_frame": 0,
+          "end_frame": 2500,
+          "start_seconds": 0.0,
+          "end_seconds": 100.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L11-01.jpg",
+            "sha256": "98d3438f8df711ebe358667ffd91296f67faece3515deebd57f1822e410d7804"
+          },
+          "script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L11-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            100,
+            200
+          ],
+          "start_frame": 2500,
+          "end_frame": 5000,
+          "start_seconds": 100.0,
+          "end_seconds": 200.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L11-02.jpg",
+            "sha256": "a4a02f4f5f16fa6a33d0236bbb0209436613c4f542d8f8fe5db99ee9a517df4d"
+          },
+          "script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L11-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            200,
+            300
+          ],
+          "start_frame": 5000,
+          "end_frame": 7500,
+          "start_seconds": 200.0,
+          "end_seconds": 300.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L11-03.jpg",
+            "sha256": "e5b87797f99bb7f055bdb382cfcbb15c0ddd1e34888cf172f1dabb1a1abc65e0"
+          },
+          "script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L11-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            300,
+            400
+          ],
+          "start_frame": 7500,
+          "end_frame": 10000,
+          "start_seconds": 300.0,
+          "end_seconds": 400.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L11-04.jpg",
+            "sha256": "d9cb62f993998a3de216e1d7bd625ee01415eb1d42aed726f692d123f77a99f2"
+          },
+          "script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L11-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            400,
+            500
+          ],
+          "start_frame": 10000,
+          "end_frame": 12500,
+          "start_seconds": 400.0,
+          "end_seconds": 500.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L11-05.jpg",
+            "sha256": "c21f869141ce6998537933fb028e45c0c67d75ab395334e26e898954064a69f7"
+          },
+          "script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L11-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            500,
+            600
+          ],
+          "start_frame": 12500,
+          "end_frame": 15000,
+          "start_seconds": 500.0,
+          "end_seconds": 600.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L11-06.jpg",
+            "sha256": "7175101818c5b582ec6a6decd3996ede6fba33c179bd64ad8de4614e638a8678"
+          },
+          "script_sha256": "705152fdd1f3654e1559bc09daf7a8056a87266b821d475a8c659ff6cffe35a5",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L12",
+      "runtime_seconds": 660,
+      "rendered_body_seconds": 660.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+        "sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+        "sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l12/visual-9963aefb/l12-visual-parity.mp4",
+        "sha256": "9963aefbcafba1c5ac7c266063fce27413b2a3a01eaaf8a74e0fdce837d6ea5e"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          24.52
+        ],
+        [
+          220.0,
+          241.28
+        ],
+        [
+          440.0,
+          460.72
+        ],
+        [
+          622.68,
+          645.72
+        ]
+      ],
+      "presenter_panel": [
+        936,
+        160,
+        976,
+        549
+      ],
+      "segments": [
+        {
+          "scene_id": "L12-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            110
+          ],
+          "start_frame": 0,
+          "end_frame": 2750,
+          "start_seconds": 0.0,
+          "end_seconds": 110.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L12-01.jpg",
+            "sha256": "4f0cde5d047c8243aec46f63e6425329709ff1c54b76f0a11d8b4a9c592ded42"
+          },
+          "script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L12-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            110,
+            220
+          ],
+          "start_frame": 2750,
+          "end_frame": 5500,
+          "start_seconds": 110.0,
+          "end_seconds": 220.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L12-02.jpg",
+            "sha256": "1c42a95aba39260dae35d45dd4fa24bac052f7f7b161d22208e10bd4c136ea00"
+          },
+          "script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L12-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            220,
+            330
+          ],
+          "start_frame": 5500,
+          "end_frame": 8250,
+          "start_seconds": 220.0,
+          "end_seconds": 330.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L12-03.jpg",
+            "sha256": "a1f81ab5e79bd33a7e8addabe18faab95557fc559f6df3a6b004a266f2da5eea"
+          },
+          "script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L12-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            330,
+            440
+          ],
+          "start_frame": 8250,
+          "end_frame": 11000,
+          "start_seconds": 330.0,
+          "end_seconds": 440.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L12-04.jpg",
+            "sha256": "2d7ee5fe99fd4b5150f25f412926061c92369d8783924ba28f1fd9e382bf23ce"
+          },
+          "script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L12-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            440,
+            550
+          ],
+          "start_frame": 11000,
+          "end_frame": 13750,
+          "start_seconds": 440.0,
+          "end_seconds": 550.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L12-05.jpg",
+            "sha256": "f330b9767559ac5f039b514e9f35076553ead037186c1944ae0dd4c43570b0d7"
+          },
+          "script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L12-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            550,
+            660
+          ],
+          "start_frame": 13750,
+          "end_frame": 16500,
+          "start_seconds": 550.0,
+          "end_seconds": 660.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L12-06.jpg",
+            "sha256": "99ce9781adc46eb3b8a17c7f47b8d9f494a637a35795024b00eea6344f4a2df1"
+          },
+          "script_sha256": "e8eaeb962881100288c95cffd40111940ae274a76520a13613cf04e056a06a36",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L13",
+      "runtime_seconds": 660,
+      "rendered_body_seconds": 660.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+        "sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+        "sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l13/visual-12dd1ffb/l13-visual-parity.mp4",
+        "sha256": "12dd1ffb30701f5135dbd026a3ab116593b1f3bb40cc7a657a7494257404f7e7"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          28.04
+        ],
+        [
+          226.0,
+          246.28
+        ],
+        [
+          446.0,
+          471.68
+        ],
+        [
+          632.28,
+          649.88
+        ]
+      ],
+      "presenter_panel": [
+        986,
+        190,
+        870,
+        490
+      ],
+      "segments": [
+        {
+          "scene_id": "L13-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            117
+          ],
+          "start_frame": 0,
+          "end_frame": 2925,
+          "start_seconds": 0.0,
+          "end_seconds": 117.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L13-01.jpg",
+            "sha256": "ef7139dbc526b1ba96ed34a3a6e28dc998a01e25d3e73112b40d5eee94bc09c1"
+          },
+          "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L13-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            117,
+            226
+          ],
+          "start_frame": 2925,
+          "end_frame": 5650,
+          "start_seconds": 117.0,
+          "end_seconds": 226.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L13-02.jpg",
+            "sha256": "3624845f839847fec317b49d28084e6beb86ccbb032cef1209ddfe3f90a777d2"
+          },
+          "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L13-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            226,
+            340
+          ],
+          "start_frame": 5650,
+          "end_frame": 8500,
+          "start_seconds": 226.0,
+          "end_seconds": 340.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L13-03.jpg",
+            "sha256": "2c5b31dc30ce8f254ab2f0e27d1261babea835ac63a3e297a93ca9837e4ca192"
+          },
+          "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L13-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            340,
+            446
+          ],
+          "start_frame": 8500,
+          "end_frame": 11150,
+          "start_seconds": 340.0,
+          "end_seconds": 446.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L13-04.jpg",
+            "sha256": "39707a8cb1a5962cc156e94c60dcc73ab7c4adec52bf3fc008314e2b01087889"
+          },
+          "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L13-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            446,
+            553
+          ],
+          "start_frame": 11150,
+          "end_frame": 13825,
+          "start_seconds": 446.0,
+          "end_seconds": 553.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L13-05.jpg",
+            "sha256": "0cb284ea7e1eda7525c183c5ac242f7826916c8c27d3d3df4a73a0acf7a17549"
+          },
+          "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L13-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            553,
+            660
+          ],
+          "start_frame": 13825,
+          "end_frame": 16500,
+          "start_seconds": 553.0,
+          "end_seconds": 660.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L13-06.jpg",
+            "sha256": "b2313336f3c1360b0e57c9c1471e1b830f73875b4519e22ceeec9936069a5fbf"
+          },
+          "script_sha256": "3acceee930227d5584d97ef236f04265e17cd3722e12836d60ef55ed17f0d63a",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L14",
+      "runtime_seconds": 480,
+      "rendered_body_seconds": 480.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+        "sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+        "sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l14/visual-e9fae6f6/l14-visual-parity.mp4",
+        "sha256": "e9fae6f62ed93bf4bb7424ded61fcfe9d957f5097f8a4cd01652423a40d5a3dc"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          26.28
+        ],
+        [
+          164.0,
+          189.12
+        ],
+        [
+          330.0,
+          352.44
+        ],
+        [
+          451.32,
+          468.48
+        ]
+      ],
+      "presenter_panel": [
+        986,
+        190,
+        870,
+        490
+      ],
+      "segments": [
+        {
+          "scene_id": "L14-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            82
+          ],
+          "start_frame": 0,
+          "end_frame": 2050,
+          "start_seconds": 0.0,
+          "end_seconds": 82.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L14-01.jpg",
+            "sha256": "a557673b9d4c037eac0d169e42f2f5d5b32ae179a9d23b59fb54d6735fdcac1a"
+          },
+          "script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L14-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            82,
+            164
+          ],
+          "start_frame": 2050,
+          "end_frame": 4100,
+          "start_seconds": 82.0,
+          "end_seconds": 164.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L14-02.jpg",
+            "sha256": "fdf9a0269cfe9966b3b136b7ffecc7de3cf7aa3c0edc7e62e403ddd48ba9fcc3"
+          },
+          "script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L14-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            164,
+            249
+          ],
+          "start_frame": 4100,
+          "end_frame": 6225,
+          "start_seconds": 164.0,
+          "end_seconds": 249.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L14-03.jpg",
+            "sha256": "7eca74172cd7bb794c1fc7a2c084b9b0372af7e73dce5c2f77cef9d69ce6f29b"
+          },
+          "script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L14-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            249,
+            330
+          ],
+          "start_frame": 6225,
+          "end_frame": 8250,
+          "start_seconds": 249.0,
+          "end_seconds": 330.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L14-04.jpg",
+            "sha256": "47ad5678e4aecdeae720fd6e49ec1b4c97d95639d5b6633b75beea35528e0c7f"
+          },
+          "script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L14-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            330,
+            406
+          ],
+          "start_frame": 8250,
+          "end_frame": 10150,
+          "start_seconds": 330.0,
+          "end_seconds": 406.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L14-05.jpg",
+            "sha256": "1a279df8cacf508d1b633b6fc479b02366a00b4e49853977ce474e9b91e55281"
+          },
+          "script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L14-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            406,
+            480
+          ],
+          "start_frame": 10150,
+          "end_frame": 12000,
+          "start_seconds": 406.0,
+          "end_seconds": 480.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L14-06.jpg",
+            "sha256": "18edce98a6d7f65961ede8e9715fe969f71b6a49c79302c1f1e2316bdea32813"
+          },
+          "script_sha256": "5ea7d162d96416f328cc74ad70260065ea874fe4314a4529874fd4d543a39643",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L15",
+      "runtime_seconds": 720,
+      "rendered_body_seconds": 720.0,
+      "full_lesson_renderable": true,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+        "sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+        "sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l15/visual-78ca15b1/l15-visual-parity.mp4",
+        "sha256": "78ca15b11323c650368172410003b3771f0e54ff866bf3ab74f201e99debbdc9"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          25.84
+        ],
+        [
+          243.0,
+          267.96
+        ],
+        [
+          481.0,
+          508.84
+        ],
+        [
+          688.08,
+          708.52
+        ]
+      ],
+      "presenter_panel": [
+        986,
+        190,
+        870,
+        490
+      ],
+      "segments": [
+        {
+          "scene_id": "L15-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            0,
+            122
+          ],
+          "start_frame": 0,
+          "end_frame": 3050,
+          "start_seconds": 0.0,
+          "end_seconds": 122.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L15-01.jpg",
+            "sha256": "6a706859026ee49d2f10804984e0ebf663d1703f2bdb8387d1d542db90aeda3f"
+          },
+          "script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L15-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            122,
+            243
+          ],
+          "start_frame": 3050,
+          "end_frame": 6075,
+          "start_seconds": 122.0,
+          "end_seconds": 243.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L15-02.jpg",
+            "sha256": "fd0db178d6eeb4dc309b5ac43272b316333848ed0fc277f9f7a96386462cc6bb"
+          },
+          "script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L15-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            243,
+            364
+          ],
+          "start_frame": 6075,
+          "end_frame": 9100,
+          "start_seconds": 243.0,
+          "end_seconds": 364.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L15-03.jpg",
+            "sha256": "5d7b5b3e4e6989e44dfa9db3110c3d5ae0d90d23f1d7e95fbc036065fcf7d358"
+          },
+          "script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L15-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            364,
+            481
+          ],
+          "start_frame": 9100,
+          "end_frame": 12025,
+          "start_seconds": 364.0,
+          "end_seconds": 481.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L15-04.jpg",
+            "sha256": "169c9b18dcb6db467b1cf099c207182f5e2a790bbdd5dfcf558d008d592adc05"
+          },
+          "script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L15-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            481,
+            603
+          ],
+          "start_frame": 12025,
+          "end_frame": 15075,
+          "start_seconds": 481.0,
+          "end_seconds": 603.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L15-05.jpg",
+            "sha256": "7cfb885cc00e73ce517ed6accb6b9e6e261b280f93c8c55890f6b285060541dc"
+          },
+          "script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L15-06",
+          "variant": "main",
+          "source_cue_seconds": [
+            603,
+            720
+          ],
+          "start_frame": 15075,
+          "end_frame": 18000,
+          "start_seconds": 603.0,
+          "end_seconds": 720.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L15-06.jpg",
+            "sha256": "59668a7bec4fd3457c9fda0672bb7db95d1b59c500ee429df9d565e334351ae0"
+          },
+          "script_sha256": "64a2691ab3c66962b4c8906c833cd145345ec7f53adc325f18064e421503d6c0",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    },
+    {
+      "lesson_id": "L16",
+      "runtime_seconds": 480,
+      "rendered_body_seconds": 408.0,
+      "full_lesson_renderable": false,
+      "source_native_mp4": {
+        "path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+        "sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0"
+      },
+      "source_vtt": {
+        "path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+        "sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9"
+      },
+      "current_visual_mp4": {
+        "path": "public/accelerated/visual-parity/l16/visual-6c17d213/l16-visual-parity.mp4",
+        "sha256": "6c17d2138eef870cabd184b6c8e16f4f281c83e093694782356e2d193c559d02"
+      },
+      "presenter_windows_seconds": [
+        [
+          0,
+          28.48
+        ],
+        [
+          161.0,
+          187.08
+        ],
+        [
+          316.0,
+          341.4
+        ],
+        [
+          449.44,
+          472.52
+        ]
+      ],
+      "presenter_panel": [
+        986,
+        190,
+        870,
+        490
+      ],
+      "segments": [
+        {
+          "scene_id": "L16-01",
+          "variant": "sam",
+          "source_cue_seconds": [
+            0,
+            40
+          ],
+          "start_frame": 0,
+          "end_frame": 1000,
+          "start_seconds": 0.0,
+          "end_seconds": 40.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "kind": "approved_source_art:sam",
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L16-01-sam.jpg",
+            "sha256": "734495027cc9c0f4ee671188ef6e7b4a7c1b3c5dd8762d5ce1f198af36e3669b"
+          },
+          "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L16-01",
+          "variant": "main",
+          "source_cue_seconds": [
+            40,
+            81
+          ],
+          "start_frame": 1000,
+          "end_frame": 2025,
+          "start_seconds": 40.0,
+          "end_seconds": 81.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L16-01.jpg",
+            "sha256": "8ed7ea47277e22e56fbcb56189668e5ddbc36a1f88c12a58b73e271c6d3dbf7c"
+          },
+          "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L16-02",
+          "variant": "main",
+          "source_cue_seconds": [
+            81,
+            161
+          ],
+          "start_frame": 2025,
+          "end_frame": 4025,
+          "start_seconds": 81.0,
+          "end_seconds": 161.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L16-02.jpg",
+            "sha256": "c4a926b46183885fcea5b43a8e0872f81ff03dd4c1826dee6824859c7a13ec27"
+          },
+          "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L16-03",
+          "variant": "main",
+          "source_cue_seconds": [
+            161,
+            239
+          ],
+          "start_frame": 4025,
+          "end_frame": 5975,
+          "start_seconds": 161.0,
+          "end_seconds": 239.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L16-03.jpg",
+            "sha256": "a277e19fd0a0357f57dccf33370ef54bf974bac9f7c6fb34612367b86f45757b"
+          },
+          "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L16-04",
+          "variant": "main",
+          "source_cue_seconds": [
+            239,
+            316
+          ],
+          "start_frame": 5975,
+          "end_frame": 7900,
+          "start_seconds": 239.0,
+          "end_seconds": 316.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L16-04.jpg",
+            "sha256": "13a1a14314563d92d383988c69d16fe2ba92b89de3f9cb09407f39449d2ad4ed"
+          },
+          "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        },
+        {
+          "scene_id": "L16-05",
+          "variant": "main",
+          "source_cue_seconds": [
+            316,
+            408
+          ],
+          "start_frame": 7900,
+          "end_frame": 10200,
+          "start_seconds": 316.0,
+          "end_seconds": 408.0,
+          "start_quantization_ms": 0.0,
+          "preview": {
+            "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/frames/L16-05.jpg",
+            "sha256": "a243131902840a4d02c765e9d4a437bf5df286c73b561c0412d1a37d0257fa8f"
+          },
+          "script_sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+          "caption_content_qualification": "not_yet_browser_qualified"
+        }
+      ],
+      "audio_treatment": "copy source native AAC; existing cutaway silence stays silent",
+      "caption_treatment": "copy source subtitle stream; final voice retiming remains open"
+    }
+  ],
+  "caption_safe_observation": {
+    "scope": "L05-03 F05/F06 excerpt only; other scenes require rendered QA",
+    "status": "cleared_in_chrome_localhost_excerpt",
+    "desktop_viewport": [
+      1696,
+      962
+    ],
+    "mobile_viewport": [
+      390,
+      844
+    ],
+    "mobile_video_stage_height": 280,
+    "player_css_reference": "app/service-prototypes/[slug]/learning-plan.module.css:115-136"
+  },
+  "excluded_scope": [
+    "L01",
+    "L16-06 end-screen lane",
+    "final narration generation",
+    "canonical media and learner binding changes"
+  ],
+  "l05_visual_only_candidate": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-clean-visual-full-review.mp4",
+    "sha256": "ffed39e6b32497fd62a30cfe45ee0ed33eba7cce6288b38930f75307b143c812",
+    "duration_seconds": 600,
+    "video_frames": 15000,
+    "full_decode": "passed",
+    "source_audio_aac_packet_sha256": "81671fe5ef45a75bacce6b4262c82d662719f6a863f510234b670dc28c25b7da",
+    "copied_subtitle_srt_sha256": "3b96c7592e50ac563b23c613d4763facee83caf9dd45033a807f15c82d6082ab",
+    "presenter_panel_mean_rgb_error": {
+      "8": 1.172,
+      "210": 0.767,
+      "405": 1.116,
+      "580": 0.814
+    },
+    "sample_frames": [
+      {
+        "source_seconds": 112,
+        "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-review-112s.jpg",
+        "sha256": "efd17fa5a4b1686a293ea8a5c62f435e7e2b4849fffd6ca32b2516b25a54ac4a"
+      },
+      {
+        "source_seconds": 164,
+        "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-review-164s.jpg",
+        "sha256": "927fd0e87ce916ec77d3cd418a96d78df4ba938de36991e8ddc9b9f2b5c751c1"
+      },
+      {
+        "source_seconds": 245,
+        "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-review-245s.jpg",
+        "sha256": "06577d8ed2fd2de69b73c3c9e32d829dfdda14fde4545e12e8948da45ab7d1ec"
+      },
+      {
+        "source_seconds": 260,
+        "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-review-260s.jpg",
+        "sha256": "0e486a034acf3adb40fe781f2fd0eded8762c6747003a2152cc296378b6273a4"
+      },
+      {
+        "source_seconds": 285,
+        "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-review-285s.jpg",
+        "sha256": "488fed81777f8a0aca82c2ebb319add3d65c014b52b840827263ae732172ca9b"
+      },
+      {
+        "source_seconds": 405,
+        "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-review-405s.jpg",
+        "sha256": "f53d35920dac872819bba7195562d6500518ded4e1080d900d7c8735f6404e1b"
+      },
+      {
+        "source_seconds": 550,
+        "path": "artifacts/accelerated-visual-parity-2026-11-10/clean-shell-review/l05-review-550s.jpg",
+        "sha256": "8d54e20aff36ee2818f10bc8698f2b0c02986ddf7190b26846c523ac71b9fa03"
+      }
+    ],
+    "review_only": true,
+    "full_lesson_visual_qa": "not_yet_qualified",
+    "source_cutaway_silence_retained": true,
+    "canonical_media_or_learner_binding_changed": false
+  }
+}

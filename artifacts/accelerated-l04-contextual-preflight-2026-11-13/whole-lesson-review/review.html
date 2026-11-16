@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accelerated L04 local review</title>
+<style>
+  body{margin:0;background:#102b34;color:#f7f0de;font:16px system-ui,sans-serif}
+  main{max-width:1250px;margin:auto;padding:20px}
+  h1{font:32px Georgia,serif;margin:0 0 8px}
+  p{margin:0 0 18px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:24px;align-items:start}
+  figure{margin:0}
+  figcaption{margin:8px 0 12px;color:#e5cf94}
+  video{display:block;width:100%;height:auto;background:#081d24;border:1px solid #d4b779;border-radius:6px}
+  .portrait{max-width:390px;margin:auto}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}main{padding:12px}h1{font-size:26px}}
+</style>
+<main>
+  <h1>Lesson 04 · editorial teaching-plate review</h1>
+  <p>Each narration-aligned concept receives its own temporary AmaduTown-blue teaching plate, then clears completely. P01/P02 use full-screen illustration; P03/P04 retain the intact native presenter background. Captions remain optional.</p>
+  <div class="grid">
+    <figure>
+      <video controls preload="metadata" playsinline>
+        <source src="l04-whole-lesson-desktop-editorial-plates-local-review.mp4?rev=4ea135cb" type="video/mp4">
+        <track src="l04-local-review-optional.vtt?rev=3773ab5c" kind="captions" srclang="en" label="English captions">
+      </video>
+      <figcaption>1920 × 1080 desktop candidate</figcaption>
+    </figure>
+    <figure class="portrait">
+      <video controls preload="metadata" playsinline>
+        <source src="l04-whole-lesson-portrait-editorial-plates-local-review.mp4?rev=9c49ae07" type="video/mp4">
+        <track src="l04-local-review-portrait-optional.vtt?rev=597f7407" kind="captions" srclang="en" label="English captions">
+      </video>
+      <figcaption>390 × 844 portrait candidate</figcaption>
+    </figure>
+  </div>
+</main>
+<script>
+  const reviewAt = Number(new URLSearchParams(location.search).get('at'));
+  if (Number.isFinite(reviewAt) && reviewAt > 0) {
+    document.querySelectorAll('video').forEach(video => {
+      if (video.readyState >= 1) video.currentTime = reviewAt;
+      else video.addEventListener('loadedmetadata', () => { video.currentTime = reviewAt; }, { once: true });
+    });
+  }
+  if (new URLSearchParams(location.search).get('captions') === 'on') {
+    document.querySelectorAll('video').forEach(video => {
+      video.querySelector('track').addEventListener('load', () => { video.textTracks[0].mode = 'showing'; }, { once: true });
+      video.textTracks[0].mode = 'showing';
+    });
+  }
+</script>
+</html>

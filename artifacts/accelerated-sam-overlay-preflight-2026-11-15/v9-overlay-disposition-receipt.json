@@ -1,0 +1,201 @@
+{
+  "schema": "accelerated_sam_conditional_overlay_v9_still_preflight",
+  "status": "still_only_captain_review_pending",
+  "source_manifest_sha256": "33785b459ad4746af84fd0b78e370094a4c29694401345cb09ede3d9ee4f7b3d",
+  "source_script_paths": [
+    "docs/accelerated-course-modules/curriculum/scripts/L02.md",
+    "docs/accelerated-course-modules/curriculum/scripts/L05.md"
+  ],
+  "video_modified": false,
+  "audio_modified": false,
+  "captions_modified": false,
+  "learner_bindings_modified": false,
+  "scenes": {
+    "L01-03": {
+      "desktop": {
+        "disposition": "omit",
+        "reason": "The full book map already labels Signals, Alignment, and Momentum; the extra panel repeats its heading.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-desktop-before.png",
+          "sha256": "a221f3b5383ceea0c61328bd41b70a89e404941520dc6fd88b97565e7cb205bf",
+          "source_sha256": "a221f3b5383ceea0c61328bd41b70a89e404941520dc6fd88b97565e7cb205bf"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-desktop-after.png",
+          "sha256": "600946d8c7b7345c0b28e0d1dc0cbe6c5855e525a8e430cb6bd37e8e4031a2b2"
+        },
+        "source_overlay": "Signals \u00b7 Alignment \u00b7 Momentum",
+        "result_overlay": null,
+        "approved_plate_unchanged": true
+      },
+      "mobile": {
+        "disposition": "omit",
+        "reason": "The extra label duplicates the full map and occupies the clear interval before the fixed presenter.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-mobile-before.png",
+          "sha256": "776b224cc9f6ccbe5c6928ae85917bbbbc0f1e9c17659672e095fd07ae8c1381",
+          "source_sha256": "776b224cc9f6ccbe5c6928ae85917bbbbc0f1e9c17659672e095fd07ae8c1381"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l01-03-mobile-after.png",
+          "sha256": "6f3705c2c46b3032105586897a24ffc6e0fe560d01a1aa7775aeae983729863c"
+        },
+        "source_overlay": "Signals \u00b7 Alignment \u00b7 Momentum",
+        "result_overlay": null,
+        "approved_plate_unchanged": true
+      }
+    },
+    "L02-02": {
+      "desktop": {
+        "disposition": "overlay",
+        "reason": "Retain the decision reminder in unused space to the right of the centered plate, clear of all geometry.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-desktop-before.png",
+          "sha256": "2a8c4224612d8ca6bf232584194353bcdac8b8ec14004030d4cc5410b26df813",
+          "source_sha256": "2a8c4224612d8ca6bf232584194353bcdac8b8ec14004030d4cc5410b26df813"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-desktop-after.png",
+          "sha256": "2a8c4224612d8ca6bf232584194353bcdac8b8ec14004030d4cc5410b26df813"
+        },
+        "source_overlay": "Choose one. Keep two alternatives.",
+        "result_overlay": "Choose one. Keep two alternatives.",
+        "approved_plate_unchanged": true
+      },
+      "mobile": {
+        "disposition": "overlay",
+        "reason": "Retain the reminder in the presenter-free scene's unobstructed area below the complete plate.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-mobile-before.png",
+          "sha256": "124e3a124fd6008bd0a284b8625ea1e4216954f713b4ea2058cb67604fcf680e",
+          "source_sha256": "124e3a124fd6008bd0a284b8625ea1e4216954f713b4ea2058cb67604fcf680e"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l02-02-mobile-after.png",
+          "sha256": "124e3a124fd6008bd0a284b8625ea1e4216954f713b4ea2058cb67604fcf680e"
+        },
+        "source_overlay": "Choose one. Keep two alternatives.",
+        "result_overlay": "Choose one. Keep two alternatives.",
+        "approved_plate_unchanged": true
+      }
+    },
+    "L05-01": {
+      "desktop": {
+        "disposition": "overlay",
+        "reason": "Retain the required phrase in the unused field below-left of the fixed presenter without touching the plate.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-desktop-before.png",
+          "sha256": "f82bcc117f50ec06babc32746aa7346e199de806fd34ae013089564cca557bc8",
+          "source_sha256": "f82bcc117f50ec06babc32746aa7346e199de806fd34ae013089564cca557bc8"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-desktop-after.png",
+          "sha256": "f82bcc117f50ec06babc32746aa7346e199de806fd34ae013089564cca557bc8"
+        },
+        "source_overlay": "Decision before theme",
+        "result_overlay": "Decision before theme",
+        "approved_plate_unchanged": true
+      },
+      "mobile": {
+        "disposition": "sequence",
+        "reason": "The full-width plate and presenter leave no caption-safe copy area; show the required phrase in a separate text state before the intact plate.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-mobile-before.png",
+          "sha256": "a3072053e7d5d9f3e2e09424f390f6e09f676ee7111aa75532afedc3e2da7815",
+          "source_sha256": "a3072053e7d5d9f3e2e09424f390f6e09f676ee7111aa75532afedc3e2da7815"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-mobile-after.png",
+          "sha256": "4a202cb1a39fa34c3396c43f4a8f623df0da42d3c7df5733953df7d44c10f9ef"
+        },
+        "source_overlay": "Decision before theme",
+        "result_overlay": null,
+        "approved_plate_unchanged": true,
+        "separate_copy_state": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-01-mobile-after-copy-sequence.png",
+          "sha256": "4e673b7334a50f9c741ddbee8a953b3e215bac67f14c939f11d29e40e2882d89",
+          "copy": "Decision before theme",
+          "plate_visible_in_this_state": false
+        }
+      }
+    },
+    "L05-03": {
+      "desktop": {
+        "disposition": "shorten",
+        "reason": "Use the script's shorter visible copy, 'One complaint, several jobs', in the unused field beside the complete funnel plate.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-desktop-before.png",
+          "sha256": "e7c1f5f06cdeac6d9c4d1bbb5028f70825ef6d21cb599aa018d7d632fbad6aad",
+          "source_sha256": "e7c1f5f06cdeac6d9c4d1bbb5028f70825ef6d21cb599aa018d7d632fbad6aad"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-desktop-after.png",
+          "sha256": "edef76901526bf6587ee88d93a552b6981f9dbaab95cef91e0e7b217afdb27f3"
+        },
+        "source_overlay": "One complaint can hide several jobs",
+        "result_overlay": "One complaint, several jobs",
+        "approved_plate_unchanged": true
+      },
+      "mobile": {
+        "disposition": "sequence",
+        "reason": "The full-width funnel plate, receiver, and presenter leave no clean mobile overlay area; show the source phrase separately before the intact plate.",
+        "before": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-mobile-before.png",
+          "sha256": "1d62303995fc2a91277c72f29f9556e6d7f64dc0c7f36f9a9ea388ff50dabd98",
+          "source_sha256": "1d62303995fc2a91277c72f29f9556e6d7f64dc0c7f36f9a9ea388ff50dabd98"
+        },
+        "after": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-mobile-after.png",
+          "sha256": "c4a0a04b287748e4f23e22fb09c812fc00e05b2fae64136a805cec449a9fbc21"
+        },
+        "source_overlay": "One complaint can hide several jobs",
+        "result_overlay": null,
+        "approved_plate_unchanged": true,
+        "separate_copy_state": {
+          "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-l05-03-mobile-after-copy-sequence.png",
+          "sha256": "aec4dfa3e3a249282e5cddd4964609c75f01caf6ce5a679ab14aaa848385df34",
+          "copy": "One complaint, several jobs",
+          "plate_visible_in_this_state": false
+        }
+      }
+    }
+  },
+  "contacts": {
+    "desktop": {
+      "before": {
+        "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-desktop-before-contact.png",
+        "sha256": "1d7b721bb8cc6cf914870327270f0ea814979efd1dc99898ddf5b45acedd7952",
+        "dimensions": [
+          2560,
+          360
+        ]
+      },
+      "after": {
+        "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-desktop-after-contact.png",
+        "sha256": "0ac3a5a8a202f9c19d42af138247f55e38da196bf8ac0f05ebdd2498d1abdbce",
+        "dimensions": [
+          2560,
+          360
+        ]
+      }
+    },
+    "mobile": {
+      "before": {
+        "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-mobile-before-contact.png",
+        "sha256": "52820a49b968fcce4f5d6ad686a5c3647b1eb183d8f659f0786b414925f14a75",
+        "dimensions": [
+          780,
+          422
+        ]
+      },
+      "after": {
+        "path": "artifacts/accelerated-sam-overlay-preflight-2026-11-15/v9-mobile-after-contact.png",
+        "sha256": "925e985b414b40e9ba316d3b4cc55308745d9ea71a233bfd71b9081cca8ca043",
+        "dimensions": [
+          1170,
+          422
+        ]
+      }
+    }
+  }
+}

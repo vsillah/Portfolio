@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L05",
+  "presenter_window": "A01",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+  "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+  "source_window_seconds": [
+    0,
+    19.24
+  ],
+  "candidate_cut_seconds": 16.810667,
+  "machine_onset_seconds": 16.82,
+  "aac_snap_delta_seconds": 0.009333,
+  "intended_words": {
+    "retained_approved_words_end": "tool. Neither action tells you what to change",
+    "removed_later_phrase_start": "The book has a useful warning here. In the \u201cJust Make It"
+  },
+  "silent_packet_source_start_seconds": 21.24,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 788,
+  "copied_silence_packet_count": 114,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a01-tail-candidate.mp4",
+  "candidate_sha256": "119586123387e67f3e50bba17f90b45c6de4946fface75d086419b6806dbe4d7",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a01-tail-before-after.mp4",
+  "before_after_sha256": "65b023785e1953a10a0884b9c9aa5e968e074d7ed41426c86fea10d83c8791fe",
+  "before_after_source_excerpt_seconds": [
+    13.310666999999999,
+    19.24
+  ],
+  "before_after_segment_seconds": 5.929,
+  "candidate_duration_seconds": 19.242667,
+  "before_after_duration_seconds": 11.889,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

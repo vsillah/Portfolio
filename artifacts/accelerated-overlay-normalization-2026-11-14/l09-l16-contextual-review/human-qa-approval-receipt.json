@@ -1,0 +1,36 @@
+{
+  "schema": "accelerated_l09_l16_human_qa_approval_v1",
+  "approved_at": "2026-11-14",
+  "draft_pr": 1270,
+  "source_commit": "ee9c32231a880788c4537b7b531ead72184215d6",
+  "desktop": {
+    "sha256": "e3d56170ac6e5ba2d9968c139de17dbd9848ac4b15da7bfa96c9b70a4eea03d3"
+  },
+  "portrait": {
+    "sha256": "77670556bc97a1bc729bc09c94c315b09d8a38e84bf928739edf5fe11c4540f8"
+  },
+  "review_receipt_sha256": "7327975f1cc5922da3bd004f7b1af9b797f57005b6a220e4167da0f51aa97fdf",
+  "approved_scope": [
+    "aligned mobile presenter lane",
+    "contextual narration",
+    "presenter handoffs",
+    "illustrations",
+    "compact text",
+    "optional captions",
+    "native controls",
+    "responsive layouts"
+  ],
+  "authorized_next_action": [
+    "add reproducible source and review receipts to draft PR #1270",
+    "validate updated draft PR"
+  ],
+  "exclusions": [
+    "learner media change",
+    "provider contact",
+    "spend",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ]
+}

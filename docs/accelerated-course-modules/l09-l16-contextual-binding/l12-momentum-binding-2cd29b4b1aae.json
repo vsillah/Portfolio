@@ -1,0 +1,62 @@
+{
+  "schema": "accelerated_l12_momentum_binding_delta_v1",
+  "status": "human_qa_approved_for_draft_pr_only",
+  "base_commit": "10a5c5420095774160c2175ed4fe7a1fb63c6f90",
+  "historical_candidate_binding_sha256": "a230568a5ff33de6e5c635294852d2e0e104f29baa978583c9fea423dffa16f8",
+  "current_binding_sha256": "1035cbdf881e859eab89b19666b111169969167c217d75046e4a887dd8d5b46e",
+  "scope": "L12 Momentum visual and paused poster correction only",
+  "media": {
+    "desktop": {
+      "path": "/accelerated/contextual-review/l12/contextual-1f8ce8e1ed69/l12-desktop.mp4",
+      "sha256": "1f8ce8e1ed696353feccfc41fb0a0a8d88676788b4030ea613c813e56a223386",
+      "source_sha256": "abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81",
+      "bytes": 81076255
+    },
+    "portrait": {
+      "path": "/accelerated/contextual-review/l12/contextual-05a80651834b/l12-portrait.mp4",
+      "sha256": "05a80651834b4ecb63895bc4bcccda723c2e9c9f49470a3ecb4032e5e0817829",
+      "source_sha256": "0fec271db0679876d4e53eb416864dce509dce161749a8e56c809f54f618da1e",
+      "bytes": 30039364
+    }
+  },
+  "approved_walkthroughs": {
+    "desktop": {
+      "path": "artifacts/accelerated-l12-poster-qa/momentum-opening-candidate-2026-11-15/desktop-learner-paused-to-opening-walkthrough-79195a869723.mp4",
+      "sha256": "79195a869723083c929c427d7cb8e97f6db98f66262b3f11d2afc3be2a0d0b8a"
+    },
+    "portrait": {
+      "path": "artifacts/accelerated-l12-poster-qa/momentum-opening-candidate-2026-11-15/portrait-learner-paused-to-opening-walkthrough-69d1fa5bfe43.mp4",
+      "sha256": "69d1fa5bfe43c4fe8f3e857ccfb870974cca72611a56fdb7d80de43dd6fad81c"
+    }
+  },
+  "caption": {
+    "path": "/accelerated/contextual-review/l12/captions-0363e17aba64/l12-captions.vtt",
+    "sha256": "0363e17aba64d2986b417f7ac0fb6585896c9f5d43743fb5ec285de8c104f749"
+  },
+  "timing": {
+    "duration_seconds": 460.459375,
+    "video_frames": 11511,
+    "fps": 25,
+    "aac_packets": 21586,
+    "presenter_end_seconds": 24.52,
+    "opening_end_seconds": 86.04,
+    "max_frame_pts_drift_seconds": 0
+  },
+  "audio": {
+    "aac_stream_sha256": "60fa992c5d4a6fc134c8ab7599ecf160756523717ea7b08e434052e383092a23",
+    "decoded_pcm_sha256": "c77f3d66353d9c6c415252b436e534c046185f27d4147ae0466ab5601c563044"
+  },
+  "poster": {
+    "desktop_sha256": "53dd8b6f8e15f1b95e1fbe1a4a2a54a84abac332a38c108109d564321bca2a3d",
+    "portrait_sha256": "167fd50d0554f3f1564ee68d41ece3e32d5532e976851a5571842372682b8973"
+  },
+  "source_script": "scripts/qa/build-accelerated-l12-momentum-opening-candidate.py",
+  "excluded": [
+    "merge",
+    "manual deployment",
+    "provider action",
+    "spend",
+    "publication",
+    "release"
+  ]
+}

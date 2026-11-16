@@ -1,0 +1,59 @@
+{
+  "status": "rendered_pending_player_qa",
+  "target": "outputs/l03-j01-first-half-mobile-options-aligned.mp4",
+  "sha256": "2cee5081cc116c0373822b4a91edf38b09de875d6731ea5b719be20d29b03141",
+  "preflight_sha256": "9807d4b36cab2c11d34c955f9020e8670b95d75efdf3a1405b74726a5bf9be36",
+  "approved_scene1_sha256": "b689d516ef94bf3caf81d82d2840739e84afc144fe16674fbe31d76144d728fc",
+  "desktop_sha256": "6cbca81b31e146e075d98c8ba3832e181e59af097a1f7cbfa95bade282b33a61",
+  "source_options_sha256": "1bda3aeb713d829462881336590547ddb6d42bcd46e1f686d56dec45ba9beef7",
+  "reused_segments": [
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/scene01-contextual-review/outputs/l03-scene01-mobile-single-plate.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s00-b0.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s00-b1.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s01-b0.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s01-b1.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s02-b0.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s02-b1.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-p02.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s04-b0.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s04-b1.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s05-b0.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s05-b1.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s06-b0.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s06-b1.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s07-b0.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s07-b1.mp4",
+    "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j01-first-half-review/outputs/mobile-single-s07-b2.mp4"
+  ],
+  "new_option_beats": [
+    {
+      "name": "email",
+      "center_x_fraction": 0.19,
+      "frames": 334,
+      "image_sha256": "ed8eb76ada700d6e20738bfccce047d18915118b1e4138cadc5d2a22206e3643"
+    },
+    {
+      "name": "guided",
+      "center_x_fraction": 0.5,
+      "frames": 69,
+      "image_sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    },
+    {
+      "name": "staff",
+      "center_x_fraction": 0.79,
+      "frames": 76,
+      "image_sha256": "96e3fcc4425c8f3f4c3a83d1d580903e078ee4a70de368f2e6f96bd8d1334c0c"
+    },
+    {
+      "name": "general",
+      "center_x_fraction": 0.5,
+      "frames": 7,
+      "image_sha256": "225c5e587faf5fcaa944c790a3fe18d657e57e71688f95e553ff526b65ab859b"
+    }
+  ],
+  "superseded": [
+    "outputs/l03-j01-first-half-mobile.mp4",
+    "outputs/l03-j01-first-half-mobile-single-plate.mp4"
+  ],
+  "exclusions": "No provider, image/speech generation, spend, learner binding, PR update, commit, merge, deployment, publication or release."
+}

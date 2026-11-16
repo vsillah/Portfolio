@@ -1,0 +1,48 @@
+{
+  "status": "sampled_caption_collision_clear_mobile_legibility_pending",
+  "browser": "Chromium 149.0.7827.55 via Playwright",
+  "capture_conditions": "local MP4 and external VTT, muted playback, readyState 4, paused false, requestVideoFrameCallback completed; screenshots visually inspected with no spinner",
+  "samples": [
+    {
+      "scene": "0300",
+      "viewport_px": [
+        1440,
+        900
+      ],
+      "video_width_px": 960,
+      "current_time_seconds": 181.014,
+      "screenshot": "qa-label-samples/l01-0300-caption-desktop-settled.png"
+    },
+    {
+      "scene": "0400",
+      "viewport_px": [
+        1440,
+        900
+      ],
+      "video_width_px": 960,
+      "current_time_seconds": 241.017,
+      "screenshot": "qa-label-samples/l01-0400-caption-desktop-settled.png"
+    },
+    {
+      "scene": "0300",
+      "viewport_px": [
+        390,
+        844
+      ],
+      "video_width_px": 350,
+      "current_time_seconds": 181.017,
+      "screenshot": "qa-label-samples/l01-0300-caption-narrow-settled.png"
+    },
+    {
+      "scene": "0400",
+      "viewport_px": [
+        390,
+        844
+      ],
+      "video_width_px": 350,
+      "current_time_seconds": 241.016,
+      "screenshot": "qa-label-samples/l01-0400-caption-narrow-settled.png"
+    }
+  ],
+  "limit": "At a 350px inline player, captions clear the source art and presenter in these samples but remain small. Fullscreen/mobile legibility, native controls, and final-voice timing are release gates."
+}

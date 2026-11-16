@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "status": "review_only_not_audibly_signed_off",
+  "reel_number": 1,
+  "reel_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/packet-copy-listening-reel-01.mp4",
+  "reel_sha256": "0fc9416fde9399b7d20a3c31f437e975fdfa5352d802ec8d6dad0ffabd049fdf",
+  "duration_seconds": 123.180667,
+  "chapter_card_duration_seconds": 2.4,
+  "chapter_count": 8,
+  "chapters": [
+    {
+      "chapter": 1,
+      "lesson_id": "L02",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a01-tail-before-after.mp4",
+      "source_clip_sha256": "911675491d456f5df2b2ea7dc6fdd2b3cd26a18f3f324075a9170386a475ab74",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a01-tail-receipt.json",
+      "source_receipt_sha256": "d1699a109596138482174066f5db179be204726706cb9b1997f51785d6a6f35a",
+      "source_candidate_sha256": "a541bc886634f934d685b8e126303bc5c36085d1ef7cfb66e99f8e1ae577704f",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-01.png",
+      "chapter_card_sha256": "54db899bc5d0000331c4379db34b38a72335c5b986f72c78be36cfee69725924",
+      "chapter_start_seconds": 0.0,
+      "source_clip_start_seconds": 2.4,
+      "chapter_end_seconds": 16.4,
+      "retained_probe_words": "the room is stuck",
+      "removed_probe_words": "gives us a way",
+      "approved_script_order": {
+        "approved_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+        "script_word_jump": [
+          57,
+          353
+        ],
+        "orientation": "tail",
+        "retained_words": "note That is why the room is stuck",
+        "removed_words": "gives us a way to structure a messy opportunity The first move",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 2,
+      "lesson_id": "L02",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a02-tail-before-after.mp4",
+      "source_clip_sha256": "13fba38cccba5b4c00f80b27adc6d49c920a385c6bafd4d3b953f81a6f0eee07",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a02-tail-receipt.json",
+      "source_receipt_sha256": "7a56ca470c5fdd13670bdfd498d32b5993c30d3eb8e23b0a833878a00986914c",
+      "source_candidate_sha256": "ab9722773a7193f89ad99a743179a01a4f9217150b887934b3bc9a69de758c9b",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-02.png",
+      "chapter_card_sha256": "1a3164e7219e387270776bf02530852fa714cd0c114b29e5b2c6ece10a939093",
+      "chapter_start_seconds": 16.4,
+      "source_clip_start_seconds": 18.8,
+      "chapter_end_seconds": 32.8,
+      "retained_probe_words": "offers a market frame",
+      "removed_probe_words": "there is another question",
+      "approved_script_order": {
+        "approved_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+        "script_word_jump": [
+          389,
+          709
+        ],
+        "orientation": "tail",
+        "retained_words": "is attractive the book offers a market frame",
+        "removed_words": "There is another question that can make a promising idea fail how",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 3,
+      "lesson_id": "L02",
+      "presenter_window": "A03",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a03-tail-before-after.mp4",
+      "source_clip_sha256": "9e9e3b473d3bc178b0b18a3cbf3e9b01ed6c1d79aeb5da76d7cad4a3f42f5b88",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l02-a03-tail-receipt.json",
+      "source_receipt_sha256": "540fde345427365cc3077220f111ca3068b95e6c180c4867f78cc9934cf27feb",
+      "source_candidate_sha256": "1b160d6ae709550f01b6c65004e667603d5a0b608d11371e4cbafcee56e35064",
+      "source_clip_duration_seconds": 13.18,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-03.png",
+      "chapter_card_sha256": "33d639bd73f6251ac62ba6dd7ee360d15f224e6eace0359b61ff5217f204d805",
+      "chapter_start_seconds": 32.8,
+      "source_clip_start_seconds": 35.2,
+      "chapter_end_seconds": 48.38,
+      "retained_probe_words": "product question is clear",
+      "removed_probe_words": "is it something you",
+      "approved_script_order": {
+        "approved_script_sha256": "73119dd526db5221d0af960feb25be911e31841c5f143d6e1a843076108ec1af",
+        "script_word_jump": [
+          751,
+          1129
+        ],
+        "orientation": "tail",
+        "retained_words": "after the customer and product question is clear",
+        "removed_words": "Is it something you know or something you hope In the next",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 4,
+      "lesson_id": "L04",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a02-tail-before-after.mp4",
+      "source_clip_sha256": "e4aaf2e7cc262b7f0c8d2d03b67acf9a0ae9d36568a12bb00cb06a478b44a0c2",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a02-tail-receipt.json",
+      "source_receipt_sha256": "57ea86c556222ee174a4ceba5b825c395ff87dcdd9a93ec22554e50e523eb1ab",
+      "source_candidate_sha256": "2afe8b3538aa656202e14a69c9296a27d20572d762763bbc53cceda0c6d36f60",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-04.png",
+      "chapter_card_sha256": "9bb042ef14d96d74a913abea9f72a5b19667cd32e9d3b5dbde73a6b64260fb8c",
+      "chapter_start_seconds": 48.38,
+      "source_clip_start_seconds": 50.78,
+      "chapter_end_seconds": 64.78,
+      "retained_probe_words": "in a particular moment",
+      "removed_probe_words": "a living persona needs",
+      "approved_script_order": {
+        "approved_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+        "script_word_jump": [
+          371,
+          709
+        ],
+        "orientation": "tail",
+        "retained_words": "is trying to do in a particular moment",
+        "removed_words": "A living persona needs a record of where it came from On",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 5,
+      "lesson_id": "L04",
+      "presenter_window": "A03",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a03-tail-before-after.mp4",
+      "source_clip_sha256": "b0d996495ccf6dfaf8e748fc0b4c812a22b3727116b3e3a7dfb646ba071b5b00",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a03-tail-receipt.json",
+      "source_receipt_sha256": "937a9cc61ac000af97391e1aa7cd4cf8c9bab749848df3c8e777f5c73c29e96b",
+      "source_candidate_sha256": "cb8517468078aab990ed5c9fe1ef9e665d33c08f2e259ba0f264d932cb53a674",
+      "source_clip_duration_seconds": 14.0,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-05.png",
+      "chapter_card_sha256": "e0c84c1d1f7e88a9493a7d8020efd72687583a866529794796d490275c9bd441",
+      "chapter_start_seconds": 64.78,
+      "source_clip_start_seconds": 67.18,
+      "chapter_end_seconds": 81.18,
+      "retained_probe_words": "and a review date",
+      "removed_probe_words": "that is a real",
+      "approved_script_order": {
+        "approved_script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+        "script_word_jump": [
+          747,
+          1153
+        ],
+        "orientation": "tail",
+        "retained_words": "question Add a source and a review date",
+        "removed_words": "That is a real working file even if much of it is",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 6,
+      "lesson_id": "L05",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "conditional_alternate_cut": false,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a01-tail-before-after.mp4",
+      "source_clip_sha256": "65b023785e1953a10a0884b9c9aa5e968e074d7ed41426c86fea10d83c8791fe",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a01-tail-receipt.json",
+      "source_receipt_sha256": "83ed8a3752ba5126973389df9470467a251d5a0a53ba70fc2933732d78d560a4",
+      "source_candidate_sha256": "119586123387e67f3e50bba17f90b45c6de4946fface75d086419b6806dbe4d7",
+      "source_clip_duration_seconds": 11.889,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-06.png",
+      "chapter_card_sha256": "b4b2265a1ee8be57b2d13473b466c1ca34dc79713b574a756327125d0f6fb4bc",
+      "chapter_start_seconds": 81.18,
+      "source_clip_start_seconds": 83.58,
+      "chapter_end_seconds": 95.469,
+      "retained_probe_words": "you what to change",
+      "removed_probe_words": "the book has a",
+      "approved_script_order": {
+        "approved_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+        "script_word_jump": [
+          52,
+          417
+        ],
+        "orientation": "tail",
+        "retained_words": "tool Neither action tells you what to change",
+        "removed_words": "The book has a useful warning here In the Just Make It",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 7,
+      "lesson_id": "L05",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "conditional_alternate_cut": true,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a02-tail-before-after.mp4",
+      "source_clip_sha256": "71a50e971d3d87bb0ee084a1e72f57985be2fb27833a75aad44140cea5da5614",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l05-a02-tail-receipt.json",
+      "source_receipt_sha256": "75281f854af6deecef8a0b713fd719bbbd807bf19e54c02eb6d9fd47484d4df5",
+      "source_candidate_sha256": "febe5f58325bfeae24d5e9c80a393925e638983bc39eee787235fefca45697de",
+      "source_clip_duration_seconds": 11.241,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-07.png",
+      "chapter_card_sha256": "188446777fc040a597b3da483cde728fad1ae968b6aeffe61e4492049ac79e47",
+      "chapter_start_seconds": 95.469,
+      "source_clip_start_seconds": 97.869,
+      "chapter_end_seconds": 109.11,
+      "retained_probe_words": "easier movement between views",
+      "removed_probe_words": "our six notes support",
+      "approved_script_order": {
+        "approved_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+        "script_word_jump": [
+          467,
+          841
+        ],
+        "orientation": "tail",
+        "retained_words": "from other people and easier movement between views",
+        "removed_words": "Our six notes support a question not a verdict Two notes point",
+        "verified": true
+      }
+    },
+    {
+      "chapter": 8,
+      "lesson_id": "L06",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "conditional_alternate_cut": true,
+      "source_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a02-tail-before-after.mp4",
+      "source_clip_sha256": "47d0d068c105755ef65e83ad4affd8f54379261daab37f9bc1b1ae2be07c9330",
+      "source_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a02-tail-receipt.json",
+      "source_receipt_sha256": "e1a4235468aff1a11c37160195fbf5a75a57dee914f696af221304f24fc3d56d",
+      "source_candidate_sha256": "6723ac5d228fefccc4141a490ed424dbda28ab131d79f14f7232aff8ac802c57",
+      "source_clip_duration_seconds": 11.649,
+      "chapter_card_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-08.png",
+      "chapter_card_sha256": "f63bb2ed4ab6cbce28b1a850415ee072c00dddecf61964012d94c44c36d0dad8",
+      "chapter_start_seconds": 109.11,
+      "source_clip_start_seconds": 111.51,
+      "chapter_end_seconds": 123.159,
+      "retained_probe_words": "link the ledger ids",
+      "removed_probe_words": "imagine the team tests",
+      "approved_script_order": {
+        "approved_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+        "script_word_jump": [
+          477,
+          855
+        ],
+        "orientation": "tail",
+        "retained_words": "why Under that line link the ledger IDs",
+        "removed_words": "Imagine the team tests the card and finds that people understand the",
+        "verified": true
+      }
+    }
+  ],
+  "native_manifest_sha256": "91f5f2a41da382c5b906d43355f3f35e6b0087eb2aa4d108c38cf74a48fc6638",
+  "native_asr_validation_sha256": "61355c5bb8e32087a8a7c6c28bd169543ae398e5fd4550df45dec5dde464ecd7",
+  "source_audio_packets_preserved_in_order": true,
+  "source_audio_packet_counts": [
+    658,
+    658,
+    619,
+    658,
+    658,
+    559,
+    528,
+    548
+  ],
+  "visual_contact_sheets": {
+    "chapter": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-chapter-contact-sheet.png",
+      "sha256": "d529e82c93d110d19fa4f543a3ca4e6c088547b2b7b2d81a553eb91dd74a6dcd"
+    },
+    "source": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/reel-01-source-contact-sheet.png",
+      "sha256": "c9afe35be06ebf133962d36ddbb8da671568a0806d1a659919990df5e5c632d4"
+    }
+  },
+  "browser_compatible_probe": {
+    "stream_count": 2,
+    "video_codec": "H.264 High Profile",
+    "video_level": 41,
+    "pixel_format": "yuv420p",
+    "frame_rate": "25/1",
+    "audio_codec": "AAC LC",
+    "audio_sample_rate": "48000",
+    "audio_channels": 2,
+    "faststart_moov_before_mdat": true,
+    "no_data_or_chapter_track": true
+  },
+  "audio_treatment": "Existing sequential before/after AAC packet payloads copied unchanged; chapter-card silence newly AAC-encoded. One CFR H.264 video stream re-encoded for browser playback.",
+  "conditional_alternate_clips": [
+    "L05 A02",
+    "L06 A02"
+  ],
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "canonical_media_or_learner_binding_changed": false,
+  "residual_uncertainty": "All eight cuts still need audible first/last-word review; conditional A02 packet cuts differ from their approved coordinated joins."
+}

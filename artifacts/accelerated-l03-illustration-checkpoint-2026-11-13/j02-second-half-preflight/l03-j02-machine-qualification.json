@@ -1,0 +1,23 @@
+{
+  "status": "machine_qualified_human_audible_review_pending_in_context",
+  "job_key": "L03:J02",
+  "review_wav_sha256": "4b1b3217ae87e1c74bbb197204bf7a618414e00b9f3dc2bb800439715b7248b3",
+  "duration_seconds": 98.207347,
+  "canonical_word_count": 302,
+  "provider_timestamp_word_count": 302,
+  "provider_words_exact_normalized_match": true,
+  "provider_first_word_start_seconds": 0.299,
+  "provider_last_word_end_seconds": 97.638,
+  "whisper_base_word_count": 301,
+  "whisper_base_contains_opening_and_closing": true,
+  "whisper_base_contains_lesson_transition_sentence": true,
+  "whisper_small_word_count": 283,
+  "whisper_small_omitted_lesson_transition_sentence_as_asr_error": true,
+  "silence_threshold_dbfs": -40,
+  "minimum_silence_seconds": 0.25,
+  "detected_pause_count": 24,
+  "detected_pause_total_seconds": 10.112,
+  "longest_detected_pause_seconds": 0.805,
+  "subjective_delivery_claimed": false,
+  "next_review_rule": "Use the audio in a contextual L03 composition; do not request isolated-clip Human QA."
+}

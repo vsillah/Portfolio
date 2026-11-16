@@ -1,0 +1,699 @@
+1
+00:00:00,000 --> 00:00:01,200
+The document is open.
+
+2
+00:00:01,620 --> 00:00:02,580
+At the top it says
+
+3
+00:00:02,600 --> 00:00:04,400
+Q3 Innovation Plan.
+
+4
+00:00:04,920 --> 00:00:06,660
+The cursor blinks, your inbox
+
+5
+00:00:06,680 --> 00:00:08,460
+is full of requests, your
+
+6
+00:00:08,480 --> 00:00:10,200
+team wants a direction, and
+
+7
+00:00:10,220 --> 00:00:11,720
+somebody wants a polished plan
+
+8
+00:00:11,740 --> 00:00:12,440
+by Friday.
+
+9
+00:00:12,780 --> 00:00:13,700
+I know that room.
+
+10
+00:00:14,020 --> 00:00:15,500
+The pressure makes the blank
+
+11
+00:00:15,520 --> 00:00:17,320
+page feel like the problem.
+
+12
+00:00:17,720 --> 00:00:19,220
+So you open a tool,
+
+13
+00:00:19,580 --> 00:00:21,300
+ask for ideas, and in
+
+14
+00:00:21,320 --> 00:00:22,860
+30 seconds you have a
+
+15
+00:00:22,880 --> 00:00:24,420
+confident looking answer.
+
+16
+00:00:24,860 --> 00:00:25,420
+Now what?
+
+17
+00:00:25,900 --> 00:00:27,500
+Who will decide which idea
+
+18
+00:00:27,520 --> 00:00:28,060
+matters.
+
+19
+00:00:28,510 --> 00:00:30,030
+What evidence would make that
+
+20
+00:00:30,050 --> 00:00:30,910
+choice responsible?
+
+21
+00:00:33,240 --> 00:00:34,240
+What data did you put
+
+22
+00:00:34,260 --> 00:00:35,140
+into the tool to get
+
+23
+00:00:35,160 --> 00:00:35,560
+there?
+
+24
+00:00:37,763 --> 00:00:39,183
+A beautiful page can hide
+
+25
+00:00:39,203 --> 00:00:40,263
+those questions for a little
+
+26
+00:00:40,283 --> 00:00:40,743
+while.
+
+27
+00:00:42,807 --> 00:00:44,107
+It cannot answer them.
+
+28
+00:00:46,370 --> 00:00:47,770
+In the opening of Accelerated,
+
+29
+00:00:47,910 --> 00:00:48,910
+I start with that blinking
+
+30
+00:00:48,930 --> 00:00:50,470
+cursor because it is familiar.
+
+31
+00:00:52,800 --> 00:00:54,040
+The book begins with product
+
+32
+00:00:54,060 --> 00:00:56,080
+teams carrying noise, conflicting
+
+33
+00:00:56,100 --> 00:00:58,360
+priorities, and documents that do
+
+34
+00:00:58,380 --> 00:00:59,520
+not move decisions.
+
+35
+00:01:01,850 --> 00:01:03,090
+The work here is to
+
+36
+00:01:03,110 --> 00:01:03,930
+give the team a way
+
+37
+00:01:03,950 --> 00:01:06,230
+to learn, choose, and keep
+
+38
+00:01:06,250 --> 00:01:07,410
+its judgment when the page
+
+39
+00:01:07,430 --> 00:01:07,930
+fills up.
+
+40
+00:01:07,950 --> 00:01:10,370
+A product system sounds larger
+
+41
+00:01:10,390 --> 00:01:11,490
+than it needs to be.
+
+42
+00:01:13,814 --> 00:01:14,974
+Think about the last idea
+
+43
+00:01:14,994 --> 00:01:16,114
+that arrived in a meeting.
+
+44
+00:01:18,377 --> 00:01:19,497
+Someone noticed a customer
+
+45
+00:01:19,517 --> 00:01:20,077
+problem.
+
+46
+00:01:22,181 --> 00:01:23,281
+Someone else had a competing
+
+47
+00:01:23,301 --> 00:01:23,881
+story.
+
+48
+00:01:26,064 --> 00:01:27,384
+A third person asked for
+
+49
+00:01:27,404 --> 00:01:28,764
+a number nobody had.
+
+50
+00:01:30,908 --> 00:01:32,028
+The team left with another
+
+51
+00:01:32,048 --> 00:01:33,048
+document to write.
+
+52
+00:01:35,211 --> 00:01:36,531
+A system gives those moments
+
+53
+00:01:36,551 --> 00:01:37,191
+a path.
+
+54
+00:01:39,394 --> 00:01:40,374
+It helps you record the
+
+55
+00:01:40,394 --> 00:01:42,814
+signal, name the decision, state
+
+56
+00:01:42,834 --> 00:01:44,214
+what you believe, and come
+
+57
+00:01:44,234 --> 00:01:45,054
+back to what happened.
+
+58
+00:01:45,074 --> 00:01:47,314
+AI can help organize messy
+
+59
+00:01:47,334 --> 00:01:48,994
+input, test the shape of
+
+60
+00:01:49,014 --> 00:01:50,274
+an argument, and make a
+
+61
+00:01:50,294 --> 00:01:51,014
+first draft.
+
+62
+00:01:53,344 --> 00:01:54,824
+The judgment still belongs to
+
+63
+00:01:54,844 --> 00:01:55,964
+people who understand the
+
+64
+00:01:55,984 --> 00:01:56,604
+consequences.
+
+65
+00:01:58,928 --> 00:01:59,968
+That is the argument in
+
+66
+00:01:59,988 --> 00:02:00,848
+the first chapter.
+
+67
+00:02:02,991 --> 00:02:04,371
+I describe AI as a
+
+68
+00:02:04,391 --> 00:02:05,971
+strategy partner, a signal
+
+69
+00:02:05,991 --> 00:02:07,551
+amplifier, and a structure
+
+70
+00:02:07,571 --> 00:02:08,031
+builder.
+
+71
+00:02:10,355 --> 00:02:11,295
+Those are jobs it may
+
+72
+00:02:11,315 --> 00:02:12,555
+help with, under the right
+
+73
+00:02:12,575 --> 00:02:13,195
+conditions.
+
+74
+00:02:15,525 --> 00:02:16,865
+They are not permission to
+
+75
+00:02:16,885 --> 00:02:18,225
+trust every output.
+
+76
+00:02:20,488 --> 00:02:21,408
+If it gives you five
+
+77
+00:02:21,428 --> 00:02:23,128
+polished options, you still need
+
+78
+00:02:23,148 --> 00:02:24,768
+to ask who benefits, what
+
+79
+00:02:24,788 --> 00:02:26,248
+is missing and which option
+
+80
+00:02:26,268 --> 00:02:27,388
+you can test safely.
+
+81
+00:02:29,718 --> 00:02:30,658
+Speed can create room to
+
+82
+00:02:30,678 --> 00:02:31,058
+think.
+
+83
+00:02:33,142 --> 00:02:34,082
+It can also fill that
+
+84
+00:02:34,102 --> 00:02:35,222
+room with more noise.
+
+85
+00:02:37,385 --> 00:02:38,125
+Look at this map.
+
+86
+00:02:40,409 --> 00:02:40,889
+Signals.
+
+87
+00:02:43,172 --> 00:02:43,812
+Alignment.
+
+88
+00:02:46,096 --> 00:02:46,736
+Momentum.
+
+89
+00:02:48,899 --> 00:02:49,539
+It is a way to
+
+90
+00:02:49,559 --> 00:02:50,639
+navigate the workshop.
+
+91
+00:02:52,942 --> 00:02:54,602
+First, take the raw material
+
+92
+00:02:54,622 --> 00:02:55,722
+coming at you and find
+
+93
+00:02:55,742 --> 00:02:57,042
+a question worth answering.
+
+94
+00:02:59,206 --> 00:03:00,486
+Then give the people carrying
+
+95
+00:03:00,506 --> 00:03:02,326
+the decision a shared direction.
+
+96
+00:03:04,409 --> 00:03:05,569
+Then build a rhythm that
+
+97
+00:03:05,589 --> 00:03:06,589
+lets the next round of
+
+98
+00:03:06,609 --> 00:03:07,869
+evidence change the plan.
+
+99
+00:03:10,199 --> 00:03:11,759
+The book organizes its printed
+
+100
+00:03:11,779 --> 00:03:14,559
+chapters as systems, align, and
+
+101
+00:03:14,579 --> 00:03:15,099
+momentum.
+
+102
+00:03:17,429 --> 00:03:18,789
+The workshop uses the three
+
+103
+00:03:18,809 --> 00:03:20,069
+labels on this existing
+
+104
+00:03:20,089 --> 00:03:21,929
+infographic as a visual guide.
+
+105
+00:03:24,233 --> 00:03:25,153
+You will see where those
+
+106
+00:03:25,173 --> 00:03:26,013
+paths cross.
+
+107
+00:03:28,316 --> 00:03:29,296
+The graphic is not a
+
+108
+00:03:29,316 --> 00:03:30,536
+replacement for the chapters.
+
+109
+00:03:32,760 --> 00:03:34,040
+In these first lessons, we
+
+110
+00:03:34,060 --> 00:03:35,160
+stay close to the signal
+
+111
+00:03:35,180 --> 00:03:35,640
+side.
+
+112
+00:03:37,943 --> 00:03:39,523
+We will choose one decision,
+
+113
+00:03:39,663 --> 00:03:41,443
+work backward to evidence, and
+
+114
+00:03:41,463 --> 00:03:42,623
+ask what a small test
+
+115
+00:03:42,643 --> 00:03:43,503
+could teach us.
+
+116
+00:03:45,747 --> 00:03:46,767
+There is a human thread
+
+117
+00:03:46,787 --> 00:03:47,787
+through the book, too.
+
+118
+00:03:50,010 --> 00:03:51,690
+Sam, a product manager who
+
+119
+00:03:51,710 --> 00:03:52,990
+has talent but keeps getting
+
+120
+00:03:53,010 --> 00:03:54,550
+pulled into reactive work.
+
+121
+00:03:55,260 --> 00:03:56,660
+That story makes the pressure
+
+122
+00:03:56,680 --> 00:03:57,220
+visible.
+
+123
+00:03:57,360 --> 00:03:58,360
+It is a teaching story
+
+124
+00:03:58,380 --> 00:04:00,000
+from the book, not a
+
+125
+00:04:00,020 --> 00:04:01,680
+claim about a current customer.
+
+126
+00:04:02,640 --> 00:04:03,980
+Keep that distinction in view
+
+127
+00:04:04,000 --> 00:04:05,860
+as we move between story,
+
+128
+00:04:06,260 --> 00:04:07,620
+worksheet, and public proof.
+
+129
+00:04:08,690 --> 00:04:10,030
+Before you try any prompt,
+
+130
+00:04:10,270 --> 00:04:11,970
+decide what information can leave
+
+131
+00:04:11,990 --> 00:04:12,590
+your desk.
+
+132
+00:04:14,821 --> 00:04:16,121
+The book's data safety note
+
+133
+00:04:16,141 --> 00:04:17,561
+comes before the chapters for
+
+134
+00:04:17,581 --> 00:04:18,141
+a reason.
+
+135
+00:04:20,471 --> 00:04:22,191
+Customer details, finances,
+
+136
+00:04:22,711 --> 00:04:24,531
+internal strategy, and company
+
+137
+00:04:24,551 --> 00:04:26,451
+records can carry obligations that
+
+138
+00:04:26,471 --> 00:04:27,951
+a convenient text box does
+
+139
+00:04:27,971 --> 00:04:28,771
+not erase.
+
+140
+00:04:31,043 --> 00:04:32,103
+My working rule for this
+
+141
+00:04:32,123 --> 00:04:33,003
+course is simple.
+
+142
+00:04:35,174 --> 00:04:37,114
+Use public information, material
+
+143
+00:04:37,134 --> 00:04:38,754
+your organization has approved for
+
+144
+00:04:38,774 --> 00:04:40,194
+that use, or a made
+
+145
+00:04:40,214 --> 00:04:40,914
+up example.
+
+146
+00:04:43,065 --> 00:04:44,725
+If you are unsure, stop
+
+147
+00:04:44,745 --> 00:04:46,005
+and check the policy that
+
+148
+00:04:46,025 --> 00:04:46,925
+governs your work.
+
+149
+00:04:49,255 --> 00:04:50,595
+Do not put restricted material
+
+150
+00:04:50,615 --> 00:04:52,055
+into an external model to
+
+151
+00:04:52,075 --> 00:04:53,595
+make the worksheet feel realistic.
+
+152
+00:04:55,887 --> 00:04:56,747
+We can learn the method
+
+153
+00:04:56,767 --> 00:04:57,947
+with a synthetic case.
+
+154
+00:05:00,218 --> 00:05:01,358
+Imagine a team trying to
+
+155
+00:05:01,378 --> 00:05:02,678
+improve the first week for
+
+156
+00:05:02,698 --> 00:05:03,338
+new members.
+
+157
+00:05:05,668 --> 00:05:07,028
+We can invent a harmless
+
+158
+00:05:07,048 --> 00:05:08,588
+request list and test our
+
+159
+00:05:08,608 --> 00:05:10,108
+reasoning without using anyone's
+
+160
+00:05:10,128 --> 00:05:12,308
+account, message, or history.
+
+161
+00:05:14,559 --> 00:05:16,039
+On the screen, watch the
+
+162
+00:05:16,059 --> 00:05:17,439
+example move into a three
+
+163
+00:05:17,459 --> 00:05:18,259
+column boundary.
+
+164
+00:05:18,279 --> 00:05:20,499
+public, approved internal,
+
+165
+00:05:20,759 --> 00:05:21,239
+restricted.
+
+166
+00:05:23,569 --> 00:05:25,429
+Approved internal means approved
+
+167
+00:05:25,449 --> 00:05:27,069
+for this particular tool and
+
+168
+00:05:27,089 --> 00:05:29,029
+purpose, not merely available to
+
+169
+00:05:29,049 --> 00:05:29,669
+you at work.
+
+170
+00:05:31,999 --> 00:05:33,699
+This boundary follows the decision
+
+171
+00:05:33,719 --> 00:05:35,339
+file through every lesson.
+
+172
+00:05:37,531 --> 00:05:38,531
+It is part of product
+
+173
+00:05:38,551 --> 00:05:40,131
+judgment, not an appendix.
+
+174
+00:05:42,461 --> 00:05:43,461
+Let's make the first page
+
+175
+00:05:43,481 --> 00:05:44,581
+of your decision file.

@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "status": "machine_diagnostic_only",
+  "models": [
+    {
+      "name": "base.en",
+      "sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002"
+    },
+    {
+      "name": "small.en",
+      "sha256": "c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d"
+    }
+  ],
+  "candidate_count": 3,
+  "machine_pass_count": 3,
+  "results": [
+    {
+      "lesson_id": "L05",
+      "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "a02_candidate_sha256": "fac7c7c57fdb042d0760a61d7b884d0a97eafa7d48fc4f2b524078f2b7328bb8",
+      "a03_restored_sha256": "77e5bcf28e6d3efe77007b5f330d40c3a26c64be3df3d22deb04e34e5a664d54",
+      "approved_a03_head_words": "our six notes support a question not a verdict",
+      "approved_c02_tail_words": "loading is the answer merely because the summary used the word slow",
+      "models": {
+        "base.en": {
+          "a02_transcript": "In the Just Make It Faster case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views.",
+          "a03_transcript": "Our six notes support a question, not a verdict. Two notes point toward instruction clarity, one points toward action confirmation, one points toward resuming, one challenges the speed explanation, and one suggests an entry point that helped.",
+          "checks": {
+            "original_a02_has_opening": true,
+            "original_a03_starts_following": true,
+            "candidate_a02_retains_end": true,
+            "candidate_a02_omits_moved_opening": true,
+            "candidate_a03_starts_joined_sentence": true
+          }
+        },
+        "small.en": {
+          "a02_transcript": "In the \"Just make it faster\" case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views.",
+          "a03_transcript": "Our six notes support a question, not a verdict. Two notes point toward instruction clarity. One points toward action confirmation. One points toward resuming. One challenges the speed explanation. And one suggests an entry point that helped.",
+          "checks": {
+            "original_a02_has_opening": true,
+            "original_a03_starts_following": true,
+            "candidate_a02_retains_end": true,
+            "candidate_a02_omits_moved_opening": true,
+            "candidate_a03_starts_joined_sentence": true
+          }
+        }
+      },
+      "machine_result": "passed_local_sentence_move_not_timeline_ready",
+      "audible_signoff": false,
+      "timeline_fit_verified": false
+    },
+    {
+      "lesson_id": "L06",
+      "source_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "a02_candidate_sha256": "1a8f7c6ec023397150c472e8c792028be0930d1cf311dfe04640b0a093635823",
+      "a03_restored_sha256": "215c4a9115c57390954ffa2176367aecea4bb55e677ce13a572a7767a1b1d1ac",
+      "approved_a03_head_words": "imagine the team tests the card and finds",
+      "approved_c02_tail_words": "while the document becomes more detailed keep it visible at the top",
+      "models": {
+        "base.en": {
+          "a02_transcript": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs.",
+          "a03_transcript": "Imagine the team tests the card and finds that people understand the action, but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
+          "checks": {
+            "original_a02_has_opening": true,
+            "original_a03_starts_following": true,
+            "candidate_a02_retains_end": true,
+            "candidate_a02_omits_moved_opening": true,
+            "candidate_a03_starts_joined_sentence": true
+          }
+        },
+        "small.en": {
+          "a02_transcript": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs.",
+          "a03_transcript": "Imagine the team tests the card and finds that people understand the action, but still cannot tell whether they have finished it. Imagine that result for a moment. The next move may be better completion feedback rather than more instruction.",
+          "checks": {
+            "original_a02_has_opening": true,
+            "original_a03_starts_following": true,
+            "candidate_a02_retains_end": true,
+            "candidate_a02_omits_moved_opening": true,
+            "candidate_a03_starts_joined_sentence": true
+          }
+        }
+      },
+      "machine_result": "passed_local_sentence_move_not_timeline_ready",
+      "audible_signoff": false,
+      "timeline_fit_verified": false
+    },
+    {
+      "lesson_id": "L08",
+      "source_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "a02_candidate_sha256": "66e6087693213c21f9b89501e9f2f716e17a597f4efa95549af4aece092f158d",
+      "a03_restored_sha256": "2bd7c8ca8d5071a06e73df1cbf3a33747628911e008a939b8cf5660f30755caa",
+      "approved_a03_head_words": "before there is any data walk the plan",
+      "approved_c02_tail_words": "next action already visible before the room gets attached to one answer",
+      "models": {
+        "base.en": {
+          "a02_transcript": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise.",
+          "a03_transcript": "Before there is any data, walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful start measure may look promising. The guardrail tells us the work is not finished.",
+          "checks": {
+            "original_a02_has_opening": true,
+            "original_a03_starts_following": true,
+            "candidate_a02_retains_end": true,
+            "candidate_a02_omits_moved_opening": true,
+            "candidate_a03_starts_joined_sentence": true
+          }
+        },
+        "small.en": {
+          "a02_transcript": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise.",
+          "a03_transcript": "Before there is any data, walk the plan through two possible results. In the first, participants understand the action and begin, but several say the confirmation is unclear. The successful start measure may look promising. The guardrail tells us the work is not finished.",
+          "checks": {
+            "original_a02_has_opening": true,
+            "original_a03_starts_following": true,
+            "candidate_a02_retains_end": true,
+            "candidate_a02_omits_moved_opening": true,
+            "candidate_a03_starts_joined_sentence": true
+          }
+        }
+      },
+      "machine_result": "passed_local_sentence_move_not_timeline_ready",
+      "audible_signoff": false,
+      "timeline_fit_verified": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "status": "review_only_machine_supported_not_audibly_signed_off",
+  "canonical_source_path": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+  "canonical_source_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+  "before_path": "artifacts/accelerated-visual-parity-2026-11-10/l01-a02-boundary-review-235-252.mp4",
+  "before_sha256": "2cc5083b58add45f76aa2f813acdb6e9a57142481be4238c72b3a82cae7e63bf",
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/l01-a02-native-trim-candidate-235-252.mp4",
+  "candidate_sha256": "6a689800eeb442659df40746fe351f471f5c110d51e2c6005a95b52e5f3bc676",
+  "comparison_path": "artifacts/accelerated-visual-parity-2026-11-10/l01-a02-before-after-235-252.mp4",
+  "comparison_sha256": "cb7d6cfbdb5a16e0afeccc7765a432899df3bd3bbdea4a4345e3f3f4144e41a9",
+  "source_excerpt_seconds": [
+    235.0,
+    252.0
+  ],
+  "proposed_a02_cut_seconds": 245.133333,
+  "original_a02_end_seconds": 248.2,
+  "silent_audio_source_seconds": [
+    249.0,
+    255.866667
+  ],
+  "retained_native_audio_packet_count": 476,
+  "copied_native_silence_packet_count": 323,
+  "all_candidate_audio_packets_match_source_extracts": true,
+  "comparison_audio": "decoded and AAC re-encoded only for sequential review; source and isolated correction retain packet payloads",
+  "candidate_duration_seconds": 17.0,
+  "comparison_duration_seconds": 34.0,
+  "ffmpeg_full_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Cut point follows machine word timing and AAC packet boundary, not audible human confirmation; inspect whether public proof ends cleanly."
+}

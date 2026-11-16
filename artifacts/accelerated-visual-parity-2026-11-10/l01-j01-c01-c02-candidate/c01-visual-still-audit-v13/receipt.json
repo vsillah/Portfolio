@@ -1,0 +1,284 @@
+{
+  "status": "PASS_LOCAL_C01_STILLS_28_40_TO_235_00",
+  "source_commit": "2fb755466cfb201b4257d3495d9be4f001f86421",
+  "source_video_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+  "source_map_sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+  "source_p01_sha256": "ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071",
+  "approved_plate_sha256": {
+    "signals": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c",
+    "alignment": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0",
+    "momentum": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3"
+  },
+  "book_cover_sha256": "4a3406389e73fb919ba2c005475a8c707060103cee8b589ac16c8e68e42ab78d",
+  "beats": [
+    {
+      "id": "handoff",
+      "source_window_seconds": "28.40–31.52",
+      "source_sample_seconds": "28.5",
+      "mode": "worksheet",
+      "title": "The unanswered decision",
+      "caption_sample": "What evidence would make that choice responsible?",
+      "stills": {
+        "handoff-1280x900.png": "102d4ca36eb488d72708835d02a23792520c9f4de7b17642add7c8065e881a62",
+        "handoff-390x844.png": "14a5893f322823881c2220550de240d90d4468f18f6b0e9a401c54c5f35e7f4f"
+      }
+    },
+    {
+      "id": "blank_document",
+      "source_window_seconds": "31.52–75.00",
+      "source_sample_seconds": "45.0",
+      "mode": "worksheet",
+      "title": "The unanswered decision",
+      "caption_sample": "It cannot answer them.",
+      "stills": {
+        "blank_document-1280x900.png": "1d7d85c296664a6f33c489eaec35da3d2c6b5d6c49176348290efbfb53264278",
+        "blank_document-390x844.png": "698e27a6deed40c5f8f3884f6814e8375f68a030da128877c995c1b9ab2284ff"
+      }
+    },
+    {
+      "id": "meeting_inputs",
+      "source_window_seconds": "75.00–90.00",
+      "source_sample_seconds": "82.0",
+      "mode": "meeting",
+      "title": "Three inputs, one decision",
+      "caption_sample": "Someone else had a competing story.",
+      "stills": {
+        "meeting_inputs-1280x900.png": "7af6dd86457e0b62d0c4cbf05d4799dd3f594f10f7c110e833ca2e6c66a8963e",
+        "meeting_inputs-390x844.png": "61df632afa2f9fd56ad67b0f324a433a5b80eff2c513032d8bfef83017dd8653"
+      }
+    },
+    {
+      "id": "signal_path",
+      "source_window_seconds": "90.00–105.00",
+      "source_sample_seconds": "97.0",
+      "mode": "signal_path",
+      "title": "Give the signal a path",
+      "caption_sample": "It helps you record the signal,",
+      "stills": {
+        "signal_path-1280x900.png": "101756fe9ec2a8e7c5507e0a3f109c7ce2eab7bf7745b51a5a0d82d3b1c54232",
+        "signal_path-390x844.png": "08bd191edea035fe1647f495a143c96684e5a726a0805c685e8f1a1e1634e7b8"
+      }
+    },
+    {
+      "id": "human_judgment",
+      "source_window_seconds": "105.00–145.00",
+      "source_sample_seconds": "122.0",
+      "mode": "human_review",
+      "title": "People keep the judgment",
+      "caption_sample": "The judgment still belongs to people",
+      "stills": {
+        "human_judgment-1280x900.png": "591907dfc68836ed6f6a983e9b51edda88dcf1a086d532e27dd260b49ff17a43",
+        "human_judgment-390x844.png": "7720e00c069a9f9ef79657acc21761eeefeb69a41ee588a2c65ae87572b04a73"
+      }
+    },
+    {
+      "id": "safe_test",
+      "source_window_seconds": "145.00–149.695",
+      "source_sample_seconds": "146.7",
+      "mode": "human_review",
+      "title": "Test one option safely",
+      "caption_sample": "which option you can test safely.",
+      "stills": {
+        "safe_test-1280x900.png": "70d8259159b34cbfac6696ecc4d535c23f9a65233aa8d8e1308e328d8815dc48",
+        "safe_test-390x844.png": "7181ef6b732690f0bed29e406f656505737531f47fb868cd8fc16a659255fce4"
+      }
+    },
+    {
+      "id": "speed_room",
+      "source_window_seconds": "149.695–153.228",
+      "source_sample_seconds": "150.5",
+      "mode": "plate_signals",
+      "title": "Speed can create room",
+      "caption_sample": "Speed can create room to think.",
+      "stills": {
+        "speed_room-1280x900.png": "f9c844bb756030a92389de15a63371f3b69e9068e34161b6f3ab78a079970e6b",
+        "speed_room-390x844.png": "76156445c567cd93d8680c0f756d6850a36a1e8087f2435f7b16a251db3d9686"
+      }
+    },
+    {
+      "id": "speed_noise",
+      "source_window_seconds": "153.228–157.558",
+      "source_sample_seconds": "154.7",
+      "mode": "plate_signals",
+      "title": "Speed can add noise",
+      "caption_sample": "It can also fill that room with more noise.",
+      "stills": {
+        "speed_noise-1280x900.png": "c772a7f83000cfb37da12ac9b37d70cc803d62217be0e6adb42ed27ab324367f",
+        "speed_noise-390x844.png": "9d968ca02b4ca3a63978f8decd7cfebf348d82079ab8af8244f24cd675ca7f46"
+      }
+    },
+    {
+      "id": "map_intro",
+      "source_window_seconds": "157.558–173.048",
+      "source_sample_seconds": "166.3",
+      "mode": "map_only",
+      "title": "The workshop map",
+      "caption_sample": "Momentum.",
+      "stills": {
+        "map_intro-1280x900.png": "8ded8d9ed59b438698f409b6c107ef3182f6f73592f4a23ce9ad72bbd6305e50",
+        "map_intro-390x844.png": "4fa7d0fbf37c1fc9970bd616e38a0a8f7ab515051da048fa01a266b31f817a86"
+      }
+    },
+    {
+      "id": "map_signals",
+      "source_window_seconds": "173.048–179.398",
+      "source_sample_seconds": "174.4",
+      "mode": "plate_signals",
+      "title": "Signals",
+      "caption_sample": "First, take the raw material",
+      "stills": {
+        "map_signals-1280x900.png": "0e79df41d197cacbc27fd1bd17bce63df8655d604f568aecabc87bbe7a4aeb9d",
+        "map_signals-390x844.png": "36f030a8e817376e155707c475e5f0c5eae1087d6b022e6bac6e4acddd598c5c"
+      }
+    },
+    {
+      "id": "map_alignment",
+      "source_window_seconds": "179.398–184.710",
+      "source_sample_seconds": "180.2",
+      "mode": "plate_alignment",
+      "title": "Alignment",
+      "caption_sample": "Then give the people carrying",
+      "stills": {
+        "map_alignment-1280x900.png": "2e7764002944157ba82f1aa8332386c8f651d0468fffe3f2619e722c2c951ef1",
+        "map_alignment-390x844.png": "3cc1fb645da772e383cf1890e7f05ce89978695e5585d214a886d6de26172bca"
+      }
+    },
+    {
+      "id": "map_momentum",
+      "source_window_seconds": "184.710–190.00",
+      "source_sample_seconds": "185.5",
+      "mode": "plate_momentum",
+      "title": "Momentum",
+      "caption_sample": "Then build a rhythm that",
+      "stills": {
+        "map_momentum-1280x900.png": "2516fe112bbc93dcf71bc26f0830206235ac2fe3860b0fcec9f7016298b10bc0",
+        "map_momentum-390x844.png": "561fca3df14d1205f3cd02c3eeed9e6220c64ff37f60a2691ae0940bcebe88be"
+      }
+    },
+    {
+      "id": "book_chapters",
+      "source_window_seconds": "190.00–197.570",
+      "source_sample_seconds": "192.9",
+      "mode": "book_only",
+      "title": "The printed chapters",
+      "caption_sample": "chapters as systems, align, and",
+      "stills": {
+        "book_chapters-1280x900.png": "1e162528693dc6c48f52a9145f37ed05a8df1cd62ed7908a87779015be55a6f0",
+        "book_chapters-390x844.png": "ebe532be93650a082376b822db9a1e8f2896185f561e3d49a422993437701bb2"
+      }
+    },
+    {
+      "id": "map_signals_detail",
+      "source_window_seconds": "197.570–200.230",
+      "source_sample_seconds": "198.8",
+      "mode": "plate_signals",
+      "title": "Signals",
+      "caption_sample": "The workshop uses the three labels",
+      "stills": {
+        "map_signals_detail-1280x900.png": "b0827be439997b789617c75cdbabf45d2fdf9355d169e5f437ab169de1ddbc83",
+        "map_signals_detail-390x844.png": "067db3bf858fc42470330a60277b29f62de10ceac7f1ac6a854392c852b3df9b"
+      }
+    },
+    {
+      "id": "map_alignment_detail",
+      "source_window_seconds": "200.230–204.320",
+      "source_sample_seconds": "201.4",
+      "mode": "plate_alignment",
+      "title": "Alignment",
+      "caption_sample": "infographic as a visual guide.",
+      "stills": {
+        "map_alignment_detail-1280x900.png": "31997932ea97bc4b7160f36a97e441cc847652a4775f04786c3c87d35561a879",
+        "map_alignment_detail-390x844.png": "12f18c0d5964c1dea6e1990c530dccb4c0e87c9f03a84d41005ab510d1d18728"
+      }
+    },
+    {
+      "id": "map_relationship",
+      "source_window_seconds": "204.320–208.350",
+      "source_sample_seconds": "205.4",
+      "mode": "map_relationship",
+      "title": "Where the paths cross",
+      "caption_sample": "where those paths cross.",
+      "stills": {
+        "map_relationship-1280x900.png": "b3d76ea6e203fcdc313d761d387bffe079952439b84fb45b129bf2d1f0299b1d",
+        "map_relationship-390x844.png": "926838708dda66cd2266f186a0c3d35c20ccfe14a241f9d9bd5602ad5d7244ec"
+      }
+    },
+    {
+      "id": "book_return",
+      "source_window_seconds": "208.350–212.820",
+      "source_sample_seconds": "209.4",
+      "mode": "book_only",
+      "title": "The printed chapters",
+      "caption_sample": "replacement for the chapters.",
+      "stills": {
+        "book_return-1280x900.png": "f3c9688bff4c3b725e348c6cce124f8fce62de0d211c1a05ee6e70517d57e32f",
+        "book_return-390x844.png": "272c6c1ae5cb1dbd6af49ed436223aecd13f457776348fd88bfe37e4ab1a325b"
+      }
+    },
+    {
+      "id": "signal_side",
+      "source_window_seconds": "212.820–225.00",
+      "source_sample_seconds": "220.0",
+      "mode": "signal_path",
+      "title": "Stay close to the signal",
+      "caption_sample": "work backward to evidence, and",
+      "stills": {
+        "signal_side-1280x900.png": "40341256a632b7786d0145e175d5db2cd622ae5bd39fa37b450a8073acb76df7",
+        "signal_side-390x844.png": "28c15c061a5c2ae85bca0ae7261dab52844d55794560d04ee36ac0dd09216674"
+      }
+    },
+    {
+      "id": "book_human_thread",
+      "source_window_seconds": "225.00–230.050",
+      "source_sample_seconds": "226.3",
+      "mode": "book_only",
+      "title": "A human thread",
+      "caption_sample": "There is a human thread",
+      "stills": {
+        "book_human_thread-1280x900.png": "8cc245aeffa3f9507d85201ce73c153d2ad2ba4eced58116084e448b8aec4746",
+        "book_human_thread-390x844.png": "2f8aa30ca168b2a1413ed588b4ca34588b93dbf5b6215c8b3dfd8f1ac7cfd295"
+      }
+    },
+    {
+      "id": "sam_intro",
+      "source_window_seconds": "230.050–235.00",
+      "source_sample_seconds": "230.12",
+      "mode": "book_sam",
+      "title": "A human thread",
+      "caption_sample": "Sam, a product manager who",
+      "stills": {
+        "sam_intro-1280x900.png": "57792df043372762fb2ec7f8cf8790b2428e47f38e2ea9e2f70771ace3d7fdd4",
+        "sam_intro-390x844.png": "30a45f0936fb126f70146d20008e3aa74307989a272b142f0e54cddd707e3db0"
+      }
+    }
+  ],
+  "drive_human_art": {
+    "original_path_relative_to_amadutown_drive": "2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Trailer/Imgs/acc_trailer_img_4.2.2.png",
+    "local_source_copy": "sources/acc_trailer_img_4.2.2.png",
+    "sha256": "1f3a4163c9467117fd7621d41a72afb5e8a203a8fb6142c5d1dedeca0a23209e",
+    "use": "first-party conceptual illustration of people reviewing evidence; no customer or outcome claim"
+  },
+  "unresolved": [],
+  "limits": [
+    "No video, audio, J01 timing, learner media, or binding changed.",
+    "Control and caption treatments are simulated in stills, not native-player proof.",
+    "Sam is represented by the approved book cover and a text label; no character portrait is implied."
+  ],
+  "review": {
+    "scope": "still-only C01 visual review, source target 28.40–235.00 seconds, 1280x900 and 390x844",
+    "source_commit": "2fb755466cfb201b4257d3495d9be4f001f86421",
+    "prior_beats": "18 preceding beats are pixel-identical to v12 reviewed stills, including distinct focused Signals, Alignment, and Momentum plates and complete SAM overview/relationship beats.",
+    "new_beats": [
+      "book_human_thread 225.00–230.050 at both viewports: approved book cover, no Sam label",
+      "sam_intro 230.050–235.00 at both viewports: same approved cover and short Sam text label, no portrait"
+    ],
+    "j01_timing": "Approved J01 timed_words first names Sam at 230.050; visual label begins at 230.050. J01 unchanged.",
+    "caption_cues": "Samples at 226.3 and 230.12 match the exact approved J01 caption cues; simulated captions remain above the reserved control footprint at both viewports.",
+    "source_checks": "Approved video, P01, SAM map, three plates, book cover, and first-party human conceptual art hashes verified by builder. No character portrait used.",
+    "limits": [
+      "Still simulation only; no rendered video, native playback, or learner media binding verified.",
+      "No HeyGen, spending, J01 change, learner media change, merge, or release."
+    ],
+    "commit_gate": "Full authorized still review through 235 passed; scoped package may be committed."
+  }
+}

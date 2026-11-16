@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+require('./scripts/verify-accelerated-contextual-binding.cjs').verifyAcceleratedContextualBinding()
 const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -45,6 +46,7 @@ const nextConfig = {
         './public/accelerated/lessons/l14/review-2b178dd6/*',
         './public/accelerated/lessons/l15/review-67d066c8/*',
         './public/accelerated/lessons/l16/review-5ee4267c/*',
+        './public/accelerated/contextual-review/**',
         './public/accelerated/certificate-frame.png',
         './public/accelerated/vambah-signature.png',
         './public/showcases/trumpet-trainer/c19989a3/*',

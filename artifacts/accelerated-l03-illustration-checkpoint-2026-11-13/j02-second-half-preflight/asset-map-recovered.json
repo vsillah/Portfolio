@@ -1,0 +1,44 @@
+{
+  "decision-card": {
+    "local": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/source/decision-card.png",
+    "sha256": "1b375a2559752054c567c99729ccec45ba94cac8d69897f2094fe6130c61138e",
+    "status": "synthetic teaching art, review-only",
+    "original_generated_image_id": "exec-57329c1f-1f5f-4587-83ec-4591383b6ac7.png"
+  },
+  "prototype-session": {
+    "local": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/source/prototype-session.png",
+    "sha256": "2da4d374ae51bc5ef360e1c6e1ad4323eabe899ab06b87d6af9ebd1b3222c3c2",
+    "status": "synthetic teaching art, review-only",
+    "original_generated_image_id": "exec-14619204-3809-4434-9a7d-2dd8d6ea2b29.png"
+  },
+  "evidence-ledger": {
+    "local": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/source/evidence-ledger.png",
+    "sha256": "03e7703bcdfc8f492619bbba7fbccd7b1aa0c39095d8f439ab554e1c3aa2c502",
+    "status": "synthetic teaching art, review-only",
+    "original_generated_image_id": "exec-97668668-acdb-4db5-bb4c-f995ee88f859.png"
+  },
+  "learner-pause": {
+    "local": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/source/learner-pause.png",
+    "sha256": "63767380c33f39ddf63e938fd308dcf2ef27b829d583e13b9d602ada8c0f97c4",
+    "status": "synthetic teaching art, review-only",
+    "original_generated_image_id": "exec-54e6c362-3429-49ef-bee7-3bf39a497998.png"
+  },
+  "clipped-pages": {
+    "local": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/source/clipped-pages.png",
+    "sha256": "f23cfc56b5c3b36061944cc74abb19cf937b8d34a6b3caab3d4f078f5e146de8",
+    "status": "synthetic teaching art, review-only",
+    "original_generated_image_id": "exec-c4c85520-89ae-4b64-b802-b03b048117d7.png"
+  },
+  "person-behind-evidence": {
+    "local": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/source/person-behind-evidence.png",
+    "sha256": "453ef9ec91db8a57c300225de9eeae95b7b4415e459a5ecd47c702a1359e136c",
+    "status": "synthetic teaching art, review-only",
+    "original_generated_image_id": "exec-14958bd6-aaa8-4ad8-b7a9-961f310e8d73.png"
+  },
+  "attach-pages": {
+    "local": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/source/attach-pages.png",
+    "sha256": "472e15997b374d0440da087d5d7e8b0f96d975e95df1c5351c03ed67204e6030",
+    "status": "synthetic teaching art, review-only",
+    "original_generated_image_id": "exec-c42a6399-8b71-4335-aed3-cb739f62d6e4.png"
+  }
+}

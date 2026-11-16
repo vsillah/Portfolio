@@ -1,0 +1,57 @@
+{
+  "status": "rendered_pending_qa",
+  "source_commit": "2002dda495dd319dd936fea00a405928bba3302e",
+  "input_hashes": {
+    "first_desktop": "6cbca81b31e146e075d98c8ba3832e181e59af097a1f7cbfa95bade282b33a61",
+    "first_mobile": "2cee5081cc116c0373822b4a91edf38b09de875d6731ea5b719be20d29b03141",
+    "j02_wav": "4b1b3217ae87e1c74bbb197204bf7a618414e00b9f3dc2bb800439715b7248b3",
+    "native_picture": "064e049bfaee6d60d5d811d516dbcdf9c14466602afef9a34e07cbf31c551198",
+    "bound_audio": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a"
+  },
+  "j02_boundary_frames": [
+    0,
+    315,
+    555,
+    1243,
+    1577,
+    1981,
+    2345,
+    2457
+  ],
+  "j02_boundary_word_indices": [
+    0,
+    39,
+    67,
+    147,
+    188,
+    242,
+    287,
+    302
+  ],
+  "native_picture_ranges": {
+    "P03": [
+      978,
+      1260
+    ],
+    "P04": [
+      1260,
+      1567
+    ]
+  },
+  "native_audio_ranges_seconds": {
+    "P03": [
+      349,
+      360.28
+    ],
+    "P04": [
+      513.96,
+      526.24
+    ]
+  },
+  "output_hashes": {
+    "whole-lesson-audio.wav": "c8ff32fbb79a7865e293979b9e1917efdc8083a30f5a2496b8a7c1cfbee6553b",
+    "l03-whole-lesson-desktop-local-review.mp4": "24e5daaa3989dc8ae4324bca4726a08bdc9c16475e264fdd7cd5b0bf5d2987d3",
+    "l03-whole-lesson-mobile-local-review.mp4": "bfbe6e377633cc2ff9c1fe3af216ee79e0a84957df847ffc2e26e3f374c1616c"
+  },
+  "excluded_actions": "No provider generation, spend, learner media change, PR update, commit, merge, deployment, publication or release."
+}

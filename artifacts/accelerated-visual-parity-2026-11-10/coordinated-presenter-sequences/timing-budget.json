@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "status": "review_only_timing_budget_not_audio_signoff",
+  "source_pack_sha256": "86b0fbbe24e5f0dc60c9205e2e43c3d414d8afc2d6e97affe0cc39da681bf3cf",
+  "sequence_manifest_sha256": "08c98212b3149b4f35400f90fc6e78e7b1a5a853b3322c6495797161a0ac00a9",
+  "method": "Measure moved native AAC source span after PCM decode at 48 kHz; shift the unchanged approved C02 window earlier by that duration and place the source opening immediately before the original A03 start.",
+  "results": [
+    {
+      "lesson_id": "L05",
+      "source_path": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+      "source_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "coordinated_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-receipt.json",
+      "coordinated_receipt_sha256": "c199092cdde543fc2c15ee9c1122e1d93df2e59f0f36373a2056acbfad8435f8",
+      "approved_c02_text_sha256": "b58ef263ecc1dcc70931423bd067b07986fa8c686709a93ec297ffb72b804342",
+      "approved_c02_word_count": 374,
+      "original_c02_seconds": [
+        220.88,
+        400.0
+      ],
+      "original_c02_planned_duration_seconds": 179.12,
+      "original_c02_planned_words_per_minute": 125.28,
+      "a02_source_window_seconds": [
+        200.0,
+        220.88
+      ],
+      "a03_source_window_seconds": [
+        400.0,
+        414.32
+      ],
+      "native_a02_split_seconds": 218.46,
+      "moved_native_source_span_seconds": [
+        218.46,
+        220.88
+      ],
+      "measured_native_source_frames_48000hz": 116160,
+      "measured_moved_opening_duration_seconds": 2.42,
+      "proposed_a02_presenter_end_seconds": 218.46,
+      "proposed_c02_seconds": [
+        218.46,
+        397.58
+      ],
+      "proposed_c02_duration_seconds": 179.12,
+      "proposed_moved_opening_seconds": [
+        397.58,
+        400.0
+      ],
+      "proposed_a03_continuation_start_seconds": 400.0,
+      "remaining_c02_duration_margin_seconds": 0.0,
+      "unallocated_transition_buffer_seconds": 0.0,
+      "planned_word_rate_change": 0.0,
+      "schedule_result": "same_c02_duration_with_zero_unallocated_buffer",
+      "qualification": "Review-only arithmetic. C02 speech is approved text, not rendered provider audio; audible joins, actual voice pace, and transition room remain unverified."
+    },
+    {
+      "lesson_id": "L06",
+      "source_path": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+      "source_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "coordinated_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-receipt.json",
+      "coordinated_receipt_sha256": "9a3c0bcd81c62a8a804dc4b80500ed5e0ee0d424bf5b432f614af6b61319d479",
+      "approved_c02_text_sha256": "0eb3f99f1333278b0fb4b8f6312a0741d3d8a2cfe43e860a719f5a5739de2c4d",
+      "approved_c02_word_count": 378,
+      "original_c02_seconds": [
+        236.8,
+        440.0
+      ],
+      "original_c02_planned_duration_seconds": 203.2,
+      "original_c02_planned_words_per_minute": 111.61,
+      "a02_source_window_seconds": [
+        220.0,
+        236.8
+      ],
+      "a03_source_window_seconds": [
+        440.0,
+        453.4
+      ],
+      "native_a02_split_seconds": 234.52,
+      "moved_native_source_span_seconds": [
+        234.52,
+        236.8
+      ],
+      "measured_native_source_frames_48000hz": 109440,
+      "measured_moved_opening_duration_seconds": 2.28,
+      "proposed_a02_presenter_end_seconds": 234.52,
+      "proposed_c02_seconds": [
+        234.52,
+        437.72
+      ],
+      "proposed_c02_duration_seconds": 203.2,
+      "proposed_moved_opening_seconds": [
+        437.72,
+        440.0
+      ],
+      "proposed_a03_continuation_start_seconds": 440.0,
+      "remaining_c02_duration_margin_seconds": 0.0,
+      "unallocated_transition_buffer_seconds": 0.0,
+      "planned_word_rate_change": 0.0,
+      "schedule_result": "same_c02_duration_with_zero_unallocated_buffer",
+      "qualification": "Review-only arithmetic. C02 speech is approved text, not rendered provider audio; audible joins, actual voice pace, and transition room remain unverified."
+    },
+    {
+      "lesson_id": "L08",
+      "source_path": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+      "source_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "coordinated_receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-receipt.json",
+      "coordinated_receipt_sha256": "1f18b9e6b4d2ab1df9f2994d9a7f5848c279e8a5d467c052265211f6deb1403d",
+      "approved_c02_text_sha256": "b42ac18610b2fbcab3575cd1dc3450e34b96bb37e89f2efc41d9ebac1467126d",
+      "approved_c02_word_count": 425,
+      "original_c02_seconds": [
+        258.0,
+        480.0
+      ],
+      "original_c02_planned_duration_seconds": 222.0,
+      "original_c02_planned_words_per_minute": 114.86,
+      "a02_source_window_seconds": [
+        240.0,
+        258.0
+      ],
+      "a03_source_window_seconds": [
+        480.0,
+        495.36
+      ],
+      "native_a02_split_seconds": 256.0,
+      "moved_native_source_span_seconds": [
+        256.0,
+        258.0
+      ],
+      "measured_native_source_frames_48000hz": 96000,
+      "measured_moved_opening_duration_seconds": 2.0,
+      "proposed_a02_presenter_end_seconds": 256.0,
+      "proposed_c02_seconds": [
+        256.0,
+        478.0
+      ],
+      "proposed_c02_duration_seconds": 222.0,
+      "proposed_moved_opening_seconds": [
+        478.0,
+        480.0
+      ],
+      "proposed_a03_continuation_start_seconds": 480.0,
+      "remaining_c02_duration_margin_seconds": 0.0,
+      "unallocated_transition_buffer_seconds": 0.0,
+      "planned_word_rate_change": 0.0,
+      "schedule_result": "same_c02_duration_with_zero_unallocated_buffer",
+      "qualification": "Review-only arithmetic. C02 speech is approved text, not rendered provider audio; audible joins, actual voice pace, and transition room remain unverified."
+    }
+  ],
+  "narration_text_or_payload_changed": false,
+  "canonical_media_or_learner_binding_changed": false
+}

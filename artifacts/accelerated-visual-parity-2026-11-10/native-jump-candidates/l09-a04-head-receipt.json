@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L09",
+  "presenter_window": "A04",
+  "orientation": "head",
+  "source_path": "public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+  "source_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+  "source_window_seconds": [
+    630.72,
+    645.8
+  ],
+  "candidate_cut_seconds": 633.813333,
+  "machine_onset_seconds": 633.83,
+  "aac_snap_delta_seconds": 0.016667,
+  "intended_words": {
+    "removed_earlier_phrase_end": "and which staffing constraint would make it unsafe",
+    "retained_approved_words_start": "A map is not a way to manufacture agreement. It helps you"
+  },
+  "silent_packet_source_start_seconds": 622.72,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 562,
+  "copied_silence_packet_count": 145,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a04-head-candidate.mp4",
+  "candidate_sha256": "79cccbc3da078e89cad310109885fe0d0e620cb1cf4a2e4e3dcdc9d24b66197f",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l09-a04-head-before-after.mp4",
+  "before_after_sha256": "a00888f0aaa136727ff4b460f1bb7324ed039b900aeaac63665270bad7d495df",
+  "before_after_source_excerpt_seconds": [
+    630.72,
+    637.313333
+  ],
+  "before_after_segment_seconds": 6.593,
+  "candidate_duration_seconds": 15.082667,
+  "before_after_duration_seconds": 13.2,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

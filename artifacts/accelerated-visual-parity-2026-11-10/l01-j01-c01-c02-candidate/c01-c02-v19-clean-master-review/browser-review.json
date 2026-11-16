@@ -1,0 +1,44 @@
+{
+  "status": "local_review_only_actual_player_pass",
+  "date": "2026-11-12",
+  "source_commit": "d5c1afec05215a77638b7bdc4e26e9ebdc72a102",
+  "video_sha256": "7002f7d9ffe917294969e24a17d98459f9d700f319fa576f30613c63442a9e3f",
+  "optional_vtt_sha256": "427376480d444d321513ddc09c226e7896967909d8baa790b1569dd4a79b508b",
+  "review_url": "http://127.0.0.1:56222/review.html?rev=7002f7d9ffe9",
+  "browser": "Chrome",
+  "desktop_viewport": [1728, 962],
+  "mobile_viewport": [390, 844],
+  "mobile_video_css_size": [352, 297],
+  "mobile_document_scroll_width": 390,
+  "sample_seconds": {
+    "P01": 5,
+    "C01": 174.4,
+    "P02": 240.05,
+    "C02": 250
+  },
+  "observed": [
+    "The actual 1280x1080 MP4 loaded with native controls and a 5:45 duration.",
+    "All four section buttons sought to the expected visible source art on desktop and mobile.",
+    "Captions were disabled by default; the toggle changed the WebVTT track between showing and disabled.",
+    "With captions disabled, the lower review band was clear of text in every sampled section.",
+    "With captions showing, cue text stayed below the teaching art and presenter and above the native controls at both viewport widths.",
+    "P01 and P02 retained the fixed middle-right presenter position; C01 and C02 retained source visuals.",
+    "At 390x844 the player used 352x297 CSS pixels with no document horizontal overflow."
+  ],
+  "still_sha256": {
+    "P01-5s.png": "7ffd4faba9be4961338fd69efe3628297a4cd152260f449e54c05ad35a04a1f1",
+    "C01-174_4s.png": "24bf070d30d3decda0d0b826370556b823606fee3856e8bcb4c0b81e300fc8d6",
+    "P02-240_05s.png": "5e06d2a384db8da394b5e70608e5150d1611d2015ec762981c9f605e886397e7",
+    "C02-250s.png": "ea6e9d9fc8971a08b7232713e3e810b3df24ab367f7b8cd21bbf03eaeddd657a"
+  },
+  "caption_band_pixel_check": "At all four sampled times, decoded pixels in y=820..1079 were uniform RGB (11,28,38) before optional WebVTT rendering.",
+  "speech_join_pcm_windows": [
+    {"join": "P01_to_C01", "seconds": [26.4, 30.4], "source_and_master_sha256": "182b22331cbce2615fc51149e9fa835824b6e4f786e26b7bdc3072b3b66c9127"},
+    {"join": "C01_to_P02", "seconds": [233, 237], "source_and_master_sha256": "d2df72943e6a29b6329a829e51f0128d8f6c3571377d217ad119ebe545915d16"},
+    {"join": "P02_to_C02", "seconds": [246.2, 250.2], "source_and_master_sha256": "992f2b99efb1c2718da4b7f42b8c310c54aa1199a601687f58cd1a32bebb4a88"}
+  ],
+  "embedded_subtitle_streams": 0,
+  "speech_join_listening": "Not independently auditioned; bit-identical decoded PCM windows show the render introduced no audio change.",
+  "source_art_follow_up": "Pre-existing P01 sparse document and C02 shell labels remain for the separately requested illustration audit; this render preserves the approved art.",
+  "excluded": ["learner binding", "HeyGen", "spend", "merge", "release", "16-lesson illustration redesign"]
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "accelerated_l04_human_qa_approval_v1",
+  "recorded_at": "2026-11-14",
+  "project": "Portfolio Accelerated",
+  "pull_request": 1270,
+  "status": "approved",
+  "artifact": {
+    "path": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/l04-whole-lesson-portrait-editorial-plates-local-review.mp4",
+    "sha256": "9c49ae07f4605f15baca89eb52c2b304e339faaef3fd27a3bcadf5e0d3cb5498"
+  },
+  "approved_scope": [
+    "single-illustration mobile layout",
+    "bordered text overlays",
+    "optional captions",
+    "native player controls",
+    "presenter treatment",
+    "audio",
+    "timing"
+  ],
+  "reproducibility": {
+    "render_source": {
+      "path": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/build-teaching-overlay-review.py",
+      "sha256": "94c79098edf66846a57a7f3029ecc3544c8ff181569fb73044a18d8518e51cd5"
+    },
+    "render_receipt": {
+      "path": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/l04-teaching-overlay-render-receipt.json",
+      "sha256": "9561c7080e30f1e9d9a9d40e425967be6b24dbf70f7e9e4bb0dced8b4168527f"
+    },
+    "single_image_qa_receipt": {
+      "path": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/portrait-single-image-qa-receipt.json",
+      "sha256": "ee1a8fe780e343aece05c4ad9ea02d832e053efb9c268e36285fb548392cabfd"
+    },
+    "caption_qa_receipt": {
+      "path": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/portrait-caption-qa-receipt.json",
+      "sha256": "7156d4908e31f00d09ad706dc1e3c7225107479522d2aafaeada897e1ca49a1f"
+    }
+  },
+  "restrictions": [
+    "learner media remains unchanged",
+    "no HeyGen contact",
+    "no spending",
+    "no merge",
+    "no deployment",
+    "no publication",
+    "no release"
+  ]
+}

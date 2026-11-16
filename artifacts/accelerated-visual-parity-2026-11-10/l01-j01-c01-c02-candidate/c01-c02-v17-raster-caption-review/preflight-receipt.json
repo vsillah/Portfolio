@@ -1,0 +1,27 @@
+{
+  "status": "PASS_SOURCE_BOUND_RASTER_PREFLIGHT",
+  "source_commit": "3a2df476a96d3106823537c2442a72bd69a95080",
+  "source_mp4_sha256": "3fba2f2bd724f4da1e5778138a95765b4b5946e478e8b52598ac9124e5a0d869",
+  "geometry_basis": "The previous four-section layout preflight checked all 175 cue boxes and six narrow stills; its drawtext implementation was rejected before render.",
+  "one_frame_filter_probe": "Passed crop, pad, trim, setpts, fps, format and transparent overlay on the P02 presenter frame.",
+  "one_frame_concat_probe": "Passed the same frame through the PNG concat demuxer; output PNGs were byte-identical.",
+  "probe_png_sha256": "9c04c19d8d91773f927e83c615e0f1142b97cc446abde74ada3fb062eadecf16",
+  "mp4_render_count_before_probe": 0,
+  "caption_plan_sha256": "d917317e98f7dc05590e714097af9faf00a9c09236ce894a18c214ce9138b21e",
+  "cue_count": 175,
+  "four_section_counts": {
+    "P01": 18,
+    "C01": 102,
+    "P02": 8,
+    "C02": 47
+  },
+  "source_reproduction_note": "The committed renderer recreates a one-frame concat/transparent-overlay probe from the exact local v15 MP4, validates every cue text box, and fails closed if the local input hash differs. Voice-bearing MP4 inputs are not committed.",
+  "validated_commands": [
+    "python3 build-local-review.py preflight",
+    "python3 build-local-review.py inspect"
+  ],
+  "toolchain_observed": {
+    "ffmpeg": "8.1.1",
+    "Pillow": "13.0.0"
+  }
+}

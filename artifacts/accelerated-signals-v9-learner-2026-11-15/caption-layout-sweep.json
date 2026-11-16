@@ -1,0 +1,107 @@
+{
+  "schema": "accelerated_signals_v9_caption_sweep_v2",
+  "viewports": {
+    "desktop": [
+      1280,
+      720
+    ],
+    "mobile": [
+      390,
+      844
+    ]
+  },
+  "observations": [
+    {
+      "aspect": "desktop",
+      "lesson": "L01",
+      "cue_count": 84,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 42.9375,
+      "focus_windows": [
+        {
+          "start_seconds": 240,
+          "end_seconds": 248
+        }
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "lesson": "L02",
+      "cue_count": 94,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 65.875,
+      "focus_windows": [
+        {
+          "start_seconds": 100,
+          "end_seconds": 108
+        }
+      ]
+    },
+    {
+      "aspect": "desktop",
+      "lesson": "L05",
+      "cue_count": 104,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 65.875,
+      "focus_windows": [
+        {
+          "start_seconds": 2,
+          "end_seconds": 10
+        },
+        {
+          "start_seconds": 212,
+          "end_seconds": 220
+        }
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "lesson": "L01",
+      "cue_count": 84,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 99.9375,
+      "focus_windows": [
+        {
+          "start_seconds": 240,
+          "end_seconds": 248
+        }
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "lesson": "L02",
+      "cue_count": 94,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 119.921875,
+      "focus_windows": [
+        {
+          "start_seconds": 100,
+          "end_seconds": 108
+        }
+      ]
+    },
+    {
+      "aspect": "mobile",
+      "lesson": "L05",
+      "cue_count": 104,
+      "all_cues_exact": true,
+      "all_on_off_states_clear": true,
+      "max_band_height": 119.921875,
+      "focus_windows": [
+        {
+          "start_seconds": 2,
+          "end_seconds": 10
+        },
+        {
+          "start_seconds": 212,
+          "end_seconds": 220
+        }
+      ]
+    }
+  ]
+}

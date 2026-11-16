@@ -1,0 +1,30 @@
+{
+  "status": "REJECT_moving_presenter_disappears_at_second_handoff",
+  "scope": "review-only P01 to moved P01 sentence to retained P02 native presenter motion reel",
+  "source_video_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+  "motion_reel_sha256": "4737420f4782e89f66ed27e0c71ab5a4c3414c50a02b55877cface2eb488e70c",
+  "failed_frame": {
+    "reel_second": 6.84,
+    "source_handoff": "moved P01 sentence -> retained P02 presenter",
+    "image": "motion-fail-6p84.png",
+    "sha256": "e66bca34e04ca82b68345b73e9702d64dc5525b0fc36db138d200006a7a9e27e",
+    "finding": "presenter inset absent for one encoded frame; P02 map background visible inside reserved anchor"
+  },
+  "recovered_frame": {
+    "reel_second": 6.88,
+    "image": "motion-recovered-6p88.png",
+    "sha256": "b6e339bba3c11a9bd2dd4dc44e259254e950eaf738f782480d8de1e30d18d739"
+  },
+  "technical_checks": {
+    "duration_seconds": 12.8,
+    "video_frames": 320,
+    "full_decode": "passed"
+  },
+  "visual_checks": {
+    "desktop_contact_sheet": "failed at 6.84 seconds",
+    "narrow_browser_playback": "not_run_after_first_motion_failure",
+    "native_control_and_caption_obstruction": "unverified"
+  },
+  "audio": "native source excerpts only; no J01",
+  "stop_rule": "No rerender or timing/anchor repair under this authorization; do not use reel for Human QA or learner media."
+}

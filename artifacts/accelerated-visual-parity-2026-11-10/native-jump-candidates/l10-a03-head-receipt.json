@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L10",
+  "presenter_window": "A03",
+  "orientation": "head",
+  "source_path": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+  "source_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+  "source_window_seconds": [
+    360.0,
+    382.2
+  ],
+  "candidate_cut_seconds": 363.221333,
+  "machine_onset_seconds": 363.24,
+  "aac_snap_delta_seconds": 0.018667,
+  "intended_words": {
+    "removed_earlier_phrase_end": "card and observe whether members understand and begin",
+    "retained_approved_words_start": "says, \u201cWe cannot spare staff to watch a long session.\u201d Do not"
+  },
+  "silent_packet_source_start_seconds": 352.0,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 890,
+  "copied_silence_packet_count": 151,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a03-head-candidate.mp4",
+  "candidate_sha256": "666dad3ac2771fde2e7625d0e5659b755faceed7c0bedd3b28697f71332c2d8c",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l10-a03-head-before-after.mp4",
+  "before_after_sha256": "7447a3e109595c6d1bdd2e37effae32ca31c8c1b98d428e4d36b769a186ae633",
+  "before_after_source_excerpt_seconds": [
+    360.0,
+    366.721333
+  ],
+  "before_after_segment_seconds": 6.721,
+  "candidate_duration_seconds": 22.208,
+  "before_after_duration_seconds": 13.52,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

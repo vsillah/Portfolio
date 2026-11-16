@@ -1,0 +1,31 @@
+{
+  "status": "local_browser_qa_pass_review_only",
+  "date": "2026-11-12",
+  "sourceBranch": "codex/accelerated-lesson-pacing-audit",
+  "sourceHeadBeforeThisPackage": "82157c581ce33ea318d4ead67b2303046bccf23e",
+  "approvedLocalVideoSha256": "80a1be496b7b05e1ae7bf6bff2cd00e2410374e6c8abe65e280fe7e4c444d0d1",
+  "captionPlanSha256": "d917317e98f7dc05590e714097af9faf00a9c09236ce894a18c214ce9138b21e",
+  "surface": "Chrome fallback local review.html with byte-range server; integrated in-app browser was unavailable in this session",
+  "observed": {
+    "desktopViewportWidth": 1728,
+    "mobileViewport": "390x844",
+    "videoDurationSeconds": 345,
+    "transcriptCueRows": 175,
+    "videoTrackElements": 0,
+    "mobileDocumentScrollWidth": 390,
+    "mobileViewportWidth": 390,
+    "readAlongCollapsedOnLoad": true,
+    "transcriptCollapsedOnLoad": true,
+    "nativeControlsVisible": true,
+    "sectionSeekSeconds": [235, 340],
+    "transcriptCueSeekSeconds": 235.26,
+    "optionalReadAlongAt340Seconds": "judgment, not an appendix.",
+    "alwaysVisibleCaptionLabel": "05:45 · Captions embedded in video"
+  },
+  "limits": [
+    "Browser QA inspected sampled desktop/mobile frames and interactions, not every video frame or all 175 spoken cues.",
+    "No assistive-technology or physical-device qualification ran.",
+    "No privacy-safe MP4 walkthrough of this exact preview was produced; Human QA handoff remains pending.",
+    "No learner media, production binding, member progress, merge, or release changed."
+  ]
+}

@@ -6,6 +6,8 @@ import { visualParityBindings, AcceleratedLearningPlan, l01Media, l02Media, less
 import { DECISION_FILE_STORAGE_KEY, emptyDecisionFile } from '@/lib/accelerated-decision-file'
 import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
+import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
+import signalsV9Bindings from '@/lib/accelerated-signals-v9-bindings.json'
 
 const authMocks = vi.hoisted(() => ({
   getSession: vi.fn(),
@@ -367,7 +369,7 @@ describe('Accelerated learning plan', () => {
     expect(screen.getByRole('button', { name: /L01: Build smarter, stay human/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /L09: Map the decision theater/ }).querySelector('[data-state]')).toHaveAttribute('data-state', 'ready')
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === 'L01')?.videoPath)
+    expect(document.querySelector('video source')).toHaveAttribute('src', signalsV9Bindings.lessons.L01.variants.desktop.path)
     expect(screen.getByLabelText('L01 Build smarter, stay human guided video')).toHaveAttribute('poster', lessonPosters.L01)
     expect(document.querySelector('video track')).toHaveAttribute('src', l01Media.captions)
     expect(screen.getByRole('button', { name: 'English captions on' })).toHaveAttribute('aria-pressed', 'true')
@@ -412,8 +414,10 @@ describe('Accelerated learning plan', () => {
       expect(video).toHaveAttribute('aria-description', expect.stringContaining(`${item.id} ${item.title} cover`))
       expect(video).toHaveAttribute('preload', 'metadata')
       expect(video).toHaveAttribute('controls')
-      expect(video.querySelector('source')).toHaveAttribute('src', visualParityBindings.lessons.find((binding) => binding.lessonId === item.id)?.videoPath)
-      expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
+      const contextual = (contextualBindings.lessons as Record<string, typeof contextualBindings.lessons.L09>)[item.id]
+      const signals = (signalsV9Bindings.lessons as Record<string, typeof signalsV9Bindings.lessons.L01>)[item.id]
+      expect(video.querySelector('source')).toHaveAttribute('src', signals?.variants.desktop.path ?? contextual?.variants.desktop.path ?? visualParityBindings.lessons.find((binding) => binding.lessonId === item.id)?.videoPath)
+      expect(video.querySelector('track')).toHaveAttribute('src', contextual?.caption.path ?? expect.stringContaining(`/lessons/${item.id.toLowerCase()}/`))
     }
   })
 
@@ -495,14 +499,14 @@ describe('Accelerated learning plan', () => {
     const track = { mode: 'hidden' }
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
     fireEvent.loadedMetadata(video)
-    expect(track.mode).toBe('showing')
+    expect(track.mode).toBe('hidden')
     fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
     expect(track.mode).toBe('disabled')
     expect(screen.getByRole('button', { name: 'English captions off' })).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
     expect(screen.queryByLabelText('L01 Build smarter, stay human guided video')).not.toBeInTheDocument()
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('controls')
-    expect(document.querySelector('video source')).toHaveAttribute('src', visualParityBindings.lessons.find((item) => item.lessonId === 'L02')?.videoPath)
+    expect(document.querySelector('video source')).toHaveAttribute('src', signalsV9Bindings.lessons.L02.variants.desktop.path)
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('poster', lessonPosters.L02)
     expect(document.querySelector('video track')).toHaveAttribute('src', l02Media.captions)
     fireEvent.click(screen.getByRole('button', { name: /L03: Answer-driven discovery, ready/ }))

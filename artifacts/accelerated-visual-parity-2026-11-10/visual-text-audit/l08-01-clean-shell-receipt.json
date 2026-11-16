@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "status": "review_only_repeated_shell_candidate",
+  "source_manifest": {
+    "path": "docs/accelerated-course-modules/visual-production/manifest.json",
+    "sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf"
+  },
+  "source_composite_receipt": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/composite-receipt.json",
+    "sha256": "cf916889edbc480fd652be72850c196618fe829b86da75410503f356e13c9560"
+  },
+  "source_visual_audit": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/audit.json",
+    "sha256": "79a296fff9b279252858880a57e24cbfceb2fee664ce42b9f6830f6889a0e806"
+  },
+  "scene_id": "L08-01",
+  "source_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+  "source_native_path": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+  "source_native_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+  "source_visual_path": "public/accelerated/visual-parity/l08/visual-c39e6835/l08-visual-parity.mp4",
+  "source_visual_sha256": "c39e683546633b5004ce0d0cae40304ad1388cebd15e3e20fcdf43af462b15dc",
+  "source_caption_path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+  "source_caption_sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+  "clean_presenter_frame": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l08-01-clean-presenter-frame.png",
+    "sha256": "816eb4bb518780880a1f35b6229706e0139e2a86e5ca60f7161ec457af4b462d"
+  },
+  "before": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l08-01-before-12s.mp4",
+    "sha256": "b301c20033f8af140453455f0cef604ae6de77d60a0d766bd3c38e0c900cb26d",
+    "duration_seconds": 12
+  },
+  "candidate": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l08-01-clean-shell-12s.mp4",
+    "sha256": "277c0455bc378f553d13a428235231fe26f82f56b559f8196943fdfb2c123ca4",
+    "duration_seconds": 12
+  },
+  "comparison": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l08-01-clean-shell-before-after.mp4",
+    "sha256": "3d6ca907c47204f07de492e7004c18248fd836728d2b3ffc43a5e322d54474b7",
+    "before_seconds": [
+      0,
+      12
+    ],
+    "after_seconds": [
+      12,
+      24
+    ],
+    "duration_seconds": 24.04
+  },
+  "stills": {
+    "before": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l08-01-before-08s.png",
+      "sha256": "ae9ca17b9e4ab0e3e147409a84723f90fa16dc9b0657c9a5a93b1cb73a2bec0c"
+    },
+    "after": {
+      "path": "artifacts/accelerated-visual-parity-2026-11-10/visual-text-audit/l08-01-after-08s.png",
+      "sha256": "7dec2e9a35bcc0bd09746391a15f467fe0272accee32c1f6a831ea0f63f082f9"
+    }
+  },
+  "native_presenter_panel": [
+    936,
+    160,
+    976,
+    549
+  ],
+  "native_presenter_pixel_mean_rgb_error_after_reencoding": 1.168,
+  "removed_visible_shell": [
+    "L08 / 01 scene code",
+    "repeated learner-artifact footer",
+    "decorative progress dots"
+  ],
+  "retained_visible_copy": {
+    "title": "A dashboard can look healthy",
+    "source": "approved scene title; no new learner-facing words"
+  },
+  "audio_treatment": "Native presenter speech only; AAC re-encoded in local comparison. No voice generation.",
+  "full_mp4_decode": "passed",
+  "canonical_media_or_learner_binding_changed": false,
+  "remaining_gate": "Final caption layout and full-lesson timing require the actual narration mix."
+}

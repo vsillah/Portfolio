@@ -1,0 +1,1134 @@
+{
+  "schema": "accelerated_l05_l08_still_rebuild_v1",
+  "contract": "accelerated-editorial-teaching-plate-v1",
+  "scope": "provider-free still-only visual-system rebuild",
+  "presenter_rule": "Short native presenter passages stay fixed middle-right over a continuous AmaduTown-blue composition; dense instructional states are presenter-free.",
+  "mobile_rule": "One illustration layer; no mirrored, duplicated, blurred, or stacked source image.",
+  "source_register": [
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+      "sha256": "f7938703e3eeb751451d06abc19dd53ccf74efb17a26b14ffa9bcae405809353",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+      "sha256": "7ca65a3016dd6ed9501070ed1cdd22d694c02aaff68e9c7ebf20e19746c9f7af",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+      "sha256": "a46d70c446b82d64b3674994da9b868625de7db0eb57c5d3b5d6bbcb9d991f26",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+      "sha256": "acd11bd6f747a598877b278f092312c1980c366bfcae9edaec0eec1599e829ee",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+      "sha256": "091fc588745ae0dd6aa9bd6412c3e1376fcbe2cf80722be9e61ea6dfc76acb6d",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-02.png",
+      "sha256": "d5f59c9963e808947d6803d957b5a874a37a78c89c90f0e8f96393c23194f153",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-03.png",
+      "sha256": "55f3f0547a3726b77bf46d4b8c2e48691135da65de7953e56f4a04ceb0b44f8b",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-04.png",
+      "sha256": "d5d58701d2c9a76a723486b17796eaa9cec384b0ebd7ff7292c8afc693859815",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-05.png",
+      "sha256": "dc63aecbe978a07f0ea3031af13b94175384be02cfaf402076ed04e0de2aec25",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-06.png",
+      "sha256": "b621d7888ac83fe37b640b5f6507c01f05285698db22ef0cb0c08539593a3ff7",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-07.png",
+      "sha256": "db73bcf32d37f0728c82329d0046d3c649b1ccc55f54ab52fd50c288573ddd97",
+      "origin": "approved Portfolio review source"
+    },
+    {
+      "path": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Accelerated_infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6",
+      "origin": "AmaduTown Google Drive"
+    }
+  ],
+  "visual_packet": "docs/accelerated-course-modules/visual-production/packet-l05-l08.md",
+  "visual_packet_sha256": "e206205ddaf16464c1fda3bda6a6de12159be37134edb071ae5bb243a8991885",
+  "lessons": {
+    "L05": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L05.md",
+      "canonical_script_sha256": "48fdf9358e855fd4abd31ed925e9d67fe03747bf37f11eea8af329dfa33638ab",
+      "states": [
+        {
+          "id": "01-decision-before-theme",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/01-decision-before-theme-desktop-clean.png",
+          "clean_sha256": "272e492a00c55d47e91446d7ef631f47b2927521bc52c57b0220929c6fa954d3",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/01-decision-before-theme-desktop-caption-on.png",
+          "caption_on_sha256": "8ac746e551b559500cfcec3947a67a62a29c6b0b689da54d6a8d0b1d42c58711",
+          "point": "Decision before theme",
+          "diagram_nodes": [
+            "F01\u2013F06",
+            "Decision question",
+            "Signals"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-traceable-words",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-07.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/02-traceable-words-desktop-clean.png",
+          "clean_sha256": "05bbcab285ade59392b087ace834ebdbda36184af6af2300a9b122cf7fb4be92",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/02-traceable-words-desktop-caption-on.png",
+          "caption_on_sha256": "f00f2ca52688d98df978698c1a2966478aa8f540bb8974d9269f232e89f04c94",
+          "point": "Keep raw words traceable",
+          "diagram_nodes": [
+            "Words",
+            "Moment",
+            "Possible job"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-several-jobs",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-04.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/03-several-jobs-desktop-clean.png",
+          "clean_sha256": "4d3668d3db971399f85355d09986896c7138d91322a2b0a2ec4a6fe75f1609f8",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/03-several-jobs-desktop-caption-on.png",
+          "caption_on_sha256": "8315d54cf5a8c07f27d15df0d052cc01b4461bdfc9fc8fa201496bff5e36469d",
+          "point": "One complaint, several jobs",
+          "diagram_nodes": [
+            "Confirmation",
+            "Resume",
+            "Instruction"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-human-inspection",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/04-human-inspection-desktop-clean.png",
+          "clean_sha256": "a186ff5c6fe1275e40c3076e15b9d1c593ecce5b31a59ea38251f2fbde8d80d7",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/04-human-inspection-desktop-caption-on.png",
+          "caption_on_sha256": "851b0d554372d13f878dcb93d00c94043a6f2ee275f8e7789af2c56b0d6942c0",
+          "point": "Check the source before accepting a cluster",
+          "diagram_nodes": [
+            "Draft cluster",
+            "Original words",
+            "Corrected cluster"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-testable-opportunity",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-05.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/05-testable-opportunity-desktop-clean.png",
+          "clean_sha256": "b34e39c9f351b4994de3826b3de3b5ae424c1d1560098f3ef6d0b40cb968307f",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/05-testable-opportunity-desktop-caption-on.png",
+          "caption_on_sha256": "8468efb18d188341aebed51309601ce653ec524d8fd565d947601c059086abc9",
+          "point": "Make the opportunity testable",
+          "diagram_nodes": [
+            "Pattern",
+            "Counterexample",
+            "Proposed decision"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-contrary-note",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-06.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/06-contrary-note-desktop-clean.png",
+          "clean_sha256": "ab1b7be294b31eab987ce1caac2a6a9776527e9f409d31dbfd58dcb265eff673",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/06-contrary-note-desktop-caption-on.png",
+          "caption_on_sha256": "8051338c8c5fa16c57d1da9427265f78430c673c6b1ea2bd899b36517a232185",
+          "point": "Keep one contrary note",
+          "diagram_nodes": [
+            "Code six notes",
+            "Keep one contrary note",
+            "Update the worksheet"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "01-decision-before-theme",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/01-decision-before-theme-portrait-clean.png",
+          "clean_sha256": "d894b40906e5ed9760dd8f165a878fe4db9b6445cbb528e9a9c9a613d1bc1515",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/01-decision-before-theme-portrait-caption-on.png",
+          "caption_on_sha256": "3f21c4f20cca235c1f906d97b447a364161450c23546f1526687813a6276560c",
+          "point": "Decision before theme",
+          "diagram_nodes": [
+            "F01\u2013F06",
+            "Decision question",
+            "Signals"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-traceable-words",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-07.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/02-traceable-words-portrait-clean.png",
+          "clean_sha256": "470d8bbce44f742a3ab2b6f5d1858a981453b2e5876712364973494e5b58893c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/02-traceable-words-portrait-caption-on.png",
+          "caption_on_sha256": "65886bc511e7c0032514b2ab433b80c8b7f22d5c5460da9ee455c858d72fd430",
+          "point": "Keep raw words traceable",
+          "diagram_nodes": [
+            "Words",
+            "Moment",
+            "Possible job"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-several-jobs",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-04.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/03-several-jobs-portrait-clean.png",
+          "clean_sha256": "06dd720a655b1bfd525dbfc67206562fa036ad7e93800f44dd0b918a1326c26e",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/03-several-jobs-portrait-caption-on.png",
+          "caption_on_sha256": "4a9a29ea96684df1e5c1786aba37aa62c42fff83d75cb7f96f28d088992f8c67",
+          "point": "One complaint, several jobs",
+          "diagram_nodes": [
+            "Confirmation",
+            "Resume",
+            "Instruction"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-human-inspection",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/04-human-inspection-portrait-clean.png",
+          "clean_sha256": "0654cd39e1dda116183b8fc51c110a63262ec06cfa4295ad015229d3bd5a7254",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/04-human-inspection-portrait-caption-on.png",
+          "caption_on_sha256": "33c75e5cba38ac692c4537055dc71aaf137e4fabcb80a4481b81316e44d13e9f",
+          "point": "Check the source before accepting a cluster",
+          "diagram_nodes": [
+            "Draft cluster",
+            "Original words",
+            "Corrected cluster"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-testable-opportunity",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-05.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/05-testable-opportunity-portrait-clean.png",
+          "clean_sha256": "a2e2c93e48fa9ed1deb3c4e8ff49fe0979a3853bed1b6c59f05db50483edcf14",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/05-testable-opportunity-portrait-caption-on.png",
+          "caption_on_sha256": "91973b02fb8f7275311f06d784cca1cb9477ccf9511ff3a79adfb0942304fd6e",
+          "point": "Make the opportunity testable",
+          "diagram_nodes": [
+            "Pattern",
+            "Counterexample",
+            "Proposed decision"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-contrary-note",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-06.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/06-contrary-note-portrait-clean.png",
+          "clean_sha256": "930547d69ba58a450dd20e108ab7507adbe858c6ce4488cf058a8af382d33c86",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l05/06-contrary-note-portrait-caption-on.png",
+          "caption_on_sha256": "d65a49a12b757d19182a7758be464cbba84f2b26bd892715c9b663f9304caa14",
+          "point": "Keep one contrary note",
+          "diagram_nodes": [
+            "Code six notes",
+            "Keep one contrary note",
+            "Update the worksheet"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        }
+      ]
+    },
+    "L06": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L06.md",
+      "canonical_script_sha256": "f4708e088f65d17168fd7951b7b9e785b3f10b0673d9d6a1bceb423008d28dd6",
+      "states": [
+        {
+          "id": "01-three-options",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/01-three-options-desktop-clean.png",
+          "clean_sha256": "004a072f2d3a0f4ce90cf6dc26c3761d3eda0f409efe2481a851f9950592ce56",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/01-three-options-desktop-caption-on.png",
+          "caption_on_sha256": "bc35b7ac888b367f2e8a25e8996f9e8d6c9b99abd7a84d1e0673310a2d617348",
+          "point": "Three options, one current bet",
+          "diagram_nodes": [
+            "Welcome email",
+            "Guided first task",
+            "Staff dashboard"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-criteria",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/02-criteria-desktop-clean.png",
+          "clean_sha256": "0a4ca7f3b2165949b81a9dfb349736db22dec56ef47da18475170041cc95e5a5",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/02-criteria-desktop-caption-on.png",
+          "caption_on_sha256": "2249ecfe38d43ffc3c7306b470ab0a27106f73eb674a1ce12e991a78744490db",
+          "point": "Why this now?",
+          "diagram_nodes": [
+            "Why now?",
+            "Current bet",
+            "What reopens the others?"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-prd-opening",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-02.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/03-prd-opening-desktop-clean.png",
+          "clean_sha256": "83bc9d95c29345bb7a1cc58cc56eb8980c3689d68ccbff9d9312d7adf1f6df4e",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/03-prd-opening-desktop-caption-on.png",
+          "caption_on_sha256": "43bab7a94829c285e9c68b97163036183844911531351353ee3fb74017695533",
+          "point": "Open with the change sought",
+          "diagram_nodes": [
+            "Problem",
+            "Person",
+            "Evidence",
+            "Behavior"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-failed-handoff",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-04.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/04-failed-handoff-desktop-clean.png",
+          "clean_sha256": "95cedf59b1667786e426fb3e78d67ac2492d27a81c58aa11703ed07c1914c5df",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/04-failed-handoff-desktop-caption-on.png",
+          "caption_on_sha256": "9bae931fb180c40039328443f2ed064232fed3b478545e950277c32108c602ab",
+          "point": "What happens when begin fails?",
+          "diagram_nodes": [
+            "Invitation",
+            "First task",
+            "Blocked start"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-trace-card",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/05-trace-card-desktop-clean.png",
+          "clean_sha256": "95dfd1b2d536e558a3860378ef91f819992ef5fdfa04552b8d760ce6c006df7b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/05-trace-card-desktop-caption-on.png",
+          "caption_on_sha256": "ffbdc97098bbe5e9b4cca9d76c861393a2ba923e859a58f34e9e68ad3a73b4c7",
+          "point": "Evidence must be measurable",
+          "diagram_nodes": [
+            "Source",
+            "Owner",
+            "Scope",
+            "Measure",
+            "Change reason"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-whole-line",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Accelerated_infographic.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/06-whole-line-desktop-clean.png",
+          "clean_sha256": "178dd64921726539138e7c4b5d84a6ad97844a85d9f1c0c0c1c6fc810f26aac4",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/06-whole-line-desktop-caption-on.png",
+          "caption_on_sha256": "172dff535d2a3286dc62e10532e765d8987d8f6ae12f10298c7c8a85f2502802",
+          "point": "Evidence to bet to PRD to observation",
+          "diagram_nodes": [
+            "Evidence",
+            "Bet",
+            "PRD",
+            "Observation"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "01-three-options",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/choice-options-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/01-three-options-portrait-clean.png",
+          "clean_sha256": "c65bedb876c3b4aabe0a2727fa39f356c43c306ae36265f94ac1a0306bbdd53f",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/01-three-options-portrait-caption-on.png",
+          "caption_on_sha256": "69631b239fb65e68e563c98f15bc1509e1931b0f4c69698c8a578a1ff7562174",
+          "point": "Three options, one current bet",
+          "diagram_nodes": [
+            "Welcome email",
+            "Guided first task",
+            "Staff dashboard"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-criteria",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/02-criteria-portrait-clean.png",
+          "clean_sha256": "4c9590d938da55d6641df1c94f5fba499a49682285b9fc9bcd2b758b60a4bba5",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/02-criteria-portrait-caption-on.png",
+          "caption_on_sha256": "8b191460b78c444665369e577bc4369d96416f241b429ac9e34aa105b744e793",
+          "point": "Why this now?",
+          "diagram_nodes": [
+            "Why now?",
+            "Current bet",
+            "What reopens the others?"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-prd-opening",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-02.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/03-prd-opening-portrait-clean.png",
+          "clean_sha256": "37c87a21500eb9b89f7fdbfb136fc789584b968d555761eaa4fae686c0e91e82",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/03-prd-opening-portrait-caption-on.png",
+          "caption_on_sha256": "f4750c3befa3321992bec0849437d58e4effdc1903c01dfc51782497be484d4f",
+          "point": "Open with the change sought",
+          "diagram_nodes": [
+            "Problem",
+            "Person",
+            "Evidence",
+            "Behavior"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-failed-handoff",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-04.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/04-failed-handoff-portrait-clean.png",
+          "clean_sha256": "429cc1c107b02c880690df988416586f243b81d5120ce51379fcb67c97cb05a0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/04-failed-handoff-portrait-caption-on.png",
+          "caption_on_sha256": "0234e24c5d181395e4c455d0ddf3532f5f222a83a8a8272cca95591acda1b618",
+          "point": "What happens when begin fails?",
+          "diagram_nodes": [
+            "Invitation",
+            "First task",
+            "Blocked start"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-trace-card",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/05-trace-card-portrait-clean.png",
+          "clean_sha256": "c1f7e872b95dcc94dc044c09341d9ed606895da2854a0946d06e23a7b43937be",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/05-trace-card-portrait-caption-on.png",
+          "caption_on_sha256": "f60d0e987608579ffc2d6c53053ecf554b8906773b9c785cc4eb1d40eb339352",
+          "point": "Evidence must be measurable",
+          "diagram_nodes": [
+            "Source",
+            "Owner",
+            "Scope",
+            "Measure",
+            "Change reason"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-whole-line",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Accelerated_infographic.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/06-whole-line-portrait-clean.png",
+          "clean_sha256": "61027307cc4db4ef9e6170a17ed82ddbcfee0871fdfe83665f994229a231c70d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l06/06-whole-line-portrait-caption-on.png",
+          "caption_on_sha256": "c5cfe58412856605d46d57797bc375d4bf68592187381e25c7b488f353a28be5",
+          "point": "Evidence to bet to PRD to observation",
+          "diagram_nodes": [
+            "Evidence",
+            "Bet",
+            "PRD",
+            "Observation"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        }
+      ]
+    },
+    "L07": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L07.md",
+      "canonical_script_sha256": "394d030424d8d190af6043f581d119c33c1b79b98061b1785909d82247b59d03",
+      "states": [
+        {
+          "id": "01-quarter-full",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/01-quarter-full-desktop-clean.png",
+          "clean_sha256": "e280eb6a4c5d5d9cf1e70b46dde478e0e7dd6ad1265f00a82c086c49f49c7cfc",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/01-quarter-full-desktop-caption-on.png",
+          "caption_on_sha256": "50bde3e8ce6ef3f63c2b33119f7fa731176ec3b753a9e9796bf87c297c5c56d2",
+          "point": "Delivery date + learning question",
+          "diagram_nodes": [
+            "Delivery date",
+            "Learning question",
+            "Customer outcome"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-diagnose",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-03.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/02-diagnose-desktop-clean.png",
+          "clean_sha256": "313d5a59ab2fbe49fd4ade77afcae43eb5e451af1ce5cc52871db2bf057d7fba",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/02-diagnose-desktop-caption-on.png",
+          "caption_on_sha256": "3dd87787b386b23e449ba3da68cc86e4e81cff183578685f2b4e60a06355e970",
+          "point": "Checkpoint 1 \u00b7 diagnose",
+          "diagram_nodes": [
+            "Observe",
+            "Locate friction",
+            "Name the question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-smaller-test",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-05.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/03-smaller-test-desktop-clean.png",
+          "clean_sha256": "070f81b886be278fd5f371ae110746358e51996381a52053f8ddf22dc7e749af",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/03-smaller-test-desktop-caption-on.png",
+          "caption_on_sha256": "e5cadcb66528ae7b1239a72f326dd0c987b82bc2dedceddf8a6db850dff5826a",
+          "point": "Checkpoint 2 \u00b7 test smaller",
+          "diagram_nodes": [
+            "Small change",
+            "Observed response",
+            "Next question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-team-question",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/04-team-question-desktop-clean.png",
+          "clean_sha256": "fb67f6597a6729a1c8e49bcdc2df44b1e1bf6d90c8391be79a79f14477e0ba41",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/04-team-question-desktop-caption-on.png",
+          "caption_on_sha256": "472996a51b578c1ebda7a53faef7261e7cf58a183ff7610f2c17e75f190962e6",
+          "point": "What outcome? What will we learn?",
+          "diagram_nodes": [
+            "Customer outcome",
+            "Learning question",
+            "Plan"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-failed-test",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/05-failed-test-desktop-clean.png",
+          "clean_sha256": "389183f46237cc320ef5db972b4a86cd687ed629db6e2a5fbee18551ecfa1cde",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/05-failed-test-desktop-caption-on.png",
+          "caption_on_sha256": "957d5d547c3c9b348005337098cdcd0c93eed7656803ccafed1db2818e7649fe",
+          "point": "A failed test changes the next question",
+          "diagram_nodes": [
+            "Test",
+            "Contrary evidence",
+            "Revised question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-two-dates",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/06-two-dates-desktop-clean.png",
+          "clean_sha256": "1070391f46671d3afb170824308f4221765e7a34579eaf499cd643cf069f71a0",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/06-two-dates-desktop-caption-on.png",
+          "caption_on_sha256": "00564f707542cb89ede3b776e9dd1c344c1a452785c0458efbef00b8bb4482a0",
+          "point": "Two dates, two decisions",
+          "diagram_nodes": [
+            "Delivery decision",
+            "Learning decision"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "01-quarter-full",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/01-quarter-full-portrait-clean.png",
+          "clean_sha256": "7d553f71b522ffdb064426e8f0050510845b86d281f86c2e5753554e3c630b6c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/01-quarter-full-portrait-caption-on.png",
+          "caption_on_sha256": "599d450a0bb6b74f46e359dd2eeb4b5e075e33704caaf69da938f1bbda36461d",
+          "point": "Delivery date + learning question",
+          "diagram_nodes": [
+            "Delivery date",
+            "Learning question",
+            "Customer outcome"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-diagnose",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-03.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/02-diagnose-portrait-clean.png",
+          "clean_sha256": "8c812c311724c214b0b02ebe14e672ad61490f6661772ec36c404011effa27b9",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/02-diagnose-portrait-caption-on.png",
+          "caption_on_sha256": "857cd2fbca52a60f0d5e553c51e3bfdb4bd59bfc845cc07c161b3fcd52e767ab",
+          "point": "Checkpoint 1 \u00b7 diagnose",
+          "diagram_nodes": [
+            "Observe",
+            "Locate friction",
+            "Name the question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-smaller-test",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-05.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/03-smaller-test-portrait-clean.png",
+          "clean_sha256": "fde0434096464c53efaab1ccd47274b1ee8c748f109d2122b41734b99e740995",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/03-smaller-test-portrait-caption-on.png",
+          "caption_on_sha256": "a6ff02e9fecf2b404c8cafb319df9a9ff4b304ef0e418d4bc4d6589f77ef1ac9",
+          "point": "Checkpoint 2 \u00b7 test smaller",
+          "diagram_nodes": [
+            "Small change",
+            "Observed response",
+            "Next question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-team-question",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-01.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/04-team-question-portrait-clean.png",
+          "clean_sha256": "e44d7d70dca250aa992c3884b63d4039b261c0b01826447f84f1e49fa5d37cb7",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/04-team-question-portrait-caption-on.png",
+          "caption_on_sha256": "edbdc05bf59ee5c944c642e7e6df5a2e1705a59e380f49e0f333abf04704a56f",
+          "point": "What outcome? What will we learn?",
+          "diagram_nodes": [
+            "Customer outcome",
+            "Learning question",
+            "Plan"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-failed-test",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/05-failed-test-portrait-clean.png",
+          "clean_sha256": "281ef6ab4dcd17a5151d6da8c43192502fa6de99a16099aed3fcf83ae8c0cef7",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/05-failed-test-portrait-caption-on.png",
+          "caption_on_sha256": "a15662e83d5ff3b181edfdbaa1240c2cbc931004647e143b325dabf55249b80a",
+          "point": "A failed test changes the next question",
+          "diagram_nodes": [
+            "Test",
+            "Contrary evidence",
+            "Revised question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-two-dates",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/06-two-dates-portrait-clean.png",
+          "clean_sha256": "9e98850724790d7917cb27e35c2165cd60b4dd318a6f1789535ffaa43f2d00c2",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l07/06-two-dates-portrait-caption-on.png",
+          "caption_on_sha256": "a0a14d7664fedb7f317bbb10c57940f703752defc0c447609a85f9189fd81aa9",
+          "point": "Two dates, two decisions",
+          "diagram_nodes": [
+            "Delivery decision",
+            "Learning decision"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        }
+      ]
+    },
+    "L08": {
+      "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L08.md",
+      "canonical_script_sha256": "e4647b07ebafffc74bae335804247be2137fec75e5da7bec39462201246cb58b",
+      "states": [
+        {
+          "id": "01-activity-outcome",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-03.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/01-activity-outcome-desktop-clean.png",
+          "clean_sha256": "66d865522d19c45681d917b375fc88fd215a0815803a793d102fc32ec2915152",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/01-activity-outcome-desktop-caption-on.png",
+          "caption_on_sha256": "4bf0a22b044fa1860306ae531d387dd0f8913d1c973f3b7eb41fee52bb2d196a",
+          "point": "Activity is not the customer outcome",
+          "diagram_nodes": [
+            "Activity",
+            "Customer start",
+            "Unanswered question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-measure-guardrail",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/02-measure-guardrail-desktop-clean.png",
+          "clean_sha256": "5868fd41678e82eae21f555b236ea70daecc988014a683cf30a5c523a1b42f54",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/02-measure-guardrail-desktop-caption-on.png",
+          "caption_on_sha256": "3ba6045556cbe46cbbcf2042b74ce4d56c908679272033d4dc14d9481352a85c",
+          "point": "Define a successful start",
+          "diagram_nodes": [
+            "Measure",
+            "Guardrail",
+            "Learning question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-fields-one-five",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-07.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/03-fields-one-five-desktop-clean.png",
+          "clean_sha256": "55e800831485bbc65151ac0b71003681c2636682626d02e92e9e55d8968dae61",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/03-fields-one-five-desktop-caption-on.png",
+          "caption_on_sha256": "8e1cbf2925905d9aa08f3a5c64812284d2678c7a7725368ec9ea981dc9180d2c",
+          "point": "Build the first half of the test",
+          "diagram_nodes": [
+            "Problem",
+            "Cohort",
+            "Hypothesis",
+            "Scope",
+            "Metrics"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-fields-six-ten",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-02.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/04-fields-six-ten-desktop-clean.png",
+          "clean_sha256": "aa983a4c66a5bbbc14a3c01d3f5965b9dd42b8145b53dc7577aa2efe3299c63c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/04-fields-six-ten-desktop-caption-on.png",
+          "caption_on_sha256": "96f632d467c484e4fa65ea257ce33e266d1d8319878d96f3ed8bc9d17bb0b928",
+          "point": "Finish the operating boundaries",
+          "diagram_nodes": [
+            "Timing",
+            "Tripwires",
+            "Pivots",
+            "Future path",
+            "Backlog"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-two-results",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/05-two-results-desktop-clean.png",
+          "clean_sha256": "f0d571c70964b83b60318cdbd9746c7ae191ac87de4c4ff664ba7c825212d9a6",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/05-two-results-desktop-caption-on.png",
+          "caption_on_sha256": "5f9d42bfb8bcf07f1927342f755561c2fe3e2918922a68e1cc5ec45519300166",
+          "point": "Each result opens a next question",
+          "diagram_nodes": [
+            "If A",
+            "Next question",
+            "If B",
+            "Next question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-stop-condition",
+          "variant": "desktop",
+          "source": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Accelerated_infographic.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/06-stop-condition-desktop-clean.png",
+          "clean_sha256": "5173c5eba1762e1c485d2515ce700ebbaf99fd5e4e6abdcc0356bc0612bac72c",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/06-stop-condition-desktop-caption-on.png",
+          "caption_on_sha256": "bfc4a2995b0ee8b5458a58fcb8980ff53b6571984a530277af6dcd5edfa8053f",
+          "point": "Write the stop condition before results",
+          "diagram_nodes": [
+            "Ten-field file",
+            "Stop condition",
+            "Learning System Loop"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "01-activity-outcome",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-03.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/01-activity-outcome-portrait-clean.png",
+          "clean_sha256": "0e2613650f200fadfc0fe3c491d3ff8b9305d70fd9968f9865a30fb30217d311",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/01-activity-outcome-portrait-caption-on.png",
+          "caption_on_sha256": "ca1bea3f02404ff4b80ef1207d026f9dbaac1938405f9ef5838626c3b08ddf67",
+          "point": "Activity is not the customer outcome",
+          "diagram_nodes": [
+            "Activity",
+            "Customer start",
+            "Unanswered question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "02-measure-guardrail",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-choice-c03-matte-stills-2026-11-13/plates/evidence-check-matte.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/02-measure-guardrail-portrait-clean.png",
+          "clean_sha256": "e9f442e28d86ae29894bacab790fdb48d4edc749b1f4b9c6757b806ebb8faf8d",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/02-measure-guardrail-portrait-caption-on.png",
+          "caption_on_sha256": "b4940b02e19c604cea0baec4cb46a07606389b3733274b17290f6a2324c5f474",
+          "point": "Define a successful start",
+          "diagram_nodes": [
+            "Measure",
+            "Guardrail",
+            "Learning question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "03-fields-one-five",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-07.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/03-fields-one-five-portrait-clean.png",
+          "clean_sha256": "6f02efbcedca41ad5e7f156528e77e1fde8778e3802952304f5f82f5efb73a6b",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/03-fields-one-five-portrait-caption-on.png",
+          "caption_on_sha256": "840f521a4c800f26df8ebeccda75cf58780677dd6bf48b1896958ec67d5d710f",
+          "point": "Build the first half of the test",
+          "diagram_nodes": [
+            "Problem",
+            "Cohort",
+            "Hypothesis",
+            "Scope",
+            "Metrics"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "04-fields-six-ten",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l04-contextual-preflight-2026-11-13/scene-art/l04-scene-02.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/04-fields-six-ten-portrait-clean.png",
+          "clean_sha256": "facdc67b538303ca609717270b337c064c717fc1b8d72cb7846fd7bf68303911",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/04-fields-six-ten-portrait-caption-on.png",
+          "caption_on_sha256": "eb7632bf07c33daf2e5c24e424ab577673bd1fc2adb5d419025962f2d48a2bf8",
+          "point": "Finish the operating boundaries",
+          "diagram_nodes": [
+            "Timing",
+            "Tripwires",
+            "Pivots",
+            "Future path",
+            "Backlog"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "05-two-results",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/.codex/worktrees/accelerated-l03-local-recovery/Portfolio/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/source/plates/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.webp",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/05-two-results-portrait-clean.png",
+          "clean_sha256": "2faa123dcf25efeb8d5a0016fd930c25ffe2ebb88c77d70ff32285fad8a091c1",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/05-two-results-portrait-caption-on.png",
+          "caption_on_sha256": "40581938ef2d8a72fcfeb4c3419e16edb3f4b721762305605a28c542714a1081",
+          "point": "Each result opens a next question",
+          "diagram_nodes": [
+            "If A",
+            "Next question",
+            "If B",
+            "Next question"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        },
+        {
+          "id": "06-stop-condition",
+          "variant": "portrait",
+          "source": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Accelerated Building Smarter Products with AI/Final/Accelerated_infographic.png",
+          "clean": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/06-stop-condition-portrait-clean.png",
+          "clean_sha256": "1bd50d19c2bb55094cff1a45be0d060f1e57a11a24c762f69e8b5da59d523a26",
+          "caption_on": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-still-rebuild/l08/06-stop-condition-portrait-caption-on.png",
+          "caption_on_sha256": "eb51e8f8a22d5ff2654e807e54d54bf741301ab5e69a53e0f1f06f8996f95fda",
+          "point": "Write the stop condition before results",
+          "diagram_nodes": [
+            "Ten-field file",
+            "Stop condition",
+            "Learning System Loop"
+          ],
+          "checks": {
+            "single_mobile_image_layer": true,
+            "caption_space": "pass",
+            "native_control_clearance": "pass",
+            "source_meaning": "source-bound"
+          }
+        }
+      ]
+    }
+  },
+  "excluded": [
+    "SVG illustration",
+    "provider call",
+    "speech generation",
+    "spend",
+    "video render",
+    "learner-media change",
+    "PR update",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ]
+}

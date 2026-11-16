@@ -1,0 +1,138 @@
+{
+  "schema": "accelerated_signals_v9_full_learner_media_v1",
+  "base_head": "0e72afd83ca7b574f26034f8c462d6003edccf9c",
+  "fps": 25,
+  "mobile_base": "existing landscape lesson frame centered at native 390px width; approved portrait v9 frame fills the focus windows",
+  "lessons": {
+    "L01": {
+      "desktop": {
+        "path": "/accelerated/signals-v9/l01/signals-f5b78eda4f22/l01-desktop.mp4",
+        "sha256": "f5b78eda4f223d39c5e3bd69fd1d89805dd501b6fac0cf92b0c13b2fa57f5a84",
+        "bytes": 44324474,
+        "source_path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
+        "source_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+        "v9_reel_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-review-v9-conditional.mp4",
+        "v9_reel_sha256": "c2bb416fb09770113049da171fd257cdbe9ebd44ad4bb53a4ab25270d495552e",
+        "duration_seconds": 540,
+        "frames": 13500,
+        "audio_stream_sha256": "SHA256=772e99f0e85a42fa676262eee405143f454142aa6c94289ff223ecddc6559276",
+        "scene_windows": [
+          {
+            "review_reel_segment": 0,
+            "start_seconds": 240,
+            "end_seconds": 248
+          }
+        ]
+      },
+      "portrait": {
+        "path": "/accelerated/signals-v9/l01/signals-7d71357a8fff/l01-portrait.mp4",
+        "sha256": "7d71357a8fff15accfe1539a601fb292d9ff589ce6ebd8686ebd858309c6bf09",
+        "bytes": 7889725,
+        "source_path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
+        "source_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+        "v9_reel_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-review-v9-conditional.mp4",
+        "v9_reel_sha256": "af0459bb8fc25d53cc3cb2117e2a210c6174efb75b0ac146221793bb4fdac657",
+        "duration_seconds": 540,
+        "frames": 13500,
+        "audio_stream_sha256": "SHA256=772e99f0e85a42fa676262eee405143f454142aa6c94289ff223ecddc6559276",
+        "scene_windows": [
+          {
+            "review_reel_segment": 0,
+            "start_seconds": 240,
+            "end_seconds": 248
+          }
+        ]
+      }
+    },
+    "L02": {
+      "desktop": {
+        "path": "/accelerated/signals-v9/l02/signals-2c00b11452d4/l02-desktop.mp4",
+        "sha256": "2c00b11452d45f2c3fbf366713b0f98e38f8cd3c6dcfcac38b3088bf873e6e2c",
+        "bytes": 39070535,
+        "source_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+        "source_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+        "v9_reel_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-review-v9-conditional.mp4",
+        "v9_reel_sha256": "c2bb416fb09770113049da171fd257cdbe9ebd44ad4bb53a4ab25270d495552e",
+        "duration_seconds": 600,
+        "frames": 15000,
+        "audio_stream_sha256": "SHA256=3b68d7c70412135062bf807dbc6fb127e12b73cb3cdd92ad2745d3b279294b12",
+        "scene_windows": [
+          {
+            "review_reel_segment": 1,
+            "start_seconds": 100,
+            "end_seconds": 108
+          }
+        ]
+      },
+      "portrait": {
+        "path": "/accelerated/signals-v9/l02/signals-76b45f4f22c2/l02-portrait.mp4",
+        "sha256": "76b45f4f22c2dc1f244eb98da965dd1141f24cef67ca0d2a692f7ff49ca31a98",
+        "bytes": 8360151,
+        "source_path": "public/accelerated/visual-parity/l02/visual-585074b6/l02-visual-parity.mp4",
+        "source_sha256": "585074b6db4e73a7b2c61dcf02d6fdcaeaacbf72e33edfed2b2e3a1c82d6850c",
+        "v9_reel_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-review-v9-conditional.mp4",
+        "v9_reel_sha256": "af0459bb8fc25d53cc3cb2117e2a210c6174efb75b0ac146221793bb4fdac657",
+        "duration_seconds": 600,
+        "frames": 15000,
+        "audio_stream_sha256": "SHA256=3b68d7c70412135062bf807dbc6fb127e12b73cb3cdd92ad2745d3b279294b12",
+        "scene_windows": [
+          {
+            "review_reel_segment": 1,
+            "start_seconds": 100,
+            "end_seconds": 108
+          }
+        ]
+      }
+    },
+    "L05": {
+      "desktop": {
+        "path": "/accelerated/signals-v9/l05/signals-b8cdff6efc9f/l05-desktop.mp4",
+        "sha256": "b8cdff6efc9f0cd1235d80109b3c33eba27f5e3f9d75955d22a1d9afb4e61a9b",
+        "bytes": 43863026,
+        "source_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+        "source_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+        "v9_reel_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-review-v9-conditional.mp4",
+        "v9_reel_sha256": "c2bb416fb09770113049da171fd257cdbe9ebd44ad4bb53a4ab25270d495552e",
+        "duration_seconds": 600,
+        "frames": 15000,
+        "audio_stream_sha256": "SHA256=32ff490c75f8b1c64628f45466c793afcc626686d17107dd782a9aaae90b700e",
+        "scene_windows": [
+          {
+            "review_reel_segment": 2,
+            "start_seconds": 2,
+            "end_seconds": 10
+          },
+          {
+            "review_reel_segment": 3,
+            "start_seconds": 212,
+            "end_seconds": 220
+          }
+        ]
+      },
+      "portrait": {
+        "path": "/accelerated/signals-v9/l05/signals-39349db79262/l05-portrait.mp4",
+        "sha256": "39349db79262da02853d90302b886059b90088212a463e966100c40e70dcf6f1",
+        "bytes": 8904284,
+        "source_path": "public/accelerated/visual-parity/l05/visual-60b0c76b/l05-visual-parity.mp4",
+        "source_sha256": "60b0c76bdb34819f2e7dc9585e6a5ce5233c435a481e996eb923af1a2a3005b7",
+        "v9_reel_path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-review-v9-conditional.mp4",
+        "v9_reel_sha256": "af0459bb8fc25d53cc3cb2117e2a210c6174efb75b0ac146221793bb4fdac657",
+        "duration_seconds": 600,
+        "frames": 15000,
+        "audio_stream_sha256": "SHA256=32ff490c75f8b1c64628f45466c793afcc626686d17107dd782a9aaae90b700e",
+        "scene_windows": [
+          {
+            "review_reel_segment": 2,
+            "start_seconds": 2,
+            "end_seconds": 10
+          },
+          {
+            "review_reel_segment": 3,
+            "start_seconds": 212,
+            "end_seconds": 220
+          }
+        ]
+      }
+    }
+  }
+}

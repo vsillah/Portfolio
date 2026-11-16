@@ -1,0 +1,116 @@
+{
+  "status": "local_review_only",
+  "voice": "Samantha (provisional system voice)",
+  "source_path": "public/accelerated/visual-parity/l01/visual-a70ed876/l01-visual-parity.mp4",
+  "source_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+  "manifest_sha256": "3b13bb8eff13d4181485f53c9252337c8fbf959dc6ba28727b84400aaa414bbf",
+  "caption_source_sha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f",
+  "presenter_windows": [
+    [
+      0.0,
+      31.52
+    ],
+    [
+      235.0,
+      248.2
+    ],
+    [
+      345.0,
+      358.96
+    ],
+    [
+      515.0,
+      529.48
+    ]
+  ],
+  "teaching_narration": [
+    {
+      "window": [
+        31.52,
+        235.0
+      ],
+      "source": "artifacts/accelerated-lesson-pacing-2026-11-10/teaching-1.aiff",
+      "source_seconds": 164.132971,
+      "tempo": 0.8082182932834352,
+      "voice_rate": 100,
+      "word_count": 422
+    },
+    {
+      "window": [
+        248.2,
+        345.0
+      ],
+      "source": "artifacts/accelerated-lesson-pacing-2026-11-10/teaching-2.aiff",
+      "source_seconds": 80.707392,
+      "tempo": 0.8372136099585061,
+      "voice_rate": 113,
+      "word_count": 202
+    },
+    {
+      "window": [
+        358.96,
+        515.0
+      ],
+      "source": "artifacts/accelerated-lesson-pacing-2026-11-10/teaching-3.aiff",
+      "source_seconds": 109.347256,
+      "tempo": 0.7025652531482909,
+      "voice_rate": 87,
+      "word_count": 309
+    }
+  ],
+  "sam_source_art": {
+    "full_infographic": {
+      "path": "public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6"
+    },
+    "signals": {
+      "path": "public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c"
+    },
+    "alignment": {
+      "path": "public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0"
+    },
+    "momentum": {
+      "path": "public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3"
+    }
+  },
+  "presenter_focus_overlays": [
+    "artifacts/accelerated-lesson-pacing-2026-11-10/l01-presenter-story-focus.png"
+  ],
+  "caption_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.vtt",
+  "caption_sha256": "fb76dce31cc8762698a67bc362722ab285ebc1a711bf94110661a804aae136f7",
+  "output_path": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.mp4",
+  "output_sha256": "d61204d50b53e9e880921cacb295fba92da54f71375073f1822aee161052bdb7",
+  "validation": {
+    "video_frames": 13237,
+    "duration_seconds": 529.48,
+    "unmarked_silence_over_2_seconds": [],
+    "presenter_frame_mean_absolute_error": {
+      "10": 0.771,
+      "240": 22.111,
+      "350": 0.837,
+      "520": 1.046
+    },
+    "protected_presenter_region_mean_absolute_error": {
+      "10": 0.694,
+      "240": 1.828,
+      "350": 0.784,
+      "520": 1.026
+    },
+    "label_mask_box_xywh": [
+      1674,
+      42,
+      210,
+      48
+    ],
+    "label_region_mean_absolute_change": {
+      "10": 15.464,
+      "240": 15.931,
+      "350": 16.149,
+      "520": 16.217
+    },
+    "caption_cues": 278
+  }
+}

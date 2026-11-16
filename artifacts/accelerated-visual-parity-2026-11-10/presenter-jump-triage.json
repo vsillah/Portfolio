@@ -1,0 +1,599 @@
+{
+  "schema_version": 1,
+  "status": "diagnostic_not_audible_signoff",
+  "source_audit_path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json",
+  "source_audit_sha256": "d57663f0b2cfe2f5b8179205ea0ee15f30aa09f96d05fb7293c6466a61551708",
+  "method": "Both base.en and small.en full-window ASR align a later phrase across a script gap of at least 40 words; small.en word probability >=0.85 and source-window phrase RMS exceeds -40 dBFS. The two Whisper models share an architecture, so this remains machine confidence, not listening proof or a safe edit time.",
+  "machine_high_confidence_structural_conflict_count": 28,
+  "likely_asr_noise_count": 0,
+  "entries": [
+    {
+      "lesson_id": "L01",
+      "presenter_window": "A02",
+      "source_media_sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a",
+      "script_word_jump": [
+        523,
+        708
+      ],
+      "skipped_script_words": 185,
+      "later_phrase_excerpt": "let's make the first page of your decision file",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 9,
+      "small_word_time_in_window_seconds": [
+        10.13,
+        13.23
+      ],
+      "small_mean_token_probability": 0.991,
+      "audio_rms_dbfs": -29.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A01",
+      "source_media_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "script_word_jump": [
+        57,
+        353
+      ],
+      "skipped_script_words": 296,
+      "later_phrase_excerpt": "gives us a way to structure a messy opportunity the first move",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 21,
+      "small_word_time_in_window_seconds": [
+        22.27,
+        29.76
+      ],
+      "small_mean_token_probability": 0.996,
+      "audio_rms_dbfs": -27.3,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A02",
+      "source_media_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "script_word_jump": [
+        389,
+        709
+      ],
+      "skipped_script_words": 320,
+      "later_phrase_excerpt": "there is another question that can make a promising idea fail how",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 25,
+      "small_word_time_in_window_seconds": [
+        5.42,
+        14.3
+      ],
+      "small_mean_token_probability": 0.979,
+      "audio_rms_dbfs": -29.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A03",
+      "source_media_sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6",
+      "script_word_jump": [
+        751,
+        1129
+      ],
+      "skipped_script_words": 378,
+      "later_phrase_excerpt": "is it something you know or something you hope",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 9,
+      "small_word_time_in_window_seconds": [
+        7.12,
+        10.23
+      ],
+      "small_mean_token_probability": 0.943,
+      "audio_rms_dbfs": -24.8,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A02",
+      "source_media_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "script_word_jump": [
+        371,
+        709
+      ],
+      "skipped_script_words": 338,
+      "later_phrase_excerpt": "a living persona needs a record of where it came from",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 11,
+      "small_word_time_in_window_seconds": [
+        10.23,
+        13.87
+      ],
+      "small_mean_token_probability": 0.995,
+      "audio_rms_dbfs": -26.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A03",
+      "source_media_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+      "script_word_jump": [
+        747,
+        1153
+      ],
+      "skipped_script_words": 406,
+      "later_phrase_excerpt": "that is a real working file even if much of it is",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 14,
+      "small_word_time_in_window_seconds": [
+        10.38,
+        15.26
+      ],
+      "small_mean_token_probability": 0.986,
+      "audio_rms_dbfs": -25.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A01",
+      "source_media_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "script_word_jump": [
+        52,
+        417
+      ],
+      "skipped_script_words": 365,
+      "later_phrase_excerpt": "the book has a useful warning here",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 7,
+      "small_word_time_in_window_seconds": [
+        16.82,
+        19.24
+      ],
+      "small_mean_token_probability": 0.996,
+      "audio_rms_dbfs": -27.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A02",
+      "source_media_sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62",
+      "script_word_jump": [
+        467,
+        841
+      ],
+      "skipped_script_words": 374,
+      "later_phrase_excerpt": "our six notes support a question",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 6,
+      "small_word_time_in_window_seconds": [
+        18.78,
+        20.91
+      ],
+      "small_mean_token_probability": 0.964,
+      "audio_rms_dbfs": -27.6,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A01",
+      "source_media_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "script_word_jump": [
+        62,
+        428
+      ],
+      "skipped_script_words": 366,
+      "later_phrase_excerpt": "now the bet enters a product requirements document",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 8,
+      "small_word_time_in_window_seconds": [
+        17.72,
+        20.92
+      ],
+      "small_mean_token_probability": 0.941,
+      "audio_rms_dbfs": -29.8,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A02",
+      "source_media_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+      "script_word_jump": [
+        477,
+        855
+      ],
+      "skipped_script_words": 378,
+      "later_phrase_excerpt": "imagine the team tests the card",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 6,
+      "small_word_time_in_window_seconds": [
+        14.5,
+        16.83
+      ],
+      "small_mean_token_probability": 0.973,
+      "audio_rms_dbfs": -29.7,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A01",
+      "source_media_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "script_word_jump": [
+        70,
+        473
+      ],
+      "skipped_script_words": 403,
+      "later_phrase_excerpt": "gives the learning plan",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 4,
+      "small_word_time_in_window_seconds": [
+        25.21,
+        26.57
+      ],
+      "small_mean_token_probability": 0.887,
+      "audio_rms_dbfs": -26.3,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A02",
+      "source_media_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+      "script_word_jump": [
+        521,
+        946
+      ],
+      "skipped_script_words": 425,
+      "later_phrase_excerpt": "before there is any data",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 5,
+      "small_word_time_in_window_seconds": [
+        16.12,
+        18.02
+      ],
+      "small_mean_token_probability": 0.992,
+      "audio_rms_dbfs": -27.1,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A03",
+      "source_media_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "script_word_jump": [
+        498,
+        920
+      ],
+      "skipped_script_words": 422,
+      "later_phrase_excerpt": "the book calls the pre meeting work shuttle diplomacy learn the decision",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 39,
+      "small_word_time_in_window_seconds": [
+        2.01,
+        16.55
+      ],
+      "small_mean_token_probability": 0.954,
+      "audio_rms_dbfs": -26.8,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A04",
+      "source_media_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "script_word_jump": [
+        967,
+        1315
+      ],
+      "skipped_script_words": 348,
+      "later_phrase_excerpt": "a map is not a way to manufacture agreement it helps you",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 38,
+      "small_word_time_in_window_seconds": [
+        3.11,
+        15.1
+      ],
+      "small_mean_token_probability": 0.984,
+      "audio_rms_dbfs": -28.0,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A01",
+      "source_media_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "script_word_jump": [
+        62,
+        399
+      ],
+      "skipped_script_words": 337,
+      "later_phrase_excerpt": "uses a notification settings case",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 5,
+      "small_word_time_in_window_seconds": [
+        23.54,
+        25.92
+      ],
+      "small_mean_token_probability": 0.95,
+      "audio_rms_dbfs": -25.8,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A03",
+      "source_media_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "script_word_jump": [
+        455,
+        796
+      ],
+      "skipped_script_words": 341,
+      "later_phrase_excerpt": "says we cannot spare staff to watch a long session do not",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 47,
+      "small_word_time_in_window_seconds": [
+        4.41,
+        22.22
+      ],
+      "small_mean_token_probability": 0.984,
+      "audio_rms_dbfs": -27.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A04",
+      "source_media_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "script_word_jump": [
+        848,
+        1140
+      ],
+      "skipped_script_words": 292,
+      "later_phrase_excerpt": "we will bring the observations back on the agreed date that brief",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 52,
+      "small_word_time_in_window_seconds": [
+        1.74,
+        20.39
+      ],
+      "small_mean_token_probability": 0.979,
+      "audio_rms_dbfs": -26.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A03",
+      "source_media_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "script_word_jump": [
+        471,
+        847
+      ],
+      "skipped_script_words": 376,
+      "later_phrase_excerpt": "imagine joining this work six weeks later you should be able to",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 52,
+      "small_word_time_in_window_seconds": [
+        2.34,
+        22.07
+      ],
+      "small_mean_token_probability": 0.989,
+      "audio_rms_dbfs": -27.5,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A04",
+      "source_media_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "script_word_jump": [
+        906,
+        1179
+      ],
+      "skipped_script_words": 273,
+      "later_phrase_excerpt": "the learning system loop from the course kit can help you see",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 53,
+      "small_word_time_in_window_seconds": [
+        2.23,
+        19.14
+      ],
+      "small_mean_token_probability": 0.983,
+      "audio_rms_dbfs": -27.9,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A03",
+      "source_media_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "script_word_jump": [
+        479,
+        856
+      ],
+      "skipped_script_words": 377,
+      "later_phrase_excerpt": "the simulation points to two questions not two answers first can an",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 52,
+      "small_word_time_in_window_seconds": [
+        2.15,
+        20.75
+      ],
+      "small_mean_token_probability": 0.992,
+      "audio_rms_dbfs": -27.7,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A04",
+      "source_media_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "script_word_jump": [
+        913,
+        1217
+      ],
+      "skipped_script_words": 304,
+      "later_phrase_excerpt": "the structure helps you see where a source ends and an inference",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 57,
+      "small_word_time_in_window_seconds": [
+        2.46,
+        23.06
+      ],
+      "small_mean_token_probability": 0.98,
+      "audio_rms_dbfs": -27.4,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A01",
+      "source_media_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "script_word_jump": [
+        69,
+        471
+      ],
+      "skipped_script_words": 402,
+      "later_phrase_excerpt": "the fourth stratquest session turns a preferred option into a test",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 11,
+      "small_word_time_in_window_seconds": [
+        23.79,
+        28.04
+      ],
+      "small_mean_token_probability": 0.986,
+      "audio_rms_dbfs": -25.9,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A02",
+      "source_media_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "script_word_jump": [
+        525,
+        931
+      ],
+      "skipped_script_words": 406,
+      "later_phrase_excerpt": "the book's collaboration example surfaces questions about differentiation",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 8,
+      "small_word_time_in_window_seconds": [
+        15.61,
+        20.31
+      ],
+      "small_mean_token_probability": 0.99,
+      "audio_rms_dbfs": -30.1,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L14",
+      "presenter_window": "A04",
+      "source_media_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "script_word_jump": [
+        779,
+        978
+      ],
+      "skipped_script_words": 199,
+      "later_phrase_excerpt": "we have created an editorial teaching card not proof of a deployed",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 41,
+      "small_word_time_in_window_seconds": [
+        3.51,
+        17.2
+      ],
+      "small_mean_token_probability": 0.978,
+      "audio_rms_dbfs": -26.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A01",
+      "source_media_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "script_word_jump": [
+        66,
+        554
+      ],
+      "skipped_script_words": 488,
+      "later_phrase_excerpt": "names five scaling mistakes",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 4,
+      "small_word_time_in_window_seconds": [
+        23.44,
+        25.84
+      ],
+      "small_mean_token_probability": 0.899,
+      "audio_rms_dbfs": -28.4,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A03",
+      "source_media_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "script_word_jump": [
+        1162,
+        1566
+      ],
+      "skipped_script_words": 404,
+      "later_phrase_excerpt": "end with a decision about readiness",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 6,
+      "small_word_time_in_window_seconds": [
+        25.1,
+        27.87
+      ],
+      "small_mean_token_probability": 0.988,
+      "audio_rms_dbfs": -27.5,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A01",
+      "source_media_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "script_word_jump": [
+        74,
+        369
+      ],
+      "skipped_script_words": 295,
+      "later_phrase_excerpt": "write the next action in a sentence that begins with a verb",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 12,
+      "small_word_time_in_window_seconds": [
+        24.2,
+        28.48
+      ],
+      "small_mean_token_probability": 0.997,
+      "audio_rms_dbfs": -29.2,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A02",
+      "source_media_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "script_word_jump": [
+        439,
+        724
+      ],
+      "skipped_script_words": 285,
+      "later_phrase_excerpt": "put a short review on the calendar with the owner",
+      "base_and_small_asr_agree": true,
+      "small_model_matched_words": 10,
+      "small_word_time_in_window_seconds": [
+        22.73,
+        26.1
+      ],
+      "small_mean_token_probability": 0.996,
+      "audio_rms_dbfs": -28.0,
+      "classification": "machine_high_confidence_structural_conflict",
+      "next_action": "Listen to the native window with adjacent cutaway; decide whether to trim the later phrase, move the boundary, or preserve a deliberate alternate sequence before any narration submission."
+    }
+  ]
+}

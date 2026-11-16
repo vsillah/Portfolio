@@ -1,0 +1,40 @@
+{
+  "status": "review_only_optional_caption_proxy_feasibility",
+  "source_mp4_sha256": {
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v13-playback-review/l01-c01-c02-v13-review.mp4": "e900e636b6f63eac2f177f8f585d4e14fcf166b8435af218327939ec5976e518",
+    "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/c01-c02-v17-raster-caption-review/l01-c01-c02-v17-four-section-caption-review.mp4": "80a1be496b7b05e1ae7bf6bff2cd00e2410374e6c8abe65e280fe7e4c444d0d1"
+  },
+  "caption_plan_sha256": "d917317e98f7dc05590e714097af9faf00a9c09236ce894a18c214ce9138b21e",
+  "prior_vtt_sha256": "2f901811edd0ca09c417a39d2a64c550cd49126608b7f4c52c6aa6dec4612e9b",
+  "positioned_vtt_sha256": "427376480d444d321513ddc09c226e7896967909d8baa790b1569dd4a79b508b",
+  "audio_stream_sha256": "5bef7336fbd6b0716007208d8481ba8bd896768a8ed3c9b7f206a7e1d859c655",
+  "duration_seconds": 345,
+  "frames": 8625,
+  "caption_cues": 175,
+  "positioning": "WebVTT line:72% in a proposed 1280:1080 player box",
+  "samples_seconds": {
+    "P01": 5.0,
+    "C01": 174.4,
+    "P02": 240.05,
+    "C02": 250.0
+  },
+  "stills_sha256": {
+    "C01-caption-390x844-mock.png": "728c42b57121776ebed61c4618f7a9462a251e29224a9fe550b8785b15ae1fb8",
+    "C01-caption-desktop-mock.png": "e488e833c3da3a9272d79c4ca94795d1a25a78d0265ceb52f99f881d0022dfde",
+    "C01-clean-1280x1080.png": "4bff7eb717d23868c9880d5178d20f3a88dca7f06b013c556c4acddeff986200",
+    "C02-caption-390x844-mock.png": "d1589601be9e2a8f0d1567e65d4bc2e8e8fdd0bfbf16412e3c18891f98668cd5",
+    "C02-caption-desktop-mock.png": "1e90b9ee7dc6d1690b16f1cad1e48631cbf3ddebc9b02448e88b2edb0edbcaab",
+    "C02-clean-1280x1080.png": "fd0f284c07f0a0263c92c8fc1603e98bf3b53da8f75f2892b04e4d787474706d",
+    "P01-caption-390x844-mock.png": "30221c85290145b6359ff1cdbbab9bbfeffa54d99e8cb5768169e05e1f31985e",
+    "P01-caption-desktop-mock.png": "aa8f50dadfe2f0d6f5a53fe571f67eb6aee1bd3b168b18538253e7594706be11",
+    "P01-clean-1280x1080.png": "80b287cd5bbe9f9e9ac6d61a5f4aac88074f0edbf17720eb5fd6d2fbc4a992e0",
+    "P02-caption-390x844-mock.png": "8c45252fb901259556aeceaf6e9ca21df9442ed12d85dd8877404198f95c7fc8",
+    "P02-caption-desktop-mock.png": "dda5a575ea81be182fc13b93d25a9860ca67ae1d5e111431260d08e5752a518e",
+    "P02-clean-1280x1080.png": "67138810a66f99505ad396a7840846be177ca76d87da92ec97755c0a0694eab2"
+  },
+  "limits": [
+    "No caption-free MP4 was rendered or tested.",
+    "Static control marks are geometry mocks; native controls were separately inspected in Chrome using the older raster-caption reel.",
+    "The older reel displays baked captions even when its WebVTT track is off."
+  ]
+}

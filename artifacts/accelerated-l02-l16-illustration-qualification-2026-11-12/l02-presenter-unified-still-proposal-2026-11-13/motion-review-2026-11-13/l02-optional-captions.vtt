@@ -1,0 +1,421 @@
+WEBVTT
+
+00:00:00.220 --> 00:00:03.410
+The meeting has barely started and the board is full.
+
+00:00:03.860 --> 00:00:04.870
+Fifteen roadmap items.
+
+00:00:05.350 --> 00:00:06.520
+Fifteen top priorities.
+
+00:00:06.530 --> 00:00:09.820
+The person asking for retention has a good reason.
+
+00:00:09.820 --> 00:00:12.340
+So does the person asking for revenue.
+
+00:00:12.340 --> 00:00:16.590
+The refactor matters to the engineers who will carry the system next
+
+00:00:16.590 --> 00:00:17.260
+quarter.
+
+00:00:17.450 --> 00:00:19.570
+Everybody can defend their note.
+
+00:00:19.570 --> 00:00:21.280
+That is why the room is stuck.
+
+00:00:21.803 --> 00:00:25.203
+In Chapter Two, I tell a version of this planning meeting and
+
+00:00:25.203 --> 00:00:27.713
+ask what the team cannot afford to get wrong.
+
+00:00:28.083 --> 00:00:30.973
+That question changes the shape of the conversation.
+
+00:00:31.173 --> 00:00:34.073
+The book's case lands on the first minutes of a new user's
+
+00:00:34.103 --> 00:00:34.993
+experience.
+
+00:00:34.993 --> 00:00:37.823
+We do not need to borrow that answer for every team.
+
+00:00:38.063 --> 00:00:40.913
+We need to borrow the move: step away from the list and
+
+00:00:41.063 --> 00:00:43.293
+name the consequence of a wrong choice.
+
+00:00:43.293 --> 00:00:45.573
+Open the decision file from Lesson One.
+
+00:00:45.573 --> 00:00:47.243
+Read the decision at the top.
+
+00:00:47.353 --> 00:00:50.513
+If it still sounds like “choose all the good ideas,” make it sharper.
+
+00:00:51.803 --> 00:00:54.643
+Whose experience or business result is at stake?
+
+00:00:54.653 --> 00:00:58.153
+What would a choice teach you before the next planning cycle?
+
+00:00:58.173 --> 00:00:59.653
+A long list can feel fair.
+
+00:00:59.653 --> 00:01:02.203
+Each person sees their concern represented.
+
+00:01:02.203 --> 00:01:05.403
+But the list does not tell you which problem to solve first,
+
+00:01:05.403 --> 00:01:06.993
+and it cannot tell you why.
+
+00:01:06.993 --> 00:01:08.843
+That is the trap in the chapter.
+
+00:01:08.843 --> 00:01:12.543
+More information may give every proposal a stronger defense while
+
+00:01:12.543 --> 00:01:14.933
+leaving the actual decision untouched.
+
+00:01:14.933 --> 00:01:16.743
+Think about airport signage.
+
+00:01:16.743 --> 00:01:20.443
+A terminal can offer plenty of services, yet the traveler needs to
+
+00:01:20.443 --> 00:01:22.273
+know where to go next.
+
+00:01:22.273 --> 00:01:26.243
+If the sign does not make that clear, more decoration will not help.
+
+00:01:26.253 --> 00:01:28.893
+The same thing happens in a product meeting.
+
+00:01:28.893 --> 00:01:32.413
+Before asking an AI tool for twenty feature ideas, ask what path
+
+00:01:32.593 --> 00:01:35.843
+the person is trying to find and what the team can change.
+
+00:01:35.843 --> 00:01:38.933
+Here is a synthetic case we will use on screen: a small
+
+00:01:38.933 --> 00:01:41.393
+membership service has three requests.
+
+00:01:41.393 --> 00:01:43.013
+Rewrite its welcome email.
+
+00:01:43.013 --> 00:01:44.423
+Add a guided first task.
+
+00:01:44.423 --> 00:01:46.183
+Build a dashboard for staff.
+
+00:01:46.183 --> 00:01:47.373
+They might all help.
+
+00:01:47.373 --> 00:01:48.593
+We do not know yet.
+
+00:01:48.593 --> 00:01:52.943
+Our job is to compare them against the same decision, rather than
+
+00:01:53.233 --> 00:01:55.523
+letting the loudest request become the plan.
+
+00:01:55.523 --> 00:01:59.087
+Chapter Three gives us a way to structure a messy opportunity.
+
+00:01:59.307 --> 00:02:02.297
+The first move is to decide what question the case is answering.
+
+00:02:03.877 --> 00:02:08.077
+If you are asking whether a market is attractive, the book offers
+
+00:02:08.167 --> 00:02:08.896
+a market frame.
+
+00:02:10.420 --> 00:02:14.080
+If you are choosing a product or segment, it offers three C
+
+00:02:14.080 --> 00:02:17.750
+plus P: customer, company, competition, product.
+
+00:02:17.760 --> 00:02:21.420
+We are choosing a product move, so that second frame fits.
+
+00:02:21.420 --> 00:02:25.080
+Customer: which request responds to a real, urgent job?
+
+00:02:25.080 --> 00:02:29.050
+Company: what can this team actually deliver and maintain?
+
+00:02:29.050 --> 00:02:33.470
+Competition: how is the need handled now, even if the alternative is
+
+00:02:33.540 --> 00:02:34.930
+a spreadsheet or another person?
+
+00:02:36.410 --> 00:02:39.220
+Product: what is the smallest offer that could show value?
+
+00:02:39.480 --> 00:02:41.960
+Notice what this does to our synthetic options.
+
+00:02:41.960 --> 00:02:44.640
+The welcome email may be easy to ship, but we still need
+
+00:02:44.740 --> 00:02:47.580
+to know whether misunderstanding is the problem.
+
+00:02:47.580 --> 00:02:51.140
+The guided task might help people begin, but it could add burden.
+
+00:02:51.140 --> 00:02:54.970
+The staff dashboard may improve visibility for employees while leaving
+
+00:02:54.980 --> 00:02:56.940
+the member's first step untouched.
+
+00:02:56.940 --> 00:03:00.740
+We have turned three attractive artifacts into three questions that can
+
+00:03:00.780 --> 00:03:01.510
+be checked.
+
+00:03:01.510 --> 00:03:03.650
+Now put the three options side by side.
+
+00:03:03.650 --> 00:03:07.220
+For each one, write the customer pain it might address, the business
+
+00:03:07.510 --> 00:03:11.120
+reason to care, the learning value of trying it, the risk, and
+
+00:03:11.240 --> 00:03:13.430
+whether you can reverse the choice.
+
+00:03:13.520 --> 00:03:16.520
+We do not have to invent a perfect numerical score.
+
+00:03:16.520 --> 00:03:20.770
+In fact, a precise score would be dishonest when the evidence is thin.
+
+00:03:20.770 --> 00:03:24.280
+On our sample sheet, the welcome email is low effort and easy
+
+00:03:24.340 --> 00:03:24.950
+to undo.
+
+00:03:24.950 --> 00:03:28.290
+Its weak point is that it assumes words are the barrier.
+
+00:03:28.320 --> 00:03:32.050
+The guided first task could expose whether people need a clearer
+
+00:03:32.170 --> 00:03:33.190
+starting point.
+
+00:03:33.190 --> 00:03:36.025
+Its weak point is that we do not know if they want
+
+00:03:36.410 --> 00:03:37.590
+guidance or a faster path.
+
+00:03:37.620 --> 00:03:41.270
+The staff dashboard might help the team see where members pause, but
+
+00:03:41.270 --> 00:03:44.150
+it asks for more build work before we have agreed what we
+
+00:03:44.150 --> 00:03:45.160
+need to observe.
+
+00:03:45.410 --> 00:03:47.050
+This is a hypothetical exercise.
+
+00:03:47.130 --> 00:03:48.940
+It is not a report from customers.
+
+00:03:48.940 --> 00:03:52.350
+You can disagree with my provisional ranking if you can name what
+
+00:03:52.430 --> 00:03:53.620
+evidence changes it.
+
+00:03:53.620 --> 00:03:56.280
+That is what a useful priority conversation sounds like.
+
+00:03:57.621 --> 00:04:02.181
+There is another question that can make a promising idea fail: how
+
+00:04:02.391 --> 00:04:06.181
+does the value reach a customer, and how does the work sustain
+
+00:04:06.181 --> 00:04:06.871
+itself?
+
+00:04:07.161 --> 00:04:11.301
+Chapter Three brings business model options into the case after the
+
+00:04:11.301 --> 00:04:13.061
+customer and product question is clear.
+
+00:04:17.840 --> 00:04:22.120
+It asks whether people need to experience value before paying, whether
+
+00:04:22.120 --> 00:04:26.260
+value accumulates over time, whether a free tier is affordable, and
+
+00:04:26.260 --> 00:04:28.230
+whether usage is predictable.
+
+00:04:28.230 --> 00:04:32.450
+Those are decision questions, not a menu that automatically picks your
+
+00:04:32.510 --> 00:04:33.270
+business.
+
+00:04:33.280 --> 00:04:37.060
+Our membership example may not need a new pricing model at all.
+
+00:04:37.070 --> 00:04:40.290
+But if the guided task changes who gets help and who pays
+
+00:04:40.290 --> 00:04:42.810
+for it, we should say so before we build.
+
+00:04:42.810 --> 00:04:46.430
+The book includes a B2B analytics case and names a tool called StratQuest.
+
+00:04:48.300 --> 00:04:50.660
+We are using neither as proof of a current product outcome here.
+
+00:04:50.660 --> 00:04:54.690
+What matters for this lesson is the discipline: first structure the
+
+00:04:54.690 --> 00:04:57.000
+case, then consider the economic fit.
+
+00:04:57.000 --> 00:04:59.510
+An AI brainstorm can offer possibilities.
+
+00:04:59.510 --> 00:05:03.620
+It cannot supply the missing customer and operating evidence by sounding
+
+00:05:03.620 --> 00:05:04.280
+certain.
+
+00:05:04.280 --> 00:05:07.200
+For the sample case, I would choose a small test of the
+
+00:05:07.390 --> 00:05:08.400
+guided first task.
+
+00:05:08.460 --> 00:05:11.590
+I would not commit to a full guided onboarding product.
+
+00:05:11.590 --> 00:05:15.140
+I would show a simple first step to a few consenting participants
+
+00:05:15.140 --> 00:05:20.000
+through an approved research process, then ask whether it helped them begin.
+
+00:05:20.000 --> 00:05:23.240
+I would keep the welcome email as an alternative if the test
+
+00:05:23.240 --> 00:05:25.230
+shows the language is confusing.
+
+00:05:25.230 --> 00:05:28.990
+I would hold the staff dashboard until the team knows which question
+
+00:05:28.990 --> 00:05:30.980
+it needs the dashboard to answer.
+
+00:05:30.980 --> 00:05:32.820
+My reason is not that guided tasks always win.
+
+00:05:32.960 --> 00:05:36.210
+It is that this option can test the starting-point assumption while
+
+00:05:36.210 --> 00:05:38.140
+keeping the next commitment small.
+
+00:05:38.160 --> 00:05:39.940
+Your decision may go another way.
+
+00:05:40.050 --> 00:05:42.400
+Put your choice at the top of the page and write the
+
+00:05:42.400 --> 00:05:46.240
+sentence that makes it defensible: “We choose this because...” Then
+
+00:05:46.240 --> 00:05:48.950
+record the two alternatives you are setting aside.
+
+00:05:48.980 --> 00:05:51.920
+Give each one a real reason, not a vague “lower priority.” A
+
+00:05:51.950 --> 00:05:55.680
+decision file that only celebrates the winner loses half the learning.
+
+00:05:55.680 --> 00:05:59.410
+When new evidence arrives, those alternatives tell you what you thought
+
+00:05:59.410 --> 00:06:00.670
+you were trading away.
+
+00:06:00.670 --> 00:06:01.860
+Pause here and finish the page.
+
+00:06:03.020 --> 00:06:07.417
+You need the chosen option, two alternatives, the reason for each, and
+
+00:06:07.506 --> 00:06:08.890
+one assumption that could overturn your choice.
+
+00:06:08.990 --> 00:06:12.640
+If you are working with a real team, keep sensitive inputs in
+
+00:06:12.780 --> 00:06:14.170
+the approved place.
+
+00:06:14.170 --> 00:06:18.640
+You can do this exercise with a fictional case and still practice
+
+00:06:18.640 --> 00:06:19.520
+the decision.
+
+00:06:19.580 --> 00:06:22.370
+When you come back, read your assumption out loud.
+
+00:06:23.650 --> 00:06:25.640
+Is it something you know, or something you hope?
+
+00:06:27.000 --> 00:06:30.170
+In the next lesson we will work backward from that sentence.
+
+00:06:31.590 --> 00:06:33.720
+We will ask what answer the decision owner needs and what evidence
+
+00:06:33.720 --> 00:06:35.590
+would change the conversation.
+
+00:06:35.590 --> 00:06:38.150
+The board of fifteen priorities will still exist tomorrow.
+
+00:06:39.007 --> 00:06:42.637
+You have done the harder thing today: made one choice clear enough to challenge.

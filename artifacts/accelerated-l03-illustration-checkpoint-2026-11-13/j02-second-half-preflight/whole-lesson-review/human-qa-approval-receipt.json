@@ -1,0 +1,11 @@
+{
+  "status": "human_qa_approved_for_exact_local_review_candidates",
+  "source": "Vambah approval relayed by Integration Captain in the existing development lane on 2026-11-13",
+  "project": "Portfolio Accelerated L03",
+  "branch": "codex/accelerated-lesson-pacing-audit",
+  "pull_request": 1270,
+  "desktop_sha256": "24e5daaa3989dc8ae4324bca4726a08bdc9c16475e264fdd7cd5b0bf5d2987d3",
+  "mobile_sha256": "bfbe6e377633cc2ff9c1fe3af216ee79e0a84957df847ffc2e26e3f374c1616c",
+  "authorized_next_action": "Add reproducible L03 recovery/render source, optional caption sidecar/source, and bounded review receipts to the existing draft PR after validation.",
+  "excluded_actions": ["provider generation", "spend", "learner media change", "merge", "deployment", "publication", "release"]
+}

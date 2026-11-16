@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "source": {
+    "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L04.md",
+    "desktop_video": "l04-whole-lesson-desktop-intact-native-background-local-review.mp4",
+    "portrait_video": "l04-whole-lesson-portrait-intact-native-background-local-review.mp4",
+    "desktop_vtt": "l04-local-review-optional.vtt",
+    "portrait_vtt": "l04-local-review-portrait-optional.vtt"
+  },
+  "rules": [
+    "Use only short canonical teaching phrases.",
+    "Reveal, hold, replace, and clear; never reserve a permanent text panel.",
+    "Keep the presenter footage, native background, illustration, audio, timing, and optional captions unchanged.",
+    "Keep overlays above the optional-caption and native-control areas.",
+    "Use the illustration's open writing surfaces where available."
+  ],
+  "style": {
+    "contract": "accelerated-editorial-teaching-plate-v1",
+    "direction": "Agentified editorial teaching plate",
+    "panel": "temporary deep AmaduTown-blue contrast field",
+    "type": "warm cream Avenir Next Demi Bold",
+    "accent": "thin AmaduTown-gold rule and border",
+    "motion": "reveal, hold, replace, clear",
+    "exclusions": [
+      "no text floating directly over busy illustration",
+      "no permanent panel or reserved gutter",
+      "no glossy treatment",
+      "no rounded card stack"
+    ]
+  },
+  "events": [
+    {
+      "id": "one-moment-one-test",
+      "start": 39.080,
+      "end": 43.800,
+      "text": "One moment.\nOne test.",
+      "portrait_text": "One moment. One test.",
+      "source_cue": "What is one moment we can understand better this week?",
+      "desktop": {"x": 82, "y": 520, "font_size": 68, "line_spacing": 2, "align": "left"},
+      "portrait": {"x": 42, "y": 585, "font_size": 28, "line_spacing": 0, "align": "left"}
+    },
+    {
+      "id": "job-context",
+      "start": 101.058,
+      "end": 104.200,
+      "text": "Job + context",
+      "source_cue": "The second names a job in context.",
+      "desktop": {"x": 650, "y": 520, "font_size": 66, "line_spacing": 0, "align": "left"},
+      "portrait": {"x": 54, "y": 470, "font_size": 32, "line_spacing": 0, "align": "left"}
+    },
+    {
+      "id": "observed-proposed",
+      "start": 255.164,
+      "end": 263.200,
+      "text": "Observed signal ≠\nproposed signal",
+      "source_cue": "Leave observed signal blank; write a proposed signal to look for.",
+      "desktop": {"x": 760, "y": 445, "font_size": 58, "line_spacing": 2, "align": "center"},
+      "portrait": {"x": 35, "y": 430, "font_size": 31, "line_spacing": 0, "align": "center"}
+    },
+    {
+      "id": "worksheet-uncertainty",
+      "start": 356.800,
+      "end": 358.467,
+      "text": "Uncertainty",
+      "portrait_text": "Uncertainty",
+      "source_cue": "The biggest uncertainty.",
+      "desktop": {"x": 1290, "y": 665, "font_size": 58, "line_spacing": 4, "align": "left"},
+      "portrait": {"x": 210, "y": 410, "font_size": 27, "line_spacing": 2, "align": "left"}
+    },
+    {
+      "id": "worksheet-question",
+      "start": 358.467,
+      "end": 359.893,
+      "text": "Next validation\nquestion",
+      "desktop_text": "Next validation\nquestion",
+      "portrait_text": "Next validation\nquestion",
+      "source_cue": "The next question.",
+      "desktop": {"x": 1290, "y": 595, "font_size": 52, "line_spacing": 3, "align": "left"},
+      "portrait": {"x": 190, "y": 400, "font_size": 25, "line_spacing": 1, "align": "left"}
+    },
+    {
+      "id": "worksheet-source-date",
+      "start": 359.893,
+      "end": 362.324,
+      "text": "Source + review date",
+      "desktop_text": "Source + review date",
+      "portrait_text": "Source + review date",
+      "source_cue": "The source, and the date you will review it.",
+      "desktop": {"x": 1240, "y": 650, "font_size": 48, "line_spacing": 2, "align": "left"},
+      "portrait": {"x": 170, "y": 410, "font_size": 23, "line_spacing": 0, "align": "left"}
+    },
+    {
+      "id": "decision-file",
+      "start": 362.324,
+      "end": 365.012,
+      "text": "Decision file",
+      "source_cue": "Then look at all four pages of your decision file.",
+      "desktop": {"x": 1290, "y": 645, "font_size": 56, "line_spacing": 4, "align": "left"},
+      "portrait": {"x": 210, "y": 410, "font_size": 27, "line_spacing": 2, "align": "left"}
+    },
+    {
+      "id": "decision-boundary",
+      "start": 365.012,
+      "end": 368.084,
+      "text": "Boundary",
+      "desktop_text": "Boundary",
+      "portrait_text": "Boundary",
+      "source_cue": "The first page names the choice and the data boundary.",
+      "desktop": {"x": 1310, "y": 645, "font_size": 58, "line_spacing": 4, "align": "left"},
+      "portrait": {"x": 190, "y": 400, "font_size": 24, "line_spacing": 2, "align": "left"}
+    },
+    {
+      "id": "decision-priority",
+      "start": 368.084,
+      "end": 370.900,
+      "text": "Priority",
+      "desktop_text": "Priority",
+      "portrait_text": "Priority",
+      "source_cue": "The second shows the priority and the alternatives.",
+      "desktop": {"x": 1310, "y": 645, "font_size": 58, "line_spacing": 4, "align": "left"},
+      "portrait": {"x": 190, "y": 400, "font_size": 24, "line_spacing": 2, "align": "left"}
+    },
+    {
+      "id": "decision-evidence",
+      "start": 370.900,
+      "end": 373.820,
+      "text": "Evidence",
+      "desktop_text": "Evidence",
+      "portrait_text": "Evidence",
+      "source_cue": "The third names evidence that could change your mind.",
+      "desktop": {"x": 1310, "y": 645, "font_size": 58, "line_spacing": 4, "align": "left"},
+      "portrait": {"x": 190, "y": 400, "font_size": 24, "line_spacing": 2, "align": "left"}
+    },
+    {
+      "id": "decision-persona",
+      "start": 373.820,
+      "end": 377.719,
+      "text": "Persona",
+      "desktop_text": "Persona",
+      "portrait_text": "Persona",
+      "source_cue": "This page keeps the human situation in view.",
+      "desktop": {"x": 1310, "y": 645, "font_size": 58, "line_spacing": 4, "align": "left"},
+      "portrait": {"x": 190, "y": 400, "font_size": 24, "line_spacing": 2, "align": "left"}
+    }
+  ]
+}

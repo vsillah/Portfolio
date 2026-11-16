@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "status": "machine_diagnostic_only",
+  "models": [
+    {
+      "name": "base.en",
+      "sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002"
+    },
+    {
+      "name": "small.en",
+      "sha256": "c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d"
+    }
+  ],
+  "candidate_count": 3,
+  "results": [
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "0d02558733ce311529409efb6d37b2feea3f4dcda18a73984ada852161c05ee9",
+      "removed_probe_words": "now the bet enters",
+      "retained_probe_words": "lesson beside the cards",
+      "before_transcripts": {
+        "base.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document.",
+        "small.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document,"
+      },
+      "after_transcripts": {
+        "base.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards.",
+        "small.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "3e2036dffe7497bf0f55ec701573a9ca93b8a50ee8193cb7f5ee1c30fefca8a4",
+      "removed_probe_words": "write the next action",
+      "retained_probe_words": "with one pain point",
+      "before_transcripts": {
+        "base.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb.",
+        "small.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb."
+      },
+      "after_transcripts": {
+        "base.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one pain point.",
+        "small.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one pain point."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "candidate_sha256": "46e18254a27a4ff36fbcf9b5469e7131f064933156e5387a4c5886e8bfc2d4e1",
+      "removed_probe_words": "put a short review",
+      "retained_probe_words": "person who owns it",
+      "before_transcripts": {
+        "base.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,",
+        "small.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,"
+      },
+      "after_transcripts": {
+        "base.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it.",
+        "small.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    }
+  ],
+  "machine_pass_count": 3,
+  "machine_blocked_count": 0,
+  "machine_blocked_windows": []
+}

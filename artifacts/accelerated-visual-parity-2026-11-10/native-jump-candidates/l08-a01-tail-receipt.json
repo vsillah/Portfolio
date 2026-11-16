@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L08",
+  "presenter_window": "A01",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+  "source_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+  "source_window_seconds": [
+    0,
+    28.52
+  ],
+  "candidate_cut_seconds": 24.789333,
+  "machine_onset_seconds": 24.8,
+  "aac_snap_delta_seconds": 0.010667,
+  "intended_words": {
+    "retained_approved_words_end": "choose a measure that belongs to the decision",
+    "removed_later_phrase_start": "gives the learning plan ten components. The first five establish what we"
+  },
+  "silent_packet_source_start_seconds": 30.52,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 1162,
+  "copied_silence_packet_count": 175,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a01-tail-candidate.mp4",
+  "candidate_sha256": "7165c66d41fead1ac09ba3edbbbf904daf9a9a408425cfac81f244985736bad9",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l08-a01-tail-before-after.mp4",
+  "before_after_sha256": "2888aadafcb2734410c0c7147c50bbd53d132232a5b27d71929fe1e569a14222",
+  "before_after_source_excerpt_seconds": [
+    21.289333,
+    28.289333
+  ],
+  "before_after_segment_seconds": 7.0,
+  "candidate_duration_seconds": 28.522667,
+  "before_after_duration_seconds": 14.0,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

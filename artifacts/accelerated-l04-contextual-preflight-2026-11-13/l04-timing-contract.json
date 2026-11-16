@@ -1,0 +1,210 @@
+{
+  "schema": "accelerated_l04_local_timing_contract_v1",
+  "script_sha256": "3b6a268fa8d19a6207451d9647fdd400acc9b90202900c5640884291f27d489f",
+  "narration_pack_sha256": "a0952c90bdea643245e69ef64cee022dc6b670a129c455bec4e57c394de2c245",
+  "native_presenter": {
+    "path": "/Users/vambahsillah/Projects/Portfolio/artifacts/accelerated-l04-heygen-2026-11-04/accelerated-l04-heygen-native.mp4",
+    "sha256": "cf8f8e78c48a8f4471e0a4bb53b57b4f71f3ad52d30f92cf356482b4d1be9c3e",
+    "fps": 25,
+    "frames": 1683
+  },
+  "jobs": {
+    "01": {
+      "wav": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/provider-return/l04-j01-original.wav",
+      "wav_sha256": "26ad694539f3c143d996155d4802b4768bcab64134eee9108d6f36cf09238de3",
+      "timings": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/provider-return/l04-j01-timings.json",
+      "timings_sha256": "e9a6bb1182f0a0347dbb44cd58e205ea254de1394d56677c7a8e37b46241542b",
+      "duration_seconds": 196.11396825396827,
+      "word_count": 619,
+      "split_word_index": 281,
+      "split_seconds": 90.74700680272109,
+      "split_pause_seconds": 0.608
+    },
+    "02": {
+      "wav": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/provider-return/l04-j02-original.wav",
+      "wav_sha256": "3f0aff24f05bae657c3632236c934c9e4e4afb848320ff144be2b01e07eb4ae4",
+      "timings": "artifacts/accelerated-l04-contextual-preflight-2026-11-13/provider-return/l04-j02-timings.json",
+      "timings_sha256": "f13ea2c42278b05ed6501f9585617912888925bd6686bd224dac6c387a639ea4",
+      "duration_seconds": 135.8905215419501,
+      "word_count": 417,
+      "split_word_index": 406,
+      "split_seconds": 132.28551020408165,
+      "split_pause_seconds": 0.597
+    }
+  },
+  "segments": [
+    {
+      "id": "P01",
+      "timeline_start_seconds": 0.0,
+      "timeline_end_seconds": 25.28,
+      "duration_seconds": 25.28,
+      "source": {
+        "kind": "native_presenter",
+        "frame_start": 0,
+        "frame_end_exclusive": 632
+      },
+      "word_count": 60
+    },
+    {
+      "id": "C01",
+      "timeline_start_seconds": 25.28,
+      "timeline_end_seconds": 116.027007,
+      "duration_seconds": 90.747007,
+      "source": {
+        "kind": "returned_narration",
+        "job": "J01",
+        "source_start_seconds": 0.0,
+        "source_end_seconds": 90.74700680272109
+      },
+      "word_count": 281
+    },
+    {
+      "id": "P02",
+      "timeline_start_seconds": 116.027007,
+      "timeline_end_seconds": 126.747007,
+      "duration_seconds": 10.72,
+      "source": {
+        "kind": "native_presenter",
+        "frame_start": 632,
+        "frame_end_exclusive": 900
+      },
+      "word_count": 30
+    },
+    {
+      "id": "C02",
+      "timeline_start_seconds": 126.747007,
+      "timeline_end_seconds": 232.113968,
+      "duration_seconds": 105.366961,
+      "source": {
+        "kind": "returned_narration",
+        "job": "J01",
+        "source_start_seconds": 90.74700680272109,
+        "source_end_seconds": 196.11396825396827
+      },
+      "word_count": 338
+    },
+    {
+      "id": "P03",
+      "timeline_start_seconds": 232.113968,
+      "timeline_end_seconds": 245.433968,
+      "duration_seconds": 13.32,
+      "source": {
+        "kind": "native_presenter",
+        "frame_start": 900,
+        "frame_end_exclusive": 1233
+      },
+      "word_count": 38
+    },
+    {
+      "id": "C03",
+      "timeline_start_seconds": 245.433968,
+      "timeline_end_seconds": 377.719478,
+      "duration_seconds": 132.28551,
+      "source": {
+        "kind": "returned_narration",
+        "job": "J02",
+        "source_start_seconds": 0.0,
+        "source_end_seconds": 132.28551020408165
+      },
+      "word_count": 406
+    },
+    {
+      "id": "P04",
+      "timeline_start_seconds": 377.719478,
+      "timeline_end_seconds": 395.719478,
+      "duration_seconds": 18.0,
+      "source": {
+        "kind": "native_presenter",
+        "frame_start": 1233,
+        "frame_end_exclusive": 1683
+      },
+      "word_count": 47
+    },
+    {
+      "id": "C04",
+      "timeline_start_seconds": 395.719478,
+      "timeline_end_seconds": 399.32449,
+      "duration_seconds": 3.605011,
+      "source": {
+        "kind": "returned_narration",
+        "job": "J02",
+        "source_start_seconds": 132.28551020408165,
+        "source_end_seconds": 135.8905215419501
+      },
+      "word_count": 11
+    }
+  ],
+  "picture_beats": [
+    {
+      "scene": 1,
+      "window": "C01",
+      "phrase": "They are hard to test as a single bet",
+      "provider_word_index": 0,
+      "provider_start_seconds": 0.299,
+      "timeline_start_seconds": 25.579,
+      "picture": "Q3 plan narrows to one member's first-task moment"
+    },
+    {
+      "scene": 2,
+      "window": "C01",
+      "phrase": "Now picture the persona deck beside that plan",
+      "provider_word_index": 110,
+      "provider_start_seconds": 35.771,
+      "timeline_start_seconds": 61.051,
+      "picture": "Polished portrait meets an undecided first task"
+    },
+    {
+      "scene": 3,
+      "window": "C02",
+      "phrase": "In the book example she is preparing for a Monday meeting",
+      "provider_word_index": 281,
+      "provider_start_seconds": 91.051,
+      "timeline_start_seconds": 127.051,
+      "picture": "Sarah's Monday meeting and trust dilemma, labeled as book case"
+    },
+    {
+      "scene": 4,
+      "window": "C02",
+      "phrase": "Once the job is visible the build can get smaller",
+      "provider_word_index": 438,
+      "provider_start_seconds": 140.535,
+      "timeline_start_seconds": 176.535,
+      "picture": "Three tangible first-task prototypes, guided step provisional"
+    },
+    {
+      "scene": 5,
+      "window": "C03",
+      "phrase": "If this card is based on a real interview",
+      "provider_word_index": 0,
+      "provider_start_seconds": 0.256,
+      "timeline_start_seconds": 245.69,
+      "picture": "Living persona record with observed signal blank"
+    },
+    {
+      "scene": 6,
+      "window": "C03",
+      "phrase": "Imagine the test happens",
+      "provider_word_index": 141,
+      "provider_start_seconds": 49.4,
+      "timeline_start_seconds": 294.834,
+      "picture": "Earlier assumption and hypothetical revised question side by side"
+    },
+    {
+      "scene": 7,
+      "window": "C03",
+      "phrase": "Pause and finish one living persona card",
+      "provider_word_index": 312,
+      "provider_start_seconds": 102.195,
+      "timeline_start_seconds": 347.629,
+      "picture": "Four decision-file pages and learner writing space"
+    }
+  ],
+  "total_duration_seconds": 399.32449,
+  "rules": [
+    "No speed changes or added silence",
+    "Presenter picture and audio come from the same native source",
+    "Cutaways use returned narration once, in order",
+    "Scene changes follow recorded phrase timing",
+    "Captions are optional sidecar, not a permanent picture band"
+  ]
+}

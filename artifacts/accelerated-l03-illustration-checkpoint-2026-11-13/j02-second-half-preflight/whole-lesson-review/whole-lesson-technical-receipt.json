@@ -1,0 +1,48 @@
+{
+  "status": "LOCAL_REVIEW_TECHNICAL_QA_PASSED_PENDING_CAPTAIN_REVIEW",
+  "source_commit": "2002dda495dd319dd936fea00a405928bba3302e",
+  "branch": "codex/accelerated-lesson-pacing-audit",
+  "first_half_exact_hash_match": {
+    "desktop": "6cbca81b31e146e075d98c8ba3832e181e59af097a1f7cbfa95bade282b33a61",
+    "mobile": "2cee5081cc116c0373822b4a91edf38b09de875d6731ea5b719be20d29b03141"
+  },
+  "whole_lesson": {
+    "l03-whole-lesson-desktop-local-review.mp4": {
+      "sha256": "24e5daaa3989dc8ae4324bca4726a08bdc9c16475e264fdd7cd5b0bf5d2987d3",
+      "bytes": 48794319
+    },
+    "l03-whole-lesson-mobile-local-review.mp4": {
+      "sha256": "bfbe6e377633cc2ff9c1fe3af216ee79e0a84957df847ffc2e26e3f374c1616c",
+      "bytes": 16896950
+    },
+    "l03-whole-lesson-optional-captions.vtt": {
+      "sha256": "bfa7d760ae0bb41439e04736839d251ac4e0f6ffbf1b943cf4bc74fcd8a6f845",
+      "bytes": 10977
+    }
+  },
+  "qa": {
+    "full_ffmpeg_decode": "passed for both final MP4s with ffmpeg -v error -i <file> -f null -",
+    "video_frames_each": 8939,
+    "video_duration_seconds": 357.59,
+    "audio_duration_seconds": 357.579,
+    "captions": "158 cues, no overlaps or nonpositive durations; desktop English caption track enabled and rendered in integrated browser",
+    "browser_url": "http://127.0.0.1:8767/artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/review.html?rev=24e5daaa-bfbe6e37",
+    "visual": "desktop and 390x844 player openings inspected in integrated browser; nine scene samples per format inspected in contact sheets",
+    "render_method": "first-half and second-half video streams concatenated with codec copy; output audio assembled from bound native and returned narration sources"
+  },
+  "limits": [
+    "J01 original provider timing JSON remains unavailable; optional captions use local ASR timing and require captain review across the full lesson.",
+    "Local review only; not learner media or Human QA approval."
+  ],
+  "excluded_actions": [
+    "provider generation",
+    "spend",
+    "learner media change",
+    "PR update",
+    "commit",
+    "merge",
+    "deployment",
+    "publication",
+    "release"
+  ]
+}

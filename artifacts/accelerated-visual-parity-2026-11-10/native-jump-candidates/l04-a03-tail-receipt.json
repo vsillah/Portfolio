@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L04",
+  "presenter_window": "A03",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+  "source_sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613",
+  "source_window_seconds": [
+    350.0,
+    365.24
+  ],
+  "candidate_cut_seconds": 360.368,
+  "machine_onset_seconds": 360.38,
+  "aac_snap_delta_seconds": 0.012,
+  "intended_words": {
+    "retained_approved_words_end": "question. Add a source and a review date",
+    "removed_later_phrase_start": "That is a real working file, even if much of it is"
+  },
+  "silent_packet_source_start_seconds": 367.24,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 487,
+  "copied_silence_packet_count": 229,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a03-tail-candidate.mp4",
+  "candidate_sha256": "cb8517468078aab990ed5c9fe1ef9e665d33c08f2e259ba0f264d932cb53a674",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l04-a03-tail-before-after.mp4",
+  "before_after_sha256": "b0d996495ccf6dfaf8e748fc0b4c812a22b3727116b3e3a7dfb646ba071b5b00",
+  "before_after_source_excerpt_seconds": [
+    356.868,
+    363.868
+  ],
+  "before_after_segment_seconds": 7.0,
+  "candidate_duration_seconds": 15.248,
+  "before_after_duration_seconds": 14.0,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

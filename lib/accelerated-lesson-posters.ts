@@ -11,9 +11,11 @@ export const lessonPosters = {
   L09: '/accelerated/posters/l09-poster.webp',
   L10: '/accelerated/posters/l10-poster.webp',
   L11: '/accelerated/posters/l11-poster.webp',
-  L12: '/accelerated/posters/l12-poster.webp',
+  L12: '/accelerated/posters/l12-poster-desktop-53dd8b6f8e15.webp',
   L13: '/accelerated/posters/l13-poster.webp',
   L14: '/accelerated/posters/l14-poster.webp',
   L15: '/accelerated/posters/l15-poster.webp',
   L16: '/accelerated/posters/l16-poster.webp',
 } as const
+
+export const l12PortraitPoster = '/accelerated/posters/l12-poster-portrait-167fd50d0554.webp' as const

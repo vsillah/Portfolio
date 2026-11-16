@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "status": "human_listening_pass_for_six_review_clips_only",
+  "reviewer": "Vambah Sillah",
+  "approval_reported_by": "Integration Captain delegation",
+  "approval_source_thread_id": "01a1c704-3bcc-7d63-a927-c409241c061b",
+  "recorded_date": "2026-11-11",
+  "reviewed_pr": 1270,
+  "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+  "reviewed_priority_reel_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/accelerated-presenter-priority-listening-reel.mp4",
+  "reviewed_priority_reel_sha256": "c00c8a26cecd6f7baa0e0f56a613bb8cc34625f3ae7000a9d980b12c9e70a959",
+  "reviewed_clips": [
+    {
+      "chapter": 1,
+      "scope": "L05 A02 → A03",
+      "review_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l05-sequence-before-after.mp4",
+      "review_clip_sha256": "963224f84e103c600581fd58dd28c7c68daf0e9cccd76327259b41478ab833e3",
+      "finding": "Retained words and joins sound clean; no clipped, repeated, or missing speech.",
+      "outcome": "passed_local_audible_listening_only"
+    },
+    {
+      "chapter": 2,
+      "scope": "L06 A02 → A03",
+      "review_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l06-sequence-before-after.mp4",
+      "review_clip_sha256": "5c3bd26a4d68f9993235d495d9d93482a8d035cdbb701a80ec15628dc8b17472",
+      "finding": "Retained words and joins sound clean; no clipped, repeated, or missing speech.",
+      "outcome": "passed_local_audible_listening_only"
+    },
+    {
+      "chapter": 3,
+      "scope": "L08 A02 → A03",
+      "review_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-sequence-before-after.mp4",
+      "review_clip_sha256": "3f90ad6facbad2135371ec4bb0ff233e07cd33057f0bd9b3a2bb1f7bff9a6729",
+      "finding": "Retained words and joins sound clean; no clipped, repeated, or missing speech.",
+      "outcome": "passed_local_audible_listening_only"
+    },
+    {
+      "chapter": 4,
+      "scope": "L06 A01",
+      "review_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l06-a01-tail-pcm-before-after.mp4",
+      "review_clip_sha256": "d469f892645006daa7305285369662c3901a776317461662dd5a5e8757e8c1ad",
+      "finding": "Retained words and joins sound clean; no clipped, repeated, or missing speech.",
+      "outcome": "passed_local_audible_listening_only"
+    },
+    {
+      "chapter": 5,
+      "scope": "L16 A01",
+      "review_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a01-tail-pcm-before-after.mp4",
+      "review_clip_sha256": "07aef614c352d57a2f5d2de2186454a78561c586c45ca532703efb9370e40a46",
+      "finding": "Retained words and joins sound clean; no clipped, repeated, or missing speech.",
+      "outcome": "passed_local_audible_listening_only"
+    },
+    {
+      "chapter": 6,
+      "scope": "L16 A02",
+      "review_clip_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a02-tail-pcm-before-after.mp4",
+      "review_clip_sha256": "14d47b974948772243bdcbe8df9b0459d0e697eacc6c0e123595fd5ce1f6fe05",
+      "finding": "Retained words and joins sound clean; no clipped, repeated, or missing speech.",
+      "outcome": "passed_local_audible_listening_only"
+    }
+  ],
+  "reviewed_clip_count": 6,
+  "excluded_scope": [
+    "24 packet-copy review clips",
+    "full 64-window first/last-word audit",
+    "full-lesson C02-to-A03 timing",
+    "final voice pace",
+    "canonical MP4s",
+    "learner bindings",
+    "merge or release"
+  ]
+}

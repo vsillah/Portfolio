@@ -1,0 +1,25 @@
+{
+  "schema": "accelerated_sam_v9_conditional_encode",
+  "status": "local_review_only",
+  "source_manifest_sha256": "33785b459ad4746af84fd0b78e370094a4c29694401345cb09ede3d9ee4f7b3d",
+  "outputs": {
+    "desktop": {
+      "capture": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-player-capture-v9-conditional.webm",
+      "capture_sha256": "3212aeffa4661e1e65bfdde098c81824397e1eca7c253147a403931944ffb895",
+      "marker_end_seconds": 0.76,
+      "accepted_audio": "artifacts/accelerated-sam-contextual-review-2026-11-14/accepted-signals-audio-carrier-v9.mp4",
+      "accepted_audio_sha256": "fe5e51f23fdc84e10b0498aac9866b1a157401937ba20403cb2b81abb4451d8b",
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "8439de0c32a218b23db27d962b951102783e691dd2d60d63689812c5284d7188"
+    },
+    "mobile": {
+      "capture": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-player-capture-v9-conditional.webm",
+      "capture_sha256": "a6770040be5471da2ee7443c1c1c6ab18d028fe6be3be98c67a1c3fb9f542d2a",
+      "marker_end_seconds": 0.64,
+      "accepted_audio": "artifacts/accelerated-sam-contextual-review-2026-11-14/accepted-signals-audio-carrier-v9.mp4",
+      "accepted_audio_sha256": "fe5e51f23fdc84e10b0498aac9866b1a157401937ba20403cb2b81abb4451d8b",
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "f49e6bf0182395a1809a8f560a8436d9675e8e5b9ef35a156a7b46340f69b650"
+    }
+  }
+}

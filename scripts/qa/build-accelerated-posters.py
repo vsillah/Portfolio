@@ -2,6 +2,9 @@
 """Compose illustrated Accelerated lesson covers from receipted avatar art and owned proof."""
 import hashlib
 import json
+import subprocess
+import tempfile
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -43,11 +46,59 @@ ART = {
 SPECIAL = {1: 'public/accelerated_cover_ebook.webp', 5: 'public/showcases/accelerated-learning-plan/storyboard-l05.png', 8: 'public/showcases/accelerated-learning-plan/storyboard-l08.png', 11: 'public/showcases/accelerated-learning-plan/storyboard-l11.png', 16: 'public/showcases/accelerated-learning-plan/storyboard-l16.png'}
 FONT = '/System/Library/Fonts/Supplemental/Arial Bold.ttf'
 REG = '/System/Library/Fonts/Supplemental/Arial.ttf'
+CANONICAL_SAM = ROOT / 'agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png'
+CANONICAL_SAM_SHA = 'b7ab226d17f5ae4b421936b0ea541646223f55c0121da328e483941175c39ea3'
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def fit(im, box): return ImageOps.fit(im, box, method=Image.Resampling.LANCZOS)
 
+def render_l12_momentum():
+    """Encode the approved L12 Momentum compositions without changing pixels."""
+    receipt_path = ROOT / 'artifacts/accelerated-sam-focus-stills-2026-11-14/receipt.json'
+    still_receipt = json.loads(receipt_path.read_text())
+    scene = still_receipt['scenes']['L12-01']
+    if scene['focus'] != 'momentum' or scene['statement'] != 'Keep the source beside the job':
+        raise RuntimeError('L12 Momentum scene identity drifted')
+    source = ROOT / 'public/accelerated/contextual-review/l12/contextual-abdbf06e6be3/l12-desktop.mp4'
+    if sha(source) != 'abdbf06e6be3caf1c2f8678eb1f9af8a5ddd06324e99802d4d253b97581ccb81' or scene['presenter_source']['sha256'] != sha(source):
+        raise RuntimeError('L12 native presenter source drifted')
+    outputs = {}
+    for variant in ('desktop', 'portrait'):
+        item = scene['outputs'][variant]
+        still = ROOT / item['path']
+        if sha(still) != item['sha256']:
+            raise RuntimeError(f'L12 {variant} approved composition drifted')
+        with Image.open(still) as image:
+            if list(image.size) != item['dimensions']:
+                raise RuntimeError(f'L12 {variant} dimensions drifted')
+            image = image.convert('RGB')
+            with tempfile.TemporaryDirectory() as directory:
+                candidate = Path(directory) / 'l12-poster.webp'
+                image.save(candidate, 'WEBP', lossless=True, method=6)
+                with Image.open(candidate) as decoded:
+                    if decoded.convert('RGB').tobytes() != image.tobytes():
+                        raise RuntimeError(f'L12 {variant} WebP pixel loss')
+                output_hash = sha(candidate)
+                immutable = OUT / f'l12-poster-{variant}-{output_hash[:12]}.webp'
+                if immutable.exists() and sha(immutable) != output_hash:
+                    raise RuntimeError(f'L12 {variant} immutable asset collision')
+                if not immutable.exists():
+                    immutable.write_bytes(candidate.read_bytes())
+        outputs[variant] = {'path': str(immutable.relative_to(ROOT)), 'sha256': output_hash, 'dimensions': item['dimensions'],
+                            'source_still': item['path'], 'source_still_sha256': item['sha256'], 'pixel_identity': 'lossless_rgb'}
+    return {
+        'kind': 'momentum_focus', 'lesson': 'L12', 'title': TITLES[11], 'act': ACTS[11],
+        'lessonBinding': '/' + outputs['desktop']['path'].removeprefix('public/'),
+        'samOrBookAsset': scene['outputs']['desktop']['path'], 'samOrBookAssetSha256': scene['outputs']['desktop']['sha256'],
+        'sourceStillReceipt': str(receipt_path.relative_to(ROOT)), 'sourceStillReceiptSha256': sha(receipt_path),
+        'presenterFrameSource': str(source.relative_to(ROOT)), 'presenterFrameSourceSha256': sha(source),
+        'composition': 'Exact approved L12 Momentum focus compositions with native presenter; lossless WebP pixel identity',
+        'output': outputs['desktop']['path'], 'outputSha256': outputs['desktop']['sha256'], 'dimensions': outputs['desktop']['dimensions'],
+        'portraitOutput': outputs['portrait'], 'privacyRightsStatus': 'Approved first-party composition and native presenter footage; no private data',
+    }
+
 def render(index, prompt):
+    if index == 12: return render_l12_momentum()
     lid = f'L{index:02d}'
     act = ACTS[index-1]
     accent, top, bottom = PALETTE[act]
@@ -109,6 +160,13 @@ def render(index, prompt):
     }
 
 if __name__=='__main__':
+    if '--l12-only' in sys.argv:
+        OUT.mkdir(parents=True,exist_ok=True)
+        manifest=json.loads(MANIFEST.read_text())
+        manifest['posters'][11]=render_l12_momentum()
+        MANIFEST.write_text(json.dumps(manifest,indent=2)+'\n')
+        print('Built lossless L12 Momentum desktop and portrait posters')
+        sys.exit(0)
     if sha(IDENTITY)!=IDENTITY_SHA: raise RuntimeError('Approved identity reference hash drift')
     prompts=json.loads(PROMPTS.read_text())['prompts']
     if len(prompts)!=16 or [p['id'] for p in prompts]!=[f'accelerated-l{i:02d}-illustrated-avatar/v1' for i in range(1,17)]:raise RuntimeError('Incomplete prompt binding')

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accelerated L01 · Always-visible captions review</title>
+<style>
+  :root{color-scheme:dark;font:16px/1.45 system-ui,sans-serif;background:#081923;color:#f5efe3}
+  *{box-sizing:border-box}body{margin:0}main{max-width:1300px;margin:auto;padding:clamp(14px,3vw,32px)}
+  h1{font:clamp(28px,3vw,43px)/1.1 Georgia,serif;margin:5px 0 10px}h2{font:25px Georgia,serif}
+  p{max-width:75ch}.eyebrow{color:#e4bd73;letter-spacing:.12em;font-size:12px;font-weight:800}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:22px;align-items:start}
+  .stage{min-width:0;background:#102a34;border:1px solid #55747b;border-radius:14px;overflow:hidden}
+  video{width:100%;display:block;aspect-ratio:1280/900;background:#0c202a}
+  .bar{padding:12px 15px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .bar strong{color:#f4d599}.bar a,a{color:#f4d599}.bar p{margin:0}
+  .side{padding:15px;border:1px solid #55747b;border-radius:14px;background:#102a34}
+  .side h2{margin:0 0 12px}.side button{display:block;width:100%;margin:7px 0;text-align:left}
+  button{font:inherit;cursor:pointer;background:#234751;color:#fff5e6;border:1px solid #bda676;border-radius:8px;padding:10px 12px}
+  button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #f4d599;outline-offset:3px}
+  .current{margin-top:18px;padding:14px 16px;border-left:4px solid #e4bd73;background:#16323c}
+  .current summary{cursor:pointer;font-weight:800}.current p{margin:10px 0 0;font-size:clamp(18px,2vw,24px)}
+  .transcript{margin-top:22px;border:1px solid #55747b;border-radius:12px;padding:14px}
+  .transcript summary{cursor:pointer;font-weight:800}.transcript ol{max-height:500px;overflow:auto;padding-left:52px}
+  .transcript li{padding:8px 10px;border-bottom:1px solid #385763}.transcript li[aria-current=true]{background:#234751}
+  .transcript li button{padding:4px 8px;margin-right:12px}.transcript time{color:#e4bd73}
+  .note{font-size:13px;color:#bcd1d0}
+  @media(max-width:800px){.layout{grid-template-columns:1fr}.side{order:2}.current{order:3}}
+  @media(max-width:390px){main{padding:12px}.bar{padding:11px}.side{padding:12px}h1{font-size:29px}}
+</style>
+<main>
+  <div class="eyebrow">AMADUTOWN · ACCELERATED</div>
+  <h1>L01 · Build smarter, stay human</h1>
+  <p>Captions are always visible in this video. The read-along text follows the same 05:45 lesson.</p>
+  <div class="layout">
+    <div class="stage">
+      <video id="lesson" controls playsinline preload="metadata" aria-label="L01 guided video with always-visible English captions">
+        <source src="/approved-local-l01.mp4" type="video/mp4">
+        Your browser cannot play this video. Read the transcript below.
+      </video>
+      <div class="bar"><strong>05:45 · Captions embedded in video</strong><p>Video controls handle play, pause, and seeking.</p></div>
+    </div>
+    <nav class="side" aria-label="Lesson sections"><h2>Jump to a section</h2>
+      <button type="button" data-time="0">Opening · 00:00</button>
+      <button type="button" data-time="28.4">The decision · 00:28</button>
+      <button type="button" data-time="235">Presenter return · 03:55</button>
+      <button type="button" data-time="248.2">Final section · 04:08</button>
+      <button type="button" data-time="340">Closing · 05:40</button>
+    </nav>
+  </div>
+  <details class="current"><summary>Follow the current spoken line</summary><div aria-live="off"><strong>Read-along · <span id="clock">00:00</span></strong><p id="line">Start the video to follow the spoken text.</p></div></details>
+  <details class="transcript"><summary>Read the complete L01 transcript</summary><p class="note">Select a timestamp to seek. The transcript is available without playing the video.</p><ol id="cues"></ol></details>
+  <p class="note">Review-only local prototype. <a href="/captions.vtt" download>Download the synchronized WebVTT text</a>. The video, caption plan, and learner bindings remain separate.</p>
+</main>
+<script>
+const video=document.querySelector('#lesson'), line=document.querySelector('#line'), clock=document.querySelector('#clock'), list=document.querySelector('#cues');
+let cues=[], active=-1;
+const fmt=seconds=>`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
+function sync(){const ms=Math.floor(video.currentTime*1000);clock.textContent=fmt(video.currentTime);const next=cues.findIndex(c=>c.startMilliseconds<=ms&&ms<c.endMilliseconds);if(next===active)return;const previous=list.children[active];if(previous)previous.removeAttribute('aria-current');active=next;const current=list.children[active];if(current)current.setAttribute('aria-current','true');line.textContent=next>=0?cues[next].text:'No spoken line at this moment.'}
+fetch('/transcript.json').then(response=>{if(!response.ok)throw Error(response.status);return response.json()}).then(data=>{cues=data.cues;list.replaceChildren(...cues.map(cue=>{const li=document.createElement('li'),button=document.createElement('button'),time=document.createElement('time'),text=document.createElement('span');button.type='button';button.setAttribute('aria-label',`Seek to ${cue.start} · ${cue.text}`);button.addEventListener('click',()=>{video.currentTime=cue.startMilliseconds/1000;video.focus()});time.dateTime=`PT${cue.startMilliseconds/1000}S`;time.textContent=cue.start.slice(3,8);button.append(time);text.textContent=` ${cue.text}`;li.append(button,text);return li}));sync()}).catch(()=>{line.textContent='The local transcript could not be loaded.'});
+for(const button of document.querySelectorAll('[data-time]'))button.addEventListener('click',()=>{video.currentTime=Number(button.dataset.time);video.focus()});
+video.addEventListener('timeupdate',sync);video.addEventListener('seeked',sync);video.addEventListener('ended',sync);
+</script>
+</html>

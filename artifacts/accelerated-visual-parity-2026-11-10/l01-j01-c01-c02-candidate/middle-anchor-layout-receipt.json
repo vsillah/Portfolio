@@ -1,0 +1,167 @@
+{
+  "status": "still_only_middle_anchor_proposal_render_held",
+  "source_video_sha256": "a70ed876ccdedd468c1cfa7ea995087683c715fdb97c50bb1d58a58436820725",
+  "agentified_reference": {
+    "source": "agentified/workshop/l01-continuous-narration/render.mjs",
+    "also": "agentified/workshop/l05-l08-native-composite/render.mjs",
+    "source_1920x1080_xywh": [
+      1048,
+      326,
+      768,
+      432
+    ],
+    "normalized_xywh": [
+      0.5458,
+      0.3019,
+      0.4,
+      0.4
+    ],
+    "observed": "finished L01 at 5s and 520s, L05 at 5s and 590s, and L08 at 5s show a middle-right presenter"
+  },
+  "agentified_text_hierarchy_reference": [
+    {
+      "source": "public/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-composite.mp4",
+      "sha256": "10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14",
+      "sample_seconds": [
+        5,
+        40,
+        250
+      ],
+      "finding": "one teaching sentence beside presenter; cutaway adds owner context and operating-file artifact; timed exercise uses one number and instruction"
+    },
+    {
+      "source": "agentified/workshop/l05-l08-native-composite/agentified-l05-native-composite.mp4",
+      "sha256": "5dfd073aa0b22fa724cd13ebdb7b43799b1ffe3db5a20ee1d72babba1438d4d1",
+      "sample_seconds": [
+        5,
+        90,
+        100
+      ],
+      "finding": "one main point and short context; 100s two-line workflow headline above text card is a density caution"
+    },
+    {
+      "source": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+      "sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+      "sample_seconds": [
+        5,
+        90
+      ],
+      "finding": "headline hierarchy is clear, but text-led cutaway alone does not qualify Accelerated illustration"
+    }
+  ],
+  "accelerated_existing_anchor_xywh": [
+    1420,
+    48,
+    448,
+    256
+  ],
+  "proposed_source_1920x1080_xywh": [
+    1136,
+    348,
+    672,
+    384
+  ],
+  "proposed_normalized_xywh": [
+    0.5917,
+    0.3222,
+    0.35,
+    0.3556
+  ],
+  "native_presenter_crop_xywh": [
+    1420,
+    260,
+    448,
+    256
+  ],
+  "native_p02_crop_xywh": [
+    1420,
+    790,
+    448,
+    256
+  ],
+  "layout": {
+    "P01_worksheet_xywh": [
+      100,
+      285,
+      920,
+      400
+    ],
+    "P01_blank_interior_removed_source_px": 127,
+    "P01_worksheet_bottom_to_mobile_control_guard_source_px": 85,
+    "P02_map_xywh": [
+      275,
+      320,
+      530,
+      440
+    ],
+    "P02_focus_source_crops_xyxy": {
+      "signals": [
+        230,
+        250,
+        450,
+        400
+      ],
+      "alignment": [
+        480,
+        250,
+        700,
+        400
+      ],
+      "momentum": [
+        725,
+        250,
+        945,
+        400
+      ]
+    },
+    "P02_focus_destination_xywh": [
+      240,
+      335,
+      600,
+      409
+    ],
+    "P02_presenter_centerline_y": 540.0,
+    "P02_map_centerline_y": 540.0,
+    "P02_focus_centerline_y": 539.5,
+    "P02_focus_optical_offset_y": -0.5,
+    "P02_overlays_removed": [
+      "WORKSHOP MAP",
+      "Signals \u00b7 Alignment \u00b7 Momentum",
+      "Book parts: Systems \u00b7 Align \u00b7 Momentum"
+    ],
+    "P02_source_art_text": "preserved inside the original map crop",
+    "presenter_bottom_to_control_guard_source_px": 188,
+    "map_bottom_to_control_guard_source_px": 160,
+    "focus_bottom_to_control_guard_source_px": 176,
+    "caption_band_review_y_px": [
+      720,
+      820
+    ]
+  },
+  "observed_still_review": {
+    "desktop": "P02 whole map centerline y=540 matches fixed presenter centerline; each focused crop centerline y=539.5. No duplicate heading overlay; source map footer clears simulated controls.",
+    "390x844": "Focused source-art headings require actual-player readability review; simulated controls only establish preliminary clearance.",
+    "visual_balance": "P02 art and middle-right presenter share the same vertical centerline; P01 remains a separate pacing-review work surface.",
+    "P01_teaching_idea": "The blank decision field makes the named blank document visible; full scene illustration remains open.",
+    "reading_boundary": "Whole-map micro-labels failed the prior 390px gate; enlarged native source-art headings require a single short-reel check before any readiness claim."
+  },
+  "stills": {
+    "p01-middle-base.png": "ae7b6ba63739c8d45ecf9f3edeb4f0b487075ed78032d32059c845156d404071",
+    "p02-middle-base.png": "38bd6e20ed00b6f02547ee75854db7bfc6306327d373e8dad0b1ef7faf717e6d",
+    "P01-middle-desktop-controls.png": "b5a84e536049ea6f3bc9804684f71abd3b26576b27eee4e1a7d9f2efaf2c520d",
+    "P01-middle-390x844-controls.png": "1f6f5cb46963fef38a446a0bba588e74ee7858acb2360d2e53ab8314c6ead55a",
+    "P02-middle-desktop-controls.png": "ce47f57ec625eac2adbda9885b328a5223e4d894ecd06ffdead716ae9e2aa12b",
+    "P02-middle-390x844-controls.png": "63ae2f2bbfc25350072fa3f3fdea6d8d299e508ea645285f088f12fd42a7d9dd",
+    "P02-signals-middle-desktop-controls.png": "efd476cd81c2a1aef87d59346ba2cee1f20f53e9250a5c705225ebc8be5d27c2",
+    "P02-signals-middle-390x844-controls.png": "4efa6487012bc6a0e6b6345cce8202a1d6477d92bf4084b389319ef193f1055c",
+    "P02-alignment-middle-desktop-controls.png": "57df43ffe716d0a8dd523a53b79f6b82a857577a9dd2b1ac9608a64774b91434",
+    "P02-alignment-middle-390x844-controls.png": "49ee73d873f0bb36d6c9c47cb23a860e2f648f9ff31cae62e55c04cf9a7f9bd0",
+    "P02-momentum-middle-desktop-controls.png": "0163547dbfc1dcf804b376ac690aaec707ace15ce4ebc68d9027260a300f3d70",
+    "P02-momentum-middle-390x844-controls.png": "e9187f14ec81a9706c893f2dc9193b28905b4c5f85d0b642380818bf6e2d63ec"
+  },
+  "limits": [
+    "Controls in stills are simulated; actual Chrome playback needs the single authorized render.",
+    "Presenter is enlarged from a 448x256 native crop; inspect softness at full size.",
+    "No audio, captions, learner media, or binding changed."
+  ]
+}

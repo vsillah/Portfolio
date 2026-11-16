@@ -1,0 +1,32 @@
+{
+  "status": "PASS_LOCAL_REVIEW_ONLY_NOT_HUMAN_QA",
+  "review_date": "2026-11-11",
+  "source_commit_before_repair": "dfc27662",
+  "artifact": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4",
+  "artifact_sha256": "d5ba1883dc047fc1671a14a2c7726b592c47f0047ff2e5fed5c1cdf592fa2896",
+  "artifact_dimensions_px": [1280, 720],
+  "encoded_video_frames": 320,
+  "container_duration_seconds": 12.821333,
+  "source_presenter_anchor_1920x1080_xywh": [1136, 348, 672, 384],
+  "native_audio_windows_seconds": [[24.0, 28.4], [28.4, 30.8], [235.0, 241.0]],
+  "checks": {
+    "full_decode_and_source_bound_check": "passed: python3 -B scripts/qa/build-accelerated-l01-middle-motion.py check",
+    "presenter_handoffs": "passed: frames 4.36, 4.44, 6.76, 6.80, 6.84, and 6.88 seconds retain the same inset rectangle and visible native presenter; the first P02 video frame holds source 235.04s for 40 ms while its 235.0s audio remains unchanged",
+    "desktop_chrome_controls": "passed: P01 worksheet heading, field, and full border; P02 title, Book parts line, map and footer; presenter all clear of native controls",
+    "narrow_390x844_chrome_controls": "passed: P01 full worksheet border and field clear native control gradient; P02 full Book parts line, title, map footer, and presenter clear controls",
+    "caption_clearance": "passed geometrically: teaching content and presenter end above the video bottom; this 12.8s reel has no caption track or 100px full-candidate caption band",
+    "visual_balance": "passed: P01 worksheet is centered beside the middle-right presenter; P02 map and presenter remain centered, not pinned to the slide top",
+    "audio_pcm_continuity": "passed technically: decoded 48kHz mono PCM had nonzero RMS in 100 ms windows immediately before and after both 4.4s and 6.8s joins; decoded 48kHz stereo s16le SHA-256 b86a0394c94c793529d3b4c75ea8031975ddd328cac7de4962bcace963b76c97 matches the preceding middle-anchor reel exactly"
+  },
+  "player_url": "http://127.0.0.1:8771/artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4?rev=d5ba1883",
+  "limits": [
+    "Native audio join continuity was verified by source windows, full decode, PCM identity, and waveform windows; no new human listening signoff is claimed.",
+    "Detailed source-map micro-labels remain too small to be standalone reading text at 390px and remain open illustration work.",
+    "The P01 worksheet is intentionally sparse and remains subject to the 98-scene illustration audit; this is a pacing and geometry reel only.",
+    "No J01/C01/C02 timing render, full L01/C03, learner media or binding, HeyGen call, spend, merge, or release."
+  ],
+  "historical_failures": [
+    "middle-motion-failure-receipt.json: original Book parts line beneath narrow controls",
+    "middle-motion-repair-failure-receipt.json: prior P01 worksheet lower border beneath narrow controls"
+  ]
+}

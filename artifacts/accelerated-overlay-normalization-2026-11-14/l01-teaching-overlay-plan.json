@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "lesson": "L01",
+  "source": {
+    "canonical_script": "docs/accelerated-course-modules/curriculum/scripts/L01.md",
+    "desktop_video": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.mp4",
+    "portrait_video": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.mp4",
+    "captions": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.vtt"
+  },
+  "style": {
+    "contract": "accelerated-editorial-teaching-plate-v1",
+    "panel": "temporary deep AmaduTown-blue contrast field",
+    "type": "warm cream Avenir Next Demi Bold",
+    "accent": "thin AmaduTown-gold rule and border",
+    "motion": "reveal, hold, replace, clear"
+  },
+  "events": [
+    {
+      "id": "responsible-choice",
+      "start": 35.57,
+      "end": 38.938,
+      "text": "What makes this choice responsible?",
+      "source_cue": "What evidence would make that choice responsible?",
+      "desktop": {"x": 76, "y": 154, "font_size": 54},
+      "portrait": {"x": 20, "y": 118, "font_size": 25}
+    },
+    {
+      "id": "decision-path",
+      "start": 101.98,
+      "end": 108.775,
+      "text": "Record the signal. Name the decision.",
+      "source_cue": "A system gives those moments a path. It helps you record the signal, name the decision...",
+      "desktop_replace": {"target": [70, 145, 650, 360], "source": [70, 400, 650, 615]},
+      "desktop": {"x": 76, "y": 258, "font_size": 52},
+      "portrait": {"x": 20, "y": 118, "font_size": 24}
+    },
+    {
+      "id": "human-judgment",
+      "start": 122.192,
+      "end": 126.042,
+      "text": "Judgment stays with people.",
+      "source_cue": "The judgment still belongs to people who understand the consequences.",
+      "desktop_replace": {"target": [70, 145, 650, 360], "source": [70, 400, 650, 615]},
+      "desktop": {"x": 76, "y": 258, "font_size": 56},
+      "portrait": {"x": 20, "y": 118, "font_size": 27}
+    },
+    {
+      "id": "signals-question",
+      "start": 171.759,
+      "end": 178.496,
+      "text": "Signals: find the question worth answering.",
+      "source_cue": "First, take the raw material coming at you and find a question worth answering.",
+      "desktop_replace": {"target": [70, 145, 650, 360], "source": [70, 400, 650, 615]},
+      "desktop": {"x": 76, "y": 258, "font_size": 50},
+      "portrait": {"x": 20, "y": 118, "font_size": 23}
+    },
+    {
+      "id": "approved-inputs",
+      "start": 282.76,
+      "end": 288.964,
+      "text": "Use approved or synthetic information.",
+      "source_cue": "Use public information, material your organization has approved for that use, or a made-up example.",
+      "desktop": {"x": 76, "y": 154, "font_size": 52},
+      "portrait": {"x": 20, "y": 118, "font_size": 24}
+    }
+  ]
+}

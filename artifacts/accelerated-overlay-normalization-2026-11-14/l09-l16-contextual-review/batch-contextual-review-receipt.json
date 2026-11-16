@@ -1,0 +1,891 @@
+{
+  "schema": "accelerated_l09_l16_contextual_review_v1",
+  "pack_sha256": "a0952c90bdea643245e69ef64cee022dc6b670a129c455bec4e57c394de2c245",
+  "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+  "source_commit": "ee9c32231",
+  "fps": 25,
+  "lessons": {
+    "L09": {
+      "source": "$REPO/public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+      "source_sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a",
+      "audio_master_sha256": "6e1479b11553a45b9823001424065de62205f877a2d795e6bc82e1c12e0c3f9f",
+      "duration": 481.596167,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 22.92,
+          "sequence_start": 0.0,
+          "sequence_end": 22.92,
+          "audio_source": "$REPO/public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 22.92
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 135.959021,
+          "sequence_start": 22.92,
+          "sequence_end": 158.87902100000002,
+          "audio_source": "$NARRATION_ROOT/L09-J01-original.wav",
+          "audio_start": 0.0,
+          "audio_end": 135.959
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 21.197333,
+          "sequence_start": 158.87902100000002,
+          "sequence_end": 180.07635400000004,
+          "audio_source": "$REPO/public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+          "audio_start": 220.0,
+          "audio_end": 241.16
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 146.796729,
+          "sequence_start": 180.07635400000004,
+          "sequence_end": 326.87308300000007,
+          "audio_source": "$NARRATION_ROOT/L09-J01-original.wav",
+          "audio_start": 136.253,
+          "audio_end": 283.049705
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 14.514667,
+          "sequence_start": 326.87308300000007,
+          "sequence_end": 341.38775000000004,
+          "audio_source": "$REPO/public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+          "audio_start": 442.005333,
+          "audio_end": 456.52
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 122.935,
+          "sequence_start": 341.38775000000004,
+          "sequence_end": 464.32275000000004,
+          "audio_source": "$NARRATION_ROOT/L09-J02-replacement-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 123.191
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 11.986667,
+          "sequence_start": 464.32275000000004,
+          "sequence_end": 476.30941700000005,
+          "audio_source": "$REPO/public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+          "audio_start": 633.813333,
+          "audio_end": 645.8
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 5.28675,
+          "sequence_start": 476.30941700000005,
+          "sequence_end": 481.59616700000004,
+          "audio_source": "$NARRATION_ROOT/L09-J02-replacement-original.wav",
+          "audio_start": 123.561,
+          "audio_end": 128.84775510204082
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l09/l09-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l09/l09-desktop-contextual-review.mp4",
+          "sha256": "14a01eaa905ad96b0a5312081da8b1d6b19c335d3072faaf109381df9534f3ab",
+          "duration": 481.6,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l09/l09-portrait-contextual-review.mp4",
+          "sha256": "a0a4a6be59d77824b07cb97976e45a59cacc48fcaaf16d7acccf7eb0ad491ab9",
+          "duration": 481.6,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    "L10": {
+      "source": "$REPO/public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+      "source_sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297",
+      "audio_master_sha256": "89150da81f73bf4838c04d93951c62365291ddba1aa920907aaf655f5701856e",
+      "duration": 419.238333,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 22.613333,
+          "sequence_start": 0.0,
+          "sequence_end": 22.613333,
+          "audio_source": "$REPO/public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 22.613333
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 113.996,
+          "sequence_start": 22.613333,
+          "sequence_end": 136.609333,
+          "audio_source": "$NARRATION_ROOT/L10-J01-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 114.252
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 19.986667,
+          "sequence_start": 136.609333,
+          "sequence_end": 156.596,
+          "audio_source": "$REPO/public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+          "audio_start": 180.0,
+          "audio_end": 199.96
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 116.235,
+          "sequence_start": 156.596,
+          "sequence_end": 272.831,
+          "audio_source": "$NARRATION_ROOT/L10-J01-original.wav",
+          "audio_start": 114.663,
+          "audio_end": 230.898
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 18.978667,
+          "sequence_start": 272.831,
+          "sequence_end": 291.809667,
+          "audio_source": "$REPO/public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+          "audio_start": 363.221333,
+          "audio_end": 382.2
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 104.242,
+          "sequence_start": 291.809667,
+          "sequence_end": 396.051667,
+          "audio_source": "$NARRATION_ROOT/L10-J02-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 104.498
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 18.632,
+          "sequence_start": 396.051667,
+          "sequence_end": 414.683667,
+          "audio_source": "$REPO/public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+          "audio_start": 513.328,
+          "audio_end": 531.96
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 4.554667,
+          "sequence_start": 414.683667,
+          "sequence_end": 419.238334,
+          "audio_source": "$NARRATION_ROOT/L10-J02-original.wav",
+          "audio_start": 104.782,
+          "audio_end": 109.33666666666667
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l10/l10-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l10/l10-desktop-contextual-review.mp4",
+          "sha256": "0d25977792ba3bc0abe55bf8c620d51e417cec8f202bb81d430d93e1b1ae9179",
+          "duration": 419.24,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l10/l10-portrait-contextual-review.mp4",
+          "sha256": "588094f6befe9b83181c5b1ebabd2d0e7001e866f75600604e04135e9559129a",
+          "duration": 419.24,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    "L11": {
+      "source": "$REPO/public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+      "source_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+      "audio_master_sha256": "e0e55e09b0df614a6334445c08f17caf9870f9fae40f26706a08637fd57c3ad5",
+      "duration": 431.5585,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 21.48,
+          "sequence_start": 0.0,
+          "sequence_end": 21.48,
+          "audio_source": "$REPO/public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 21.48
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 118.221,
+          "sequence_start": 21.48,
+          "sequence_end": 139.701,
+          "audio_source": "$NARRATION_ROOT/L11-J01-original.wav",
+          "audio_start": 0.213,
+          "audio_end": 118.434
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 21.312,
+          "sequence_start": 139.701,
+          "sequence_end": 161.013,
+          "audio_source": "$REPO/public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+          "audio_start": 200.0,
+          "audio_end": 221.28
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 133.064917,
+          "sequence_start": 161.013,
+          "sequence_end": 294.077917,
+          "audio_source": "$NARRATION_ROOT/L11-J01-original.wav",
+          "audio_start": 118.832,
+          "audio_end": 251.89691609977325
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 19.714667,
+          "sequence_start": 294.077917,
+          "sequence_end": 313.79258400000003,
+          "audio_source": "$REPO/public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+          "audio_start": 402.325333,
+          "audio_end": 422.04
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 91.449,
+          "sequence_start": 313.79258400000003,
+          "sequence_end": 405.24158400000005,
+          "audio_source": "$NARRATION_ROOT/L11-J02-original.wav",
+          "audio_start": 0.213,
+          "audio_end": 91.662
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 16.901333,
+          "sequence_start": 405.24158400000005,
+          "sequence_end": 422.14291700000007,
+          "audio_source": "$REPO/public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+          "audio_start": 563.778667,
+          "audio_end": 580.68
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 9.415583,
+          "sequence_start": 422.14291700000007,
+          "sequence_end": 431.5585000000001,
+          "audio_source": "$NARRATION_ROOT/L11-J02-original.wav",
+          "audio_start": 92.127,
+          "audio_end": 101.54258503401361
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l11/l11-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l11/l11-desktop-contextual-review.mp4",
+          "sha256": "2f7425b884592a4fa9344d76a5a41feffd39753d70bc6959ef14011547c106e4",
+          "duration": 431.56,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l11/l11-portrait-contextual-review.mp4",
+          "sha256": "9c8896d13f26b2bd945535913ec2a4c875faec15c3ad59c1b87b773091ffbac7",
+          "duration": 431.56,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    "L12": {
+      "source": "$REPO/public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+      "source_sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c",
+      "audio_master_sha256": "a0f8364a4e7c2ef6f825570f03f4be30cf69c84c78b993429659c9d1c154b224",
+      "duration": 460.459375,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 24.52,
+          "sequence_start": 0.0,
+          "sequence_end": 24.52,
+          "audio_source": "$REPO/public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 24.52
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 123.046,
+          "sequence_start": 24.52,
+          "sequence_end": 147.566,
+          "audio_source": "$NARRATION_ROOT/L12-J01-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 123.302
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 21.317333,
+          "sequence_start": 147.566,
+          "sequence_end": 168.883333,
+          "audio_source": "$REPO/public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+          "audio_start": 220.0,
+          "audio_end": 241.28
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 135.111,
+          "sequence_start": 168.883333,
+          "sequence_end": 303.994333,
+          "audio_source": "$NARRATION_ROOT/L12-J01-original.wav",
+          "audio_start": 123.643,
+          "audio_end": 258.754
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 18.586667,
+          "sequence_start": 303.994333,
+          "sequence_end": 322.58099999999996,
+          "audio_source": "$REPO/public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+          "audio_start": 442.133333,
+          "audio_end": 460.72
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 112.04,
+          "sequence_start": 322.58099999999996,
+          "sequence_end": 434.621,
+          "audio_source": "$NARRATION_ROOT/L12-J02-original.wav",
+          "audio_start": 0.341,
+          "audio_end": 112.381
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 20.586667,
+          "sequence_start": 434.621,
+          "sequence_end": 455.20766699999996,
+          "audio_source": "$REPO/public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+          "audio_start": 625.133333,
+          "audio_end": 645.72
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 5.251708,
+          "sequence_start": 455.20766699999996,
+          "sequence_end": 460.45937499999997,
+          "audio_source": "$NARRATION_ROOT/L12-J02-original.wav",
+          "audio_start": 112.844,
+          "audio_end": 118.09569160997732
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l12/l12-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l12/l12-desktop-contextual-review.mp4",
+          "sha256": "b46934d58dccb0349bd0297e2e3637159701d75ad55fc3d57ed08c2c761ffb5b",
+          "duration": 460.459,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l12/l12-portrait-contextual-review.mp4",
+          "sha256": "38b1e02876052efa3383f176b0e946fe392fa444b928abe374fef84393bdcaaf",
+          "duration": 460.459,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    "L13": {
+      "source": "$REPO/public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+      "source_sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1",
+      "audio_master_sha256": "fb27bbb8a50b2c70ee408ab843a372df2dc12dd0ac36ab97ae6d289ca7c2ec01",
+      "duration": 485.91375,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 23.786667,
+          "sequence_start": 0.0,
+          "sequence_end": 23.786667,
+          "audio_source": "$REPO/public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 23.786667
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 139.622,
+          "sequence_start": 23.786667,
+          "sequence_end": 163.408667,
+          "audio_source": "$NARRATION_ROOT/L13-J01-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 139.878
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 15.629333,
+          "sequence_start": 163.408667,
+          "sequence_end": 179.038,
+          "audio_source": "$REPO/public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+          "audio_start": 226.0,
+          "audio_end": 241.594667
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 146.137875,
+          "sequence_start": 179.038,
+          "sequence_end": 325.175875,
+          "audio_source": "$NARRATION_ROOT/L13-J01-original.wav",
+          "audio_start": 140.175,
+          "audio_end": 286.3128798185941
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 25.706667,
+          "sequence_start": 325.175875,
+          "sequence_end": 350.882542,
+          "audio_source": "$REPO/public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+          "audio_start": 446.0,
+          "audio_end": 471.68
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 113.992,
+          "sequence_start": 350.882542,
+          "sequence_end": 464.874542,
+          "audio_source": "$NARRATION_ROOT/L13-J02-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 114.248
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 17.637333,
+          "sequence_start": 464.874542,
+          "sequence_end": 482.51187500000003,
+          "audio_source": "$REPO/public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+          "audio_start": 632.28,
+          "audio_end": 649.88
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 3.401875,
+          "sequence_start": 482.51187500000003,
+          "sequence_end": 485.91375000000005,
+          "audio_source": "$NARRATION_ROOT/L13-J02-original.wav",
+          "audio_start": 114.561,
+          "audio_end": 117.9628798185941
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l13/l13-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l13/l13-desktop-contextual-review.mp4",
+          "sha256": "356d466617873ba3d64b8e2d000d2e49c60e948750370c9ec0b2f45b48974135",
+          "duration": 485.92,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l13/l13-portrait-contextual-review.mp4",
+          "sha256": "89e0cac32efa3c8ef0eddfc1e8e1d8a8d9ddd713c94fb66f66f258fb20404b12",
+          "duration": 485.92,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    "L14": {
+      "source": "$REPO/public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+      "source_sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143",
+      "audio_master_sha256": "313716e5f8eca8bd0ad092bbb2b4b4daed6b1117563ec4d73d7dba344e9d4776",
+      "duration": 368.532979,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 26.28,
+          "sequence_start": 0.0,
+          "sequence_end": 26.28,
+          "audio_source": "$REPO/public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 26.28
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 100.432,
+          "sequence_start": 26.28,
+          "sequence_end": 126.712,
+          "audio_source": "$NARRATION_ROOT/L14-J01-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 100.688
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 25.146667,
+          "sequence_start": 126.712,
+          "sequence_end": 151.858667,
+          "audio_source": "$REPO/public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+          "audio_start": 164.0,
+          "audio_end": 189.12
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 101.011,
+          "sequence_start": 151.858667,
+          "sequence_end": 252.869667,
+          "audio_source": "$NARRATION_ROOT/L14-J01-original.wav",
+          "audio_start": 101.143,
+          "audio_end": 202.154
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 22.464,
+          "sequence_start": 252.869667,
+          "sequence_end": 275.333667,
+          "audio_source": "$REPO/public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+          "audio_start": 330.0,
+          "audio_end": 352.44
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 72.494,
+          "sequence_start": 275.333667,
+          "sequence_end": 347.827667,
+          "audio_source": "$NARRATION_ROOT/L14-J01-original.wav",
+          "audio_start": 202.524,
+          "audio_end": 275.018
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 13.669313,
+          "sequence_start": 347.827667,
+          "sequence_end": 361.49698,
+          "audio_source": "$REPO/public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+          "audio_start": 454.818667,
+          "audio_end": 468.48
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 7.036,
+          "sequence_start": 361.49698,
+          "sequence_end": 368.53298,
+          "audio_source": "$NARRATION_ROOT/L14-J01-original.wav",
+          "audio_start": 275.426,
+          "audio_end": 282.462
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l14/l14-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l14/l14-desktop-contextual-review.mp4",
+          "sha256": "c1f1426d0d8639018f5519e7ae1a868cbb8e8a8b10435718f2942f50a00bf521",
+          "duration": 368.533,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l14/l14-portrait-contextual-review.mp4",
+          "sha256": "e4d3fdbd5804d543c5158bec4ec74b09b7922de1b23cbc1fbe293877c86d64cb",
+          "duration": 368.533,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    "L15": {
+      "source": "$REPO/public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+      "source_sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3",
+      "audio_master_sha256": "834c97338e659a54474b9cbe9cffba23d8867113aaba4da8867e87a3c83ca40c",
+      "duration": 582.974708,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 22.506667,
+          "sequence_start": 0.0,
+          "sequence_end": 22.506667,
+          "audio_source": "$REPO/public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 22.506667
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 169.924,
+          "sequence_start": 22.506667,
+          "sequence_end": 192.430667,
+          "audio_source": "$NARRATION_ROOT/L15-J01-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 170.18
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 24.984,
+          "sequence_start": 192.430667,
+          "sequence_end": 217.414667,
+          "audio_source": "$REPO/public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+          "audio_start": 243.0,
+          "audio_end": 267.96
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 164.161625,
+          "sequence_start": 217.414667,
+          "sequence_end": 381.57629199999997,
+          "audio_source": "$NARRATION_ROOT/L15-J02-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 164.41761904761904
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 25.122667,
+          "sequence_start": 381.57629199999997,
+          "sequence_end": 406.69895899999995,
+          "audio_source": "$REPO/public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+          "audio_start": 481.0,
+          "audio_end": 506.088
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 150.092,
+          "sequence_start": 406.69895899999995,
+          "sequence_end": 556.7909589999999,
+          "audio_source": "$NARRATION_ROOT/L15-J03-original.wav",
+          "audio_start": 0.256,
+          "audio_end": 150.348
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 20.48,
+          "sequence_start": 556.7909589999999,
+          "sequence_end": 577.270959,
+          "audio_source": "$REPO/public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+          "audio_start": 688.08,
+          "audio_end": 708.52
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 5.70375,
+          "sequence_start": 577.270959,
+          "sequence_end": 582.974709,
+          "audio_source": "$NARRATION_ROOT/L15-J03-original.wav",
+          "audio_start": 150.718,
+          "audio_end": 156.42176870748298
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l15/l15-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l15/l15-desktop-contextual-review.mp4",
+          "sha256": "23db53dc2fd8690f4ca1796ba7fd8750aa91f70a81d2c6a40589cd8549a9f3b3",
+          "duration": 582.975,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l15/l15-portrait-contextual-review.mp4",
+          "sha256": "1fa59dfd96eebd84511a99018d823f52aff55f4f04e0fdddc2a702b12b9625d7",
+          "duration": 582.975,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    "L16": {
+      "source": "$REPO/public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+      "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+      "audio_master_sha256": "3b0a3cfd20e2dcd834a1b1e2e28dd1ca810d5436da0efc1fe909a787a0e731aa",
+      "duration": 376.246,
+      "windows": [
+        {
+          "id": "P01",
+          "kind": "presenter",
+          "duration": 24.9,
+          "sequence_start": 0.0,
+          "sequence_end": 24.9,
+          "audio_source": "$REPO/public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+          "audio_start": 0,
+          "audio_end": 24.9
+        },
+        {
+          "id": "C01",
+          "kind": "cutaway",
+          "duration": 99.968,
+          "sequence_start": 24.9,
+          "sequence_end": 124.868,
+          "audio_source": "$NARRATION_ROOT/L16-J01-original.wav",
+          "audio_start": 0.299,
+          "audio_end": 100.267
+        },
+        {
+          "id": "P02",
+          "kind": "presenter",
+          "duration": 23.221333,
+          "sequence_start": 124.868,
+          "sequence_end": 148.089333,
+          "audio_source": "$REPO/public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+          "audio_start": 161.0,
+          "audio_end": 184.2
+        },
+        {
+          "id": "C02",
+          "kind": "cutaway",
+          "duration": 101.323,
+          "sequence_start": 148.089333,
+          "sequence_end": 249.412333,
+          "audio_source": "$NARRATION_ROOT/L16-J01-original.wav",
+          "audio_start": 100.552,
+          "audio_end": 201.875
+        },
+        {
+          "id": "P03",
+          "kind": "presenter",
+          "duration": 25.434667,
+          "sequence_start": 249.412333,
+          "sequence_end": 274.847,
+          "audio_source": "$REPO/public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+          "audio_start": 316.0,
+          "audio_end": 341.4
+        },
+        {
+          "id": "C03",
+          "kind": "cutaway",
+          "duration": 74.593,
+          "sequence_start": 274.847,
+          "sequence_end": 349.44,
+          "audio_source": "$NARRATION_ROOT/L16-J01-original.wav",
+          "audio_start": 202.33,
+          "audio_end": 276.923
+        },
+        {
+          "id": "P04",
+          "kind": "presenter",
+          "duration": 23.112,
+          "sequence_start": 349.44,
+          "sequence_end": 372.552,
+          "audio_source": "$REPO/public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+          "audio_start": 449.44,
+          "audio_end": 472.52
+        },
+        {
+          "id": "C04",
+          "kind": "cutaway",
+          "duration": 3.694,
+          "sequence_start": 372.552,
+          "sequence_end": 376.24600000000004,
+          "audio_source": "$NARRATION_ROOT/L16-J01-original.wav",
+          "audio_start": 277.293,
+          "audio_end": 280.987
+        }
+      ],
+      "captions": "$REVIEW_OUTPUT/l16/l16-captions.vtt",
+      "outputs": {
+        "desktop": {
+          "path": "$REVIEW_OUTPUT/l16/l16-desktop-contextual-review.mp4",
+          "sha256": "f00e2adc417dec8bcba5a2f25fcd51d48e2dbd5439616f89bbaaf83b297e19da",
+          "duration": 376.246,
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait": {
+          "path": "$REVIEW_OUTPUT/l16/l16-portrait-contextual-review.mp4",
+          "sha256": "7ef4e52b12f2ae6565256d9305d3ccff14d2cdea9079bd0ae7fd54d53e5c5c1e",
+          "duration": 376.246,
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    }
+  },
+  "exclusions": [
+    "provider contact",
+    "spend",
+    "learner media change",
+    "PR update",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ]
+}

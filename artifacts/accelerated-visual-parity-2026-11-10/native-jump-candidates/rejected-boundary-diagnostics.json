@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "status": "rejected_no_review_candidate",
+  "count": 3,
+  "results": [
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A01",
+      "reason": "“cards” ends against “Now”; both ASR comparisons lose the final plural sound.",
+      "diagnostic_asr": {
+        "lesson_id": "L06",
+        "presenter_window": "A01",
+        "orientation": "tail",
+        "candidate_sha256": "96256097d817aa90d38eb82259306bfc4dd37a0ac1b5d343102861503a176faa",
+        "removed_probe_words": "now the bet enters",
+        "retained_probe_words": "lesson beside the cards",
+        "before_transcripts": {
+          "base.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document.",
+          "small.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the cards. Now the bet enters a product requirements document,"
+        },
+        "after_transcripts": {
+          "base.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the card.",
+          "small.en": "There are three cards on the wall. Add a reminder. Rewrite the first task. Give staff a dashboard. Every card has someone who can make a case for it. The meeting could become a contest of confidence and the team could leave with a list that feels balanced but teaches little. Put the feedback ledger from the last lesson beside the card."
+        },
+        "model_checks": {
+          "base.en": {
+            "removed_phrase_in_before": true,
+            "removed_phrase_in_after": false,
+            "retained_phrase_in_after": false
+          },
+          "small.en": {
+            "removed_phrase_in_before": true,
+            "removed_phrase_in_after": false,
+            "retained_phrase_in_after": false
+          }
+        },
+        "status": "machine_comparison_not_audible_signoff",
+        "machine_result": "blocked_retained_word_boundary_uncertain"
+      },
+      "rejected_receipt": {
+        "status": "review_only_machine_candidate_not_audibly_signed_off",
+        "lesson_id": "L06",
+        "presenter_window": "A01",
+        "orientation": "tail",
+        "source_path": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+        "source_sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729",
+        "source_window_seconds": [
+          0,
+          20.92
+        ],
+        "candidate_cut_seconds": 17.706667,
+        "machine_onset_seconds": 17.72,
+        "aac_snap_delta_seconds": 0.013333,
+        "intended_words": {
+          "retained_approved_words_end": "ledger from the last lesson beside the cards",
+          "removed_later_phrase_start": "Now the bet enters a product requirements document. A blank template can"
+        },
+        "silent_packet_source_start_seconds": 22.92,
+        "copied_silence_peak_dbfs": -91.0,
+        "retained_native_packet_count": 830,
+        "copied_silence_packet_count": 151,
+        "candidate_audio_packets_match_source_extracts": true,
+        "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a01-tail-candidate.mp4",
+        "candidate_sha256": "96256097d817aa90d38eb82259306bfc4dd37a0ac1b5d343102861503a176faa",
+        "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l06-a01-tail-before-after.mp4",
+        "before_after_sha256": "d88c947a00eaf3165b526bbf36447f962aa90a64c5b9b8732de1441fffe95815",
+        "before_after_source_excerpt_seconds": [
+          14.206667,
+          20.92
+        ],
+        "before_after_segment_seconds": 6.713,
+        "candidate_duration_seconds": 20.928,
+        "before_after_duration_seconds": 13.433,
+        "full_mp4_decode": "passed",
+        "voice_generation": false,
+        "learner_binding": false,
+        "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+      },
+      "candidate_media_removed": true
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A01",
+      "reason": "“pain point” ends against “Write”; both ASR comparisons lose the retained final words.",
+      "diagnostic_asr": {
+        "lesson_id": "L16",
+        "presenter_window": "A01",
+        "orientation": "tail",
+        "candidate_sha256": "beca1ae935d177dc8b36272350ea46f43bee4d8c6f0238fe0b5c6362b9f229b9",
+        "removed_probe_words": "write the next action",
+        "retained_probe_words": "with one pain point",
+        "before_transcripts": {
+          "base.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb.",
+          "small.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one pain point. Write the next action in a sentence that begins with a verb."
+        },
+        "after_transcripts": {
+          "base.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one",
+          "small.en": "Go back to the decision you wrote on the first page. At the time, it may have been a broad request. Improve onboarding, grow revenue, or use AI to move faster. The file now gives that request edges. It names the person served, the evidence that exists, the alternatives considered, the tests that could change the choice, and the people who must review it. Chapter 26 calls for starting with one"
+        },
+        "model_checks": {
+          "base.en": {
+            "removed_phrase_in_before": true,
+            "removed_phrase_in_after": false,
+            "retained_phrase_in_after": false
+          },
+          "small.en": {
+            "removed_phrase_in_before": true,
+            "removed_phrase_in_after": false,
+            "retained_phrase_in_after": false
+          }
+        },
+        "status": "machine_comparison_not_audible_signoff",
+        "machine_result": "blocked_retained_word_boundary_uncertain"
+      },
+      "rejected_receipt": {
+        "status": "review_only_machine_candidate_not_audibly_signed_off",
+        "lesson_id": "L16",
+        "presenter_window": "A01",
+        "orientation": "tail",
+        "source_path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+        "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+        "source_window_seconds": [
+          0,
+          28.48
+        ],
+        "candidate_cut_seconds": 24.192,
+        "machine_onset_seconds": 24.2,
+        "aac_snap_delta_seconds": 0.008,
+        "intended_words": {
+          "retained_approved_words_end": "Six calls for starting with one pain point",
+          "removed_later_phrase_start": "Write the next action in a sentence that begins with a verb"
+        },
+        "silent_packet_source_start_seconds": 30.48,
+        "copied_silence_peak_dbfs": -91.0,
+        "retained_native_packet_count": 1134,
+        "copied_silence_packet_count": 201,
+        "candidate_audio_packets_match_source_extracts": true,
+        "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a01-tail-candidate.mp4",
+        "candidate_sha256": "beca1ae935d177dc8b36272350ea46f43bee4d8c6f0238fe0b5c6362b9f229b9",
+        "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a01-tail-before-after.mp4",
+        "before_after_sha256": "4a5d62d3e60ae878adc26fa9297138dd5874a1ea3120f36fa48e7fc30fb28996",
+        "before_after_source_excerpt_seconds": [
+          20.692,
+          27.692
+        ],
+        "before_after_segment_seconds": 7.0,
+        "candidate_duration_seconds": 28.48,
+        "before_after_duration_seconds": 14.0,
+        "full_mp4_decode": "passed",
+        "voice_generation": false,
+        "learner_binding": false,
+        "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+      },
+      "candidate_media_removed": true
+    },
+    {
+      "lesson_id": "L16",
+      "presenter_window": "A02",
+      "reason": "“it” ends against “Put”; both ASR comparisons lose the retained final word.",
+      "diagnostic_asr": {
+        "lesson_id": "L16",
+        "presenter_window": "A02",
+        "orientation": "tail",
+        "candidate_sha256": "27b43fb914e86f7e4bb1495010126f1b7ac54e30b790c0642136c66154cc1c4c",
+        "removed_probe_words": "put a short review",
+        "retained_probe_words": "person who owns it",
+        "before_transcripts": {
+          "base.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,",
+          "small.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns it. Put a short review on the calendar with the owner,"
+        },
+        "after_transcripts": {
+          "base.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns",
+          "small.en": "Interview three approved participants about the first task. Review six source notes with the service owner. Test two versions of a concept with a small eligible group. The examples are options, not prescriptions, and their numbers are exercise sizes, not customer outcomes. Choose the move that fits your actual permission and capacity. Add a person who owns"
+        },
+        "model_checks": {
+          "base.en": {
+            "removed_phrase_in_before": true,
+            "removed_phrase_in_after": false,
+            "retained_phrase_in_after": false
+          },
+          "small.en": {
+            "removed_phrase_in_before": true,
+            "removed_phrase_in_after": false,
+            "retained_phrase_in_after": false
+          }
+        },
+        "status": "machine_comparison_not_audible_signoff",
+        "machine_result": "blocked_retained_word_boundary_uncertain"
+      },
+      "rejected_receipt": {
+        "status": "review_only_machine_candidate_not_audibly_signed_off",
+        "lesson_id": "L16",
+        "presenter_window": "A02",
+        "orientation": "tail",
+        "source_path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+        "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+        "source_window_seconds": [
+          161.0,
+          187.08
+        ],
+        "candidate_cut_seconds": 183.72,
+        "machine_onset_seconds": 183.73,
+        "aac_snap_delta_seconds": 0.01,
+        "intended_words": {
+          "retained_approved_words_end": "and capacity. Add a person who owns it",
+          "removed_later_phrase_start": "Put a short review on the calendar with the owner and anyone"
+        },
+        "silent_packet_source_start_seconds": 189.08,
+        "copied_silence_peak_dbfs": -91.0,
+        "retained_native_packet_count": 1066,
+        "copied_silence_packet_count": 158,
+        "candidate_audio_packets_match_source_extracts": true,
+        "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a02-tail-candidate.mp4",
+        "candidate_sha256": "27b43fb914e86f7e4bb1495010126f1b7ac54e30b790c0642136c66154cc1c4c",
+        "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l16-a02-tail-before-after.mp4",
+        "before_after_sha256": "6e7257ac90ceacbbf2c6ff189587b84d3a83cf77b902c8ef4d1791261f8410e1",
+        "before_after_source_excerpt_seconds": [
+          180.22,
+          187.08
+        ],
+        "before_after_segment_seconds": 6.86,
+        "candidate_duration_seconds": 26.090667,
+        "before_after_duration_seconds": 13.74,
+        "full_mp4_decode": "passed",
+        "voice_generation": false,
+        "learner_binding": false,
+        "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+      },
+      "candidate_media_removed": true
+    }
+  ]
+}

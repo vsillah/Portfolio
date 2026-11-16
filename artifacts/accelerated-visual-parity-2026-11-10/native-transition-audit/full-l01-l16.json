@@ -1,0 +1,5716 @@
+{
+  "schema_version": 1,
+  "status": "source_threshold_and_asr_diagnostic_only",
+  "source_edl": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/full-lesson-timing-decisions.json",
+    "sha256": "50846b9c7a966cf51dfc4540bb88aa311318b7d199f18c3c09797904ea753326"
+  },
+  "source_asr_audit": {
+    "path": "artifacts/accelerated-visual-parity-2026-11-10/presenter-audio-asr-audit.json",
+    "sha256": "9868f58242b53d15c99507ce861cccb2a2a6440cfbc6cc86d412ceeee341da4c"
+  },
+  "lesson_count": 16,
+  "presenter_window_count": 64,
+  "transition_count": 111,
+  "findings": [
+    {
+      "lesson_id": "L01",
+      "time_seconds": 0.0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 235.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 345.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 31.52,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          29.348,
+          34.472
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 235.0,
+      "window": "C01→P02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          232.127,
+          237.597
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 248.2,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          245.055,
+          252.514
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 358.96,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          352.461,
+          359.921
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 515.0,
+      "window": "C03→P04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          511.354,
+          517.083
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L01",
+      "time_seconds": 31.52,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 3,
+      "total_silent_gap_seconds": 456.32,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 0.0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 180.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 366.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 573.88,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 29.76,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          29.483,
+          40.345
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 194.28,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          191.95,
+          199.743
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 376.2,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          366.0,
+          378.283
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 587.24,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          582.738,
+          589.82
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L02",
+      "time_seconds": 29.76,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 532.4,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L03",
+      "time_seconds": 22.28,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          11.931,
+          23.861
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L03",
+      "time_seconds": 190.84,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          182.186,
+          193.442
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L03",
+      "time_seconds": 360.28,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          357.787,
+          365.539
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L03",
+      "time_seconds": 526.24,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          520.721,
+          532.184
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L03",
+      "time_seconds": 22.28,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 477.32,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 165.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 350.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 572.92,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 25.72,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          19.294,
+          25.882
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 178.84,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          173.128,
+          180.241
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 365.24,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          355.562,
+          365.674
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 585.44,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          579.447,
+          585.987
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L04",
+      "time_seconds": 25.72,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 532.68,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 200.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 400.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 19.24,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          18.317,
+          22.277
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 220.88,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          211.163,
+          223.256
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 414.32,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          411.321,
+          417.453
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 584.96,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          581.043,
+          588.626
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 397.58,
+      "window": "C02→P03",
+      "kind": "coordinated_join_zero_transition_reserve",
+      "moved_opening_target_seconds": [
+        397.58,
+        400.0
+      ],
+      "scope": "final_presenter_matched_voice_required_to_qualify_fit"
+    },
+    {
+      "lesson_id": "L05",
+      "time_seconds": 19.24,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 534.52,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 220.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 440.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 20.92,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          14.977,
+          26.338
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 236.8,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          230.427,
+          245.545
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 453.4,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          451.362,
+          454.46
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 646.08,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          634.419,
+          647.2090000000001
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 437.72,
+      "window": "C02→P03",
+      "kind": "coordinated_join_zero_transition_reserve",
+      "moved_opening_target_seconds": [
+        437.72,
+        440.0
+      ],
+      "scope": "final_presenter_matched_voice_required_to_qualify_fit"
+    },
+    {
+      "lesson_id": "L06",
+      "time_seconds": 20.92,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 593.64,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 200.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 400.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 569.96,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 18.0,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          17.241,
+          28.079
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 214.56,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          213.5,
+          217.5
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 411.92,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          407.614,
+          413.706
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 585.92,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          577.72,
+          587.047
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L07",
+      "time_seconds": 18.0,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 539.56,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 240.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 480.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 28.52,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          19.404,
+          29.617
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 258.0,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          251.092,
+          259.664
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 495.36,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          494.545,
+          497.662
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 702.8,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          701.299,
+          710.13
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 478.0,
+      "window": "C02→P03",
+      "kind": "coordinated_join_zero_transition_reserve",
+      "moved_opening_target_seconds": [
+        478.0,
+        480.0
+      ],
+      "scope": "final_presenter_matched_voice_required_to_qualify_fit"
+    },
+    {
+      "lesson_id": "L08",
+      "time_seconds": 28.52,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 636.36,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 220.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 440.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 630.72,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 22.92,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          22.291,
+          31.013
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 241.16,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          241.064,
+          242.468
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 456.52,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          454.0,
+          463.0
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 645.8,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          641.588,
+          648.67
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L09",
+      "time_seconds": 22.92,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 584.32,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 180.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 360.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 511.6,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 25.92,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          25.385,
+          28.615
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 199.96,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          198.0,
+          206.526
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 382.2,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          380.05,
+          384.059
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 531.96,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          530.388,
+          534.32
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L10",
+      "time_seconds": 25.92,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 451.56,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 200.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 400.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 561.56,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 21.48,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          17.874,
+          26.57
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 221.28,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          217.56799999999998,
+          223.874
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 422.04,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          416.585,
+          428.78
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 580.68,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          575.369,
+          580.788
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L11",
+      "time_seconds": 21.48,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 516.08,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 220.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 440.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 622.68,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 24.52,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          23.239,
+          35.117
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 241.28,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          238.246,
+          245.024
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 460.72,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          459.442,
+          469.163
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 645.72,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          643.853,
+          647.89
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L12",
+      "time_seconds": 24.52,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 570.44,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 226.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 446.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 28.04,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          25.245,
+          32.527
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 246.28,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          245.0,
+          252.308
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 471.68,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          469.24,
+          472.145
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 649.88,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          647.841,
+          654.65
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L13",
+      "time_seconds": 28.04,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 568.4,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L14",
+      "time_seconds": 330.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L14",
+      "time_seconds": 451.32,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L14",
+      "time_seconds": 26.28,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          22.83,
+          26.557
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L14",
+      "time_seconds": 189.12,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          185.133,
+          193.586
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L14",
+      "time_seconds": 352.44,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          351.448,
+          354.712
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L14",
+      "time_seconds": 26.28,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 389.0,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 243.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 481.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 688.08,
+      "window": "P04",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 25.84,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          25.731,
+          28.836
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 267.96,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          267.73,
+          273.912
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 508.84,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          506.919,
+          510.495
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 708.52,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          706.705,
+          712.466
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L15",
+      "time_seconds": 25.84,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 620.92,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 0,
+      "window": "P01",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": true,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 161.0,
+      "window": "P02",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": false,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 316.0,
+      "window": "P03",
+      "kind": "existing_asr_window_text_mismatch",
+      "head_match": false,
+      "tail_match": true,
+      "scope": "diagnostic_only_cut_signoff_does_not_approve_full_window"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 28.48,
+      "window": "P01→C01",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          27.871,
+          31.79
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 187.08,
+      "window": "P02→C02",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          184.4,
+          188.733
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 341.4,
+      "window": "P03→C03",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          340.095,
+          347.543
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 472.52,
+      "window": "P04→C04",
+      "kind": "source_vtt_cue_crosses_window_boundary",
+      "cue_count": 1,
+      "cue_seconds": [
+        [
+          471.273,
+          473.01800000000003
+        ]
+      ],
+      "scope": "caption_reference_collision_requires_final_timing_check"
+    },
+    {
+      "lesson_id": "L16",
+      "time_seconds": 28.48,
+      "window": "all_cutaways",
+      "kind": "native_source_cutaway_narration_absent",
+      "cutaway_count": 4,
+      "total_silent_gap_seconds": 376.96,
+      "maximum_threshold_activity_seconds": 0,
+      "scope": "current_native_source_only_not_future_narrated_edit"
+    }
+  ],
+  "lessons": [
+    {
+      "lesson_id": "L01",
+      "source": {
+        "path": "public/accelerated/lessons/l01/approved-ee09bf72/accelerated-l01-native-composite.mp4",
+        "sha256": "ee09bf72887ca7507229b86f89c4b81b21ba4f97f3290b3451ca704506e7991a"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l01/approved-ee09bf72/l01-approved-captions.vtt",
+        "sha256": "ceb998e79c84eb564548d155602a83b7cc1725d5b764a723ab6cd931b093184f",
+        "cue_count": 84
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0.0,
+            31.52
+          ],
+          "first_threshold_activity_seconds": 0.157,
+          "last_threshold_activity_seconds": 30.66,
+          "leading_hold_seconds": 0.157,
+          "trailing_hold_seconds": 0.86,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            235.0,
+            248.2
+          ],
+          "first_threshold_activity_seconds": 235.021,
+          "last_threshold_activity_seconds": 248.194,
+          "leading_hold_seconds": 0.021,
+          "trailing_hold_seconds": 0.006,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 523,
+              "to_script_word": 708,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            345.0,
+            358.96
+          ],
+          "first_threshold_activity_seconds": 345.021,
+          "last_threshold_activity_seconds": 358.807,
+          "leading_hold_seconds": 0.021,
+          "trailing_hold_seconds": 0.153,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            515.0,
+            529.48
+          ],
+          "first_threshold_activity_seconds": 515.021,
+          "last_threshold_activity_seconds": 529.202,
+          "leading_hold_seconds": 0.021,
+          "trailing_hold_seconds": 0.278,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            31.52,
+            235.0
+          ],
+          "duration_seconds": 203.48,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            248.2,
+            345.0
+          ],
+          "duration_seconds": 96.8,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            358.96,
+            515.0
+          ],
+          "duration_seconds": 156.04,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 31.52,
+          "planned_boundary_seconds": 31.52,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 29.348,
+              "end_seconds": 34.472,
+              "text": "confident looking answer. Now what? Who will decide which idea matters?"
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 235.0,
+          "planned_boundary_seconds": 235.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 232.127,
+              "end_seconds": 237.597,
+              "text": "manager who has talent but keeps getting pulled into reactive work."
+            }
+          ]
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 248.2,
+          "planned_boundary_seconds": 248.2,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 245.055,
+              "end_seconds": 252.514,
+              "text": "a claim about a current customer. Keep that distinction in view as we move between"
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 345.0,
+          "planned_boundary_seconds": 345.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 358.96,
+          "planned_boundary_seconds": 358.96,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 352.461,
+              "end_seconds": 359.921,
+              "text": "a tool. Write one sentence: “We need to decide whether to...” It could be whether"
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 515.0,
+          "planned_boundary_seconds": 515.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 511.354,
+              "end_seconds": 517.083,
+              "text": "If you have only a vague problem now, that is enough."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L02",
+      "source": {
+        "path": "public/accelerated/lessons/l02/approved-ded23edb/accelerated-l02-native-composite.mp4",
+        "sha256": "ded23edb31cd957689617e3d132f1360957ffe3a60bb5274f478f910b09e3af6"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l02/approved-ded23edb/l02-captions.vtt",
+        "sha256": "ce7d486748d32b43e2aa9a4f53d6682b3168b66c71527b935e510666edec71fd",
+        "cue_count": 94
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0.0,
+            29.76
+          ],
+          "first_threshold_activity_seconds": 0.0,
+          "last_threshold_activity_seconds": 29.753,
+          "leading_hold_seconds": 0.0,
+          "trailing_hold_seconds": 0.007,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 57,
+              "to_script_word": 353,
+              "asr_gap_words": 2
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L02 A01",
+              "review_clip_sha256": "911675491d456f5df2b2ea7dc6fdd2b3cd26a18f3f324075a9170386a475ab74",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            180.0,
+            194.28
+          ],
+          "first_threshold_activity_seconds": 180.192,
+          "last_threshold_activity_seconds": 194.017,
+          "leading_hold_seconds": 0.192,
+          "trailing_hold_seconds": 0.263,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 389,
+              "to_script_word": 709,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L02 A02",
+              "review_clip_sha256": "13fba38cccba5b4c00f80b27adc6d49c920a385c6bafd4d3b953f81a6f0eee07",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            366.0,
+            376.2
+          ],
+          "first_threshold_activity_seconds": 366.412,
+          "last_threshold_activity_seconds": 375.813,
+          "leading_hold_seconds": 0.412,
+          "trailing_hold_seconds": 0.387,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 751,
+              "to_script_word": 1129,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L02 A03",
+              "review_clip_sha256": "9e9e3b473d3bc178b0b18a3cbf3e9b01ed6c1d79aeb5da76d7cad4a3f42f5b88",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            573.88,
+            587.24
+          ],
+          "first_threshold_activity_seconds": 574.36,
+          "last_threshold_activity_seconds": 587.001,
+          "leading_hold_seconds": 0.48,
+          "trailing_hold_seconds": 0.239,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            29.76,
+            180.0
+          ],
+          "duration_seconds": 150.24,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            194.28,
+            366.0
+          ],
+          "duration_seconds": 171.72,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            376.2,
+            573.88
+          ],
+          "duration_seconds": 197.68,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            587.24,
+            600.0
+          ],
+          "duration_seconds": 12.76,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 29.76,
+          "planned_boundary_seconds": 29.76,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 29.483,
+              "end_seconds": 40.345,
+              "text": "In Chapter Two, I tell a version of this planning meeting and ask what the team cannot afford to get wrong."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 180.0,
+          "planned_boundary_seconds": 180.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 194.28,
+          "planned_boundary_seconds": 194.28,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 191.95,
+              "end_seconds": 199.743,
+              "text": "If you are asking whether a market is attractive, the book offers a market frame."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 366.0,
+          "planned_boundary_seconds": 366.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 376.2,
+          "planned_boundary_seconds": 376.2,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 366.0,
+              "end_seconds": 378.283,
+              "text": "There is another question that can make a promising idea fail: how does the value reach a customer, and how does the work sustain itself?"
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 573.88,
+          "planned_boundary_seconds": 573.88,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 587.24,
+          "planned_boundary_seconds": 587.24,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 582.738,
+              "end_seconds": 589.82,
+              "text": "We will ask what answer the decision owner needs and what evidence would change the conversation."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L03",
+      "source": {
+        "path": "public/accelerated/lessons/l03/approved-02b9c3ea/accelerated-l03-native-composite.mp4",
+        "sha256": "02b9c3ea941c22ffaf87b3bc4e4c4612951499af15485e0261910fad6014053a"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l03/approved-02b9c3ea/l03-captions.vtt",
+        "sha256": "c8b7e35eb12a127315e911a9ac324d21a6d44b5cb33d9a369c95864f9eda9bc1",
+        "cue_count": 85
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0.0,
+            22.28
+          ],
+          "first_threshold_activity_seconds": 0.125,
+          "last_threshold_activity_seconds": 22.075,
+          "leading_hold_seconds": 0.125,
+          "trailing_hold_seconds": 0.205,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            174.0,
+            190.84
+          ],
+          "first_threshold_activity_seconds": 174.259,
+          "last_threshold_activity_seconds": 190.581,
+          "leading_hold_seconds": 0.259,
+          "trailing_hold_seconds": 0.259,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            349.0,
+            360.28
+          ],
+          "first_threshold_activity_seconds": 349.279,
+          "last_threshold_activity_seconds": 359.942,
+          "leading_hold_seconds": 0.279,
+          "trailing_hold_seconds": 0.338,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            513.96,
+            526.24
+          ],
+          "first_threshold_activity_seconds": 514.322,
+          "last_threshold_activity_seconds": 526.05,
+          "leading_hold_seconds": 0.362,
+          "trailing_hold_seconds": 0.19,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            22.28,
+            174.0
+          ],
+          "duration_seconds": 151.72,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            190.84,
+            349.0
+          ],
+          "duration_seconds": 158.16,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            360.28,
+            513.96
+          ],
+          "duration_seconds": 153.68,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            526.24,
+            540.0
+          ],
+          "duration_seconds": 13.76,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 22.28,
+          "planned_boundary_seconds": 22.28,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 11.931,
+              "end_seconds": 23.861,
+              "text": "You put up the first slide and someone asks, “Is this the best use of engineering time right now?” That is a reasonable question."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 174.0,
+          "planned_boundary_seconds": 174.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 190.84,
+          "planned_boundary_seconds": 190.84,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 182.186,
+              "end_seconds": 193.442,
+              "text": "The dashboard case becomes easier to discuss when the team can compare a quick simplification, a deeper rebuild, and a deliberate delay."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 349.0,
+          "planned_boundary_seconds": 349.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 360.28,
+          "planned_boundary_seconds": 360.28,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 357.787,
+              "end_seconds": 365.539,
+              "text": "Our current answer is yes, because the team suspects people need a clearer starting point."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 513.96,
+          "planned_boundary_seconds": 513.96,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 526.24,
+          "planned_boundary_seconds": 526.24,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 520.721,
+              "end_seconds": 532.184,
+              "text": "You need a decision that another person can understand, an objection you have taken seriously, and evidence you would actually listen to."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L04",
+      "source": {
+        "path": "public/accelerated/lessons/l04/approved-b239a55b/accelerated-l04-native-composite.mp4",
+        "sha256": "b239a55b2ac28cad77ccea5af6df10c9ec91ddb48d7810f9021e6c68f28c1613"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l04/approved-b239a55b/l04-captions.vtt",
+        "sha256": "af9afbf4dcc1099a5068df9f425d499c0b3f6f57942faf0c191da450a38c44a8",
+        "cue_count": 94
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0.0,
+            25.72
+          ],
+          "first_threshold_activity_seconds": 0.129,
+          "last_threshold_activity_seconds": 24.902,
+          "leading_hold_seconds": 0.129,
+          "trailing_hold_seconds": 0.818,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            165.0,
+            178.84
+          ],
+          "first_threshold_activity_seconds": 165.035,
+          "last_threshold_activity_seconds": 178.688,
+          "leading_hold_seconds": 0.035,
+          "trailing_hold_seconds": 0.152,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 371,
+              "to_script_word": 709,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L04 A02",
+              "review_clip_sha256": "e4aaf2e7cc262b7f0c8d2d03b67acf9a0ae9d36568a12bb00cb06a478b44a0c2",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            350.0,
+            365.24
+          ],
+          "first_threshold_activity_seconds": 350.021,
+          "last_threshold_activity_seconds": 364.623,
+          "leading_hold_seconds": 0.021,
+          "trailing_hold_seconds": 0.617,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 747,
+              "to_script_word": 1153,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L04 A03",
+              "review_clip_sha256": "b0d996495ccf6dfaf8e748fc0b4c812a22b3727116b3e3a7dfb646ba071b5b00",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            572.92,
+            585.44
+          ],
+          "first_threshold_activity_seconds": 572.941,
+          "last_threshold_activity_seconds": 585.237,
+          "leading_hold_seconds": 0.021,
+          "trailing_hold_seconds": 0.203,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            25.72,
+            165.0
+          ],
+          "duration_seconds": 139.28,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            178.84,
+            350.0
+          ],
+          "duration_seconds": 171.16,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            365.24,
+            572.92
+          ],
+          "duration_seconds": 207.68,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            585.44,
+            600.0
+          ],
+          "duration_seconds": 14.56,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 25.72,
+          "planned_boundary_seconds": 25.72,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 19.294,
+              "end_seconds": 25.882,
+              "text": "Maybe your version says transform onboarding, reinvent support, or use AI to personalize everything."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 165.0,
+          "planned_boundary_seconds": 165.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 178.84,
+          "planned_boundary_seconds": 178.84,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 173.128,
+              "end_seconds": 180.241,
+              "text": "A job description asks what she is trying to do in a particular moment."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 350.0,
+          "planned_boundary_seconds": 350.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 365.24,
+          "planned_boundary_seconds": 365.24,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 355.562,
+              "end_seconds": 365.674,
+              "text": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 572.92,
+          "planned_boundary_seconds": 572.92,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 585.44,
+          "planned_boundary_seconds": 585.44,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 579.447,
+              "end_seconds": 585.987,
+              "text": "In the next lesson, the workshop will turn more raw feedback into traceable signal."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L05",
+      "source": {
+        "path": "public/accelerated/lessons/l05/approved-bd1e53b5/accelerated-l05-native-composite.mp4",
+        "sha256": "bd1e53b579ccb412d619a537fe409bdcdb2a66fcaf747392d0b1b5c204facd62"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l05/approved-bd1e53b5/l05-captions.vtt",
+        "sha256": "b9cf32fdd70a67f79f5f68762cddc0cd567f4912d5426f9eb0eb856cc4a81d30",
+        "cue_count": 104
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            19.24
+          ],
+          "first_threshold_activity_seconds": 0,
+          "last_threshold_activity_seconds": 19.211,
+          "leading_hold_seconds": 0,
+          "trailing_hold_seconds": 0.029,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 52,
+              "to_script_word": 417,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L05 A01",
+              "review_clip_sha256": "65b023785e1953a10a0884b9c9aa5e968e074d7ed41426c86fea10d83c8791fe",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            200.0,
+            220.88
+          ],
+          "first_threshold_activity_seconds": 200.022,
+          "last_threshold_activity_seconds": 220.784,
+          "leading_hold_seconds": 0.022,
+          "trailing_hold_seconds": 0.096,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 467,
+              "to_script_word": 841,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L05 A02 → A03",
+              "review_clip_sha256": "963224f84e103c600581fd58dd28c7c68daf0e9cccd76327259b41478ab833e3",
+              "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+              "outcome": "passed_local_audible_listening_only",
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+            },
+            {
+              "scope": "L05 A02",
+              "review_clip_sha256": "71a50e971d3d87bb0ee084a1e72f57985be2fb27833a75aad44140cea5da5614",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": true,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            400.0,
+            414.32
+          ],
+          "first_threshold_activity_seconds": 400.199,
+          "last_threshold_activity_seconds": 414.054,
+          "leading_hold_seconds": 0.199,
+          "trailing_hold_seconds": 0.266,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            573.92,
+            584.96
+          ],
+          "first_threshold_activity_seconds": 574.24,
+          "last_threshold_activity_seconds": 584.669,
+          "leading_hold_seconds": 0.32,
+          "trailing_hold_seconds": 0.291,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            19.24,
+            200.0
+          ],
+          "duration_seconds": 180.76,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            220.88,
+            400.0
+          ],
+          "duration_seconds": 179.12,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            414.32,
+            573.92
+          ],
+          "duration_seconds": 159.6,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            584.96,
+            600.0
+          ],
+          "duration_seconds": 15.04,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 19.24,
+          "planned_boundary_seconds": 19.24,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 18.317,
+              "end_seconds": 22.277,
+              "text": "You can paste them into a summary tool."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 200.0,
+          "planned_boundary_seconds": 200.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 220.88,
+          "planned_boundary_seconds": 218.46,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 211.163,
+              "end_seconds": 223.256,
+              "text": "When they examined the moment behind it, they found different needs: immediate confirmation after an action, current information from other people, and easier movement between views."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 400.0,
+          "planned_boundary_seconds": 397.58,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 414.32,
+          "planned_boundary_seconds": 414.32,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 411.321,
+              "end_seconds": 417.453,
+              "text": "One challenges the speed explanation, and one suggests an entry point that helped."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 573.92,
+          "planned_boundary_seconds": 573.92,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 584.96,
+          "planned_boundary_seconds": 584.96,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 581.043,
+              "end_seconds": 588.626,
+              "text": "In the next lesson, this proposed choice enters a roadmap and then a product requirements document."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L06",
+      "source": {
+        "path": "public/accelerated/lessons/l06/approved-16167226/accelerated-l06-native-composite.mp4",
+        "sha256": "161672263694973697e6270e601ab24c84efbdd69b30f387f4138b6da740b729"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l06/approved-16167226/l06-captions.vtt",
+        "sha256": "06c5659811321d4fe5ead7b8768c9209c1fe3e3ca73c0f086d20723b9422b417",
+        "cue_count": 95
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            20.92
+          ],
+          "first_threshold_activity_seconds": 0.203,
+          "last_threshold_activity_seconds": 20.656,
+          "leading_hold_seconds": 0.203,
+          "trailing_hold_seconds": 0.264,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 62,
+              "to_script_word": 428,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L06 A01",
+              "review_clip_sha256": "d469f892645006daa7305285369662c3901a776317461662dd5a5e8757e8c1ad",
+              "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+              "outcome": "passed_local_audible_listening_only",
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            220.0,
+            236.8
+          ],
+          "first_threshold_activity_seconds": 220.287,
+          "last_threshold_activity_seconds": 236.635,
+          "leading_hold_seconds": 0.287,
+          "trailing_hold_seconds": 0.165,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 477,
+              "to_script_word": 855,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L06 A02 → A03",
+              "review_clip_sha256": "5c3bd26a4d68f9993235d495d9d93482a8d035cdbb701a80ec15628dc8b17472",
+              "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+              "outcome": "passed_local_audible_listening_only",
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+            },
+            {
+              "scope": "L06 A02",
+              "review_clip_sha256": "47d0d068c105755ef65e83ad4affd8f54379261daab37f9bc1b1ae2be07c9330",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": true,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            440.0,
+            453.4
+          ],
+          "first_threshold_activity_seconds": 440.22,
+          "last_threshold_activity_seconds": 453.185,
+          "leading_hold_seconds": 0.22,
+          "trailing_hold_seconds": 0.215,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            630.84,
+            646.08
+          ],
+          "first_threshold_activity_seconds": 631.13,
+          "last_threshold_activity_seconds": 645.835,
+          "leading_hold_seconds": 0.29,
+          "trailing_hold_seconds": 0.245,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            20.92,
+            220.0
+          ],
+          "duration_seconds": 199.08,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            236.8,
+            440.0
+          ],
+          "duration_seconds": 203.2,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            453.4,
+            630.84
+          ],
+          "duration_seconds": 177.44,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            646.08,
+            660.0
+          ],
+          "duration_seconds": 13.92,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 20.92,
+          "planned_boundary_seconds": 20.92,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 14.977,
+              "end_seconds": 26.338,
+              "text": "The meeting could become a contest of confidence, and the team could leave with a list that feels balanced but teaches little."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 220.0,
+          "planned_boundary_seconds": 220.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 236.8,
+          "planned_boundary_seconds": 234.52,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 230.427,
+              "end_seconds": 245.545,
+              "text": "For this exercise, begin one line earlier: “A new member opens the first task and cannot tell what action matters or why.” Under that line, link the ledger IDs."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 440.0,
+          "planned_boundary_seconds": 437.72,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 453.4,
+          "planned_boundary_seconds": 453.4,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 451.362,
+              "end_seconds": 454.46,
+              "text": "Imagine that result for a moment."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 630.84,
+          "planned_boundary_seconds": 630.84,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 646.08,
+          "planned_boundary_seconds": 646.08,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 634.419,
+              "end_seconds": 647.2090000000001,
+              "text": "It lets the team build with enough freedom to solve the problem while preserving the question that brought the work here for the next review."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L07",
+      "source": {
+        "path": "public/accelerated/lessons/l07/approved-6e3e00a0/accelerated-l07-native-composite.mp4",
+        "sha256": "6e3e00a0146efc8c82b34adbcd86f17e8fc84067f0d30e5afde146a7faa2d31f"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l07/approved-6e3e00a0/l07-captions.vtt",
+        "sha256": "64b192b55d9de7a63bf6a0ba0008e5a928ca5a42c10ff9cc4bc9c74f36d88038",
+        "cue_count": 90
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            18.0
+          ],
+          "first_threshold_activity_seconds": 0.177,
+          "last_threshold_activity_seconds": 17.814,
+          "leading_hold_seconds": 0.177,
+          "trailing_hold_seconds": 0.186,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            200.0,
+            214.56
+          ],
+          "first_threshold_activity_seconds": 200.021,
+          "last_threshold_activity_seconds": 214.402,
+          "leading_hold_seconds": 0.021,
+          "trailing_hold_seconds": 0.158,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            400.0,
+            411.92
+          ],
+          "first_threshold_activity_seconds": 400.241,
+          "last_threshold_activity_seconds": 411.745,
+          "leading_hold_seconds": 0.241,
+          "trailing_hold_seconds": 0.175,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            569.96,
+            585.92
+          ],
+          "first_threshold_activity_seconds": 570.173,
+          "last_threshold_activity_seconds": 585.733,
+          "leading_hold_seconds": 0.213,
+          "trailing_hold_seconds": 0.187,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            18.0,
+            200.0
+          ],
+          "duration_seconds": 182.0,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            214.56,
+            400.0
+          ],
+          "duration_seconds": 185.44,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            411.92,
+            569.96
+          ],
+          "duration_seconds": 158.04,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            585.92,
+            600.0
+          ],
+          "duration_seconds": 14.08,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 18.0,
+          "planned_boundary_seconds": 18.0,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 17.241,
+              "end_seconds": 28.079,
+              "text": "The schedule looks responsible, but the team still cannot answer a basic question: why do new members hesitate at the first task?"
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 200.0,
+          "planned_boundary_seconds": 200.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 214.56,
+          "planned_boundary_seconds": 214.56,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 213.5,
+              "end_seconds": 217.5,
+              "text": "Before observing anyone, define what “clear enough” means."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 400.0,
+          "planned_boundary_seconds": 400.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 411.92,
+          "planned_boundary_seconds": 411.92,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 407.614,
+              "end_seconds": 413.706,
+              "text": "They try document previews, expecting people to find the right file faster."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 569.96,
+          "planned_boundary_seconds": 569.96,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 585.92,
+          "planned_boundary_seconds": 585.92,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 577.72,
+              "end_seconds": 587.047,
+              "text": "In the next lesson, we will define the measures and write the full learning plan before results arrive."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L08",
+      "source": {
+        "path": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+        "sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l08/approved-1b6c9da2/l08-captions.vtt",
+        "sha256": "df7c7e3b0525d79e513dd2d11e0802d461ecc37724b08de5e940baaeaa2cd894",
+        "cue_count": 115
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            28.52
+          ],
+          "first_threshold_activity_seconds": 0.264,
+          "last_threshold_activity_seconds": 28.051,
+          "leading_hold_seconds": 0.264,
+          "trailing_hold_seconds": 0.469,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 70,
+              "to_script_word": 473,
+              "asr_gap_words": 2
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L08 A01",
+              "review_clip_sha256": "2888aadafcb2734410c0c7147c50bbd53d132232a5b27d71929fe1e569a14222",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            240.0,
+            258.0
+          ],
+          "first_threshold_activity_seconds": 240.535,
+          "last_threshold_activity_seconds": 257.871,
+          "leading_hold_seconds": 0.535,
+          "trailing_hold_seconds": 0.129,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 521,
+              "to_script_word": 946,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L08 A02 → A03",
+              "review_clip_sha256": "3f90ad6facbad2135371ec4bb0ff233e07cd33057f0bd9b3a2bb1f7bff9a6729",
+              "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+              "outcome": "passed_local_audible_listening_only",
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+            },
+            {
+              "scope": "L08 A02",
+              "review_clip_sha256": "bd7bc3667869eb9e23df41b9fe2fbf0e7a2ab5f7556f615e662a579d990ddc4f",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": true,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            480.0,
+            495.36
+          ],
+          "first_threshold_activity_seconds": 480.154,
+          "last_threshold_activity_seconds": 495.344,
+          "leading_hold_seconds": 0.154,
+          "trailing_hold_seconds": 0.016,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            681.04,
+            702.8
+          ],
+          "first_threshold_activity_seconds": 681.305,
+          "last_threshold_activity_seconds": 702.595,
+          "leading_hold_seconds": 0.265,
+          "trailing_hold_seconds": 0.205,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            28.52,
+            240.0
+          ],
+          "duration_seconds": 211.48,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            258.0,
+            480.0
+          ],
+          "duration_seconds": 222.0,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            495.36,
+            681.04
+          ],
+          "duration_seconds": 185.68,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            702.8,
+            720.0
+          ],
+          "duration_seconds": 17.2,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 28.52,
+          "planned_boundary_seconds": 28.52,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 19.404,
+              "end_seconds": 29.617,
+              "text": "Chapter Twelve tells a version of this failure: a dashboard looked healthy while the product was missing the customer outcome."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 240.0,
+          "planned_boundary_seconds": 240.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 258.0,
+          "planned_boundary_seconds": 256.0,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 251.092,
+              "end_seconds": 259.664,
+              "text": "Our example names the friction at the first task and the member's need to begin with confidence."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 480.0,
+          "planned_boundary_seconds": 478.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 495.36,
+          "planned_boundary_seconds": 495.36,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 494.545,
+              "end_seconds": 497.662,
+              "text": "The successful-start measure may look promising."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 681.04,
+          "planned_boundary_seconds": 681.04,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 702.8,
+          "planned_boundary_seconds": 702.8,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 701.299,
+              "end_seconds": 710.13,
+              "text": "In the next module, the question moves into a decision room with other people's risks and authority."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L09",
+      "source": {
+        "path": "public/accelerated/lessons/l09/approved-0abafea5/accelerated-l09-native-composite.mp4",
+        "sha256": "0abafea5f81201d7a5d0f03ed5cb7209c82057c75e4f3811aae86863cd38ae2a"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l09/approved-0abafea5/l09-captions.vtt",
+        "sha256": "6439e90c712d419560e8056964237ec45d2da91adc28f74c485dcf9664594ab7",
+        "cue_count": 118
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            22.92
+          ],
+          "first_threshold_activity_seconds": 0.169,
+          "last_threshold_activity_seconds": 22.671,
+          "leading_hold_seconds": 0.169,
+          "trailing_hold_seconds": 0.249,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            220.0,
+            241.16
+          ],
+          "first_threshold_activity_seconds": 220.327,
+          "last_threshold_activity_seconds": 241.157,
+          "leading_hold_seconds": 0.327,
+          "trailing_hold_seconds": 0.003,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            440.0,
+            456.52
+          ],
+          "first_threshold_activity_seconds": 440.022,
+          "last_threshold_activity_seconds": 456.338,
+          "leading_hold_seconds": 0.022,
+          "trailing_hold_seconds": 0.182,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 498,
+              "to_script_word": 920,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L09 A03",
+              "review_clip_sha256": "c5b7e6299c0fe4649cbefbc321bc1b2c5a5046f6de491aea2d1b03fcd83637d5",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            630.72,
+            645.8
+          ],
+          "first_threshold_activity_seconds": 630.904,
+          "last_threshold_activity_seconds": 645.609,
+          "leading_hold_seconds": 0.184,
+          "trailing_hold_seconds": 0.191,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 967,
+              "to_script_word": 1315,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L09 A04",
+              "review_clip_sha256": "a00888f0aaa136727ff4b460f1bb7324ed039b900aeaac63665270bad7d495df",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            22.92,
+            220.0
+          ],
+          "duration_seconds": 197.08,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            241.16,
+            440.0
+          ],
+          "duration_seconds": 198.84,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            456.52,
+            630.72
+          ],
+          "duration_seconds": 174.2,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            645.8,
+            660.0
+          ],
+          "duration_seconds": 14.2,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 22.92,
+          "planned_boundary_seconds": 22.92,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 22.291,
+              "end_seconds": 31.013,
+              "text": "The answer becomes, “Let's revisit this next quarter.” Chapter Fourteen opens with a version of that slow no."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 220.0,
+          "planned_boundary_seconds": 220.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 241.16,
+          "planned_boundary_seconds": 241.16,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 241.064,
+              "end_seconds": 242.468,
+              "text": "A champion advocates."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 440.0,
+          "planned_boundary_seconds": 440.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 456.52,
+          "planned_boundary_seconds": 456.52,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 454.0,
+              "end_seconds": 463.0,
+              "text": "Ask the operations lead what time the test would take and which staffing constraint would make it unsafe."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 630.72,
+          "planned_boundary_seconds": 630.72,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 645.8,
+          "planned_boundary_seconds": 645.8,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 641.588,
+              "end_seconds": 648.67,
+              "text": "In the next lesson, we will take the same choice into a short, responsible pitch."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L10",
+      "source": {
+        "path": "public/accelerated/lessons/l10/approved-7beb8af5/accelerated-l10-native-composite.mp4",
+        "sha256": "7beb8af5894653da01ee7bd902a87e76819f2bd4da7116993e79ecbb135e8297"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l10/approved-7beb8af5/l10-captions.vtt",
+        "sha256": "8cc99041b7318a85abb6fd6b822046f09635f5719c76ae78a948d7654a4f0c48",
+        "cue_count": 94
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            25.92
+          ],
+          "first_threshold_activity_seconds": 0.128,
+          "last_threshold_activity_seconds": 25.681,
+          "leading_hold_seconds": 0.128,
+          "trailing_hold_seconds": 0.239,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 62,
+              "to_script_word": 399,
+              "asr_gap_words": 2
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L10 A01",
+              "review_clip_sha256": "ced387a9f9260a3a977892b41bea5350e7e7c2e538822fbd4bf70c7426cec1bc",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            180.0,
+            199.96
+          ],
+          "first_threshold_activity_seconds": 180.327,
+          "last_threshold_activity_seconds": 199.793,
+          "leading_hold_seconds": 0.327,
+          "trailing_hold_seconds": 0.167,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            360.0,
+            382.2
+          ],
+          "first_threshold_activity_seconds": 360.205,
+          "last_threshold_activity_seconds": 382.104,
+          "leading_hold_seconds": 0.205,
+          "trailing_hold_seconds": 0.096,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 455,
+              "to_script_word": 796,
+              "asr_gap_words": 2
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L10 A03",
+              "review_clip_sha256": "7447a3e109595c6d1bdd2e37effae32ca31c8c1b98d428e4d36b769a186ae633",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            511.6,
+            531.96
+          ],
+          "first_threshold_activity_seconds": 511.725,
+          "last_threshold_activity_seconds": 531.946,
+          "leading_hold_seconds": 0.125,
+          "trailing_hold_seconds": 0.014,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 848,
+              "to_script_word": 1140,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L10 A04",
+              "review_clip_sha256": "ac730a9a020a5abac946e9b30707ae3648b1b7aced157f62e722fd2dfce71ef9",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            25.92,
+            180.0
+          ],
+          "duration_seconds": 154.08,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            199.96,
+            360.0
+          ],
+          "duration_seconds": 160.04,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            382.2,
+            511.6
+          ],
+          "duration_seconds": 129.4,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            531.96,
+            540.0
+          ],
+          "duration_seconds": 8.04,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 25.92,
+          "planned_boundary_seconds": 25.92,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 25.385,
+              "end_seconds": 28.615,
+              "text": "Chapter Sixteen describes that kind of meeting."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 180.0,
+          "planned_boundary_seconds": 180.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 199.96,
+          "planned_boundary_seconds": 199.96,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 198.0,
+              "end_seconds": 206.526,
+              "text": "In our exercise, option one is to rewrite the first-task card and observe whether members understand and begin."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 360.0,
+          "planned_boundary_seconds": 360.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 382.2,
+          "planned_boundary_seconds": 382.2,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 380.05,
+              "end_seconds": 384.059,
+              "text": "If none is feasible, stop and redesign the test."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 511.6,
+          "planned_boundary_seconds": 511.6,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 531.96,
+          "planned_boundary_seconds": 531.96,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 530.388,
+              "end_seconds": 534.32,
+              "text": "If the answer is “nothing,” revisit the learning plan."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L11",
+      "source": {
+        "path": "public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+        "sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l11/approved-1dcb3b03/l11-captions.vtt",
+        "sha256": "ee8f01ff2d60dfa64f2767dbb4cc8348ed2affdfaa6bb567e6f44967b66b4df5",
+        "cue_count": 95
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            21.48
+          ],
+          "first_threshold_activity_seconds": 0.134,
+          "last_threshold_activity_seconds": 21.012,
+          "leading_hold_seconds": 0.134,
+          "trailing_hold_seconds": 0.468,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            200.0,
+            221.28
+          ],
+          "first_threshold_activity_seconds": 200.321,
+          "last_threshold_activity_seconds": 221.269,
+          "leading_hold_seconds": 0.321,
+          "trailing_hold_seconds": 0.011,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            400.0,
+            422.04
+          ],
+          "first_threshold_activity_seconds": 400.223,
+          "last_threshold_activity_seconds": 421.96,
+          "leading_hold_seconds": 0.223,
+          "trailing_hold_seconds": 0.08,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 471,
+              "to_script_word": 847,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L11 A03",
+              "review_clip_sha256": "2edea35a5a5fc0da4d3dbdfa94c0727bd451a4a2ef902712754e61fc63fd8afa",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            561.56,
+            580.68
+          ],
+          "first_threshold_activity_seconds": 561.706,
+          "last_threshold_activity_seconds": 580.404,
+          "leading_hold_seconds": 0.146,
+          "trailing_hold_seconds": 0.276,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 906,
+              "to_script_word": 1179,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L11 A04",
+              "review_clip_sha256": "d3f35ccdefa316979d1011a453765e7b114f21bbd570db27eb8e474f890ac5f5",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            21.48,
+            200.0
+          ],
+          "duration_seconds": 178.52,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            221.28,
+            400.0
+          ],
+          "duration_seconds": 178.72,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            422.04,
+            561.56
+          ],
+          "duration_seconds": 139.52,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            580.68,
+            600.0
+          ],
+          "duration_seconds": 19.32,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 21.48,
+          "planned_boundary_seconds": 21.48,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 17.874,
+              "end_seconds": 26.57,
+              "text": "Sam is a character in the book's story, not a member of a team we are showing live."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 200.0,
+          "planned_boundary_seconds": 200.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 221.28,
+          "planned_boundary_seconds": 221.28,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 217.56799999999998,
+              "end_seconds": 223.874,
+              "text": "An insight is an interpretation: perhaps members cannot tell which action starts the service."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 400.0,
+          "planned_boundary_seconds": 400.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 422.04,
+          "planned_boundary_seconds": 422.04,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 416.585,
+              "end_seconds": 428.78,
+              "text": "The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer, the decision date, and the next owner."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 561.56,
+          "planned_boundary_seconds": 561.56,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 580.68,
+          "planned_boundary_seconds": 580.68,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 575.369,
+              "end_seconds": 580.788,
+              "text": "You have now connected the decision file into a repeatable path."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L12",
+      "source": {
+        "path": "public/accelerated/lessons/l12/approved-39294821/accelerated-l12-native-composite.mp4",
+        "sha256": "39294821b1e9aec78c5e58dec7fe3f174158b0bf536670962a0829a731593f6c"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l12/approved-39294821/l12-captions.vtt",
+        "sha256": "dcd99fd28be2a51fb4ad6ffc2362ed311528116968df4e1fdd6d6b68de97bfce",
+        "cue_count": 95
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            24.52
+          ],
+          "first_threshold_activity_seconds": 0.169,
+          "last_threshold_activity_seconds": 24.256,
+          "leading_hold_seconds": 0.169,
+          "trailing_hold_seconds": 0.264,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            220.0,
+            241.28
+          ],
+          "first_threshold_activity_seconds": 220.328,
+          "last_threshold_activity_seconds": 241.269,
+          "leading_hold_seconds": 0.328,
+          "trailing_hold_seconds": 0.011,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            440.0,
+            460.72
+          ],
+          "first_threshold_activity_seconds": 440.021,
+          "last_threshold_activity_seconds": 460.593,
+          "leading_hold_seconds": 0.021,
+          "trailing_hold_seconds": 0.127,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 479,
+              "to_script_word": 856,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L12 A03",
+              "review_clip_sha256": "7775f733dada7fa80b5209da16d2933c1d2ee887cf306c30671fd080a4d25f9a",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            622.68,
+            645.72
+          ],
+          "first_threshold_activity_seconds": 622.858,
+          "last_threshold_activity_seconds": 645.501,
+          "leading_hold_seconds": 0.178,
+          "trailing_hold_seconds": 0.219,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 913,
+              "to_script_word": 1217,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L12 A04",
+              "review_clip_sha256": "ee56f95e05c05ca4663d4b3fdddfb397f8d598a5bdd264a0b9a3e8eff6d8c0f1",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            24.52,
+            220.0
+          ],
+          "duration_seconds": 195.48,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            241.28,
+            440.0
+          ],
+          "duration_seconds": 198.72,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            460.72,
+            622.68
+          ],
+          "duration_seconds": 161.96,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            645.72,
+            660.0
+          ],
+          "duration_seconds": 14.28,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 24.52,
+          "planned_boundary_seconds": 24.52,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 23.239,
+              "end_seconds": 35.117,
+              "text": "If we group them too quickly under “improve onboarding,” we lose the difference between finding an action, remembering it, and knowing it worked."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 220.0,
+          "planned_boundary_seconds": 220.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 241.28,
+          "planned_boundary_seconds": 241.28,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 238.246,
+              "end_seconds": 245.024,
+              "text": "The cards in this exercise are imagined member notes, separate from observed research."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 440.0,
+          "planned_boundary_seconds": 440.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 460.72,
+          "planned_boundary_seconds": 460.72,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 459.442,
+              "end_seconds": 469.163,
+              "text": "The research owner can watch an approved session, ask the person what they expect, and record the observed hesitation."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 622.68,
+          "planned_boundary_seconds": 622.68,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 645.72,
+          "planned_boundary_seconds": 645.72,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 643.853,
+              "end_seconds": 647.89,
+              "text": "Bring the job and the unresolved question forward."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L13",
+      "source": {
+        "path": "public/accelerated/lessons/l13/review-0ae3ce85/accelerated-l13-native-composite.mp4",
+        "sha256": "0ae3ce8516cd4a754aab0da6debad03b7085b6d7bc2c61f459fb8bb0ff2a7bf1"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l13/review-0ae3ce85/l13-captions.vtt",
+        "sha256": "8d34e9b0f02962a5ed98bc37238811145cf4899809395a9055a018c8ab05ab70",
+        "cue_count": 110
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            28.04
+          ],
+          "first_threshold_activity_seconds": 0,
+          "last_threshold_activity_seconds": 28.026,
+          "leading_hold_seconds": 0,
+          "trailing_hold_seconds": 0.014,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 69,
+              "to_script_word": 471,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L13 A01",
+              "review_clip_sha256": "0e274bfe6789bff6f5d8e93b16085c8dad094d6fbf532292660bea0565cbf5bd",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            226.0,
+            246.28
+          ],
+          "first_threshold_activity_seconds": 226.325,
+          "last_threshold_activity_seconds": 246.223,
+          "leading_hold_seconds": 0.325,
+          "trailing_hold_seconds": 0.057,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 525,
+              "to_script_word": 931,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L13 A02",
+              "review_clip_sha256": "bb3347f57f6e08ab22771fd898b056b8e724f24c2e1e8530d96dcb501304758d",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            446.0,
+            471.68
+          ],
+          "first_threshold_activity_seconds": 446.171,
+          "last_threshold_activity_seconds": 471.437,
+          "leading_hold_seconds": 0.171,
+          "trailing_hold_seconds": 0.243,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            632.28,
+            649.88
+          ],
+          "first_threshold_activity_seconds": 632.539,
+          "last_threshold_activity_seconds": 649.586,
+          "leading_hold_seconds": 0.259,
+          "trailing_hold_seconds": 0.294,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            28.04,
+            226.0
+          ],
+          "duration_seconds": 197.96,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            246.28,
+            446.0
+          ],
+          "duration_seconds": 199.72,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            471.68,
+            632.28
+          ],
+          "duration_seconds": 160.6,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            649.88,
+            660.0
+          ],
+          "duration_seconds": 10.12,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 28.04,
+          "planned_boundary_seconds": 28.04,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 25.245,
+              "end_seconds": 32.527,
+              "text": "Its numbers are intentionally blank because we have observed no customer result for this exercise."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 226.0,
+          "planned_boundary_seconds": 226.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 246.28,
+          "planned_boundary_seconds": 246.28,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 245.0,
+              "end_seconds": 252.308,
+              "text": "Suppose our fictional membership service wonders whether a shorter commitment would help new members begin."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 446.0,
+          "planned_boundary_seconds": 446.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 471.68,
+          "planned_boundary_seconds": 471.68,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 469.24,
+              "end_seconds": 472.145,
+              "text": "These are possible objections, not interviews."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 632.28,
+          "planned_boundary_seconds": 632.28,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 649.88,
+          "planned_boundary_seconds": 649.88,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 647.841,
+              "end_seconds": 654.65,
+              "text": "An empty evidence cell is a request for work, not a failure of presentation."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L14",
+      "source": {
+        "path": "public/accelerated/lessons/l14/review-2b178dd6/accelerated-l14-native-composite.mp4",
+        "sha256": "2b178dd6a64f8b619c0f64544d2e655ae73b7dba3b93775aef91d18e0407a143"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l14/review-2b178dd6/l14-captions.vtt",
+        "sha256": "7760ad276b41d80431031bd7103ff37b70549b9e4c8367fa269adf0a5f0ed65d",
+        "cue_count": 94
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            26.28
+          ],
+          "first_threshold_activity_seconds": 0.157,
+          "last_threshold_activity_seconds": 25.995,
+          "leading_hold_seconds": 0.157,
+          "trailing_hold_seconds": 0.285,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            164.0,
+            189.12
+          ],
+          "first_threshold_activity_seconds": 164.318,
+          "last_threshold_activity_seconds": 188.885,
+          "leading_hold_seconds": 0.318,
+          "trailing_hold_seconds": 0.235,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            330.0,
+            352.44
+          ],
+          "first_threshold_activity_seconds": 330.323,
+          "last_threshold_activity_seconds": 352.176,
+          "leading_hold_seconds": 0.323,
+          "trailing_hold_seconds": 0.264,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            451.32,
+            468.48
+          ],
+          "first_threshold_activity_seconds": 451.354,
+          "last_threshold_activity_seconds": 468.124,
+          "leading_hold_seconds": 0.034,
+          "trailing_hold_seconds": 0.356,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 779,
+              "to_script_word": 978,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L14 A04",
+              "review_clip_sha256": "9d234635e81b74a0f631b49c629939deb3aa7567fc02f101ff8561c629429f7d",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            26.28,
+            164.0
+          ],
+          "duration_seconds": 137.72,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            189.12,
+            330.0
+          ],
+          "duration_seconds": 140.88,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            352.44,
+            451.32
+          ],
+          "duration_seconds": 98.88,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            468.48,
+            480.0
+          ],
+          "duration_seconds": 11.52,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 26.28,
+          "planned_boundary_seconds": 26.28,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 22.83,
+              "end_seconds": 26.557,
+              "text": "Return to the membership-service alternative from Lesson Thirteen."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 164.0,
+          "planned_boundary_seconds": 164.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 189.12,
+          "planned_boundary_seconds": 189.12,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 185.133,
+              "end_seconds": 193.586,
+              "text": "Add the option to keep the current model and the option to defer until the job is verified."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 330.0,
+          "planned_boundary_seconds": 330.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 352.44,
+          "planned_boundary_seconds": 352.44,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 351.448,
+              "end_seconds": 354.712,
+              "text": "These are two ways into one decision."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 451.32,
+          "planned_boundary_seconds": 451.32,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 468.48,
+          "planned_boundary_seconds": 468.48,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L15",
+      "source": {
+        "path": "public/accelerated/lessons/l15/review-67d066c8/accelerated-l15-native-composite.mp4",
+        "sha256": "67d066c87bd2af6a3bf1184b66e329cd17b928f41842da3d3d35cabd230d68f3"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l15/review-67d066c8/l15-captions.vtt",
+        "sha256": "2287a9c00e4f5132aa8e77f0e667778449cc979ecadc7d9f9decbdd8025982be",
+        "cue_count": 127
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            25.84
+          ],
+          "first_threshold_activity_seconds": 0,
+          "last_threshold_activity_seconds": 25.514,
+          "leading_hold_seconds": 0,
+          "trailing_hold_seconds": 0.326,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 66,
+              "to_script_word": 554,
+              "asr_gap_words": 1
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L15 A01",
+              "review_clip_sha256": "f600a9b576ccac997011714b1cb15d7d4515c8c8600081f6f02453d81d40f999",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            243.0,
+            267.96
+          ],
+          "first_threshold_activity_seconds": 243.412,
+          "last_threshold_activity_seconds": 267.857,
+          "leading_hold_seconds": 0.412,
+          "trailing_hold_seconds": 0.103,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            481.0,
+            508.84
+          ],
+          "first_threshold_activity_seconds": 481.023,
+          "last_threshold_activity_seconds": 508.838,
+          "leading_hold_seconds": 0.023,
+          "trailing_hold_seconds": 0.002,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 1162,
+              "to_script_word": 1566,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L15 A03",
+              "review_clip_sha256": "73f67a314b94c51da3a1469ba34d8ea363045de6773a040b609830a9cac87a49",
+              "reviewed_commit": "31b05313e98376da9b2a29d2e12d7cc8983b22cc",
+              "outcome": "passed_local_audible_listening_only",
+              "local_cut_only_alternate_split": false,
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/packet-copy-listening-reels/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            688.08,
+            708.52
+          ],
+          "first_threshold_activity_seconds": 688.119,
+          "last_threshold_activity_seconds": 708.364,
+          "leading_hold_seconds": 0.039,
+          "trailing_hold_seconds": 0.156,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            25.84,
+            243.0
+          ],
+          "duration_seconds": 217.16,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            267.96,
+            481.0
+          ],
+          "duration_seconds": 213.04,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            508.84,
+            688.08
+          ],
+          "duration_seconds": 179.24,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            708.52,
+            720.0
+          ],
+          "duration_seconds": 11.48,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 25.84,
+          "planned_boundary_seconds": 25.84,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 25.731,
+              "end_seconds": 28.836,
+              "text": "Context can disappear between those two moments."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 243.0,
+          "planned_boundary_seconds": 243.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 267.96,
+          "planned_boundary_seconds": 267.96,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 267.73,
+              "end_seconds": 273.912,
+              "text": "Put those five labels on the checklist and test your own proposal against them."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 481.0,
+          "planned_boundary_seconds": 481.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 508.84,
+          "planned_boundary_seconds": 508.84,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 506.919,
+              "end_seconds": 510.495,
+              "text": "If the decision was to defer, say why."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 688.08,
+          "planned_boundary_seconds": 688.08,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 708.52,
+          "planned_boundary_seconds": 708.52,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 706.705,
+              "end_seconds": 712.466,
+              "text": "This keeps a successful local experiment from becoming an organization-wide promise by accident."
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    },
+    {
+      "lesson_id": "L16",
+      "source": {
+        "path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+        "sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0"
+      },
+      "captions": {
+        "path": "public/accelerated/lessons/l16/review-5ee4267c/l16-captions.vtt",
+        "sha256": "0f5bb30b76b27b8065a7ab51e9a894c907b317ff0ba8122c5e148f5fb0dc7fd9",
+        "cue_count": 89
+      },
+      "presenter_windows": [
+        {
+          "window": "P01",
+          "source_seconds": [
+            0,
+            28.48
+          ],
+          "first_threshold_activity_seconds": 0.241,
+          "last_threshold_activity_seconds": 28.308,
+          "leading_hold_seconds": 0.241,
+          "trailing_hold_seconds": 0.172,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 74,
+              "to_script_word": 369,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L16 A01",
+              "review_clip_sha256": "07aef614c352d57a2f5d2de2186454a78561c586c45ca532703efb9370e40a46",
+              "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+              "outcome": "passed_local_audible_listening_only",
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P02",
+          "source_seconds": [
+            161.0,
+            187.08
+          ],
+          "first_threshold_activity_seconds": 161.176,
+          "last_threshold_activity_seconds": 187.051,
+          "leading_hold_seconds": 0.176,
+          "trailing_hold_seconds": 0.029,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": false,
+          "asr_script_jumps": [
+            {
+              "from_script_word": 439,
+              "to_script_word": 724,
+              "asr_gap_words": 0
+            }
+          ],
+          "local_cut_signoffs": [
+            {
+              "scope": "L16 A02",
+              "review_clip_sha256": "14d47b974948772243bdcbe8df9b0459d0e697eacc6c0e123595fd5ce1f6fe05",
+              "reviewed_commit": "9aaf109874a9ef4f302233aeb07914a88af4493e",
+              "outcome": "passed_local_audible_listening_only",
+              "receipt_path": "artifacts/accelerated-visual-parity-2026-11-10/priority-listening-reel/human-listening-receipt-2026-11-11.json"
+            }
+          ],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P03",
+          "source_seconds": [
+            316.0,
+            341.4
+          ],
+          "first_threshold_activity_seconds": 316.187,
+          "last_threshold_activity_seconds": 341.39,
+          "leading_hold_seconds": 0.187,
+          "trailing_hold_seconds": 0.01,
+          "asr_request_head_match": false,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        },
+        {
+          "window": "P04",
+          "source_seconds": [
+            449.44,
+            472.52
+          ],
+          "first_threshold_activity_seconds": 449.673,
+          "last_threshold_activity_seconds": 472.387,
+          "leading_hold_seconds": 0.233,
+          "trailing_hold_seconds": 0.133,
+          "asr_request_head_match": true,
+          "asr_request_tail_match": true,
+          "asr_script_jumps": [],
+          "local_cut_signoffs": [],
+          "full_window_audible_review": {
+            "first_spoken_words": null,
+            "last_spoken_words": null,
+            "reviewed_source_sha256": null,
+            "reviewer": null,
+            "native_edit_decision": null
+          }
+        }
+      ],
+      "cutaway_windows": [
+        {
+          "window": "C01",
+          "source_seconds": [
+            28.48,
+            161.0
+          ],
+          "duration_seconds": 132.52,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C02",
+          "source_seconds": [
+            187.08,
+            316.0
+          ],
+          "duration_seconds": 128.92,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C03",
+          "source_seconds": [
+            341.4,
+            449.44
+          ],
+          "duration_seconds": 108.04,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        },
+        {
+          "window": "C04",
+          "source_seconds": [
+            472.52,
+            480.0
+          ],
+          "duration_seconds": 7.48,
+          "threshold_activity_seconds": 0,
+          "status": "native_source_silent_teaching_gap"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "P01",
+          "to": "C01",
+          "source_boundary_seconds": 28.48,
+          "planned_boundary_seconds": 28.48,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 27.871,
+              "end_seconds": 31.79,
+              "text": "Chapter Twenty-Six calls for starting with one pain point."
+            }
+          ]
+        },
+        {
+          "from": "C01",
+          "to": "P02",
+          "source_boundary_seconds": 161.0,
+          "planned_boundary_seconds": 161.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P02",
+          "to": "C02",
+          "source_boundary_seconds": 187.08,
+          "planned_boundary_seconds": 187.08,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 184.4,
+              "end_seconds": 188.733,
+              "text": "Choose the move that fits your actual permission and capacity."
+            }
+          ]
+        },
+        {
+          "from": "C02",
+          "to": "P03",
+          "source_boundary_seconds": 316.0,
+          "planned_boundary_seconds": 316.0,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P03",
+          "to": "C03",
+          "source_boundary_seconds": 341.4,
+          "planned_boundary_seconds": 341.4,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 340.095,
+              "end_seconds": 347.543,
+              "text": "Record one of four next states: continue, revise, stop, or gather a specific missing piece of evidence."
+            }
+          ]
+        },
+        {
+          "from": "C03",
+          "to": "P04",
+          "source_boundary_seconds": 449.44,
+          "planned_boundary_seconds": 449.44,
+          "threshold_activity_within_350ms_before": false,
+          "threshold_activity_within_350ms_after": true,
+          "source_vtt_cues_crossing_boundary": []
+        },
+        {
+          "from": "P04",
+          "to": "C04",
+          "source_boundary_seconds": 472.52,
+          "planned_boundary_seconds": 472.52,
+          "threshold_activity_within_350ms_before": true,
+          "threshold_activity_within_350ms_after": false,
+          "source_vtt_cues_crossing_boundary": [
+            {
+              "start_seconds": 471.273,
+              "end_seconds": 473.01800000000003,
+              "text": "What did you observe?"
+            }
+          ]
+        }
+      ],
+      "source_silence_threshold_dbfs": -45,
+      "minimum_silence_event_seconds": 0.12
+    }
+  ],
+  "limits": [
+    "FFmpeg threshold activity is not an audible speech judgment.",
+    "ASR mismatches are diagnostic and cannot override local clip signoffs.",
+    "Current source VTT cues are references; final narration captions need a separate render and sync audit.",
+    "No final presenter-matched voice exists for C02 fit or transition listening."
+  ]
+}

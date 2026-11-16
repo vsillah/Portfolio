@@ -1,0 +1,39 @@
+{
+  "status": "review_only_machine_candidate_not_audibly_signed_off",
+  "lesson_id": "L11",
+  "presenter_window": "A03",
+  "orientation": "head",
+  "source_path": "public/accelerated/lessons/l11/approved-1dcb3b03/accelerated-l11-native-composite.mp4",
+  "source_sha256": "1dcb3b035096c8d15e11c1168dbc4008e179e0052eb374cf70f10ca8c0ba6fc0",
+  "source_window_seconds": [
+    400.0,
+    422.04
+  ],
+  "candidate_cut_seconds": 402.325333,
+  "machine_onset_seconds": 402.34,
+  "aac_snap_delta_seconds": 0.014667,
+  "intended_words": {
+    "removed_earlier_phrase_end": "members cannot tell which action starts the service",
+    "retained_approved_words_start": "Imagine joining this work six weeks later. You should be able to"
+  },
+  "silent_packet_source_start_seconds": 392.0,
+  "copied_silence_peak_dbfs": -91.0,
+  "retained_native_packet_count": 925,
+  "copied_silence_packet_count": 109,
+  "candidate_audio_packets_match_source_extracts": true,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a03-head-candidate.mp4",
+  "candidate_sha256": "738161cb90eb59e5f0660e9c7268b4c1c3f28888d4372936a4916d65b0fddf5b",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/native-jump-candidates/l11-a03-head-before-after.mp4",
+  "before_after_sha256": "2edea35a5a5fc0da4d3dbdfa94c0727bd451a4a2ef902712754e61fc63fd8afa",
+  "before_after_source_excerpt_seconds": [
+    400.0,
+    405.825333
+  ],
+  "before_after_segment_seconds": 5.825,
+  "candidate_duration_seconds": 22.058667,
+  "before_after_duration_seconds": 11.68,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Machine onset and packet snap need audible first/last-phoneme confirmation; adjacent presenter windows may need a coordinated edit."
+}

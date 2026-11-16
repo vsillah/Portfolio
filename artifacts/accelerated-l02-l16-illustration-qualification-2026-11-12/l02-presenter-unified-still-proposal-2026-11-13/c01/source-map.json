@@ -1,0 +1,91 @@
+{
+  "source_art": {
+    "wayfinding-desktop.png": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-desktop.png",
+      "sha256": "f4d14939e3529844e3686469fd4a4150bf20c17b77af2e4d012cc9c6db902dfd",
+      "dimensions": [
+        1672,
+        941
+      ]
+    },
+    "board-portrait.png": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-portrait.png",
+      "sha256": "3ff6509f6dc8dfa90c3348c42dda39b4bbba44056e6b1a90a0dbb646a711713f",
+      "dimensions": [
+        853,
+        1844
+      ]
+    },
+    "list-desktop.png": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/list-desktop.png",
+      "sha256": "9b1e5cc767cc76bd65a2fdf3e9328ff7246ea9cd4117bb2d2eca9d4222427be6",
+      "dimensions": [
+        1672,
+        941
+      ]
+    },
+    "board-desktop.png": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/board-desktop.png",
+      "sha256": "97f3e89c3f161ad2eb7275312f94912c46feb85f5ba2a0c3db8c83604d253af1",
+      "dimensions": [
+        1672,
+        941
+      ]
+    },
+    "list-portrait.png": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/list-portrait.png",
+      "sha256": "7c829120b54c074a97e915ae48e1d34bab69bb81fe5799bba15303919648ddf2",
+      "dimensions": [
+        852,
+        1846
+      ]
+    },
+    "wayfinding-portrait.png": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/source-art/wayfinding-portrait.png",
+      "sha256": "cb0f58ed7acafc7f7f7e8c018d5953196e0130f2a47226164cf6eba3aa5c59a0",
+      "dimensions": [
+        852,
+        1846
+      ]
+    }
+  },
+  "generation": "Built-in image generation and responsive recomposition. Board uses old subject and Customer layout benchmark. Early list and later wayfinding are separate source-aligned compositions; portrait art is native recomposition.",
+  "source_old_board": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-01-board-wide.png",
+  "source_old_signals": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-02-signals-plate-1920x1080.png",
+  "layout_benchmark": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c02-flat-matte-diverse-stills-2026-11-13/customer-1920x1080-clean.png",
+  "source_old_board_sha256": "bcb448af6eef89d109ed8da01bbc5388ac7317eb09b0b8ee28011165f032fe06",
+  "source_old_signals_sha256": "91b0e2871bcae5c5bc67febd7c3cb40ba8aa6d50bc4e67bb91a755656a33646d",
+  "layout_benchmark_sha256": "9be23b82f2d1411cc5012886689cb9d2bcd8d375c00043fecedd901a9867df39",
+  "prompts_and_derivation": [
+    {
+      "output": "source-art/board-desktop.png",
+      "input_roles": "old glossy board is subject provenance; approved Customer slide is style/layout benchmark",
+      "instruction": "matte diverse planning table, fifteen priorities, central decision card without text or controls"
+    },
+    {
+      "output": "source-art/board-portrait.png",
+      "input_roles": "generated desktop board",
+      "instruction": "native tall recomposition with team and central card"
+    },
+    {
+      "output": "source-art/list-desktop.png",
+      "input_roles": "later wayfinding art as style reference",
+      "instruction": "early list/decision table with two people and clipboard; no airport or traveler"
+    },
+    {
+      "output": "source-art/list-portrait.png",
+      "input_roles": "generated early list art",
+      "instruction": "native tall list, team and decision clipboard; no airport or traveler"
+    },
+    {
+      "output": "source-art/wayfinding-desktop.png",
+      "input_roles": "approved Customer slide as style reference",
+      "instruction": "later list-to-decision-to-traveler composition with full-frame airport analogy"
+    },
+    {
+      "output": "source-art/wayfinding-portrait.png",
+      "input_roles": "generated later wayfinding art",
+      "instruction": "native tall traveler path recomposition"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "accelerated_signals_v9_walkthrough_validation_v1",
+  "source_code_commit": "7cdfb5fb8aa3d8788f21d75773bc0dbd1e00a45b",
+  "route": "http://localhost:3108/accelerated/learningplan?rev=7cdfb5fb8aa3d8788f21d75773bc0dbd1e00a45b",
+  "checks": {
+    "desktop": {
+      "path": "artifacts/accelerated-signals-v9-learner-2026-11-15/exact-head/desktop-route-7cdfb5fb8a.mp4",
+      "sha256": "77f851d14076c2cb718508deb87f660c54f3c2ffc93c18419fda99f7a08d6b27",
+      "bytes": 3536233,
+      "duration_seconds": 44.68,
+      "frames": 1117,
+      "resolution": [
+        1280,
+        720
+      ],
+      "decoded_entire_video": true,
+      "visual_review": "poster, scene playback, presenter, external caption band, caption-off, controls, end screen, replay, and privacy inspected in exact-route stills",
+      "audio_note": "screen recording is silent; lesson audio stream hashes are validated in media-validation.json"
+    },
+    "mobile": {
+      "path": "artifacts/accelerated-signals-v9-learner-2026-11-15/exact-head/mobile-route-7cdfb5fb8a.mp4",
+      "sha256": "74b28e0f04ca467701f1984b574233f1b01feaa212a0f3f0c3021ce6732d5b5e",
+      "bytes": 1640751,
+      "duration_seconds": 36.76,
+      "frames": 919,
+      "resolution": [
+        390,
+        844
+      ],
+      "decoded_entire_video": true,
+      "visual_review": "poster, scene playback, presenter, external caption band, caption-off, controls, end screen, replay, and privacy inspected in exact-route stills",
+      "audio_note": "screen recording is silent; lesson audio stream hashes are validated in media-validation.json"
+    }
+  }
+}

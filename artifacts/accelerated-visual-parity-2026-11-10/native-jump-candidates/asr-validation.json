@@ -1,0 +1,740 @@
+{
+  "schema_version": 1,
+  "status": "machine_diagnostic_only",
+  "models": [
+    {
+      "name": "base.en",
+      "sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002"
+    },
+    {
+      "name": "small.en",
+      "sha256": "c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d"
+    }
+  ],
+  "candidate_count": 24,
+  "results": [
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "a541bc886634f934d685b8e126303bc5c36085d1ef7cfb66e99f8e1ae577704f",
+      "removed_probe_words": "gives us a way",
+      "retained_probe_words": "the room is stuck",
+      "before_transcripts": {
+        "base.en": "The meeting has barely started and the board is full. 15 roadmap items, 15 top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck. Chapter 3 gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering.",
+        "small.en": "The meeting has barely started and the board is full. 15 roadmap items, 15 top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck. Chapter 3 gives us a way to structure a messy opportunity. The first move is to decide what question the case is answering."
+      },
+      "after_transcripts": {
+        "base.en": "The meeting has barely started and the board is full. 15 roadmap items, 15 top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck.",
+        "small.en": "The meeting has barely started and the board is full. 15 roadmap items, 15 top priorities. The person asking for retention has a good reason. So does the person asking for revenue. The refactor matters to the engineers who will carry the system next quarter. Everybody can defend their note. That is why the room is stuck."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "candidate_sha256": "ab9722773a7193f89ad99a743179a01a4f9217150b887934b3bc9a69de758c9b",
+      "removed_probe_words": "there is another question",
+      "retained_probe_words": "offers a market frame",
+      "before_transcripts": {
+        "base.en": "If you are asking whether a market is attractive, the book offers a market frame. There is another question that can make a promising idea fail. How does the value reach a customer and how does the work sustain itself?",
+        "small.en": "If you are asking whether a market is attractive, the book offers a market frame. There is another question that can make a promising idea fail. How does the value reach a customer and how does the work sustain itself?"
+      },
+      "after_transcripts": {
+        "base.en": "If you are asking whether a market is attractive, the book offers a market frame.",
+        "small.en": "If you are asking whether a market is attractive, the book offers a market frame."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L02",
+      "presenter_window": "A03",
+      "orientation": "tail",
+      "candidate_sha256": "1b160d6ae709550f01b6c65004e667603d5a0b608d11371e4cbafcee56e35064",
+      "removed_probe_words": "is it something you",
+      "retained_probe_words": "product question is clear",
+      "before_transcripts": {
+        "base.en": "Chapter 3 brings business model options into the case after the customer and product question is clear. Is it something you know or something you hope?",
+        "small.en": "Chapter 3 brings business model options into the case after the customer and product question is clear. Is it something you know or something you hope?"
+      },
+      "after_transcripts": {
+        "base.en": "Chapter 3 brings business model options into the case after the customer and product question is clear.",
+        "small.en": "Chapter 3 brings business model options into the case after the customer and product question is clear."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "candidate_sha256": "2afe8b3538aa656202e14a69c9296a27d20572d762763bbc53cceda0c6d36f60",
+      "removed_probe_words": "a living persona needs",
+      "retained_probe_words": "in a particular moment",
+      "before_transcripts": {
+        "base.en": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment. A living persona needs a record of where it came from.",
+        "small.en": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment. A living persona needs a record of where it came from."
+      },
+      "after_transcripts": {
+        "base.en": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment.",
+        "small.en": "The book makes this shift with Sarah. A static description tells us who she supposedly is. A job description asks what she is trying to do in a particular moment."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L04",
+      "presenter_window": "A03",
+      "orientation": "tail",
+      "candidate_sha256": "cb8517468078aab990ed5c9fe1ef9e665d33c08f2e259ba0f264d932cb53a674",
+      "removed_probe_words": "that is a real",
+      "retained_probe_words": "and a review date",
+      "before_transcripts": {
+        "base.en": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question at a source and a review date. That is a real working file, even if much of it is still provisional.",
+        "small.en": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question at a source and a review date. That is a real working file, even if much of it is still provisional."
+      },
+      "after_transcripts": {
+        "base.en": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question at a source and a review date. That is",
+        "small.en": "On the card, write the job, the context, the signal you observed, what remains uncertain, and the next validation question at a source and a review date."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "119586123387e67f3e50bba17f90b45c6de4946fface75d086419b6806dbe4d7",
+      "removed_probe_words": "the book has a",
+      "retained_probe_words": "you what to change",
+      "before_transcripts": {
+        "base.en": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change. The book has a useful warning here.",
+        "small.en": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change. The book has a useful warning here."
+      },
+      "after_transcripts": {
+        "base.en": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change.",
+        "small.en": "The comments keep coming. One person says the service is slow. Another says it is hard to start. Someone wants a reminder. The inbox is full and the roadmap meeting is tomorrow. You can count the comments. You can paste them into a summary tool. Neither action tells you what to change."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L05",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "candidate_sha256": "febe5f58325bfeae24d5e9c80a393925e638983bc39eee787235fefca45697de",
+      "removed_probe_words": "our six notes support",
+      "retained_probe_words": "easier movement between views",
+      "before_transcripts": {
+        "base.en": "In the Just Make It Faster case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views. Our six notes support a question",
+        "small.en": "In the \"Just Make It Faster\" case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views. Our six notes support a question"
+      },
+      "after_transcripts": {
+        "base.en": "In the Just Make It Faster case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views.",
+        "small.en": "In the \"just make it faster\" case, a team received feedback that sounded like one performance complaint. When they examined the moment behind it, they found different needs, immediate confirmation after an action, current information from other people, and easier movement between views."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L06",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "candidate_sha256": "6723ac5d228fefccc4141a490ed424dbda28ab131d79f14f7232aff8ac802c57",
+      "removed_probe_words": "imagine the team tests",
+      "retained_probe_words": "link the ledger ids",
+      "before_transcripts": {
+        "base.en": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs. Imagine the team tests the card",
+        "small.en": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs, imagine the team tests the card,"
+      },
+      "after_transcripts": {
+        "base.en": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs.",
+        "small.en": "A blank template can make a team start with controls and screens. For this exercise, begin one line earlier. A new member opens the first task and cannot tell what action matters or why. Under that line, link the ledger IDs."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "7165c66d41fead1ac09ba3edbbbf904daf9a9a408425cfac81f244985736bad9",
+      "removed_probe_words": "gives the learning plan",
+      "retained_probe_words": "belongs to the decision",
+      "before_transcripts": {
+        "base.en": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter 12 tells a version of this failure. A dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision. Chapter 13 gives the learning plan 10 components.",
+        "small.en": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter 12 tells a version of this failure. A dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision. Chapter 13 gives the learning plan 10 components."
+      },
+      "after_transcripts": {
+        "base.en": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter 12 tells a version of this failure. A dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision.",
+        "small.en": "The dashboard is green. More people are opening the page. The team celebrates, then support hears that members still cannot finish the first task. A rising activity line did not answer the question we were trying to solve. Chapter 12 tells a version of this failure. A dashboard looked healthy while the product was missing the customer outcome. The point is to choose a measure that belongs to the decision."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L08",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "candidate_sha256": "68af8566bfa80dfd58bd6e0e9987481c305ba0f7a8c3feda54c651b77f51e3eb",
+      "removed_probe_words": "before there is any",
+      "retained_probe_words": "from this small exercise",
+      "before_transcripts": {
+        "base.en": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise. Before there is any data,",
+        "small.en": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise. Before there is any data,"
+      },
+      "after_transcripts": {
+        "base.en": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the members need to begin with confidence. We will not claim a business lift from this small exercise.",
+        "small.en": "The first five establish what we are testing. One, business problem and customer outcome. Our example names the friction at the first task and the member's need to begin with confidence. We will not claim a business lift from this small exercise."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "candidate_sha256": "6dd500713e13fe3c96a1f443bcfb97ea9b44a345e490ce62212103d3a7e58d31",
+      "removed_probe_words": "skeptic asks hard questions",
+      "retained_probe_words": "the book calls the",
+      "before_transcripts": {
+        "base.en": "A skeptic asks hard questions. The book calls the pre-meeting work shuttle diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take.",
+        "small.en": "A skeptic asks hard questions. The book calls the pre-Meeting Work shuttle diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take."
+      },
+      "after_transcripts": {
+        "base.en": "Questions. The book calls the pre-meeting work shuttle diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take.",
+        "small.en": "The book calls the pre-meeting work shuttle diplomacy. Learn the decision criteria before a deck hardens around one answer. Start with the person who will do the observation. Ask the operations lead what time the test would take."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L09",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "candidate_sha256": "79cccbc3da078e89cad310109885fe0d0e620cb1cf4a2e4e3dcdc9d24b66197f",
+      "removed_probe_words": "would make it unsafe",
+      "retained_probe_words": "a map is not",
+      "before_transcripts": {
+        "base.en": "and which staffing constraint would make it unsafe. A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
+        "small.en": "and which staffing constraint would make it unsafe. A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch."
+      },
+      "after_transcripts": {
+        "base.en": "A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch.",
+        "small.en": "A map is not a way to manufacture agreement. It helps you find missing information and name the people who bear the cost. In the next lesson, we will take the same choice into a short, responsible pitch."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "ec3fa8079399f37aa7b4f4897c280ae9843cad4625d10b15fb15bda406a1330c",
+      "removed_probe_words": "uses a notification settings",
+      "retained_probe_words": "that kind of meeting",
+      "before_transcripts": {
+        "base.en": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research, finance sees an unpriced commitment, engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter 16 describes that kind of meeting. Chapter 16 uses a notification settings case.",
+        "small.en": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research. Finance sees an unpriced commitment. Engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter 16 describes that kind of meeting. Chapter 16 uses a notification settings case."
+      },
+      "after_transcripts": {
+        "base.en": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research, finance sees an unpriced commitment, engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter 16 describes that kind of meeting.",
+        "small.en": "A proposal can be right about the customer and still arrive in the wrong form. The team sees the research. Finance sees an unpriced commitment. Engineering sees work that may displace a promised upgrade. The person presenting keeps adding evidence, but no one has named the decision that each listener is being asked to carry. Chapter 16 describes that kind of meeting."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "candidate_sha256": "666dad3ac2771fde2e7625d0e5659b755faceed7c0bedd3b28697f71332c2d8c",
+      "removed_probe_words": "members understand and begin",
+      "retained_probe_words": "says we cannot spare",
+      "before_transcripts": {
+        "base.en": "and observe whether members understand and begin. Imagine operation says we cannot spare staff to watch a long session. Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment if none is feasible,",
+        "small.en": "and observe whether members understand and begin. Imagine Operation says, \"We cannot spare staff to watch a long session.\" Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment if none is feasible,"
+      },
+      "after_transcripts": {
+        "base.en": "Imagine operation says we cannot spare staff to watch a long session. Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment if none is feasible",
+        "small.en": "Imagine Operation says we cannot spare staff to watch a long session. Do not answer by repeating why the customer problem matters. Ask which part of the observation creates the burden. Could the test use fewer sessions, a shorter window, or an existing research appointment if none is feasible"
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L10",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "candidate_sha256": "75a472c023da4916a637e532e3ad607b42948bfda1992395fe6cc6ec0940bfce",
+      "removed_probe_words": "and redesign the test",
+      "retained_probe_words": "we will bring the",
+      "before_transcripts": {
+        "base.en": "Stop and redesign the test. We will bring the observations back on the agreed date. That brief does not claim success in advance. Write a second opening for the operations lead using the same facts and their concern. Then answer one final question. What would change your mind? If the answer is nothing, revisit the learning plan.",
+        "small.en": "Stop and redesign the test. We will bring the observations back on the agreed date. That brief does not claim success in advance. Write a second opening for the operations lead, using the same facts and their concern. Then answer one final question. What would change your mind? If the answer is nothing, revisit the learning plan."
+      },
+      "after_transcripts": {
+        "base.en": "We will bring the observations back on the agreed date. That brief does not claim success in advance. Write a second opening for the operations lead using the same facts and their concern. Then answer one final question. What would change your mind? If the answer is nothing, revisit the learning plan.",
+        "small.en": "We will bring the observations back on the agreed date. That brief does not claim success in advance. Write a second opening for the operations lead, using the same facts and their concern. Then answer one final question. What would change your mind? If the answer is nothing, revisit the learning plan."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "candidate_sha256": "738161cb90eb59e5f0660e9c7268b4c1c3f28888d4372936a4916d65b0fddf5b",
+      "removed_probe_words": "action starts the service",
+      "retained_probe_words": "imagine joining this work",
+      "before_transcripts": {
+        "base.en": "Which action starts the service? Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer,",
+        "small.en": "Which action starts the service? Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer,"
+      },
+      "after_transcripts": {
+        "base.en": "Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer,",
+        "small.en": "Imagine joining this work six weeks later. You should be able to answer three questions without searching through a long chat. What did the team believe? What did it observe? What did it decide? The record needs the original hypothesis, the test version, the source links, the measure and guardrail, the reviewer,"
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L11",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "candidate_sha256": "a80b7daa32b8ca1c37e325cabbca9ced06b3761e17bdcde62f36c5a32f8a0c25",
+      "removed_probe_words": "and the next owner",
+      "retained_probe_words": "the learning system loop",
+      "before_transcripts": {
+        "base.en": "The decision date and the next owner. The learning system loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
+        "small.en": "The decision date and the next owner. The learning system loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path."
+      },
+      "after_transcripts": {
+        "base.en": "The learning system loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path.",
+        "small.en": "The learning system loop from the course kit can help you see the return to the next decision, but it is a teaching diagram, not an EPUB figure. You have now connected the decision file into a repeatable path. In the next lesson, we will look closely at one signal entering that path."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A03",
+      "orientation": "head",
+      "candidate_sha256": "9bef64f4231f07ab639527f7fa672087a0b51addbb91606d988d3524360ab715",
+      "removed_probe_words": "separate from observed research",
+      "retained_probe_words": "the simulation points to",
+      "before_transcripts": {
+        "base.en": "separate from observed research. The simulation points to two questions, not two answers. First, can an eligible new member explain the first action before beginning it? Second, after acting, can they tell whether it worked? Put each beside a real observation method? The research owner can watch an approved session, ask the person what they expect,",
+        "small.en": "separate from observed research. The simulation points to two questions, not two answers. First, can an eligible new member explain the first action before beginning it? Second, after acting, can they tell whether it worked? Put each beside a real observation method, the research owner can watch an approved session, ask the person what they expect,"
+      },
+      "after_transcripts": {
+        "base.en": "The simulation points to two questions, not two answers. First, can an eligible new member explain the first action before beginning it? Second, after acting, can they tell whether it worked? Put each beside a real observation method? The research owner can watch an approved session, ask the person what they expect,",
+        "small.en": "The simulation points to two questions, not two answers. First, can an eligible new member explain the first action before beginning it? Second, after acting, can they tell whether it worked? Put each beside a real observation method, the research owner can watch an approved session, ask the person what they expect,"
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L12",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "candidate_sha256": "5393cc3e5e4ca9d543e785edce5e7b008805bd0395c259782bcd0bff9ed9a924",
+      "removed_probe_words": "record the observed hesitation",
+      "retained_probe_words": "the structure helps you",
+      "before_transcripts": {
+        "base.en": "and record the observed hesitation. The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward if the evidence is weak, say so.",
+        "small.en": "and record the observed hesitation. The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward if the evidence is weak, say so."
+      },
+      "after_transcripts": {
+        "base.en": "The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward if the evidence is weak, say so.",
+        "small.en": "The structure helps you see where a source ends and an inference begins. It also helps you avoid asking a model to settle a question only people can answer. The next module uses this discipline to examine strategic shifts and future concepts. Bring the job and the unresolved question forward if the evidence is weak, say so."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "1758203a4b76190d3b08e8abef1faeff07eac39fd64dede4b55488d1a4a836ce",
+      "removed_probe_words": "the fourth stratquest session",
+      "retained_probe_words": "result for this exercise",
+      "before_transcripts": {
+        "base.en": "Picture a Monday meeting, the dashboard is flat, someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In chapter 21, Sam faces that pressure and opens StratQuest. This is a book story. Our membership service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise. The fourth StratQuest session turns a preferred option into a test.",
+        "small.en": "Picture a Monday meeting, the dashboard is flat, someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In Chapter 21, Sam faces that pressure and opens StratQuest. This is a book story. Our membership service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise. The fourth StratQuest session turns a preferred option into a test."
+      },
+      "after_transcripts": {
+        "base.en": "Picture a Monday meeting, the dashboard is flat, someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In chapter 21, Sam faces that pressure and opens Stratquest. This is a book story. Our membership service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise.",
+        "small.en": "Picture a Monday meeting, the dashboard is flat, someone says the product needs a pivot, and the room starts naming new features before anyone has agreed what is stuck. In Chapter 21, Sam faces that pressure and opens StratQuest. This is a book story. Our membership service example is a separate teaching exercise. Its numbers are intentionally blank because we have observed no customer result for this exercise."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L13",
+      "presenter_window": "A02",
+      "orientation": "tail",
+      "candidate_sha256": "6c3dd1080540bd4b26befa5d2238bca6081365dbefca0d4410d50b2a7b39876b",
+      "removed_probe_words": "the book's collaboration example",
+      "retained_probe_words": "help new members begin",
+      "before_transcripts": {
+        "base.en": "In the book case, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin. The book's collaboration example surfaces questions about differentiation,",
+        "small.en": "In the bookcase, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin. The book's collaboration example surfaces questions about differentiation"
+      },
+      "after_transcripts": {
+        "base.en": "In the bookcase, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin.",
+        "small.en": "In the bookcase, a cohort compares a flexible price with the existing subscription. We will not copy its percentages into our exercise or promise the same outcome. Suppose our fictional membership service wonders whether a shorter commitment would help new members begin."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L14",
+      "presenter_window": "A04",
+      "orientation": "head",
+      "candidate_sha256": "d8a2a1460bd14d2338730182264976496841c55f46d08531c14aa22f59041185",
+      "removed_probe_words": "the evidence cannot carry",
+      "retained_probe_words": "we have created an",
+      "before_transcripts": {
+        "base.en": "Do not write a promise that the evidence cannot carry. We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
+        "small.en": "Do not write a promise that the evidence cannot carry. We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip."
+      },
+      "after_transcripts": {
+        "base.en": "We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip.",
+        "small.en": "We have created an editorial teaching card, not proof of a deployed tool or a successful pitch. The next lesson asks what happens after one team learns from a test and other teams want to repeat it. Save the source strip."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A01",
+      "orientation": "tail",
+      "candidate_sha256": "224b53787f4b6faeab4a87958d385d6b2d19ca60fb6f51779a182d30c9e790f2",
+      "removed_probe_words": "names five scaling mistakes",
+      "retained_probe_words": "between those two moments",
+      "before_transcripts": {
+        "base.en": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments. Chapter 24 names five scaling mistakes.",
+        "small.en": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments. Chapter 24 names five scaling mistakes."
+      },
+      "after_transcripts": {
+        "base.en": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments.",
+        "small.en": "One small test was useful. A second team asks to run it too. That sounds like progress, and it may be. It also changes the shape of the work. The first team knew the people, the context, and the reason for every field in its learning plan. The second team receives a template and a sentence about success. Context can disappear between those two moments."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    },
+    {
+      "lesson_id": "L15",
+      "presenter_window": "A03",
+      "orientation": "tail",
+      "candidate_sha256": "863df845ae13b931139d2359c772810527396d11cd5477f2fa3e7e6688a7e37b",
+      "removed_probe_words": "end with a decision",
+      "retained_probe_words": "to defer say why",
+      "before_transcripts": {
+        "base.en": "The decision memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why. End with a decision about readiness.",
+        "small.en": "The decision memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why. End with a decision about readiness."
+      },
+      "after_transcripts": {
+        "base.en": "The decision memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why.",
+        "small.en": "The decision memory record is where a useful test becomes a reusable asset. Write what the team believed before the test. Link to the source evidence. Record what happened, including contrary observations and limits. State the choice, the person accountable for it, and the condition that would reopen it. Add the date when its context should be checked again. If the decision was to defer, say why."
+      },
+      "model_checks": {
+        "base.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        },
+        "small.en": {
+          "removed_phrase_in_before": true,
+          "removed_phrase_in_after": false,
+          "retained_phrase_in_after": true
+        }
+      },
+      "status": "machine_comparison_not_audible_signoff",
+      "machine_result": "passed_removed_phrase_and_retained_context"
+    }
+  ],
+  "machine_pass_count": 24,
+  "machine_blocked_count": 0,
+  "machine_blocked_windows": []
+}

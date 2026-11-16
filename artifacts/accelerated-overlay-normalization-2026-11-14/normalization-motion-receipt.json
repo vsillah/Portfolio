@@ -1,0 +1,112 @@
+{
+  "contract": "accelerated-editorial-teaching-plate-v1",
+  "scope": "local review-only L01-L03 motion normalization; source audio, timing, captions, and learner media unchanged",
+  "lessons": {
+    "L01": [
+      {
+        "variant": "desktop",
+        "status": "pass",
+        "source": "artifacts/accelerated-lesson-pacing-2026-11-10/l01-continuous-review.mp4",
+        "source_sha256": "d61204d50b53e9e880921cacb295fba92da54f71375073f1822aee161052bdb7",
+        "output": "artifacts/accelerated-overlay-normalization-2026-11-14/l01/motion/l01-desktop-teaching-overlay-local-review.mp4",
+        "output_sha256": "6b049f8056f859b75e999c1d990b852afbe7b72797706e0dc7884231c5931927",
+        "duration_seconds": 529.48,
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "decoded_audio_sha256": "03ebdf8985dd2a576d1c16e812c85cbd871703a30247571b7e7478c68020e07e",
+        "full_decode": "pass",
+        "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l01-teaching-overlay-plan.json",
+        "plan_sha256": "d6d2058dff22bbfc6a98037b1944d338acb438da7dce86f2e1b982178bbcc34d"
+      },
+      {
+        "variant": "portrait",
+        "status": "player-reflow-only",
+        "reason": "lesson has one landscape master; mobile proof uses the actual player rather than a duplicate portrait encode"
+      }
+    ],
+    "L02": [
+      {
+        "variant": "desktop",
+        "status": "pass",
+        "source": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-qualified-source-rebuild/l02-presenter-desktop-review-1920x1080.mp4",
+        "source_sha256": "09b606c4ff15862355b401e260d2aa56ff947dd0eaeeed33ea70217060d7b716",
+        "output": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/motion/l02-desktop-teaching-overlay-local-review.mp4",
+        "output_sha256": "f4069e38c32f59f6c3da44e24f3f08f9c7553ab704b1148f9d771634576ab94f",
+        "duration_seconds": 403.6,
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "decoded_audio_sha256": "1aca65d3b37055370e11bd61e009dba97f5a05aefd3a3c59ef843c1db3cba789",
+        "full_decode": "pass",
+        "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-teaching-overlay-plan.json",
+        "plan_sha256": "b710d276bbbc9e9f2dd7cedbe9f229017f3ecd31a325cf3b3137cd453c28bded"
+      },
+      {
+        "variant": "portrait",
+        "status": "pass",
+        "source": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-qualified-source-rebuild/l02-presenter-portrait-review-390x844.mp4",
+        "source_sha256": "492847faf3c7178b18f2812b038a3b4d3d7f7fde48f57fe978dbbf81646f70d3",
+        "output": "artifacts/accelerated-overlay-normalization-2026-11-14/l02/motion/l02-portrait-teaching-overlay-local-review.mp4",
+        "output_sha256": "1b7a656cb4e84aae33665a330c00056c53f1c86087294354e225d00a68764fd8",
+        "duration_seconds": 403.6,
+        "dimensions": [
+          390,
+          844
+        ],
+        "decoded_audio_sha256": "1aca65d3b37055370e11bd61e009dba97f5a05aefd3a3c59ef843c1db3cba789",
+        "full_decode": "pass",
+        "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l02-teaching-overlay-plan.json",
+        "plan_sha256": "b710d276bbbc9e9f2dd7cedbe9f229017f3ecd31a325cf3b3137cd453c28bded"
+      }
+    ],
+    "L03": [
+      {
+        "variant": "desktop",
+        "status": "pass",
+        "source": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/l03-whole-lesson-desktop-local-review.mp4",
+        "source_sha256": "24e5daaa3989dc8ae4324bca4726a08bdc9c16475e264fdd7cd5b0bf5d2987d3",
+        "output": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/motion/l03-desktop-teaching-overlay-local-review.mp4",
+        "output_sha256": "6311277a2fea74fe2d5969d31daa6bbcf1cc4540ce7ba9fa561df5c863fb8eab",
+        "duration_seconds": 357.6,
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "decoded_audio_sha256": "e0e42dad5da0ce0835b26268a75ead2b54daadc23b7715d6a2ef2c2643332ff4",
+        "full_decode": "pass",
+        "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l03-teaching-overlay-plan.json",
+        "plan_sha256": "4fb9faf43fc1cd69750ea3b2b9b691089af4e30897790f9b80674121e4bf8056"
+      },
+      {
+        "variant": "portrait",
+        "status": "pass",
+        "source": "artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/l03-whole-lesson-mobile-local-review.mp4",
+        "source_sha256": "bfbe6e377633cc2ff9c1fe3af216ee79e0a84957df847ffc2e26e3f374c1616c",
+        "output": "artifacts/accelerated-overlay-normalization-2026-11-14/l03/motion/l03-portrait-teaching-overlay-local-review.mp4",
+        "output_sha256": "e8356c6474c9c6764352e0b32030731b2316be88b9d35d7986233e19a6271522",
+        "duration_seconds": 357.6,
+        "dimensions": [
+          390,
+          844
+        ],
+        "decoded_audio_sha256": "e0e42dad5da0ce0835b26268a75ead2b54daadc23b7715d6a2ef2c2643332ff4",
+        "full_decode": "pass",
+        "plan": "artifacts/accelerated-overlay-normalization-2026-11-14/l03-teaching-overlay-plan.json",
+        "plan_sha256": "4fb9faf43fc1cd69750ea3b2b9b691089af4e30897790f9b80674121e4bf8056"
+      }
+    ]
+  },
+  "excluded": [
+    "provider call",
+    "spend",
+    "learner-media change",
+    "PR update",
+    "merge",
+    "deploy",
+    "publish",
+    "release"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "accelerated_l04_portrait_single_image_local_qa_v1",
+  "status": "local_candidate_passed_pending_captain_and_human_qa",
+  "source_commit": "6ddb46c09f29b31dbaf51824a815648feed6470e",
+  "desktop_mp4_unchanged_sha256": "a56cee03509ebb46030a4582a19887875c3568cea94cf8a4141ba47ee91efd86",
+  "prior_portrait_mp4_sha256": "71fbfdafbcb7c29be9c23de2d5c5f40cc15a7fcbb82adb999ac90653d20635f4",
+  "new_portrait_mp4": {
+    "file": "l04-whole-lesson-portrait-single-image-local-review.mp4",
+    "sha256": "85c0a94bebfa0934da942070a812685be7397077607edf634409b6cd3472d1a8",
+    "dimensions": [
+      390,
+      844
+    ],
+    "fps": 25,
+    "video_frames": 9983,
+    "container_duration_seconds": 399.324
+  },
+  "portrait_vtt_unchanged_sha256": "597f740705c236174463180a57cafb94deb7c784c67f7e7f14f74960719f18a5",
+  "desktop_vtt_unchanged_sha256": "3773ab5ceec12987ddf3837bc30390613f5b0d18cbf527bcea4a6e3f615e6691",
+  "audio_master_unchanged_sha256": "c0bf25bbfa9599ba20fe744cbb04b98e7e94a97401ab33b67f850cd8929bdb97",
+  "decoded_audio_streamhash_sha256": "0a02d35fbfdd7688d49146f029efd5b8544d8a99ac8cacfe354a07c5c0233997",
+  "audio_stream_equivalence": "Matches prior qualified portrait and desktop decoded streams byte-for-byte.",
+  "preflight_image_layers": {
+    "P01": 1,
+    "P02": 1,
+    "P03": 1,
+    "P04": 1
+  },
+  "preflight_contact": {
+    "file": "presenter-section-preflight/contact-portrait-single-image.jpg",
+    "sha256": "0d1f3742d2e2943d87a1c8fcf1e9d1a1734aa1ef760c225378140a9f6e2c76da"
+  },
+  "encoded_contact": {
+    "file": "qa-portrait-single-image-encoded-contact.jpg",
+    "sha256": "b6ed71b383887573686ba878f0a8efebd1583358b5e987d91cdcb2784ea5ab94"
+  },
+  "visual_checks": {
+    "P01": "One focused source image; team, book, magnifier and first-task arrow remain visible.",
+    "P02": "One focused source image; operator, start-task card, clock and calendar remain visible.",
+    "P03": "One focused source image; working decision card, observed-signal path and uncertainty field remain visible.",
+    "P04": "One focused source image; evidence, open question, persona card and writing action remain visible.",
+    "all": "Single 390x510 teaching-image instance, 16-pixel cream gutter to fixed 390x219 native presenter section; no repeated layer, hidden image, or excessive blank space above presenter. Native presenter position and outline unchanged."
+  },
+  "decode": "ffmpeg -v error -i new_portrait.mp4 -f null - exit 0",
+  "browser": "Integrated browser loaded exact 85c0a94b portrait and a56cee03 desktop sources at 399.324 seconds, readyState 4. P03 caption on and P04 caption off/on visually checked with native controls; no caption band or face/control collision.",
+  "browser_url": "http://127.0.0.1:8768/artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/review.html?rev=a56cee03-85c0a94b-597f7407",
+  "scope": "Portrait presenter-on P01-P04 only. Desktop, portrait cutaways, source art, audio, scene order, timing and caption words/times unchanged.",
+  "remaining_gate": "Captain review and Vambah full-lesson Human QA with sound. Prior portrait approval does not cover this corrected file.",
+  "excluded_actions": "No learner media change, new art, provider contact, spend, commit, push, PR update, merge, deploy, publish or release.",
+  "presenter_free_portrait_sample_frames": "Old and corrected portrait frames match by decoded framemd5 at 40, 160, 260, and 397 seconds."
+}

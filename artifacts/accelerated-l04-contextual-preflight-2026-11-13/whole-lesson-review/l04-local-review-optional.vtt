@@ -1,0 +1,448 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.500
+We are back at the Q3 Innovation Plan.
+
+00:00:04.094 --> 00:00:05.660
+The page is no longer empty.
+
+00:00:05.863 --> 00:00:08.935
+You have chosen a priority and written down the evidence
+
+00:00:08.935 --> 00:00:10.300
+that could change your mind.
+
+00:00:10.600 --> 00:00:15.340
+But the broad idea is still sitting there: improve the member experience.
+
+00:00:15.874 --> 00:00:20.055
+Maybe your version says transform onboarding, reinvent support,
+
+00:00:20.055 --> 00:00:22.900
+or use AI to personalize everything.
+
+00:00:23.178 --> 00:00:24.860
+Those ambitions can be useful.
+
+00:00:25.519 --> 00:00:27.300
+They are hard to test as a single bet.
+
+00:00:27.865 --> 00:00:31.268
+Chapter Five of Accelerated opens with an empty planning document
+
+00:00:31.279 --> 00:00:33.828
+and asks us to think big while building small.
+
+00:00:34.223 --> 00:00:35.919
+The first move is to shrink the question.
+
+00:00:36.434 --> 00:00:38.856
+Instead of “What should we build for everyone?”
+
+00:00:39.080 --> 00:00:42.824
+ask, “What is one moment we can understand better this week?”
+
+00:00:43.090 --> 00:00:46.535
+In our fictional membership service, that moment is the first
+
+00:00:46.546 --> 00:00:47.901
+task after someone joins.
+
+00:00:48.363 --> 00:00:51.276
+A small prototype can show us whether the instruction helps
+
+00:00:51.276 --> 00:00:51.936
+a person begin.
+
+00:00:52.331 --> 00:00:54.368
+It cannot prove the whole program works.
+
+00:00:54.677 --> 00:00:55.307
+That is fine.
+
+00:00:55.616 --> 00:00:57.739
+The point of a small test is to let reality
+
+00:00:57.792 --> 00:01:00.341
+correct the plan before the plan becomes expensive.
+
+00:01:00.991 --> 00:01:03.241
+Now picture the persona deck beside that plan.
+
+00:01:03.508 --> 00:01:04.137
+It looks finished.
+
+00:01:04.575 --> 00:01:07.380
+There is a stock photo, a name, a city,
+
+00:01:07.689 --> 00:01:10.409
+a favorite app, and a line about wanting convenience.
+
+00:01:10.868 --> 00:01:14.038
+In Chapter Six, I describe a gorgeous deck that did
+
+00:01:14.038 --> 00:01:15.721
+not help my team make decisions.
+
+00:01:16.201 --> 00:01:19.049
+That is an uncomfortable confession because the work looked careful.
+
+00:01:19.529 --> 00:01:22.121
+The question was whether the details pointed to a real
+
+00:01:22.121 --> 00:01:22.975
+moment in the product.
+
+00:01:23.574 --> 00:01:25.910
+If we say our member is thirty-four and busy,
+
+00:01:26.176 --> 00:01:28.598
+what should the team do differently on the first task?
+
+00:01:28.950 --> 00:01:29.707
+We do not know.
+
+00:01:30.007 --> 00:01:32.366
+If we say the member needs to understand where to
+
+00:01:32.366 --> 00:01:35.287
+start without asking for help, we can observe a situation,
+
+00:01:35.895 --> 00:01:38.359
+compare a design, and notice what we missed.
+
+00:01:38.967 --> 00:01:40.535
+The first statement paints a person.
+
+00:01:41.058 --> 00:01:43.138
+The second names a job in context.
+
+00:01:43.631 --> 00:01:46.905
+Do not throw away demographic information when it is genuinely
+
+00:01:46.905 --> 00:01:48.697
+relevant and responsibly gathered.
+
+00:01:48.964 --> 00:01:51.792
+Just do not let a polished portrait stand in for
+
+00:01:51.792 --> 00:01:53.049
+evidence about behavior.
+
+00:01:53.401 --> 00:01:55.823
+The persona has to earn its place in the decision.
+
+00:01:56.390 --> 00:01:58.502
+The book makes this shift with Sarah.
+
+00:01:58.502 --> 00:02:02.447
+A static description tells us who she supposedly is.
+
+00:02:02.563 --> 00:02:05.362
+A job description asks what she is trying to do
+
+00:02:05.362 --> 00:02:06.587
+in a particular moment.
+
+00:02:06.991 --> 00:02:09.777
+In the book example, she is preparing for a Monday
+
+00:02:09.777 --> 00:02:13.361
+meeting and needs progress updates without sending messages that make
+
+00:02:13.361 --> 00:02:14.703
+her feel like a micromanager.
+
+00:02:15.226 --> 00:02:17.007
+That gives a team something to work with.
+
+00:02:17.426 --> 00:02:20.104
+There is a time pressure, a current workaround,
+
+00:02:20.328 --> 00:02:21.469
+and a risk to trust.
+
+00:02:21.992 --> 00:02:24.498
+The same person can have a different job on Wednesday
+
+00:02:24.498 --> 00:02:26.162
+when a blocked project needs attention.
+
+00:02:26.665 --> 00:02:29.854
+That is why a living persona follows the situation,
+
+00:02:30.164 --> 00:02:31.006
+not only the person.
+
+00:02:31.562 --> 00:02:34.732
+For our fictional service, write: “When a new member opens
+
+00:02:34.732 --> 00:02:37.866
+the first task, they need to know what action matters now,
+
+00:02:38.261 --> 00:02:41.279
+so they can begin without asking staff to translate the instructions.”
+
+00:02:41.973 --> 00:02:43.498
+That sentence is a hypothesis.
+
+00:02:43.912 --> 00:02:45.309
+We have not interviewed a member.
+
+00:02:45.704 --> 00:02:47.998
+We can still use it to decide what to test
+
+00:02:48.094 --> 00:02:48.979
+and what to ask.
+
+00:02:49.459 --> 00:02:52.477
+Put a question mark beside the part you are least sure about.
+
+00:02:52.829 --> 00:02:54.568
+The mark is a reminder to listen,
+
+00:02:54.878 --> 00:02:56.062
+not a flaw in the card.
+
+00:02:56.475 --> 00:02:59.536
+Once the job is visible, the build can get smaller.
+
+00:03:00.102 --> 00:03:03.035
+We do not need a complete onboarding platform to learn
+
+00:03:03.046 --> 00:03:04.571
+whether the first action is clear.
+
+00:03:05.033 --> 00:03:07.540
+We can make three versions of a first-task card:
+
+00:03:07.764 --> 00:03:10.612
+one with a short instruction, one with a guided step,
+
+00:03:10.708 --> 00:03:12.660
+and one that points to a person for help.
+
+00:03:13.182 --> 00:03:15.627
+Then we can ask what each version asks of the
+
+00:03:15.627 --> 00:03:17.012
+member and of the staff.
+
+00:03:17.596 --> 00:03:18.951
+The book's sequence matters.
+
+00:03:19.218 --> 00:03:20.060
+Shrink the question.
+
+00:03:20.498 --> 00:03:23.772
+Generate possible approaches without falling in love with the first one.
+
+00:03:23.996 --> 00:03:25.479
+Anchor the choice to strategy.
+
+00:03:25.788 --> 00:03:28.679
+Let AI help with an early draft if the inputs are safe.
+
+00:03:29.099 --> 00:03:32.160
+A quick draft is useful because it gives us something to inspect.
+
+00:03:32.512 --> 00:03:33.825
+It is not a user test.
+
+00:03:34.259 --> 00:03:37.685
+In the synthetic demonstration, I choose the guided step as
+
+00:03:37.685 --> 00:03:40.734
+the first prototype because it addresses the starting-point question
+
+00:03:40.787 --> 00:03:41.843
+from our decision file.
+
+00:03:42.067 --> 00:03:43.806
+I keep the other versions visible.
+
+00:03:44.226 --> 00:03:46.860
+If research shows that the instruction was already clear,
+
+00:03:46.956 --> 00:03:48.098
+I will change course.
+
+00:03:48.535 --> 00:03:50.786
+The purpose of the prototype is to put the assumption
+
+00:03:50.839 --> 00:03:51.810
+where we can see it.
+
+00:03:52.356 --> 00:03:55.294
+A living persona needs a record of where it came from.
+
+00:03:55.609 --> 00:03:58.214
+On the card, write the job, the context,
+
+00:03:58.545 --> 00:04:03.234
+the signal you observed, what remains uncertain, and the next validation question.
+
+00:04:03.568 --> 00:04:05.274
+Add a source and a review date.
+
+00:04:05.630 --> 00:04:08.032
+If this card is based on a real interview or
+
+00:04:08.032 --> 00:04:11.658
+a permitted product signal, cite the approved record without exposing
+
+00:04:11.658 --> 00:04:12.830
+the person in the course file.
+
+00:04:13.116 --> 00:04:14.599
+If it is a synthetic exercise,
+
+00:04:15.164 --> 00:04:19.378
+say so in the working evidence layer and leave “observed signal” blank.
+
+00:04:19.772 --> 00:04:21.682
+You can write a proposed signal to look for,
+
+00:04:21.948 --> 00:04:23.346
+but do not call it observed.
+
+00:04:23.849 --> 00:04:28.233
+Chapter Six is explicit that synthetic data can help generate hypotheses.
+
+00:04:29.054 --> 00:04:34.164
+It cannot replace real research or justify a high-stakes irreversible decision.
+
+00:04:34.624 --> 00:04:37.515
+This is especially easy to forget when a simulated person
+
+00:04:37.568 --> 00:04:39.008
+speaks in a convincing voice.
+
+00:04:39.360 --> 00:04:41.441
+A plausible quote is still invented.
+
+00:04:41.665 --> 00:04:45.280
+In our example, we do not know where actual members hesitate.
+
+00:04:45.419 --> 00:04:46.816
+The card should say that plainly.
+
+00:04:47.188 --> 00:04:50.590
+A useful persona can hold an unknown without collapsing.
+
+00:04:51.028 --> 00:04:54.473
+That is how it stays alive long enough to become more accurate.
+
+00:04:54.774 --> 00:04:57.665
+Imagine the test happens and the team learns that members
+
+00:04:57.718 --> 00:05:01.826
+understand the first instruction but pause because they cannot tell
+
+00:05:01.826 --> 00:05:02.998
+how long the task will take.
+
+00:05:03.393 --> 00:05:04.406
+That would change the card.
+
+00:05:04.915 --> 00:05:07.336
+The job might be less about finding the next action
+
+00:05:07.432 --> 00:05:10.024
+and more about knowing whether there is enough time to begin.
+
+00:05:10.291 --> 00:05:13.181
+I am making up that result to show how revision works;
+
+00:05:13.363 --> 00:05:16.083
+it is not a claim about a product or a customer.
+
+00:05:16.588 --> 00:05:19.118
+The important move is to date the update and keep
+
+00:05:19.118 --> 00:05:21.399
+the old assumption visible in the decision file.
+
+00:05:21.964 --> 00:05:24.963
+A persona that changes with evidence is more useful than
+
+00:05:24.963 --> 00:05:27.372
+a deck that stays beautiful while the work moves on.
+
+00:05:27.789 --> 00:05:31.001
+This does not require collecting every click or building a
+
+00:05:31.001 --> 00:05:32.258
+profile of every person.
+
+00:05:32.653 --> 00:05:35.074
+It requires consent, an approved source,
+
+00:05:35.256 --> 00:05:39.000
+and the discipline to separate what you observed from what you inferred.
+
+00:05:39.419 --> 00:05:41.926
+Ask whether the card helps you make today's product choice.
+
+00:05:42.278 --> 00:05:44.785
+If it cannot, revise the job or the question.
+
+00:05:45.222 --> 00:05:47.345
+The person behind the work deserves that care.
+
+00:05:47.569 --> 00:05:50.246
+Pause and finish one living persona card.
+
+00:05:50.617 --> 00:05:52.312
+Write the job in a specific moment,
+
+00:05:52.579 --> 00:05:54.190
+the current workaround if you know it,
+
+00:05:54.371 --> 00:05:58.072
+the observed signal or an honest blank, the biggest uncertainty,
+
+00:05:58.467 --> 00:06:01.998
+the next question, the source, and the date you will review it.
+
+00:06:02.324 --> 00:06:04.746
+Then look at all four pages of your decision file.
+
+00:06:05.012 --> 00:06:07.775
+The first page names the choice and the data boundary.
+
+00:06:08.084 --> 00:06:10.548
+The second shows the priority and the alternatives.
+
+00:06:10.900 --> 00:06:13.450
+The third names evidence that could change your mind.
+
+00:06:13.820 --> 00:06:16.520
+This page keeps the human situation in view while you
+
+00:06:16.520 --> 00:06:17.521
+design a small test.
+
+00:06:17.888 --> 00:06:20.359
+That is a real working file,
+
+00:06:20.617 --> 00:06:22.454
+even if much of it is still provisional.
+
+00:06:22.454 --> 00:06:26.134
+In the next lesson, the workshop will turn more raw
+
+00:06:26.134 --> 00:06:28.259
+feedback into traceable signal.
+
+00:06:28.758 --> 00:06:31.159
+For now, hold on to the small question.
+
+00:06:31.346 --> 00:06:33.079
+Build only enough to learn.
+
+00:06:33.471 --> 00:06:35.359
+Keep the card open to correction.
+
+00:06:35.958 --> 00:06:38.678
+That is how we move faster without leaving the person behind.

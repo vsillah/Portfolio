@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accelerated L01–L03 teaching-overlay review</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #061a23; color: #f8f0dc; }
+    body { margin: 0; padding: 24px; }
+    main { max-width: 1180px; margin: auto; }
+    h1 { margin: 0 0 8px; font-size: clamp(24px, 4vw, 42px); }
+    p { color: #c9d3d5; margin: 0 0 20px; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    button { border: 1px solid #c9a961; background: #0a2732; color: #f8f0dc; padding: 9px 12px; border-radius: 5px; cursor: pointer; }
+    button[aria-pressed="true"] { background: #c9a961; color: #061a23; }
+    .stage { display: grid; place-items: center; min-height: 60vh; background: #0a2732; border: 1px solid #36515a; border-radius: 8px; overflow: hidden; }
+    video { display: block; width: 100%; height: auto; max-height: 78vh; background: #0a2732; }
+    video.portrait { width: min(390px, 100%); }
+    .cues { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .note { font-size: 14px; margin-top: 12px; }
+    @media (max-width: 430px) { body { padding: 10px; } .stage { min-height: 0; } video { max-height: 72vh; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>L01–L03 teaching-overlay review</h1>
+  <p>One bordered point at a time. Captions remain optional through the visible caption switch.</p>
+  <nav id="lessons" aria-label="Review master"></nav>
+  <nav aria-label="Caption controls"><button id="caption-toggle" type="button" aria-pressed="false">Captions off</button></nav>
+  <div class="stage"><video id="player" controls playsinline preload="metadata"></video></div>
+  <div class="cues" id="cues" aria-label="Narration-aligned review cues"></div>
+  <p class="note">The L01 mobile check intentionally uses the same landscape master in the responsive player. L02 and L03 use their qualified portrait masters.</p>
+</main>
+<script>
+const root = '/artifacts/accelerated-overlay-normalization-2026-11-14';
+const choices = [
+  {id:'L01', label:'L01 landscape', video:`${root}/l01/motion/l01-desktop-teaching-overlay-local-review.mp4`, vtt:`${root}/l01/l01-optional-captions-control-safe.vtt`, portrait:false, cues:[35.57,101.98,122.192,171.759,282.76]},
+  {id:'L02d', label:'L02 desktop', video:`${root}/l02/motion/l02-desktop-teaching-overlay-local-review.mp4`, vtt:'/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-optional-captions.vtt', portrait:false, cues:[181.2,258.28,261.64,263.92,266.24,299.52,303.84,338.04]},
+  {id:'L02p', label:'L02 portrait', video:`${root}/l02/motion/l02-portrait-teaching-overlay-local-review.mp4`, vtt:'/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-optional-captions.vtt', portrait:true, cues:[181.2,258.28,261.64,263.92,266.24,299.52,303.84,338.04]},
+  {id:'L03d', label:'L03 desktop', video:`${root}/l03/motion/l03-desktop-teaching-overlay-local-review.mp4`, vtt:'/artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/l03-whole-lesson-optional-captions.vtt', portrait:false, cues:[52.88,64.64,108.86,155.7,181,213.56,259.877,315.785]},
+  {id:'L03p', label:'L03 portrait', video:`${root}/l03/motion/l03-portrait-teaching-overlay-local-review.mp4`, vtt:'/artifacts/accelerated-l03-illustration-checkpoint-2026-11-13/j02-second-half-preflight/whole-lesson-review/l03-whole-lesson-optional-captions.vtt', portrait:true, cues:[52.88,64.64,108.86,155.7,181,213.56,259.877,315.785]}
+];
+const player = document.querySelector('#player');
+const lessonNav = document.querySelector('#lessons');
+const cueNav = document.querySelector('#cues');
+const captionToggle = document.querySelector('#caption-toggle');
+let activeTrack = null;
+function setCaptions(enabled) {
+  captionToggle.setAttribute('aria-pressed', String(enabled));
+  captionToggle.textContent = enabled ? 'Captions on' : 'Captions off';
+  if (activeTrack) activeTrack.mode = enabled ? 'showing' : 'disabled';
+}
+captionToggle.onclick = () => setCaptions(captionToggle.getAttribute('aria-pressed') !== 'true');
+function load(choice) {
+  [...lessonNav.children].forEach(button => button.setAttribute('aria-pressed', String(button.dataset.id === choice.id)));
+  player.pause(); player.className = choice.portrait ? 'portrait' : '';
+  player.replaceChildren();
+  const source = document.createElement('source'); source.src = choice.video; source.type = 'video/mp4';
+  const track = document.createElement('track'); track.kind = 'subtitles'; track.srclang = 'en'; track.label = 'English'; track.src = choice.vtt; track.default = true;
+  track.addEventListener('load', () => { activeTrack = track.track; setCaptions(false); }, {once:true});
+  player.append(source, track);
+  track.track.mode = 'hidden';
+  player.load();
+  cueNav.innerHTML = '';
+  choice.cues.forEach(second => { const button=document.createElement('button'); button.textContent=`${Math.floor(second/60)}:${String(Math.floor(second%60)).padStart(2,'0')}`; button.onclick=()=>{player.currentTime=Math.max(0,second-1);player.play();}; cueNav.append(button); });
+}
+choices.forEach(choice => { const button=document.createElement('button'); button.dataset.id=choice.id; button.textContent=choice.label; button.setAttribute('aria-pressed','false'); button.onclick=()=>load(choice); lessonNav.append(button); });
+load(choices[0]);
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "status": "REJECT_STOPPED_AT_FIRST_NEW_PLAYER_FAILURE",
+  "review_date": "2026-11-11",
+  "source_commit": "dfc27662",
+  "scope": "one P02 Book parts line relocation and one short native reel rebuild",
+  "artifact": "artifacts/accelerated-visual-parity-2026-11-10/l01-j01-c01-c02-candidate/l01-p01-p02-middle-motion.mp4",
+  "artifact_sha256": "cb976c6ecac1d99457a3db2fb4f8b2ee31eea2756eb008d5ff60f6d1120d5ddf",
+  "presenter_source_1920x1080_xywh": [1136, 348, 672, 384],
+  "passed_before_stop": [
+    "320 frames and full technical decode",
+    "P02 Book parts line, map footer, title, and presenter clear desktop Chrome controls",
+    "P02 Book parts line, map footer, title, and presenter clear Chrome controls at 390x844"
+  ],
+  "failure": {
+    "viewport_css_px": [390, 844],
+    "player": "Chrome native MP4 player with controls visible",
+    "scene": "P01 blank document",
+    "observation": "The native control gradient darkens the bottom of the Q3 worksheet and covers its lower border in the opening frame.",
+    "gate": "P01 worksheet art and border clear of controls at narrow width",
+    "result": "failed",
+    "scope_boundary": "Moving or resizing the P01 worksheet exceeds this repair's P02-line-only authorization."
+  },
+  "not_claimed_after_stop": [
+    "native audio join listening",
+    "complete presenter handoff and caption-safe motion validation",
+    "human QA readiness",
+    "C01/C02 J01 timing render"
+  ],
+  "actions": "No second corrective rerender, learner media or binding change, HeyGen call, credit spend, merge, or release. New voice-bearing MP4 and source changes remain local and uncommitted."
+}

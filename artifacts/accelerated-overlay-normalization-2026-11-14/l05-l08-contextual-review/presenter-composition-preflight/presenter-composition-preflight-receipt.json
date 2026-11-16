@@ -1,0 +1,237 @@
+{
+  "schema": "accelerated_l05_l08_presenter_composition_preflight_v1",
+  "rule": "native presenter source region and teaching content use distinct, non-overlapping bounds",
+  "presenter_placements": {
+    "desktop": [
+      1136,
+      348,
+      672,
+      384
+    ],
+    "portrait": [
+      0,
+      526,
+      390,
+      220
+    ]
+  },
+  "illustration_under_presenter": false,
+  "lessons": {
+    "L05": {
+      "active_scene_indexes": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "stills": {
+        "desktop": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/desktop-scene-01-with-presenter.png",
+              "sha256": "0d662bacd7f5f003c1eabca847719bbaf56c338245cd73bbdabd0154d807f564"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/desktop-scene-03-with-presenter.png",
+              "sha256": "318a6e73fb723a546bf50498182dc6f8e699b8e2fa30be1b7ee814c2815e3505"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/desktop-scene-05-with-presenter.png",
+              "sha256": "095fb823a31b1828f0d6718344f70fc9c2073d3edd1e770fce5e89e670ae482b"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/desktop-scene-06-with-presenter.png",
+              "sha256": "526b14be22ddea8bb96f5a366dd348209603b8e8cfa74a7fb8336017b851e76d"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/desktop-presenter-safe-contact.jpg",
+          "contact_sha256": "44d0af030f64321dd6df43dea3045752520f97407b0d4b97a9d0b12b0ee89f27"
+        },
+        "portrait": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/portrait-scene-01-with-presenter.png",
+              "sha256": "fd42a215dadbd52c756ff3aa08f83ee826f21f20bf0451abf453f849152f6068"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/portrait-scene-03-with-presenter.png",
+              "sha256": "d92586d37a4cb58c214c7d5cd14816efef0130e3bb95616f39e37d6efed97f04"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/portrait-scene-05-with-presenter.png",
+              "sha256": "f6795998f22e6aea4b8349767a09dc53a0b50480f37170d15db21f9785ee9a8b"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/portrait-scene-06-with-presenter.png",
+              "sha256": "9873407d7a116eace5508318e0071b5d05740ff2093402d29b045a3d275576eb"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l05/portrait-presenter-safe-contact.jpg",
+          "contact_sha256": "689831188a4a3dc7b1c645ff689dfa73ed5dd2ccde8361400507e6708f83cbca"
+        }
+      }
+    },
+    "L06": {
+      "active_scene_indexes": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "stills": {
+        "desktop": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/desktop-scene-01-with-presenter.png",
+              "sha256": "ea5a95cda72c2522499869d38f4049af92ac014826c5b63e3f691164e93965e6"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/desktop-scene-03-with-presenter.png",
+              "sha256": "f22e4ec26cd850f6264f9e428a79832d64ecdf6a80e141fae9f3d248773f829e"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/desktop-scene-05-with-presenter.png",
+              "sha256": "5389853866bacc9ae03493123af182b0b28fa674f2b50ef89ae19c79ea97afef"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/desktop-scene-06-with-presenter.png",
+              "sha256": "4aa8fc68304123cacfc8dd44ea73e06e7bd10ffca0eb820164b6c37aa4fdb246"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/desktop-presenter-safe-contact.jpg",
+          "contact_sha256": "89ae023748f690b6f7511e3b1098d1477b1413bb1808e9ea22cd6ae7a1fddcae"
+        },
+        "portrait": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/portrait-scene-01-with-presenter.png",
+              "sha256": "c5d5623d46d2621f89817c2cc3a2d35cf38290b19dd9bcf70e664a23c5d29ba3"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/portrait-scene-03-with-presenter.png",
+              "sha256": "049e359be6272a167e303838777dd15b7fb38835dc6bd13e67484ea14ab4085f"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/portrait-scene-05-with-presenter.png",
+              "sha256": "520d6f6c3b567c727185d3350830581932a8de3950a803c7851d9e39967e3bf6"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/portrait-scene-06-with-presenter.png",
+              "sha256": "a64221b2cd4b6adc3bf069fb47e68a5fabee4e2ac2bfa688338c5de2545b86e6"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l06/portrait-presenter-safe-contact.jpg",
+          "contact_sha256": "60a40318787eff64f4014aeb80a249c79dafe07ecbaef8364ff37186f15f0f8f"
+        }
+      }
+    },
+    "L07": {
+      "active_scene_indexes": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "stills": {
+        "desktop": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/desktop-scene-01-with-presenter.png",
+              "sha256": "13b69d442096f5e3adb4330ab1f65584c6d5e005d608121b6cb83591d00cf185"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/desktop-scene-03-with-presenter.png",
+              "sha256": "5e65869ad9507cde2aadc7105011e5f8311f565545695214d1bc1e434aa0e72f"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/desktop-scene-05-with-presenter.png",
+              "sha256": "cc6860203b94c2db3493d1f745425bf1ef17b60694de5ff11d4162a9bf67bdcf"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/desktop-scene-06-with-presenter.png",
+              "sha256": "f36d2ddaa6cb52140041fbffba28f4c9226d544c4aed65eef0e659182505a63e"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/desktop-presenter-safe-contact.jpg",
+          "contact_sha256": "e609ea3e1cca21beab33a94b7a1a4ed3c018234399f547ae3423f0d3993a9bc7"
+        },
+        "portrait": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/portrait-scene-01-with-presenter.png",
+              "sha256": "f65f49e228464e0f312dc821810a7ce36ccf22a4e8173c9372d82949cc9661ad"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/portrait-scene-03-with-presenter.png",
+              "sha256": "c8569878ddc2e6c1f3e7feb1c02346ec727bfb42db6f3cb267711a87388d87ea"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/portrait-scene-05-with-presenter.png",
+              "sha256": "a31cc88f6864997d02875cdac1aab883dcd7340231095c45d1151d17be9becf3"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/portrait-scene-06-with-presenter.png",
+              "sha256": "0c0f2c6b691bb3efd04e5d6e9c1289520441bd65065f615f1a080388ca694fe4"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l07/portrait-presenter-safe-contact.jpg",
+          "contact_sha256": "4b67af94e3832111fc53aef591d7198469a9b7ddc7d7707a5f5d29960e49b7f9"
+        }
+      }
+    },
+    "L08": {
+      "active_scene_indexes": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "stills": {
+        "desktop": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/desktop-scene-01-with-presenter.png",
+              "sha256": "226a20e301c890ce90fa61cb5426f6cc84f2a135b9cbeeadea27fcce7bd531ab"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/desktop-scene-03-with-presenter.png",
+              "sha256": "7c8cdd25443861c2a6e6f19a2c42f8f7f45a92d4d81fcfcc5897aa4bf23c1f63"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/desktop-scene-05-with-presenter.png",
+              "sha256": "cc3ac0509b9dc5d094f7ebe539ab923fd98c13a1612f452d4e4c47dd73edf759"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/desktop-scene-06-with-presenter.png",
+              "sha256": "05d01ebb9fecd3b1115816b7cf9bf5e5c3b7280b43aad08a4a449ce663a784f3"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/desktop-presenter-safe-contact.jpg",
+          "contact_sha256": "23a165653ee017302347c230f80f2b740c416cbb4038da905375debe1c0ded6b"
+        },
+        "portrait": {
+          "files": [
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/portrait-scene-01-with-presenter.png",
+              "sha256": "4c3f0a42cf130aca7b9c358a6cdd4c00ed6bebde6682fa9954ce717f5e1a1897"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/portrait-scene-03-with-presenter.png",
+              "sha256": "575be5268e2db2a49d049af84b3b444497daf2825933636685fa0f836e8bc85a"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/portrait-scene-05-with-presenter.png",
+              "sha256": "1aea340ab19d28c15ecffa2ea4a7526686df228265b9c932e20f137d25fdaaee"
+            },
+            {
+              "path": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/portrait-scene-06-with-presenter.png",
+              "sha256": "e975b5504d11f703cb86093b05a6216afcb598261dc8a82058a6148d72e2316c"
+            }
+          ],
+          "contact": "artifacts/accelerated-overlay-normalization-2026-11-14/l05-l08-contextual-review/presenter-composition-preflight/l08/portrait-presenter-safe-contact.jpg",
+          "contact_sha256": "4ffef2638b6d9a302e95dad5ba50bfb65a73cd3cb2d07c504a675b987e6e1cf9"
+        }
+      }
+    }
+  }
+}

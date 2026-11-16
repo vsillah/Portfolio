@@ -1,0 +1,79 @@
+{
+  "schema": "accelerated_signals_v9_exact_head_route_v1",
+  "commit": "7cdfb5fb8aa3d8788f21d75773bc0dbd1e00a45b",
+  "route": "http://localhost:3108/accelerated/learningplan?rev=7cdfb5fb8aa3d8788f21d75773bc0dbd1e00a45b",
+  "results": [
+    {
+      "aspect": "desktop",
+      "lesson": "L01",
+      "source": "/accelerated/signals-v9/l01/signals-f5b78eda4f22/l01-desktop.mp4",
+      "poster": true,
+      "playback": true,
+      "pause": true,
+      "focus_windows": 1,
+      "caption_on_off": true,
+      "end_screen": true,
+      "replay": true
+    },
+    {
+      "aspect": "desktop",
+      "lesson": "L02",
+      "source": "/accelerated/signals-v9/l02/signals-2c00b11452d4/l02-desktop.mp4",
+      "poster": true,
+      "playback": true,
+      "pause": true,
+      "focus_windows": 1,
+      "caption_on_off": true,
+      "end_screen": true,
+      "replay": true
+    },
+    {
+      "aspect": "desktop",
+      "lesson": "L05",
+      "source": "/accelerated/signals-v9/l05/signals-b8cdff6efc9f/l05-desktop.mp4",
+      "poster": true,
+      "playback": true,
+      "pause": true,
+      "focus_windows": 2,
+      "caption_on_off": true,
+      "end_screen": true,
+      "replay": true
+    },
+    {
+      "aspect": "mobile",
+      "lesson": "L01",
+      "source": "/accelerated/signals-v9/l01/signals-7d71357a8fff/l01-portrait.mp4",
+      "poster": true,
+      "playback": true,
+      "pause": true,
+      "focus_windows": 1,
+      "caption_on_off": true,
+      "end_screen": true,
+      "replay": true
+    },
+    {
+      "aspect": "mobile",
+      "lesson": "L02",
+      "source": "/accelerated/signals-v9/l02/signals-76b45f4f22c2/l02-portrait.mp4",
+      "poster": true,
+      "playback": true,
+      "pause": true,
+      "focus_windows": 1,
+      "caption_on_off": true,
+      "end_screen": true,
+      "replay": true
+    },
+    {
+      "aspect": "mobile",
+      "lesson": "L05",
+      "source": "/accelerated/signals-v9/l05/signals-39349db79262/l05-portrait.mp4",
+      "poster": true,
+      "playback": true,
+      "pause": true,
+      "focus_windows": 2,
+      "caption_on_off": true,
+      "end_screen": true,
+      "replay": true
+    }
+  ]
+}

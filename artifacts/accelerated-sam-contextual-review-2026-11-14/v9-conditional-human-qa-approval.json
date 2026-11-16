@@ -1,0 +1,45 @@
+{
+  "schema": "accelerated_sam_v9_conditional_human_qa_approval",
+  "recorded_at_utc": "2026-11-15T14:18:19+00:00",
+  "status": "approved_for_scoped_pr_update",
+  "approval_source": "Portfolio Integration Captain delegated the user approval in Codex chat 01a1c704-3bcc-7d63-a927-c409241c061b",
+  "approved_walkthroughs": {
+    "desktop": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "8439de0c32a218b23db27d962b951102783e691dd2d60d63689812c5284d7188",
+      "capture_source": {
+        "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-desktop-player-capture-v9-conditional.webm",
+        "sha256": "3212aeffa4661e1e65bfdde098c81824397e1eca7c253147a403931944ffb895"
+      }
+    },
+    "mobile": {
+      "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-human-qa-walkthrough-v9-conditional.mp4",
+      "sha256": "f49e6bf0182395a1809a8f560a8436d9675e8e5b9ef35a156a7b46340f69b650",
+      "capture_source": {
+        "path": "artifacts/accelerated-sam-contextual-review-2026-11-14/accelerated-sam-signals-mobile-player-capture-v9-conditional.webm",
+        "sha256": "a6770040be5471da2ee7443c1c1c6ab18d028fe6be3be98c67a1c3fb9f542d2a"
+      }
+    }
+  },
+  "authorized_action": [
+    "stage reproducible v9 source and approved review evidence",
+    "commit scoped correction",
+    "push existing branch",
+    "update draft PR #1273 and validate exact head/checks"
+  ],
+  "exclusions": [
+    "learner binding changes",
+    "merge",
+    "manual deployment",
+    "provider contact",
+    "spend",
+    "publish",
+    "release"
+  ],
+  "stop_conditions": [
+    "source drift",
+    "changed approved walkthrough hash",
+    "failed checks",
+    "unexpected PR scope"
+  ]
+}

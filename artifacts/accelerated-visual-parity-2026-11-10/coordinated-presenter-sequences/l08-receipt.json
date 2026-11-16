@@ -1,0 +1,43 @@
+{
+  "status": "review_only_coordinated_sequence_not_timeline_ready",
+  "lesson_id": "L08",
+  "source_path": "public/accelerated/lessons/l08/approved-1b6c9da2/accelerated-l08-native-composite.mp4",
+  "source_sha256": "1b6c9da23a74b9f699da43d26753fb714223304972225af498942ef8322bcc6b",
+  "source_a02_seconds": [
+    240.0,
+    258.0
+  ],
+  "source_a03_seconds": [
+    480.0,
+    495.36
+  ],
+  "split_seconds": 256.0,
+  "split_sample_index_48000hz": 768000,
+  "moved_source_audio_seconds": [
+    256.0,
+    258.0
+  ],
+  "moved_opening_duration_seconds": 2.0,
+  "a02_post_cut_silence_peak_dbfs": -91.0,
+  "approved_sentence_opening": "Before there is any data",
+  "approved_following_words": "walk the plan",
+  "audio_treatment": "Decode two native source spans to PCM, split A02 at an exact 48 kHz sample boundary, pad A02 with silence, prepend moved source tail to A03, re-encode review audio as AAC. No generated voice.",
+  "audio_reencoded": true,
+  "source_aac_packets_copied": false,
+  "c02_cutaway_unmodified": true,
+  "a03_timeline_expansion_seconds": 2.0,
+  "timing_gate": "The moved opening consumes additional time immediately before A03. C02/A03 timing must be reviewed before a full-lesson edit; this artifact has no canonical time binding.",
+  "a02_candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-a02-retained-review.mp4",
+  "a02_candidate_sha256": "66e6087693213c21f9b89501e9f2f716e17a597f4efa95549af4aece092f158d",
+  "a03_restored_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-a03-restored-review.mp4",
+  "a03_restored_sha256": "2bd7c8ca8d5071a06e73df1cbf3a33747628911e008a939b8cf5660f30755caa",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/coordinated-presenter-sequences/l08-sequence-before-after.mp4",
+  "before_after_sha256": "3f90ad6facbad2135371ec4bb0ff233e07cd33057f0bd9b3a2bb1f7bff9a6729",
+  "a02_candidate_duration_seconds": 18.0,
+  "a03_restored_duration_seconds": 17.36,
+  "comparison_duration_seconds": 23.04,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "Audible word-boundary review and C02-to-A03 timing fit remain open."
+}

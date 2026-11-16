@@ -1,0 +1,1086 @@
+{
+  "fps": 25,
+  "qualified_audio_offset_seconds": 21.802667,
+  "canonical_provider_words": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-narration-job-pack/l02-j01-provider-words-aede32ab14e6484ca8fb74c9381ce532.json",
+  "optional_captions": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-paired-local-review-2026-11-13/l02-optional-captions.vtt",
+  "macro_boundaries": {
+    "board-wide": [
+      545,
+      970
+    ],
+    "board-focus": [
+      970,
+      1440
+    ],
+    "signals": [
+      1440,
+      2534
+    ]
+  },
+  "states": [
+    {
+      "id": "board-opening",
+      "start_frame": 545,
+      "end_frame_exclusive": 557,
+      "start_seconds": 21.8,
+      "end_seconds": 22.28,
+      "source_anchor": "Opening board; before Chapter Two utterance",
+      "on_art_text": "?",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-opening-desktop-clean.png",
+          "sha256": "18708ae81e61bfc8d8a6532625fee4391baa331043a51083953693e7095afbb3",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-opening-desktop-caption-on.png",
+          "sha256": "cf728bd2de3823a2a4e895f356187359de0ebc5336ec2aa043e9ca37ae4c928e",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-opening-portrait-clean.png",
+          "sha256": "45d0281342dd4553e906758ba7ea60019ec0225c2ba0a5ebabfa281abc89c872",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-opening-portrait-caption-on.png",
+          "sha256": "680b417755415a19abcd2a20717eaa40fe5607da71da6b753ff3852516124a4a",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "board-chapter",
+      "start_frame": 557,
+      "end_frame_exclusive": 608,
+      "start_seconds": 22.28,
+      "end_seconds": 24.32,
+      "source_anchor": "Chapter at 22.271667 s",
+      "on_art_text": "Chapter Two",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-chapter-desktop-clean.png",
+          "sha256": "86db0d2dc9355e4b747fe59e23cb37a2e8461409662acb1fa0979c09b3796f51",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-chapter-desktop-caption-on.png",
+          "sha256": "9b160b6ea5798acd3bf3ee252786aa04cc75e786d52d7d1463b1cbec22ea2387",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-chapter-portrait-clean.png",
+          "sha256": "703e6a5c2db5234ce5f18419db388b00b4fa0b3f951e71c30e9cc3c0b4b5890b",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-chapter-portrait-caption-on.png",
+          "sha256": "62176f6722774b1f5e1049cf34d14959660c7e4773f89895dd446638dd4370ba",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "board-meeting",
+      "start_frame": 608,
+      "end_frame_exclusive": 643,
+      "start_seconds": 24.32,
+      "end_seconds": 25.72,
+      "source_anchor": "planning at 24.319667 s",
+      "on_art_text": "Planning meeting",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-meeting-desktop-clean.png",
+          "sha256": "19cd4ef6713ca487fd3ab3b767f698fd02230b1acfa8bc6574aa85edcf470b8a",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-meeting-desktop-caption-on.png",
+          "sha256": "fa5fee622eb8ee970089fd9eafa61d701a60cda3fad4942a7e8e16f753892a73",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-meeting-portrait-clean.png",
+          "sha256": "2120093b93a512df13cbc0004a9d91dc9cfeeed2a524842be6ddcdd64841eb88",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-meeting-portrait-caption-on.png",
+          "sha256": "d1fa18cb881e4d4d0edf8ac39ce8f44a5e98b56e3134ffce8193af30cbb9114a",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "board-question",
+      "start_frame": 643,
+      "end_frame_exclusive": 813,
+      "start_seconds": 25.72,
+      "end_seconds": 32.52,
+      "source_anchor": "what at 25.727667 s",
+      "on_art_text": "What the team cannot afford to get wrong?",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-question-desktop-clean.png",
+          "sha256": "4674ac2693c9e47adae6540b178f150f6fcb46d0c60827b20ed35b0ba6e5e6da",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-question-desktop-caption-on.png",
+          "sha256": "c77a7c222f1f23966d80f72fcfeb531160bc159486a449466f9fd7dcf22d4242",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-control-proof": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-question-desktop-control-proof.png",
+          "sha256": "3370bf8fccddd40fb5162d44a558160e6f85b64bd4a04316ed235e233d9cd486",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-question-portrait-clean.png",
+          "sha256": "058539ea268cb4e0f6a5836ffa95d3270fad371be649d714b03953dbc53d1fee",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-question-portrait-caption-on.png",
+          "sha256": "9ff637aff6d9544afa1314062f46aa04de3cac6baa0b756859d0256a96aca66b",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-control-proof": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-question-portrait-control-proof.png",
+          "sha256": "83436fe0e5fe115b290b75b5c864db43c37ed70598df91c479e67513f08b3dff",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "board-first-minutes",
+      "start_frame": 813,
+      "end_frame_exclusive": 970,
+      "start_seconds": 32.52,
+      "end_seconds": 38.8,
+      "source_anchor": "first at 32.511667 s",
+      "on_art_text": "The first minutes of a new user's experience",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-first-minutes-desktop-clean.png",
+          "sha256": "3e45340c086e928fb3ffd2e776e7dd144e8bd52fa4d0c553da03e33499a55bd2",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-first-minutes-desktop-caption-on.png",
+          "sha256": "c6d29148bd52f0460781f6cf8c4abedc26803910f1496d09e7c24e564f2f1a3e",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-first-minutes-portrait-clean.png",
+          "sha256": "2ad404e33f51f7df24c63287e6341fee9755dac3aa6e84e666a3b4e090608805",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/board-first-minutes-portrait-caption-on.png",
+          "sha256": "36337aafa79ac6c5e35259d974e3b34fe2ba48f98c9fabf9a4bc105c7e1a92b2",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "focus-question",
+      "start_frame": 970,
+      "end_frame_exclusive": 991,
+      "start_seconds": 38.8,
+      "end_seconds": 39.64,
+      "source_anchor": "carried from board-question",
+      "on_art_text": "What the team cannot afford to get wrong?",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-question-desktop-clean.png",
+          "sha256": "5a32168dced47851f3649ba7c5d18affa157daf68b67f3f70fb2c223a558e968",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-question-desktop-caption-on.png",
+          "sha256": "cc8805bcec9f1d740b4796a9f6f3438ed3cd1c054eafed452fd0e4ccd7937bf2",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-question-portrait-clean.png",
+          "sha256": "058539ea268cb4e0f6a5836ffa95d3270fad371be649d714b03953dbc53d1fee",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-question-portrait-caption-on.png",
+          "sha256": "25547b5d7ae4974df6896a8bf187f0ae5bda333506c22fa388519810d39e0762",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "focus-step-away",
+      "start_frame": 991,
+      "end_frame_exclusive": 1027,
+      "start_seconds": 39.64,
+      "end_seconds": 41.08,
+      "source_anchor": "step at 39.643667 s",
+      "on_art_text": "Step away from the list",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-step-away-desktop-clean.png",
+          "sha256": "e49b76e00b32cce20fbf00755045b04093830bfb96a0493f61bfa853e53b2a99",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-step-away-desktop-caption-on.png",
+          "sha256": "c8ef8eed3093bbc4854fce0ee38713476bac362e77f6fdea87b07664a6e830a2",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-step-away-portrait-clean.png",
+          "sha256": "6c36009fef6d89b13c278a1b53e7e5b5c14f4699e4630de7e04284afbd653db6",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-step-away-portrait-caption-on.png",
+          "sha256": "24104aff9afba9059ed28e42da3de68cc852be819705390ddbdfdb4f367a278a",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "focus-consequence",
+      "start_frame": 1027,
+      "end_frame_exclusive": 1094,
+      "start_seconds": 41.08,
+      "end_seconds": 43.76,
+      "source_anchor": "name at 41.089667 s",
+      "on_art_text": "Name the consequence of a wrong choice",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-consequence-desktop-clean.png",
+          "sha256": "fef06013a249fd252108d53c54e2e55a53d34aa622347e789c916e38e3dc21d3",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-consequence-desktop-caption-on.png",
+          "sha256": "e6a337ba4e128326fa7579bb3789e2f8013fe1873fc2678847c7a997260b714c",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-consequence-portrait-clean.png",
+          "sha256": "e4f9ea0d4901697f3fd4ea6f23717a40ed317925b4b34d710d163df37c7cab90",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-consequence-portrait-caption-on.png",
+          "sha256": "884d369d31986e33c24b48c09efdcfb0769bbbb6b1e54c770b1e68e344b5aa04",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "focus-decision-file",
+      "start_frame": 1094,
+      "end_frame_exclusive": 1297,
+      "start_seconds": 43.76,
+      "end_seconds": 51.88,
+      "source_anchor": "Open at 43.741667 s",
+      "on_art_text": "Open the decision file",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-decision-file-desktop-clean.png",
+          "sha256": "842113158fd4c065c4e9652c0e17e9369ccee640a4030d4cd2e07210121453f1",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-decision-file-desktop-caption-on.png",
+          "sha256": "a84fb0ffcdade5348c7db65afec877c158cd48a609a7f64543763887d772dfad",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-decision-file-portrait-clean.png",
+          "sha256": "b2c6f8c4421a9d8f0e756ba65bd4a6d8633eecb88088423ebdcd0962c3118aa1",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-decision-file-portrait-caption-on.png",
+          "sha256": "49ff96ccaad928e66b0864bd64990f16d23dec56c12a9ce24a4049c641798ed8",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "focus-whose",
+      "start_frame": 1297,
+      "end_frame_exclusive": 1376,
+      "start_seconds": 51.88,
+      "end_seconds": 55.04,
+      "source_anchor": "Whose at 51.861667 s",
+      "on_art_text": "Whose experience or business result is at stake?",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-whose-desktop-clean.png",
+          "sha256": "14724e4cc52c73d56734c1f2c5535de389f72548605d8722bb429f2a2a1c4980",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-whose-desktop-caption-on.png",
+          "sha256": "225c42ff69b201ebb5fd26021733681a2ae5e88c68486d05e4b444922e54b5eb",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-whose-portrait-clean.png",
+          "sha256": "fcbee0a5a7c8034d1ffca560ff74c3acddf345f82372d74429e61172ace43c15",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-whose-portrait-caption-on.png",
+          "sha256": "0969857703761336e6b7d938d5317fab84ae36d193329a1e080adb6b00455b0f",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "focus-teach",
+      "start_frame": 1376,
+      "end_frame_exclusive": 1440,
+      "start_seconds": 55.04,
+      "end_seconds": 57.6,
+      "source_anchor": "What at 55.021667 s",
+      "on_art_text": "What would a choice teach you?",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-teach-desktop-clean.png",
+          "sha256": "d989f716b6e8dba1a9a1523e3ae351b8ef9a5faa157a1e00a870d1ccbd1fd785",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-teach-desktop-caption-on.png",
+          "sha256": "3cdfcbdd76d5aff426ab4fcdb8c7340cebb071e3ba519087f80f90630d01d7e9",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-teach-portrait-clean.png",
+          "sha256": "533d4c8fede28f689258f8b1dffaef4e57f71b2fd416a49478bc21ac81774833",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/focus-teach-portrait-caption-on.png",
+          "sha256": "34d85c0ee37d2b68d9e07cb61c7fdaba5db12b884a42dbe9b8f870ae679a478c",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-opening",
+      "start_frame": 1440,
+      "end_frame_exclusive": 1447,
+      "start_seconds": 57.6,
+      "end_seconds": 57.88,
+      "source_anchor": "pre-utterance bridge",
+      "on_art_text": "",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-opening-desktop-clean.png",
+          "sha256": "70094c3c08ddfe2cb517c00bb5c809790c167633b11dd7e574b993ca144511a5",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-opening-desktop-caption-on.png",
+          "sha256": "ccf9c051b1fb647cef50389984e3fba80395f975c8b4fc7901f0638fc5db5de2",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-opening-portrait-clean.png",
+          "sha256": "962450aaaf835f6296a1aad7dbc90fa0e176a3c7f398095da9860f78d353ac92",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-opening-portrait-caption-on.png",
+          "sha256": "76c37e642132ab6a6346c52473946f15408fbc6ae6236bdc1bf51140aeda912e",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-list-fair",
+      "start_frame": 1447,
+      "end_frame_exclusive": 1597,
+      "start_seconds": 57.88,
+      "end_seconds": 63.88,
+      "source_anchor": "A at 57.881667 s",
+      "on_art_text": "A long list can feel fair",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-list-fair-desktop-clean.png",
+          "sha256": "d49c6e2b99399060050eb9dc0877a13e0e511b8ad267fc0b19050bd864ff4e68",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-list-fair-desktop-caption-on.png",
+          "sha256": "8547565dbbb3324fa83c48c92473d0acb9383fd9dd5438cb9d2173eea1eeab1c",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-list-fair-portrait-clean.png",
+          "sha256": "3f6e67d26de1df8cfb4b77702911b326f16b3938ed999eec6adf4ac4998bf0d6",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-list-fair-portrait-caption-on.png",
+          "sha256": "82b89af119b25d360a64b70afefb1e9f89fe0fa3f0d195a0bd67ee5a7052d221",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-first",
+      "start_frame": 1597,
+      "end_frame_exclusive": 1648,
+      "start_seconds": 63.88,
+      "end_seconds": 65.92,
+      "source_anchor": "which at 63.871667 s",
+      "on_art_text": "Which problem to solve first?",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-first-desktop-clean.png",
+          "sha256": "d6264e5e109856cc8006256ea574113fcb15e49d910c2276e42b58495ecf959f",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-first-desktop-caption-on.png",
+          "sha256": "88de7fdf314b024fd9932423d9911a662ed4c98f64e3323c307a0c0a6508a936",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-first-portrait-clean.png",
+          "sha256": "f5f7a252e6c63f44f03e7c4afef811758d74f3e8f12fb9b0af45b17710b02b7f",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-first-portrait-caption-on.png",
+          "sha256": "ff0d7fdd95183db7c46164e9ffae7ba294a559af41ce0a86b008c2393e3bbe45",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-why",
+      "start_frame": 1648,
+      "end_frame_exclusive": 1685,
+      "start_seconds": 65.92,
+      "end_seconds": 67.4,
+      "source_anchor": "cannot at 65.921667 s",
+      "on_art_text": "It cannot tell you why",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-why-desktop-clean.png",
+          "sha256": "65af0d9b6101f27be4a1cc446e5a34eb978eb459e036fc04a68b3d15928192bb",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-why-desktop-caption-on.png",
+          "sha256": "6e44fbece8584195d54232e228031541e12a2247f23f7dd8c6c24204b65a1fa3",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-why-portrait-clean.png",
+          "sha256": "91e0872775c954031e54fefc85f5949aefc470b93237c7f06642b09d63424b05",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-why-portrait-caption-on.png",
+          "sha256": "a34570838e6a96f38cfd8377b7acb92b8b2fac89a1fd0efd78c3316c8812653a",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-trap",
+      "start_frame": 1685,
+      "end_frame_exclusive": 1745,
+      "start_seconds": 67.4,
+      "end_seconds": 69.8,
+      "source_anchor": "That at 67.411667 s",
+      "on_art_text": "That is the trap",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-trap-desktop-clean.png",
+          "sha256": "cafbfde25eed35818478471873516cd43659285282a7d3c7055597db577a0ce2",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-trap-desktop-caption-on.png",
+          "sha256": "2f9a1a6693b6fa90c08f8583488366c7ed516e8affdf79d805001fbe27ea2a2a",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-trap-portrait-clean.png",
+          "sha256": "813b5812cb36cc6882b24bf140024e0f05b29dda803791f0f111a6ffe1f7d735",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-trap-portrait-caption-on.png",
+          "sha256": "6b1019d9f1fe032828fb2bd88cb66e9feb4309359a07f4db718d8cda07253942",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-information",
+      "start_frame": 1745,
+      "end_frame_exclusive": 1846,
+      "start_seconds": 69.8,
+      "end_seconds": 73.84,
+      "source_anchor": "More at 69.791667 s",
+      "on_art_text": "More information",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-information-desktop-clean.png",
+          "sha256": "c2a6281582bcb79928d627b38025216219cfc2a172f415015037edd5c0d16d27",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-information-desktop-caption-on.png",
+          "sha256": "3c1e0e4542a489847b77ccf62b5ebf359478644557507cd9778afc7094a52f3b",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-information-portrait-clean.png",
+          "sha256": "9cc200ca7d3abd043a74d080b6cd81ab41e397bdca5293a4177b50f453368876",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-information-portrait-caption-on.png",
+          "sha256": "a3c031f5debb4e4914c6cf1895be52edfada1cb259cbb1656b4ee949c44ef7c6",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-untouched",
+      "start_frame": 1846,
+      "end_frame_exclusive": 1910,
+      "start_seconds": 73.84,
+      "end_seconds": 76.4,
+      "source_anchor": "actual at 73.841667 s",
+      "on_art_text": "The actual decision untouched",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-untouched-desktop-clean.png",
+          "sha256": "d20ee59c5a256693f1cbe73e771f0ca1e4cf31d38bb10ff6675e8787eeeffb8a",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-untouched-desktop-caption-on-cue-corrected.png",
+          "sha256": "99d4d189072ad0b97fd44746971564c0ce83c899a9a8d030f56e3137fec42671",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-untouched-portrait-clean.png",
+          "sha256": "fa38989b051e64f8e767ab899785bdbc6dedd9be76dceedfec12a3c2823cb4dd",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-untouched-portrait-caption-on-cue-corrected.png",
+          "sha256": "b7cbabe9b5107c44f397649c9b2fe49aa3543ad02d1a9b9ea22304d116d72daf",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-airport",
+      "start_frame": 1910,
+      "end_frame_exclusive": 2032,
+      "start_seconds": 76.4,
+      "end_seconds": 81.28,
+      "source_anchor": "airport at 76.401667 s",
+      "on_art_text": "Airport signage",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-airport-desktop-clean.png",
+          "sha256": "abcc4d191e08a67a2cae7238064233b7c71fea65eac43d3f9eebd703773d272f",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-airport-desktop-caption-on.png",
+          "sha256": "98be82b1c6af4863d52f538cc45c5b83226abe2624a456f99618dabccac909b8",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-control-proof": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-airport-desktop-control-proof.png",
+          "sha256": "87479dd6d0ac1e5cbb68c69b59412e3d95b8212e19969e1d79e8954662b5715f",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-airport-portrait-clean.png",
+          "sha256": "ae3ff9fcef8f41926aafe0e1332e22a3e79a21eae214535aaa91089421b6031c",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-airport-portrait-caption-on.png",
+          "sha256": "002b6285a716e2602929ec9d9fce58a208d1c56c60c895ebb634e75b7dddbba7",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-control-proof": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-airport-portrait-control-proof.png",
+          "sha256": "d9defd2e0cf0b74534de398abb40e62c8ab0a6f8308bc6890fb91b18860d8f90",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-next",
+      "start_frame": 2032,
+      "end_frame_exclusive": 2092,
+      "start_seconds": 81.28,
+      "end_seconds": 83.68,
+      "source_anchor": "where at 81.301667 s",
+      "on_art_text": "Where to go next",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-next-desktop-clean.png",
+          "sha256": "a692a37671f3bf037a49e152ef27340d4f3d29f0eb5bc9e53fed21d7d18ee79c",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-next-desktop-caption-on.png",
+          "sha256": "4d417428237a9821bb3f3da8232609fd98abd0d872cd7d836f1988a6062df089",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-next-portrait-clean.png",
+          "sha256": "49f71b9ed751db8d6ad64de9e2656d030125117f058f2437e1d3f7b881269d41",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-next-portrait-caption-on.png",
+          "sha256": "644aa6a64dba1c9c0d5a002fd64e7e674ae32bbbc4d398b1f6dea68e32b19116",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-clear",
+      "start_frame": 2092,
+      "end_frame_exclusive": 2196,
+      "start_seconds": 83.68,
+      "end_seconds": 87.84,
+      "source_anchor": "make at 83.661667 s",
+      "on_art_text": "Make that clear",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-clear-desktop-clean.png",
+          "sha256": "7b690efc24465cc9909a628570dfbdf29e74a023773c2ee501faba180048b9d1",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-clear-desktop-caption-on.png",
+          "sha256": "e6797da87317e1be94cdc2421d4079ebdf25341abe634d1bd7cddfab26add0aa",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-clear-portrait-clean.png",
+          "sha256": "a439f1a79374ea5b2470127f9cfda5d0da63664b41d2b2179cf82fc39080856f",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-clear-portrait-caption-on.png",
+          "sha256": "99f4f7cb2499f1f278a4df1f12fbe0bbb29efced423a3c45443376fbf5dfb790",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-product",
+      "start_frame": 2196,
+      "end_frame_exclusive": 2265,
+      "start_seconds": 87.84,
+      "end_seconds": 90.6,
+      "source_anchor": "product at 87.841667 s",
+      "on_art_text": "A product meeting",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-product-desktop-clean.png",
+          "sha256": "8ac06298f62d6a1dbffee9606f5e0e98e5eebdfa8ba154711f15ca124d5d46bf",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-product-desktop-caption-on.png",
+          "sha256": "fb2cb46b8af2012e07b1c3525b88e7e447a8c6028ea3a898a832ee5360b56d57",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-product-portrait-clean.png",
+          "sha256": "e2ca5794a382459ec80bb580239380cc8813b69c546686008b57c127639754e3",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-product-portrait-caption-on.png",
+          "sha256": "34d1500463ea6c6299e5dc1116b3c88334b0231f8d10da2a9f2112f79fd43a14",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-ideas",
+      "start_frame": 2265,
+      "end_frame_exclusive": 2311,
+      "start_seconds": 90.6,
+      "end_seconds": 92.44,
+      "source_anchor": "twenty at 90.601667 s",
+      "on_art_text": "Twenty feature ideas",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-ideas-desktop-clean.png",
+          "sha256": "cb91f3de36446b60e6824230f0561d73b56557ebdb10ff971496bf4e5c2012f4",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-ideas-desktop-caption-on.png",
+          "sha256": "6e8aa0a5358ce1e11ac416950569386c43e687348ecd5f0c2c9a02acc891c864",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-ideas-portrait-clean.png",
+          "sha256": "d74146f1b7ddcb49bca1a611d8c90bb29d74393d61360f1f884be501feb8400a",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-ideas-portrait-caption-on.png",
+          "sha256": "ae40dcad0da3ce76a282e2c68e65178347e8cdaef9f6dbac990e744e5bceef81",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    },
+    {
+      "id": "wayfinding-path",
+      "start_frame": 2311,
+      "end_frame_exclusive": 2534,
+      "start_seconds": 92.44,
+      "end_seconds": 101.36,
+      "source_anchor": "what at 92.441667 s",
+      "on_art_text": "What path is the person trying to find?",
+      "files": {
+        "desktop-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-path-desktop-clean.png",
+          "sha256": "2d31a37a30b3a9a4fa12b5919f859d933f45582ee0a0bc25a1b88009737f05af",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "desktop-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-path-desktop-caption-on.png",
+          "sha256": "f255d0d256a3489556f7c9db78b91b607a9ae4efb917595fc14e16bc5088f3b8",
+          "dimensions": [
+            1920,
+            1080
+          ]
+        },
+        "portrait-clean": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-path-portrait-clean.png",
+          "sha256": "225f0b6333af6a925ee5ff2007baec6684bcd5d037d4381cf1b0f433b4ebcf17",
+          "dimensions": [
+            390,
+            844
+          ]
+        },
+        "portrait-caption-on": {
+          "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-matte-board-wayfinding-stills-v3-2026-11-13/stills/wayfinding-path-portrait-caption-on.png",
+          "sha256": "e75ea3a419109a1c4b650471f529e077cb30fa4e4847f238c91b26d254ba4a09",
+          "dimensions": [
+            390,
+            844
+          ]
+        }
+      }
+    }
+  ]
+}

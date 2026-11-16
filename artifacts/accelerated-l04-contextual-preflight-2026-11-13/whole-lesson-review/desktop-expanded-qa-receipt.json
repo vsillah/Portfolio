@@ -1,0 +1,25 @@
+{
+  "status": "local_candidate_passed_pending_captain_review_and_human_listening",
+  "source_commit": "d4479c5b75506d4d2ceb778061d48c72f755ad68",
+  "change_scope": "Desktop presenter-on composition only: larger source-faithful teaching art on the left, stable middle-right native presenter on a continuous cream field. P04 preserves four workbook pages through overview and detail framing.",
+  "current_outputs_sha256": {
+    "desktop_mp4": "a56cee03509ebb46030a4582a19887875c3568cea94cf8a4141ba47ee91efd86",
+    "portrait_mp4_unchanged": "71fbfdafbcb7c29be9c23de2d5c5f40cc15a7fcbb82adb999ac90653d20635f4",
+    "desktop_vtt_unchanged": "3773ab5ceec12987ddf3837bc30390613f5b0d18cbf527bcea4a6e3f615e6691",
+    "portrait_vtt_unchanged": "597f740705c236174463180a57cafb94deb7c784c67f7e7f14f74960719f18a5",
+    "audio_master_unchanged": "c0bf25bbfa9599ba20fe744cbb04b98e7e94a97401ab33b67f850cd8929bdb97"
+  },
+  "validation": {
+    "preflight": "All four desktop presenter stills reviewed before desktop-only rerender. Rejected undersized and meaning-losing layouts retained as local preflight evidence.",
+    "desktop_decode": "ffmpeg -v error -i l04-whole-lesson-desktop-expanded-presenter-local-review.mp4 -f null - completed with exit 0",
+    "desktop_video": "1920x1080, 25 fps, 9983 frames, 399.324 seconds",
+    "desktop_audio_streamhash_sha256": "0a02d35fbfdd7688d49146f029efd5b8544d8a99ac8cacfe354a07c5c0233997",
+    "audio_stream_equivalence": "Identical to the prior qualified desktop stream hash",
+    "encoded_frames": "P01-P04 midpoint frames extracted from final encoded desktop MP4 and visually reviewed in qa-desktop-expanded-presenter-encoded-contact.jpg",
+    "browser": "Integrated in-app Browser loaded exact current desktop and unchanged portrait files with duration 399.324 seconds. P02 caption on and P04 caption off inspected visually; native player controls visible, no reserved caption band when off.",
+    "browser_url": "http://127.0.0.1:8768/artifacts/accelerated-l04-contextual-preflight-2026-11-13/whole-lesson-review/review.html?rev=a56cee03-71fbfdaf-597f7407"
+  },
+  "remaining_gate": "Integration Captain visual and full-lesson listening review before Vambah Human QA.",
+  "excluded_actions": "No portrait rerender, caption change, learner media change, commit, push, PR update, merge, deployment, publication or release.",
+  "schema": "accelerated_l04_desktop_expanded_technical_qa_v1"
+}

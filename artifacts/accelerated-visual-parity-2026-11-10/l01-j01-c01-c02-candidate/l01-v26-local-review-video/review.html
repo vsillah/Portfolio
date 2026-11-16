@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L01 local illustration review · 345 seconds</title>
+<style>
+  :root{font:16px/1.45 system-ui,sans-serif;background:#081b25;color:#f8f2e6}
+  body{margin:0;padding:24px;max-width:1360px;margin-inline:auto}
+  h1{margin:0 0 8px}p{max-width:76ch}
+  .notice{border-left:4px solid #d9ab54;background:#12313c;padding:12px 16px;margin:18px 0}
+  .player{width:min(100%,1280px);background:#06131b;border:1px solid #55717a}
+  video{display:block;width:100%;aspect-ratio:16/9;background:#071c26;object-fit:contain}
+  .captions{padding:12px 18px;min-height:2.4em;text-align:center;font-weight:700;font-size:clamp(1rem,2.3vw,1.7rem);background:#081f2a;border-top:2px solid #d9ab54}
+  .captions[hidden]{display:none}
+  .controls{display:flex;align-items:center;gap:12px;padding:12px;background:#031018}
+  button{font:inherit;border:1px solid #8aa8ad;background:#143743;color:#fff;border-radius:7px;padding:7px 10px;cursor:pointer;min-width:44px;min-height:44px}
+  button:focus-visible,input:focus-visible{outline:3px solid #f6ca69;outline-offset:2px}
+  button[aria-pressed="true"]{background:#74551e;border-color:#f6ca69}
+  input[type="range"]{flex:1;min-width:42px;accent-color:#f6ca69}
+  output{font-variant-numeric:tabular-nums;white-space:nowrap}
+  @media(max-width:520px){body{padding:12px}.controls{gap:5px;padding:7px}button{font-size:.82rem;padding:5px;min-width:39px;min-height:42px}output{font-size:.76rem}.captions{font-size:1rem;padding:10px}}
+</style>
+<body>
+<h1>L01 local 345-second review</h1>
+<p class="notice"><strong>UNAPPROVED C02 CONCEPT.</strong> This is a local illustration and caption review, not learner media. The fictional desk image does not depict a customer, live tool, or automatic data-safety enforcement. The separate 540-second learner binding is unchanged.</p>
+<div class="player" id="player">
+  <video id="video" preload="metadata" playsinline aria-label="L01 local illustration review video">
+    <source src="l01-345s-unapproved-c02-local-review.mp4" type="video/mp4">
+    <track id="captionTrack" kind="captions" src="../c01-c02-v18-optional-caption-feasibility/lower-captions.vtt" srclang="en" label="English optional captions">
+  </video>
+  <div class="captions" id="captionRail" hidden aria-live="off"></div>
+  <div class="controls" role="group" aria-label="Video controls">
+    <button type="button" id="play" aria-label="Play video">Play</button>
+    <input id="seek" type="range" min="0" max="345" step="0.01" value="0" aria-label="Seek video">
+    <output id="time" aria-live="off">0:00 / 5:45</output>
+    <button type="button" id="mute" aria-label="Mute audio">Sound</button>
+    <button type="button" id="captions" aria-label="Turn captions on" aria-pressed="false">CC</button>
+    <button type="button" id="fullscreen" aria-label="Fullscreen player">Full</button>
+  </div>
+</div>
+<p>Source, timing, stream, and QA evidence: <a href="receipt.json">receipt.json</a>. Captions are off by default. Controls and enabled captions are outside the 16:9 teaching picture.</p>
+<script>
+  const video=document.querySelector('#video'), trackNode=document.querySelector('#captionTrack');
+  const rail=document.querySelector('#captionRail'), seek=document.querySelector('#seek');
+  const play=document.querySelector('#play'), mute=document.querySelector('#mute'), cc=document.querySelector('#captions');
+  const time=document.querySelector('#time'), player=document.querySelector('#player');
+  const fmt=n=>`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,'0')}`;
+  const sync=()=>{seek.value=String(video.currentTime||0);time.textContent=`${fmt(video.currentTime||0)} / ${fmt(video.duration||345)}`;play.textContent=video.paused?'Play':'Pause';play.setAttribute('aria-label',video.paused?'Play video':'Pause video');mute.textContent=video.muted?'Muted':'Sound';mute.setAttribute('aria-label',video.muted?'Unmute audio':'Mute audio')};
+  const captionsOn=()=>cc.getAttribute('aria-pressed')==='true';
+  const syncCue=()=>{const active=captionsOn()?video.textTracks[0]?.activeCues:null;rail.textContent=active&&active.length?Array.from(active).map(c=>c.text).join(' '):''};
+  const applyCaptions=()=>{const on=captionsOn();rail.hidden=!on;video.textTracks[0].mode=on?'hidden':'disabled';syncCue()};
+  play.addEventListener('click',()=>video.paused?video.play():video.pause());
+  mute.addEventListener('click',()=>{video.muted=!video.muted;sync()});
+  seek.addEventListener('input',()=>{video.currentTime=Number(seek.value);syncCue();sync()});
+  cc.addEventListener('click',()=>{const on=!captionsOn();cc.setAttribute('aria-pressed',String(on));cc.setAttribute('aria-label',on?'Turn captions off':'Turn captions on');applyCaptions()});
+  document.querySelector('#fullscreen').addEventListener('click',()=>document.fullscreenElement?document.exitFullscreen():player.requestFullscreen());
+  trackNode.addEventListener('load',applyCaptions);
+  video.textTracks[0]?.addEventListener('cuechange',syncCue);
+  video.addEventListener('timeupdate',sync);video.addEventListener('play',sync);video.addEventListener('pause',sync);video.addEventListener('loadedmetadata',sync);video.addEventListener('ended',sync);
+  applyCaptions();
+</script>
+</body></html>

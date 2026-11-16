@@ -1,0 +1,333 @@
+{
+  "status": "still_only_candidate_for_captain_review",
+  "structure": "Agentified native source frame with one thin outline on continuous slide field",
+  "source_handling": "unaltered RGB frame resized only; inner picture pixel equality checked",
+  "source_frame_numbers": {
+    "P01": 300,
+    "P02": 700,
+    "P03": 1080,
+    "question-bridge": 1315,
+    "P04": 1500
+  },
+  "caption_sample_seconds": {
+    "P01": 12,
+    "P02": 122,
+    "P03": 245,
+    "question-bridge": 384,
+    "P04": 392
+  },
+  "source_art": {
+    "P02": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/book-case-matte.png",
+      "sha256": "9e9f4117a49f462cf7a91775aba1763569e158d17a3edc42fd131ff50c372438",
+      "role": "book-concept matte teaching vignette",
+      "source_status": "existing C03 still-only candidate; Captain visual approval pending"
+    },
+    "P03": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-choice-c03-matte-stills-2026-11-13/plates/economic-fit-matte.png",
+      "sha256": "ce5026acda4e7f6626fd173ec5700c5a31a9380d76d14a6c6baf84cf697a49e8",
+      "role": "book-concept matte teaching vignette",
+      "source_status": "existing C03 still-only candidate; Captain visual approval pending"
+    }
+  },
+  "native_source": "docs/accelerated-course-modules/l02-native-composite/accelerated-l02-heygen-native.mp4",
+  "native_sha256": "2beae8254c76a6f8bf168afb8483e83e63c13b621ec3934c81397d3167cd1a3d",
+  "optional_caption_source": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-c01-corrected-paired-local-review-2026-11-13/l02-optional-captions.vtt",
+  "optional_caption_sha256": "6d1ec9a1b64a1a05aa884a17a5f1e795b16986519c84cfd366e970fdd9dc0803",
+  "visual_gate": "P02/P03 source-art composition candidate; Captain plate/style review and motion verification remain open",
+  "outputs": [
+    {
+      "file": "stills-v2-native-frame/P01-desktop-clean.png",
+      "sha256": "f00eadcd2d6a33f5c08f005a8d97ce09e1d77d445d3ece6fd74cc02a375b94d4",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P01-desktop-caption-on.png",
+      "sha256": "2da89680ccde0e5c1e5c277cae2ab40d972bed808644355b8a74625f9bedda07",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P01-portrait-clean.png",
+      "sha256": "7394da5d90dc0d4ead28e86b42747469bc6372e62a87067779378325b886aec7",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P01-portrait-caption-on.png",
+      "sha256": "697493cd23b1e780680801f16815dc723f97675f026e4e2309212df24b78bc4e",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P02-desktop-clean.png",
+      "sha256": "8f59a8d328547829352bce3997b0c215e571d0795664cac08b4aec4db483f584",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P02-desktop-caption-on.png",
+      "sha256": "d01b4af63048d6e72ef2e1c00e972d01b14a1b8b2044a71746bcd9cc01ffbcae",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P02-portrait-clean.png",
+      "sha256": "12f24543a4b55df016ccfc2f69936de04dfa4b9bb7c8883401af6815e1ce8580",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P02-portrait-caption-on.png",
+      "sha256": "6f8fb831eb8e91c262a8d700fa7656a4902fe8f44a1c5e23700c2dacf97b279f",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P03-desktop-clean.png",
+      "sha256": "040f2412c2e5ddeb07bb179cb9f5c0e452118d7fddf3ab4a86556ed0e99188ba",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P03-desktop-caption-on.png",
+      "sha256": "58604da6ace7314a76e0cbb4d0f23ce26d6ce60c38f3531c27b15da4121b8804",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P03-portrait-clean.png",
+      "sha256": "7cee815f25c02b9bc6a8f6db9346acd50e5dabf19987235228e6e78db9af2e2c",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P03-portrait-caption-on.png",
+      "sha256": "506c92d409a600a90bee9c61611c635f1706de5b83f0b63143ff840b3a5e8a4d",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/question-bridge-desktop-clean.png",
+      "sha256": "b612d919a8dd79f71a72e49b6cd0597a1902c32e9cab242c043730c465d141bf",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/question-bridge-desktop-caption-on.png",
+      "sha256": "a2b2ef62574c3e3c329e20da586d23969b8de24e5148e560a26b55469d168f2b",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/question-bridge-portrait-clean.png",
+      "sha256": "58f9ae60d94dd8998625f395b85172de229e311f2d18e26b7fc40f5f72358559",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/question-bridge-portrait-caption-on.png",
+      "sha256": "7f6d45b3813869552f54beabdae06bbf11eccdac95c015b8e32364f2c4874025",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P04-desktop-clean.png",
+      "sha256": "fe1c104bd2e899674e5ffe4e00a65d04cbde1e86e39de47c566f9e8144890c94",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P04-desktop-caption-on.png",
+      "sha256": "acaf8cafb0e17062611ffb9b302ce68395592377178cbcb06347a22676fb923c",
+      "size": [
+        1920,
+        1080
+      ],
+      "video_box": [
+        1000,
+        300,
+        1810,
+        756
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P04-portrait-clean.png",
+      "sha256": "5fdbedbe89f60c8a498789c85d596c99d8fa25602cd65ff9cd8f3cadafff40c5",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    },
+    {
+      "file": "stills-v2-native-frame/P04-portrait-caption-on.png",
+      "sha256": "ffa45e9a59d1713e6d7a99db1efebcc8655641e9f461e5cfc28a663feb7023e3",
+      "size": [
+        390,
+        844
+      ],
+      "video_box": [
+        58,
+        390,
+        374,
+        568
+      ]
+    }
+  ],
+  "excluded": [
+    "video rendering",
+    "HeyGen",
+    "generated images",
+    "spending",
+    "learner media",
+    "commit",
+    "PR update",
+    "merge",
+    "deployment",
+    "publication",
+    "release"
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "status": "rendered_pending_audiovisual_qa",
+  "source_commit": "d4479c5b75506d4d2ceb778061d48c72f755ad68",
+  "timing_contract_sha256": "2670d5db2859801051a845a4a94bdbfaf89e70704790a7162762d910fa4630b0",
+  "art_sha256": {
+    "scene_01": "091fc588745ae0dd6aa9bd6412c3e1376fcbe2cf80722be9e61ea6dfc76acb6d",
+    "scene_02": "d5f59c9963e808947d6803d957b5a874a37a78c89c90f0e8f96393c23194f153",
+    "scene_03": "55f3f0547a3726b77bf46d4b8c2e48691135da65de7953e56f4a04ceb0b44f8b",
+    "scene_04": "d5d58701d2c9a76a723486b17796eaa9cec384b0ebd7ff7292c8afc693859815",
+    "scene_05": "dc63aecbe978a07f0ea3031af13b94175384be02cfaf402076ed04e0de2aec25",
+    "scene_06": "b621d7888ac83fe37b640b5f6507c01f05285698db22ef0cb0c08539593a3ff7",
+    "scene_07": "db73bcf32d37f0728c82329d0046d3c649b1ccc55f54ab52fd50c288573ddd97"
+  },
+  "frame_boundaries": [
+    0,
+    632,
+    1079,
+    1526,
+    2252,
+    2901,
+    3169,
+    3791,
+    4413,
+    5358,
+    5803,
+    6136,
+    6329,
+    7371,
+    7916,
+    8691,
+    9060,
+    9443,
+    9893,
+    9983
+  ],
+  "phrase_focus_changes_seconds": {
+    "C01a": 43.15,
+    "C01b": 90.067,
+    "C02a": 151.622,
+    "C02b": 214.319,
+    "C03a": 253.176,
+    "C03b": 316.648,
+    "C03c": 362.384
+  },
+  "presenter_source_ranges": [
+    [
+      0,
+      632
+    ],
+    [
+      632,
+      900
+    ],
+    [
+      900,
+      1233
+    ],
+    [
+      1233,
+      1683
+    ]
+  ],
+  "presenter_placement": {
+    "desktop": {
+      "xy": [
+        1045,
+        312
+      ],
+      "size": [
+        810,
+        456
+      ]
+    },
+    "portrait": {
+      "xy": [
+        0,
+        526
+      ],
+      "size": [
+        390,
+        219
+      ]
+    }
+  },
+  "outputs": {
+    "whole-lesson-audio-boundary-corrected.wav": "c0bf25bbfa9599ba20fe744cbb04b98e7e94a97401ab33b67f850cd8929bdb97",
+    "l04-whole-lesson-desktop-expanded-presenter-local-review.mp4": "a56cee03509ebb46030a4582a19887875c3568cea94cf8a4141ba47ee91efd86",
+    "l04-whole-lesson-portrait-presenter-section-local-review.mp4": "71fbfdafbcb7c29be9c23de2d5c5f40cc15a7fcbb82adb999ac90653d20635f4"
+  },
+  "excluded_actions": "No HeyGen contact, spending, learner media change, commit, push, PR update, merge, deployment, publication or release."
+}

@@ -1,0 +1,38 @@
+{
+  "status": "review_only_pcm_candidate_not_audibly_signed_off",
+  "lesson_id": "L16",
+  "presenter_window": "A01",
+  "orientation": "tail",
+  "source_path": "public/accelerated/lessons/l16/review-5ee4267c/accelerated-l16-native-composite.mp4",
+  "source_sha256": "5ee4267cac68f05d587225c994d9156a53a2051cc36e059141be997d16161bc0",
+  "source_window_seconds": [
+    0,
+    28.48
+  ],
+  "candidate_cut_seconds": 24.9,
+  "cut_sample_index_48000hz": 1195200,
+  "fade_start_seconds": 24.86,
+  "fade_duration_seconds": 0.04,
+  "audio_treatment": "Decode source AAC to 48 kHz PCM; retain through the sample-accurate cut with a 40 ms final fade; pad the rest with digital silence; encode the entire candidate AAC at 192 kb/s.",
+  "audio_reencoded_entire_window": true,
+  "source_aac_packets_copied": false,
+  "intended_words": {
+    "retained_approved_words_end": "Six calls for starting with one pain point",
+    "removed_later_phrase_start": "Write the next action in a sentence that begins with a verb"
+  },
+  "post_cut_silence_peak_dbfs": -91.0,
+  "candidate_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a01-tail-pcm-candidate.mp4",
+  "candidate_sha256": "3e2036dffe7497bf0f55ec701573a9ca93b8a50ee8193cb7f5ee1c30fefca8a4",
+  "before_after_path": "artifacts/accelerated-visual-parity-2026-11-10/sample-accurate-jump-candidates/l16-a01-tail-pcm-before-after.mp4",
+  "before_after_sha256": "07aef614c352d57a2f5d2de2186454a78561c586c45ca532703efb9370e40a46",
+  "before_after_source_excerpt_seconds": [
+    21.4,
+    28.4
+  ],
+  "candidate_duration_seconds": 28.48,
+  "before_after_duration_seconds": 14.0,
+  "full_mp4_decode": "passed",
+  "voice_generation": false,
+  "learner_binding": false,
+  "residual_uncertainty": "ASR and waveform timing cannot replace audible first/last-phoneme review; the full lesson and adjacent presenter windows remain unresolved."
+}

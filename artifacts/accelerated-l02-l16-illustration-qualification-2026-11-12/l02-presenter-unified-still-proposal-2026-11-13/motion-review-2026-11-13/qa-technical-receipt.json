@@ -1,0 +1,147 @@
+{
+  "status": "PASS_LOCAL_REVIEW_ONLY",
+  "lesson": "L02",
+  "branch": "codex/accelerated-lesson-pacing-audit",
+  "review_head": "3f839dc3e1f2684ad0ec2a7852cad051e85cf5ff",
+  "approved_still_receipt_sha256": "54e4010643f877e290e4c8bbdb1097baffbc9ff705fd9c94f5dfe71d539cdb4a",
+  "timeline": {
+    "desktop": {
+      "total": 71,
+      "replaced_indices": [
+        0,
+        29,
+        39,
+        68,
+        69
+      ],
+      "unchanged": 66,
+      "new_segment_frames": [
+        545,
+        357,
+        397,
+        80,
+        334
+      ]
+    },
+    "portrait": {
+      "total": 71,
+      "replaced_indices": [
+        0,
+        29,
+        39,
+        68,
+        69
+      ],
+      "unchanged": 66,
+      "new_segment_frames": [
+        545,
+        357,
+        397,
+        80,
+        334
+      ]
+    }
+  },
+  "videos": {
+    "desktop": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-presenter-desktop-review-1920x1080.mp4",
+      "sha256": "09b606c4ff15862355b401e260d2aa56ff947dd0eaeeed33ea70217060d7b716",
+      "duration_seconds": 403.6,
+      "frames": 10090,
+      "size": [
+        1920,
+        1080
+      ],
+      "fps": "25/1",
+      "encoded_audio_payload_sha256": "126676a9b6656561ec4bb49bc66ba7cfae395e3a0713fe317ebd1028700bbedd",
+      "full_decode": "PASS"
+    },
+    "portrait": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-presenter-portrait-review-390x844.mp4",
+      "sha256": "492847faf3c7178b18f2812b038a3b4d3d7f7fde48f57fe978dbbf81646f70d3",
+      "duration_seconds": 403.6,
+      "frames": 10090,
+      "size": [
+        390,
+        844
+      ],
+      "fps": "25/1",
+      "encoded_audio_payload_sha256": "126676a9b6656561ec4bb49bc66ba7cfae395e3a0713fe317ebd1028700bbedd",
+      "full_decode": "PASS"
+    }
+  },
+  "captions": {
+    "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/l02-optional-captions.vtt",
+    "sha256": "6d1ec9a1b64a1a05aa884a17a5f1e795b16986519c84cfd366e970fdd9dc0803",
+    "browser_toggle": "PASS; optional VTT shown and hidden in integrated browser at desktop and 390x844 viewport"
+  },
+  "native_presenter_sync": {
+    "sample_output_frames": [
+      300,
+      3043,
+      6131,
+      9600,
+      9785
+    ],
+    "sample_native_frames": [
+      300,
+      700,
+      1080,
+      1315,
+      1500
+    ],
+    "sample_mae_desktop": [
+      1.205,
+      1.22,
+      1.227,
+      1.213,
+      1.232
+    ],
+    "sample_mae_portrait": [
+      1.991,
+      1.955,
+      1.954,
+      2.081,
+      2.016
+    ],
+    "visual_check": "PASS; blue source background preserved with thin outline; no art/control obstruction in sampled passages"
+  },
+  "browser_review": {
+    "url": "http://127.0.0.1:8765/artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/review.html?rev=09b606c4",
+    "desktop_and_mobile": "PASS; duration 403.6, video advanced while playing, P02/P03/C03/caption states visible",
+    "viewport_reset_after_review": true
+  },
+  "walkthroughs": {
+    "desktop": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/qa/l02-presenter-desktop-human-qa-walkthrough.mp4",
+      "sha256": "680fd20b2fee50ee378e3567d27a693435e723c0627d949eecf0961a4f201ac1",
+      "duration_seconds": 12.061016,
+      "full_decode": "PASS",
+      "kind": "six-excerpt reel from exact local render; not a browser screen recording"
+    },
+    "portrait": {
+      "path": "artifacts/accelerated-l02-l16-illustration-qualification-2026-11-12/l02-presenter-unified-still-proposal-2026-11-13/motion-review-2026-11-13/qa/l02-presenter-portrait-human-qa-walkthrough.mp4",
+      "sha256": "9ee153d79dbc6bd1e24d86ccf9d437889ad750861d5f4ab66cfd2f5dabf8349f",
+      "duration_seconds": 12.061016,
+      "full_decode": "PASS",
+      "kind": "six-excerpt reel from exact local render; not a browser screen recording"
+    }
+  },
+  "scope": "unbound local motion review; no learner media or PR change",
+  "limitations": [
+    "Six-excerpt MP4 reels sample the exact render, but are not literal browser screen recordings.",
+    "Visual source-frame sampling and browser checks do not certify every frame of the 403.6-second lesson.",
+    "Human QA and captain review remain pending."
+  ],
+  "excluded": [
+    "HeyGen",
+    "speech generation",
+    "spending",
+    "learner media",
+    "PR #1270",
+    "merge",
+    "deployment",
+    "publication",
+    "release"
+  ]
+}
