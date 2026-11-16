@@ -85,10 +85,62 @@ export function resolveShowcaseGallery(entity: Entity, id: string | number, curr
   return [first, ...extras]
 }
 
-/** Exact-ID and exact-source bound service concepts; unknown records stay fail-closed. */
-export function resolveServiceGallery(id: string, imageUrl: string | null | undefined): ShowcaseFrame[] {
-  const concept = (serviceConceptGallery as Record<string, { expectedCurrentUrl: string | null; frames: ShowcaseFrame[] }>)[id]
+const SERVICE_GALLERY_ID_BY_TITLE: Record<string, string> = {
+  'website ux refresh': 'a34b8a0a-d65c-42c8-970b-9a77e043e329',
+  'accelerated cohort workshop': 'cd2c086a-26ec-4637-b7a3-129021c0bc19',
+  'product innovation workshop': 'c13e9f1c-7932-4e11-8459-a11e0ef7a070',
+  'ai customer support chatbot': '1313650b-1afb-44f7-8118-21f05b1ae8a0',
+  'speaking engagement': 'a278e803-9328-490b-bf57-8fbee7d129ee',
+  'ai inbound lead chatbot': 'a479ce70-4856-4d3f-917b-c37bfff1f0a2',
+  'management consulting': '4ea3afc8-2ecc-4928-a5e6-35e82388ee10',
+  'ai voice agent — inbound': 'ee03425c-2d00-41e3-ad5b-18f14bfb53b3',
+  'lead generation workflow agent': 'f463891c-e703-403b-97c2-e122aca42f29',
+  'social media content agent': '6cb60c1f-6b7c-4bce-9335-fbc99063f9a9',
+  'client onboarding automation': '8dc13175-02b9-4ee2-90fe-f6dd5dd151b3',
+  'inbound lead tracking system': '7d0c9d47-116a-48a5-b31d-dbe966f30044',
+  'mobile app generation': '5e8d9f3d-8dbe-4380-b566-e284ac95a3c7',
+  'website development': 'b988910a-4db7-4c7f-b4ec-00ae35e915bf',
+  'ai email sequence builder': '3977c48a-23ba-4e3c-8513-d17b91e61c5c',
+  'rag knowledge base system': '7c4bf4ec-a9d4-454e-933b-e22430be8ed7',
+  'ai strategy workshop — half-day': '0f7324b7-ba9e-440c-a282-f01b2919d2a4',
+  'ai strategy workshop — full-day': '457da6b5-92db-4b5b-a895-ee8571a47c8c',
+  'monthly advisory retainer': 'd1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78',
+  '1-on-1 ai coaching': 'b42244d8-8322-4fbd-887f-3c6b3152db50',
+  'group ai coaching': '9df08654-6522-4299-92ae-68b3b80060e9',
+  'team ai training — 3-session program': '7e6fe1c0-af7d-4f01-9025-953c1d91300c',
+  'implementation warranty': '78b49ebd-ba8b-4922-8f54-8738a76214a9',
+  'enterprise sla': 'f1978dc0-cd5c-4a8d-b28a-b5d0ab452131',
+  'priority support channel': '5c0ee962-4e59-47ce-8374-e77083cd3af8',
+  'data migration & onboarding': '42dec7ad-4b54-4fed-8288-15d350c33c9e',
+  'custom api / erp integrations': '1d3cbddd-3d36-41be-bbff-484740f33089',
+  'custom reporting & analytics dashboard': 'b8887d29-52a7-47a1-bdb1-192068f43ccb',
+  'ai training course — self-paced': 'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2',
+  'premium ai masterclass': '1d797450-f350-457e-b7c4-d75164a76654',
+  'ai strategy workshop — recorded (self-paced)': '0aeccef3-eae9-4a4a-b90d-053560e53e85',
+  'pre-built chatbot template — self-install': 'e65898be-4121-4f98-a441-381a56ab5467',
+  'group implementation program — 6 weeks': '4fa75994-7603-4af0-acd0-d1d4523ea3ab',
+  'ai training library — recorded access': '3024f215-4cae-422b-b92d-38a800302c58',
+  'community forum access': '6fb4fb87-0ca5-49cc-8117-31295ee861b2',
+  '30-day email support': '4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb',
+  '60-day email support': '0129f6d2-0c09-4ab8-a01d-6ead6819747e',
+  'lead tracking templates': 'eaa36f0b-a20f-40cb-9d82-749c914251cd',
+  'content automation templates': 'c9774a8b-3cc7-4237-a668-6f02a6dc37c0',
+  'shared analytics dashboard': '7cd3e7d5-31f0-4ee3-bf27-242c92935b1e',
+  'ai email sequence templates': '312e597d-d250-4c41-aff0-0eca38ddb885',
+}
+
+function normalizeServiceTitle(title: string) {
+  return title.trim().replace(/\s+/g, ' ').toLocaleLowerCase('en-US')
+}
+
+/** Exact-source concepts with a stable title fallback across environment-specific record IDs. */
+export function resolveServiceGallery(id: string, imageUrl: string | null | undefined, title?: string): ShowcaseFrame[] {
+  const gallery = serviceConceptGallery as Record<string, { expectedCurrentUrl: string | null; frames: ShowcaseFrame[] }>
+  const concept = gallery[id]
   if (concept && concept.expectedCurrentUrl === (imageUrl || null)) return concept.frames
+  const canonicalId = title ? SERVICE_GALLERY_ID_BY_TITLE[normalizeServiceTitle(title)] : undefined
+  const canonicalConcept = canonicalId ? gallery[canonicalId] : undefined
+  if (canonicalConcept) return canonicalConcept.frames
   if (!imageUrl) return []
   return [{ imageUrl, alt: 'Current service listing image', role: 'hero', status: 'source capture' }]
 }

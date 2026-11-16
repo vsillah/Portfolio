@@ -64,6 +64,15 @@ describe('active service gallery coverage', () => {
     expect(resolveServiceGallery(course.id, course.image_url).map((frame) => frame.role)).toEqual(['hero', 'course-preview poster'])
   })
 
+  it('resolves every approved service gallery by stable title when environment record IDs differ', () => {
+    for (const canonical of catalog.rows) {
+      const frames = resolveServiceGallery(`local-${canonical.id}`, null, canonical.title)
+      expect(frames).toEqual(resolveServiceGallery(canonical.id, canonical.image_url))
+      expect(frames).toHaveLength(2)
+    }
+    expect(resolveServiceGallery('unknown-id', null, 'Unknown service')).toEqual([])
+  })
+
   it('binds five distinct premium service pairs with specific experiences', () => {
     const slugs = ['inbound-lead-chatbot', 'lead-generation-workflow', 'accelerated-cohort', 'premium-masterclass', 'self-paced-course']
     const titles = ['AI Inbound Lead Chatbot', 'Lead Generation Workflow Agent', 'Accelerated Cohort Workshop', 'Premium AI Masterclass', 'AI Training Course — Self-Paced']
