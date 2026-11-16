@@ -152,7 +152,7 @@ export default function Services() {
             const prototype = prototypeForService(service.id, service.image_url)
             const gallery = prototype
               ? prototypeGallery(service.id, service.image_url)
-              : resolveServiceGallery(service.id, service.image_url)
+              : resolveServiceGallery(service.id, service.image_url, service.title)
             const imageUrl = resolveThemeImageUrl({
               imageUrl: service.image_url,
               imageVariants: service.image_variants,

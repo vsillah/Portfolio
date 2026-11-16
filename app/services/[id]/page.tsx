@@ -186,7 +186,7 @@ export default function ServiceDetailPage() {
 
   const delivery = DELIVERY_ICONS[service.delivery_method] || DELIVERY_ICONS.virtual
   const prototype = prototypeForService(service.id, service.image_url)
-  const gallery = prototype ? prototypeGallery(service.id, service.image_url) : resolveServiceGallery(service.id, service.image_url)
+  const gallery = prototype ? prototypeGallery(service.id, service.image_url) : resolveServiceGallery(service.id, service.image_url, service.title)
   const quoteRequired = service.is_quote_based || service.price === null
   const deliverablesList = Array.isArray(service.deliverables) ? service.deliverables : []
   const topicsList = Array.isArray(service.topics) ? service.topics : []
