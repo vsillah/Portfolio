@@ -23,12 +23,12 @@ const course = {
 afterEach(() => vi.unstubAllGlobals())
 
 describe('self-paced course showcase', () => {
-  it('shows a poster with an honest pending video action', async () => {
+  it('uses the current services-page gallery with an honest pending video action', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => [course] })))
     render(<Services />)
     const gallery = await screen.findByRole('group', { name: 'AI Training Course — Self-Paced image gallery' })
-    expect(within(gallery).getByAltText(/self-paced lessons/i)).toBeInTheDocument()
-    expect(within(gallery).getByRole('button', { name: /Show course-preview poster/i })).toBeInTheDocument()
+    expect(within(gallery).getByAltText(/Course home in the working, synthetic-data prototype/i)).toBeInTheDocument()
+    expect(within(gallery).getAllByRole('button', { name: /Show product-in-use image/i })).toHaveLength(2)
     const action = screen.getByRole('button', { name: 'Watch course preview' })
     expect(action).toBeDisabled()
     expect(screen.getByText(/Module 0 awaits script review, an approved render, and a bound video/)).toBeInTheDocument()

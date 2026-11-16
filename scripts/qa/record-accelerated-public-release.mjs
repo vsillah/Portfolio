@@ -32,6 +32,26 @@ for (const viewport of viewports) {
   })
   const page = await context.newPage()
 
+  await page.goto(`${baseUrl}/?rev=${revision}#services`, { waitUntil: 'networkidle' })
+  const flagshipHeading = page.getByRole('heading', { name: 'Flagship workshops' })
+  await flagshipHeading.waitFor({ state: 'visible' })
+  await flagshipHeading.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(1200)
+  await page.screenshot({
+    path: path.join(outputDir, `${viewport.name}-homepage-flagship-workshops.png`),
+    fullPage: false,
+  })
+
+  await page.goto(`${baseUrl}/services?rev=${revision}`, { waitUntil: 'networkidle' })
+  const servicesFlagshipHeading = page.getByRole('heading', { name: 'Flagship workshops' })
+  await servicesFlagshipHeading.waitFor({ state: 'visible' })
+  await servicesFlagshipHeading.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(1200)
+  await page.screenshot({
+    path: path.join(outputDir, `${viewport.name}-services-flagship-workshops.png`),
+    fullPage: false,
+  })
+
   await page.goto(`${baseUrl}/?rev=${revision}#publications`, { waitUntil: 'networkidle' })
   const acceleratedHeading = page.getByRole('heading', {
     name: 'Accelerated: Building Smarter Products with AI',

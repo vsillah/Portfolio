@@ -8,8 +8,10 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { formatPriceOrFree } from '@/lib/pricing-model'
 import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
-import { resolveShowcaseGallery, resolveShowcasePreview } from '@/lib/showcase-preview'
+import { resolveServiceGallery } from '@/lib/showcase-preview'
+import { prototypeForService, prototypeGallery } from '@/lib/service-prototypes'
 import ShowcaseCarousel from './ShowcaseCarousel'
+import FlagshipWorkshops from './FlagshipWorkshops'
 
 const SELF_PACED_COURSE_ID = 'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2'
 
@@ -147,9 +149,11 @@ export default function Services() {
         <h3 className="text-lg font-heading uppercase tracking-wider text-muted-foreground mb-6">{title}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {items.map((service, index) => {
-            const showcase = resolveShowcasePreview('service', service.id, service.image_url)
-            const gallery = resolveShowcaseGallery('service', service.id, service.image_url)
-            const imageUrl = showcase?.previewUrl || resolveThemeImageUrl({
+            const prototype = prototypeForService(service.id, service.image_url)
+            const gallery = prototype
+              ? prototypeGallery(service.id, service.image_url)
+              : resolveServiceGallery(service.id, service.image_url)
+            const imageUrl = resolveThemeImageUrl({
               imageUrl: service.image_url,
               imageVariants: service.image_variants,
               theme: resolvedTheme,
@@ -168,9 +172,9 @@ export default function Services() {
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
-                    alt={showcase?.alt || service.title}
+                    alt={service.title}
                     fill
-                    className={`${showcase?.kind === 'illustrative_concept' ? 'object-contain bg-[#142339]' : 'object-cover'} transition-transform duration-700 group-hover:scale-105`}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 320px"
                   />
                 ) : (
@@ -180,7 +184,7 @@ export default function Services() {
                     </span>
                   </div>
                 )}
-                <div className={`${showcase?.kind === 'illustrative_concept' ? 'hidden' : 'absolute top-6 left-6 flex flex-col gap-2'}`}>
+                <div className="absolute left-6 top-6 flex flex-col gap-2">
                   <span className={`px-3 py-1 bg-background/80 backdrop-blur-md rounded-full text-[10px] font-heading tracking-widest uppercase ${accent.badge}`}>
                     {TYPE_LABELS[service.service_type] || service.service_type}
                   </span>
@@ -276,10 +280,6 @@ export default function Services() {
     )
   }
 
-  if (services.length === 0) {
-    return null
-  }
-
   return (
     <section id="services" className="py-32 px-6 sm:px-10 lg:px-12 bg-silicon-slate/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto relative z-10">
@@ -295,9 +295,11 @@ export default function Services() {
             <span className="italic text-radiant-gold">Services</span>
           </h2>
           <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto">
-            Trainings, speaking engagements, consulting, and more—delivered in-person or virtually.
+            Guided workshops, training, speaking, consulting, and more—delivered in-person or virtually.
           </p>
         </div>
+
+        <FlagshipWorkshops className="mb-20" />
 
         {/* Services by subsection */}
         <SubsectionGrid items={grouped.build} category="build" title="What We Build" accent={SUBSECTION_ACCENTS.build} />
