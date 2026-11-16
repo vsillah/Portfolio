@@ -7,7 +7,7 @@ This package records the public-route review for the Accelerated release connect
 - The homepage publication card routes directly to `/accelerated`.
 - The homepage Services section and `/services` share the current service-gallery and prototype image pipeline.
 - Accelerated and Agentified appear as flagship workshops on both routes.
-- The workshop cards use current raster artwork from their standalone public pages.
+- The workshop cards use the approved YouTube-style Lesson 1 opening posters from the actual Accelerated and Agentified workshops.
 - Mobile leads with the workshop image before supporting copy.
 
 ## Reproduction
@@ -28,8 +28,8 @@ NODE_OPTIONS=--max-old-space-size=8192 npm run build
 
 - Focused tests: 13 passed.
 - Production build: passed; existing unrelated lint and environment warnings remain.
-- Desktop walkthrough SHA-256: `cd13a55eb349e793295ace82003122dd9848fd389bc8a8dc90c5128dc1fb30c4`
-- Mobile walkthrough SHA-256: `d0d7d148412e558c6eaca10a6f824aca906b91a9db8b19ddb814fa100596ae8b`
+- Desktop walkthrough SHA-256: `70419908f159ca23a21279c83772c9a11c56faea1bfe4152f2e1991863e23f6a`
+- Mobile walkthrough SHA-256: `0c62d0a998951c04c59011e4474f450800a3e0cd456232375e7688f7eb18002a`
 - Both walkthrough MP4s passed full decode.
 
 No learner media, provider, billing, credential, database, or production-data state changed during this review.

@@ -10,8 +10,8 @@ const workshops = [
     subtitle: 'Building Smarter Products with AI',
     description:
       'A 16-lesson workshop and Decision File for turning one consequential product choice into evidence, alignment, and momentum.',
-    image: '/showcases/service-photographic/accelerated-cohort-workshop-hero.jpg',
-    imageAlt: 'A diverse workshop group collaborating around laptops and printed materials',
+    image: '/accelerated/posters/l01-poster.webp',
+    imageAlt: 'Accelerated Lesson 1 opening poster: Build Smarter, Stay Human',
     href: '/accelerated',
     cta: 'Explore Accelerated',
   },
@@ -22,8 +22,8 @@ const workshops = [
     subtitle: 'Achieve agentic scale through trust',
     description:
       'A 16-lesson workshop for leaders building governed agentic systems with clear authority, memory, approvals, evaluation, and receipts.',
-    image: '/agentified-cover.jpg',
-    imageAlt: 'Agentified book cover',
+    image: '/agentified/posters/l01-poster.webp',
+    imageAlt: 'Agentified Lesson 1 opening poster: Give It a Job, Get a Receipt',
     href: '/agentified',
     cta: 'Explore Agentified',
   },
@@ -50,9 +50,19 @@ export default function FlagshipWorkshops({ className = '' }: { className?: stri
         {workshops.map((workshop) => (
           <article
             key={workshop.slug}
-            className="group grid min-w-0 overflow-hidden rounded-2xl border border-radiant-gold/20 bg-card shadow-[0_22px_70px_rgba(18,30,49,0.10)] sm:grid-cols-[minmax(0,1.08fr)_minmax(210px,0.92fr)] dark:bg-silicon-slate/35"
+            className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-radiant-gold/20 bg-card shadow-[0_22px_70px_rgba(18,30,49,0.10)] dark:bg-silicon-slate/35"
           >
-            <div className="flex min-w-0 flex-col p-6 sm:p-7">
+            <div className="relative order-first aspect-video w-full overflow-hidden border-b border-radiant-gold/15 bg-[#121e31]">
+              <Image
+                src={workshop.image}
+                alt={workshop.imageAlt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            </div>
+
+            <div className="flex min-w-0 flex-1 flex-col p-6 sm:p-7">
               <div className="mb-5 flex items-center gap-2 text-radiant-gold">
                 {workshop.slug === 'accelerated' ? <PlayCircle size={17} aria-hidden="true" /> : <BookOpen size={17} aria-hidden="true" />}
                 <span className="font-heading text-[10px] uppercase tracking-[0.18em]">{workshop.eyebrow}</span>
@@ -62,22 +72,13 @@ export default function FlagshipWorkshops({ className = '' }: { className?: stri
               <p className="mt-4 text-sm leading-6 text-muted-foreground">{workshop.description}</p>
               <Link
                 href={workshop.href}
-                className="mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-radiant-gold/30 px-4 py-2 font-heading text-[10px] uppercase tracking-[0.16em] text-radiant-gold transition hover:bg-radiant-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                className="mt-auto inline-flex w-fit items-center gap-2 rounded-full border border-radiant-gold/30 px-4 py-2 font-heading text-[10px] uppercase tracking-[0.16em] text-radiant-gold transition hover:bg-radiant-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 {workshop.cta}
                 <ArrowRight size={14} aria-hidden="true" />
               </Link>
             </div>
 
-            <div className={`relative order-first min-h-64 overflow-hidden border-b border-radiant-gold/15 sm:order-none sm:min-h-full sm:border-b-0 sm:border-l ${workshop.slug === 'agentified' ? 'bg-[#121e31]' : ''}`}>
-              <Image
-                src={workshop.image}
-                alt={workshop.imageAlt}
-                fill
-                className={workshop.slug === 'agentified' ? 'object-contain p-5' : 'object-cover'}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 25vw"
-              />
-            </div>
           </article>
         ))}
       </div>
