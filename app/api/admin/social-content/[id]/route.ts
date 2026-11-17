@@ -71,6 +71,7 @@ import { historicalLinkedInFailureCandidate, isRetryableLinkedInFailure } from '
 import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-recorded-decision'
 import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
+import { isAcceleratedCampaignReviewItem } from '@/lib/social-accelerated-campaign-review'
 import { SOCIAL_LIFECYCLE_RECONCILIATION_QA_FIXTURE, SOCIAL_LIFECYCLE_RECONCILIATION_QA_ID, socialLifecycleReconciliationQaFixture } from '@/lib/social-lifecycle-reconciliation-qa-fixture'
 
 export const dynamic = 'force-dynamic'
@@ -596,6 +597,14 @@ export async function PUT(
       if (persistedChannelExperimentReviewForItem(currentItem)) {
         return NextResponse.json({
           error: 'This channel-native YouTube experiment is review-only.',
+          blocked: true,
+          persisted: false,
+        }, { status: 409 })
+      }
+
+      if (isAcceleratedCampaignReviewItem(currentItem)) {
+        return NextResponse.json({
+          error: 'Accelerated campaign drafts are review-only here. Changes and external actions require their separate campaign gates.',
           blocked: true,
           persisted: false,
         }, { status: 409 })

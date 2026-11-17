@@ -20,6 +20,7 @@ const nextConfig = {
   experimental: {
     // React PDF reads this local asset at runtime; keep it in the route bundle.
     outputFileTracingIncludes: {
+      '/api/admin/social-content/accelerated-review-assets/*': ['./private-review-assets/accelerated-campaign/carousel-faster-output/*.png'],
       '/api/proposals': ['./public/amadutown-logo-upscaled.png'],
       '/api/admin/source-protocol/overview': [
         './data/source-protocol/banned-books-source-import-sample.json',
