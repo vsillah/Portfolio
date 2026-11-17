@@ -1,4 +1,5 @@
 import type { ContentStatus, SocialContentItem, SocialContentPublish } from '@/lib/social-content'
+import { isAcceleratedVisualId } from '@/lib/accelerated-visual-ids'
 
 export type SocialContentLifecycleStep = 'context' | 'copy' | 'visuals' | 'draft' | 'submit' | 'status'
 export type SocialContentLifecycleState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
@@ -362,7 +363,7 @@ export function hasSocialContentContextEvidence(item: LifecycleItem) {
   return sourceRecorded && (calibrationRecorded || claimsRecorded || ragContext?.pass_to_human === true)
 }
 
-export function hasSocialContentVisualPrerequisites(item: LifecycleItem) {
+export function hasSocialContentVisualPrerequisites(item: LifecycleItem, acceleratedVisualEvidenceApproved = false) {
   const ragContext = asRecord(item.rag_context)
   const hasVisualAsset = Boolean(
     asString(item.image_url)
@@ -375,6 +376,9 @@ export function hasSocialContentVisualPrerequisites(item: LifecycleItem) {
     && targetPlatforms.every((platform) => platform.toLowerCase() === 'x')
   if (!hasVisualAsset && targetsX) {
     return targetsOnlyX && hasApprovedTextOnlyXEvidence(ragContext)
+  }
+  if (isAcceleratedVisualId(String(item.id ?? ''))) {
+    return acceleratedVisualEvidenceApproved
   }
   const productionAssets = asRecord(ragContext?.production_assets)
   const privacyReady = asString(asRecord(productionAssets?.video_redaction_manifest)?.status) === 'ready'
@@ -457,6 +461,7 @@ export function hasReceiptBackedLinkedInVisualApproval(item: LifecycleItem) {
 export function deriveSocialContentLifecycleProjection(input: {
   item: LifecycleItem
   rawStates?: Partial<Record<SocialContentLifecycleStep, SocialContentLifecycleState>>
+  acceleratedVisualEvidenceApproved?: boolean
 }): SocialContentLifecycleProjection {
   const { item } = input
   const ragContext = asRecord(item.rag_context)
@@ -466,7 +471,7 @@ export function deriveSocialContentLifecycleProjection(input: {
   const rawStates: Record<SocialContentLifecycleStep, SocialContentLifecycleState> = {
     context: hasSocialContentContextEvidence(item) ? 'approved' : 'pending',
     copy: isDurableCopyApprovedStatus(item.status) ? 'approved' : item.status === 'rejected' ? 'rejected' : 'pending',
-    visuals: hasSocialContentVisualPrerequisites(item) ? 'approved' : 'pending',
+    visuals: hasSocialContentVisualPrerequisites(item, input.acceleratedVisualEvidenceApproved) ? 'approved' : 'pending',
     draft: asRecord(ragContext?.linkedin_draft_handoff) || (item.publishes?.length ?? 0) > 0 || submissionOrPublishEvidence ? 'approved' : 'pending',
     submit: asString(asRecord(ragContext?.platform_submission_gate)?.status) === 'approved' || submissionOrPublishEvidence ? 'approved' : 'pending',
     status: actualPublishedEvidence ? 'approved' : 'pending',

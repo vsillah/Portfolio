@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { projectAcceleratedCampaignReview } from './social-accelerated-campaign-review'
 import { projectSocialCalendarPreparation } from './social-calendar-preparation'
+import { hasCurrentSocialReleaseApproval } from './social-release-evidence'
 
 export const ACCELERATED_CAMPAIGN_ID = 'b160eab6-1a5a-478d-954a-ca59a3a10e34'
 export const ACCELERATED_ACTIVATION_SCOPE = 'accelerated-2026-11-18-20-three-visual-zero-fee-v2'
@@ -50,6 +51,9 @@ export function isAcceleratedActivationCalendarId(id: string): boolean {
 export function sha256(value: string | Buffer) { return createHash('sha256').update(value).digest('hex') }
 function rec(value: unknown): Record<string, any> { return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, any> : {} }
 function iso(value: unknown) { const time = typeof value === 'string' ? Date.parse(value) : NaN; return Number.isFinite(time) ? new Date(time).toISOString() : '' }
+export function matchesApprovedAcceleratedInstant(value: unknown, approvedIso: string): boolean {
+  return iso(value) === approvedIso
+}
 function mediaUrls(item: Record<string, any>, count: number): string[] {
   if (!count) return []
   return count === 1 ? [item.image_url] : Array.isArray(item.carousel_slide_urls) ? item.carousel_slide_urls : []
@@ -68,6 +72,52 @@ export function configuredAmaduTownAccount(config: Record<string, any> | null, c
 export function verifiedZeroFeePath(config: Record<string, any> | null) {
   const settings = rec(config?.settings)
   return settings.campaign_zero_fee_verified === true && settings.campaign_zero_fee_cap_usd === 0
+}
+
+/** The scheduled raster receipt can satisfy Amina Visuals only for the three exact activation records. */
+export function hasApprovedAcceleratedVisualLifecycleEvidence(
+  item: Record<string, any>, config: Record<string, any> | null,
+  currentCopyHash = acceleratedCopyHash(item),
+) {
+  if (!isAcceleratedActivationId(String(item.id ?? ''))) return false
+  const expected = ACCELERATED_ACTIVATION_ITEMS[item.id as ActivationId]
+  const context = rec(item.rag_context), activation = rec(context.accelerated_campaign_activation)
+  const gate = rec(context.platform_submission_gate)
+  const { publishes: _projectionPublishes, ...persistedItem } = item
+  const media = approvedMediaBinding(expected.assetCount)
+  const exactMedia = hasExactAcceleratedRasterBinding(item, expected.assetCount)
+    && (expected.assetCount === 1
+      ? item.image_url === media.image_url && (!Array.isArray(item.carousel_slide_urls) || item.carousel_slide_urls.length === 0)
+      : !item.image_url && JSON.stringify(item.carousel_slide_urls) === JSON.stringify(media.carousel_slide_urls))
+  return item.status === 'scheduled'
+    && item.platform === expected.channel
+    && JSON.stringify(item.target_platforms) === JSON.stringify([expected.channel])
+    && matchesApprovedAcceleratedInstant(item.scheduled_for, expected.scheduledFor)
+    && context.campaign_id === ACCELERATED_CAMPAIGN_ID
+    && context.calendar_item_id === expected.calendarId
+    && activation.scope === ACCELERATED_ACTIVATION_SCOPE
+    && activation.campaign_id === ACCELERATED_CAMPAIGN_ID
+    && activation.calendar_item_id === expected.calendarId
+    && activation.channel === expected.channel
+    && matchesApprovedAcceleratedInstant(activation.scheduled_for, expected.scheduledFor)
+    && activation.copy_sha256 === expected.copyHash
+    && currentCopyHash === expected.copyHash
+    && activation.source_manifest_sha256 === MANIFEST_HASH
+    && activation.jit_packet_sha256 === JIT_HASH
+    && JSON.stringify(activation.asset_urls) === JSON.stringify(approvedRasterUrls(expected.assetCount))
+    && JSON.stringify(activation.asset_sha256) === JSON.stringify(approvedRasterHashes(expected.assetCount))
+    && exactMedia
+    && activation.fee_usd === 0 && activation.no_spend === true
+    && typeof activation.activated_by === 'string' && activation.activated_by.length > 0
+    && Number.isFinite(Date.parse(activation.activated_at))
+    && gate.status === 'approved'
+    && gate.submit_after_approval === false
+    && JSON.stringify(gate.platforms) === JSON.stringify([expected.channel])
+    // Postgres renders the stored timestamptz as +00:00; the approved
+    // fingerprint was made with the equivalent .000Z calendar value.
+    && hasCurrentSocialReleaseApproval({ ...persistedItem, scheduled_for: expected.scheduledFor })
+    && configuredAmaduTownAccount(config, expected.channel)
+    && verifiedZeroFeePath(config)
 }
 
 /** The frozen copy includes its CTA, hashtags, and exact channel binding. */

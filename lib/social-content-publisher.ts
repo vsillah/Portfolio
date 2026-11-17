@@ -12,7 +12,7 @@ import type { SocialPlatform } from '@/lib/social-content'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 import { buildPlatformOrchestrationPlan, isPlatformSubmissionGateApproved } from '@/lib/social-platform-orchestration'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
-import { ACCELERATED_ACTIVATION_ITEMS, ACCELERATED_ACTIVATION_SCOPE, ACCELERATED_EXCLUDED_X_ID, acceleratedCopyHash, approvedRasterHashes, approvedRasterUrls, configuredAmaduTownAccount, hasExactAcceleratedRasterBinding, isAcceleratedActivationId, verifiedZeroFeePath } from '@/lib/accelerated-campaign-activation'
+import { ACCELERATED_ACTIVATION_ITEMS, ACCELERATED_ACTIVATION_SCOPE, ACCELERATED_EXCLUDED_X_ID, acceleratedCopyHash, approvedRasterHashes, approvedRasterUrls, configuredAmaduTownAccount, hasApprovedAcceleratedVisualLifecycleEvidence, hasExactAcceleratedRasterBinding, isAcceleratedActivationId, matchesApprovedAcceleratedInstant, verifiedZeroFeePath } from '@/lib/accelerated-campaign-activation'
 import {
   deriveSocialContentLifecycleProjection,
   lifecyclePrerequisiteFailure,
@@ -77,7 +77,8 @@ export async function publishSocialContentItem(input: {
     const expected = ACCELERATED_ACTIVATION_ITEMS[id]
     if (!activation || activation.scope !== ACCELERATED_ACTIVATION_SCOPE
       || activation.copy_sha256 !== acceleratedCopyHash(item) || activation.copy_sha256 !== expected.copyHash
-      || activation.scheduled_for !== item.scheduled_for || item.scheduled_for !== expected.scheduledFor
+      || !matchesApprovedAcceleratedInstant(activation.scheduled_for, expected.scheduledFor)
+      || !matchesApprovedAcceleratedInstant(item.scheduled_for, expected.scheduledFor)
       || activation.calendar_item_id !== expected.calendarId || item.platform !== expected.channel
       || !hasExactAcceleratedRasterBinding(item, expected.assetCount)
       || JSON.stringify(activation.asset_urls) !== JSON.stringify(approvedRasterUrls(expected.assetCount))
@@ -85,6 +86,9 @@ export async function publishSocialContentItem(input: {
       || activation.no_spend !== true || activation.fee_usd !== 0
       || process.env.ACCELERATED_THREE_RECORD_ACTIVATION_ENABLED !== 'true') {
       return { status: 409, body: { error: 'Accelerated campaign release binding is missing or changed.' } }
+    }
+    if (Date.now() < Date.parse(expected.scheduledFor)) {
+      return { status: 409, body: { error: 'Accelerated campaign publication is not due yet.' } }
     }
   }
 
@@ -133,12 +137,27 @@ export async function publishSocialContentItem(input: {
     return { status: 409, body: { error: 'Select only unsubmitted pending targets. Published targets cannot be repeated.' } }
   }
 
+  // The three scheduled campaign rows carry a complete raster activation receipt
+  // instead of the legacy Amina section flags. Verify the live account before
+  // projecting that receipt as Visuals approval.
+  const acceleratedConfigs = isAcceleratedActivationId(id)
+    ? await asQuery(admin.from('social_content_config')).select('*')
+    : null
+  if (acceleratedConfigs?.error) {
+    return { status: 409, body: { error: 'Accelerated campaign account could not be verified.' } }
+  }
+  const acceleratedAccountConfig = acceleratedConfigs?.data?.find(
+    (row: Record<string, any>) => row.platform === ACCELERATED_ACTIVATION_ITEMS[id as keyof typeof ACCELERATED_ACTIVATION_ITEMS]?.channel,
+  ) ?? null
+  const acceleratedVisualEvidenceApproved = isAcceleratedActivationId(id)
+    && hasApprovedAcceleratedVisualLifecycleEvidence(item, acceleratedAccountConfig, acceleratedCopyHash(item))
   const lifecycleFailure = lifecyclePrerequisiteFailure(
     deriveSocialContentLifecycleProjection({
       item: {
         ...item,
         publishes,
       },
+      acceleratedVisualEvidenceApproved,
     }),
     'submit',
   )
@@ -171,7 +190,7 @@ export async function publishSocialContentItem(input: {
   }
 
   const publishPlatforms = asPlatformList(pendingPublishes.map((publish: PublishRecord) => publish.platform))
-  const { data: platformConfigs } = await asQuery(admin.from('social_content_config')).select('*')
+  const { data: platformConfigs } = acceleratedConfigs ?? await asQuery(admin.from('social_content_config')).select('*')
   if (isAcceleratedActivationId(id)) {
     const expected = ACCELERATED_ACTIVATION_ITEMS[id]
     const config = (platformConfigs ?? []).find((row: Record<string, any>) => row.platform === expected.channel)
@@ -215,7 +234,9 @@ export async function publishSocialContentItem(input: {
     }
   }
 
-  if (!hasCurrentSocialReleaseApproval(item)) {
+  if (isAcceleratedActivationId(id)
+    ? !acceleratedVisualEvidenceApproved
+    : !hasCurrentSocialReleaseApproval(item)) {
     return { status: 409, body: { error: 'Final platform approval does not match the current content version. Reload and approve the release.' } }
   }
   const releaseId = randomUUID()
@@ -309,7 +330,9 @@ export async function publishSocialContentItem(input: {
     && !updatedPublishes[0].published_at && !item.platform_post_id && !item.published_at
     && !item.video_url
     && Object.keys(confirmedSocialPlatforms(item.rag_context)).length === 0
-    && socialReleaseGate(item.rag_context).approved_fingerprint === socialReleaseFingerprint(item)
+    && (isAcceleratedActivationId(id)
+      ? acceleratedVisualEvidenceApproved
+      : socialReleaseGate(item.rag_context).approved_fingerprint === socialReleaseFingerprint(item))
   let deterministicFailure: { release_id: string; platform: 'linkedin'; publish_row_id: string; approved_fingerprint: string; error: string } | null = null
   if (failedLinkedIn && updatedPublishes) {
     const row = updatedPublishes[0]
