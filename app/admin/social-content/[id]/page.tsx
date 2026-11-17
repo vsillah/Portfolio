@@ -46,6 +46,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import PractitionerContentReview from '@/components/admin/PractitionerContentReview'
+import AcceleratedCampaignReview from '@/components/admin/AcceleratedCampaignReview'
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 import ChannelNativeVideoReview, { getChannelVideoPacket } from '@/components/admin/ChannelNativeVideoReview'
@@ -88,6 +89,7 @@ import {
   validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
 import { validatePractitionerContentQuality } from '@/lib/social-practitioner-content'
+import { isAcceleratedCampaignReviewItem, projectAcceleratedCampaignReview } from '@/lib/social-accelerated-campaign-review'
 import {
   getSocialContentDecisionReadiness,
   SOCIAL_CONTENT_DECISION_RECEIPT_KEYS,
@@ -3014,7 +3016,8 @@ function SocialContentDetailPage() {
   const statusCfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.draft
   const hasUnsavedCopyChanges = postText !== (item.post_text || '') || ctaText !== (item.cta_text || '') || ctaUrl !== (item.cta_url || '') || hashtags !== (item.hashtags?.join(', ') || '') || imagePrompt !== (item.image_prompt || '') || voiceoverText !== (item.voiceover_text || '')
   const canReturnCopyToReview = Boolean(item.copy_revision?.has_saved_revision || hasUnsavedCopyChanges)
-  const isEditable = (item.status === 'draft' || item.status === 'rejected') && !item.copy_revision?.release_locked
+  const isAcceleratedCampaignReview = isAcceleratedCampaignReviewItem(item)
+  const isEditable = (item.status === 'draft' || item.status === 'rejected') && !item.copy_revision?.release_locked && !isAcceleratedCampaignReview
   const enabledPlatformLabels = targetPlatforms
     .map(p => PLATFORMS.find(pl => pl.value === p)?.label || p)
     .join(', ')
@@ -3125,6 +3128,7 @@ function SocialContentDetailPage() {
     ? socialContentGateStep(persistedCurrentGate)
     : null
   const calendarPreparation = item.calendar_preparation ?? null
+  const acceleratedCampaignReview = projectAcceleratedCampaignReview({ ...item, has_unsaved_changes: hasUnsavedCopyChanges })
   const calendarPreparationReady = calendarPreparation?.state === 'ready'
   const copyFieldLabel = readOnlySocialVisualBacklogQaFixture ? 'Saved YouTube copy (withheld)' : channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'Video Script' : 'Post Text'
   const copyLengthGuidance = readOnlySocialVisualBacklogQaFixture
@@ -3233,12 +3237,13 @@ function SocialContentDetailPage() {
     cta_text: ctaText || null,
     voiceover_text: voiceoverText || null,
   })
-  const practitionerQualityBlocksReview = !channelExperimentReview && practitionerQualityGate.status === 'blocked'
+  const practitionerQualityBlocksReview = !channelExperimentReview && !isAcceleratedCampaignReview && practitionerQualityGate.status === 'blocked'
   const copyGateRejected = item.status === 'rejected'
     || agentPilotCalibrationStatus === 'revision_requested'
     || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
   const copyQualityBlocksReview = !channelExperimentReview && copyHasPromptLeakage && !copyGateRejected
   const canApproveCurrentDraft = !item.copy_revision?.release_locked
+    && !isAcceleratedCampaignReview
     && canApproveAgentPilot
     && !copyHasBlockingAcronymIssues
     && !copyQualityBlocksReview
@@ -3246,6 +3251,8 @@ function SocialContentDetailPage() {
     && !campaignJitBlocksApproval
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
+    : isAcceleratedCampaignReview
+      ? 'Campaign review is read-only while activation and external execution remain locked'
     : campaignJitBlocksApproval
       ? 'Refresh the expired JIT evidence and bind it to this copy version before approval'
     : copyQualityBlocksReview
@@ -4612,7 +4619,7 @@ function SocialContentDetailPage() {
 	            {copyRevisionFeedbackFields}
 	          </section>
 	        )}
-	        {activeApprovalStep === 'copy' && !mobileDecisionMode && (
+	        {activeApprovalStep === 'copy' && !mobileDecisionMode && !isAcceleratedCampaignReview && (
 	          <PractitionerContentReview item={item} finishedCopy={postText} />
 	        )}
 	        {isAgentSocialPilot && (
@@ -5734,7 +5741,7 @@ function SocialContentDetailPage() {
 	            )}
 
 	            {/* Visual Media section (single image or carousel) */}
-	            {activeApprovalStep === 'visuals' && (
+	            {activeApprovalStep === 'visuals' && !isAcceleratedCampaignReview && (
 	            <>
 	            <div id="social-visual-assets-gate" data-theme-surface="visual-assets" className="scroll-mt-64 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
               {item.copy_revision && !item.copy_revision.release_locked && (
@@ -6732,7 +6739,9 @@ function SocialContentDetailPage() {
 
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
-            {channelExperimentReview && !currentBoundMobileDecisionReview ? (
+            {acceleratedCampaignReview ? (
+              <AcceleratedCampaignReview review={acceleratedCampaignReview} postText={postText} ctaUrl={ctaUrl} />
+            ) : channelExperimentReview && !currentBoundMobileDecisionReview ? (
               <ChannelExperimentSocialReview item={item} />
             ) : campaignReviewPacket?.channel === 'youtube' || channelVideoPacket ? (
               <div

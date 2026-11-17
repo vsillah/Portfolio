@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-11-17T00:27:29.551Z",
+  "commit": "f8cddd3b18a39c6de5089df8b10a5ef682893f15",
+  "base_url": "http://localhost:4271",
+  "source": "read-only projection from exact persisted production Social Content and linked calendar rows",
+  "authorization": "localhost admin storage state; no credential value persisted in receipt",
+  "campaign_status": "draft",
+  "runs": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "video": "desktop-1440x900.mp4",
+      "productWrites": 0,
+      "routes": [
+        {
+          "label": "Nov 18 LinkedIn",
+          "url": "http://localhost:4271/admin/social-content/20d09867-24ce-4849-b03d-f877d7114d6a?step=copy&rev=f8cddd3b18",
+          "frames": 1,
+          "overviewScreenshot": "desktop-1440x900-20d09867-24ce-4849-b03d-f877d7114d6a-overview.png",
+          "assetScreenshot": "desktop-1440x900-20d09867-24ce-4849-b03d-f877d7114d6a-asset.png",
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        },
+        {
+          "label": "Nov 19 X",
+          "url": "http://localhost:4271/admin/social-content/d0046271-92ba-4c7f-a009-197b44562f48?step=copy&rev=f8cddd3b18",
+          "frames": 0,
+          "overviewScreenshot": "desktop-1440x900-d0046271-92ba-4c7f-a009-197b44562f48-overview.png",
+          "assetScreenshot": null,
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        },
+        {
+          "label": "Nov 20 LinkedIn",
+          "url": "http://localhost:4271/admin/social-content/9499ecbf-0349-472a-9b12-b6d987d1939d?step=copy&rev=f8cddd3b18",
+          "frames": 8,
+          "overviewScreenshot": "desktop-1440x900-9499ecbf-0349-472a-9b12-b6d987d1939d-overview.png",
+          "assetScreenshot": "desktop-1440x900-9499ecbf-0349-472a-9b12-b6d987d1939d-asset.png",
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        },
+        {
+          "label": "Nov 20 Instagram",
+          "url": "http://localhost:4271/admin/social-content/34471e82-2cb4-4e06-b3ec-d48f9739bb0f?step=copy&rev=f8cddd3b18",
+          "frames": 8,
+          "overviewScreenshot": "desktop-1440x900-34471e82-2cb4-4e06-b3ec-d48f9739bb0f-overview.png",
+          "assetScreenshot": "desktop-1440x900-34471e82-2cb4-4e06-b3ec-d48f9739bb0f-asset.png",
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "video": "mobile-390x844.mp4",
+      "productWrites": 0,
+      "routes": [
+        {
+          "label": "Nov 18 LinkedIn",
+          "url": "http://localhost:4271/admin/social-content/20d09867-24ce-4849-b03d-f877d7114d6a?step=copy&rev=f8cddd3b18",
+          "frames": 1,
+          "overviewScreenshot": "mobile-390x844-20d09867-24ce-4849-b03d-f877d7114d6a-overview.png",
+          "assetScreenshot": "mobile-390x844-20d09867-24ce-4849-b03d-f877d7114d6a-asset.png",
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        },
+        {
+          "label": "Nov 19 X",
+          "url": "http://localhost:4271/admin/social-content/d0046271-92ba-4c7f-a009-197b44562f48?step=copy&rev=f8cddd3b18",
+          "frames": 0,
+          "overviewScreenshot": "mobile-390x844-d0046271-92ba-4c7f-a009-197b44562f48-overview.png",
+          "assetScreenshot": null,
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        },
+        {
+          "label": "Nov 20 LinkedIn",
+          "url": "http://localhost:4271/admin/social-content/9499ecbf-0349-472a-9b12-b6d987d1939d?step=copy&rev=f8cddd3b18",
+          "frames": 8,
+          "overviewScreenshot": "mobile-390x844-9499ecbf-0349-472a-9b12-b6d987d1939d-overview.png",
+          "assetScreenshot": "mobile-390x844-9499ecbf-0349-472a-9b12-b6d987d1939d-asset.png",
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        },
+        {
+          "label": "Nov 20 Instagram",
+          "url": "http://localhost:4271/admin/social-content/34471e82-2cb4-4e06-b3ec-d48f9739bb0f?step=copy&rev=f8cddd3b18",
+          "frames": 8,
+          "overviewScreenshot": "mobile-390x844-34471e82-2cb4-4e06-b3ec-d48f9739bb0f-overview.png",
+          "assetScreenshot": "mobile-390x844-34471e82-2cb4-4e06-b3ec-d48f9739bb0f-asset.png",
+          "horizontalOverflow": false,
+          "enabledExternalActions": 0
+        }
+      ]
+    }
+  ]
+}
