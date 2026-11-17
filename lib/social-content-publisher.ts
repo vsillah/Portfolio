@@ -12,6 +12,7 @@ import type { SocialPlatform } from '@/lib/social-content'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 import { buildPlatformOrchestrationPlan, isPlatformSubmissionGateApproved } from '@/lib/social-platform-orchestration'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
+import { ACCELERATED_ACTIVATION_ITEMS, ACCELERATED_ACTIVATION_SCOPE, acceleratedCopyHash, configuredAmaduTownAccount, isAcceleratedActivationId, verifiedZeroFeePath } from '@/lib/accelerated-campaign-activation'
 import {
   deriveSocialContentLifecycleProjection,
   lifecyclePrerequisiteFailure,
@@ -66,6 +67,19 @@ export async function publishSocialContentItem(input: {
 
   if (fetchError || !item) {
     return { status: 404, body: { error: 'Content not found' } }
+  }
+
+  if (isAcceleratedActivationId(id)) {
+    const activation = item.rag_context?.accelerated_campaign_activation
+    const expected = ACCELERATED_ACTIVATION_ITEMS[id]
+    if (!activation || activation.scope !== ACCELERATED_ACTIVATION_SCOPE
+      || activation.copy_sha256 !== acceleratedCopyHash(item) || activation.copy_sha256 !== expected.copyHash
+      || activation.scheduled_for !== item.scheduled_for || item.scheduled_for !== expected.scheduledFor
+      || activation.calendar_item_id !== expected.calendarId || item.platform !== expected.channel
+      || activation.no_spend !== true || activation.fee_usd !== 0
+      || process.env.ACCELERATED_FOUR_RECORD_ACTIVATION_ENABLED !== 'true') {
+      return { status: 409, body: { error: 'Accelerated campaign release binding is missing or changed.' } }
+    }
   }
 
   if (input.expectedUpdatedAt !== undefined && input.expectedUpdatedAt !== item.updated_at) {
@@ -152,6 +166,13 @@ export async function publishSocialContentItem(input: {
 
   const publishPlatforms = asPlatformList(pendingPublishes.map((publish: PublishRecord) => publish.platform))
   const { data: platformConfigs } = await asQuery(admin.from('social_content_config')).select('*')
+  if (isAcceleratedActivationId(id)) {
+    const expected = ACCELERATED_ACTIVATION_ITEMS[id]
+    const config = (platformConfigs ?? []).find((row: Record<string, any>) => row.platform === expected.channel)
+    if (!configuredAmaduTownAccount(config, expected.channel) || !verifiedZeroFeePath(config)) {
+      return { status: 409, body: { error: 'Accelerated campaign account or $0 release path is no longer verified.' } }
+    }
+  }
 
   const platformSubmissionPlan = buildPlatformOrchestrationPlan({
     item: item as never,

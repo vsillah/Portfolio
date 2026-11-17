@@ -5409,7 +5409,7 @@ function SocialContentDetailPage() {
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
         {/* ================================================================ */}
 	        {(activeApprovalStep === 'copy' || activeApprovalStep === 'visuals') && (
-	        <div className={id === DARK_CASTLE_VISUAL_QA_ID || channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'grid grid-cols-1 gap-6' : 'grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]'}>
+	        <div className={id === DARK_CASTLE_VISUAL_QA_ID || channelVideoPacket || campaignReviewPacket?.channel === 'youtube' || acceleratedCampaignReview ? 'grid grid-cols-1 gap-6' : 'grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]'}>
 	          <div className="min-w-0 space-y-4">
 	            {/* Post text */}
 	            {activeApprovalStep === 'copy' && (
@@ -6740,7 +6740,7 @@ function SocialContentDetailPage() {
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
             {acceleratedCampaignReview ? (
-              <AcceleratedCampaignReview review={acceleratedCampaignReview} postText={postText} ctaUrl={ctaUrl} />
+              <AcceleratedCampaignReview review={acceleratedCampaignReview} contentId={item.id} postText={postText} ctaUrl={ctaUrl} />
             ) : channelExperimentReview && !currentBoundMobileDecisionReview ? (
               <ChannelExperimentSocialReview item={item} />
             ) : campaignReviewPacket?.channel === 'youtube' || channelVideoPacket ? (
