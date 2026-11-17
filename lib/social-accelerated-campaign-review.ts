@@ -23,6 +23,8 @@ export type AcceleratedCampaignReview = {
   kind: 'single_image' | 'text_only' | 'carousel'
   calendarItemId: string
   sourceManifestSha256: string
+  jitPacketSha256: string
+  contentVersion: string
   assetUrls: string[]
   checks: { label: string; passed: boolean }[]
   readyForHumanReview: boolean
@@ -38,6 +40,7 @@ export function projectAcceleratedCampaignReview(item: {
   status: string
   post_text: string
   cta_url?: string | null
+  updated_at?: string
   has_unsaved_changes?: boolean
   rag_context?: Record<string, unknown> | null
   calendar_preparation?: SocialCalendarPreparationProjection | null
@@ -81,6 +84,8 @@ export function projectAcceleratedCampaignReview(item: {
     kind: expected.kind,
     calendarItemId: expected.calendarId,
     sourceManifestSha256: manifest,
+    jitPacketSha256: text(metadata.jit_refresh_packet_sha256),
+    contentVersion: text(item.updated_at),
     assetUrls,
     checks: reviewChecks,
     readyForHumanReview: reviewChecks.every((check) => check.passed) && externalActionsLocked,

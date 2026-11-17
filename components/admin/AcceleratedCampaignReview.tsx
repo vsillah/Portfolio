@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { fetchWithSessionRecovery } from '@/lib/authenticated-fetch'
 import type { AcceleratedCampaignReview as Review } from '@/lib/social-accelerated-campaign-review'
 
-export default function AcceleratedCampaignReview({ review, postText }: { review: Review; postText: string }) {
+export default function AcceleratedCampaignReview({ review, postText, ctaUrl }: { review: Review; postText: string; ctaUrl: string }) {
   const [images, setImages] = useState<string[]>([])
   const [assetError, setAssetError] = useState(false)
   const assetsLoaded = review.kind === 'text_only' || images.length === review.assetUrls.length
@@ -39,6 +39,7 @@ export default function AcceleratedCampaignReview({ review, postText }: { review
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Accelerated · internal campaign review</p>
       <h2 className="mt-1 text-xl font-semibold">Approved copy and visual treatment</h2>
       <p className="mt-2 text-sm text-muted-foreground">Linked calendar item {review.calendarItemId}. This review keeps the campaign in Draft.</p>
+      <p className="mt-1 text-xs text-muted-foreground">Copy version: <span className="font-mono">{review.contentVersion || 'Unavailable'}</span></p>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {review.checks.map((check) => (
           <div key={check.label} className={`rounded-lg border px-3 py-2 text-sm ${check.passed ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-amber-500/40 bg-amber-500/10'}`}>
@@ -51,6 +52,7 @@ export default function AcceleratedCampaignReview({ review, postText }: { review
         <h3 className="text-sm font-semibold">Approved post copy</h3>
         <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{postText}</p>
       </div>
+      <p className="mt-3 text-sm">Approved CTA: <span className="break-all font-medium">{ctaUrl}</span></p>
       {review.kind === 'text_only' ? (
         <p className="mt-4 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm">Intentional text-only treatment. No visual asset is required.</p>
       ) : review.assetUrls.length && !assetError ? (
@@ -68,6 +70,7 @@ export default function AcceleratedCampaignReview({ review, postText }: { review
         </div>
       ) : <p className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">Approved visual binding is unavailable. Review remains blocked.</p>}
       <p className="mt-4 text-xs text-muted-foreground">Visual source manifest SHA-256: <span className="break-all font-mono">{review.sourceManifestSha256 || 'Missing'}</span></p>
+      <p className="mt-1 text-xs text-muted-foreground">JIT packet SHA-256: <span className="break-all font-mono">{review.jitPacketSha256 || 'Missing'}</span></p>
       <p className="mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">External actions remain locked: provider generation, upload, scheduling, publishing, posting, spending, and outreach require separate authorization.</p>
     </section>
   )

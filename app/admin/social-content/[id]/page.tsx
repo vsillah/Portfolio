@@ -3016,7 +3016,8 @@ function SocialContentDetailPage() {
   const statusCfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.draft
   const hasUnsavedCopyChanges = postText !== (item.post_text || '') || ctaText !== (item.cta_text || '') || ctaUrl !== (item.cta_url || '') || hashtags !== (item.hashtags?.join(', ') || '') || imagePrompt !== (item.image_prompt || '') || voiceoverText !== (item.voiceover_text || '')
   const canReturnCopyToReview = Boolean(item.copy_revision?.has_saved_revision || hasUnsavedCopyChanges)
-  const isEditable = (item.status === 'draft' || item.status === 'rejected') && !item.copy_revision?.release_locked
+  const isAcceleratedCampaignReview = isAcceleratedCampaignReviewItem(item)
+  const isEditable = (item.status === 'draft' || item.status === 'rejected') && !item.copy_revision?.release_locked && !isAcceleratedCampaignReview
   const enabledPlatformLabels = targetPlatforms
     .map(p => PLATFORMS.find(pl => pl.value === p)?.label || p)
     .join(', ')
@@ -3127,7 +3128,6 @@ function SocialContentDetailPage() {
     ? socialContentGateStep(persistedCurrentGate)
     : null
   const calendarPreparation = item.calendar_preparation ?? null
-  const isAcceleratedCampaignReview = isAcceleratedCampaignReviewItem(item)
   const acceleratedCampaignReview = projectAcceleratedCampaignReview({ ...item, has_unsaved_changes: hasUnsavedCopyChanges })
   const calendarPreparationReady = calendarPreparation?.state === 'ready'
   const copyFieldLabel = readOnlySocialVisualBacklogQaFixture ? 'Saved YouTube copy (withheld)' : channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'Video Script' : 'Post Text'
@@ -6740,7 +6740,7 @@ function SocialContentDetailPage() {
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
             {acceleratedCampaignReview ? (
-              <AcceleratedCampaignReview review={acceleratedCampaignReview} postText={postText} />
+              <AcceleratedCampaignReview review={acceleratedCampaignReview} postText={postText} ctaUrl={ctaUrl} />
             ) : channelExperimentReview && !currentBoundMobileDecisionReview ? (
               <ChannelExperimentSocialReview item={item} />
             ) : campaignReviewPacket?.channel === 'youtube' || channelVideoPacket ? (
