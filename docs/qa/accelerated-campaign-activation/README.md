@@ -25,10 +25,10 @@ The deployment flag is also checked at publish time. Turning it off halts this c
 
 ## Reproduce the local walkthrough
 
-With the existing gitignored localhost admin storage state and read-only production QA connection available:
+With a localhost server from this branch, a read-only production QA connection, and the existing `ADMIN_E2E_EMAIL` and `ADMIN_E2E_PASSWORD` environment variables available:
 
 ```bash
 QA_BASE_URL=http://localhost:4272 ./node_modules/.bin/tsx scripts/qa/record-accelerated-campaign-activation.mjs
 ```
 
-The recorder expects a localhost server from this branch, intercepts the exact four Social Content GET responses and activation GETs with current read-only evidence, rejects non-GET actions, and writes desktop and mobile MP4s plus a receipt. It must observe zero product writes and disabled schedule controls.
+The recorder signs in through a separate, unrecorded browser context. It intercepts the exact four Social Content GET responses and activation GETs with current read-only evidence, rejects non-GET actions, and writes desktop and mobile MP4s plus a receipt. It must observe zero product writes and disabled schedule controls. Credentials are never included in the recording or receipt.
