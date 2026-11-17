@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { isAcceleratedActivationId } from '@/lib/accelerated-campaign-activation'
+import { isAcceleratedCampaignRecordId } from '@/lib/accelerated-campaign-activation'
 import {
   createSupabaseSocialScheduleRecoveryRepository,
   resolveSocialScheduleRecovery,
@@ -33,7 +33,7 @@ export async function POST(
   if (!isAction(body.action)) {
     return NextResponse.json({ error: 'Valid recovery action is required.' }, { status: 400 })
   }
-  if (isAcceleratedActivationId(params.id) && body.action !== 'cancel_scheduled_publication') {
+  if (isAcceleratedCampaignRecordId(params.id) && body.action !== 'cancel_scheduled_publication') {
     return NextResponse.json({ error: 'The approved campaign time cannot be changed through schedule recovery.' }, { status: 409 })
   }
   if (typeof body.work_item_id !== 'string' || !body.work_item_id.trim()) {

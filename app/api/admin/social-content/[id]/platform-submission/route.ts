@@ -14,7 +14,7 @@ import {
 } from '@/lib/social-content-lifecycle'
 
 import { hasIntactSocialReleaseReceipts, socialReleaseFingerprint } from '@/lib/social-release-evidence'
-import { isAcceleratedActivationId } from '@/lib/accelerated-campaign-activation'
+import { isAcceleratedCampaignRecordId } from '@/lib/accelerated-campaign-activation'
 import { confirmedSocialPlatforms, hasAmbiguousSocialPublishRows, socialReleaseGate, isSocialReleaseLocked, nextSocialReleaseVersion } from '@/lib/social-release-safety'
 
 export const dynamic = 'force-dynamic'
@@ -75,7 +75,7 @@ export async function POST(
     if (isAuthError(authResult)) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
     }
-    if (isAcceleratedActivationId(params.id)) return NextResponse.json({ error: 'Use the exact Accelerated campaign activation gate.' }, { status: 409 })
+    if (isAcceleratedCampaignRecordId(params.id)) return NextResponse.json({ error: 'Use the exact Accelerated campaign activation gate.' }, { status: 409 })
 
     const admin = supabaseAdmin
     if (!admin) {

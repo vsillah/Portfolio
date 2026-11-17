@@ -27,13 +27,12 @@ const base: Review = {
 }
 
 describe('AcceleratedCampaignReview', () => {
-  it('shows intentional text-only review with a disabled, explained schedule control', async () => {
+  it('keeps the excluded X review read-only without a schedule control', () => {
     render(<AcceleratedCampaignReview review={base} contentId="d0046271-92ba-4c7f-a009-197b44562f48" postText="Approved X copy" ctaUrl="https://amadutown.com/accelerated" />)
     expect(screen.getByText(/Intentional text-only treatment/)).toBeVisible()
     expect(screen.queryByText(/Approved visual binding is unavailable/)).toBeNull()
-    expect(screen.getByText(/External actions remain locked/)).toBeVisible()
-    expect(await screen.findByText(/A verified \$0, no-spend execution path is unavailable/)).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Schedule approved record' })).toBeDisabled()
+    expect(screen.getByText(/The X record stays Draft/)).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Schedule approved record' })).toBeNull()
   })
 
   it('shows all eight approved raster frames in order', async () => {

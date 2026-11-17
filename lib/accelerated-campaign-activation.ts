@@ -5,7 +5,10 @@ import { projectAcceleratedCampaignReview } from './social-accelerated-campaign-
 import { projectSocialCalendarPreparation } from './social-calendar-preparation'
 
 export const ACCELERATED_CAMPAIGN_ID = 'b160eab6-1a5a-478d-954a-ca59a3a10e34'
-export const ACCELERATED_ACTIVATION_SCOPE = 'accelerated-2026-11-18-20-four-record-zero-fee-v1'
+export const ACCELERATED_ACTIVATION_SCOPE = 'accelerated-2026-11-18-20-three-visual-zero-fee-v2'
+export const ACCELERATED_EXCLUDED_X_ID = 'd0046271-92ba-4c7f-a009-197b44562f48'
+export const ACCELERATED_EXCLUDED_X_CALENDAR_ID = 'af8ed285-69f4-4036-8201-1aa66827bb48'
+export const ACCELERATED_PUBLIC_ASSET_ROOT = 'https://amadutown.com/campaigns/accelerated/2026-11/'
 const CTA = 'https://amadutown.com/accelerated'
 const MANIFEST_HASH = '6cc68cc04befaeee4e946db98c3610d3152e5cec56dc63fa6f1b00047ba34297'
 const JIT_HASH = '039488c2ef7fa22f6872617f70060893c49d03ee0936170379a44a2e1f9a18b8'
@@ -20,18 +23,29 @@ const ASSET_HASHES = [
   '124e035d3f96fcde39d09f27d88c6270fcec4c1fa7d7da302d4f432d14fb9ddb',
   '5bd2270ab2460b67d69b6de0f905c5715039a5a4981e007d19585cd9ba920b1f',
 ]
+export function approvedRasterHashes(count: number): string[] { return ASSET_HASHES.slice(0, count) }
 
 export const ACCELERATED_ACTIVATION_ITEMS = {
   '20d09867-24ce-4849-b03d-f877d7114d6a': { calendarId: '796d6523-d600-45cf-96bb-541058af5817', channel: 'linkedin', scheduledFor: '2026-11-18T15:00:00.000Z', copyHash: '78083f810ce16498613f3e1efe0a56f794b7d1638f4b1eda9635bafd6f11106f', assetCount: 1 },
-  'd0046271-92ba-4c7f-a009-197b44562f48': { calendarId: 'af8ed285-69f4-4036-8201-1aa66827bb48', channel: 'x', scheduledFor: '2026-11-19T17:00:00.000Z', copyHash: '054c8f2faa63d14c3c11978fe4f43f996284c897d429b10e1152ef53c387dc77', assetCount: 0 },
   '9499ecbf-0349-472a-9b12-b6d987d1939d': { calendarId: '07fa29e5-40dc-4b86-9871-a49be6349613', channel: 'linkedin', scheduledFor: '2026-11-20T15:00:00.000Z', copyHash: '1a7dfd942aa1f99530066d7a685c374df20ba5f837357c359644aedb474b0629', assetCount: 8 },
   '34471e82-2cb4-4e06-b3ec-d48f9739bb0f': { calendarId: 'fc23411f-f756-4ed8-8e5b-40ff26cf144e', channel: 'instagram', scheduledFor: '2026-11-20T23:00:00.000Z', copyHash: '6d2e12e180a040287d6b6712e7bc7e9f27ce99f971a68e96c413c1a8df17cb9a', assetCount: 8 },
 } as const
 
 export type ActivationId = keyof typeof ACCELERATED_ACTIVATION_ITEMS
+export function isAcceleratedCampaignRecordId(id: string): boolean { return id === ACCELERATED_EXCLUDED_X_ID || isAcceleratedActivationId(id) }
+export function approvedRasterUrls(count: number): string[] { return Array.from({ length: count }, (_, index) => `${ACCELERATED_PUBLIC_ASSET_ROOT}slide-${String(index + 1).padStart(2, '0')}.png`) }
+export function approvedMediaBinding(count: number) {
+  const urls = approvedRasterUrls(count)
+  return count === 1 ? { image_url: urls[0], carousel_slide_urls: null } : { image_url: null, carousel_slide_urls: urls }
+}
+export function hasExactAcceleratedRasterBinding(item: Record<string, any>, count: number): boolean {
+  const expected = approvedRasterUrls(count)
+  const actual = mediaUrls(item, count)
+  return actual.length === expected.length && actual.every((url, index) => url === expected[index])
+}
 export function isAcceleratedActivationId(id: string): id is ActivationId { return Object.prototype.hasOwnProperty.call(ACCELERATED_ACTIVATION_ITEMS, id) }
 export function isAcceleratedActivationCalendarId(id: string): boolean {
-  return Object.values(ACCELERATED_ACTIVATION_ITEMS).some(item => item.calendarId === id)
+  return id === ACCELERATED_EXCLUDED_X_CALENDAR_ID || Object.values(ACCELERATED_ACTIVATION_ITEMS).some(item => item.calendarId === id)
 }
 export function sha256(value: string | Buffer) { return createHash('sha256').update(value).digest('hex') }
 function rec(value: unknown): Record<string, any> { return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, any> : {} }
@@ -76,7 +90,7 @@ export async function evaluateAcceleratedActivation(input: {
   readAsset?: (url: string) => Promise<Buffer>
 }) {
   const blockers: string[] = []
-  if (!isAcceleratedActivationId(input.id)) return { ready: false, blockers: ['Record is outside the approved four-record campaign scope.'], copyHash: null, scheduledFor: null }
+  if (!isAcceleratedActivationId(input.id)) return { ready: false, blockers: ['Record is outside the approved three-record activation scope.'], copyHash: null, scheduledFor: null }
   const expected = ACCELERATED_ACTIVATION_ITEMS[input.id]
   const item = input.item ?? {}, calendar = input.calendar ?? {}, metadata = rec(calendar.metadata), context = rec(item.rag_context)
   const copyHash = acceleratedCopyHash(item)
@@ -103,18 +117,23 @@ export async function evaluateAcceleratedActivation(input: {
   const config = input.config ?? {}
   if (!configuredAmaduTownAccount(config, expected.channel)) blockers.push('Configured AmaduTown account or channel integration is unavailable.')
   if (!verifiedZeroFeePath(config)) blockers.push('A verified $0, no-spend execution path is unavailable.')
-  const urls = mediaUrls(item, expected.assetCount)
-  if (urls.length !== expected.assetCount || urls.some(url => typeof url !== 'string' || !/^https:\/\//.test(url))) blockers.push('Approved raster assets are not attached as platform-usable HTTPS URLs.')
+  const urls = approvedRasterUrls(expected.assetCount)
+  const existingUrls = mediaUrls(item, expected.assetCount)
+  if (existingUrls.some(Boolean) && !hasExactAcceleratedRasterBinding(item, expected.assetCount)) blockers.push('An existing raster URL differs from the approved public route.')
   try {
     const localHashes = await verifiedRasterHashes(expected.assetCount)
     if (localHashes.some((hash, index) => hash !== ASSET_HASHES[index])) blockers.push('Approved local raster asset hash changed.')
-    if (urls.length === expected.assetCount && input.readAsset) {
+    const publicHashes: string[] = []
+    for (let index = 0; index < expected.assetCount; index++) {
+      const file = path.join(process.cwd(), 'public/campaigns/accelerated/2026-11', `slide-${String(index + 1).padStart(2, '0')}.png`)
+      publicHashes.push(sha256(await readFile(file)))
+    }
+    if (publicHashes.some((hash, index) => hash !== ASSET_HASHES[index])) blockers.push('Public raster asset hash differs from the approved asset.')
+    if (input.readAsset) {
       for (let index = 0; index < urls.length; index++) {
-        const url = new URL(urls[index])
-        if (!['amadutown.com', 'www.amadutown.com'].includes(url.hostname)) { blockers.push('Raster URL is outside the approved AmaduTown host.'); break }
         if (sha256(await input.readAsset(urls[index])) !== ASSET_HASHES[index]) { blockers.push('Platform raster byte hash differs from the approved asset.'); break }
       }
-    } else if (expected.assetCount && !input.readAsset) blockers.push('Platform raster bytes could not be verified.')
+    } else if (expected.assetCount) blockers.push('Public HTTPS raster bytes could not be verified.')
   } catch { blockers.push('Approved raster bytes could not be verified.') }
-  return { ready: blockers.length === 0, blockers, copyHash, scheduledFor: expected.scheduledFor, channel: expected.channel, calendarId: expected.calendarId, assetHashes: ASSET_HASHES.slice(0, expected.assetCount) }
+  return { ready: blockers.length === 0, blockers, copyHash, scheduledFor: expected.scheduledFor, channel: expected.channel, calendarId: expected.calendarId, assetHashes: approvedRasterHashes(expected.assetCount), assetUrls: urls }
 }

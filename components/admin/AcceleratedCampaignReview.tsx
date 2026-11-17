@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { fetchWithSessionRecovery } from '@/lib/authenticated-fetch'
 import type { AcceleratedCampaignReview as Review } from '@/lib/social-accelerated-campaign-review'
+const ACCELERATED_EXCLUDED_X_ID = 'd0046271-92ba-4c7f-a009-197b44562f48'
 
 type Activation = { ready: boolean; blockers: string[]; scope: string; campaignId: string; copyHash: string | null; calendarId: string; channel: string; scheduledFor: string }
 
@@ -17,6 +18,7 @@ export default function AcceleratedCampaignReview({ review, contentId, postText,
 
   useEffect(() => {
     let cancelled = false
+    if (contentId === ACCELERATED_EXCLUDED_X_ID) return () => { cancelled = true }
     void fetchWithSessionRecovery(`/api/admin/social-content/${contentId}/accelerated-activation`, { cache: 'no-store' })
       .then(async response => {
         if (!response?.ok) throw new Error('Current activation evidence is unavailable.')
@@ -107,8 +109,10 @@ export default function AcceleratedCampaignReview({ review, contentId, postText,
       ) : <p className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">Approved visual binding is unavailable. Review remains blocked.</p>}
       <p className="mt-4 text-xs text-muted-foreground">Visual source manifest SHA-256: <span className="break-all font-mono">{review.sourceManifestSha256 || 'Missing'}</span></p>
       <p className="mt-1 text-xs text-muted-foreground">JIT packet SHA-256: <span className="break-all font-mono">{review.jitPacketSha256 || 'Missing'}</span></p>
-      <p className="mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">External actions remain locked in the general workflow. Only the exact campaign schedule below can unlock after its separate checks pass; provider generation, uploads, spending, and outreach stay blocked.</p>
-      <section aria-label="Accelerated campaign activation" className="mt-4 rounded-lg border border-border bg-background p-4">
+      {contentId !== ACCELERATED_EXCLUDED_X_ID && <p className="mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">External actions remain locked in the general workflow. Only the exact campaign schedule below can unlock after its separate checks pass; provider generation, uploads, spending, and outreach stay blocked.</p>}
+      {contentId === ACCELERATED_EXCLUDED_X_ID ? (
+        <p className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">The X record stays Draft. Scheduling and publishing are excluded from this campaign activation.</p>
+      ) : <section aria-label="Accelerated campaign activation" className="mt-4 rounded-lg border border-border bg-background p-4">
         <h3 className="text-base font-semibold">Exact campaign schedule</h3>
         <p className="mt-1 text-sm text-muted-foreground">Only this approved record, its linked calendar time, fixed copy, approved raster treatment, and configured AmaduTown channel can pass this control.</p>
         <p className="mt-2 text-sm">{activation?.scheduledFor ? `Calendar time: ${new Date(activation.scheduledFor).toLocaleString()}` : 'Checking current calendar and account evidence…'}</p>
@@ -118,7 +122,7 @@ export default function AcceleratedCampaignReview({ review, contentId, postText,
           className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-300 sm:w-auto">
           {scheduling ? 'Confirming schedule…' : 'Schedule approved record'}
         </button>
-      </section>
+      </section>}
     </section>
   )
 }

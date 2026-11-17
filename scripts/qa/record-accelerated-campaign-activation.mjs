@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { config } from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
@@ -8,7 +8,7 @@ import calendarPreparationModule from '../../lib/social-calendar-preparation.ts'
 import activationModule from '../../lib/accelerated-campaign-activation.ts'
 
 const { projectSocialCalendarPreparation } = calendarPreparationModule
-const { evaluateAcceleratedActivation, ACCELERATED_ACTIVATION_SCOPE, ACCELERATED_CAMPAIGN_ID } = activationModule
+const { evaluateAcceleratedActivation, ACCELERATED_ACTIVATION_SCOPE, ACCELERATED_CAMPAIGN_ID, ACCELERATED_EXCLUDED_X_ID, approvedRasterUrls } = activationModule
 
 config({ path: '.env.local', quiet: true })
 
@@ -50,8 +50,17 @@ async function loadRows() {
       calendar_preparation: projectSocialCalendarPreparation(calendar, record.id),
       publishes: [],
     })
-    const activation = await evaluateAcceleratedActivation({ id: record.id, item, calendar, publishes: publishes ?? [], config })
-    activations.set(record.id, { ...activation, ready: false, blockers: [...activation.blockers, 'Campaign activation is disabled in this deployment.'], scope: ACCELERATED_ACTIVATION_SCOPE, campaignId: ACCELERATED_CAMPAIGN_ID })
+    if (record.id !== ACCELERATED_EXCLUDED_X_ID) {
+      const approvedUrls = approvedRasterUrls(record.frames)
+      const activation = await evaluateAcceleratedActivation({ id: record.id, item, calendar, publishes: publishes ?? [], config,
+        readAsset: async url => {
+          const index = approvedUrls.indexOf(url)
+          if (index < 0) throw new Error('Unexpected public asset URL')
+          return readFileSync(join(process.cwd(), 'public/campaigns/accelerated/2026-11', `slide-${String(index + 1).padStart(2, '0')}.png`))
+        },
+      })
+      activations.set(record.id, { ...activation, ready: false, blockers: [...activation.blockers, 'Campaign activation is disabled in this deployment.'], scope: ACCELERATED_ACTIVATION_SCOPE, campaignId: ACCELERATED_CAMPAIGN_ID })
+    }
   }
   return { rows, activations }
 }
@@ -108,7 +117,7 @@ async function capture(browser, storageState, rows, activations, label, viewport
     const url = `${baseUrl}/admin/social-content/${record.id}?step=copy&rev=${commit.slice(0, 10)}`
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     const panel = page.getByRole('region', { name: 'Accelerated campaign review' })
-    await panel.waitFor({ state: 'visible', timeout: 20_000 }).catch(async () => {
+    await panel.waitFor({ state: 'visible', timeout: 60_000 }).catch(async () => {
       await page.screenshot({ path: join(rawDir, 'debug-panel-unavailable.png') })
       throw new Error(`Campaign panel unavailable at ${page.url()}`)
     })
@@ -124,7 +133,8 @@ async function capture(browser, storageState, rows, activations, label, viewport
     if (record.kind === 'text_only' && !(await panel.getByText(/Intentional text-only treatment/).isVisible())) {
       throw new Error('Intentional text-only treatment is missing.')
     }
-    if (!(await panel.getByText(/External actions remain locked/).isVisible())) throw new Error(`External lock missing: ${record.label}`)
+    if (record.id !== ACCELERATED_EXCLUDED_X_ID && !(await panel.getByText(/External actions remain locked/).isVisible())) throw new Error(`External lock missing: ${record.label}`)
+    if (record.id === ACCELERATED_EXCLUDED_X_ID && !(await panel.getByText(/The X record stays Draft/).isVisible())) throw new Error('Excluded X lock missing.')
     if (await panel.getByText(/Approved visual binding is unavailable/).count()) throw new Error(`Approved visual unavailable: ${record.label}`)
     if (!(await panel.getByText(/Approved CTA:.*https:\/\/amadutown\.com\/accelerated/).isVisible())) throw new Error(`Approved CTA missing: ${record.label}`)
     if (!(await panel.getByText(/JIT packet SHA-256:/).isVisible())) throw new Error(`JIT receipt missing: ${record.label}`)
@@ -152,13 +162,18 @@ async function capture(browser, storageState, rows, activations, label, viewport
       }
     }
     const activationPanel = page.getByRole('region', { name: 'Accelerated campaign activation' })
-    await activationPanel.scrollIntoViewIfNeeded()
-    await activationPanel.getByText(/A verified \$0, no-spend execution path is unavailable/).waitFor()
-    if (await activationPanel.getByRole('button', { name: 'Schedule approved record' }).isEnabled()) throw new Error(`Schedule unexpectedly enabled: ${record.label}`)
+    if (record.id === ACCELERATED_EXCLUDED_X_ID) {
+      if (await activationPanel.count()) throw new Error('Excluded X activation panel appeared.')
+      await panel.getByText(/The X record stays Draft/).scrollIntoViewIfNeeded()
+    } else {
+      await activationPanel.scrollIntoViewIfNeeded()
+      await activationPanel.getByText(/A verified \$0, no-spend execution path is unavailable/).waitFor()
+      if (await activationPanel.getByRole('button', { name: 'Schedule approved record' }).isEnabled()) throw new Error(`Schedule unexpectedly enabled: ${record.label}`)
+    }
     await page.waitForTimeout(650)
     const activationScreenshot = join(outputDir, `${label}-${record.id}-activation.png`)
     await page.screenshot({ path: activationScreenshot })
-    results.push({ label: record.label, url, frames: record.frames, overviewScreenshot: overviewScreenshot.split('/').at(-1), assetScreenshot: assetScreenshot?.split('/').at(-1) ?? null, activationScreenshot: activationScreenshot.split('/').at(-1), horizontalOverflow: false, enabledExternalActions: 0, activationBlockers: activations.get(record.id).blockers })
+    results.push({ label: record.label, url, frames: record.frames, overviewScreenshot: overviewScreenshot.split('/').at(-1), assetScreenshot: assetScreenshot?.split('/').at(-1) ?? null, activationScreenshot: activationScreenshot.split('/').at(-1), horizontalOverflow: false, enabledExternalActions: 0, activationBlockers: activations.get(record.id)?.blockers ?? ['X is excluded from activation and publishing.'] })
   }
 
   if (productWrites.length) throw new Error(`Product write requests observed: ${productWrites.join(', ')}`)
@@ -187,7 +202,7 @@ async function main() {
     }
     writeFileSync(join(outputDir, 'receipt.json'), JSON.stringify({
       generated_at: new Date().toISOString(), commit, base_url: baseUrl,
-      source: 'read-only projection from exact persisted production Social Content, linked calendar, publish receipts, and channel configuration',
+      source: 'read-only projection from exact persisted production Social Content, linked calendar, publish receipts, and channel configuration; public asset bytes verified from local approved copies, not hosted deployment',
       authorization: 'localhost admin storage state; no credential value persisted in receipt',
       campaign_status: 'draft',
       runs,

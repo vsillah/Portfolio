@@ -72,7 +72,7 @@ import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-r
 import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
 import { isAcceleratedCampaignReviewItem } from '@/lib/social-accelerated-campaign-review'
-import { isAcceleratedActivationId } from '@/lib/accelerated-campaign-activation'
+import { isAcceleratedCampaignRecordId } from '@/lib/accelerated-campaign-activation'
 import { SOCIAL_LIFECYCLE_RECONCILIATION_QA_FIXTURE, SOCIAL_LIFECYCLE_RECONCILIATION_QA_ID, socialLifecycleReconciliationQaFixture } from '@/lib/social-lifecycle-reconciliation-qa-fixture'
 
 export const dynamic = 'force-dynamic'
@@ -603,7 +603,7 @@ export async function PUT(
         }, { status: 409 })
       }
 
-      if (isAcceleratedActivationId(id) || isAcceleratedCampaignReviewItem(currentItem)) {
+      if (isAcceleratedCampaignRecordId(id) || isAcceleratedCampaignReviewItem(currentItem)) {
         return NextResponse.json({
           error: 'Accelerated campaign drafts are review-only here. Changes and external actions require their separate campaign gates.',
           blocked: true,

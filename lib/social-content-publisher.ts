@@ -12,7 +12,7 @@ import type { SocialPlatform } from '@/lib/social-content'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 import { buildPlatformOrchestrationPlan, isPlatformSubmissionGateApproved } from '@/lib/social-platform-orchestration'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
-import { ACCELERATED_ACTIVATION_ITEMS, ACCELERATED_ACTIVATION_SCOPE, acceleratedCopyHash, configuredAmaduTownAccount, isAcceleratedActivationId, verifiedZeroFeePath } from '@/lib/accelerated-campaign-activation'
+import { ACCELERATED_ACTIVATION_ITEMS, ACCELERATED_ACTIVATION_SCOPE, ACCELERATED_EXCLUDED_X_ID, acceleratedCopyHash, approvedRasterHashes, approvedRasterUrls, configuredAmaduTownAccount, hasExactAcceleratedRasterBinding, isAcceleratedActivationId, verifiedZeroFeePath } from '@/lib/accelerated-campaign-activation'
 import {
   deriveSocialContentLifecycleProjection,
   lifecyclePrerequisiteFailure,
@@ -68,6 +68,9 @@ export async function publishSocialContentItem(input: {
   if (fetchError || !item) {
     return { status: 404, body: { error: 'Content not found' } }
   }
+  if (id === ACCELERATED_EXCLUDED_X_ID) {
+    return { status: 409, body: { error: 'The Accelerated X record is excluded from activation and publishing.' } }
+  }
 
   if (isAcceleratedActivationId(id)) {
     const activation = item.rag_context?.accelerated_campaign_activation
@@ -76,8 +79,11 @@ export async function publishSocialContentItem(input: {
       || activation.copy_sha256 !== acceleratedCopyHash(item) || activation.copy_sha256 !== expected.copyHash
       || activation.scheduled_for !== item.scheduled_for || item.scheduled_for !== expected.scheduledFor
       || activation.calendar_item_id !== expected.calendarId || item.platform !== expected.channel
+      || !hasExactAcceleratedRasterBinding(item, expected.assetCount)
+      || JSON.stringify(activation.asset_urls) !== JSON.stringify(approvedRasterUrls(expected.assetCount))
+      || JSON.stringify(activation.asset_sha256) !== JSON.stringify(approvedRasterHashes(expected.assetCount))
       || activation.no_spend !== true || activation.fee_usd !== 0
-      || process.env.ACCELERATED_FOUR_RECORD_ACTIVATION_ENABLED !== 'true') {
+      || process.env.ACCELERATED_THREE_RECORD_ACTIVATION_ENABLED !== 'true') {
       return { status: 409, body: { error: 'Accelerated campaign release binding is missing or changed.' } }
     }
   }
