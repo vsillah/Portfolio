@@ -16,6 +16,15 @@ beforeEach(() => { vi.clearAllMocks(); vi.stubGlobal('fetch', vi.fn(() => { thro
 afterEach(() => vi.unstubAllGlobals())
 const run = (store: ReturnType<typeof releaseStore>) => publishSocialContentItem({ admin: store.admin, id: 'social-1' })
 describe('atomic release safety', () => {
+  it('blocks the excluded Accelerated X record before any write or provider call', async () => {
+    const store = releaseStore()
+    store.item().id = 'd0046271-92ba-4c7f-a009-197b44562f48'
+    const result = await publishSocialContentItem({ admin: store.admin, id: store.item().id })
+    expect(result.status).toBe(409)
+    expect(store.writes).toHaveLength(0)
+    expect(mocks.publish).not.toHaveBeenCalled()
+  })
+
   it('rejects a stale displayed version even when the current content has a valid final approval', async () => {
     const store = releaseStore()
     expect(hasCurrentSocialReleaseApproval(store.item())).toBe(true)

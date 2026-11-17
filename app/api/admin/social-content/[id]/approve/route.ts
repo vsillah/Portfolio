@@ -4,6 +4,7 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { approveSocialContentItem, SocialContentApprovalError } from '@/lib/social-content-approval'
 import { isPractitionerContentQaFixtureId } from '@/lib/social-practitioner-content-qa-fixture'
 import { isTopicSourceCoverageQaFixtureId } from '@/lib/social-topic-source-coverage-qa-fixture'
+import { isAcceleratedCampaignRecordId } from '@/lib/accelerated-campaign-activation'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +28,7 @@ export async function POST(
     if (isAuthError(authResult)) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
     }
+    if (isAcceleratedCampaignRecordId(params.id)) return NextResponse.json({ error: 'Use the exact Accelerated campaign activation gate.' }, { status: 409 })
 
     const admin = supabaseAdmin
     if (!admin) {

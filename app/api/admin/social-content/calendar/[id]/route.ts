@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { isAcceleratedActivationCalendarId } from '@/lib/accelerated-campaign-activation'
 import {
   CALENDAR_SIDE_EFFECTS,
   defaultAuthorizationDueAt,
@@ -37,6 +38,9 @@ export async function PATCH(
     const auth = await verifyAdmin(request)
     if (isAuthError(auth)) {
       return NextResponse.json({ error: auth.error }, { status: auth.status })
+    }
+    if (isAcceleratedActivationCalendarId(params.id)) {
+      return NextResponse.json({ error: 'The approved Accelerated campaign calendar binding is immutable in this route.' }, { status: 409 })
     }
 
     const body = await request.json().catch(() => ({})) as Record<string, unknown>
