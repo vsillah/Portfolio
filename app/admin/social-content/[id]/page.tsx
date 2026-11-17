@@ -90,6 +90,7 @@ import {
 } from '@/lib/social-content-lifecycle'
 import { validatePractitionerContentQuality } from '@/lib/social-practitioner-content'
 import { isAcceleratedCampaignReviewItem, projectAcceleratedCampaignReview } from '@/lib/social-accelerated-campaign-review'
+import { isAcceleratedVisualId } from '@/lib/accelerated-visual-ids'
 import {
   getSocialContentDecisionReadiness,
   SOCIAL_CONTENT_DECISION_RECEIPT_KEYS,
@@ -810,6 +811,7 @@ function SocialContentDetailPage() {
   recoveryStepParams.set('step', recoveryStep)
   const recoveryStepHref = `/admin/social-content/${id}?${recoveryStepParams.toString()}`
   const [item, setItem] = useState<SocialContentItem | null>(null)
+  const [acceleratedVisualLifecycle, setAcceleratedVisualLifecycle] = useState<{ content_id: string; content_updated_at: string; approved: boolean } | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -1096,6 +1098,7 @@ function SocialContentDetailPage() {
         ? await fetch(detailUrl, { cache: 'no-store' })
         : await fetchWithSessionRecovery(detailUrl, { cache: 'no-store' })
       if (!res) {
+        setAcceleratedVisualLifecycle(null)
         setLoadError('Admin session is unavailable for this social content detail.')
         if (!options.silent) setItem(null)
         return
@@ -1103,6 +1106,7 @@ function SocialContentDetailPage() {
       const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {
+        setAcceleratedVisualLifecycle(null)
         setLoadError(asString((data as { error?: unknown }).error) || `Social content detail failed to load with status ${res.status}.`)
         if (!options.silent) setItem(null)
         return
@@ -1110,12 +1114,17 @@ function SocialContentDetailPage() {
 
       const itemRecord = asRecord((data as { item?: unknown }).item)
       if (!itemRecord || !asString(itemRecord.id)) {
+        setAcceleratedVisualLifecycle(null)
         setLoadError('Social content detail response did not include a usable item.')
         if (!options.silent) setItem(null)
         return
       }
 
       const i = itemRecord as unknown as SocialContentItem
+      const visualLifecycle = asRecord((data as { accelerated_visual_lifecycle?: unknown }).accelerated_visual_lifecycle)
+      setAcceleratedVisualLifecycle(visualLifecycle?.content_id === i.id && visualLifecycle?.content_updated_at === i.updated_at
+        ? { content_id: i.id, content_updated_at: i.updated_at, approved: visualLifecycle.approved === true }
+        : null)
       setLoadError(null)
       setItem(i)
       setDeterministicVisualRenderOverride(null)
@@ -1162,6 +1171,7 @@ function SocialContentDetailPage() {
       }
       return i
     } catch (err) {
+      setAcceleratedVisualLifecycle(null)
       console.error('Failed to fetch item:', err)
       setLoadError(err instanceof Error ? err.message : 'Social content detail failed to load.')
       if (!options.silent) setItem(null)
@@ -3715,12 +3725,19 @@ function SocialContentDetailPage() {
       : platformNextStages.some((stage) => stage.state === 'available')
         ? 'in_review'
         : 'pending'
-  const canonicalVisualPrerequisitesReady = hasSocialContentVisualPrerequisites(item)
+  const acceleratedVisualEvidenceApproved = isAcceleratedVisualId(item.id)
+    && acceleratedVisualLifecycle?.content_id === item.id
+    && acceleratedVisualLifecycle.content_updated_at === item.updated_at
+    && acceleratedVisualLifecycle.approved === true
+    && !hasUnsavedCopyChanges
+  const canonicalVisualPrerequisitesReady = hasSocialContentVisualPrerequisites(item, acceleratedVisualEvidenceApproved)
   const currentDeterministicVisualApproved = isSingleImageFormat
     && (hasDeterministicVisualContract || hasApprovedReviewContract)
     && deterministicVisualRender?.state === 'current'
     && visualAssetsGateState === 'approved'
-  const visualWorkflowGateState: GateState = currentDeterministicVisualApproved
+  const visualWorkflowGateState: GateState = isAcceleratedVisualId(item.id)
+    ? acceleratedVisualEvidenceApproved ? 'approved' : 'pending'
+    : currentDeterministicVisualApproved
     ? 'approved'
     : canonicalVisualPrerequisitesReady
     ? 'approved'
@@ -3743,6 +3760,7 @@ function SocialContentDetailPage() {
   const statusGateRawState: GateState = actualPublishedEvidence ? 'approved' : 'pending'
   const lifecycleProjection = deriveSocialContentLifecycleProjection({
     item,
+    acceleratedVisualEvidenceApproved,
     rawStates: {
       context: contextRecorded ? 'approved' : supportingContextGateState,
       copy: copyGateRawState,
@@ -3870,7 +3888,9 @@ function SocialContentDetailPage() {
     {
       step: 'visuals',
       label: 'Amina Visuals',
-      description: currentDeterministicVisualApproved
+      description: acceleratedVisualEvidenceApproved
+        ? 'Approved campaign visuals'
+        : currentDeterministicVisualApproved
         ? 'Current visual approved'
         : persistedCurrentGate === 'asset_packet'
           ? 'Asset packet current gate'
@@ -3964,6 +3984,8 @@ function SocialContentDetailPage() {
     },
     visuals: {
       title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
+        : acceleratedVisualEvidenceApproved
+        ? 'Campaign visuals approved'
         : persistedCurrentGate === 'asset_packet'
         ? 'Asset packet review'
         : currentDeterministicVisualApproved
@@ -3975,7 +3997,9 @@ function SocialContentDetailPage() {
           : agentifiedVisualQaPacket
             ? 'Amina visual strategy ready for human review'
             : 'Amina visual strategy in progress',
-      body: lifecycleBlockedDetail('visuals') ?? (persistedCurrentGate === 'asset_packet' && approvedChannelVideoPacket
+      body: lifecycleBlockedDetail('visuals') ?? (acceleratedVisualEvidenceApproved
+        ? 'The scheduled campaign raster binding, copy, account, release approval, and zero-fee path match the approved evidence for this record.'
+        : persistedCurrentGate === 'asset_packet' && approvedChannelVideoPacket
         ? `The approved, version-bound channel video packet is ready for asset-packet review${calendarPreparationReady ? ', and the linked calendar preparation is ready' : ''}. Provider generation, upload, platform-draft, scheduling, publishing, and external-send authority remain disabled.`
         : currentDeterministicVisualApproved
         ? `The current version-bound provider-none asset is approved under receipt ${asString(deterministicProviderReceipt?.receipt_id) || 'recorded'}. Media packaging and privacy remain separate downstream gates.`
