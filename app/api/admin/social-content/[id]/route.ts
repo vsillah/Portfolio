@@ -72,7 +72,7 @@ import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-r
 import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
 import { isAcceleratedCampaignReviewItem } from '@/lib/social-accelerated-campaign-review'
-import { isAcceleratedCampaignRecordId } from '@/lib/accelerated-campaign-activation'
+import { hasApprovedAcceleratedVisualLifecycleEvidence, isAcceleratedActivationId, isAcceleratedCampaignRecordId } from '@/lib/accelerated-campaign-activation'
 import { SOCIAL_LIFECYCLE_RECONCILIATION_QA_FIXTURE, SOCIAL_LIFECYCLE_RECONCILIATION_QA_ID, socialLifecycleReconciliationQaFixture } from '@/lib/social-lifecycle-reconciliation-qa-fixture'
 
 export const dynamic = 'force-dynamic'
@@ -352,6 +352,22 @@ export async function GET(
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
 
+    // Keep account configuration and release evidence on the server. The detail page
+    // receives only a version-bound result for the three approved activation IDs.
+    let acceleratedVisualLifecycle = null
+    if (isAcceleratedActivationId(id)) {
+      const { data: config, error: configError } = await supabaseAdmin
+        .from('social_content_config')
+        .select('*')
+        .eq('platform', data.platform)
+        .maybeSingle()
+      acceleratedVisualLifecycle = {
+        content_id: id,
+        content_updated_at: data.updated_at,
+        approved: !configError && hasApprovedAcceleratedVisualLifecycleEvidence(data, config),
+      }
+    }
+
     if (persistedChannelExperimentReviewForItem(data)) {
       return NextResponse.json({
         item: data,
@@ -432,6 +448,7 @@ export async function GET(
     })
 
     return NextResponse.json({
+      accelerated_visual_lifecycle: acceleratedVisualLifecycle,
       item: {
         ...withDeterministicVisualProjection(data),
         video_playback_url: mediaPlayback?.playback_url || null,

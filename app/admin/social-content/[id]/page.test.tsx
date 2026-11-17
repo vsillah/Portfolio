@@ -12,6 +12,8 @@ import { darkCastleVisualQaFixture } from '@/lib/social-dark-castle-visual-qa-fi
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 import { YOUTUBE_DESCRIPTION_COMPLETION_QA_ID, channelExperimentSocialContentQaFixture, youtubeDescriptionCompletionQaFixture } from '@/lib/social-channel-experiment-qa-fixture'
+import { ACCELERATED_VISUAL_IDS } from '@/lib/accelerated-visual-ids'
+import { ACCELERATED_ACTIVATION_ITEMS, approvedMediaBinding } from '@/lib/accelerated-campaign-activation'
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -196,6 +198,55 @@ describe('SocialContentDetailRoute visual production review', () => {
     mocks.search = `step=${step}`
     return render(<SocialContentDetailRoute />)
   }
+
+  it.each(ACCELERATED_VISUAL_IDS)('shows approved visual, draft, and submit gates for the exact scheduled record %s', async id => {
+    mocks.id = id
+    const expected = ACCELERATED_ACTIVATION_ITEMS[id]
+    const platform = expected.channel
+    const item = { ...baseItem, id, platform, target_platforms: [platform], status: 'scheduled',
+      scheduled_for: expected.scheduledFor, ...approvedMediaBinding(expected.assetCount),
+      rag_context: { source_packet_path: 'docs/accelerated/reviewed-source-packet.md', calendar_item_id: expected.calendarId, platform, pass_to_human: true,
+        platform_submission_gate: { status: 'approved', platforms: [platform] } },
+      publishes: [{ id: 'pending-publish', content_id: id, platform, status: 'pending' }] }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({ ok: true,
+      json: async () => String(input) === `/api/admin/social-content/${id}`
+        ? { item, accelerated_visual_lifecycle: { content_id: id, content_updated_at: item.updated_at, approved: true } }
+        : { items: [], configs: [], references: [] },
+    } as Response)))
+
+    renderAtStep('status')
+    const rail = await screen.findByLabelText('Social content approval process')
+    await waitFor(() => {
+      for (const step of [3, 4, 5]) {
+        expect(within(within(rail).getByRole('button', { name: new RegExp(`Approval step ${step}:`) })).getByText('Approved')).toBeInTheDocument()
+      }
+    })
+    expect(within(within(rail).getByRole('button', { name: 'Approval step 3: Amina Visuals' })).getByText('Approved campaign visuals')).toBeInTheDocument()
+    expect(screen.queryByText('Amina visual strategy not started')).not.toBeInTheDocument()
+    expect(within(within(rail).getByRole('button', { name: 'Approval step 6: Status' })).queryByText('Approved')).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ['missing evidence', ACCELERATED_VISUAL_IDS[0], false, '2026-06-12T10:05:00.000Z'],
+    ['stale row version', ACCELERATED_VISUAL_IDS[0], true, 'older-version'],
+    ['excluded X', 'd0046271-92ba-4c7f-a009-197b44562f48', true, '2026-06-12T10:05:00.000Z'],
+    ['unrelated record', 'unrelated-campaign-record', true, '2026-06-12T10:05:00.000Z'],
+  ])('keeps %s outside the approved visual lifecycle', async (_case, id, approved, contentUpdatedAt) => {
+    mocks.id = id
+    const item = { ...baseItem, id, status: 'scheduled', scheduled_for: '2026-11-20T15:00:00.000Z',
+      rag_context: { source: 'accelerated_campaign', pass_to_human: true },
+      publishes: [{ id: 'pending-publish', content_id: id, platform: 'linkedin', status: 'pending' }] }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({ ok: true,
+      json: async () => String(input) === `/api/admin/social-content/${id}`
+        ? { item, accelerated_visual_lifecycle: { content_id: id, content_updated_at: contentUpdatedAt, approved } }
+        : { items: [], configs: [], references: [] },
+    } as Response)))
+
+    renderAtStep('status')
+    const rail = await screen.findByLabelText('Social content approval process')
+    expect(within(within(rail).getByRole('button', { name: 'Approval step 3: Amina Visuals' })).queryByText('Approved')).not.toBeInTheDocument()
+    expect(within(within(rail).getByRole('button', { name: 'Approval step 5: Submit' })).queryByText('Approved')).not.toBeInTheDocument()
+  })
 
   it('uses verified receipt lineage instead of legacy production-asset blockers on the draft route', async () => {
     const item = receiptBackedDraftItem()
