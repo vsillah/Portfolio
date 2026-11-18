@@ -1,0 +1,386 @@
+{
+  "version": "accelerated_campaign_visual_review_content_fit_v2",
+  "prepared": "2026-11-18",
+  "campaign_id": "b160eab6-1a5a-478d-954a-ca59a3a10e34",
+  "visual_source_manifest_sha256": "6cc68cc04befaeee4e946db98c3610d3152e5cec56dc63fa6f1b00047ba34297",
+  "original_generator_sha256": "11293afa1c27c945e527e79c96268a1c6545bf697f937b00eeca6ab2710752fd",
+  "original_render_receipt_sha256": "1f2ac83fc5fd53e86249b92db3006c9f5a8c5ee576f38afc9e373abb1a8f5b8a",
+  "source_bindings": [
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/render-receipt.json",
+      "sha256": "1f2ac83fc5fd53e86249b92db3006c9f5a8c5ee576f38afc9e373abb1a8f5b8a"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/drive/canonical-sam-framework.png",
+      "sha256": "eb3d4fab5320d9d1233989ab8587c6856792793ecff538db69f3e648acb4a42d"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/live/decision-file-empty.png",
+      "sha256": "0a05a03c8af3d4e87423f237b0d0aa9bb6f8b5135fbee0b696546c8bfc878877"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/live/learning-plan-public.png",
+      "sha256": "40f7499a9d28aa5153b62fee0960869a2a28f956a2d2795aaabf7a32d933de89"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/repo/public/accelerated/posters/l01-poster.webp",
+      "sha256": "bd83a117c1c80c7579b9b25b7da5f63c95e462a5a0808d58b1a66acb7e27d72d"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/repo/public/accelerated/posters/l12-poster-desktop-53dd8b6f8e15.webp",
+      "sha256": "53dd8b6f8e15f1b95e1fbe1a4a2a54a84abac332a38c108109d564321bca2a3d"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/repo/public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/repo/public/showcases/service-prototypes/accelerated-sam-infographic.png",
+      "sha256": "13ef37fb39a228c79253538174cd9b3d77f6c7e630e9929dfa99e6cfa97f45c6"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/repo/public/showcases/service-prototypes/v2/sam-alignment-plate.webp",
+      "sha256": "82b9fd4429387182e4fab545ecd11a3cd7174794fd9c9b0f9fbda6606b4c72a0"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/repo/public/showcases/service-prototypes/v2/sam-momentum-plate.webp",
+      "sha256": "8b32de9f499e3fdefadcb847ac1032dac27405f74fde844af9c53ae1b4a5d2d3"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/repo/public/showcases/service-prototypes/v2/sam-signals-plate.webp",
+      "sha256": "8554d40fb4e5471c61c7c3e530da80bfa07c7a77ab34afb79eecfb9945985e6c"
+    }
+  ],
+  "side_effects": {
+    "provider_calls": false,
+    "spend": false,
+    "upload": false,
+    "schedule": false,
+    "publish": false,
+    "post": false,
+    "outreach_send": false
+  },
+  "public_captures": [
+    "https://amadutown.com/accelerated/learningplan",
+    "https://amadutown.com/accelerated/decision-file"
+  ],
+  "public_captures_reused_without_network": true,
+  "outputs": [
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-01.png",
+      "sha256": "91f1c052ba1bb18c2aba55d0f84495f468ab4f124284b7b14e4dbeb24eedc7b1"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-02.png",
+      "sha256": "6f0df40d674a859763ef1952102af2ffa9625a9b632b2190669ba23c2c308a67"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-03.png",
+      "sha256": "9c8d77be1246fd52d9ebbba55ad1f67da844523f0f9bd8f23e5920e4b847355c"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-04.png",
+      "sha256": "c81d2993c16df8632751a3676a27df41bf73a8b017a7934567ad9a8ba943c8de"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-05.png",
+      "sha256": "3e85266353410eedf5b78e6d24af6502385d785777295c648e6d6f963586dc0a"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-06.png",
+      "sha256": "e9b6bdce3548366087380faa5c98d49576c8660497a252b521b641de69ee565f"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-07.png",
+      "sha256": "f0e84aa2bd0c0d49ddac96811398247e94beff04f1b7be54d7a818f7787da8d0"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-faster-output/slide-08.png",
+      "sha256": "f860a17cb429a9c024252d41f6fc13b77ac3bf59c939e4a904dbee9e85efe358"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-01.png",
+      "sha256": "4c3a251d6a2ebfff1c54fc0d8fb3cea63d899501f3da196651f3acdba52bdb45"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-02.png",
+      "sha256": "7b860c383990b57ac1ce13ebb7439bdd3addcf0b978332d9da9d7c4988e1353e"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-03.png",
+      "sha256": "54a4170068a102dc4ba396d94ee1ae7547f2e036359f0f3ed1034667cf478756"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-04.png",
+      "sha256": "0bf7e5f28a1a7e2a85f0945a0f6416327e5750ae32f4cc0232aae962795a856a"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-05.png",
+      "sha256": "1327ee92b53055ea9c941db4c017ce3a6fa180cbf648c3e0a2d3fac8568a0473"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-06.png",
+      "sha256": "d30bab1b1cc30772d9565a1a24060735d8a477589e166e49442b176933843cb8"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-07.png",
+      "sha256": "9b24f0a66bb6f2a16e0763dc5af51fb1cbe358e08d4a6377c338697ef6121f26"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-decision-file/slide-08.png",
+      "sha256": "09e29b0437185e0717b5eacf281d6afdeb53c3332daae99ac254ea85d2675f16"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-01.png",
+      "sha256": "8f1df5c4effc63c7bb08faa745e7587edb55e3a980ea9bfeb3021f5f4bd3b3f1"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-02.png",
+      "sha256": "16b16c95371a140c06b27c2343df62bc0071fcd6665d0174562ba66e3bae2be2"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-03.png",
+      "sha256": "66a50eaf88a163883f748ac3e3b81d305ffbaefa1c514fafc07b35992583973f"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-04.png",
+      "sha256": "7744bda54401d697cdb7c789124beac3996b2b3dddd07927b3f2778373a84159"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-05.png",
+      "sha256": "aba088b7f70d9795df0ce55a21c140eb6a80662a06931072961ab5b2c9a7db5e"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-06.png",
+      "sha256": "7ce23b17ea69e424dd4fd0ba426684c5b0165a7ac67326fc26711537e24a8efc"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-07.png",
+      "sha256": "1a1db7c07c59c2d88aa39964891206c515572dd24fca44d22e0f1a96f1b32f4e"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/carousel-four-questions/slide-08.png",
+      "sha256": "5fbf341bd02098b6be428fce0b7f10aa36b4d4b2bfc69e6e8eb2ccbc9b3a8878"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-start-with-one-decision/frame-01.png",
+      "sha256": "e3695411e793e1bf93ef13887cb81650925a9201ff757dcbe6294a2bf89472f5"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-start-with-one-decision/frame-02.png",
+      "sha256": "4f59b343febcea28b6a6378221a4261203f43bd6b20ebcf0e52422ce6cae7049"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-start-with-one-decision/frame-03.png",
+      "sha256": "a4c5b118847f12bea035b565a482ce9d83a68df804575bff50af7cbbfd72838e"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-start-with-one-decision/frame-04.png",
+      "sha256": "bc2f0d0ffe5fdc62a4d8ec58c7d856c5559babc9ace1c49b23502b42c073e159"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-start-with-one-decision/frame-05.png",
+      "sha256": "43e953c253694e66431b6c7851835ccb8c91193d9a47a09ac0c402e5618ad10d"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-people-own-the-choice/frame-01.png",
+      "sha256": "aacdf23e1bfd9f0f1f9c12a18a5897e5ba7299f1fc26458e0e4fd9ec63fc0a13"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-people-own-the-choice/frame-02.png",
+      "sha256": "9269666e89b7fff951b402cf3fc1430a16e0f8c3fad88d64157eec557f9fb391"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-people-own-the-choice/frame-03.png",
+      "sha256": "7111ff86bfe4f92b279327bf8fe749ad7a26754e105f70fd7be53aad3169c53f"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-people-own-the-choice/frame-04.png",
+      "sha256": "570ef8f986a1ad5a8afe399096747526757c663d38da7c76c833156dcc113308"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-animatic/frame-01.png",
+      "sha256": "d21bb33964591290efa67ecc621b7adde4446ba905eb980969d02d325cbd0cf2"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-animatic/frame-02.png",
+      "sha256": "933dec801c8654217d98df08d47743ec6a335bb3be839765b4735ce7fc7ec3b3"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-animatic/frame-03.png",
+      "sha256": "f75dcbcba7d2d48aa617b1d2b4faf72edc66023f596ece2d7c09a6badd44f11a"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-animatic/frame-04.png",
+      "sha256": "2bc04c79975daa6412796064d481935d0f632fc8acc2a8925538f4f01452d168"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-animatic/frame-05.png",
+      "sha256": "58ecdbeb1700f1bccff6e9290592caa3a351d2b284b0bf5bd346e3ae9ef50272"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-animatic/frame-06.png",
+      "sha256": "0a10d7442d9cbc5440c38c98a32823466131ef111dc56b567991ab3e59fc0595"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-animatic/frame-07.png",
+      "sha256": "ed3b35a9ec3a111e559299d6a3fab7f2ae53fe83627e9f566e469b980e8e35c1"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/contact-carousel-faster-output.jpg",
+      "sha256": "825c4ecbdf626308e13af72d17a33bb0e81b05e0e3b22d6a7986ef1458641f54"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/contact-carousel-decision-file.jpg",
+      "sha256": "3bfa17c1a8e522abc28c81c6a8dffd809ffe5c193d410364160741d13a225268"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/contact-carousel-four-questions.jpg",
+      "sha256": "924b49ef37d11cb27f0589411b2b3d9f9ae7191874a56771872288b3bc1e4177"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/contact-short-start-with-one-decision.jpg",
+      "sha256": "5a8fe0e6974bcaaa7a4c8f5858bd8c5055055a58b3fc0ec25fa595477cf0bfca"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/contact-short-people-own-the-choice.jpg",
+      "sha256": "3e08d828454a4cfa8fcaa1a035b3b231850d539d40a54702116e3add4f6541aa"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/contact-youtube-proof.jpg",
+      "sha256": "aeb78ff5eb46b0a6cb6422e592373279f28afa9bbf727b5d3c4797d505abdc88"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-01.png",
+      "sha256": "8d94e9fa8bb2575a5f758db91f4fe37fc9cbfa800e9e4a6bbb858db19ba0e847"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-02.png",
+      "sha256": "989aa7527c7b4bb414c9b654a6ece59080725221f93e759dbce3431d42eb2db7"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-03.png",
+      "sha256": "3c3d5043128405abb09b7f12360c1212d62aba59b2a96e4a77fcf21a52390085"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-04.png",
+      "sha256": "b1820d7a372f08ae9140d2418621fd606a79ebd659e9301ae5e45af155cc2e03"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-05.png",
+      "sha256": "148770ed78809e2241cb011b7f81d6bf968432d9f43a20f9de88d394e0179c95"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-06.png",
+      "sha256": "4798008a73013313aebd9be401967a8650e92413ff5ee103df47e637b359ec5d"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-07.png",
+      "sha256": "23b5512ddac7e7b4fee8cf9bc65b510b0754bfee20552d18f748f311f1fafc53"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/faster-output-08.png",
+      "sha256": "dc41351d3925627c7a8b1f465a7b3b03a50cbc5e5412fc123cafc78a373acff6"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-01.png",
+      "sha256": "90fbf0e3f45e287e45d2ce488e3487ed9628e3e7c816a9c19629063fe9fd77d9"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-02.png",
+      "sha256": "ef3b7f84a9bd12eeaed49aae0ed2a9f20485861a37faf5673978678d833731ad"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-03.png",
+      "sha256": "c009770899383d8dd0e3a5117b037d766a64195a6e8db8b3c7af98db8e70e681"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-04.png",
+      "sha256": "22f3097f60ba2c44c43880fcf17118ab2032835f2a4da1fb7bb13137d2f999f2"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-05.png",
+      "sha256": "28124f7f5780902a6b5d9104868ce4ff66226afced93ea9a2736699afdf5d5bd"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-06.png",
+      "sha256": "fcd01b0393beb2d931eb7f363652dc3ef32cf8eb4d153eff2fdf23a93d90e361"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-07.png",
+      "sha256": "366c9232ae76e14e749a06eda6c305a55b9ec81b1547f48aded062da9dea84bd"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/decision-file-08.png",
+      "sha256": "dd274e5baef5f85c3d51081918a675c787b549685feebfb8aa6bdf95a7b9ff58"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-01.png",
+      "sha256": "34e1431b28f87611ce3974c2e8559745209f3898f8053043e9f00b872dbc45a6"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-02.png",
+      "sha256": "6327d71fcc61a1466c65c2d2e78cb8ac77f791394b2f0ba783dce216adb08a2e"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-03.png",
+      "sha256": "1fd97391a51cd984512dea8cc65d7f2246f2d813492fd832758de31129019a8f"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-04.png",
+      "sha256": "ebb40697b3366a618ddfa2118968f3e58600489596af9333e641ea3bc8373082"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-05.png",
+      "sha256": "45a8d5b306d0c34b79ffe76c9034f9b34af58aba32bd44002bfe4be1d8bbc9c4"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-06.png",
+      "sha256": "c053ef57979d1213587f7df526583fc392ac03a89fccaf8eb084d00007e09aea"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-07.png",
+      "sha256": "9250ffdcf07750687ec017121947ca95de2c9e9c29e77c6af6b7bcb72c36e6c6"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/mobile-390x844/four-questions-08.png",
+      "sha256": "be1ea1c083ecd98c3bef85e3cf92d66ae7838c10084c82f41049034db034b186"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/comparison-square-plate.png",
+      "sha256": "76eaa2deb03b95496ecf968dc0fe9e706ecee6f64ffc1060cc1f4797a29a64e1"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/comparison-vertical-plate.png",
+      "sha256": "18c6ba6b0fa78cc3c19bd8405e551faa619ececb5536e7d16f4951a62cb7bae2"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/comparison-wide-plate.png",
+      "sha256": "85cd0c62a9b2cc2a977961de903c3a878f3b7aa1abc6690411966c5ae292fb07"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/review-mobile-390x844.png",
+      "sha256": "0181f4204d635b88690222a79309755f34104bc04d3e5b8d1d28e766e46c58ee"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-thumbnail-one-decision.png",
+      "sha256": "2a01fea5485db1cd191cb332d6261af619f544c1caf038f12b41fc213ab99df2"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-start-with-one-decision-visual.mp4",
+      "sha256": "a8d210b9f4da64ba8433d08f6eb51695b97baa0c7ed2b28f06c27bc0c3cea79d"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/short-people-own-the-choice-visual.mp4",
+      "sha256": "db26b9561ad53b90fd5ec141fd343a663fe9bfa6a071a1963cc8bf3584625eeb"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/youtube-proof-visual-animatic.mp4",
+      "sha256": "888a2a563b0b98dd4502d965fdba5fc210346091f471b10d18beb54b7dbb3546"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-assets-content-fit/accelerated-campaign-visual-review-walkthrough.mp4",
+      "sha256": "9d3579eade2be63eb5de7f5da274699ce3aca239aa3b77efa06aae713362765a"
+    }
+  ]
+}
