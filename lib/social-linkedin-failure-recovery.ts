@@ -1,4 +1,4 @@
-import { socialReleaseFingerprint } from '@/lib/social-release-evidence'
+import { hasMatchingSocialReleaseFingerprint } from '@/lib/social-release-evidence'
 import { socialReleaseGate } from '@/lib/social-release-safety'
 
 type Row = Record<string, unknown>
@@ -27,7 +27,7 @@ export function isRetryableLinkedInFailure(item: Row, rows: Row[]): boolean {
     && gate.reconciliation_required !== true
     && typeof gate.release_id === 'string' && gate.release_id === receipt.release_id
     && typeof gate.approved_fingerprint === 'string'
-    && gate.approved_fingerprint === socialReleaseFingerprint(item)
+    && hasMatchingSocialReleaseFingerprint(item)
     && receipt.approved_fingerprint === gate.approved_fingerprint
     && receipt.platform === 'linkedin'
     && receipt.publish_row_id === row?.id
@@ -81,7 +81,7 @@ export function historicalLinkedInFailureCandidate(item: Row, rows: Row[], workI
     || Date.parse(candidates[0].updated_at) < Date.parse(gate.claimed_at)
     || !gate.release_id || !Array.isArray(gate.release_platforms)
     || gate.release_platforms.length !== 1 || gate.release_platforms[0] !== 'linkedin'
-    || gate.approved_fingerprint !== socialReleaseFingerprint(item)
+    || !hasMatchingSocialReleaseFingerprint(item)
     || Object.keys(record(gate.confirmed_platforms)).length !== 0 || active.length !== 1 || candidates.length !== 1
     || typeof row.id !== 'string' || typeof row.updated_at !== 'string'
     || (row.status === 'failed' && row.error_message !== record(record(candidates[0].metadata).provider_failures).linkedin)) return null

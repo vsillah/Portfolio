@@ -11,7 +11,7 @@ import { LINKEDIN_VIDEO_BLOCKER } from '@/lib/social-video-review'
  */
 
 import { socialReleaseGate } from '@/lib/social-release-safety'
-import { socialReleaseFingerprint } from '@/lib/social-release-evidence'
+import { hasMatchingSocialReleaseFingerprint } from '@/lib/social-release-evidence'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform, PublishStatus } from '@/lib/social-content'
 
@@ -434,7 +434,7 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
   if (queue?.video_url) return { success: false, error: LINKEDIN_VIDEO_BLOCKER, noPostAttempted: true }
   const gate = socialReleaseGate(queue?.rag_context)
   if (queueError || !queue || gate.status !== 'submitting' || gate.release_id !== payload.releaseClaimId ||
-    gate.approved_fingerprint !== socialReleaseFingerprint(queue) ||
+    !hasMatchingSocialReleaseFingerprint(queue) ||
     !Array.isArray(gate.release_platforms) || !gate.release_platforms.includes('linkedin')) {
     return { success: false, error: 'Release claim does not match current approved content.' }
   }

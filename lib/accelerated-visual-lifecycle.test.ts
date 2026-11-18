@@ -5,7 +5,7 @@ import {
   hasApprovedAcceleratedVisualLifecycleEvidence,
 } from './accelerated-campaign-activation'
 import { hasSocialContentVisualPrerequisites, deriveSocialContentLifecycleProjection } from './social-content-lifecycle'
-import { socialReleaseFingerprint } from './social-release-evidence'
+import { hasCurrentSocialReleaseApproval, socialReleaseFingerprint } from './social-release-evidence'
 import { ACCELERATED_VISUAL_IDS } from './accelerated-visual-ids'
 
 const manifest = '6cc68cc04befaeee4e946db98c3610d3152e5cec56dc63fa6f1b00047ba34297'
@@ -53,6 +53,14 @@ describe('Accelerated raster lifecycle recognition', () => {
     expect(deriveSocialContentLifecycleProjection({ item: { ...item, publishes: [{ status: 'pending' }] }, acceleratedVisualEvidenceApproved: true }).steps.visuals.state).toBe('approved')
     expect(hasApprovedAcceleratedVisualLifecycleEvidence({ ...item, updated_at: 'trigger-owned-new-version', publishes: [{ status: 'pending' }] }, config, hash)).toBe(true)
     expect(hasApprovedAcceleratedVisualLifecycleEvidence({ ...item, scheduled_for: expectedIso(id) }, config, hash)).toBe(true)
+    const storedOffset: Record<string, any> = { ...item, scheduled_for: expectedIso(id) }
+    storedOffset.rag_context = { ...item.rag_context, platform_submission_gate: {
+      ...item.rag_context.platform_submission_gate,
+      approved_fingerprint: socialReleaseFingerprint(storedOffset),
+    } }
+    expect(hasCurrentSocialReleaseApproval(storedOffset)).toBe(true)
+    expect(hasApprovedAcceleratedVisualLifecycleEvidence(storedOffset, config, hash)).toBe(true)
+    expect(hasApprovedAcceleratedVisualLifecycleEvidence({ ...storedOffset, scheduled_for: ACCELERATED_ACTIVATION_ITEMS[id].scheduledFor }, config, hash)).toBe(true)
   })
 
   it.each(ids)('fails closed on URL, hash, account, fee, and fingerprint drift for %s', id => {
@@ -72,6 +80,7 @@ describe('Accelerated raster lifecycle recognition', () => {
     expect(hasSocialContentVisualPrerequisites(legacyFlags, check(legacyFlags))).toBe(false)
     expect(check(item, { ...config, is_active: false })).toBe(false)
     expect(check(item, { ...config, settings: { ...config.settings, campaign_zero_fee_verified: false } })).toBe(false)
+    expect(check({ ...item, scheduled_for: '2026-11-20T15:00:01+00:00' })).toBe(false)
   })
 
   it('leaves X and unrelated records on their existing lifecycle path', () => {

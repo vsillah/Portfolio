@@ -113,9 +113,7 @@ export function hasApprovedAcceleratedVisualLifecycleEvidence(
     && gate.status === 'approved'
     && gate.submit_after_approval === false
     && JSON.stringify(gate.platforms) === JSON.stringify([expected.channel])
-    // Postgres renders the stored timestamptz as +00:00; the approved
-    // fingerprint was made with the equivalent .000Z calendar value.
-    && hasCurrentSocialReleaseApproval({ ...persistedItem, scheduled_for: expected.scheduledFor })
+    && hasCurrentSocialReleaseApproval(persistedItem)
     && configuredAmaduTownAccount(config, expected.channel)
     && verifiedZeroFeePath(config)
 }

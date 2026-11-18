@@ -13,6 +13,7 @@ vi.mock('@/lib/supabase', () => ({
 import { publishToLinkedIn } from './linkedin'
 import { releaseStore, releaseFixture } from '@/lib/social-release-safety.test-fixtures'
 import { socialReleaseFingerprint } from '@/lib/social-release-evidence'
+import { ACCELERATED_ACTIVATION_ITEMS, approvedRasterUrls } from '@/lib/accelerated-campaign-activation'
 
 const futureToken = {
   access_token: 'linkedin-token',
@@ -67,6 +68,36 @@ describe('publishToLinkedIn', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
+  })
+
+  it('accepts the approved November 20 timestamp spelling at the adapter claim boundary', async () => {
+    const id = '9499ecbf-0349-472a-9b12-b6d987d1939d'
+    const urls = approvedRasterUrls(ACCELERATED_ACTIVATION_ITEMS[id].assetCount)
+    const { store } = installSupabase({ carouselSlideUrls: urls })
+    const item = store.item()
+    item.id = id
+    store.publish().content_id = id
+    item.status = 'scheduled'
+    item.scheduled_for = '2026-11-20T15:00:00+00:00'
+    item.rag_context.platform_submission_gate.approved_fingerprint = socialReleaseFingerprint({
+      ...item, scheduled_for: ACCELERATED_ACTIVATION_ITEMS[id].scheduledFor,
+    })
+    const fetchMock = vi.fn(async () => new Response(null, { status: 503 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const payload = { contentId: id, releaseClaimId: 'release-1', postText: item.post_text,
+      ctaText: item.cta_text, ctaUrl: item.cta_url, hashtags: item.hashtags,
+      carouselSlideUrls: urls }
+    const result = await publishToLinkedIn(payload)
+    expect(result.error).not.toBe('Release claim does not match current approved content.')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    item.post_text = 'Changed after approval'
+    fetchMock.mockClear()
+    expect(await publishToLinkedIn({ ...payload, postText: item.post_text })).toMatchObject({
+      success: false, error: 'Release claim does not match current approved content.',
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('downloads the exact approved Dark Castle image from the canonical HTTPS origin', async () => {
