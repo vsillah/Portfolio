@@ -43,8 +43,9 @@ for (const viewport of viewports) {
   const panel = page.getByRole('heading', { name: 'Comment response panel' })
   await panel.waitFor({ state: 'visible' })
   await panel.evaluate((element) => {
-    const top = element.getBoundingClientRect().top + window.scrollY - 72
-    window.scrollTo({ top: Math.max(0, top), behavior: 'instant' })
+    element.scrollIntoView({ block: 'start', behavior: 'instant' })
+    const scrollParent = element.closest('[data-admin-scroll-container]')
+    if (scrollParent instanceof HTMLElement) scrollParent.scrollTop = Math.max(0, scrollParent.scrollTop - 72)
   })
 
   const destination = page.getByLabel('Published destination for comment refresh')
