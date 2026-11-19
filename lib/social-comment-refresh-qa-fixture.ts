@@ -22,7 +22,7 @@ function publish(
   }
 }
 
-export function facebookCommentRefreshQaFixture(): SocialContentItem {
+export function facebookCommentRefreshQaFixture(): SocialContentItem & { is_test_data: boolean } {
   return {
     id: FACEBOOK_COMMENT_REFRESH_QA_ID,
     meeting_record_id: null,

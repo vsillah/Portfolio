@@ -154,8 +154,9 @@ export async function GET(
     if (process.env.NODE_ENV !== 'production'
       && params.id === FACEBOOK_COMMENT_REFRESH_QA_ID
       && request.nextUrl.searchParams.get('qa_fixture') === FACEBOOK_COMMENT_REFRESH_QA_FIXTURE) {
+      const fixtureItem = facebookCommentRefreshQaFixture()
       return NextResponse.json({
-        item: withDeterministicVisualProjection(facebookCommentRefreshQaFixture()),
+        item: withDeterministicVisualProjection({ ...fixtureItem }),
         fixture: true,
         integration_note: 'Synthetic read-only Facebook destination review. No provider request or database write is connected.',
       })
