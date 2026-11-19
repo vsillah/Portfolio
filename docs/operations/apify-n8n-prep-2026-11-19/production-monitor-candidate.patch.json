@@ -1,0 +1,10 @@
+{
+  "workflowId": "HqpDGIHxvJqXKHuT",
+  "name": "WF-MON-001: Apify Actor Health Monitor",
+  "expectedActiveVersionId": "c5bddd5b-9b7c-4c78-8133-e71842238d76",
+  "nodeName": "Check Actor Runs",
+  "fieldPath": "parameters.jsCode",
+  "expectedCurrentCodeSha256": "8fd80074a689541cba76120334208322e2678784286e4129bb59c9c50a7c2355",
+  "candidateCode": "const ACTORS = [\n  { id: 'alien_force~facebook-scraper-pro', name: 'Facebook Scraper Pro', source: 'facebook' },\n  { id: 'mdgjtp1~facebook-group-member', name: 'Facebook Group Member', source: 'facebook' },\n  { id: 'apify~facebook-comments-scraper', name: 'Facebook Comments Scraper', source: 'facebook' },\n  { id: 'addeus~get-connections', name: 'LinkedIn Connections', source: 'linkedin' },\n  { id: 'harvestapi~linkedin-profile-posts', name: 'LinkedIn Profile Posts', source: 'linkedin' },\n];\nreturn ACTORS.map(a => ({ json: a }));",
+  "status": "PREPARATION_ONLY_DO_NOT_APPLY"
+}
