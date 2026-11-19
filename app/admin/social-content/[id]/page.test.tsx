@@ -86,6 +86,19 @@ describe('SocialContentDetailRoute visual production review', () => {
     publishes: [],
   }
 
+  const commentPublish = (platform: 'youtube' | 'instagram' | 'facebook' | 'x', id = '11111111-1111-4111-8111-111111111111') => ({
+    id,
+    content_id: 'social-1',
+    platform,
+    status: 'published',
+    platform_post_id: `${platform}-post-synthetic`,
+    platform_post_url: `https://example.com/${platform}/post-synthetic`,
+    error_message: null,
+    published_at: '2026-08-12T12:00:00.000Z',
+    created_at: '2026-08-12T12:00:00.000Z',
+    updated_at: '2026-08-12T12:00:00.000Z',
+  })
+
   const receiptBackedDraftItem = () => {
     const reviewedVersion = '2026-11-01T00:50:00.000Z'
     const currentVersion = '2026-11-01T01:00:00.000Z'
@@ -3797,6 +3810,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       ...baseItem,
       platform: 'youtube',
       target_platforms: ['youtube'],
+      publishes: [commentPublish('youtube')],
     }
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
@@ -3850,6 +3864,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(JSON.parse(String(refreshCall?.[1]?.body))).toEqual({
       platform: 'youtube',
       content_id: 'social-1',
+      publish_id: commentPublish('youtube').id,
+      limit: 20,
     })
     expect(fetchMock.mock.calls.some(([url, init]) => (
       String(url).includes('/engagement/comments') && init?.method === 'POST'
@@ -3861,6 +3877,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       ...baseItem,
       platform: 'youtube',
       target_platforms: ['youtube'],
+      publishes: [commentPublish('youtube')],
     }
     let commentProjectionLoads = 0
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -3945,6 +3962,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       ...baseItem,
       platform: 'youtube',
       target_platforms: ['youtube'],
+      publishes: [commentPublish('youtube')],
     }
     let commentProjectionLoads = 0
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -4040,6 +4058,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       ...baseItem,
       platform: 'youtube',
       target_platforms: ['youtube'],
+      publishes: [commentPublish('youtube')],
     }
     const longScopeError = 'YouTube Data API scope missing for this authenticated preview account, publication reconciliation could not verify the provider video, and the ingestion lane must repair provider authorization before another refresh attempt.'
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
@@ -4090,6 +4109,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       ...baseItem,
       platform: 'instagram',
       target_platforms: ['instagram'],
+      publishes: [commentPublish('instagram')],
     }
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
@@ -4138,6 +4158,64 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(JSON.parse(String(refreshCall?.[1]?.body))).toEqual({
       platform: 'instagram',
       content_id: 'social-1',
+      publish_id: commentPublish('instagram').id,
+      limit: 20,
+    })
+  })
+
+  it('targets an exact Facebook publish from an Instagram-primary queue item', async () => {
+    const facebookPublish = commentPublish('facebook', 'd8a8bb5b-dd1d-4e4b-8568-64917fbb1f3a')
+    const instagramPublish = commentPublish('instagram', '22222222-2222-4222-8222-222222222222')
+    const mixedItem = {
+      ...baseItem,
+      platform: 'instagram',
+      target_platforms: ['instagram', 'facebook'],
+      publishes: [instagramPublish, facebookPublish],
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/engagement/comments')) return { ok: true, json: async () => ({ comments: [] }) } as Response
+      if (url.includes('/engagement/refresh')) return {
+        ok: true,
+        json: async () => ({
+          ok: true,
+          platform: 'facebook',
+          publish_id: facebookPublish.id,
+          provider: 'meta_graph',
+          status: 'succeeded',
+          fetched: 0,
+          upserted: 0,
+          skipped: 0,
+          errors: [],
+        }),
+      } as Response
+      return { ok: true, json: async () => ({ item: mixedItem }) } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    const refreshButton = await screen.findByRole('button', { name: 'Refresh comments' })
+    expect(refreshButton).toBeDisabled()
+    expect(screen.getByText(/Choose one published platform row before refreshing/i)).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/engagement/refresh'))).toBe(false)
+
+    fireEvent.change(screen.getByLabelText('Published destination for comment refresh'), {
+      target: { value: facebookPublish.id },
+    })
+    fireEvent.change(screen.getByLabelText('Comment limit'), { target: { value: '5' } })
+    expect(screen.getByText(/Selected: Facebook/)).toHaveTextContent('facebook-post-synthetic')
+    expect(refreshButton).toBeEnabled()
+    fireEvent.click(refreshButton)
+
+    expect(await screen.findByRole('heading', { name: 'Comment refresh completed' })).toBeInTheDocument()
+    const refreshCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/engagement/refresh'))
+    expect(JSON.parse(String(refreshCall?.[1]?.body))).toEqual({
+      platform: 'facebook',
+      content_id: 'social-1',
+      publish_id: facebookPublish.id,
+      limit: 5,
     })
   })
 
@@ -4217,6 +4295,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       platform: 'x',
       content_id: 'social-1',
       publish_id: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+      limit: 20,
     })
   })
 
@@ -4249,10 +4328,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('status')
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
-
-    expect(await screen.findByRole('heading', { name: 'LinkedIn comment refresh is manual' })).toBeInTheDocument()
-    expect(screen.getByText(/do not substitute the LinkedIn metrics refresh/i)).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Refresh comments' })).toBeDisabled()
+    expect(screen.getByText(/No supported published destination with a provider post ID/i)).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/engagement/refresh'))).toBe(false)
   })
 
@@ -4261,6 +4338,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       ...baseItem,
       platform: 'youtube',
       target_platforms: ['youtube'],
+      publishes: [commentPublish('youtube')],
     }
     const refreshResolvers: Array<(response: Response) => void> = []
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {

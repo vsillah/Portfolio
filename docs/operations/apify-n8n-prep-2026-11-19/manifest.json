@@ -24,6 +24,6 @@
     "productionMonitor": "prior-five-actor-candidate-withdrawn; design-only pending Meta migration",
     "stagingMonitor": "blocked-on-staging-purpose-and-account-binding",
     "facebookActorInputs": "obsolete friends/group/comment Actor path; preserve live baseline until replacement is approved and validated",
-    "metaPageIngestion": "existing Portfolio adapter; one exact published-Page-post governed refresh pending current token and scope preflight plus production-write approval"
+    "metaPageIngestion": "existing Portfolio adapter; protected UI now requires an exact eligible published destination and bounded limit; one exact Page-post governed refresh remains pending deployment and production canary execution"
   }
 }
