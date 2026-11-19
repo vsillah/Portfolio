@@ -74,6 +74,11 @@ import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparat
 import { isAcceleratedCampaignReviewItem } from '@/lib/social-accelerated-campaign-review'
 import { hasApprovedAcceleratedVisualLifecycleEvidence, isAcceleratedActivationId, isAcceleratedCampaignRecordId } from '@/lib/accelerated-campaign-activation'
 import { SOCIAL_LIFECYCLE_RECONCILIATION_QA_FIXTURE, SOCIAL_LIFECYCLE_RECONCILIATION_QA_ID, socialLifecycleReconciliationQaFixture } from '@/lib/social-lifecycle-reconciliation-qa-fixture'
+import {
+  FACEBOOK_COMMENT_REFRESH_QA_FIXTURE,
+  FACEBOOK_COMMENT_REFRESH_QA_ID,
+  facebookCommentRefreshQaFixture,
+} from '@/lib/social-comment-refresh-qa-fixture'
 
 export const dynamic = 'force-dynamic'
 
@@ -146,6 +151,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (process.env.NODE_ENV !== 'production'
+      && params.id === FACEBOOK_COMMENT_REFRESH_QA_ID
+      && request.nextUrl.searchParams.get('qa_fixture') === FACEBOOK_COMMENT_REFRESH_QA_FIXTURE) {
+      return NextResponse.json({
+        item: withDeterministicVisualProjection(facebookCommentRefreshQaFixture()),
+        fixture: true,
+        integration_note: 'Synthetic read-only Facebook destination review. No provider request or database write is connected.',
+      })
+    }
     if (process.env.NODE_ENV !== 'production'
       && params.id === SOCIAL_LIFECYCLE_RECONCILIATION_QA_ID
       && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_LIFECYCLE_RECONCILIATION_QA_FIXTURE) {

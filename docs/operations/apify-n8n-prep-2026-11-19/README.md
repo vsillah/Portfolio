@@ -16,6 +16,8 @@ The separate N8N Meta app is WhatsApp-only. The older Apify Facebook workflow is
 | [`app/api/auth/meta/callback/route.ts`](../../../app/api/auth/meta/callback/route.ts) and [`lib/meta-oauth.ts`](../../../lib/meta-oauth.ts) | Existing OAuth callback and scope handling populate the Meta configuration. This packet does not invoke OAuth or create a token. |
 | [`app/api/admin/social-content/engagement/refresh/route.ts`](../../../app/api/admin/social-content/engagement/refresh/route.ts) | Admin-authenticated `POST` accepts `{ "platform": "facebook", "publish_id": "<exact canonical UUID>", "limit": 5 }` and delegates to the adapter. It is the governed manual canary path; it makes a Meta read **and writes** normalized rows and an ingestion-run record to production Supabase. |
 | [`app/admin/social-content/[id]/page.tsx`](../../../app/admin/social-content/[id]/page.tsx) | The protected Comment response panel targets an exact eligible published destination rather than assuming the queue item's original platform. Multi-channel items require an explicit destination selection, display the selected provider/post binding, and send the exact `publish_id` plus a bounded limit. |
+| [`lib/social-comment-refresh-qa-fixture.ts`](../../../lib/social-comment-refresh-qa-fixture.ts) | Development-only read-only fixture for reviewing the Instagram-primary/Facebook-publish selector without connecting localhost to production or copying production content into staging. |
+| [`scripts/qa/record-facebook-comment-refresh-selector.mjs`](../../../scripts/qa/record-facebook-comment-refresh-selector.mjs) | Reproducible desktop and 390×844 walkthrough capture. It proves the ambiguous state starts disabled, selects the exact Facebook publish and limit 5, and fails if any non-read request occurs. It never clicks refresh. |
 | [`app/api/cron/social-content-comment-attention/route.ts`](../../../app/api/cron/social-content-comment-attention/route.ts) | Existing provider-refresh/attention route is separate from this single-post gate. Do not trigger or activate a schedule here. |
 | [`lib/meta-comment-ingestion.test.ts`](../../../lib/meta-comment-ingestion.test.ts) | Synthetic tests already cover comments, replies, cursors, receipt behavior, scope/auth blocks, and sanitized failures. |
 
@@ -39,6 +41,8 @@ The earlier five-Actor monitor candidate was withdrawn from PR #1283. Production
 ## Validation, stop, and rollback
 
 Offline validation is the existing focused Vitest suite for adapter, OAuth callback, admin refresh, provider attention refresh, and cron route, plus the Social Content detail-page regressions for same-platform and cross-platform published destinations, JSON manifest parsing, and `git diff --check`. Tests use synthetic Meta responses and do not call live Meta.
+
+The Human-QA route uses `qa_fixture=facebook_comment_refresh_v1` only in non-production. The fixture preserves the exact public provider bindings needed to review destination selection while replacing post copy with synthetic text. Its capture must show both the initial disabled state and the selected Facebook/limit-5 state; the refresh action remains untouched.
 
 For the approved single-post canary, stop on Page/app/publish mismatch, missing or expired token, scope/task failure, non-verified capability, unexpected comment field or author exposure, pagination guard, rate limit, error 190/200/283, unbounded row count, token in output/logs, or any external submission. Record the sanitized run ID and counts. Do not retry automatically.
 

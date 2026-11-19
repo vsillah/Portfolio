@@ -139,6 +139,10 @@ import type { SocialContentCalibrationReference } from '@/lib/social-content-cal
 import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
 import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE, YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
 import { SOCIAL_CAMPAIGN_REVIEW_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_IDS, getSocialCampaignReviewPacket } from '@/lib/social-campaign-review-assets'
+import {
+  FACEBOOK_COMMENT_REFRESH_QA_FIXTURE,
+  FACEBOOK_COMMENT_REFRESH_QA_ID,
+} from '@/lib/social-comment-refresh-qa-fixture'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -802,6 +806,9 @@ function SocialContentDetailPage() {
   const lifecycleReconciliationQaFixture = process.env.NODE_ENV !== 'production'
     && id === '563d3ee1-e5b9-41bb-89f3-9273ea017272'
     && searchParams.get('qa_fixture') === 'social_lifecycle_reconciliation_v1'
+  const facebookCommentRefreshQaFixture = process.env.NODE_ENV !== 'production'
+    && id === FACEBOOK_COMMENT_REFRESH_QA_ID
+    && searchParams.get('qa_fixture') === FACEBOOK_COMMENT_REFRESH_QA_FIXTURE
   const stageReviewQaState = searchParams.get('stage_review_state') === 'asset_packet' ? 'asset_packet' : null
   const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
@@ -1072,10 +1079,12 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const usesReadOnlyFixture = lifecycleReconciliationQaFixture || youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlyLinkedInFailureQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
+      const usesReadOnlyFixture = lifecycleReconciliationQaFixture || facebookCommentRefreshQaFixture || youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlyLinkedInFailureQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
 
       const detailQuery = lifecycleReconciliationQaFixture
         ? '?qa_fixture=social_lifecycle_reconciliation_v1'
+        : facebookCommentRefreshQaFixture
+        ? `?qa_fixture=${FACEBOOK_COMMENT_REFRESH_QA_FIXTURE}`
         : readOnlySocialVisualBacklogQaFixture
         ? `?qa_fixture=${SOCIAL_VISUAL_BACKLOG_QA_FIXTURE}`
         : readOnlyDarkCastleProductionRecoveryQaFixture
@@ -1180,7 +1189,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, lifecycleReconciliationQaFixture, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, stageReviewQaState, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, facebookCommentRefreshQaFixture, fetchCommentInboxItems, fetchReviewQueue, id, lifecycleReconciliationQaFixture, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, stageReviewQaState, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -8237,6 +8246,7 @@ function SocialContentDetailAccessGate() {
   const { id } = useParams<{ id: string }>()
   const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
     && (id === DARK_CASTLE_VISUAL_QA_ID || [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
+      || id === FACEBOOK_COMMENT_REFRESH_QA_ID && searchParams.get('qa_fixture') === FACEBOOK_COMMENT_REFRESH_QA_FIXTURE
       || id === '563d3ee1-e5b9-41bb-89f3-9273ea017272' && searchParams.get('qa_fixture') === 'social_lifecycle_reconciliation_v1'
       || id === SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn && searchParams.get('qa_fixture') === 'linkedin_failure_recovery_v1'
       || id === DARK_CASTLE_SOCIAL_CONTENT_ID && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
