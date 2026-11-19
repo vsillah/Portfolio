@@ -17,6 +17,19 @@ const viewports = [
   { label: 'mobile-390', width: 390, height: 844 },
 ]
 
+async function alignBelowSticky(locator) {
+  await locator.evaluate((element) => {
+    element.scrollIntoView({ block: 'start', behavior: 'instant' })
+    const header = document.querySelector('[data-social-detail-header]')
+    const headerBottom = header?.getBoundingClientRect().bottom ?? 0
+    const covered = Math.max(0, headerBottom + 16 - element.getBoundingClientRect().top)
+    let scrollParent = element.parentElement
+    while (scrollParent && scrollParent.scrollHeight <= scrollParent.clientHeight) scrollParent = scrollParent.parentElement
+    if (scrollParent) scrollParent.scrollTop = Math.max(0, scrollParent.scrollTop - covered)
+    else window.scrollBy({ top: -covered, behavior: 'instant' })
+  })
+}
+
 await mkdir(rawVideoDir, { recursive: true })
 
 const browser = await chromium.launch({ headless: true })
@@ -42,11 +55,7 @@ for (const viewport of viewports) {
   await page.goto(route, { waitUntil: 'domcontentloaded' })
   const panel = page.getByRole('heading', { name: 'Comment response panel' })
   await panel.waitFor({ state: 'visible' })
-  await panel.evaluate((element) => {
-    element.scrollIntoView({ block: 'start', behavior: 'instant' })
-    const scrollParent = element.closest('[data-admin-scroll-container]')
-    if (scrollParent instanceof HTMLElement) scrollParent.scrollTop = Math.max(0, scrollParent.scrollTop - 72)
-  })
+  await alignBelowSticky(panel)
 
   const destination = page.getByLabel('Published destination for comment refresh')
   const limit = page.getByLabel('Comment limit')
@@ -56,7 +65,9 @@ for (const viewport of viewports) {
   await destination.selectOption(facebookPublishId)
   await limit.selectOption('5')
   if (!(await refresh.isEnabled())) throw new Error(`${viewport.label}: refresh did not enable after the exact Facebook destination was selected.`)
-  await page.getByText(/Selected: Facebook/).waitFor({ state: 'visible' })
+  const selectedSummary = page.getByText(/Selected: Facebook/)
+  await selectedSummary.waitFor({ state: 'visible' })
+  await alignBelowSticky(destination)
   await page.waitForTimeout(1400)
   await page.screenshot({ path: path.join(outputDir, `${viewport.label}.png`), fullPage: false })
 
