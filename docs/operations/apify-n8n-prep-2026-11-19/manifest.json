@@ -1,0 +1,29 @@
+{
+  "baseCommit": "1231c861d8e6b40eb0570c8fa8e86e9e5cc42951",
+  "capturedAtUtc": "2026-11-19",
+  "privateBaselineDirectory": "local-only; not committed",
+  "baselines": {
+    "prod-facebook.raw.json": {
+      "sha256": "8f24b0ec0fb99d0973d4aa1345923ed94c819dadab6d5d2fe04ed6c964ad3e55",
+      "activeVersionId": "d3d1a639-25fa-41a1-95e7-ca21e6c8eefd"
+    },
+    "prod-linkedin.raw.json": {
+      "sha256": "abfb0eb51bbf5cbc58b338a8914e57207f8eaee06b3b3deb4f041d41cc2130aa",
+      "activeVersionId": "09133bd0-659b-47dc-b586-14636e7326af"
+    },
+    "prod-monitor.raw.json": {
+      "sha256": "e4def76afb8bff8c35327ade54ec15f421d21907a76429ffa129701575b04a5a",
+      "activeVersionId": "c5bddd5b-9b7c-4c78-8133-e71842238d76"
+    },
+    "stag-monitor.raw.json": {
+      "sha256": "a9dd9af951efc32d34aaba0e6b226457cc11da3985fd0da743b90b18baa69480",
+      "activeVersionId": "8089ad6c-534b-4530-9065-da38c44a70a0"
+    }
+  },
+  "candidateStatus": {
+    "productionMonitor": "prior-five-actor-candidate-withdrawn; design-only pending Meta migration",
+    "stagingMonitor": "blocked-on-staging-purpose-and-account-binding",
+    "facebookActorInputs": "obsolete friends/group/comment Actor path; preserve live baseline until replacement is approved and validated",
+    "metaPageIngestion": "existing Portfolio adapter; protected UI now requires an exact eligible published destination and bounded limit; a development-only read-only fixture and write-detecting walkthrough cover desktop/mobile Human QA; one exact Page-post governed refresh remains pending deployment and production canary execution"
+  }
+}

@@ -139,6 +139,10 @@ import type { SocialContentCalibrationReference } from '@/lib/social-content-cal
 import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
 import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE, YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
 import { SOCIAL_CAMPAIGN_REVIEW_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_IDS, getSocialCampaignReviewPacket } from '@/lib/social-campaign-review-assets'
+import {
+  FACEBOOK_COMMENT_REFRESH_QA_FIXTURE,
+  FACEBOOK_COMMENT_REFRESH_QA_ID,
+} from '@/lib/social-comment-refresh-qa-fixture'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -802,6 +806,9 @@ function SocialContentDetailPage() {
   const lifecycleReconciliationQaFixture = process.env.NODE_ENV !== 'production'
     && id === '563d3ee1-e5b9-41bb-89f3-9273ea017272'
     && searchParams.get('qa_fixture') === 'social_lifecycle_reconciliation_v1'
+  const facebookCommentRefreshQaFixture = process.env.NODE_ENV !== 'production'
+    && id === FACEBOOK_COMMENT_REFRESH_QA_ID
+    && searchParams.get('qa_fixture') === FACEBOOK_COMMENT_REFRESH_QA_FIXTURE
   const stageReviewQaState = searchParams.get('stage_review_state') === 'asset_packet' ? 'asset_packet' : null
   const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
@@ -839,6 +846,8 @@ function SocialContentDetailPage() {
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
   const [refreshingCommentInbox, setRefreshingCommentInbox] = useState(false)
   const [commentRefreshState, setCommentRefreshState] = useState<CommentRefreshState | null>(null)
+  const [selectedCommentPublishId, setSelectedCommentPublishId] = useState('')
+  const [commentRefreshLimit, setCommentRefreshLimit] = useState(20)
   const [commentActionLoading, setCommentActionLoading] = useState<string | null>(null)
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [savingGoldStandard, setSavingGoldStandard] = useState(false)
@@ -1070,10 +1079,12 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const usesReadOnlyFixture = lifecycleReconciliationQaFixture || youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlyLinkedInFailureQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
+      const usesReadOnlyFixture = lifecycleReconciliationQaFixture || facebookCommentRefreshQaFixture || youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture || readOnlyDarkCastleProductionRecoveryQaFixture || readOnlyLinkedInFailureQaFixture || readOnlySocialVisualBacklogQaFixture || id === DARK_CASTLE_VISUAL_QA_ID
 
       const detailQuery = lifecycleReconciliationQaFixture
         ? '?qa_fixture=social_lifecycle_reconciliation_v1'
+        : facebookCommentRefreshQaFixture
+        ? `?qa_fixture=${FACEBOOK_COMMENT_REFRESH_QA_FIXTURE}`
         : readOnlySocialVisualBacklogQaFixture
         ? `?qa_fixture=${SOCIAL_VISUAL_BACKLOG_QA_FIXTURE}`
         : readOnlyDarkCastleProductionRecoveryQaFixture
@@ -1178,7 +1189,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, lifecycleReconciliationQaFixture, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, stageReviewQaState, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, facebookCommentRefreshQaFixture, fetchCommentInboxItems, fetchReviewQueue, id, lifecycleReconciliationQaFixture, packagingQaState, readOnlyDarkCastleProductionRecoveryQaFixture, readOnlySocialVisualBacklogQaFixture, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, stageReviewQaState, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -2364,6 +2375,18 @@ function SocialContentDetailPage() {
     && comment.providerCapability.humanGateSatisfied
   )
 
+  const commentRefreshPublishes = (item?.publishes ?? []).filter((publish) => (
+    COMMENT_REFRESH_SUPPORTED_PLATFORMS.has(publish.platform)
+    && publish.status === 'published'
+    && Boolean(asString(publish.id))
+    && Boolean(asString(publish.platform_post_id))
+  ))
+  const selectedCommentPublish = commentRefreshPublishes.length === 1
+    ? commentRefreshPublishes[0]
+    : commentRefreshPublishes.filter((publish) => publish.id === selectedCommentPublishId).length === 1
+      ? commentRefreshPublishes.find((publish) => publish.id === selectedCommentPublishId) ?? null
+      : null
+
   const handleCommentInboxAction = async (
     comment: SocialCommentInboxItem | null,
     action: 'refresh_request' | 'draft_response' | 'approve' | 'reject' | 'ignore' | 'submit',
@@ -2426,15 +2449,17 @@ function SocialContentDetailPage() {
 
   const handleCommentInboxRefresh = async () => {
     if (!item || commentRefreshInFlightRef.current) return
-    const platform = item.platform
+    const platform = selectedCommentPublish?.platform ?? item.platform
     setCommentRefreshState(null)
 
-    if (!COMMENT_REFRESH_SUPPORTED_PLATFORMS.has(platform)) {
+    if (!selectedCommentPublish) {
       const platformLabel = PLATFORMS.find((candidate) => candidate.value === platform)?.label ?? platform
       setCommentRefreshState({
         status: 'blocked',
-        title: `${platformLabel} comment refresh is manual`,
-        message: `${platformLabel} does not have a verified governed comment ingestion path in this panel. Use the provider permalink or the owning ingestion lane; do not substitute the LinkedIn metrics refresh.`,
+        title: commentRefreshPublishes.length > 1 ? 'Select a published destination' : `${platformLabel} comment refresh is manual`,
+        message: commentRefreshPublishes.length > 1
+          ? 'Choose one exact published platform row before refreshing comments. No provider request was sent.'
+          : `${platformLabel} has no eligible published destination for governed comment ingestion in this panel. Use the provider permalink or the owning ingestion lane; do not substitute the LinkedIn metrics refresh.`,
         errorMessages: [],
         provider: platform,
         fetched: null,
@@ -2473,15 +2498,8 @@ function SocialContentDetailPage() {
         body: JSON.stringify({
           platform,
           content_id: id,
-          ...(platform === 'x'
-            ? {
-              publish_id: item.publishes?.find((publish) => (
-                publish.platform === 'x'
-                && publish.status === 'published'
-                && (publish.platform_post_id || publish.platform_post_url)
-              ))?.id,
-            }
-            : {}),
+          publish_id: selectedCommentPublish.id,
+          limit: commentRefreshLimit,
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -2575,7 +2593,7 @@ function SocialContentDetailPage() {
           ? `${error.message} Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.`
           : 'Comment refresh failed. Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.',
         errorMessages: [],
-        provider: item.platform,
+        provider: platform,
         fetched: null,
         insertedOrUpserted: null,
         insertedOrUpsertedLabel: 'Inserted/upserted',
@@ -7677,13 +7695,59 @@ function SocialContentDetailPage() {
               <button
                 type="button"
                 onClick={() => void handleCommentInboxRefresh()}
-                disabled={refreshingCommentInbox}
+                disabled={refreshingCommentInbox || !selectedCommentPublish}
                 className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-500/20 disabled:opacity-60"
               >
                 {refreshingCommentInbox ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                 {refreshingCommentInbox ? 'Refreshing comments' : 'Refresh comments'}
               </button>
             </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 rounded-lg border border-gray-700 bg-gray-950/45 p-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <label className="min-w-0 text-xs font-semibold text-gray-300">
+              Published destination for comment refresh
+              <select
+                value={selectedCommentPublish?.id ?? ''}
+                onChange={(event) => {
+                  setSelectedCommentPublishId(event.target.value)
+                  setCommentRefreshState(null)
+                }}
+                disabled={refreshingCommentInbox || commentRefreshPublishes.length === 0}
+                className="mt-1 block min-h-10 w-full rounded-lg border border-gray-600 bg-gray-900 px-3 text-sm text-gray-100 disabled:opacity-60"
+              >
+                <option value="">Select one published destination</option>
+                {commentRefreshPublishes.map((publish) => (
+                  <option key={publish.id} value={publish.id}>
+                    {PLATFORMS.find((candidate) => candidate.value === publish.platform)?.label ?? publish.platform} · post {publish.platform_post_id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-semibold text-gray-300">
+              Comment limit
+              <select
+                value={commentRefreshLimit}
+                onChange={(event) => setCommentRefreshLimit(Number(event.target.value))}
+                disabled={refreshingCommentInbox || commentRefreshPublishes.length === 0}
+                className="mt-1 block min-h-10 w-full rounded-lg border border-gray-600 bg-gray-900 px-3 text-sm text-gray-100 disabled:opacity-60"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
+            </label>
+            <p className="min-w-0 text-xs leading-5 text-gray-400 sm:col-span-2">
+              {selectedCommentPublish
+                ? <>
+                  Selected: {PLATFORMS.find((candidate) => candidate.value === selectedCommentPublish.platform)?.label ?? selectedCommentPublish.platform}
+                  {' · published post '}<span className="break-all font-mono text-gray-200">{selectedCommentPublish.platform_post_id}</span>
+                  . Refreshing reads this provider and saves comments to the canonical inbox.
+                </>
+                : commentRefreshPublishes.length > 1
+                  ? 'Choose one published platform row before refreshing. The queue item’s original platform is not used as a fallback.'
+                  : 'No supported published destination with a provider post ID is available for comment refresh.'}
+            </p>
           </div>
 
           {commentRefreshState ? (
@@ -8182,6 +8246,7 @@ function SocialContentDetailAccessGate() {
   const { id } = useParams<{ id: string }>()
   const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
     && (id === DARK_CASTLE_VISUAL_QA_ID || [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
+      || id === FACEBOOK_COMMENT_REFRESH_QA_ID && searchParams.get('qa_fixture') === FACEBOOK_COMMENT_REFRESH_QA_FIXTURE
       || id === '563d3ee1-e5b9-41bb-89f3-9273ea017272' && searchParams.get('qa_fixture') === 'social_lifecycle_reconciliation_v1'
       || id === SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn && searchParams.get('qa_fixture') === 'linkedin_failure_recovery_v1'
       || id === DARK_CASTLE_SOCIAL_CONTENT_ID && searchParams.get('qa_fixture') === DARK_CASTLE_PRODUCTION_RECOVERY_QA_FIXTURE
