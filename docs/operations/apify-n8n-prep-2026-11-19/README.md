@@ -1,60 +1,58 @@
-# Apify / n8n workflow preparation — 2026-11-19
+# Managed Facebook Page ingestion — preparation only
 
-Status: **review only**. This packet makes no change to n8n, Apify, credentials, schedules, or production data. It does not run an Actor.
+This packet preserves a Facebook scraper, but changes its intended scope to **AmaduTown's managed Page**. It is a design and synthetic test artifact. Do not import, update, activate, merge, or deploy it as an operational workflow. No token, Graph API request, Actor run, account setting, or production record was created or changed in this preparation round.
 
-## Bound sources
+## Binding and evidence
 
-The published n8n workflows were captured read only on 2026-11-19. Their complete JSON baselines are in a private local evidence directory outside the repository. `manifest.json` gives their SHA-256 digests and active version IDs. Re-read each workflow and compare its active version ID and the target node's original code hash before any later application; stop on drift.
+Owner-provided read-only Meta Developer evidence identifies **Amadutown Social Publishing**, app ID `2220591335444630`, as the existing development/unpublished app. Its Page and Instagram use-case testing screens show “Testing complete.” The ready-for-testing Page list includes `business_management`, `pages_manage_posts`, `pages_read_engagement`, `pages_read_user_content`, `pages_show_list`, and `public_profile`. “Ready for testing” is not proof of a granted Page access token, assigned Page task, live-mode access, or App Review approval. The separate N8N Meta app is WhatsApp-only and is outside this design.
 
-| Workflow | ID | Published version | Observation |
+Published n8n baselines captured read only on 2026-11-19 are bound in [manifest.json](./manifest.json); the raw JSON is private, outside Git. Production Facebook workflow `SGGvj8MavKXYcJZL` (active version `d3d1a639-25fa-41a1-95e7-ca21e6c8eefd`) still has three Apify nodes. Production monitor `HqpDGIHxvJqXKHuT` (active version `c5bddd5b-9b7c-4c78-8133-e71842238d76`) currently watches `alien_force~facebook-scraper-pro` and stale `harvestapi~linkedin-profile-search`. Production LinkedIn workflow `oMUimdg7FTFDut9i` uses `addeus~get-connections` and `harvestapi~linkedin-profile-posts`. Staging monitor `R5xVO3JBGMBjQ9f5` has its own captured version; the staging warm-lead smoke flows reviewed have no Apify nodes. Re-read live versions before any later action.
+
+The prior five-Actor monitor candidate has been **withdrawn** from this PR. It would have elevated obsolete Facebook Actors into the monitor. There is no executable monitor patch in this packet.
+
+## Source to field map
+
+Use the current documented Graph API version at implementation time and pin it in workflow configuration. The examples below use Meta's current v27.0 reference only as a design binding. Every call is read-only and must use a Page access token for the managed Page, with a role holder who has the required Page task. Do not request personal profiles or private groups.
+
+| Source | Supported field or result | Proposed internal field | Gate |
 | --- | --- | --- | --- |
-| Production WF-MON-001 | `HqpDGIHxvJqXKHuT` | `c5bddd5b-9b7c-4c78-8133-e71842238d76` | Checks two Actor IDs, including a stale LinkedIn target. |
-| Staging WF-MON-001 | `R5xVO3JBGMBjQ9f5` | `8089ad6c-534b-4530-9065-da38c44a70a0` | Checks the same two IDs. |
-| Production Facebook warm leads | `SGGvj8MavKXYcJZL` | `d3d1a639-25fa-41a1-95e7-ca21e6c8eefd` | Has three Apify nodes, all without Actor input parameters. |
-| Production LinkedIn warm leads | `oMUimdg7FTFDut9i` | `09133bd0-659b-47dc-b586-14636e7326af` | Has two Apify nodes. |
+| [`/{page-id}`](https://developers.facebook.com/docs/graph-api/reference/page/) | `id`, `name`, `followers_count` | `page_id`, `page_name`, `follower_count` | Page ownership/task and granted token scope; aggregate only. No follower identities. |
+| [`/{page-id}/feed`](https://developers.facebook.com/docs/graph-api/reference/page/feed/) | `id`, `created_time`, `updated_time`, `message`, `permalink_url`, `is_published`; Page feed includes Page posts and visitor interactions | `source_id`, `source_created_at`, `source_updated_at`, `body_text`, `source_url`, `published` | `pages_read_engagement` and `pages_read_user_content`; Page task `CREATE_CONTENT`, `MANAGE`, or `MODERATE`. Keep visitor origin `unknown` until an owned-Page test proves classification. |
+| [`/{post-id}/comments`](https://developers.facebook.com/docs/graph-api/reference/post/comments/) | Comment list, pagination, `summary.total_count` | `parent_post_id`, `comment_count`, comment IDs only if returned and needed for receipts | Same parent permissions; `MODERATE` task for comment IDs. The current [Comment read reference](https://developers.facebook.com/docs/graph-api/reference/comment) does not document `message` or `created_time` as readable fields. **Comment bodies/timestamps are blocked** pending authoritative field support. |
+| [`/{page-post-id}/reactions`](https://developers.facebook.com/docs/graph-api/reference/page-post/reactions/) | `summary.total_count` | `reaction_count` | Count only; no reacting profiles. |
+| [`/{page-id}/ratings`](https://developers.facebook.com/docs/graph-api/reference/page/ratings/) | Page Recommendations edge is listed | None yet | The current [Recommendation reference](https://developers.facebook.com/docs/graph-api/reference/recommendation/) says Recommendation reads are deprecated in v22+ and may return error 12. **Ratings and review text are blocked** until Meta clarifies a supported current-version contract. |
 
-The production workflows' actual Actor IDs are:
+Do not use Page Insights as a substitute for the Page follower count in this phase: [Meta's Insights guide](https://developers.facebook.com/docs/insights/get-started) lists `read_insights`, which was not in the owner-observed ready-for-testing set. No new permission is requested here. Avoid `/{page-id}/visitor_posts` as a dependency: the current [reference](https://developers.facebook.com/docs/graph-api/reference/page/visitor_posts/) simultaneously states that New Page Experience does and does not support it.
 
-| Workflow | Node | Actor ID |
-| --- | --- | --- |
-| Facebook | Scrape FB Friends (Apify) | `alien_force~facebook-scraper-pro` |
-| Facebook | Scrape FB Groups (Apify) | `mdgjtp1~facebook-group-member` |
-| Facebook | Scrape FB Post Comments (Apify) | `apify~facebook-comments-scraper` |
-| LinkedIn | Scrape LI Connections (Apify) | `addeus~get-connections` |
-| LinkedIn | Scrape LI Post Engagement (Apify) | `harvestapi~linkedin-profile-posts` |
+## Proposed n8n node sequence, disabled until a separate approval
 
-## Prepared production monitor change
+1. **Manual test trigger / disabled schedule.** Bind the exact app, Page ID, Graph API version, bounded time window, and output destination in reviewable configuration. No inherited personal profile or group environment variables.
+2. **Gate check.** Require documented Page ownership, app role, Page task, granted scopes, token metadata, and explicit authority for this Page. Fail closed if any is missing or if an App Review/business-verification path is required. A “Testing complete” badge does not satisfy this gate.
+3. **HTTP Request — Page metadata.** Read `id,name,followers_count` only. Use a credential-backed Authorization header. Never put a token in a URL, n8n expression output, execution log, source receipt, or error alert.
+4. **HTTP Request — Page feed.** Fetch `id,created_time,updated_time,message,permalink_url,is_published` with bounded pagination. Keep next-page cursors only in protected workflow state; Meta examples can include a token in `paging.next`, so do not log or persist the full URL. Stop on unexpected fields, pagination drift, rate limits, permission errors, or a non-managed Page response.
+5. **For each accepted Page post — comments and reaction summaries.** Request comment count and reaction count. Preserve counts and source IDs; do not ingest comment text or reacting identities until Meta documents and the owner approves those fields.
+6. **Normalize and deduplicate.** Use `(platform, page_id, source_kind, source_id)` as the stable key, with source update time and an observation time. Keep a source receipt containing app ID, Page ID, API version, endpoint class, source ID, retrieval time, permission gate result, and sanitized response status. Never store token, raw response headers, full pagination URL, user profile identifiers, or cookies in receipts.
+7. **Review-only sink.** Emit a synthetic-compatible candidate record for an internal review queue. Do not post to `/api/admin/outreach/ingest`, create contacts/leads, send outreach, or modify customer data without a later privacy and product approval. Page engagement is not consent for outreach.
+8. **Health observation.** Distinguish a successful API read, an empty authorized feed, invalid token, missing permission, rate limit, and schema change. No live monitor is changed by this design.
 
-`production-monitor-candidate.patch.json` binds a single `Check Actor Runs` node field, `parameters.jsCode`, to the captured production monitor version and original code hash. `production-monitor-code.diff` shows the exact proposed code change. `production-monitor-check-actor-runs.js` is the standalone candidate for syntax and output checks. It enumerates all five Actor IDs that the two production warm-lead workflows use. The monitor's existing downstream `Fetch Actor Runs` request already sends the Apify token in an Authorization header and is outside this proposed edit.
+## Access, token, and app-status gates
 
-**Do not apply this candidate yet.** The Facebook workflow cannot currently supply valid Actor input. Monitoring all five targets now could produce expected `no_runs` or failure alerts that do not distinguish that known defect from a new incident. The later decision should sequence Facebook repair and monitor publication, then confirm alert behavior before leaving the monitor active.
+Meta's [Page Feed requirements](https://developers.facebook.com/docs/graph-api/reference/page/feed/) require a Page task plus `pages_read_engagement` and `pages_read_user_content`. The [Page reference](https://developers.facebook.com/docs/graph-api/reference/page/) limits owned data to the Page and says fields with User information require a Page token. [App Review guidance](https://developers.facebook.com/docs/resp-plat-initiatives/app-review/introduction) says unapproved permissions can be used only by app-role users; non-role use needs review. Business verification can be required for Advanced Access. This design stops before any live request if the intended AmaduTown Page operator lacks the necessary app role/Page task, if the app must move live, or if Advanced Access/App Review/business verification is required. Those are separate owner decisions.
 
-## Facebook input contract blocker
+For a future approved implementation, the owner should obtain a Page-scoped credential through Meta's supported flow and enter it directly into the intended Infisical/n8n secret stores. The credential owner, Page binding, granted scopes, expiry, and rotation/revocation path must be recorded as metadata without exposing the value. Use one environment per account and a narrow n8n credential; block copying it to staging until staging ownership is defined. [Meta's token debugging guidance](https://developers.facebook.com/docs/facebook-login/guides/%20access-tokens/debugging/) says tokens may be invalidated early; check status/expiry through an authorized owner-operated or separately approved process. Do not assume a Page token never expires. If a later app-secret-proof policy is enabled, follow [Meta's secure-request guidance](https://developers.facebook.com/docs/graph-api/guides/secure-requests/) without exposing the app secret.
 
-Production execution `33355` stopped at `Scrape FB Friends (Apify)` with HTTP 400: `Input is not valid: Field input.function is required`. The three Facebook nodes currently specify only `actorId` in their parameters, so later nodes have unresolved input requirements too.
+## Existing Actor and monitor disposition
 
-Read-only public default-build input schemas showed:
+The live Facebook workflow remains unchanged until the managed-Page replacement passes a separate build, access, privacy, and non-billable validation gate. Execution `33355` failed at `Scrape FB Friends (Apify)` with missing `input.function`. The public `alien_force~facebook-scraper-pro` schema has no friends function; the group Actor requires `groupId`, and the comments Actor requires `startUrls`. Personal friends and arbitrary private groups are outside the approved new scope. Do not fill those inputs, run those Actors, or activate their old path.
 
-| Actor | Required field | Missing decision or value |
-| --- | --- | --- |
-| [`alien_force~facebook-scraper-pro`](https://api.apify.com/v2/acts/alien_force~facebook-scraper-pro/builds/default) | `function` | Current enum has `facebook_search_scraper`, `facebook_profiles_scraper`, `facebook_posts_scraper`, `facebook_comments_scraper`; it has no friends function. The product intent for “Scrape FB Friends” must be resolved before selecting a function or Actor. |
-| [`mdgjtp1~facebook-group-member`](https://api.apify.com/v2/acts/mdgjtp1~facebook-group-member/builds/default) | `groupId` | No group ID or approved source for it is defined in the workflow. |
-| [`apify~facebook-comments-scraper`](https://api.apify.com/v2/acts/apify~facebook-comments-scraper/builds/default) | `startUrls` | No post URLs or approved source for them is defined in the workflow. |
+At a separately approved cutover, preserve the old workflow version, deploy the managed-Page read path to a review-only destination, validate receipts and bounds, then retire the three Facebook Actor nodes and the obsolete `alien_force` monitor target. Keep the two actual LinkedIn Actor IDs in a distinct Apify health check only after verifying their owner and credential binding; remove the stale `harvestapi~linkedin-profile-search` target. A Page API health check belongs in a separate Meta monitor, not an Apify Actor runs check. Do not copy production targets into staging until its purpose and account are confirmed.
 
-These are current public schema observations, not a claim that the Actors' run semantics, cost, or required login material are established. [Apify's schema specification](https://docs.apify.com/actors/development/actor-definition/input-schema/specification/v1) describes input validation at Actor run start. No input repair is prepared for application; guessing values would change the workflow's purpose or source data.
+## Synthetic validation and rollback plan
 
-## Staging and credential coverage
+[`synthetic-fixtures.json`](./synthetic-fixtures.json) contains invented Page/feed/comment-count/reaction-count data, an empty-feed case, and blocked ratings/comment-body cases. [`synthetic-fixtures.test.mjs`](./synthetic-fixtures.test.mjs) checks the source map, unique IDs, receipt shape, no token or personal-identity fields, and fail-closed cases without network access. Later local tests should cover pagination with stripped cursors, duplicates, updated posts, partial failures, 190/200/283 permission failures, rate limits, and an empty authorized feed. Any live read test is a separate gate; Graph API Explorer is excluded here.
 
-The live staging warm-lead workflows reviewed are webhook/synthetic smoke flows with no Apify nodes. The staging monitor's intended targets and account binding are therefore unresolved. The production target list must not be copied into staging without an explicit operating decision.
+If a future approved replacement fails, disable only the new managed-Page workflow, restore the captured prior published Facebook workflow version only if its old Actor path is still authorized and safe, restore the prior monitor version, and verify active version IDs plus non-billable monitor output. Do not automatically restart the invalid old Actor path. Stop immediately on Page/task mismatch, a token in logs, permission/review requirements, unsupported comment or rating fields, unexpected data, privacy ambiguity, rate-limit cost, or any new charge. This preparation has no live rollback because it changed no live system.
 
-n8n credential listing returned `403 NOT_SUPPORTED`, preventing a read-only confirmation of credential identity and age. The Apify connector returned `user-or-token-not-found`, so this review used public Actor metadata and default-build schemas without authentication. Neither result authorizes a credential change.
+## Next decision
 
-## Validation and later rollback
-
-Local validation should confirm the captured JSON digests, the production monitor node's original code hash, exact match between candidate IDs and production Apify nodes, JavaScript syntax and five emitted items, plus a clean diff. Before a later live update, recapture all affected published versions and compare them with this packet. Validate the monitor through read-only API requests and its non-billable execution output; do not start an Actor just to test it. Confirm alert behavior for Actors with no legitimate runs.
-
-If a later approved monitor publication misbehaves, restore only the original `Check Actor Runs` code from the private immutable production monitor baseline, publish that workflow, and verify the restored active version and non-billable monitor output. This packet does not modify staging or Facebook, so it creates no rollback action for those workflows.
-
-## Decisions required for the next phase
-
-The workflow owner needs to specify what “Facebook friends” means here and the supported Actor/function that performs it; identify the approved source of `groupId` and comment `startUrls`; and state whether staging should monitor an Apify account at all and, if so, which account and Actor set. Do not send session cookies, API tokens, recovery codes, or private source records in chat. A separate bounded approval is required before changing and publishing live workflows. Confirm Actor pricing and any session/authentication requirement before a test run; this packet authorizes no run or charge.
+The owner must confirm the exact AmaduTown Page and app-role/Page-task binding, approve the review-only storage destination and retention policy, and obtain Meta clarification for current-version comment bodies and ratings if those are required. App Review/business verification or a live-mode change must be handled as a separate explicit decision. The existing n8n credential inventory endpoint returned `403 NOT_SUPPORTED`; the Apify connector returned `user-or-token-not-found`, so this packet makes no credential-health claim.

@@ -21,8 +21,9 @@
     }
   },
   "candidateStatus": {
-    "productionMonitor": "prepared-not-applied",
+    "productionMonitor": "prior-five-actor-candidate-withdrawn; design-only pending Meta migration",
     "stagingMonitor": "blocked-on-staging-purpose-and-account-binding",
-    "facebookActorInputs": "blocked-on-required-values-and-friends-semantics"
+    "facebookActorInputs": "obsolete friends/group/comment Actor path; preserve live baseline until replacement is approved and validated",
+    "metaPageIngestion": "design-only; ratings and access gates unresolved"
   }
 }

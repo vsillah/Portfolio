@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "apiVersion": "v27.0",
+  "page": {
+    "id": "PAGE_SYNTHETIC",
+    "name": "Example Managed Page",
+    "followers_count": 42
+  },
+  "feed": {
+    "data": [
+      {
+        "id": "PAGE_SYNTHETIC_POST_001",
+        "created_time": "2026-11-01T12:00:00+0000",
+        "updated_time": "2026-11-02T12:00:00+0000",
+        "message": "Synthetic Page announcement",
+        "permalink_url": "https://www.facebook.com/example/posts/SYNTHETIC_001",
+        "is_published": true
+      }
+    ],
+    "paging": { "cursors": { "after": "CURSOR_SYNTHETIC" } }
+  },
+  "comments": {
+    "parentPostId": "PAGE_SYNTHETIC_POST_001",
+    "data": [{ "id": "COMMENT_SYNTHETIC_001" }],
+    "summary": { "total_count": 1 }
+  },
+  "reactions": {
+    "parentPostId": "PAGE_SYNTHETIC_POST_001",
+    "data": [],
+    "summary": { "total_count": 3 }
+  },
+  "expectedReceipt": {
+    "app_id": "APP_SYNTHETIC",
+    "page_id": "PAGE_SYNTHETIC",
+    "api_version": "v27.0",
+    "endpoint_class": "page_feed",
+    "source_id": "PAGE_SYNTHETIC_POST_001",
+    "retrieved_at": "2026-11-19T00:00:00Z",
+    "permission_gate": "synthetic_pass",
+    "response_status": 200
+  },
+  "emptyAuthorizedFeed": { "data": [], "paging": {} },
+  "blockedCases": [
+    { "case": "ratings_current_version", "reason": "recommendation_read_deprecated_v22_plus" },
+    { "case": "comment_body", "reason": "read_field_not_documented" },
+    { "case": "non_role_operator", "reason": "app_review_gate" },
+    { "case": "missing_page_task", "reason": "page_task_gate" }
+  ]
+}
