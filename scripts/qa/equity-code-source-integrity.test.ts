@@ -22,12 +22,17 @@ describe('Equity Code source integrity', () => {
       .toBe('d8cd0ac397adcfc1271d2f14d016d19271aa2828905510b03896b6e18067c24b')
     expect(sha256(source('docs/insights/source-snapshots/owning-the-block.claude-brief.3e48f6e7.md')))
       .toBe('3e48f6e7236103557f5ae0e6b9f9704fb388cedfbe55c1ead591782e4d5d25e6')
-    expect(sha256(source('public/insights/equity-code/owning-the-block.html')))
+    expect(sha256(source('docs/insights/source-snapshots/owning-the-block.f511f78e.html')))
       .toBe('f511f78e35d60bbc6181d01e76aa11dcccccf85026d564acb591003d1dcc4e96')
+    expect(sha256(source('docs/insights/source-snapshots/owning-the-block.blueprint-brief.9753a408.md')))
+      .toBe('9753a4080c6e34fe713fdde0813cab13e00d0e311328748ab50936b4d7440361')
+    expect(sha256(source('public/insights/equity-code/owning-the-block.html')))
+      .toBe('1c623afa0472b7e3ac011a416558ba71aa242b58f6f330292d6ff9be5cf0be93')
   })
 
   it('preserves Block research, connector endpoints, and interaction source blocks', () => {
     const original = source('docs/insights/source-snapshots/owning-the-block.d8cd0ac3.html').toString('utf8')
+    const merged = source('docs/insights/source-snapshots/owning-the-block.f511f78e.html').toString('utf8')
     const corrected = source('public/insights/equity-code/owning-the-block.html').toString('utf8')
     for (const [start, end] of [
       ['const N=[', '\n];'],
@@ -37,6 +42,7 @@ describe('Equity Code source integrity', () => {
       ["g.addEventListener('click'", 'gN.appendChild(g);'],
       ['USES.forEach(u=>{const b=document.createElement', 'usesEl.appendChild(b)});'],
     ]) {
+      expect(between(corrected, start, end)).toBe(between(merged, start, end))
       expect(between(corrected, start, end)).toBe(between(original, start, end))
     }
   })
