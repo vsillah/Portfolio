@@ -131,6 +131,28 @@ describe('GET /api/admin/social-content/[id] stage review QA projection', () => 
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.update).not.toHaveBeenCalled()
   })
+
+  it.each(['privacy', 'asset_packet ', 'ASSET_PACKET'])(
+    'keeps %s on the repository review and does not project a missing asset packet',
+    async (stageReviewState) => {
+      const id = '9817a689-0565-48ed-8c97-c2db40c1ec45'
+      const response = await GET(new NextRequest(
+        `http://localhost/api/admin/social-content/${id}?qa_fixture=social_campaign_review_assets_v1&stage_review_state=${encodeURIComponent(stageReviewState)}`,
+      ) as never, { params: { id } })
+      const body = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({ fixture: true, fixture_state: 'repository_bound_review' })
+      expect(body.item.status).toBe('draft')
+      expect(body.item.rag_context.current_gate).toBeUndefined()
+      expect(body.item.rag_context.latest_internal_decision_receipt_id).toBeUndefined()
+      expect(body.item.rag_context.qa_fixture.reason).toBe(
+        'Repository-bound review projection. No production record is read or changed.',
+      )
+      expect(mocks.from).not.toHaveBeenCalled()
+      expect(mocks.update).not.toHaveBeenCalled()
+    },
+  )
 })
 
 describe('GET /api/admin/social-content/[id] channel-native video fallback', () => {
