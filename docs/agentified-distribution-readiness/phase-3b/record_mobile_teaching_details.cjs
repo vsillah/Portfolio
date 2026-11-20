@@ -110,6 +110,7 @@ async function run() {
       execFileSync('ffmpeg', ['-v', 'error', '-i', mp4, '-f', 'null', '-'])
     }
   } finally { await browser.close() }
+  for (const file of fs.readdirSync(output).filter((file) => file.endsWith('.webm'))) fs.unlinkSync(path.join(output, file))
   const files = fs.readdirSync(output).filter((file) => /\.(png|mp4)$/.test(file)).sort()
   const receipt = { schemaVersion: 1, codeCommit: revision, mapSha256: sha(path.join(root, 'app/agentified/mobile-teaching-details.json')), auditSha256: sha(path.join(root, 'agentified/workshop/presentation-illustration-audit/audit-boundaries.json')), sceneCount: map.scenes.length, observations, evidence: files.map((file) => ({ path: path.relative(root, path.join(output, file)), sha256: sha(path.join(output, file)) })) }
   fs.writeFileSync(path.join(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
