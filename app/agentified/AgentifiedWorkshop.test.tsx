@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { AnchorHTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AGENTIFIED_GUEST_KEY } from '@/lib/agentified-workshop'
@@ -56,13 +56,13 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(track.mode).toBe('showing')
     expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
     track.mode = 'disabled'
-    fireEvent(tracks, new Event('change'))
+    act(() => { tracks.dispatchEvent(new Event('change')) })
     fireEvent.pause(video)
     expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
     fireEvent.ended(video)
     expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
     track.mode = 'showing'
-    fireEvent(tracks, new Event('change'))
+    act(() => { tracks.dispatchEvent(new Event('change')) })
     expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
     if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
   })
