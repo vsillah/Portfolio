@@ -1,12 +1,12 @@
 {
-  "revision": "ff54c988f",
+  "revision": "627c637ce",
   "base": "http://localhost:4173",
   "checks": [
     {
       "route": "compounding-graph",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 80.99211120605469,
+      "navBottom": 81.01896047592163,
       "frameTop": 96,
       "frameHeight": 4127,
       "frameContentHeight": 4127,
@@ -16,7 +16,7 @@
       "route": "home-front-ledger",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 83.22104740142822,
+      "navBottom": 85.26835536956787,
       "frameTop": 96,
       "frameHeight": 2001,
       "frameContentHeight": 2001,
@@ -26,7 +26,7 @@
       "route": "owning-the-block",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 84.68531322479248,
+      "navBottom": 85.19698524475098,
       "frameTop": 96,
       "frameHeight": 1200,
       "frameContentHeight": 1200,
@@ -81,8 +81,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(93, 157, 169)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(41, 55, 66)",
+          "stroke": "rgb(168, 131, 104)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(47, 58, 77)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -99,8 +130,8 @@
         "pipe": "rgb(128, 147, 168)",
         "nodeStrokes": [
           "rgb(21, 95, 159)",
-          "rgb(100, 69, 158)",
-          "rgb(31, 93, 151)"
+          "rgb(99, 69, 165)",
+          "rgb(25, 94, 156)"
         ],
         "labelContrasts": [
           {
@@ -136,8 +167,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(52, 131, 145)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(181, 166, 150)",
+          "stroke": "rgb(115, 84, 63)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(128, 147, 168)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -191,8 +253,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(52, 131, 145)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(181, 166, 150)",
+          "stroke": "rgb(115, 84, 63)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(128, 147, 168)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -201,7 +294,7 @@
       "route": "compounding-graph",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 80.26048135757446,
+      "navBottom": 80.62108325958252,
       "frameTop": 96,
       "frameHeight": 4607,
       "frameContentHeight": 4607,
@@ -211,7 +304,7 @@
       "route": "home-front-ledger",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 84.18087768554688,
+      "navBottom": 84.61947536468506,
       "frameTop": 96,
       "frameHeight": 2191,
       "frameContentHeight": 2191,
@@ -221,7 +314,7 @@
       "route": "owning-the-block",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 83.70110559463501,
+      "navBottom": 85.18580532073975,
       "frameTop": 96,
       "frameHeight": 1473,
       "frameContentHeight": 1473,
@@ -276,8 +369,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(93, 157, 169)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(41, 55, 66)",
+          "stroke": "rgb(168, 131, 104)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(47, 58, 77)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -294,7 +418,7 @@
         "pipe": "rgb(128, 147, 168)",
         "nodeStrokes": [
           "rgb(21, 95, 159)",
-          "rgb(99, 69, 165)",
+          "rgb(99, 69, 166)",
           "rgb(25, 94, 156)"
         ],
         "labelContrasts": [
@@ -331,8 +455,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(52, 131, 145)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(181, 166, 150)",
+          "stroke": "rgb(115, 84, 63)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(128, 147, 168)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -386,8 +541,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(52, 131, 145)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(181, 166, 150)",
+          "stroke": "rgb(115, 84, 63)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(128, 147, 168)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -396,7 +582,7 @@
       "route": "compounding-graph",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 79.08074164390564,
+      "navBottom": 79.12099266052246,
       "frameTop": 96,
       "frameHeight": 6445,
       "frameContentHeight": 6445,
@@ -406,7 +592,7 @@
       "route": "home-front-ledger",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 76,
+      "navBottom": 82.29135417938232,
       "frameTop": 96,
       "frameHeight": 2504,
       "frameContentHeight": 2504,
@@ -416,7 +602,7 @@
       "route": "owning-the-block",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 77.1045480966568,
+      "navBottom": 83.19721460342407,
       "frameTop": 96,
       "frameHeight": 1917,
       "frameContentHeight": 1917,
@@ -471,8 +657,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(93, 157, 169)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(41, 55, 66)",
+          "stroke": "rgb(168, 131, 104)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(47, 58, 77)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -489,8 +706,8 @@
         "pipe": "rgb(128, 147, 168)",
         "nodeStrokes": [
           "rgb(21, 95, 159)",
-          "rgb(103, 71, 147)",
-          "rgb(41, 90, 144)"
+          "rgb(101, 70, 157)",
+          "rgb(32, 92, 151)"
         ],
         "labelContrasts": [
           {
@@ -526,8 +743,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(52, 131, 145)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(181, 166, 150)",
+          "stroke": "rgb(115, 84, 63)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(128, 147, 168)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -581,8 +829,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(52, 131, 145)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(181, 166, 150)",
+          "stroke": "rgb(115, 84, 63)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(128, 147, 168)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
@@ -636,8 +915,39 @@
         ],
         "skylinePointerEvents": "none",
         "utilityPointerEvents": "none",
-        "utilityShapes": 3,
-        "utilityPath": "M18 430H962M18 628H962",
+        "utilityLayerBehindData": true,
+        "utilityChildrenNonInteractive": true,
+        "water": {
+          "stroke": "rgb(93, 157, 169)",
+          "width": "8px",
+          "path": "M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"
+        },
+        "sewer": {
+          "fill": "rgb(41, 55, 66)",
+          "stroke": "rgb(168, 131, 104)",
+          "width": "2px",
+          "height": "15"
+        },
+        "researchConnector": {
+          "stroke": "rgb(47, 58, 77)",
+          "width": "2px"
+        },
+        "joints": 4,
+        "covers": 2,
+        "shafts": [
+          {
+            "x": "482",
+            "y": "326",
+            "height": "296"
+          },
+          {
+            "x": "722",
+            "y": "326",
+            "height": "296"
+          }
+        ],
+        "shaftLink": "M262 316V326H490M730 316V326",
+        "labelClearance": true,
         "roofCount": 6,
         "roofsInsideStreet": true
       }
