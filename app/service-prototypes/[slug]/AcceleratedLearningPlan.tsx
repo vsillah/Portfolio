@@ -447,9 +447,9 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
   const setCaptionMode = (enabled: boolean) => {
     setCaptionsOn(enabled)
     const track = videoRef.current?.textTracks[0]
-    if (track) track.mode = enabled ? signalsBinding ? 'hidden' : 'showing' : 'disabled'
+    if (track) track.mode = enabled ? 'hidden' : 'disabled'
     if (!enabled) setSignalsCaption('')
-    else if (signalsBinding) queueMicrotask(syncSignalsCaption)
+    else queueMicrotask(syncSignalsCaption)
   }
   const restoreVideo = () => {
     setCaptionMode(captionsOn)
@@ -470,7 +470,6 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
     setSignalsFocus(Boolean(signalsBinding && portraitMedia && signalsBinding.focus_windows.some((window) => time >= window.start_seconds && time < window.end_seconds)))
   }
   const syncSignalsCaption = () => {
-    if (!signalsBinding) return
     const track = videoRef.current?.textTracks[0]
     if (!track || track.mode === 'disabled') return
     if (track.mode !== 'hidden') track.mode = 'hidden'
@@ -573,7 +572,7 @@ export function AcceleratedLearningPlan({ mode = 'plan' }: { mode?: 'plan' | 'de
             <div className={styles.lessonEndSummary}><span>{!next && completed.length === lessons.length ? 'COURSE COMPLETE' : next ? 'LESSON VIDEO FINISHED' : 'FINAL VIDEO FINISHED'}</span><strong>{lesson.id} · {lesson.title}</strong><small>{completed.length} of {lessons.length} lessons marked complete</small><div className={styles.lessonEndProgress} role="progressbar" aria-label="Course lessons marked complete" aria-valuenow={completed.length} aria-valuemin={0} aria-valuemax={lessons.length}><span style={{ width: `${completed.length / lessons.length * 100}%` }} /></div></div>
             {next && nextBinding ? <button type="button" className={styles.lessonEndNext} onClick={() => { selectLesson(next.id); setFilter('All'); setQuery(''); setEndedLesson(null) }} aria-label={`Continue to ${next.id}: ${next.title}`}><img src={nextBinding.posterPath} alt={`${next.id} ${next.title} lesson cover`} /><span><small>UP NEXT · {next.id}</small><strong>{next.title}</strong><em>Open lesson <ArrowRight aria-hidden="true" /></em></span></button> : <Link href="/accelerated/decision-file" className={styles.lessonEndDecision}><span>YOUR NEXT MOVE</span><strong>Open the Decision File</strong><small>Carry the choice, evidence, and review date into one accountable next step.</small><em>Open Decision File <ArrowRight aria-hidden="true" /></em></Link>}
           </div>}</div>
-          {signalsBinding && captionsOn && signalsCaption && !showEndScreen && <div className={`${styles.signalsCaptionBand} ${captionStyles.band}`} data-caption-size={captionSize} role="status" aria-label={`${lesson.id} caption`}>{signalsCaption}</div>}
+          {captionsOn && signalsCaption && !showEndScreen && <div className={`${styles.signalsCaptionBand} ${captionStyles.band}`} data-caption-size={captionSize} role="status" aria-label={`${lesson.id} caption`}>{signalsCaption}</div>}
           <div className={styles.playerTools}><span>Duration {contextualBinding ? `${Math.floor(activeDuration / 60).toString().padStart(2, '0')}:${Math.floor(activeDuration % 60).toString().padStart(2, '0')}` : lessonMedia.duration}</span><button type="button" aria-pressed={captionsOn} onClick={() => setCaptionMode(!captionsOn)}>English captions {captionsOn ? 'on' : 'off'}</button><CaptionSizeControl size={captionSize} onChange={setCaptionSize} /></div>
           <details className={styles.transcript}><summary>Read along with {lesson.id} transcript</summary><ol>{activeTranscript?.cues.map((cue, index) => <li key={`${cue.start}-${index}`}><time>{cue.start}</time><span>{cue.text}</span></li>)}</ol></details>
         </section> : <div className={styles.mediaNotice}><strong>Guided video is pending</strong><p>The lesson brief and visual preview are available here. Recorded teaching and worksheets will appear after production review.</p><button type="button" disabled aria-label={`Watch ${lesson.id} guided video, unavailable until production review`}>Video unavailable</button></div>}

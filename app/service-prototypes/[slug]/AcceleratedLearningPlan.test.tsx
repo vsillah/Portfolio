@@ -35,7 +35,7 @@ describe('Accelerated learning plan', () => {
     authMocks.getSession.mockResolvedValue({ data: { session: null } })
     authMocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
   })
-  it('uses the shared caption size on native and external caption paths', async () => {
+  it('uses the shared caption size across Accelerated lessons', async () => {
     localStorage.setItem(CAPTION_SIZE_STORAGE_KEY, 'S')
     render(<AcceleratedLearningPlan />)
     const video = await screen.findByLabelText('L01 Build smarter, stay human guided video')

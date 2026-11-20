@@ -40,7 +40,8 @@ for (const width of [1280, 390]) {
         if (check.scrollWidth > baselineScrollWidth + 1) throw Error(`${course} ${id} ${width}: new horizontal overflow at ${size}`)
         if (check.band && !check.band.includes(cue.text.replaceAll('\n', ' ').slice(0, 12))) throw Error(`${course} ${id} ${width}: wrong active cue at ${size}`)
         results.push({ course, id, width, size, cueStart: cue.start, cueEnd: cue.end, cueLength: cue.text.length, ...check })
-        if ((course === 'agentified' && id === 'L07' || course === 'accelerated' && id === 'L01') && width === 390) await video.locator('../..').screenshot({ path: `${out}/${course}-${id}-${width}-${size}.png` })
+        if ((course === 'agentified' && id === 'L07' || course === 'accelerated' && ['L01', 'L09'].includes(id)) && width === 390) await video.locator('../..').screenshot({ path: `${out}/${course}-${id}-${width}-${size}.png` })
+        if (size === 'L' && width === 1280 && (course === 'agentified' && id === 'L07' || course === 'accelerated' && id === 'L09')) await video.locator('../..').screenshot({ path: `${out}/${course}-${id}-${width}-${size}.png` })
       }
       const toggle = page.getByRole('button', { name: 'English captions on' })
       await toggle.click()
@@ -49,6 +50,8 @@ for (const width of [1280, 390]) {
       await page.getByRole('button', { name: 'English captions off' }).click()
       const selected = await page.getByRole('button', { name: 'Large captions' }).getAttribute('aria-pressed')
       if (selected !== 'true') throw Error(`${course} ${id} ${width}: size lost after off/on`)
+      const restored = await page.locator('[aria-label$=" caption"]').count()
+      if (results.at(-1).band && restored !== 1) throw Error(`${course} ${id} ${width}: active cue did not return while paused`)
     }
     await page.close()
   }

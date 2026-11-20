@@ -8,10 +8,12 @@ const browser = await chromium.launch({ headless: true })
 for (const [course, id, path] of [
   ['agentified', 'L07', '/agentified/learningplan?lesson=L07'],
   ['accelerated', 'L01', '/accelerated/learningplan'],
+  ['accelerated', 'L09', '/accelerated/learningplan'],
 ]) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, recordVideo: { dir: out, size: { width: 390, height: 844 } } })
   const page = await context.newPage()
   await page.goto(`http://127.0.0.1:3121${path}`, { waitUntil: 'networkidle' })
+  if (course === 'accelerated' && id === 'L09') await page.locator('button[aria-label^="L09:"]').evaluate((button) => button.click())
   const video = page.locator('video')
   await page.waitForFunction(() => document.querySelector('video')?.textTracks[0]?.cues?.length > 0)
   const cue = await video.evaluate((element) => {
