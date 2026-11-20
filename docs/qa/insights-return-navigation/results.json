@@ -1,0 +1,289 @@
+{
+  "revision": "ba1658bce",
+  "base": "http://localhost:4173",
+  "checks": [
+    {
+      "route": "compounding-graph",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "nav": {
+        "left": 100,
+        "right": 1340,
+        "top": 28,
+        "bottom": 64
+      },
+      "links": [
+        {
+          "left": 100,
+          "right": 274.78125,
+          "top": 28,
+          "bottom": 64
+        },
+        {
+          "left": 290.78125,
+          "right": 360.890625,
+          "top": 28,
+          "bottom": 64
+        }
+      ],
+      "heading": {
+        "left": 100,
+        "right": 1340,
+        "top": 124,
+        "bottom": 168
+      }
+    },
+    {
+      "route": "home-front-ledger",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "nav": {
+        "left": 196,
+        "right": 1244,
+        "top": 28,
+        "bottom": 64
+      },
+      "links": [
+        {
+          "left": 196,
+          "right": 366.34375,
+          "top": 28,
+          "bottom": 64
+        },
+        {
+          "left": 382.34375,
+          "right": 451.015625,
+          "top": 28,
+          "bottom": 64
+        }
+      ],
+      "heading": {
+        "left": 196,
+        "right": 1244,
+        "top": 119.046875,
+        "bottom": 161.046875
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "nav": {
+        "left": 100,
+        "right": 1340,
+        "top": 36,
+        "bottom": 72
+      },
+      "links": [
+        {
+          "left": 100,
+          "right": 274.78125,
+          "top": 36,
+          "bottom": 72
+        },
+        {
+          "left": 290.78125,
+          "right": 360.890625,
+          "top": 36,
+          "bottom": 72
+        }
+      ],
+      "heading": {
+        "left": 100,
+        "right": 1340,
+        "top": 103,
+        "bottom": 156.03125
+      }
+    },
+    {
+      "route": "compounding-graph",
+      "width": 768,
+      "scrollWidth": 768,
+      "nav": {
+        "left": 16,
+        "right": 752,
+        "top": 28,
+        "bottom": 64
+      },
+      "links": [
+        {
+          "left": 16,
+          "right": 190.78125,
+          "top": 28,
+          "bottom": 64
+        },
+        {
+          "left": 206.78125,
+          "right": 276.890625,
+          "top": 28,
+          "bottom": 64
+        }
+      ],
+      "heading": {
+        "left": 16,
+        "right": 752,
+        "top": 124,
+        "bottom": 157.78125
+      }
+    },
+    {
+      "route": "home-front-ledger",
+      "width": 768,
+      "scrollWidth": 768,
+      "nav": {
+        "left": 16,
+        "right": 752,
+        "top": 28,
+        "bottom": 64
+      },
+      "links": [
+        {
+          "left": 16,
+          "right": 186.34375,
+          "top": 28,
+          "bottom": 64
+        },
+        {
+          "left": 202.34375,
+          "right": 271.015625,
+          "top": 28,
+          "bottom": 64
+        }
+      ],
+      "heading": {
+        "left": 16,
+        "right": 752,
+        "top": 119.046875,
+        "bottom": 155.328125
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "width": 768,
+      "scrollWidth": 768,
+      "nav": {
+        "left": 16,
+        "right": 752,
+        "top": 36,
+        "bottom": 72
+      },
+      "links": [
+        {
+          "left": 16,
+          "right": 190.78125,
+          "top": 36,
+          "bottom": 72
+        },
+        {
+          "left": 206.78125,
+          "right": 276.890625,
+          "top": 36,
+          "bottom": 72
+        }
+      ],
+      "heading": {
+        "left": 16,
+        "right": 752,
+        "top": 103,
+        "bottom": 139.03125
+      }
+    },
+    {
+      "route": "compounding-graph",
+      "width": 390,
+      "scrollWidth": 390,
+      "nav": {
+        "left": 16,
+        "right": 374,
+        "top": 28,
+        "bottom": 64
+      },
+      "links": [
+        {
+          "left": 16,
+          "right": 190.78125,
+          "top": 28,
+          "bottom": 64
+        },
+        {
+          "left": 206.78125,
+          "right": 276.890625,
+          "top": 28,
+          "bottom": 64
+        }
+      ],
+      "heading": {
+        "left": 16,
+        "right": 374,
+        "top": 124,
+        "bottom": 154.796875
+      }
+    },
+    {
+      "route": "home-front-ledger",
+      "width": 390,
+      "scrollWidth": 390,
+      "nav": {
+        "left": 16,
+        "right": 374,
+        "top": 28,
+        "bottom": 64
+      },
+      "links": [
+        {
+          "left": 16,
+          "right": 186.34375,
+          "top": 28,
+          "bottom": 64
+        },
+        {
+          "left": 202.34375,
+          "right": 271.015625,
+          "top": 28,
+          "bottom": 64
+        }
+      ],
+      "heading": {
+        "left": 16,
+        "right": 374,
+        "top": 119.046875,
+        "bottom": 148.4375
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "width": 390,
+      "scrollWidth": 390,
+      "nav": {
+        "left": 16,
+        "right": 374,
+        "top": 36,
+        "bottom": 72
+      },
+      "links": [
+        {
+          "left": 16,
+          "right": 190.78125,
+          "top": 36,
+          "bottom": 72
+        },
+        {
+          "left": 206.78125,
+          "right": 276.890625,
+          "top": 36,
+          "bottom": 72
+        }
+      ],
+      "heading": {
+        "left": 16,
+        "right": 374,
+        "top": 118,
+        "bottom": 152.671875
+      }
+    }
+  ],
+  "videos": [
+    "docs/qa/insights-return-navigation/desktop-1440x900.mp4",
+    "docs/qa/insights-return-navigation/mobile-390x844.mp4"
+  ]
+}
