@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T18:50:38.238Z",
+  "generatedAt": "2026-11-20T19:19:11.779Z",
   "base": "http://127.0.0.1:3121",
   "results": [
     {
@@ -7377,7 +7377,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 216.625
+          "buttonY": 215.625
         },
         "Medium": {
           "text": "Aa",
@@ -7389,7 +7389,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 216.625
+          "buttonY": 215.625
         },
         "Large": {
           "text": "Aa",
@@ -7401,7 +7401,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 216.625
+          "buttonY": 215.625
         }
       },
       "video": [
@@ -7548,7 +7548,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.515625
+          "buttonY": 499.515625
         },
         "Medium": {
           "text": "Aa",
@@ -7560,7 +7560,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.515625
+          "buttonY": 499.515625
         },
         "Large": {
           "text": "Aa",
@@ -7572,7 +7572,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.515625
+          "buttonY": 499.515625
         }
       },
       "video": [
@@ -7605,7 +7605,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 498.65625
+          "buttonY": 499.65625
         },
         "Medium": {
           "text": "Aa",
@@ -7617,7 +7617,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 498.65625
+          "buttonY": 499.65625
         },
         "Large": {
           "text": "Aa",
@@ -7629,7 +7629,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 498.65625
+          "buttonY": 499.65625
         }
       },
       "video": [
@@ -7662,7 +7662,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 330.859375
+          "buttonY": 499.859375
         },
         "Medium": {
           "text": "Aa",
@@ -7674,7 +7674,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 330.859375
+          "buttonY": 499.859375
         },
         "Large": {
           "text": "Aa",
@@ -7686,7 +7686,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 330.859375
+          "buttonY": 499.859375
         }
       },
       "video": [
@@ -7719,7 +7719,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 245.40625
+          "buttonY": 400.40625
         },
         "Medium": {
           "text": "Aa",
@@ -7731,7 +7731,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 245.40625
+          "buttonY": 400.40625
         },
         "Large": {
           "text": "Aa",
@@ -7743,7 +7743,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 245.40625
+          "buttonY": 400.40625
         }
       },
       "video": [
@@ -7776,7 +7776,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 648.140625
+          "buttonY": 400.140625
         },
         "Medium": {
           "text": "Aa",
@@ -7788,7 +7788,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 648.140625
+          "buttonY": 400.140625
         },
         "Large": {
           "text": "Aa",
@@ -7800,7 +7800,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 648.140625
+          "buttonY": 400.140625
         }
       },
       "video": [
@@ -7833,7 +7833,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 801.96875
+          "buttonY": 400.96875
         },
         "Medium": {
           "text": "Aa",
@@ -7845,7 +7845,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 801.96875
+          "buttonY": 400.96875
         },
         "Large": {
           "text": "Aa",
@@ -7857,7 +7857,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 801.96875
+          "buttonY": 400.96875
         }
       },
       "video": [
@@ -7890,7 +7890,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 278.84375
+          "buttonY": 244.84375
         },
         "Medium": {
           "text": "Aa",
@@ -7902,7 +7902,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 278.84375
+          "buttonY": 244.84375
         },
         "Large": {
           "text": "Aa",
@@ -7914,7 +7914,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 278.84375
+          "buttonY": 244.84375
         }
       },
       "video": [
@@ -8232,7 +8232,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 214.515625
+          "buttonY": 227.515625
         },
         "Medium": {
           "text": "Aa",
@@ -8244,7 +8244,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 214.515625
+          "buttonY": 227.515625
         },
         "Large": {
           "text": "Aa",
@@ -8256,7 +8256,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 214.515625
+          "buttonY": 227.515625
         }
       },
       "video": [
@@ -8403,7 +8403,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.515625
+          "buttonY": 604.515625
         },
         "Medium": {
           "text": "Aa",
@@ -8415,7 +8415,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.515625
+          "buttonY": 604.515625
         },
         "Large": {
           "text": "Aa",
@@ -8427,7 +8427,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.515625
+          "buttonY": 604.515625
         }
       },
       "video": [
@@ -8460,7 +8460,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.84375
+          "buttonY": 655.84375
         },
         "Medium": {
           "text": "Aa",
@@ -8472,7 +8472,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.84375
+          "buttonY": 655.84375
         },
         "Large": {
           "text": "Aa",
@@ -8484,7 +8484,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.84375
+          "buttonY": 655.84375
         }
       },
       "video": [
@@ -8517,7 +8517,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.578125
+          "buttonY": 801.578125
         },
         "Medium": {
           "text": "Aa",
@@ -8529,7 +8529,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.578125
+          "buttonY": 801.578125
         },
         "Large": {
           "text": "Aa",
@@ -8541,7 +8541,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.578125
+          "buttonY": 801.578125
         }
       },
       "video": [
@@ -8574,7 +8574,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.46875
+          "buttonY": 245.46875
         },
         "Medium": {
           "text": "Aa",
@@ -8586,7 +8586,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.46875
+          "buttonY": 245.46875
         },
         "Large": {
           "text": "Aa",
@@ -8598,7 +8598,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.46875
+          "buttonY": 245.46875
         }
       },
       "video": [
@@ -8631,7 +8631,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.390625
+          "buttonY": 405.390625
         },
         "Medium": {
           "text": "Aa",
@@ -8643,7 +8643,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.390625
+          "buttonY": 405.390625
         },
         "Large": {
           "text": "Aa",
@@ -8655,7 +8655,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.390625
+          "buttonY": 405.390625
         }
       },
       "video": [
@@ -8802,7 +8802,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 393.0625
+          "buttonY": 388.0625
         },
         "Medium": {
           "text": "Aa",
@@ -8814,7 +8814,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 393.0625
+          "buttonY": 388.0625
         },
         "Large": {
           "text": "Aa",
@@ -8826,7 +8826,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 393.0625
+          "buttonY": 388.0625
         }
       },
       "video": [
@@ -8859,7 +8859,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 387.328125
+          "buttonY": 378.328125
         },
         "Medium": {
           "text": "Aa",
@@ -8871,7 +8871,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 387.328125
+          "buttonY": 378.328125
         },
         "Large": {
           "text": "Aa",
@@ -8883,7 +8883,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 387.328125
+          "buttonY": 378.328125
         }
       },
       "video": [
@@ -8916,7 +8916,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.03125
+          "buttonY": 250.03125
         },
         "Medium": {
           "text": "Aa",
@@ -8928,7 +8928,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.03125
+          "buttonY": 250.03125
         },
         "Large": {
           "text": "Aa",
@@ -8940,7 +8940,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.03125
+          "buttonY": 250.03125
         }
       },
       "video": [
@@ -8973,7 +8973,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.359375
+          "buttonY": 637.359375
         },
         "Medium": {
           "text": "Aa",
@@ -8985,7 +8985,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.359375
+          "buttonY": 637.359375
         },
         "Large": {
           "text": "Aa",
@@ -8997,7 +8997,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.359375
+          "buttonY": 637.359375
         }
       },
       "video": [
@@ -9030,7 +9030,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.703125
+          "buttonY": 637.703125
         },
         "Medium": {
           "text": "Aa",
@@ -9042,7 +9042,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.703125
+          "buttonY": 637.703125
         },
         "Large": {
           "text": "Aa",
@@ -9054,7 +9054,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.703125
+          "buttonY": 637.703125
         }
       },
       "video": [
@@ -9258,7 +9258,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 220.03125
+          "buttonY": 401.03125
         },
         "Medium": {
           "text": "Aa",
@@ -9270,7 +9270,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 220.03125
+          "buttonY": 401.03125
         },
         "Large": {
           "text": "Aa",
@@ -9282,7 +9282,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 220.03125
+          "buttonY": 401.03125
         }
       },
       "video": [
@@ -9315,7 +9315,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 605.359375
+          "buttonY": 401.359375
         },
         "Medium": {
           "text": "Aa",
@@ -9327,7 +9327,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 605.359375
+          "buttonY": 401.359375
         },
         "Large": {
           "text": "Aa",
@@ -9339,7 +9339,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 605.359375
+          "buttonY": 401.359375
         }
       },
       "video": [
@@ -9372,7 +9372,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 605.09375
+          "buttonY": 401.09375
         },
         "Medium": {
           "text": "Aa",
@@ -9384,7 +9384,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 605.09375
+          "buttonY": 401.09375
         },
         "Large": {
           "text": "Aa",
@@ -9396,7 +9396,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 605.09375
+          "buttonY": 401.09375
         }
       },
       "video": [
@@ -9600,7 +9600,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.03125
+          "buttonY": 571.03125
         },
         "Medium": {
           "text": "Aa",
@@ -9612,7 +9612,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.03125
+          "buttonY": 571.03125
         },
         "Large": {
           "text": "Aa",
@@ -9624,7 +9624,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.03125
+          "buttonY": 571.03125
         }
       },
       "video": [
@@ -9657,7 +9657,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.65625
+          "buttonY": 247.65625
         },
         "Medium": {
           "text": "Aa",
@@ -9669,7 +9669,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.65625
+          "buttonY": 247.65625
         },
         "Large": {
           "text": "Aa",
@@ -9681,7 +9681,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.65625
+          "buttonY": 247.65625
         }
       },
       "video": [
@@ -9714,7 +9714,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.484375
+          "buttonY": 247.484375
         },
         "Medium": {
           "text": "Aa",
@@ -9726,7 +9726,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.484375
+          "buttonY": 247.484375
         },
         "Large": {
           "text": "Aa",
@@ -9738,7 +9738,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 401.484375
+          "buttonY": 247.484375
         }
       },
       "video": [
@@ -9970,6 +9970,438 @@
           986.84375
         ]
       ],
+      "hover": "oklab(0.980638 -0.000103039 -0.000782758)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(18, 30, 49)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 1280,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "ink": "#EAECEE",
+      "colors": [
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgba(18, 30, 49, 0.55)",
+        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
+        "rgba(18, 30, 49, 0.55)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          440.84375
+        ],
+        [
+          43,
+          42,
+          440.84375
+        ],
+        [
+          43,
+          42,
+          440.84375
+        ]
+      ],
+      "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(234, 236, 238)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 1280,
+      "theme": "system",
+      "colorScheme": "light",
+      "ink": "#121e31",
+      "colors": [
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.851294 0.858824 0.870745)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          440.84375
+        ],
+        [
+          43,
+          42,
+          440.84375
+        ],
+        [
+          43,
+          42,
+          440.84375
+        ]
+      ],
+      "hover": "oklab(0.999994 0.0000455678 0.0000200868)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(18, 30, 49)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 1280,
+      "theme": "system",
+      "colorScheme": "dark",
+      "ink": "#EAECEE",
+      "colors": [
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgba(18, 30, 49, 0.55)",
+        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
+        "rgba(18, 30, 49, 0.55)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          440.84375
+        ],
+        [
+          43,
+          42,
+          440.84375
+        ],
+        [
+          43,
+          42,
+          440.84375
+        ]
+      ],
+      "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(234, 236, 238)"
+      }
+    },
+    {
+      "course": "accelerated",
+      "width": 1280,
+      "theme": "light",
+      "colorScheme": "light",
+      "ink": "#172d35",
+      "colors": [
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.854431 0.868235 0.873255)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          1193.109375
+        ],
+        [
+          43,
+          42,
+          1193.109375
+        ],
+        [
+          43,
+          42,
+          1193.109375
+        ]
+      ],
+      "hover": "oklab(0.99007 -0.000256146 -0.000244998)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(23, 45, 53)"
+      }
+    },
+    {
+      "course": "accelerated",
+      "width": 1280,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "ink": "#edf3f1",
+      "colors": [
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(23, 52, 62)",
+        "color(srgb 0.224471 0.323765 0.355451)",
+        "rgb(23, 52, 62)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ]
+      ],
+      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(237, 243, 241)"
+      }
+    },
+    {
+      "course": "accelerated",
+      "width": 1280,
+      "theme": "system",
+      "colorScheme": "light",
+      "ink": "#172d35",
+      "colors": [
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.854431 0.868235 0.873255)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ]
+      ],
+      "hover": "oklab(0.999994 0.0000455678 0.0000200868)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(23, 45, 53)"
+      }
+    },
+    {
+      "course": "accelerated",
+      "width": 1280,
+      "theme": "system",
+      "colorScheme": "dark",
+      "ink": "#edf3f1",
+      "colors": [
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(23, 52, 62)",
+        "color(srgb 0.224471 0.323765 0.355451)",
+        "rgb(23, 52, 62)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ]
+      ],
+      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(237, 243, 241)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 390,
+      "theme": "light",
+      "colorScheme": "light",
+      "ink": "#121e31",
+      "colors": [
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.851294 0.858824 0.870745)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          1067.125
+        ],
+        [
+          43,
+          42,
+          1067.125
+        ],
+        [
+          43,
+          42,
+          1067.125
+        ]
+      ],
       "hover": "oklab(0.989538 -0.0000347074 -0.000413598)",
       "focus": {
         "outline": "3px",
@@ -9978,438 +10410,6 @@
     },
     {
       "course": "agentified",
-      "width": 1280,
-      "theme": "dark",
-      "colorScheme": "dark",
-      "ink": "#EAECEE",
-      "colors": [
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgba(18, 30, 49, 0.55)",
-        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
-        "rgba(18, 30, 49, 0.55)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ]
-      ],
-      "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(234, 236, 238)"
-      }
-    },
-    {
-      "course": "agentified",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "light",
-      "ink": "#121e31",
-      "colors": [
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.851294 0.858824 0.870745)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ]
-      ],
-      "hover": "oklab(0.998776 0.0000362177 -0.0000304268)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(18, 30, 49)"
-      }
-    },
-    {
-      "course": "agentified",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "dark",
-      "ink": "#EAECEE",
-      "colors": [
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgba(18, 30, 49, 0.55)",
-        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
-        "rgba(18, 30, 49, 0.55)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ]
-      ],
-      "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(234, 236, 238)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "light",
-      "colorScheme": "light",
-      "ink": "#172d35",
-      "colors": [
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.854431 0.868235 0.873255)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          1193.109375
-        ],
-        [
-          43,
-          42,
-          1193.109375
-        ],
-        [
-          43,
-          42,
-          1193.109375
-        ]
-      ],
-      "hover": "oklab(0.99007 -0.000256146 -0.000244998)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(23, 45, 53)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "dark",
-      "colorScheme": "dark",
-      "ink": "#edf3f1",
-      "colors": [
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(23, 52, 62)",
-        "color(srgb 0.224471 0.323765 0.355451)",
-        "rgb(23, 52, 62)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ]
-      ],
-      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(237, 243, 241)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "light",
-      "ink": "#172d35",
-      "colors": [
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.854431 0.868235 0.873255)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ]
-      ],
-      "hover": "oklab(0.999994 0.0000455678 0.0000200868)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(23, 45, 53)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "dark",
-      "ink": "#edf3f1",
-      "colors": [
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(23, 52, 62)",
-        "color(srgb 0.224471 0.323765 0.355451)",
-        "rgb(23, 52, 62)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ]
-      ],
-      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(237, 243, 241)"
-      }
-    },
-    {
-      "course": "agentified",
-      "width": 390,
-      "theme": "light",
-      "colorScheme": "light",
-      "ink": "#121e31",
-      "colors": [
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.851294 0.858824 0.870745)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          1067.125
-        ],
-        [
-          43,
-          42,
-          1067.125
-        ],
-        [
-          43,
-          42,
-          1067.125
-        ]
-      ],
-      "hover": "oklab(0.989503 -0.0000349756 -0.000415046)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(18, 30, 49)"
-      }
-    },
-    {
-      "course": "agentified",
       "width": 390,
       "theme": "dark",
       "colorScheme": "dark",
@@ -10618,7 +10618,7 @@
           1212.0625
         ]
       ],
-      "hover": "oklab(0.99007 -0.000256146 -0.000244998)",
+      "hover": "oklab(0.981622 -0.000512971 -0.000470643)",
       "focus": {
         "outline": "3px",
         "color": "rgb(23, 45, 53)"

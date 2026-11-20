@@ -70,6 +70,7 @@ for (const width of [1280, 390]) {
       })
       await video.evaluate((element, time) => { element.currentTime = time; element.dispatchEvent(new Event('timeupdate', { bubbles: true })) }, cue.start + .05)
       await waitForCueFrame(page, cue.start + .05)
+      const pausedTime = await video.evaluate((element) => { element.pause(); return element.currentTime })
       const baselineScrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
       let geometry = null
       for (const size of ['S', 'M', 'L']) {
@@ -94,9 +95,13 @@ for (const width of [1280, 390]) {
       }
       const toggle = page.getByRole('button', { name: 'English captions on' })
       await toggle.click()
-      await page.waitForFunction(() => document.querySelector('video')?.textTracks[0]?.mode === 'disabled' && !document.querySelector('[aria-label$=" caption"]') && [...document.querySelectorAll('button')].some((button) => button.textContent?.trim() === 'English captions off' && button.getAttribute('aria-pressed') === 'false'))
+      await page.waitForFunction(() => document.querySelector('video')?.textTracks[0]?.mode === 'disabled' && !document.querySelector('[aria-label$=" caption"]') && !document.querySelector('[role="group"][aria-label="Caption size"]') && document.querySelector('video')?.dataset.captionSize === 'L' && localStorage.getItem('amadutown.caption-size.v1') === 'L' && [...document.querySelectorAll('button')].some((button) => button.textContent?.trim() === 'English captions off' && button.getAttribute('aria-pressed') === 'false'))
+      const offState = await video.evaluate((element) => { const box = element.getBoundingClientRect(); return { video: [Math.round(box.width), Math.round(box.height)], time: element.currentTime } })
+      if (offState.video.join() !== geometry.join() || Math.abs(offState.time - pausedTime) > .1) throw Error(`${course} ${id} ${width}: geometry or paused cue moved when captions turned off`)
       await page.getByRole('button', { name: 'English captions off' }).click()
       await waitForCaptionSize(page, { course, width, name: 'Large' })
+      const restoredTime = await video.evaluate((element) => element.currentTime)
+      if (Math.abs(restoredTime - offState.time) > .1) throw Error(`${course} ${id} ${width}: cue time moved when captions returned`)
       const restored = await page.locator('[aria-label$=" caption"]').count()
       if (results.at(-1).band && restored !== 1) throw Error(`${course} ${id} ${width}: active cue did not return while paused`)
       if (id === lessonIds[0]) {
