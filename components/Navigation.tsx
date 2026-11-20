@@ -16,6 +16,7 @@ import { ThemePreferenceList } from '@/components/ThemeToggle'
 const navItems = [
   { name: 'Home', href: '#home' },
   { name: 'System', href: '#system' },
+  { name: 'Insights', href: '/insights' },
   { name: 'Products', href: '#products' },
   { name: 'Services', href: '#services' },
   { name: 'Merchandise', href: '#merchandise' },

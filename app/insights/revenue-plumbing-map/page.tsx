@@ -22,6 +22,9 @@ export default function RevenuePlumbingMapPage() {
 
       <article className="mx-auto max-w-7xl px-6 pb-24 pt-28 sm:px-10 lg:px-12">
         <header className="max-w-3xl">
+          <Link href="/insights" className="mb-5 inline-block text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2">
+            All insights
+          </Link>
           <p className="font-heading text-xs uppercase tracking-[0.22em] text-muted-foreground">
             Insights · Revenue operations
           </p>

@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
 require('./scripts/verify-accelerated-contextual-binding.cjs').verifyAcceleratedContextualBinding()
 const nextConfig = {
+  async rewrites() {
+    return [
+      { source: '/insights/compounding-graph', destination: '/insights/equity-code/compounding-graph.html' },
+      { source: '/insights/home-front-ledger', destination: '/insights/equity-code/home-front-ledger.html' },
+      { source: '/insights/owning-the-block', destination: '/insights/equity-code/owning-the-block.html' },
+      // The ledger's unchanged relative script URLs resolve beside /insights/home-front-ledger.
+      { source: '/insights/world.js', destination: '/insights/equity-code/world.js' },
+      { source: '/insights/data.js', destination: '/insights/equity-code/data.js' },
+    ]
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
