@@ -159,6 +159,41 @@ describe('Agentified lesson media gate', () => {
     cancelFrame.mockRestore()
   })
 
+  it('positions only L07 opening cues on desktop and restores native placement at 620px', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    HTMLMediaElement.prototype.pause = vi.fn()
+    const opening = { startTime: 9.876, endTime: 15.124, text: 'Original caption', snapToLines: true, line: 'auto' as number | 'auto' }
+    const later = { startTime: 27.99, endTime: 31.884, text: 'Later caption', snapToLines: true, line: 'auto' as number | 'auto' }
+    const track = Object.assign(new EventTarget(), { cues: [opening, later] })
+    const media = Object.assign(new EventTarget(), { matches: true })
+    const setViewportWidth = (width: number) => { media.matches = width >= 621; media.dispatchEvent(new Event('change')) }
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn(() => media))
+    try {
+      const { container, unmount } = render(<AgentifiedLessonHero lessonId="L07" title="Team" poster="/agentified/posters/l07-poster.webp" videoSrc="/approved-l07.mp4" captionsSrc="/approved-l07.vtt" />)
+      expect(window.matchMedia).toHaveBeenCalledWith('(min-width: 621px)')
+      expect(container.querySelector('video')).toHaveAttribute('controls')
+      expect(opening).toMatchObject({ line: 4, snapToLines: false, text: 'Original caption', startTime: 9.876, endTime: 15.124 })
+      expect(later).toMatchObject({ line: 'auto', snapToLines: true })
+
+      setViewportWidth(620)
+      expect(opening).toMatchObject({ line: 'auto', snapToLines: true })
+      expect(later).toMatchObject({ line: 'auto', snapToLines: true })
+
+      setViewportWidth(621)
+      expect(opening).toMatchObject({ line: 4, snapToLines: false })
+      unmount()
+      setViewportWidth(620)
+      expect(opening).toMatchObject({ line: 4, snapToLines: false })
+    } finally {
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('reveals the next lesson at the exact sentence-complete boundary and hides it after seeking back', () => {
     const { container } = render(<AgentifiedLessonHero lessonId="L02" title="Decision" poster="/agentified/posters/l02-poster.webp" videoSrc="/approved-l02.mp4" durationSeconds={510} endScreen={{ startSeconds: 504, progress: 2, nextLesson: { id: 'L03', title: 'Trace the work and grade the sources', poster: '/agentified/posters/l03-poster.webp' } }} />)
     const video = container.querySelector('video')!
