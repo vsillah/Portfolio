@@ -1,0 +1,3339 @@
+{
+  "generatedAt": "2026-11-20T18:08:57.477Z",
+  "base": "http://127.0.0.1:3121",
+  "results": [
+    {
+      "course": "agentified",
+      "id": "L01",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 74.197,
+      "cueEnd": 83.794,
+      "cueLength": 165,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L01",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 74.197,
+      "cueEnd": 83.794,
+      "cueLength": 165,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L01",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 74.197,
+      "cueEnd": 83.794,
+      "cueLength": 165,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L05",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 15.872,
+      "cueEnd": 21.568,
+      "cueLength": 111,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L05",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 15.872,
+      "cueEnd": 21.568,
+      "cueLength": 111,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L05",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 15.872,
+      "cueEnd": 21.568,
+      "cueLength": 111,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L06",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 171.875,
+      "cueEnd": 182.087,
+      "cueLength": 163,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L06",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 171.875,
+      "cueEnd": 182.087,
+      "cueLength": 163,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L06",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 171.875,
+      "cueEnd": 182.087,
+      "cueLength": 163,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Include each of the five fields, its authority\nrung, read and write scope, retention rule,\nsource check, receipt, approval owner, review\ndate, and revocation path.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 99.852,
+      "cueEnd": 107.456,
+      "cueLength": 133,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 99.852,
+      "cueEnd": 107.456,
+      "cueLength": 133,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 99.852,
+      "cueEnd": 107.456,
+      "cueLength": 133,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L08",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 39.641,
+      "cueEnd": 49.113,
+      "cueLength": 138,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L08",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 39.641,
+      "cueEnd": 49.113,
+      "cueLength": 138,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L08",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 39.641,
+      "cueEnd": 49.113,
+      "cueLength": 138,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L09",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 138.08,
+      "cueEnd": 147.12,
+      "cueLength": 150,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L09",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 138.08,
+      "cueEnd": 147.12,
+      "cueLength": 150,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L09",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 138.08,
+      "cueEnd": 147.12,
+      "cueLength": 150,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L10",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 173.66,
+      "cueEnd": 185,
+      "cueLength": 165,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L10",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 173.66,
+      "cueEnd": 185,
+      "cueLength": 165,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L10",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 173.66,
+      "cueEnd": 185,
+      "cueLength": 165,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L11",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 28.24,
+      "cueEnd": 44.7,
+      "cueLength": 247,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L11",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 28.24,
+      "cueEnd": 44.7,
+      "cueLength": 247,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L11",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 28.24,
+      "cueEnd": 44.7,
+      "cueLength": 247,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L12",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 183.12,
+      "cueEnd": 195.72,
+      "cueLength": 200,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L12",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 183.12,
+      "cueEnd": 195.72,
+      "cueLength": 200,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L12",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 183.12,
+      "cueEnd": 195.72,
+      "cueLength": 200,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L13",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 155.19,
+      "cueEnd": 168.801,
+      "cueLength": 191,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L13",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 155.19,
+      "cueEnd": 168.801,
+      "cueLength": 191,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L13",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 155.19,
+      "cueEnd": 168.801,
+      "cueLength": 191,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L14",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 67.884,
+      "cueEnd": 75.223,
+      "cueLength": 139,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L14",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 67.884,
+      "cueEnd": 75.223,
+      "cueLength": 139,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L14",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 67.884,
+      "cueEnd": 75.223,
+      "cueLength": 139,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L15",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 94.711,
+      "cueEnd": 102.647,
+      "cueLength": 150,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L15",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 94.711,
+      "cueEnd": 102.647,
+      "cueLength": 150,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L15",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 94.711,
+      "cueEnd": 102.647,
+      "cueLength": 150,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L16",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 250.554,
+      "cueEnd": 257.722,
+      "cueLength": 141,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L16",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 250.554,
+      "cueEnd": 257.722,
+      "cueLength": 141,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "showing",
+      "video": [
+        621,
+        349
+      ],
+      "band": null,
+      "bandFont": null,
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L16",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 250.554,
+      "cueEnd": 257.722,
+      "cueLength": 141,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        621,
+        349
+      ],
+      "band": "Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 323.242,
+      "cueEnd": 330.659,
+      "cueLength": 117,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 323.242,
+      "cueEnd": 330.659,
+      "cueLength": 117,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 323.242,
+      "cueEnd": 330.659,
+      "cueLength": 117,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L02",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 510.699,
+      "cueEnd": 526.273,
+      "cueLength": 171,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L02",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 510.699,
+      "cueEnd": 526.273,
+      "cueLength": 171,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L02",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 510.699,
+      "cueEnd": 526.273,
+      "cueLength": 171,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L03",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 101.529,
+      "cueEnd": 134.141,
+      "cueLength": 330,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L03",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 101.529,
+      "cueEnd": 134.141,
+      "cueLength": 330,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L03",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 101.529,
+      "cueEnd": 134.141,
+      "cueLength": 330,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L04",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 218.342,
+      "cueEnd": 237.139,
+      "cueLength": 219,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L04",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 218.342,
+      "cueEnd": 237.139,
+      "cueLength": 219,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L04",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 218.342,
+      "cueEnd": 237.139,
+      "cueLength": 219,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L05",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 102.791,
+      "cueEnd": 120.465,
+      "cueLength": 190,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L05",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 102.791,
+      "cueEnd": 120.465,
+      "cueLength": 190,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L05",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 102.791,
+      "cueEnd": 120.465,
+      "cueLength": 190,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L06",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 187.156,
+      "cueEnd": 210.095,
+      "cueLength": 255,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L06",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 187.156,
+      "cueEnd": 210.095,
+      "cueLength": 255,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L06",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 187.156,
+      "cueEnd": 210.095,
+      "cueLength": 255,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L07",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 252.5,
+      "cueEnd": 279,
+      "cueLength": 326,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L07",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 252.5,
+      "cueEnd": 279,
+      "cueLength": 326,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L07",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 252.5,
+      "cueEnd": 279,
+      "cueLength": 326,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L08",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 124.12,
+      "cueEnd": 139.056,
+      "cueLength": 182,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L08",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 124.12,
+      "cueEnd": 139.056,
+      "cueLength": 182,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L08",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 124.12,
+      "cueEnd": 139.056,
+      "cueLength": 182,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 437.645,
+      "cueEnd": 446.249,
+      "cueLength": 149,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 437.645,
+      "cueEnd": 446.249,
+      "cueLength": 149,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 437.645,
+      "cueEnd": 446.249,
+      "cueLength": 149,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L10",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 72.07,
+      "cueEnd": 97.032,
+      "cueLength": 427,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L10",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 72.07,
+      "cueEnd": 97.032,
+      "cueLength": 427,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L10",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 72.07,
+      "cueEnd": 97.032,
+      "cueLength": 427,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L11",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 69.674,
+      "cueEnd": 79.139,
+      "cueLength": 163,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L11",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 69.674,
+      "cueEnd": 79.139,
+      "cueLength": 163,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L11",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 69.674,
+      "cueEnd": 79.139,
+      "cueLength": 163,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L12",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 88.414,
+      "cueEnd": 101.157,
+      "cueLength": 215,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L12",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 88.414,
+      "cueEnd": 101.157,
+      "cueLength": 215,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L12",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 88.414,
+      "cueEnd": 101.157,
+      "cueLength": 215,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L13",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 217.341,
+      "cueEnd": 227.575,
+      "cueLength": 175,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L13",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 217.341,
+      "cueEnd": 227.575,
+      "cueLength": 175,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L13",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 217.341,
+      "cueEnd": 227.575,
+      "cueLength": 175,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L14",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 75.188,
+      "cueEnd": 85.364,
+      "cueLength": 175,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L14",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 75.188,
+      "cueEnd": 85.364,
+      "cueLength": 175,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L14",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 75.188,
+      "cueEnd": 85.364,
+      "cueLength": 175,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L15",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 149.562,
+      "cueEnd": 161.069,
+      "cueLength": 193,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L15",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 149.562,
+      "cueEnd": 161.069,
+      "cueLength": 193,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L15",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 149.562,
+      "cueEnd": 161.069,
+      "cueLength": 193,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L16",
+      "width": 1280,
+      "size": "S",
+      "cueStart": 16.548,
+      "cueEnd": 24.9,
+      "cueLength": 156,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it.",
+      "bandFont": "14px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L16",
+      "width": 1280,
+      "size": "M",
+      "cueStart": 16.548,
+      "cueEnd": 24.9,
+      "cueLength": 156,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it.",
+      "bandFont": "17px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "accelerated",
+      "id": "L16",
+      "width": 1280,
+      "size": "L",
+      "cueStart": 16.548,
+      "cueEnd": 24.9,
+      "cueLength": 156,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        1062,
+        597
+      ],
+      "band": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it.",
+      "bandFont": "21px",
+      "scrollWidth": 1280
+    },
+    {
+      "course": "agentified",
+      "id": "L01",
+      "width": 390,
+      "size": "S",
+      "cueStart": 74.197,
+      "cueEnd": 83.794,
+      "cueLength": 165,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "bandFont": "14px",
+      "scrollWidth": 391
+    },
+    {
+      "course": "agentified",
+      "id": "L01",
+      "width": 390,
+      "size": "M",
+      "cueStart": 74.197,
+      "cueEnd": 83.794,
+      "cueLength": 165,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "bandFont": "17px",
+      "scrollWidth": 391
+    },
+    {
+      "course": "agentified",
+      "id": "L01",
+      "width": 390,
+      "size": "L",
+      "cueStart": 74.197,
+      "cueEnd": 83.794,
+      "cueLength": 165,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "bandFont": "21px",
+      "scrollWidth": 391
+    },
+    {
+      "course": "agentified",
+      "id": "L05",
+      "width": 390,
+      "size": "S",
+      "cueStart": 15.872,
+      "cueEnd": 21.568,
+      "cueLength": 111,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandFont": "14px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L05",
+      "width": 390,
+      "size": "M",
+      "cueStart": 15.872,
+      "cueEnd": 21.568,
+      "cueLength": 111,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandFont": "17px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L05",
+      "width": 390,
+      "size": "L",
+      "cueStart": 15.872,
+      "cueEnd": 21.568,
+      "cueLength": 111,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandFont": "21px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L06",
+      "width": 390,
+      "size": "S",
+      "cueStart": 171.875,
+      "cueEnd": 182.087,
+      "cueLength": 163,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Include each of the five fields, its authority\nrung, read and write scope, retention rule,\nsource check, receipt, approval owner, review\ndate, and revocation path.",
+      "bandFont": "14px",
+      "scrollWidth": 391
+    },
+    {
+      "course": "agentified",
+      "id": "L06",
+      "width": 390,
+      "size": "M",
+      "cueStart": 171.875,
+      "cueEnd": 182.087,
+      "cueLength": 163,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Include each of the five fields, its authority\nrung, read and write scope, retention rule,\nsource check, receipt, approval owner, review\ndate, and revocation path.",
+      "bandFont": "17px",
+      "scrollWidth": 391
+    },
+    {
+      "course": "agentified",
+      "id": "L06",
+      "width": 390,
+      "size": "L",
+      "cueStart": 171.875,
+      "cueEnd": 182.087,
+      "cueLength": 163,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Include each of the five fields, its authority\nrung, read and write scope, retention rule,\nsource check, receipt, approval owner, review\ndate, and revocation path.",
+      "bandFont": "21px",
+      "scrollWidth": 391
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "width": 390,
+      "size": "S",
+      "cueStart": 99.852,
+      "cueEnd": 107.456,
+      "cueLength": 133,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth.",
+      "bandFont": "14px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "width": 390,
+      "size": "M",
+      "cueStart": 99.852,
+      "cueEnd": 107.456,
+      "cueLength": 133,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth.",
+      "bandFont": "17px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "width": 390,
+      "size": "L",
+      "cueStart": 99.852,
+      "cueEnd": 107.456,
+      "cueLength": 133,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth.",
+      "bandFont": "21px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L08",
+      "width": 390,
+      "size": "S",
+      "cueStart": 39.641,
+      "cueEnd": 49.113,
+      "cueLength": 138,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+      "bandFont": "14px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L08",
+      "width": 390,
+      "size": "M",
+      "cueStart": 39.641,
+      "cueEnd": 49.113,
+      "cueLength": 138,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+      "bandFont": "17px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L08",
+      "width": 390,
+      "size": "L",
+      "cueStart": 39.641,
+      "cueEnd": 49.113,
+      "cueLength": 138,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+      "bandFont": "21px",
+      "scrollWidth": 392
+    },
+    {
+      "course": "agentified",
+      "id": "L09",
+      "width": 390,
+      "size": "S",
+      "cueStart": 138.08,
+      "cueEnd": 147.12,
+      "cueLength": 150,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L09",
+      "width": 390,
+      "size": "M",
+      "cueStart": 138.08,
+      "cueEnd": 147.12,
+      "cueLength": 150,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L09",
+      "width": 390,
+      "size": "L",
+      "cueStart": 138.08,
+      "cueEnd": 147.12,
+      "cueLength": 150,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L10",
+      "width": 390,
+      "size": "S",
+      "cueStart": 173.66,
+      "cueEnd": 185,
+      "cueLength": 165,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L10",
+      "width": 390,
+      "size": "M",
+      "cueStart": 173.66,
+      "cueEnd": 185,
+      "cueLength": 165,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L10",
+      "width": 390,
+      "size": "L",
+      "cueStart": 173.66,
+      "cueEnd": 185,
+      "cueLength": 165,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L11",
+      "width": 390,
+      "size": "S",
+      "cueStart": 28.24,
+      "cueEnd": 44.7,
+      "cueLength": 247,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L11",
+      "width": 390,
+      "size": "M",
+      "cueStart": 28.24,
+      "cueEnd": 44.7,
+      "cueLength": 247,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L11",
+      "width": 390,
+      "size": "L",
+      "cueStart": 28.24,
+      "cueEnd": 44.7,
+      "cueLength": 247,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L12",
+      "width": 390,
+      "size": "S",
+      "cueStart": 183.12,
+      "cueEnd": 195.72,
+      "cueLength": 200,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L12",
+      "width": 390,
+      "size": "M",
+      "cueStart": 183.12,
+      "cueEnd": 195.72,
+      "cueLength": 200,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L12",
+      "width": 390,
+      "size": "L",
+      "cueStart": 183.12,
+      "cueEnd": 195.72,
+      "cueLength": 200,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L13",
+      "width": 390,
+      "size": "S",
+      "cueStart": 155.19,
+      "cueEnd": 168.801,
+      "cueLength": 191,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L13",
+      "width": 390,
+      "size": "M",
+      "cueStart": 155.19,
+      "cueEnd": 168.801,
+      "cueLength": 191,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L13",
+      "width": 390,
+      "size": "L",
+      "cueStart": 155.19,
+      "cueEnd": 168.801,
+      "cueLength": 191,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L14",
+      "width": 390,
+      "size": "S",
+      "cueStart": 67.884,
+      "cueEnd": 75.223,
+      "cueLength": 139,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L14",
+      "width": 390,
+      "size": "M",
+      "cueStart": 67.884,
+      "cueEnd": 75.223,
+      "cueLength": 139,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L14",
+      "width": 390,
+      "size": "L",
+      "cueStart": 67.884,
+      "cueEnd": 75.223,
+      "cueLength": 139,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L15",
+      "width": 390,
+      "size": "S",
+      "cueStart": 94.711,
+      "cueEnd": 102.647,
+      "cueLength": 150,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L15",
+      "width": 390,
+      "size": "M",
+      "cueStart": 94.711,
+      "cueEnd": 102.647,
+      "cueLength": 150,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L15",
+      "width": 390,
+      "size": "L",
+      "cueStart": 94.711,
+      "cueEnd": 102.647,
+      "cueLength": 150,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "agentified",
+      "id": "L16",
+      "width": 390,
+      "size": "S",
+      "cueStart": 250.554,
+      "cueEnd": 257.722,
+      "cueLength": 141,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+      "bandFont": "14px",
+      "scrollWidth": 404
+    },
+    {
+      "course": "agentified",
+      "id": "L16",
+      "width": 390,
+      "size": "M",
+      "cueStart": 250.554,
+      "cueEnd": 257.722,
+      "cueLength": 141,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+      "bandFont": "17px",
+      "scrollWidth": 404
+    },
+    {
+      "course": "agentified",
+      "id": "L16",
+      "width": 390,
+      "size": "L",
+      "cueStart": 250.554,
+      "cueEnd": 257.722,
+      "cueLength": 141,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        292,
+        164
+      ],
+      "band": "Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+      "bandFont": "21px",
+      "scrollWidth": 404
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "width": 390,
+      "size": "S",
+      "cueStart": 323.242,
+      "cueEnd": 330.659,
+      "cueLength": 117,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "width": 390,
+      "size": "M",
+      "cueStart": 323.242,
+      "cueEnd": 330.659,
+      "cueLength": 117,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "width": 390,
+      "size": "L",
+      "cueStart": 323.242,
+      "cueEnd": 330.659,
+      "cueLength": 117,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L02",
+      "width": 390,
+      "size": "S",
+      "cueStart": 510.699,
+      "cueEnd": 526.273,
+      "cueLength": 171,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L02",
+      "width": 390,
+      "size": "M",
+      "cueStart": 510.699,
+      "cueEnd": 526.273,
+      "cueLength": 171,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L02",
+      "width": 390,
+      "size": "L",
+      "cueStart": 510.699,
+      "cueEnd": 526.273,
+      "cueLength": 171,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "Put your choice at the top of the page and write the sentence that makes it defensible: “We choose this because...” Then record the two alternatives you are setting aside.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L03",
+      "width": 390,
+      "size": "S",
+      "cueStart": 101.529,
+      "cueEnd": 134.141,
+      "cueLength": 330,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L03",
+      "width": 390,
+      "size": "M",
+      "cueStart": 101.529,
+      "cueEnd": 134.141,
+      "cueLength": 330,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L03",
+      "width": 390,
+      "size": "L",
+      "cueStart": 101.529,
+      "cueEnd": 134.141,
+      "cueLength": 330,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For the dashboard, it might be, “What are we giving up to do this, and what would improve if we did?” For our fictional membership service, it might be, “Will a guided first task help people begin, or will it add another step?” That is more useful than “Do users like the idea?” The answer you believe today goes on the next line.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L04",
+      "width": 390,
+      "size": "S",
+      "cueStart": 218.342,
+      "cueEnd": 237.139,
+      "cueLength": 219,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L04",
+      "width": 390,
+      "size": "M",
+      "cueStart": 218.342,
+      "cueEnd": 237.139,
+      "cueLength": 219,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L04",
+      "width": 390,
+      "size": "L",
+      "cueStart": 218.342,
+      "cueEnd": 237.139,
+      "cueLength": 219,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For our fictional service, write: “When a new member opens the first task, they need to know what action matters now, so they can begin without asking staff to translate the instructions.” That sentence is a hypothesis.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L05",
+      "width": 390,
+      "size": "S",
+      "cueStart": 102.791,
+      "cueEnd": 120.465,
+      "cueLength": 190,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L05",
+      "width": 390,
+      "size": "M",
+      "cueStart": 102.791,
+      "cueEnd": 120.465,
+      "cueLength": 190,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L05",
+      "width": 390,
+      "size": "L",
+      "cueStart": 102.791,
+      "cueEnd": 120.465,
+      "cueLength": 190,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "F zero one says, “I clicked begin and could not tell if anything happened.” F zero two says, “I came back later and could not find where I left off.” Both can sound like a request for speed.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L06",
+      "width": 390,
+      "size": "S",
+      "cueStart": 187.156,
+      "cueEnd": 210.095,
+      "cueLength": 255,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L06",
+      "width": 390,
+      "size": "M",
+      "cueStart": 187.156,
+      "cueEnd": 210.095,
+      "cueLength": 255,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L06",
+      "width": 390,
+      "size": "L",
+      "cueStart": 187.156,
+      "cueEnd": 210.095,
+      "cueLength": 255,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "Next to the reminder, write “revisit if observations show people understand the task but forget to return.” Next to the dashboard, write “revisit if staff cannot see where members need help.” The Alignment plate can orient us to the next part of the book.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L07",
+      "width": 390,
+      "size": "S",
+      "cueStart": 252.5,
+      "cueEnd": 279,
+      "cueLength": 326,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L07",
+      "width": 390,
+      "size": "M",
+      "cueStart": 252.5,
+      "cueEnd": 279,
+      "cueLength": 326,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L07",
+      "width": 390,
+      "size": "L",
+      "cueStart": 252.5,
+      "cueEnd": 279,
+      "cueLength": 326,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "On the card, write the condition in plain terms: “If most observed participants still need translation, revise the card and retest before expanding scope.” Also write the alternative: “If they understand the card but do not return, investigate the reminder question.” This is a branch, not a promise that a reminder will work.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L08",
+      "width": 390,
+      "size": "S",
+      "cueStart": 124.12,
+      "cueEnd": 139.056,
+      "cueLength": 182,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L08",
+      "width": 390,
+      "size": "M",
+      "cueStart": 124.12,
+      "cueEnd": 139.056,
+      "cueLength": 182,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L08",
+      "width": 390,
+      "size": "L",
+      "cueStart": 124.12,
+      "cueEnd": 139.056,
+      "cueLength": 182,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        280
+      ],
+      "band": "For a moderated session, that might mean the participant can point to the intended action, explain its purpose in their own words, and begin without staff explaining the instruction.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "width": 390,
+      "size": "S",
+      "cueStart": 437.645,
+      "cueEnd": 446.249,
+      "cueLength": 149,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "width": 390,
+      "size": "M",
+      "cueStart": 437.645,
+      "cueEnd": 446.249,
+      "cueLength": 149,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "width": 390,
+      "size": "L",
+      "cueStart": 437.645,
+      "cueEnd": 446.249,
+      "cueLength": 149,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L10",
+      "width": 390,
+      "size": "S",
+      "cueStart": 72.07,
+      "cueEnd": 97.032,
+      "cueLength": 427,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L10",
+      "width": 390,
+      "size": "M",
+      "cueStart": 72.07,
+      "cueEnd": 97.032,
+      "cueLength": 427,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L10",
+      "width": 390,
+      "size": "L",
+      "cueStart": 72.07,
+      "cueEnd": 97.032,
+      "cueLength": 427,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "For the service director: “We need to learn whether new members can identify and begin the first task without staff translation.” For operations: “The observation uses a short, bounded session; here is who will run it and what would stop it.” For finance: “Here is the staff time, the work we would defer, and the date we decide whether to continue.” These are different openings, but the evidence does not change between them.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L11",
+      "width": 390,
+      "size": "S",
+      "cueStart": 69.674,
+      "cueEnd": 79.139,
+      "cueLength": 163,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L11",
+      "width": 390,
+      "size": "M",
+      "cueStart": 69.674,
+      "cueEnd": 79.139,
+      "cueLength": 163,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L11",
+      "width": 390,
+      "size": "L",
+      "cueStart": 69.674,
+      "cueEnd": 79.139,
+      "cueLength": 163,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "The team's learning plan had already said what result would make them change course, so the failure did not have to become a debate about whether the work counted.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L12",
+      "width": 390,
+      "size": "S",
+      "cueStart": 88.414,
+      "cueEnd": 101.157,
+      "cueLength": 215,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L12",
+      "width": 390,
+      "size": "M",
+      "cueStart": 88.414,
+      "cueEnd": 101.157,
+      "cueLength": 215,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L12",
+      "width": 390,
+      "size": "L",
+      "cueStart": 88.414,
+      "cueEnd": 101.157,
+      "cueLength": 215,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "A possible job is: “Help me identify the first useful action when I arrive, so I can begin without asking staff to translate the page.” That sentence is our interpretation of the note, not a verbatim customer quote.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L13",
+      "width": 390,
+      "size": "S",
+      "cueStart": 217.341,
+      "cueEnd": 227.575,
+      "cueLength": 175,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L13",
+      "width": 390,
+      "size": "M",
+      "cueStart": 217.341,
+      "cueEnd": 227.575,
+      "cueLength": 175,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L13",
+      "width": 390,
+      "size": "L",
+      "cueStart": 217.341,
+      "cueEnd": 227.575,
+      "cueLength": 175,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "The point is the decision structure: one model assumption, one bounded test, one measure of customer value, one measure of operating cost, and a condition for changing course.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L14",
+      "width": 390,
+      "size": "S",
+      "cueStart": 75.188,
+      "cueEnd": 85.364,
+      "cueLength": 175,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L14",
+      "width": 390,
+      "size": "M",
+      "cueStart": 75.188,
+      "cueEnd": 85.364,
+      "cueLength": 175,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L14",
+      "width": 390,
+      "size": "L",
+      "cueStart": 75.188,
+      "cueEnd": 85.364,
+      "cueLength": 175,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "For our fictional test, the operations pitch begins with the workload: what staff would have to record, when they would review it, and which service promise remains unchanged.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L15",
+      "width": 390,
+      "size": "S",
+      "cueStart": 149.562,
+      "cueEnd": 161.069,
+      "cueLength": 193,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L15",
+      "width": 390,
+      "size": "M",
+      "cueStart": 149.562,
+      "cueEnd": 161.069,
+      "cueLength": 193,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L15",
+      "width": 390,
+      "size": "L",
+      "cueStart": 149.562,
+      "cueEnd": 161.069,
+      "cueLength": 193,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "This is the practical meaning of light governance: enough common language to coordinate, enough local authority to keep learning, and a clear escalation path when the cost of being wrong rises.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L16",
+      "width": 390,
+      "size": "S",
+      "cueStart": 16.548,
+      "cueEnd": 24.9,
+      "cueLength": 156,
+      "selected": "Small captions",
+      "stored": "S",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it.",
+      "bandFont": "14px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L16",
+      "width": 390,
+      "size": "M",
+      "cueStart": 16.548,
+      "cueEnd": 24.9,
+      "cueLength": 156,
+      "selected": "Medium captions",
+      "stored": "M",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it.",
+      "bandFont": "17px",
+      "scrollWidth": 390
+    },
+    {
+      "course": "accelerated",
+      "id": "L16",
+      "width": 390,
+      "size": "L",
+      "cueStart": 16.548,
+      "cueEnd": 24.9,
+      "cueLength": 156,
+      "selected": "Large captions",
+      "stored": "L",
+      "trackMode": "hidden",
+      "video": [
+        314,
+        680
+      ],
+      "band": "It names the person served, the evidence that exists, the alternatives considered, the test that could change the choice, and the people who must review it.",
+      "bandFont": "21px",
+      "scrollWidth": 390
+    }
+  ],
+  "codeCommit": "6cb52368e",
+  "routes": {
+    "agentified": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=6cb52368e",
+    "accelerated": "http://127.0.0.1:3121/accelerated/learningplan?rev=6cb52368e"
+  },
+  "summary": {
+    "lessonViewportPairs": 58,
+    "sizeChecks": 174,
+    "agentifiedLessons": "L01 and L05-L16",
+    "acceleratedLessons": "L01-L16",
+    "widths": [
+      1280,
+      390
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "pausedOffOnChecks": 58,
+    "videoGeometryStable": true,
+    "newHorizontalOverflow": false,
+    "captureStateBound": true,
+    "hoverFree": true,
+    "decodedCueFrame": true
+  },
+  "walkthroughStateFile": "walkthrough-state.json"
+}
