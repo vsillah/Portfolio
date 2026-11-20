@@ -1,0 +1,472 @@
+{
+  "schemaVersion": 1,
+  "source": "agentified/workshop/presentation-illustration-audit/audit-boundaries.json",
+  "scenes": [
+    {
+      "sceneId": "L05-04",
+      "lessonId": "L05",
+      "startSeconds": 78.582,
+      "endSeconds": 105.56,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "sourceSha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "image": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "title": "Portfolio-first operating stack",
+      "alt": "Complete approved Portfolio-first operating stack with connected Open Brain, Harness, Agent roles, Mission Control, corpus, controls, public-safe proof, and private logs.",
+      "details": [
+        {
+          "label": "Open Brain",
+          "description": "sources, events, proposals, memories"
+        },
+        {
+          "label": "Harness",
+          "description": "Codex, tools, browser, apps, worktrees"
+        }
+      ],
+      "width": 4000,
+      "height": 2500
+    },
+    {
+      "sceneId": "L06-03",
+      "lessonId": "L06",
+      "startSeconds": 65.532,
+      "endSeconds": 97.482,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "image": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+      "title": "Authority ladder",
+      "alt": "Complete approved Authority ladder connecting Prepare, Recommend, Route, Stage, and Execute with required gates.",
+      "details": [
+        {
+          "label": "Prepare",
+          "description": "draft, summarize, classify"
+        },
+        {
+          "label": "Recommend",
+          "description": "suggest next action with evidence"
+        },
+        {
+          "label": "Route",
+          "description": "move work to the right human lane"
+        },
+        {
+          "label": "Stage",
+          "description": "prepare external action for review"
+        },
+        {
+          "label": "Execute",
+          "description": "only after explicit authority"
+        }
+      ],
+      "width": 3000,
+      "height": 4700
+    },
+    {
+      "sceneId": "L07-05",
+      "lessonId": "L07",
+      "startSeconds": 127.108,
+      "endSeconds": 153.479,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "image": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+      "title": "Authority ladder",
+      "alt": "Complete approved Authority ladder connecting Prepare, Recommend, Route, Stage, and Execute with required gates.",
+      "details": [
+        {
+          "label": "Prepare",
+          "description": "draft, summarize, classify"
+        },
+        {
+          "label": "Recommend",
+          "description": "suggest next action with evidence"
+        },
+        {
+          "label": "Route",
+          "description": "move work to the right human lane"
+        },
+        {
+          "label": "Stage",
+          "description": "prepare external action for review"
+        },
+        {
+          "label": "Execute",
+          "description": "only after explicit authority"
+        }
+      ],
+      "width": 3000,
+      "height": 4700
+    },
+    {
+      "kind": "text",
+      "sceneId": "L07-07",
+      "lessonId": "L07",
+      "startSeconds": 188.515,
+      "endSeconds": 233.515,
+      "sceneStartSeconds": 160.078,
+      "sceneEndSeconds": 233.648,
+      "sourcePath": "public/agentified/lessons/l07/illustrated-42782f17/agentified-l07-illustrated-composite.mp4",
+      "sourceSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+      "protectedSourcePath": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "protectedSourceSha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "wordingSourcePath": "agentified/workshop/l05-l08-continuous-narration/render.mjs",
+      "wordingSourceSha256": "268c1b22a477a00613c1ea92323aad321a67387a68f719a2c6e5ad2d6af2a01f",
+      "title": "Human review remains the gate.",
+      "details": []
+    },
+    {
+      "sceneId": "L08-05",
+      "lessonId": "L08",
+      "startSeconds": 125.431,
+      "endSeconds": 161.224,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "sourceSha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "image": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+      "title": "The first receipt",
+      "alt": "Complete approved first receipt diagram connecting agent run, receipt envelope, human gate, and outcome.",
+      "details": [
+        {
+          "label": "AGENT RUN",
+          "description": "drafts or recommends work"
+        },
+        {
+          "label": "RECEIPT ENVELOPE",
+          "description": "evidence around the action"
+        },
+        {
+          "label": "HUMAN GATE",
+          "description": "approve, hold, or reject"
+        },
+        {
+          "label": "OUTCOME",
+          "description": "ship, revise, or rollback"
+        }
+      ],
+      "width": 4000,
+      "height": 2500
+    },
+    {
+      "sceneId": "L09-02",
+      "lessonId": "L09",
+      "startSeconds": 31.82,
+      "endSeconds": 69.72,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "sourceSha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "image": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
+      "title": "SAM with the trust layer",
+      "alt": "Complete approved SAM trust-layer diagram showing Signals, Alignment, and Momentum connected by source, receipt, gate, eval, and proof.",
+      "details": [
+        {
+          "label": "SIGNALS",
+          "description": "raw noise to clear signal"
+        },
+        {
+          "label": "ALIGNMENT",
+          "description": "insight to shared direction"
+        },
+        {
+          "label": "MOMENTUM",
+          "description": "systems that compound"
+        }
+      ],
+      "width": 4000,
+      "height": 2500
+    },
+    {
+      "sceneId": "L09-04",
+      "lessonId": "L09",
+      "startSeconds": 103.02,
+      "endSeconds": 138.08,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "image": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+      "title": "Authority ladder",
+      "alt": "Complete approved Authority ladder connecting Prepare, Recommend, Route, Stage, and Execute with required gates.",
+      "details": [
+        {
+          "label": "Prepare",
+          "description": "draft, summarize, classify"
+        },
+        {
+          "label": "Recommend",
+          "description": "suggest next action with evidence"
+        },
+        {
+          "label": "Route",
+          "description": "move work to the right human lane"
+        },
+        {
+          "label": "Stage",
+          "description": "prepare external action for review"
+        },
+        {
+          "label": "Execute",
+          "description": "only after explicit authority"
+        }
+      ],
+      "width": 3000,
+      "height": 4700
+    },
+    {
+      "sceneId": "L10-03",
+      "lessonId": "L10",
+      "startSeconds": 69,
+      "endSeconds": 98.9,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "image": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+      "title": "Authority ladder",
+      "alt": "Complete approved Authority ladder connecting Prepare, Recommend, Route, Stage, and Execute with required gates.",
+      "details": [
+        {
+          "label": "Prepare",
+          "description": "draft, summarize, classify"
+        },
+        {
+          "label": "Recommend",
+          "description": "suggest next action with evidence"
+        },
+        {
+          "label": "Route",
+          "description": "move work to the right human lane"
+        },
+        {
+          "label": "Stage",
+          "description": "prepare external action for review"
+        },
+        {
+          "label": "Execute",
+          "description": "only after explicit authority"
+        }
+      ],
+      "width": 3000,
+      "height": 4700
+    },
+    {
+      "sceneId": "L11-02",
+      "lessonId": "L11",
+      "startSeconds": 26.08,
+      "endSeconds": 61.66,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "sourceSha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "image": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "title": "Portfolio-first operating stack",
+      "alt": "Complete approved Portfolio-first operating stack with connected Open Brain, Harness, Agent roles, Mission Control, corpus, controls, public-safe proof, and private logs.",
+      "details": [
+        {
+          "label": "Open Brain",
+          "description": "sources, events, proposals, memories"
+        },
+        {
+          "label": "Harness",
+          "description": "Codex, tools, browser, apps, worktrees"
+        }
+      ],
+      "width": 4000,
+      "height": 2500
+    },
+    {
+      "sceneId": "L12-03",
+      "lessonId": "L12",
+      "startSeconds": 66.36,
+      "endSeconds": 96.54,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "sourceSha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "image": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+      "title": "The first receipt",
+      "alt": "Complete approved first receipt diagram connecting agent run, receipt envelope, human gate, and outcome.",
+      "details": [
+        {
+          "label": "AGENT RUN",
+          "description": "drafts or recommends work"
+        },
+        {
+          "label": "RECEIPT ENVELOPE",
+          "description": "evidence around the action"
+        },
+        {
+          "label": "HUMAN GATE",
+          "description": "approve, hold, or reject"
+        },
+        {
+          "label": "OUTCOME",
+          "description": "ship, revise, or rollback"
+        }
+      ],
+      "width": 4000,
+      "height": 2500
+    },
+    {
+      "sceneId": "L13-02",
+      "lessonId": "L13",
+      "startSeconds": 26.667,
+      "endSeconds": 56.587,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sourceSha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "image": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
+      "title": "A.M.I.N.A. inside SAM",
+      "alt": "Complete approved A.M.I.N.A. inside SAM diagram showing Signals, Alignment, Momentum, and the Ask, Act, Attest operating loop.",
+      "details": [
+        {
+          "label": "ASK",
+          "description": "What did the human want?"
+        },
+        {
+          "label": "ACT",
+          "description": "What did the agent do?"
+        },
+        {
+          "label": "ATTEST",
+          "description": "What can be verified?"
+        }
+      ],
+      "width": 3600,
+      "height": 4500
+    },
+    {
+      "sceneId": "L14-03",
+      "lessonId": "L14",
+      "startSeconds": 52.814,
+      "endSeconds": 78.338,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "sourceSha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+      "image": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "title": "Portfolio-first operating stack",
+      "alt": "Complete approved Portfolio-first operating stack with connected Open Brain, Harness, Agent roles, Mission Control, corpus, controls, public-safe proof, and private logs.",
+      "details": [
+        {
+          "label": "Open Brain",
+          "description": "sources, events, proposals, memories"
+        },
+        {
+          "label": "Harness",
+          "description": "Codex, tools, browser, apps, worktrees"
+        }
+      ],
+      "width": 4000,
+      "height": 2500
+    },
+    {
+      "sceneId": "L14-04",
+      "lessonId": "L14",
+      "startSeconds": 78.338,
+      "endSeconds": 104.726,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "image": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+      "title": "Authority ladder",
+      "alt": "Complete approved Authority ladder connecting Prepare, Recommend, Route, Stage, and Execute with required gates.",
+      "details": [
+        {
+          "label": "Prepare",
+          "description": "draft, summarize, classify"
+        },
+        {
+          "label": "Recommend",
+          "description": "suggest next action with evidence"
+        },
+        {
+          "label": "Route",
+          "description": "move work to the right human lane"
+        },
+        {
+          "label": "Stage",
+          "description": "prepare external action for review"
+        },
+        {
+          "label": "Execute",
+          "description": "only after explicit authority"
+        }
+      ],
+      "width": 3000,
+      "height": 4700
+    },
+    {
+      "sceneId": "L15-04",
+      "lessonId": "L15",
+      "startSeconds": 74.662,
+      "endSeconds": 103.33,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "sourceSha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "image": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
+      "title": "SAM with the trust layer",
+      "alt": "Complete approved SAM trust-layer diagram showing Signals, Alignment, and Momentum connected by source, receipt, gate, eval, and proof.",
+      "details": [
+        {
+          "label": "SIGNALS",
+          "description": "raw noise to clear signal"
+        },
+        {
+          "label": "ALIGNMENT",
+          "description": "insight to shared direction"
+        },
+        {
+          "label": "MOMENTUM",
+          "description": "systems that compound"
+        }
+      ],
+      "width": 4000,
+      "height": 2500
+    },
+    {
+      "sceneId": "L16-04",
+      "lessonId": "L16",
+      "startSeconds": 89.687,
+      "endSeconds": 117.109,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "sourceSha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "image": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
+      "title": "A.M.I.N.A. inside SAM",
+      "alt": "Complete approved A.M.I.N.A. inside SAM diagram showing Signals, Alignment, Momentum, and the Ask, Act, Attest operating loop.",
+      "details": [
+        {
+          "label": "ASK",
+          "description": "What did the human want?"
+        },
+        {
+          "label": "ACT",
+          "description": "What did the agent do?"
+        },
+        {
+          "label": "ATTEST",
+          "description": "What can be verified?"
+        }
+      ],
+      "width": 3600,
+      "height": 4500
+    },
+    {
+      "sceneId": "L16-05",
+      "lessonId": "L16",
+      "startSeconds": 117.109,
+      "endSeconds": 145.819,
+      "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "image": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+      "title": "Authority ladder",
+      "alt": "Complete approved Authority ladder connecting Prepare, Recommend, Route, Stage, and Execute with required gates.",
+      "details": [
+        {
+          "label": "Prepare",
+          "description": "draft, summarize, classify"
+        },
+        {
+          "label": "Recommend",
+          "description": "suggest next action with evidence"
+        },
+        {
+          "label": "Route",
+          "description": "move work to the right human lane"
+        },
+        {
+          "label": "Stage",
+          "description": "prepare external action for review"
+        },
+        {
+          "label": "Execute",
+          "description": "only after explicit authority"
+        }
+      ],
+      "width": 3000,
+      "height": 4700
+    }
+  ]
+}

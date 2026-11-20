@@ -52,22 +52,63 @@ describe('Agentified lesson media gate', () => {
     expect(onProgress).toHaveBeenCalledWith(237)
   })
 
-  it('shows the complete approved L05 plate and exact labels only during its teaching scene', () => {
+  it('shows source-bound L05 wording without a second plate only during its teaching scene', () => {
     const { container } = render(<AgentifiedLessonHero lessonId="L05" title="Map" poster="/agentified/posters/l05-poster.webp" videoSrc="/approved-l05.mp4" />)
     const video = container.querySelector('video')!
     let currentTime = 78.581
     Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
     fireEvent.seeking(video)
-    expect(screen.queryByRole('figure', { name: /L05 operating stack diagram details/ })).toBeNull()
+    expect(screen.queryByRole('complementary', { name: /L05-04 Portfolio-first operating stack source wording/ })).toBeNull()
     currentTime = 90
     fireEvent.seeking(video)
-    const diagram = screen.getByRole('figure', { name: /L05 operating stack diagram details/ })
-    expect(diagram.querySelector('img')).toHaveAttribute('src', '/agentified/lessons/l05/figure-8-1-portfolio-first-stack-publication-plate.png')
+    const diagram = screen.getByRole('complementary', { name: /L05-04 Portfolio-first operating stack source wording/ })
+    expect(diagram.querySelector('img')).toBeNull()
+    expect(screen.getByRole('link', { name: 'Open full plate' })).toHaveAttribute('href', '/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png')
     expect(diagram).toHaveTextContent('Open Brainsources, events, proposals, memoriesHarnessCodex, tools, browser, apps, worktrees')
     expect(video).toHaveAttribute('controls')
     currentTime = 105.56
     fireEvent.seeking(video)
-    expect(screen.queryByRole('figure', { name: /L05 operating stack diagram details/ })).toBeNull()
+    expect(screen.queryByRole('complementary', { name: /L05-04 Portfolio-first operating stack source wording/ })).toBeNull()
+  })
+
+  it('uses the approved L06 source and cue window without changing native controls', () => {
+    const { container } = render(<AgentifiedLessonHero lessonId="L06" title="Permission" poster="/agentified/posters/l06-poster.webp" videoSrc="/approved-l06.mp4" captionsSrc="/approved-l06.vtt" />)
+    const video = container.querySelector('video')!
+    let currentTime = 65.531
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('complementary', { name: /L06-03 Authority ladder source wording/ })).toBeNull()
+    currentTime = 80
+    fireEvent.seeking(video)
+    const diagram = screen.getByRole('complementary', { name: /L06-03 Authority ladder source wording/ })
+    expect(diagram.querySelector('img')).toBeNull()
+    expect(screen.getByRole('link', { name: 'Open full plate' })).toHaveAttribute('href', '/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png')
+    expect(diagram).toHaveTextContent('Recommendsuggest next action with evidence')
+    expect(video).toHaveAttribute('controls')
+    expect(video.querySelector('track')).toHaveAttribute('src', '/approved-l06.vtt')
+    currentTime = 97.482
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('complementary', { name: /L06-03 Authority ladder source wording/ })).toBeNull()
+  })
+
+  it('shows only the exact L07 countdown gate line during its protected window', () => {
+    const { container } = render(<AgentifiedLessonHero lessonId="L07" title="PRD and pod" poster="/agentified/posters/l07-poster.webp" videoSrc="/approved-l07.mp4" captionsSrc="/approved-l07.vtt" />)
+    const video = container.querySelector('video')!
+    let currentTime = 188.514
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('complementary', { name: /L07-07 Human review remains the gate/ })).toBeNull()
+    currentTime = 188.515
+    fireEvent.seeking(video)
+    const reading = screen.getByRole('complementary', { name: 'L07-07 Human review remains the gate. source wording' })
+    expect(reading).toHaveTextContent('Human review remains the gate.')
+    expect(reading.querySelector('img')).toBeNull()
+    expect(reading.querySelector('a')).toBeNull()
+    expect(video).toHaveAttribute('controls')
+    expect(video.querySelector('track')).toHaveAttribute('src', '/approved-l07.vtt')
+    currentTime = 233.515
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('complementary', { name: /L07-07 Human review remains the gate/ })).toBeNull()
   })
 
   it('reveals the next lesson at the exact sentence-complete boundary and hides it after seeking back', () => {
