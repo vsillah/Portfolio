@@ -85,7 +85,7 @@ async function run() {
             if (!await player.evaluate((element) => element.paused)) throw new Error('Full plate link did not pause native playback')
             await fullPlate.close()
             const popupVideo = await fullPlate.video()?.path()
-            if (popupVideo) fs.unlinkSync(popupVideo)
+            if (popupVideo && fs.existsSync(popupVideo)) fs.unlinkSync(popupVideo)
           }
           await read((scene.startSeconds + scene.endSeconds) / 2)
           if (viewport === 'mobile') {
