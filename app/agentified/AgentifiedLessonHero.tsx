@@ -13,6 +13,12 @@ type EndScreen = {
 
 type Props = { lessonId: string; title: string; poster: string; altText?: string; videoSrc?: string; captionsSrc?: string; durationSeconds?: number; resumeSeconds?: number; endScreen?: EndScreen; onProgress?: (seconds: number) => void; onCaptionsChange?: (enabled: boolean) => void }
 
+// Scene bounds match presentation-illustration-audit/audit-boundaries.json.
+const l07DesktopCaptionClearance = [
+  { sceneId: 'L07-01', startSeconds: 0, endSeconds: 27.99, line: 4 },
+  { sceneId: 'L07-06', startSeconds: 153.479, endSeconds: 160.078, line: 52 },
+] as const
+
 /** Video is an explicit future input. Without an approved source the hero is a static cover. */
 export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSrc, captionsSrc, durationSeconds, resumeSeconds = 0, endScreen, onProgress, onCaptionsChange }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -28,24 +34,24 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
     const track = trackElement?.track
     if (!trackElement || !track) return
     const desktop = window.matchMedia('(min-width: 621px)')
-    // L07-01 puts its headline in the lower caption region. Keep the native
-    // track and controls, but place only its desktop cues above the artwork.
-    const positionOpeningCues = () => {
+    // Keep native captions and controls while clearing these two desktop labels.
+    const positionSceneCues = () => {
       for (const cue of Array.from(track.cues ?? [])) {
-        if (cue.startTime >= 27.67 || !('snapToLines' in cue)) continue
+        const scene = l07DesktopCaptionClearance.find(({ startSeconds, endSeconds }) => cue.startTime >= startSeconds && cue.startTime < endSeconds)
+        if (!scene || !('snapToLines' in cue)) continue
         const positionedCue = cue as VTTCue
         positionedCue.snapToLines = !desktop.matches
-        positionedCue.line = desktop.matches ? 4 : 'auto'
+        positionedCue.line = desktop.matches ? scene.line : 'auto'
       }
     }
-    trackElement.addEventListener('load', positionOpeningCues)
-    track.addEventListener('cuechange', positionOpeningCues)
-    desktop.addEventListener('change', positionOpeningCues)
-    positionOpeningCues()
+    trackElement.addEventListener('load', positionSceneCues)
+    track.addEventListener('cuechange', positionSceneCues)
+    desktop.addEventListener('change', positionSceneCues)
+    positionSceneCues()
     return () => {
-      trackElement.removeEventListener('load', positionOpeningCues)
-      track.removeEventListener('cuechange', positionOpeningCues)
-      desktop.removeEventListener('change', positionOpeningCues)
+      trackElement.removeEventListener('load', positionSceneCues)
+      track.removeEventListener('cuechange', positionSceneCues)
+      desktop.removeEventListener('change', positionSceneCues)
     }
   }, [lessonId, captionsSrc])
 
