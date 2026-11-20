@@ -173,11 +173,12 @@ describe('Agentified lesson media gate', () => {
     const receiverCues = [receiverStart, receiverMid, receiverEnd]
     const unaffectedCues = [afterOpening, beforeReceiver, afterReceiver]
     const track = Object.assign(new EventTarget(), { cues: [opening, ...unaffectedCues, ...receiverCues] })
-    const media = Object.assign(new EventTarget(), { matches: true })
-    const setViewportWidth = (width: number) => { media.matches = width >= 621; media.dispatchEvent(new Event('change')) }
+    const desktopMedia = Object.assign(new EventTarget(), { matches: true })
+    const mobileMedia = Object.assign(new EventTarget(), { matches: false })
+    const setViewportWidth = (width: number) => { desktopMedia.matches = width >= 621; mobileMedia.matches = width <= 620; desktopMedia.dispatchEvent(new Event('change')); mobileMedia.dispatchEvent(new Event('change')) }
     const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
     Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
-    vi.stubGlobal('matchMedia', vi.fn(() => media))
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => query.includes('min-width') ? desktopMedia : mobileMedia))
     try {
       const { container, unmount } = render(<AgentifiedLessonHero lessonId="L07" title="Team" poster="/agentified/posters/l07-poster.webp" videoSrc="/approved-l07.mp4" captionsSrc="/approved-l07.vtt" />)
       expect(window.matchMedia).toHaveBeenCalledWith('(min-width: 621px)')
@@ -186,19 +187,66 @@ describe('Agentified lesson media gate', () => {
       for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 52, snapToLines: false })
       for (const unaffected of unaffectedCues) expect(unaffected).toMatchObject({ line: 'auto', snapToLines: true })
 
-      setViewportWidth(620)
+      act(() => setViewportWidth(620))
       expect(opening).toMatchObject({ line: 'auto', snapToLines: true })
       for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 'auto', snapToLines: true })
       for (const unaffected of unaffectedCues) expect(unaffected).toMatchObject({ line: 'auto', snapToLines: true })
 
-      setViewportWidth(621)
+      act(() => setViewportWidth(621))
       expect(opening).toMatchObject({ line: 4, snapToLines: false })
       for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 52, snapToLines: false })
       unmount()
-      setViewportWidth(620)
+      act(() => setViewportWidth(620))
       expect(opening).toMatchObject({ line: 4, snapToLines: false })
       for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 52, snapToLines: false })
     } finally {
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
+  it('shows the exact mobile cue outside the player and restores it while paused', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    HTMLMediaElement.prototype.pause = vi.fn()
+    const cue = { startTime: 242.252, endTime: 243.832, text: 'A team becomes useful when a blocked' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [cue] })
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    const mobileMedia = Object.assign(new EventTarget(), { matches: true })
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => query.includes('max-width') ? mobileMedia : Object.assign(new EventTarget(), { matches: false })))
+    const props = { lessonId: 'L08', title: 'Team', poster: '/agentified/posters/l08-poster.webp', videoSrc: '/approved-l08.mp4', captionsSrc: '/approved-l08.vtt' }
+    try {
+      const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionsOn />)
+      const video = container.querySelector('video')!
+      let currentTime = 242.7
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+      fireEvent.loadedMetadata(video)
+      fireEvent.timeUpdate(video)
+      expect(track.mode).toBe('hidden')
+      expect(video).toHaveAttribute('controls')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(cue.text)
+
+      rerender(<AgentifiedLessonHero {...props} captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: 'L08 caption' })).toBeNull()
+      expect(video).toHaveAttribute('controls')
+
+      rerender(<AgentifiedLessonHero {...props} captionsOn />)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(cue.text)
+      currentTime = 250
+      fireEvent.timeUpdate(video)
+      expect(screen.queryByRole('status', { name: 'L08 caption' })).toBeNull()
+      expect(cue).toMatchObject({ startTime: 242.252, endTime: 243.832, text: 'A team becomes useful when a blocked' })
+      unmount()
+    } finally {
+      if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+      else Reflect.deleteProperty(HTMLMediaElement.prototype, 'textTracks')
       if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
       else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
       HTMLMediaElement.prototype.pause = originalPause
