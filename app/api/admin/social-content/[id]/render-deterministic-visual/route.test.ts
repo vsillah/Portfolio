@@ -40,6 +40,7 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { POST } from './route'
+import { DETERMINISTIC_VISUAL_BINDING_QA_ID } from '@/lib/social-content'
 import {
   buildDeterministicVisualAssetPatch,
   deterministicVisualCandidateHash,
@@ -47,8 +48,10 @@ import {
   projectDeterministicVisualRender,
   readDeterministicVisualSpec,
 } from '@/lib/social-deterministic-visual'
+import { deterministicVisualBindingQaFixture } from '@/lib/social-deterministic-visual-qa-fixture'
 import { practitionerContentQaFixture } from '@/lib/social-practitioner-content-qa-fixture'
 import { socialCopyVersion } from '@/lib/social-copy-revision'
+import { SocialQueueWriteConflict } from '@/lib/social-queue-write'
 
 function row() {
   const item = practitionerContentQaFixture('ready') as any
@@ -85,6 +88,35 @@ function request(item = row(), overrides: Record<string, unknown> = {}) {
       ...overrides,
     }),
   })
+}
+
+function fixtureRenderRequest(state: 'ready' | 'current' = 'ready') {
+  const item = deterministicVisualBindingQaFixture(state)
+  const view = item.deterministic_visual_render!
+  return new NextRequest(`http://localhost/api/admin/social-content/${DETERMINISTIC_VISUAL_BINDING_QA_ID}/render-deterministic-visual`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      qa_state: state,
+      expected_copy_version: view.copy_version,
+      expected_candidate_id: view.candidate_id,
+      expected_candidate_hash: view.candidate_hash,
+      expected_visual_type: view.visual_type,
+      expected_recipe_version: view.inputs.recipe_version,
+    }),
+  })
+}
+
+async function withVercelEnv(value: string | undefined, run: () => Promise<void>) {
+  const prior = process.env.VERCEL_ENV
+  if (value === undefined) delete process.env.VERCEL_ENV
+  else process.env.VERCEL_ENV = value
+  try {
+    await run()
+  } finally {
+    if (prior === undefined) delete process.env.VERCEL_ENV
+    else process.env.VERCEL_ENV = prior
+  }
 }
 
 function bindCurrent(item = row()) {
@@ -275,5 +307,252 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
       render: { state: 'blocked', can_render: false },
     })
     expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('requires admin auth before reading, rendering, or storing a real record', async () => {
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
+    mocks.isAuthError.mockReturnValue(true)
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({ error: 'Unauthorized' })
+    expect(mocks.readSocialQueueForWrite).not.toHaveBeenCalled()
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('keeps the synthetic fixture path closed in production', async () => {
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
+    mocks.isAuthError.mockReturnValue(true)
+
+    await withVercelEnv('production', async () => {
+      const response = await POST(fixtureRenderRequest(), { params: { id: DETERMINISTIC_VISUAL_BINDING_QA_ID } })
+      const body = await response.json()
+
+      expect(response.status).toBe(401)
+      expect(body).toEqual({ error: 'Unauthorized' })
+      expect(body.fixture).toBeUndefined()
+    })
+
+    expect(mocks.readSocialQueueForWrite).not.toHaveBeenCalled()
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('renders a synthetic fixture outside production without auth, storage, or a media provider', async () => {
+    await withVercelEnv('preview', async () => {
+      const response = await POST(fixtureRenderRequest(), { params: { id: DETERMINISTIC_VISUAL_BINDING_QA_ID } })
+      const body = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        success: true,
+        fixture: true,
+        idempotent: false,
+        provider: 'none',
+        provider_calls_enabled: false,
+      })
+      expect(body.message).toMatch(/No shared storage, database, or media provider was called/)
+    })
+
+    expect(mocks.verifyAdmin).not.toHaveBeenCalled()
+    expect(mocks.readSocialQueueForWrite).not.toHaveBeenCalled()
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('rejects a candidate id mismatch before renderer or storage work', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+
+    const response = await POST(request(item, { expected_candidate_id: 'other-candidate' }), { params: { id: item.id } })
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'candidate_id_mismatch',
+      provider_calls_enabled: false,
+    })
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('rejects malformed JSON before renderer or storage work', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    const response = await POST(new NextRequest('http://localhost/api/admin/social-content/social-1/render-deterministic-visual', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: 'not-json',
+    }), { params: { id: item.id } })
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'copy_version_stale',
+      error: 'Copy changed since this visual review opened.',
+      provider_calls_enabled: false,
+    })
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+  })
+
+  it('returns a closed release-lock response when the queue cannot be read', async () => {
+    mocks.readSocialQueueForWrite.mockRejectedValue('relation secret_queue is missing')
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      code: 'release_locked',
+      error: 'The current Social Content record could not be prepared for rendering.',
+      provider: 'none',
+      provider_calls_enabled: false,
+    })
+    expect(JSON.stringify(body)).not.toContain('secret_queue')
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('returns a closed renderer failure and does not upload or persist', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    mocks.renderPng.mockRejectedValue(new Error('sharp failed at /secret/font-path'))
+
+    const response = await POST(request(item), { params: { id: item.id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(503)
+    expect(body).toMatchObject({
+      code: 'render_unavailable',
+      error: 'The local HTML/SVG renderer could not create the review asset.',
+      provider: 'none',
+      provider_calls_enabled: false,
+      render: { state: 'blocked', can_render: false },
+    })
+    expect(JSON.stringify(body)).not.toContain('secret/font-path')
+    expect(mocks.upload).not.toHaveBeenCalled()
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('refuses to persist an untrusted public asset URL', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    mocks.getPublicUrl.mockReturnValue({
+      data: { publicUrl: 'https://evil.example/storage/v1/object/public/social-content/stolen.png' },
+    })
+
+    const response = await POST(request(item), { params: { id: item.id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(503)
+    expect(body).toMatchObject({
+      code: 'storage_unavailable',
+      error: 'Internal Social Content storage did not return a trusted public review URL.',
+      provider_calls_enabled: false,
+    })
+    expect(JSON.stringify(body)).not.toContain('evil.example')
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('refuses a public URL outside the social-content bucket', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    mocks.getPublicUrl.mockReturnValue({
+      data: { publicUrl: 'https://storage.example/storage/v1/object/public/social-content-evil/stolen.png' },
+    })
+
+    const response = await POST(request(item), { params: { id: item.id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(503)
+    expect(body).toMatchObject({
+      code: 'storage_unavailable',
+      error: 'Internal Social Content storage did not return a trusted public review URL.',
+    })
+    expect(JSON.stringify(body)).not.toContain('social-content-evil')
+    expect(mocks.updateSocialQueueWithVersion).not.toHaveBeenCalled()
+  })
+
+  it('binds the trusted URL when storage reports the object already exists', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    mocks.upload.mockResolvedValue({ data: null, error: { statusCode: 409, message: 'The resource already exists' } })
+
+    const response = await POST(request(item), { params: { id: item.id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ success: true, idempotent: false, provider: 'none', provider_calls_enabled: false })
+    expect(body.item.image_url).toMatch(/^https:\/\/storage\.example\/storage\/v1\/object\/public\/social-content\//)
+    expect(mocks.upload).toHaveBeenCalledWith(expect.any(String), expect.any(Buffer), expect.objectContaining({ upsert: false }))
+    expect(mocks.updateSocialQueueWithVersion).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns idempotent success when a concurrent write already bound the same candidate', async () => {
+    const original = row()
+    const latest = bindCurrent(structuredClone(original))
+    mocks.readSocialQueueForWrite
+      .mockResolvedValueOnce(original)
+      .mockResolvedValueOnce(latest)
+    mocks.updateSocialQueueWithVersion.mockRejectedValue(new SocialQueueWriteConflict())
+
+    const response = await POST(request(original), { params: { id: original.id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      success: true,
+      idempotent: true,
+      provider: 'none',
+      provider_calls_enabled: false,
+      message: 'A concurrent request already bound the same deterministic review asset.',
+    })
+    expect(body.render.state).toBe('current')
+    expect(mocks.updateSocialQueueWithVersion).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns a write conflict when the record changes during rendering', async () => {
+    const original = row()
+    mocks.readSocialQueueForWrite
+      .mockResolvedValueOnce(original)
+      .mockResolvedValueOnce(row())
+    mocks.updateSocialQueueWithVersion.mockRejectedValue(new SocialQueueWriteConflict())
+
+    const response = await POST(request(original), { params: { id: original.id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      code: 'write_conflict',
+      error: 'The Social Content record changed while the local asset was rendering.',
+      provider: 'none',
+      provider_calls_enabled: false,
+      render: { can_render: false },
+    })
+    expect(body.success).toBeUndefined()
+  })
+
+  it('returns a write conflict when the concurrent reload fails', async () => {
+    const original = row()
+    mocks.readSocialQueueForWrite
+      .mockResolvedValueOnce(original)
+      .mockRejectedValueOnce(new Error('db secret_relation missing'))
+    mocks.updateSocialQueueWithVersion.mockRejectedValue(new SocialQueueWriteConflict())
+
+    const response = await POST(request(original), { params: { id: original.id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      code: 'write_conflict',
+      error: 'The Social Content record changed while the local asset was rendering.',
+    })
+    expect(JSON.stringify(body)).not.toContain('secret_relation')
   })
 })
