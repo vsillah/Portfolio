@@ -63,7 +63,7 @@ describe('Agentified lesson media gate', () => {
     fireEvent.seeking(video)
     const diagram = screen.getByRole('complementary', { name: /L05-04 Portfolio-first operating stack source wording/ })
     expect(diagram.querySelector('img')).toBeNull()
-    expect(screen.getByRole('link', { name: 'Open full plate' })).toHaveAttribute('href', '/agentified/lessons/l05/figure-8-1-portfolio-first-stack-publication-plate.png')
+    expect(screen.getByRole('link', { name: 'Open full plate' })).toHaveAttribute('href', '/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png')
     expect(diagram).toHaveTextContent('Open Brainsources, events, proposals, memoriesHarnessCodex, tools, browser, apps, worktrees')
     expect(video).toHaveAttribute('controls')
     currentTime = 105.56
@@ -82,7 +82,7 @@ describe('Agentified lesson media gate', () => {
     fireEvent.seeking(video)
     const diagram = screen.getByRole('complementary', { name: /L06-03 Authority ladder source wording/ })
     expect(diagram.querySelector('img')).toBeNull()
-    expect(screen.getByRole('link', { name: 'Open full plate' })).toHaveAttribute('href', '/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png')
+    expect(screen.getByRole('link', { name: 'Open full plate' })).toHaveAttribute('href', '/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png')
     expect(diagram).toHaveTextContent('Recommendsuggest next action with evidence')
     expect(video).toHaveAttribute('controls')
     expect(video.querySelector('track')).toHaveAttribute('src', '/approved-l06.vtt')

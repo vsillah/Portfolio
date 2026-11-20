@@ -13,6 +13,7 @@ fs.mkdirSync(output, { recursive: true })
 const sha = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex')
 const audit = require(path.join(root, 'agentified/workshop/presentation-illustration-audit/audit-boundaries.json'))
 for (const scene of map.scenes) {
+  if (!scene.image.startsWith('/agentified/workshop/')) throw new Error(`Unexpected plate route: ${scene.sceneId}`)
   const source = audit.rows.find((row) => row.scene_id === scene.sceneId)
   if (!source || source.start_seconds.toFixed(3) !== scene.startSeconds.toFixed(3) || source.end_seconds.toFixed(3) !== scene.endSeconds.toFixed(3)) throw new Error(`Cue drift: ${scene.sceneId}`)
   if (source.approved_visuals.length !== 1 || source.approved_visuals[0].path !== scene.sourcePath || source.approved_visuals[0].sha256 !== scene.sourceSha256) throw new Error(`Source drift: ${scene.sceneId}`)
