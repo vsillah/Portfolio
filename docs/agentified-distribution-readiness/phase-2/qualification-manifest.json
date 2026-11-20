@@ -1,0 +1,1939 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "8f39f259bfba33d901f36959ed3a8a14b78060bb",
+  "sourceApprovalCommit": "6b288adc0ddefbe37f0b7889debafaf5eec855c1",
+  "correctionBaseCommit": "f5d65b6078ebef02c18b574b3afa70b2b60084ed",
+  "endScreenPatternCommit": "5570138a0cc4e02c4cea0dca81e1bf977a647a63",
+  "bindingReviewState": "human_qa_pending",
+  "scope": "read-only local technical checks; no ASR, human visual review, or distribution rights approval",
+  "methods": {
+    "pcm": "ffmpeg decoded mono 16 kHz SHA-256",
+    "silence": "ffmpeg silencedetect -35 dB, 1.5 s; candidates only"
+  },
+  "lessons": [
+    {
+      "id": "L01",
+      "title": "Give the agent a job and a receipt",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l01/illustrated-1eeaa68b/agentified-l01-illustrated-composite.mp4",
+          "sha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-composite.mp4",
+          "sha256": "10f9ea26a7cd270610c497122cac90bed090995d9f14a0b01c137f89dfe7ae14",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-captions.vtt",
+          "sha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l01-poster.webp",
+          "sha256": "8939a4387173bd8e6a335e1b8d8e2d50155cfac338cf75292fdf1e594cd5310e",
+          "bytes": 122624
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L01-job-and-receipt.md",
+        "sha256": "c600f29d7fcc6c2a50d3bcb2d07f92a9d0f45225520e300d865c188d75cdaa26",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "997e83f0d7f6d06a318d2da866195bc53e0d13a603954c10ab7d70985ddd03d2",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 378.059,
+        "encodedSeconds": 378.285,
+        "sourceEncodedSeconds": 378.285,
+        "durationDeltaSeconds": 0.226,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "9457",
+        "finalFrames": "9457",
+        "sourcePcmSha256": "e4eb546627a130349f9f592974f0608db6cf4b4e01d085272729a870f9f23f78",
+        "finalPcmSha256": "e4eb546627a130349f9f592974f0608db6cf4b4e01d085272729a870f9f23f78",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 5,
+          "longestSeconds": 110.8575,
+          "intervalsSeconds": [
+            [
+              19.978,
+              21.527
+            ],
+            [
+              232.613,
+              343.471
+            ],
+            [
+              346.963,
+              349.363
+            ],
+            [
+              355.129,
+              357.13
+            ],
+            [
+              359.691,
+              378.304
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+        "cueCount": 55,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.2,
+        "lastCueEndSeconds": 359.645,
+        "firstCueText": "Friday afternoon.",
+        "lastCueText": "Next we will name the decision Morgan actually owns.",
+        "textSha256": "07a655ca5bee9ec056ab52b76ae519313083ea7b009fd6b4a8c7ccab6a710819",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 591,
+        "captionWordCount": 591,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            13.633,
+            "native presenter"
+          ],
+          [
+            359.64499999999975,
+            378.05899999999997,
+            "approved branded end screen"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "absent",
+        "startSeconds": null,
+        "endSeconds": null,
+        "visibleSeconds": null,
+        "videoSha256": null,
+        "captionsSha256": null
+      },
+      "evidenceState": "Needs correction",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L02",
+      "title": "Start with the decision",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l02/illustrated-27a72885/agentified-l02-illustrated-composite.mp4",
+          "sha256": "27a72885e84e7f100bda67298afa6c75a85696b7324650da950c658dff84d469",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+          "sha256": "e2b5ecbc55a8bc049793a1706b61267b3638dfe8220357fc937b4e8d1024ebae",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-captions.vtt",
+          "sha256": "eb8b81caf9283e0c5b106b6b404a72c178f50d2c0549bca18c92a4af343219d9",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l02-poster.webp",
+          "sha256": "3977814a4731bbcb60dd4d17d22d640c83cbdfad9f434fe348d6aa5fd8eb84a1",
+          "bytes": 127978
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L02-decision.md",
+        "sha256": "5e589c9ce3ff24923f6f215c5300ac5171799e572d27660d6f4ffc2168b94a9a",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "9bcc6b3ebb437bf696b52e752be0e81aede74472fdbd89f5ca00a6646030c9fd",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 510,
+        "encodedSeconds": 510.0,
+        "sourceEncodedSeconds": 510.0,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "12750",
+        "finalFrames": "12750",
+        "sourcePcmSha256": "7ea710f708b39d2bc5fe45dbf4003d1ef35448b7d3e12c01d876b36ac35ae9ad",
+        "finalPcmSha256": "7ea710f708b39d2bc5fe45dbf4003d1ef35448b7d3e12c01d876b36ac35ae9ad",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 484.638333,
+          "intervalsSeconds": [
+            [
+              16.417,
+              501.055
+            ],
+            [
+              503.996,
+              510.016
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "eb8b81caf9283e0c5b106b6b404a72c178f50d2c0549bca18c92a4af343219d9",
+        "cueCount": 6,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 504.0,
+        "firstCueText": "Morgan opens the Session Option Brief.",
+        "lastCueText": "In the next lesson, we will make the evidence path readable to that owner.",
+        "textSha256": "395b9e854bd6a8b409bbb0656536495a0a6a21c2be545922b208ff232db52051",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 502,
+        "captionWordCount": 56,
+        "scriptCaptionTokenSimilarity": 0.2007,
+        "scriptCaptionExactTokenMatch": false
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            16.709,
+            "native presenter"
+          ],
+          [
+            500.763,
+            504,
+            "native presenter"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 504.0,
+        "endSeconds": 510.0,
+        "visibleSeconds": 6.0,
+        "videoSha256": "27a72885e84e7f100bda67298afa6c75a85696b7324650da950c658dff84d469",
+        "captionsSha256": "eb8b81caf9283e0c5b106b6b404a72c178f50d2c0549bca18c92a4af343219d9"
+      },
+      "evidenceState": "Needs correction",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L03",
+      "title": "Trace the work and grade the sources",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l03/illustrated-0ad7c3e1/agentified-l03-illustrated-composite.mp4",
+          "sha256": "0ad7c3e132e2f54148f282a798255cb1f9a23a0f5865ee1cfb6e142efe1d6cbb",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+          "sha256": "8749ae9a3750c0cfa2daab1c04bf9d7e81423f8728d68d0ffcd35276e63acde7",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-captions.vtt",
+          "sha256": "f548f0a0d2a369dc082261d48eb5aa001e97c48e6cd993d49cb20a0208347bc4",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l03-poster.webp",
+          "sha256": "7a4635b5d14dbf8b299721c5fc8fce4729b9aa20d0e912b8cdea1d5294e7c390",
+          "bytes": 131580
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L03-trace-and-sources.md",
+        "sha256": "3e42459bdad850982094af0de03eda93485d9015bdf884b8cdd0a3abfd3baa7d",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "82e6db65f7db811ad75427f255b9d41fee5f0b36e29ce3a6525f9fc75431ff90",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 600,
+        "encodedSeconds": 600.0,
+        "sourceEncodedSeconds": 600.0,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "15000",
+        "finalFrames": "15000",
+        "sourcePcmSha256": "c078256bbb8c57b5c7bc5ef8c6fb4bdf1d3c83ff68f4a06c0059e0bd5da471ac",
+        "finalPcmSha256": "c078256bbb8c57b5c7bc5ef8c6fb4bdf1d3c83ff68f4a06c0059e0bd5da471ac",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 573.925375,
+          "intervalsSeconds": [
+            [
+              14.099,
+              588.024
+            ],
+            [
+              591.999,
+              600.0
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "f548f0a0d2a369dc082261d48eb5aa001e97c48e6cd993d49cb20a0208347bc4",
+        "cueCount": 4,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.233,
+        "lastCueEndSeconds": 592.0,
+        "firstCueText": "Morgan sees a line in the Harbor Session Option Brief: “The room can hold twenty people.”",
+        "lastCueText": "Next we will decide what a human correction is allowed to teach the system.",
+        "textSha256": "6ab7cbefaa8cc4bee16bc49c29cc97b38d5a54b53f20429c02aece9810c63dee",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 541,
+        "captionWordCount": 51,
+        "scriptCaptionTokenSimilarity": 0.1723,
+        "scriptCaptionExactTokenMatch": false
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            14.572,
+            "native presenter"
+          ],
+          [
+            587.557,
+            592,
+            "native presenter"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 592.0,
+        "endSeconds": 600.0,
+        "visibleSeconds": 8.0,
+        "videoSha256": "0ad7c3e132e2f54148f282a798255cb1f9a23a0f5865ee1cfb6e142efe1d6cbb",
+        "captionsSha256": "f548f0a0d2a369dc082261d48eb5aa001e97c48e6cd993d49cb20a0208347bc4"
+      },
+      "evidenceState": "Needs correction",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L04",
+      "title": "Turn feedback into governed memory",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l04/illustrated-f7400d17/agentified-l04-illustrated-composite.mp4",
+          "sha256": "f7400d17001b64692c24ac9050a5896d40e5951a4782fc71282138e211dc0306",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+          "sha256": "8d0245ffbb2a35d65007f43c75b7bef291f90923fe6b8b159480b9662b4b41d7",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-captions.vtt",
+          "sha256": "ed98985beb67d616df745399937fa5bcc32b4b7e0267504393f5b2b6e2a4c647",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l04-poster.webp",
+          "sha256": "a0ccc99e7f6d1688c535d2e065e2d2c9c2432b4af027be402dde9bf196bca19e",
+          "bytes": 87582
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L04-memory-and-routing.md",
+        "sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "c07c9a65b5bfec326d0ce0b5a6ae47b45ea5f1aa0ba4fa015980909e6ba14fa5",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 600,
+        "encodedSeconds": 600.0,
+        "sourceEncodedSeconds": 600.0,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "15000",
+        "finalFrames": "15000",
+        "sourcePcmSha256": "201a7e83ca270fedac2f68e4c6c26d4889dc6c1188ac036dc2434f4d3c7f8c12",
+        "finalPcmSha256": "201a7e83ca270fedac2f68e4c6c26d4889dc6c1188ac036dc2434f4d3c7f8c12",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 575.960229,
+          "intervalsSeconds": [
+            [
+              17.836,
+              593.796
+            ],
+            [
+              597.0,
+              600.0
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "ed98985beb67d616df745399937fa5bcc32b4b7e0267504393f5b2b6e2a4c647",
+        "cueCount": 7,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 597.0,
+        "firstCueText": "Morgan reviews the Harbor brief and writes a correction: “The facilitator note says available for review.”",
+        "lastCueText": "The next lesson will place these pieces on one operating map.",
+        "textSha256": "7ffd54e93d45e0262ebac633bd8b0636a3abc75bb5fb1451cadc75d5e547ec98",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 549,
+        "captionWordCount": 53,
+        "scriptCaptionTokenSimilarity": 0.1761,
+        "scriptCaptionExactTokenMatch": false
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            18.086,
+            "native presenter"
+          ],
+          [
+            593.551,
+            597,
+            "native presenter"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 597.0,
+        "endSeconds": 600.0,
+        "visibleSeconds": 3.0,
+        "videoSha256": "f7400d17001b64692c24ac9050a5896d40e5951a4782fc71282138e211dc0306",
+        "captionsSha256": "ed98985beb67d616df745399937fa5bcc32b4b7e0267504393f5b2b6e2a4c647"
+      },
+      "evidenceState": "Needs correction",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L05",
+      "title": "Map the operating system",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l05/illustrated-aa9b234a/agentified-l05-illustrated-composite.mp4",
+          "sha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-composite.mp4",
+          "sha256": "1cd79d31cd87bf50d732fb12e9f71d622f8a1bf9ab62bf04c4847550625b7c6d",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-captions.vtt",
+          "sha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l05-poster.webp",
+          "sha256": "87a4e7d2e5c13d97eaff908a11c4f4f5a9f45b0e4b2f7b70a513f8053f35a64f",
+          "bytes": 117672
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L05-operating-map.md",
+        "sha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "f932cb15f888dd4ea5e285f2fdc49fc3fa4b51902a60b2be93c5cf752d033ada",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 237.687,
+        "encodedSeconds": 237.687,
+        "sourceEncodedSeconds": 237.687,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "5942",
+        "finalFrames": "5942",
+        "sourcePcmSha256": "74c4498e01d9802f29695a88c01ef09a42653f4d42712456be032f58756178cc",
+        "finalPcmSha256": "74c4498e01d9802f29695a88c01ef09a42653f4d42712456be032f58756178cc",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.66075,
+          "intervalsSeconds": [
+            [
+              174.526,
+              220.187
+            ],
+            [
+              234.628,
+              237.696
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389",
+        "cueCount": 60,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 234.398,
+        "firstCueText": "Friday arrives at Harbor Learning",
+        "lastCueText": "system.",
+        "textSha256": "0b644d9bab37bf16227ae86b9b1593ed8e9913c485d0f9a087e179a2c41cc714",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 531,
+        "captionWordCount": 531,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            11.91,
+            "native presenter"
+          ],
+          [
+            228.357531,
+            234.68753099999998,
+            "native presenter"
+          ],
+          [
+            174.7895,
+            219.7895,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 234.398,
+        "endSeconds": 237.687,
+        "visibleSeconds": 3.289,
+        "videoSha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
+        "captionsSha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L06",
+      "title": "Write the permission slip",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l06/illustrated-163e01e6/agentified-l06-illustrated-composite.mp4",
+          "sha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+          "sha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-captions.vtt",
+          "sha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l06-poster.webp",
+          "sha256": "f8a87d3c0a98eacb8018822c7847c641e35b343615015d2ab8e3e2374771b4a9",
+          "bytes": 84692
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L06-permission-and-cull.md",
+        "sha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "fd2934696358cf5713882956ee394cb2d6530da126149450294971962b11f17a",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 258.96,
+        "encodedSeconds": 258.96,
+        "sourceEncodedSeconds": 258.96,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6474",
+        "finalFrames": "6474",
+        "sourcePcmSha256": "bfaaf9451ab145455bbd299270d3f177919904b600c080410c4b79765fb38590",
+        "finalPcmSha256": "bfaaf9451ab145455bbd299270d3f177919904b600c080410c4b79765fb38590",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.521083,
+          "intervalsSeconds": [
+            [
+              198.552,
+              244.073
+            ],
+            [
+              255.483,
+              258.965
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+        "cueCount": 50,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 255.493,
+        "firstCueText": "The Operating Map has a row that says",
+        "lastCueText": "small team would share it.",
+        "textSha256": "86fcc17599d7ba0a7d84f955c49807f438352ae23b4ba64292b8886dbb05c59b",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 555,
+        "captionWordCount": 555,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            13.64,
+            "native presenter"
+          ],
+          [
+            249.99284399999996,
+            255.95984399999998,
+            "native presenter"
+          ],
+          [
+            198.79250000000002,
+            243.79250000000002,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 255.493,
+        "endSeconds": 258.96,
+        "visibleSeconds": 3.467,
+        "videoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+        "captionsSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L07",
+      "title": "Specify the work and the team",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l07/illustrated-42782f17/agentified-l07-illustrated-composite.mp4",
+          "sha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+          "sha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+          "sha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l07-poster.webp",
+          "sha256": "4807b8f696cf07315be7b29e58b674c0a00057ccfc10aa72a3dec93d7eb53571",
+          "bytes": 79576
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L07-prd-and-pod.md",
+        "sha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "417fa294df5b969317bcb9885b5984fd5aa50fff23c34e32586aee60dac93750",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 251.332,
+        "encodedSeconds": 251.332,
+        "sourceEncodedSeconds": 251.332,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6283",
+        "finalFrames": "6283",
+        "sourcePcmSha256": "531a19b1c08e4ea0aa1527fc7043bcea57f6fffe79fe8806fe2405d60928e23e",
+        "finalPcmSha256": "531a19b1c08e4ea0aa1527fc7043bcea57f6fffe79fe8806fe2405d60928e23e",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.537896,
+          "intervalsSeconds": [
+            [
+              188.168,
+              233.706
+            ],
+            [
+              248.146,
+              251.349
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+        "cueCount": 56,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 248.062,
+        "firstCueText": "Morgan receives a polished Session",
+        "lastCueText": "three course cases.",
+        "textSha256": "11750187dfecefe680280bb54f3262e5732374ed509d857ce52fbc461534f0bf",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 541,
+        "captionWordCount": 541,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            9.37,
+            "native presenter"
+          ],
+          [
+            242.22243799999995,
+            248.33243799999997,
+            "native presenter"
+          ],
+          [
+            188.515,
+            233.515,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 248.062,
+        "endSeconds": 251.332,
+        "visibleSeconds": 3.27,
+        "videoSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+        "captionsSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L08",
+      "title": "Make handoffs testable",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l08/illustrated-5ea78c36/agentified-l08-illustrated-composite.mp4",
+          "sha256": "5ea78c3647a901be84eddc1647185fcbea7178d79a5588befb467f92d20c93bd",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-composite.mp4",
+          "sha256": "3c5b399f0dbebc9cddb8de3cd15cd06a8eda92a5ff5d3add1c11e5a4df5a9648",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt",
+          "sha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l08-poster.webp",
+          "sha256": "c63be5ec7aa788f2329b6e9c43dc882abd81523bbdb4accb29906c7f2b7d32bb",
+          "bytes": 124022
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L08-handoff-and-eval.md",
+        "sha256": "219060baa998bd6a866e9ff00a6df99d2ccba64b6c5ecd55e9db7cc385df6846",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "26dfe4c9ff7fb8a9deec7bb7e4bbaa9987e19ed8079ec347cf85e7d33ecea03b",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 257.68,
+        "encodedSeconds": 257.68,
+        "sourceEncodedSeconds": 257.68,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6442",
+        "finalFrames": "6442",
+        "sourcePcmSha256": "56ad9bb64d4a2c71c07edd896f4f8f500c7c8e5243f6cf85409ee4478c545fa4",
+        "finalPcmSha256": "56ad9bb64d4a2c71c07edd896f4f8f500c7c8e5243f6cf85409ee4478c545fa4",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.505167,
+          "intervalsSeconds": [
+            [
+              192.304,
+              237.809
+            ],
+            [
+              254.336,
+              257.685
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011",
+        "cueCount": 55,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 254.357,
+        "firstCueText": "The Harbor source checker finishes its",
+        "lastCueText": "explaining them.",
+        "textSha256": "04de592aba82444db64c62e6b335585854a72bf4bb94d32c25fa0d7bb12b863b",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 533,
+        "captionWordCount": 533,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            13.525,
+            "native presenter"
+          ],
+          [
+            247.29171900000003,
+            254.67071900000002,
+            "native presenter"
+          ],
+          [
+            192.6535,
+            237.6535,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 254.357,
+        "endSeconds": 257.68,
+        "visibleSeconds": 3.323,
+        "videoSha256": "5ea78c3647a901be84eddc1647185fcbea7178d79a5588befb467f92d20c93bd",
+        "captionsSha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L09",
+      "title": "Measure trust and choose review posture",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l09/illustrated-998a5ccc/agentified-l09-illustrated-composite.mp4",
+          "sha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-composite.mp4",
+          "sha256": "277c85aa6f7c08f000c36a607d5df357e0c7654d14ce2dd8be0b2c6eadbbbffe",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-captions.vtt",
+          "sha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l09-poster.webp",
+          "sha256": "65d7112b9e16ed3c9c813a8f9b4c0190a40a1cbe9ec394224636241c23e9fcd5",
+          "bytes": 138400
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L09-metrics-and-review.md",
+        "sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 2,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "c2157c044e77cd3ab6636465ff8b0e22af3ffd3ff9ec88b4dcc331b97b106ad6",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 272.84,
+        "encodedSeconds": 272.84,
+        "sourceEncodedSeconds": 272.84,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6821",
+        "finalFrames": "6821",
+        "sourcePcmSha256": "87d8ffb49c6b7e1a73c0aaa37d14220edbd39308b245040e52ca5b0342f715c7",
+        "finalPcmSha256": "87d8ffb49c6b7e1a73c0aaa37d14220edbd39308b245040e52ca5b0342f715c7",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.491437,
+          "intervalsSeconds": [
+            [
+              207.593,
+              253.084
+            ],
+            [
+              263.369,
+              272.853
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+        "cueCount": 48,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 263.36,
+        "firstCueText": "Harbor Learning Circle has three neat classroom briefs on a table.",
+        "lastCueText": "Next we will put the same discipline around money and the final decision brief.",
+        "textSha256": "c546a93912caa42282c349a6a797b8e1c0a7e6051f95f09d7c8968709cde0cfc",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 586,
+        "captionWordCount": 586,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            13.38,
+            "native presenter"
+          ],
+          [
+            259.38,
+            263.84,
+            "native presenter"
+          ],
+          [
+            208.06,
+            253.06,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 263.36,
+        "endSeconds": 272.84,
+        "visibleSeconds": 9.48,
+        "videoSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+        "captionsSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L10",
+      "title": "Gate spend and brief the decision",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l10/illustrated-65936cf3/agentified-l10-illustrated-composite.mp4",
+          "sha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-composite.mp4",
+          "sha256": "a2dfdec56f1628c73eb586ebd8a7b59143eb5d1c0ea7affc16d557f1ecad53c5",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-captions.vtt",
+          "sha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l10-poster.webp",
+          "sha256": "538827665f930aa22b4d5e931c6f6babe4e3d77e3fc88df6a22b21cd0e6fa925",
+          "bytes": 86164
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L10-spend-and-decision-brief.md",
+        "sha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "c856d7504f0eaee7063f4a246ecf894a4cf59865f37413974c2e066c99a740ec",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 274.28,
+        "encodedSeconds": 274.28,
+        "sourceEncodedSeconds": 274.28,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6857",
+        "finalFrames": "6857",
+        "sourcePcmSha256": "a98c891f8102d1c651eae4492bfed8b03618c0ceb06f95c7ba093e34440daf00",
+        "finalPcmSha256": "a98c891f8102d1c651eae4492bfed8b03618c0ceb06f95c7ba093e34440daf00",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.519583,
+          "intervalsSeconds": [
+            [
+              207.112,
+              252.632
+            ],
+            [
+              265.925,
+              274.283
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+        "cueCount": 51,
+        "errors": [],
+        "overlapCount": 1,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 266.02,
+        "firstCueText": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month.",
+        "lastCueText": "Next we will make the pending work visible without turning a phone notification into a second control room.",
+        "textSha256": "d96289bee78741096d72d6320c1e91fe8d361ca4648b1d5b10f1c71a3b091641",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 574,
+        "captionWordCount": 574,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            12.64,
+            "native presenter"
+          ],
+          [
+            260.38,
+            266.271,
+            "native presenter"
+          ],
+          [
+            207.62,
+            252.62,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 266.02,
+        "endSeconds": 274.28,
+        "visibleSeconds": 8.26,
+        "videoSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+        "captionsSha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8"
+      },
+      "evidenceState": "Needs correction",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L11",
+      "title": "Run the cockpit and unblock lane",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l11/illustrated-169488ec/agentified-l11-illustrated-composite.mp4",
+          "sha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l11/approved-46973271/agentified-l11-native-composite.mp4",
+          "sha256": "4697327122442be8baf9296253d82a032372543a13fe7b4c17bcbe9dc0f9717b",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l11/approved-46973271/agentified-l11-native-captions.vtt",
+          "sha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l11-poster.webp",
+          "sha256": "2140de4f66c273e89ff5dfa0f8d0f308fd36c7372dc60ad393d93924179ff7c8",
+          "bytes": 117644
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L11-cockpit-and-unblock.md",
+        "sha256": "adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "cb7ee5db3dacb7f4f06bd29d516488bd4b8788d31a5ba572027ed4a5faab6c77",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 252.92,
+        "encodedSeconds": 252.92,
+        "sourceEncodedSeconds": 252.92,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6323",
+        "finalFrames": "6323",
+        "sourcePcmSha256": "a18b8ad58cf37cfe84fada7da5d5414c5f9f727a891956b16828e0533eef5222",
+        "finalPcmSha256": "a18b8ad58cf37cfe84fada7da5d5414c5f9f727a891956b16828e0533eef5222",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.709083,
+          "intervalsSeconds": [
+            [
+              189.197,
+              234.906
+            ],
+            [
+              248.594,
+              252.907
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+        "cueCount": 41,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 248.46,
+        "firstCueText": "Morgan comes to Harbor's Friday planning table with three open questions.",
+        "lastCueText": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build.",
+        "textSha256": "a0e0584ae18d6cf9f1cbaeb0713e5ee7451b855db883f721f2a44fc360daff19",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 579,
+        "captionWordCount": 579,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            13.8,
+            "native presenter"
+          ],
+          [
+            241.62,
+            248.904,
+            "native presenter"
+          ],
+          [
+            189.84,
+            234.84,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 248.46,
+        "endSeconds": 252.92,
+        "visibleSeconds": 4.46,
+        "videoSha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
+        "captionsSha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L12",
+      "title": "Prove the work safely",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l12/illustrated-64039c97/agentified-l12-illustrated-composite.mp4",
+          "sha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-composite.mp4",
+          "sha256": "0d58c706ce5f078ade47dc44f3f65d9b2a06b77b810d6d707269d28cf52698f8",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-captions.vtt",
+          "sha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l12-poster.webp",
+          "sha256": "d005fba3b86ae734da43f426b23de1fff030157b3819fba0db9175c18eb9575a",
+          "bytes": 123720
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L12-proof-and-foundry.md",
+        "sha256": "5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "5be27b8fcc2de95e8fba2386235ca0d44203460bed7e099b99083bfb5b85e5e3",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 268.12,
+        "encodedSeconds": 268.12,
+        "sourceEncodedSeconds": 268.12,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6703",
+        "finalFrames": "6703",
+        "sourcePcmSha256": "b1c99014867af8d484b731bb75087a858b303353b537fd904dc698a244bab138",
+        "finalPcmSha256": "b1c99014867af8d484b731bb75087a858b303353b537fd904dc698a244bab138",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.607437,
+          "intervalsSeconds": [
+            [
+              204.489,
+              250.096
+            ],
+            [
+              264.81,
+              268.139
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+        "cueCount": 44,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.0,
+        "lastCueEndSeconds": 264.6,
+        "firstCueText": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session.",
+        "lastCueText": "That is what makes the next human decision honest.",
+        "textSha256": "14d6b0140dae90f279e868a64cddd1116e39d89e9cd29fef76e13292ea89ea5e",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 580,
+        "captionWordCount": 580,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            13.82,
+            "native presenter"
+          ],
+          [
+            259.38,
+            265.12,
+            "native presenter"
+          ],
+          [
+            205.08,
+            250.08,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 264.6,
+        "endSeconds": 268.12,
+        "visibleSeconds": 3.52,
+        "videoSha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1",
+        "captionsSha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L13",
+      "title": "Research with a gate",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l13/illustrated-4ae75aa1/agentified-l13-illustrated-composite.mp4",
+          "sha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-composite.mp4",
+          "sha256": "c84cc00839f3cc1b3abef53385cc9879d3ce56dcb651a02922cd127b311db69f",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-captions.vtt",
+          "sha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l13-poster.webp",
+          "sha256": "2a1d91534183932dd2c3c0ec8ca01dfd37c14518cab0ccf23dec74fc25d3bda8",
+          "bytes": 85336
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
+        "sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "0d258bdbe8fb92ca3a76be43c5a03b4da61e41d0184c5484d8d815cd9cfdb372",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 255.243,
+        "encodedSeconds": 255.243,
+        "sourceEncodedSeconds": 255.243,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6368",
+        "finalFrames": "6368",
+        "sourcePcmSha256": "77f0a80d157085341a45a9c61b47df5b80c2986817b69b9edd12053f3bd59234",
+        "finalPcmSha256": "77f0a80d157085341a45a9c61b47df5b80c2986817b69b9edd12053f3bd59234",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.00875,
+          "intervalsSeconds": [
+            [
+              188.02,
+              233.028
+            ],
+            [
+              246.879,
+              255.253
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+        "cueCount": 49,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.26,
+        "lastCueEndSeconds": 247.007,
+        "firstCueText": "Morgan opens Harbor's paper planning",
+        "lastCueText": "has run.",
+        "textSha256": "2119c64576bd2b10b74b228969ba112fe2dd3f3107ecc2eaa46226b90dc8a621",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 526,
+        "captionWordCount": 526,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            12.42,
+            "native presenter"
+          ],
+          [
+            241.797,
+            247.243,
+            "native presenter"
+          ],
+          [
+            188.025,
+            233.025,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 247.007,
+        "endSeconds": 255.243,
+        "visibleSeconds": 8.236,
+        "videoSha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
+        "captionsSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L14",
+      "title": "Show the board the controls",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l14/illustrated-a58c3a1c/agentified-l14-illustrated-composite.mp4",
+          "sha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-composite.mp4",
+          "sha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l14/approved-de258e9b/agentified-l14-native-captions.vtt",
+          "sha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l14-poster.webp",
+          "sha256": "131e86fd77ce2e2934e0769bc150393c9f9baa108c95b956c51c94c76c5df605",
+          "bytes": 118100
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L14-show-the-board-the-controls.md",
+        "sha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 2,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "45b5e43d082c5bb8a59f88227929879837e9770454f7682f3d0827f3582f1759",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 241.762,
+        "encodedSeconds": 241.762,
+        "sourceEncodedSeconds": 241.762,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6032",
+        "finalFrames": "6032",
+        "sourcePcmSha256": "89fd47bb4fe55dd4a0ba8b80773d09ff5ee2e42bb60d6bcd539ea4a5ada68a8f",
+        "finalPcmSha256": "89fd47bb4fe55dd4a0ba8b80773d09ff5ee2e42bb60d6bcd539ea4a5ada68a8f",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.003,
+          "intervalsSeconds": [
+            [
+              172.411,
+              217.414
+            ],
+            [
+              230.513,
+              241.771
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446",
+        "cueCount": 54,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.21,
+        "lastCueEndSeconds": 230.687,
+        "firstCueText": "A Harbor board reviewer asks Morgan a",
+        "lastCueText": "the hold.",
+        "textSha256": "3f93f8b24d193278b2d56f396e6eeb7fa50ccc9159a26a404b20296e58317c16",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 510,
+        "captionWordCount": 510,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            11.91,
+            "native presenter"
+          ],
+          [
+            227.397,
+            230.763,
+            "native presenter"
+          ],
+          [
+            172.412,
+            217.412,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 230.687,
+        "endSeconds": 241.762,
+        "visibleSeconds": 11.075,
+        "videoSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+        "captionsSha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L15",
+      "title": "Rehearse the agentified day",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l15/illustrated-0c5bac16/agentified-l15-illustrated-composite.mp4",
+          "sha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-composite.mp4",
+          "sha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l15/approved-80fb2855/agentified-l15-native-captions.vtt",
+          "sha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l15-poster.webp",
+          "sha256": "29277e8bc53ca8ba381b3304bd9656937b17d501bdc059898939c45495cac898",
+          "bytes": 132364
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L15-rehearse-the-agentified-day.md",
+        "sha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 1,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "b6864c9195f7a7a666abe7a6acfc649749fc7f04758785c42414452226cc4908",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 255.386,
+        "encodedSeconds": 255.386,
+        "sourceEncodedSeconds": 255.386,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6373",
+        "finalFrames": "6373",
+        "sourcePcmSha256": "0a04bfa196fb5ec3a36d3bcc6c4ccbd9dd8f1872c5f49c6329b97ced5fe9be0a",
+        "finalPcmSha256": "0a04bfa196fb5ec3a36d3bcc6c4ccbd9dd8f1872c5f49c6329b97ced5fe9be0a",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 2,
+          "longestSeconds": 45.055729,
+          "intervalsSeconds": [
+            [
+              188.883,
+              233.939
+            ],
+            [
+              246.025,
+              255.403
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522",
+        "cueCount": 57,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.21,
+        "lastCueEndSeconds": 246.324,
+        "firstCueText": "It is Friday at Harbor Learning Circle.",
+        "lastCueText": "make those boundaries routine.",
+        "textSha256": "60856225be9465d3c3cf657b9cbd773e9cf33be1a8c722c0eebc508b9eb201df",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 561,
+        "captionWordCount": 561,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            15.35,
+            "native presenter"
+          ],
+          [
+            242.734,
+            246.386,
+            "native presenter"
+          ],
+          [
+            188.932,
+            233.932,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 246.324,
+        "endSeconds": 255.386,
+        "visibleSeconds": 9.062,
+        "videoSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+        "captionsSha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522"
+      },
+      "evidenceState": "Technically present but visually pending",
+      "distributionRightsState": "Needs rights confirmation"
+    },
+    {
+      "id": "L16",
+      "title": "Audit the operating file",
+      "assets": {
+        "composite": {
+          "path": "/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4",
+          "sha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+          "matchesBinding": true
+        },
+        "source": {
+          "path": "/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-composite.mp4",
+          "sha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+          "matchesBinding": true
+        },
+        "captions": {
+          "path": "/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-captions.vtt",
+          "sha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
+          "matchesBinding": true
+        },
+        "poster": {
+          "path": "/agentified/posters/l16-poster.webp",
+          "sha256": "6d8fe4fa9ea18ea78ef66ec642242e612a9b68b2e371ec390da20d969f234b95",
+          "bytes": 82178
+        }
+      },
+      "script": {
+        "path": "agentified/workshop/scripts/L16-audit-the-operating-file.md",
+        "sha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e",
+        "matchesVisualPacket": true
+      },
+      "visualPacket": {
+        "authority": "approved_visual_preproduction_only",
+        "plateUseCount": 2,
+        "plateUsesApprovedForBoundLessons": true
+      },
+      "transcript": {
+        "bindingSha256": "e5e5c61ddf3c808e1aec315fd58f6d5c11bf3a18262d44a0213ad9e699a73a73",
+        "canonicalArtifactLocated": false,
+        "equivalence": "unverified"
+      },
+      "media": {
+        "declaredSeconds": 267.309,
+        "encodedSeconds": 267.309,
+        "sourceEncodedSeconds": 267.309,
+        "durationDeltaSeconds": 0.0,
+        "sourceVideoCodec": "h264",
+        "finalVideoCodec": "h264",
+        "sourceFrameRate": "25/1",
+        "finalFrameRate": "25/1",
+        "sourceFrames": "6667",
+        "finalFrames": "6667",
+        "sourcePcmSha256": "6314419cb3b35fabca00d4a06e338f4747903f863f967a76ce5ab5196afdaef2",
+        "finalPcmSha256": "6314419cb3b35fabca00d4a06e338f4747903f863f967a76ce5ab5196afdaef2",
+        "decodedAudioIdentical": true,
+        "silence": {
+          "thresholdDb": -35,
+          "minimumSeconds": 1.5,
+          "intervalCount": 1,
+          "longestSeconds": 45.000104,
+          "intervalsSeconds": [
+            [
+              202.586,
+              247.586
+            ]
+          ]
+        }
+      },
+      "captions": {
+        "sha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
+        "cueCount": 63,
+        "errors": [],
+        "overlapCount": 0,
+        "firstCueStartSeconds": 0.21,
+        "lastCueEndSeconds": 267.222,
+        "firstCueText": "At the end of Harbor's Friday, Morgan",
+        "lastCueText": "stop.",
+        "textSha256": "b479c8380dbaa6e37af0bafe6b65906fb32eb02d2f53b29c7a3222e991c8144b",
+        "scriptSpokenRowCount": 8,
+        "scriptWordCount": 584,
+        "captionWordCount": 584,
+        "scriptCaptionTokenSimilarity": 1.0,
+        "scriptCaptionExactTokenMatch": true
+      },
+      "compositeReceipt": {
+        "sourceSha256Matches": true,
+        "outputSha256Matches": true,
+        "frameRate": "25/1",
+        "protectedWindows": [
+          [
+            0,
+            16.26,
+            "native presenter"
+          ],
+          [
+            258.262,
+            267.309,
+            "native presenter"
+          ],
+          [
+            202.586,
+            247.586,
+            "original countdown"
+          ]
+        ],
+        "releaseStateInReceipt": "unbound review candidate"
+      },
+      "endScreen": {
+        "state": "hash-matched",
+        "startSeconds": 267.222,
+        "endSeconds": 267.309,
+        "visibleSeconds": 0.087,
+        "videoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+        "captionsSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060"
+      },
+      "evidenceState": "Needs correction",
+      "distributionRightsState": "Needs rights confirmation"
+    }
+  ]
+}
