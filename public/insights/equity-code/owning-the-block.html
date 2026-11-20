@@ -120,7 +120,7 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
 .b-ug{fill:var(--b-ug)}
 .lane{stroke:var(--b-dash)}
 #city{pointer-events:none}
-#city .u-collar{fill:var(--u-shaft-wall)}
+#city .u-collar{fill:none;stroke:var(--u-ink);stroke-width:1;stroke-linejoin:miter}
 /* underground: faint sectional drawing; weight + tone keep it under every node and connector */
 #city .u-grid{fill:none;stroke:var(--u-grid);stroke-width:.5}
 #city .u-ln{fill:none;stroke:var(--u-ink);stroke-width:1}
@@ -132,8 +132,9 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
 #city .u-casing{fill:none;stroke:var(--u-ink);stroke-width:6;stroke-linejoin:miter}
 #city .u-knock{fill:none;stroke:var(--b-ug);stroke-width:4;stroke-linejoin:miter}
 #city .u-dot{fill:var(--u-ink2)}
-#city .u-cover{fill:var(--u-cover);stroke:var(--u-cover-edge);stroke-width:1.5}
-#city .u-cover-mark{fill:none;stroke:var(--u-cover-mark);stroke-width:1}
+#city .u-cover{fill:var(--u-cover);stroke:var(--u-cover-edge);stroke-width:1}
+#city .u-cover-mark{fill:none;stroke:var(--u-cover-mark);stroke-width:.75}
+#city .u-cover-hatch{fill:none;stroke:var(--u-cover-mark);stroke-width:.5}
 @media (prefers-reduced-motion:reduce){.node .shape,.pipe{transition:none}}
 </style>
 
@@ -458,12 +459,12 @@ recolor();
     u('path',{class:'u-fine',d:`M${x0} ${y0}L${x1} ${y1}H${x2}`});
     u('circle',{class:'u-fine',cx:x2+2.5,cy:y1,r:2.5});
   });
-  // access covers at street level, with the frame collar that seats the shaft
+  // access covers at street level, seen in slight perspective, with the tapered frame collar that seats the shaft
   SHAFTS.forEach(x=>{
-    u('rect',{class:'u-collar',x:x-10,y:318,width:20,height:4,rx:1});
-    u('circle',{class:'u-cover',cx:x,cy:311,r:8.5});
-    u('circle',{class:'u-cover-mark',cx:x,cy:311,r:5.2});
-    u('path',{class:'u-cover-mark',d:`M${x-3.5} 309.3h7M${x-3.5} 312.7h7`});
+    u('path',{class:'u-collar',d:`M${x-11} 316L${x-7} 322M${x+11} 316L${x+7} 322`}); // frame cone: rim edge down to shaft walls (x±7, y322)
+    u('ellipse',{class:'u-cover',cx:x,cy:316,rx:11,ry:3.4});            // cast frame / outer rim
+    u('ellipse',{class:'u-cover-mark',cx:x,cy:316.4,rx:8,ry:2.4});      // recessed lid ring, set slightly low
+    u('path',{class:'u-cover-hatch',d:`M${x-4.5} 314.9v3M${x-1.5} 314.5v3.8M${x+1.5} 314.5v3.8M${x+4.5} 314.9v3`}); // restrained grate bars inside the lid
   });
   // mask: cut the context layer out from under every node and every band label
   N.forEach(n=>holes.appendChild(el('rect',{x:n.x-2,y:n.y-2,width:n.w+4,height:n.h+4})));

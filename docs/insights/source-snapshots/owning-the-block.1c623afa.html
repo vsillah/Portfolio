@@ -1,0 +1,484 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="description" content="The community technology stack drawn as a city block: data plumbing, open-weight models, the tools as buildings, the network as the street, and nine end-to-end builds."><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Owning the Block</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0e1118; --panel:#12161f; --line:#232a37; --fg:#eef1f6; --fg2:#aab3c2; --mute:#7f8999;
+  --own:#4fa3ff; --open:#e3b341; --rent:#e5604f; --net:#f0f3f8; --pipe:#2f3a4d; --pipe-on:#4fa3ff;
+  --h1:#4fa3ff; --h2:#8e7cf3; --h3:#49c48a; --h4:#e3b341;
+  --p60:#49c48a; --p35:#e3b341; --plow:#e5604f; --pnone:#3a4557;
+  --seg-on-bg:#f3f5f9; --seg-on-fg:#0e1118; --on-own:#0e1118; --sel:#ffffff; --focus:#eef1f6; --focus-halo:#0e1118;
+  --b-sky:#12161f; --b-horizon:#2a3242; --b-street:#171c27; --b-fnd:#10141c; --b-ug:#0c0f15; --b-dash:#3a4557; --door:#12161f;
+  --u-shaft-wall:#2e3644;
+  --u-cover:#2a313c; --u-cover-edge:#5a6577; --u-cover-mark:#3d4656;
+  --u-ink:#2c394c; --u-ink2:#222b38; --u-ghost:#1a212c; --u-grid:#121822;
+  --fd:'Inter Tight',Inter,system-ui,sans-serif; --fb:'Inter',system-ui,sans-serif; --fm:'IBM Plex Mono','SF Mono',Menlo,monospace;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f3f5f8; --panel:#ffffff; --line:#cdd4de; --fg:#121722; --fg2:#3e4858; --mute:#4a5464;
+  --own:#1f68c6; --open:#8a6300; --rent:#bf3a2b; --net:#121722; --pipe:#aeb8c6; --pipe-on:#1f68c6;
+  --h1:#1f68c6; --h2:#6a52d1; --h3:#1b7f4f; --h4:#8a6300;
+  --p60:#1b7f4f; --p35:#8a6300; --plow:#bf3a2b; --pnone:#8f99a8;
+  --seg-on-bg:#121722; --seg-on-fg:#ffffff; --on-own:#ffffff; --sel:#0b0f17; --focus:#121722; --focus-halo:#ffffff;
+  --b-sky:#f4f7fb; --b-horizon:#c3ccd8; --b-street:#e2e6ec; --b-fnd:#eeebe4; --b-ug:#e9e4da; --b-dash:#a3acb9; --door:#d5dbe4;
+  --u-shaft-wall:#a39887;
+  --u-cover:#c4c9d1; --u-cover-edge:#6e7887; --u-cover-mark:#939caa;
+  --u-ink:#bdb3a2; --u-ink2:#cdc5b7; --u-ghost:#d8d1c5; --u-grid:#e2dcd1;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]):not([data-theme="light"]){
+  --bg:#f3f5f8; --panel:#ffffff; --line:#cdd4de; --fg:#121722; --fg2:#3e4858; --mute:#4a5464;
+  --own:#1f68c6; --open:#8a6300; --rent:#bf3a2b; --net:#121722; --pipe:#aeb8c6; --pipe-on:#1f68c6;
+  --h1:#1f68c6; --h2:#6a52d1; --h3:#1b7f4f; --h4:#8a6300;
+  --p60:#1b7f4f; --p35:#8a6300; --plow:#bf3a2b; --pnone:#8f99a8;
+  --seg-on-bg:#121722; --seg-on-fg:#ffffff; --on-own:#ffffff; --sel:#0b0f17; --focus:#121722; --focus-halo:#ffffff;
+  --b-sky:#f4f7fb; --b-horizon:#c3ccd8; --b-street:#e2e6ec; --b-fnd:#eeebe4; --b-ug:#e9e4da; --b-dash:#a3acb9; --door:#d5dbe4;
+  --u-shaft-wall:#a39887;
+  --u-cover:#c4c9d1; --u-cover-edge:#6e7887; --u-cover-mark:#939caa;
+  --u-ink:#bdb3a2; --u-ink2:#cdc5b7; --u-ghost:#d8d1c5; --u-grid:#e2dcd1;
+  color-scheme:light;
+}}
+html{background:var(--bg)}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--fb);margin:0;padding-block:36px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto}
+.eyebrow{font-family:var(--fm);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:var(--fd);font-weight:700;font-size:clamp(34px,4.6vw,52px);line-height:1.02;margin:8px 0 14px;letter-spacing:-.02em;text-wrap:balance}
+.lede{max-width:66ch;color:var(--fg2);font-size:16px;line-height:1.55;margin:0 0 20px}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0 0 14px}
+.controls .lab{font-family:var(--fm);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-right:4px}
+.seg{display:flex;gap:6px}
+.seg button{background:var(--panel);border:1px solid var(--line);color:var(--fg2);font:500 13px var(--fb);padding:7px 12px;border-radius:5px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--seg-on-bg);color:var(--seg-on-fg);border-color:var(--seg-on-bg)}
+.seg button:focus-visible{outline:2px solid var(--own);outline-offset:2px}
+.chips{flex-wrap:wrap}
+.chips button{border-radius:999px;padding:6px 11px;font-size:12px}
+.chips button[aria-pressed="true"]{background:var(--own);border-color:var(--own);color:var(--on-own)}
+.who{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.who span{font-family:var(--fm);font-size:11px;color:var(--fg2);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.steps{margin:0 0 14px;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:8px}
+.steps li{font-size:13px;line-height:1.5;color:var(--fg2);display:grid;grid-template-columns:22px 1fr;gap:8px}
+.steps li::before{counter-increment:s;content:counter(s);font-family:var(--fm);font-size:11px;color:var(--own);padding-top:2px}
+.steps li b{color:var(--fg);font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--fg2);margin:0 0 18px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.fig{border:1px solid var(--line);background:var(--panel);border-radius:6px;overflow-x:auto}
+svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
+.nar{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:20px 22px;position:sticky;top:16px;min-width:0}
+.nar .k{font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.nar h2{font-family:var(--fd);font-size:22px;margin:6px 0 10px;letter-spacing:-.01em;line-height:1.15}
+.nar p{color:var(--fg2);font-size:14px;line-height:1.55;margin:0 0 14px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin:0 0 14px}
+.meta div{min-width:0}
+.meta .k{display:block;margin-bottom:3px}
+.meta .v{font-family:var(--fm);font-size:13px;color:var(--fg)}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:4px 0 2px}
+.bar i{display:block;height:100%;background:var(--own)}
+.deps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.deps li{font-size:13px;color:var(--fg2);display:flex;gap:8px;align-items:baseline}
+.deps li b{font-weight:500;color:var(--fg)}
+.deps li .dot{width:7px;height:7px;border-radius:50%;flex:none;position:relative;top:-1px}
+.hint{font-family:var(--fm);font-size:11px;color:var(--mute);margin-top:12px;letter-spacing:.04em}
+.rules{margin-top:26px;border-top:1px solid var(--line);padding-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px 28px}
+.rules h3{font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:0 0 6px;font-weight:500}
+.rules p{margin:0;font-size:13px;line-height:1.55;color:var(--fg2)}
+.node{cursor:pointer}
+.node .shape{transition:opacity .2s,stroke .2s}
+.node .lbl{fill:var(--fg);font-size:12px;font-weight:500;pointer-events:none}
+.node .sub{fill:var(--mute);font-family:var(--fm);font-size:10px;pointer-events:none}
+.dim .node:not(.on) .shape{opacity:.22}
+.dim .node:not(.on) .lbl,.dim .node:not(.on) .sub{opacity:.3}
+.pipe{stroke:var(--pipe);fill:none;stroke-width:2;transition:stroke .2s,stroke-width .2s,opacity .2s}
+.dim .pipe{opacity:.25}
+.dim .pipe.on{opacity:1;stroke:var(--pipe-on);stroke-width:3}
+.node.on .shape{stroke:var(--sel);stroke-width:2}
+.node.on .shape.fine{stroke:none}
+.node .deco{pointer-events:none}
+.node .door{fill:var(--door)}
+.node:focus{outline:none}
+.node .ring,.node .ring-h{fill:none;opacity:0;pointer-events:none}
+.node .ring{stroke:var(--focus);stroke-width:2}
+.node .ring-h{stroke:var(--focus-halo);stroke-width:5}
+.node:focus-visible .ring,.node:focus-visible .ring-h{opacity:1}
+.node .lbl,.node .sub,.bandlbl{paint-order:stroke fill;stroke:var(--b-sky);stroke-width:3px;stroke-linejoin:round}
+.node[data-kind="street"] .lbl{stroke:var(--b-street)}
+.node[data-kind="fnd"] .lbl,.node[data-kind="fnd"] .sub{stroke:var(--b-fnd)}
+.node[data-kind="pipe"] .lbl,.node[data-kind="pipe"] .sub,.node[data-kind="cis"] .lbl,.node[data-kind="cis"] .sub{stroke:var(--b-ug)}
+.band{fill:none;stroke:var(--line);stroke-width:1}
+.bandlbl{font-family:var(--fm);font-size:10px;letter-spacing:.14em;fill:var(--mute)}
+.bandlbl.on-street{stroke:var(--b-street)}
+.bandlbl.on-fnd{stroke:var(--b-fnd)}
+.bandlbl.on-ug{stroke:var(--b-ug)}
+.b-sky{fill:var(--b-sky)}
+.b-horizon{fill:var(--b-horizon)}
+.b-street{fill:var(--b-street)}
+.b-fnd{fill:var(--b-fnd)}
+.b-ug{fill:var(--b-ug)}
+.lane{stroke:var(--b-dash)}
+#city{pointer-events:none}
+#city .u-collar{fill:var(--u-shaft-wall)}
+/* underground: faint sectional drawing; weight + tone keep it under every node and connector */
+#city .u-grid{fill:none;stroke:var(--u-grid);stroke-width:.5}
+#city .u-ln{fill:none;stroke:var(--u-ink);stroke-width:1}
+#city .u-ln2{fill:none;stroke:var(--u-ink2);stroke-width:.75}
+#city .u-fine{fill:none;stroke:var(--u-ink2);stroke-width:.6}
+#city .u-hatch{fill:none;stroke:var(--u-ink2);stroke-width:.5}
+#city .u-cl{fill:none;stroke:var(--u-ghost);stroke-width:.6;stroke-dasharray:14 3 2 3}
+#city .u-cons{fill:none;stroke:var(--u-ghost);stroke-width:.6;stroke-dasharray:2 3}
+#city .u-casing{fill:none;stroke:var(--u-ink);stroke-width:6;stroke-linejoin:miter}
+#city .u-knock{fill:none;stroke:var(--b-ug);stroke-width:4;stroke-linejoin:miter}
+#city .u-dot{fill:var(--u-ink2)}
+#city .u-cover{fill:var(--u-cover);stroke:var(--u-cover-edge);stroke-width:1.5}
+#city .u-cover-mark{fill:none;stroke:var(--u-cover-mark);stroke-width:1}
+@media (prefers-reduced-motion:reduce){.node .shape,.pipe{transition:none}}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">Roxbury Commons · the stack as a city block</div>
+  <h1>Owning the Block</h1>
+  <p class="lede">A cross-section of what we are building, read bottom-up. The plumbing nobody sees carries the data. The foundation is the models and the machines. The buildings are the tools people walk into. The street is the network, and the sky is what a network produces. Click any structure to trace what it stands on.</p>
+
+  <div class="controls">
+    <span class="lab">Color by</span>
+    <div class="seg" role="group" aria-label="Color by">
+      <button id="cb-own" aria-pressed="true" data-mode="own">Ownership</button>
+      <button id="cb-hz" aria-pressed="false" data-mode="hz">Horizon</button>
+      <button id="cb-pct" aria-pressed="false" data-mode="pct">Built today</button>
+    </div>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="controls" style="margin-top:-4px">
+    <span class="lab">Trace a build</span>
+    <div class="seg chips" id="uses" role="group" aria-label="End-to-end builds"></div>
+  </div>
+
+  <div class="grid">
+    <div class="fig">
+      <svg id="svg" viewBox="0 0 980 700" role="img" aria-label="Cross-section of a city block: sky, buildings, street, foundation, underground">
+        <defs>
+          <mask id="cityMask" maskUnits="userSpaceOnUse" x="0" y="0" width="980" height="700">
+            <rect x="0" y="0" width="980" height="700" fill="#fff"/>
+            <g id="cityHoles" fill="#000"></g>
+          </mask>
+        </defs>
+        <g id="bands">
+          <rect class="b-sky" x="0" y="0" width="980" height="700" fill="#12161f"/>
+          <rect class="b-horizon" x="0" y="300" width="980" height="1" fill="#2a3242"/>
+          <rect class="b-street" x="0" y="300" width="980" height="22" fill="#171c27"/>
+          <rect class="b-fnd" x="0" y="322" width="980" height="100" fill="#10141c"/>
+          <rect class="b-ug" x="0" y="422" width="980" height="278" fill="#0c0f15"/>
+          <line class="band" x1="0" y1="422" x2="980" y2="422"/>
+          <g class="lane" stroke="#3a4557" stroke-width="1" stroke-dasharray="10 10"><line x1="0" y1="311" x2="980" y2="311"/></g>
+        </g>
+        <!-- City context: access covers, shafts, water main and sewer. Decorative, non-interactive, masked out under every node. -->
+        <g id="city" aria-hidden="true" mask="url(#cityMask)"></g>
+        <g id="pipes"></g>
+        <g id="bandlabels">
+          <text class="bandlbl" x="18" y="20">THE SKY · WHAT THE BLOCK PRODUCES</text>
+          <text class="bandlbl on-street" x="18" y="315">THE STREET · THE NETWORK</text>
+          <text class="bandlbl on-fnd" x="18" y="340">FOUNDATION · OPEN-WEIGHT MODELS &amp; COMPUTE</text>
+          <text class="bandlbl on-ug" x="18" y="442">UNDERGROUND · DATA, APIS &amp; WORKFLOWS</text>
+        </g>
+        <g id="nodes"></g>
+      </svg>
+    </div>
+
+    <aside class="nar" id="nar" aria-live="polite">
+      <div class="k">Narration</div>
+      <h2>Start at the street</h2>
+      <p>Every building exists to put more people on the street and keep them there. Click a building to see which pipes feed it and which data it stands on; click a cistern to see which buildings would go dark without it.</p>
+      <p class="hint">Blue is owned by the collective. Gold is open source we can rebuild anywhere. Red is rented and moving out.</p>
+    </aside>
+  </div>
+
+  <div class="rules">
+    <div><h3>How to read it</h3><p>Pipes are n8n workflows and APIs. Cisterns are stores of data. A building with no pipe to a cistern is a façade. The percent figures are a rough estimate toward the owned end state, not toward a product launch.</p></div>
+    <div><h3>Ownership rule</h3><p>Own the software and the knowledge; rent the machines when you must. Everything in the dashed tower has a self-hosted or open-weight replacement already identified.</p></div>
+    <div><h3>Status</h3><p>As of November 2026. Fictional people and numbers appear nowhere here; where a figure is an estimate it says so in the narration.</p></div>
+  </div>
+</div>
+
+<script>
+(function(){
+const C={own:'#4fa3ff',open:'#e3b341',rent:'#e5604f',h1:'#4fa3ff',h2:'#8e7cf3',h3:'#49c48a',h4:'#e3b341',p60:'#49c48a',p35:'#e3b341',plow:'#e5604f',pnone:'#3a4557'};
+// Data colors follow the active theme (html[data-theme="light"|"dark"]); dark values above are the defaults.
+function readTheme(){const cs=getComputedStyle(document.documentElement);Object.keys(C).forEach(k=>{const v=cs.getPropertyValue('--'+k).trim();if(v)C[k]=v})}
+readTheme();
+const N=[
+ {id:'bank',name:'Banking collective',sub:'sou-sou → fund → credit union',kind:'sky',layer:'Sky',own:'own',hz:3,pct:0,x:18,y:40,w:220,h:46,blurb:'A network with money it controls. Starts as a sou-sou among members, becomes a shared fund, and can become a credit union. Depends entirely on the street existing first.',deps:['street','kinflo']},
+ {id:'pol',name:'Political capital',sub:'civic resumes · open seats',kind:'sky',layer:'Sky',own:'own',hz:3,pct:0,x:254,y:40,w:220,h:46,blurb:'Members sought for candidacy on the record of what they did for the block. The Commons holds the civic resume and the open positions; the network supplies the bloc.',deps:['street','commons','ezs']},
+ {id:'mob',name:'Mobilization',sub:'turnout · mutual aid · watch',kind:'sky',layer:'Sky',own:'own',hz:3,pct:0,x:490,y:40,w:220,h:46,blurb:'Turnout, mutual aid and community watch, on call. Reachable because the CRM remembers people and the newspaper reaches them.',deps:['street','commons','kinflo']},
+ {id:'uplift',name:'Community economic uplift',sub:'stability through ownership',kind:'sky',layer:'Sky',own:'own',hz:4,pct:0,x:726,y:40,w:236,h:46,blurb:'The end state. Not a program. A block that owns its tools, its data, its money and its voice.',deps:['bank','pol','mob']},
+ {id:'kinflo',name:'Kinflo',sub:'records office',kind:'bld',layer:'Buildings',own:'own',hz:1,pct:65,x:40,y:170,w:150,h:130,blurb:'The CRM. Multi-tenant SaaS already hosting client sites. In this plan it is the member record: identity, newsletter, who knows whom. Horizon 1 is wiring it to the BIT network and the forum.',deps:['vault','n8n','pg']},
+ {id:'rotla',name:'ROTLA chamber',sub:'archive · releases · Bar Code',kind:'bld',layer:'Buildings',own:'own',hz:1,pct:45,x:210,y:130,w:178,h:170,blurb:'Raiders of the Lost Art. A living archive with five chambers, a release calendar with notify, a scoring rubric and a rights gate. The culture layer, and the door most people will walk in through.',deps:['convex','n8n','vault']},
+ {id:'commons',name:'Roxbury Commons',sub:'the newspaper',kind:'bld',layer:'Buildings',own:'own',hz:1,pct:40,x:408,y:110,w:190,h:190,blurb:'The community board authored as a newspaper. Community watch, apprenticeships, civic resumes, open positions, work chains for food insecurity. Where the street reads about itself.',deps:['convex','vault','n8n','kc']},
+ {id:'ezs',name:'EZSpeakr',sub:'speakers’ school',kind:'bld',layer:'Buildings',own:'open',hz:2,pct:35,x:622,y:190,w:130,h:110,blurb:'Public-speaking coach. Trains the voices that carry the message and the people who will stand for office. The training pillar made specific.',deps:['models','kc']},
+ {id:'repair',name:'Repair clinic',sub:'ReversR · civilian repair',kind:'bld',layer:'Buildings',own:'own',hz:2,pct:30,x:772,y:210,w:120,h:90,blurb:'Photo to schematic to printed part. Scoped to civilian repair by design: appliances, mobility equipment, instruments, older cars. The part library is what the collective actually owns; printers are replaceable.',deps:['kc','models']},
+ {id:'rent',name:'Rented',sub:'Vercel · APIs · Drive · n8n cloud',kind:'rent',layer:'Buildings',own:'rent',hz:1,pct:0,x:912,y:150,w:50,h:150,blurb:'What still sits on a vendor: Vercel hosting, frontier model APIs as a hedge, Drive and GitHub, n8n cloud. Each has a self-hosted replacement identified. The tower empties as the cluster fills.',deps:['cluster']},
+ {id:'street',name:'The network',sub:'members who know each other',kind:'street',layer:'Street',own:'own',hz:1,pct:30,x:300,y:301,w:380,h:20,blurb:'The product. Thirty-odd members of the BIT network today, reached through channels we host. Every building above exists to grow this and keep it.',deps:['kinflo','rotla','commons']},
+ {id:'models',name:'Local model tiers',sub:'Qwen · Devstral · Gemma · Whisper',kind:'fnd',layer:'Foundation',own:'open',hz:2,pct:35,x:40,y:356,w:560,h:50,blurb:'Three tiers on hardware we hold: Qwen for judgment, Devstral for code, Gemma for fast classification, with embeddings and Whisper always loaded. Frontier APIs stay in the rented tower as a hedge.',deps:['cluster']},
+ {id:'cluster',name:'Community cluster',sub:'one Mac today → racks in the hub',kind:'fnd',layer:'Foundation',own:'own',hz:3,pct:10,x:622,y:356,w:340,h:50,blurb:'Compute and power we own. Today it is one machine running LM Studio. The target is a small cluster inside a physical tech hub, which is also where the models stop being a hobby.',deps:[]},
+ {id:'n8n',name:'n8n workflows',sub:'70+ in production · Hermes on top',kind:'pipe',layer:'Underground',own:'open',hz:1,pct:65,x:40,y:462,w:922,h:40,blurb:'The pipes. Seventy-plus automations in production pairs, with the Hermes agent layer adding judgment where it is needed. Open source; self-hosting it is the first move out of the tower.',deps:['pg','vault','convex','kc']},
+ {id:'pg',name:'Supabase pgvector',sub:'own vector store · RAG',kind:'cis',layer:'Underground',own:'open',hz:1,pct:65,x:40,y:540,w:210,h:70,blurb:'Our vector store, migrated off Pinecone. Retrieval for every assistant and chatbot we run. Open source, self-hostable, and the first thing we moved on purpose.',deps:[]},
+ {id:'vault',name:'Member identity & data vault',sub:'one login · member-controlled',kind:'cis',layer:'Underground',own:'own',hz:1,pct:20,x:274,y:540,w:210,h:70,blurb:'One login, one record, controlled by the member. Nothing above works without it, and it is the layer that decides what can ever be subpoenaed, sold or leaked. Horizon 1, and mostly unbuilt.',deps:[]},
+ {id:'convex',name:'Convex · public catalog',sub:'ROTLA releases · chambers',kind:'cis',layer:'Underground',own:'rent',hz:1,pct:50,x:508,y:540,w:210,h:70,blurb:'Serves the ROTLA public catalog today. Hosted, so it sits on the rented side; the catalog schema is ours and can move to the vault when the cluster is real.',deps:[]},
+ {id:'kc',name:'Knowledge commons',sub:'curriculum · playbooks · parts',kind:'cis',layer:'Underground',own:'own',hz:2,pct:30,x:742,y:540,w:220,h:70,blurb:'Curriculum, forkable components, the repair part library, and the block’s own history. What we would train our own models on later. The library is the asset; the hubs are where it lives.',deps:[]},
+];
+const WHO={
+ bank:['Residents','Small businesses','Artists'],pol:['Organizers','Residents who run','Block captains'],mob:['Residents','Organizers','Witnesses'],uplift:['The whole block'],
+ kinflo:['Members','Small businesses','Nonprofits'],rotla:['Artists','Fans','Youth'],commons:['Residents','Tradespeople','Apprentices','Organizers'],ezs:['Future speakers','Candidates','Youth'],repair:['Households','Elders','Tradespeople','Makers'],rent:['Everyone, for now'],
+ street:['Members'],models:['Every building'],cluster:['Every building'],n8n:['Every building'],pg:['Assistants and chatbots'],vault:['Every member'],convex:['Artists','Fans'],kc:['Apprentices','Makers','Teachers'],
+};
+const USES=[
+ {id:'join',name:'A neighbor joins',hz:1,who:['Resident','Member'],nodes:['street','kinflo','vault','n8n'],steps:['A resident hears about the block through a drop, a flyer or a friend and signs up.','<b>Kinflo</b> creates the member record; <b>the vault</b> holds the identity and what they have agreed to share.','<b>n8n</b> sends the welcome, adds them to the newsletter and the forum, and tags their skills.','They appear on <b>the street</b>: reachable, known, counted.'],why:'This is the whole of Horizon 1 in one flow. Everything else assumes it works.'},
+ {id:'drop',name:'A record drops',hz:1,who:['Artist','Fan','Youth'],nodes:['rotla','convex','n8n','kinflo','street'],steps:['An MC clears the <b>rights gate</b> in the chamber and sets a release date.','<b>Convex</b> publishes the catalog entry; the release calendar shows pre-save and notify.','<b>n8n</b> fires the notify list and the social clips; <b>Kinflo</b> records who listened and who came back.','A listening session scores the record with Bar Code. Fans become members.'],why:'The culture is the door. Every drop is also a recruitment event for the street.'},
+ {id:'food',name:'A food work chain',hz:1,who:['Household','Farmer','Chef','Cyclist','Mechanic'],nodes:['commons','vault','kc','n8n','mob','street'],steps:['A block need is posted in <b>the Commons</b> as a chain: surplus produce → chef → delivery → bike repair → household confirmed.','Residents claim a link in the chain based on skills in <b>the vault</b>.','<b>n8n</b> coordinates handoffs and reminders; the <b>knowledge commons</b> keeps the recipe for next time.','The chain completes and is recorded. That record is <b>mobilization</b> with receipts.'],why:'Food insecurity decomposed into responsibilities people can actually claim, joinable at any point.'},
+ {id:'watch',name:'A community watch alert',hz:2,who:['Witness','Nearby members','Organizers'],nodes:['commons','vault','n8n','mob'],steps:['Someone photographs a situation in <b>the Commons</b> watch section.','<b>The vault</b> matches opt-in members by proximity and skill: public speaking, organizing, de-escalation.','<b>n8n</b> sends the alert; several angles triangulate into one geotagged view.','Members converge. Footage stays under community control, with a stated retention rule.'],why:'Phones before drones. Governance written before a single frame is stored.'},
+ {id:'appr',name:'An apprenticeship match',hz:2,who:['Tradesperson','Apprentice','Youth'],nodes:['commons','kc','vault','repair','street'],steps:['A plumber, electrician or mechanic posts a job they would take a hand on, through <b>the Commons</b>.','An apprentice with the right tags in <b>the vault</b> claims it. Exchange is barter through the commons for now.','The <b>knowledge commons</b> stores what was taught; the <b>repair clinic</b> is one of the shops.','Credits accrue, descriptively, to the apprentice’s civic resume.'],why:'Training without a tuition bill. The playbook for Horizon 2.'},
+ {id:'fix',name:'A wheelchair gets fixed',hz:2,who:['Elder','Household','Maker'],nodes:['repair','kc','models','cluster'],steps:['A broken bracket is photographed at <b>the repair clinic</b>.','<b>ReversR</b> runs on the <b>local models</b> to produce a printable schematic; no cloud, no vendor.','The part is printed and the file is saved to the <b>part library</b> in the knowledge commons.','Next time, anyone on the block can print it.'],why:'Civilian repair only, by design. The library is the asset, the printer is replaceable.'},
+ {id:'run',name:'A member runs for office',hz:3,who:['Candidate','Organizers','Voters on the block'],nodes:['ezs','commons','vault','pol','street'],steps:['An open seat is posted in <b>the Commons</b> beside its responsibilities.','A member’s <b>civic resume</b>, built from what they did on the block, is matched to it. Opt-in, default on.','<b>EZSpeakr</b> trains the stump speech and the hard questions.','<b>The street</b> turns out. That is <b>political capital</b> with a paper trail.'],why:'Candidates chosen by community impact, not by who can self-fund.'},
+ {id:'sousou',name:'The sou-sou starts',hz:3,who:['Members','Small businesses'],nodes:['bank','kinflo','vault','n8n','street'],steps:['A circle of members on <b>the street</b> agrees to pool a fixed amount monthly.','<b>Kinflo</b> keeps the ledger; <b>the vault</b> keeps consent and identity; <b>n8n</b> reminds and reconciles.','Payouts rotate. The record of reliability is itself an asset.','Enough circles, enough history, and a <b>credit union</b> is a filing, not a dream.'],why:'Capital recirculation starts with trust the block already has, on rails the block already owns.'},
+ {id:'npo',name:'A nonprofit gets an assistant',hz:1,who:['Nonprofit staff','Small business owner'],nodes:['kinflo','n8n','pg','models','street'],steps:['A mission-driven org on the block asks for help with intake, reporting or donor follow-up.','<b>n8n</b> wires the workflow; <b>pgvector</b> holds their documents for retrieval; <b>local models</b> answer.','<b>Kinflo</b> is the client record and the billing. Surplus returns to the collective.','Their staff learn to run it. One more organization off the vendor treadmill.'],why:'The proof build for Horizon 1: paid work, owned stack, skills transferred.'},
+];
+const byId=Object.fromEntries(N.map(n=>[n.id,n]));
+const byUse=Object.fromEntries(USES.map(u=>[u.id,u]));
+const svg=document.getElementById('svg'),gN=document.getElementById('nodes'),gP=document.getElementById('pipes'),nar=document.getElementById('nar'),leg=document.getElementById('legend');
+const ns='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);return e}
+let mode='own',sel=null;
+function colorOf(n){
+  if(mode==='own')return C[n.own];
+  if(mode==='hz')return C['h'+n.hz];
+  const p=n.pct;return p>=60?C.p60:p>=35?C.p35:p>0?C.plow:C.pnone;
+}
+function cx(n){return n.x+n.w/2}
+const edges=[];
+N.forEach(n=>n.deps.forEach(d=>{if(byId[d])edges.push([n.id,d])}));
+function path(a,b){
+  const A=byId[a],B=byId[b];
+  const ax=cx(A),bx=cx(B);
+  let ay,by;
+  if(A.y<B.y){ay=A.y+A.h;by=B.y}else{ay=A.y;by=B.y+B.h}
+  const my=(ay+by)/2;
+  return `M${ax} ${ay} C${ax} ${my} ${bx} ${my} ${bx} ${by}`;
+}
+edges.forEach(([a,b])=>{const p=el('path',{d:path(a,b),class:'pipe','data-a':a,'data-b':b});gP.appendChild(p)});
+// Boston-block massing: rowhouse mansards, older masonry, modern blocks. Purely visual — each building keeps
+// its original rect as the hit target; added parts are pointer-events:none and recolor with the node.
+const FORM={kinflo:'row',ezs:'row',rotla:'tower',commons:'masonry',repair:'modern',rent:'glass'};
+function part(g,tag,a,c,trim){
+  const base=trim?{class:'shape win fine deco',fill:c,'fill-opacity':'.35'}:{class:'shape deco',fill:c,'fill-opacity':'.16',stroke:c,'stroke-width':'1'};
+  g.appendChild(el(tag,Object.assign(base,a)));
+}
+function buildForm(g,n){
+  const f=FORM[n.id];if(!f)return 0;
+  const c=colorOf(n),x=n.x,y=n.y,w=n.w,h=n.h,m=cx(n),R=v=>Math.round(v*10)/10;
+  const dentils=()=>{for(let d=x+6;d<=x+w-9;d+=8)part(g,'rect',{x:d,y:y+1,width:3,height:3},c,1)};
+  if(f==='row'){ // three rowhouse bays: mansard roofs with dormers and chimneys on the outer bays, cornice across
+    const u=w/3;
+    part(g,'rect',{x:x-2,y:y-3,width:w+4,height:3,'fill-opacity':'.3'},c);
+    [0,2].forEach(i=>{const a=x+i*u;
+      part(g,'path',{d:`M${R(a+3)} ${y-3}L${R(a+8)} ${y-13}H${R(a+u-8)}L${R(a+u-3)} ${y-3}Z`},c);
+      part(g,'rect',{x:R(a+u/2-4),y:y-11,width:8,height:6},c,1);
+      part(g,'rect',{x:R(i?a+u-14:a+9),y:y-17,width:5,height:4,'fill-opacity':'.3'},c);
+    });
+    return 17;
+  }
+  if(f==='tower'){ // older masonry tower: stepped crown with hipped cap, dentil course
+    part(g,'rect',{x:m-32,y:y-8,width:64,height:8},c);
+    part(g,'rect',{x:m-20,y:y-18,width:40,height:10},c);
+    part(g,'rect',{x:m-13,y:y-15,width:6,height:5},c,1);
+    part(g,'rect',{x:m+7,y:y-15,width:6,height:5},c,1);
+    part(g,'path',{d:`M${m-24} ${y-18}L${m} ${y-30}L${m+24} ${y-18}Z`},c);
+    dentils();
+    return 30;
+  }
+  if(f==='masonry'){ // older masonry block: projecting cornice, dentils, base course
+    part(g,'rect',{x:x-3,y:y-4,width:w+6,height:4,'fill-opacity':'.3'},c);
+    dentils();
+    part(g,'rect',{x:x+1,y:y+h-34,width:w-2,height:2},c,1);
+    return 4;
+  }
+  if(f==='modern'){ // modern block: flat parapet, rooftop plant, ribbon glazing
+    part(g,'rect',{x:x,y:y-3,width:w,height:3,'fill-opacity':'.3'},c);
+    part(g,'rect',{x:x+w-44,y:y-11,width:28,height:8},c);
+    part(g,'rect',{x:x+w-40,y:y-8,width:20,height:1.5},c,1);
+    part(g,'rect',{x:x+8,y:y+44,width:w-16,height:20,'fill-opacity':'.12'},c,1);
+    return 11;
+  }
+  if(f==='glass'){ // modern glass tower: penthouse plant, mullions (stays dashed: rented)
+    part(g,'rect',{x:x+12,y:y-9,width:w-24,height:9,'stroke-dasharray':'3 2'},c);
+    part(g,'rect',{x:x+9,y:y+10,width:1,height:h-20},c,1);
+    part(g,'rect',{x:x+w-10,y:y+10,width:1,height:h-20},c,1);
+    return 9;
+  }
+  return 0;
+}
+// Long building sub-labels wrap at a " · " break instead of running into the neighbouring structure.
+function splitSub(s){const sep=' · ';let best=-1,bd=1e9,i=s.indexOf(sep);while(i>=0){const d=Math.abs(i+1-s.length/2);if(d<bd){bd=d;best=i}i=s.indexOf(sep,i+1)}return best<0?[s]:[s.slice(0,best+3),s.slice(best+3)]}
+N.forEach(n=>{
+  const g=el('g',{class:'node','data-id':n.id,'data-kind':n.kind,tabindex:'0',role:'button','aria-label':n.name});
+  const r=el('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:n.kind==='sky'?4:2,class:'shape',fill:colorOf(n),'fill-opacity':n.kind==='bld'||n.kind==='rent'?'.16':'.22',stroke:colorOf(n),'stroke-width':n.kind==='rent'?'1.5':'1','stroke-dasharray':n.kind==='rent'?'5 4':'none'});
+  g.appendChild(r);
+  const top=buildForm(g,n);
+  const wrap=n.kind==='bld'&&n.sub.length*6>n.w-16;
+  if(n.kind==='bld'){
+    const cols=Math.max(2,Math.floor(n.w/40)),rows0=Math.max(2,Math.floor((n.h-40)/32));
+    const y0=wrap?46:34,rows=wrap?Math.max(1,Math.min(rows0,Math.floor((n.h-66)/32)+1)):rows0;
+    for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
+      g.appendChild(el('rect',{x:n.x+12+i*((n.w-24)/cols)+((n.w-24)/cols-14)/2,y:n.y+y0+j*32,width:14,height:16,fill:colorOf(n),'fill-opacity':'.35',class:'shape win'}));
+    }
+    g.appendChild(el('rect',{x:cx(n)-10,y:n.y+n.h-26,width:20,height:26,fill:'#12161f',class:'shape door'}));
+  }
+  const vertical=n.kind==='rent';
+  const t=el('text',{x:vertical?cx(n):n.x+12,y:vertical?n.y+n.h-10:n.y+18,class:'lbl','text-anchor':vertical?'middle':'start',transform:vertical?`rotate(-90 ${cx(n)} ${n.y+n.h-10})`:''});t.textContent=n.name;g.appendChild(t);
+  if(!vertical&&n.kind!=='street'){const s=el('text',{x:n.x+12,y:n.y+31,class:'sub'});
+    if(wrap)splitSub(n.sub).forEach((p,i)=>{const ts=el('tspan',{x:n.x+12,dy:i?'12':'0'});ts.textContent=p;s.appendChild(ts)});else s.textContent=n.sub;
+    g.appendChild(s)}
+  if(n.kind==='street'){t.setAttribute('x',cx(n));t.setAttribute('text-anchor','middle');t.setAttribute('y',n.y+14);t.setAttribute('font-size','11')}
+  // keyboard focus ring (offset outside the shape so it never reads as the selected state)
+  const ra={x:n.x-4,y:n.y-4-top,width:n.w+8,height:n.h+8+top,rx:5};
+  g.appendChild(el('rect',Object.assign({class:'ring-h'},ra)));g.appendChild(el('rect',Object.assign({class:'ring'},ra)));
+  g.addEventListener('click',()=>select(n.id));
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(n.id)}});
+  gN.appendChild(g);
+});
+function recolor(){
+  N.forEach(n=>{const c=colorOf(n);const g=gN.querySelector(`[data-id="${n.id}"]`);g.querySelectorAll('.shape:not(.door)').forEach(s=>{s.setAttribute('fill',c);if(!s.classList.contains('win'))s.setAttribute('stroke',c)})});
+  const items=mode==='own'?[[C.own,'Owned by the collective'],[C.open,'Open source, self-hostable'],[C.rent,'Rented, moving out']]:
+    mode==='hz'?[[C.h1,'Horizon 1 · 6 months'],[C.h2,'Horizon 2 · 1–3 yrs'],[C.h3,'Horizon 3 · 3–10 yrs'],[C.h4,'Horizon 4 · 10–20 yrs']]:
+    [[C.p60,'60%+ built'],[C.p35,'35–59%'],[C.plow,'under 35%'],[C.pnone,'not started']];
+  leg.innerHTML=items.map(([c,l])=>`<span><i style="background:${c}"></i>${l}</span>`).join('');
+}
+function connected(id){
+  const s=new Set([id]);
+  edges.forEach(([a,b])=>{if(a===id)s.add(b);if(b===id)s.add(a)});
+  return s;
+}
+let useSel=null;
+const usesEl=document.getElementById('uses');
+USES.forEach(u=>{const b=document.createElement('button');b.textContent=u.name;b.dataset.use=u.id;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>trace(u.id));usesEl.appendChild(b)});
+function clearAll(){sel=null;useSel=null;svg.classList.remove('dim');gN.querySelectorAll('.node').forEach(g=>g.classList.remove('on'));gP.querySelectorAll('.pipe').forEach(p=>p.classList.remove('on'));usesEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'))}
+function trace(uid){
+  if(useSel===uid){clearAll();narDefault();return}
+  clearAll();useSel=uid;const u=byUse[uid];const s=new Set(u.nodes);svg.classList.add('dim');
+  usesEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.use===uid));
+  gN.querySelectorAll('.node').forEach(g=>g.classList.toggle('on',s.has(g.dataset.id)));
+  gP.querySelectorAll('.pipe').forEach(p=>p.classList.toggle('on',s.has(p.dataset.a)&&s.has(p.dataset.b)));
+  const hzL=['','H1 · first 6 months','H2 · 1–3 years','H3 · 3–10 years','H4 · 10–20 years'][u.hz];
+  nar.innerHTML=`<div class="k">End-to-end build · ${hzL}</div><h2>${u.name}</h2>
+   <div class="k" style="margin-bottom:6px">Who it serves</div><div class="who">${u.who.map(w=>`<span>${w}</span>`).join('')}</div>
+   <div class="k" style="margin-bottom:6px">What happens</div><ol class="steps">${u.steps.map(s=>`<li><span>${s}</span></li>`).join('')}</ol>
+   <div class="k" style="margin-bottom:6px">Why it matters</div><p>${u.why}</p>
+   <div class="k" style="margin-bottom:6px">Structures on the path</div><ul class="deps">${u.nodes.map(n=>byId[n]).map(n=>`<li><span class="dot" style="background:${colorOf(n)}"></span><b>${n.name}</b><span style="font-family:var(--fm);font-size:11px">${n.pct?n.pct+'% built':'not started'}</span></li>`).join('')}</ul>
+   <p class="hint">Click again to clear.</p>`;
+}
+function select(id){
+  if(sel===id){clearAll();narDefault();return}
+  clearAll();sel=id;const s=connected(id);svg.classList.add('dim');
+  gN.querySelectorAll('.node').forEach(g=>g.classList.toggle('on',s.has(g.dataset.id)));
+  gP.querySelectorAll('.pipe').forEach(p=>p.classList.toggle('on',p.dataset.a===id||p.dataset.b===id));
+  const inUses=USES.filter(u=>u.nodes.includes(id));
+  const n=byId[id];
+  const upstream=edges.filter(e=>e[0]===id).map(e=>byId[e[1]]);
+  const downstream=edges.filter(e=>e[1]===id).map(e=>byId[e[0]]);
+  const ownL={own:'Owned by the collective',open:'Open source, self-hostable',rent:'Rented from a vendor'}[n.own];
+  const hzL=['','H1 · first 6 months','H2 · 1–3 years','H3 · 3–10 years','H4 · 10–20 years'][n.hz];
+  nar.innerHTML=`<div class="k">${n.layer}</div><h2>${n.name}</h2><p>${n.blurb}</p>
+   <div class="k" style="margin-bottom:6px">Serves</div><div class="who">${(WHO[id]||[]).map(w=>`<span>${w}</span>`).join('')}</div>
+   ${inUses.length?`<div class="k" style="margin-bottom:6px">On the path of</div><div class="who" style="margin-bottom:16px">${inUses.map(u=>`<span style="cursor:pointer;color:var(--fg)" data-trace="${u.id}">${u.name} →</span>`).join('')}</div>`:''}
+   <div class="meta"><div><span class="k">Ownership</span><span class="v" style="color:${C[n.own]}">${ownL}</span></div><div><span class="k">Horizon</span><span class="v">${hzL}</span></div>
+   <div style="grid-column:1/-1"><span class="k">Built today (estimate)</span><div class="bar"><i style="width:${n.pct}%"></i></div><span class="v">${n.pct?n.pct+'%':'not started'}</span></div></div>
+   ${upstream.length?`<div class="k" style="margin-bottom:6px">Stands on</div><ul class="deps">${upstream.map(u=>`<li><span class="dot" style="background:${colorOf(u)}"></span><b>${u.name}</b><span>${u.sub}</span></li>`).join('')}</ul>`:''}
+   ${downstream.length?`<div class="k" style="margin:12px 0 6px">Goes dark without it</div><ul class="deps">${downstream.map(u=>`<li><span class="dot" style="background:${colorOf(u)}"></span><b>${u.name}</b></li>`).join('')}</ul>`:''}
+   <p class="hint">Click again to clear.</p>`;
+  nar.querySelectorAll('[data-trace]').forEach(e=>e.addEventListener('click',()=>trace(e.dataset.trace)));
+}
+function narDefault(){nar.innerHTML=`<div class="k">Narration</div><h2>Start at the street</h2><p>Every building exists to put more people on the street and keep them there. Click a building to see which pipes feed it and which data it stands on; click a cistern to see which buildings would go dark without it.</p><p class="hint">Blue is owned by the collective. Gold is open source we can rebuild anywhere. Red is rented and moving out.</p>`}
+document.querySelectorAll('.seg:not(.chips) button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('.seg:not(.chips) button').forEach(x=>x.setAttribute('aria-pressed',x===b));recolor();if(sel){const s=sel;sel=null;select(s)}else if(useSel){const u=useSel;useSel=null;trace(u)}}));
+recolor();
+
+// ---- City context below the street (decorative only; never touches a node, never joins a connector) ----
+(function buildCity(){
+  const city=document.getElementById('city'),holes=document.getElementById('cityHoles');
+  const u=(t,a)=>{const e=el(t,a);city.appendChild(e);return e};
+  const SHAFTS=[262,730]; // street-level covers in open street, shafts drop through gaps between cisterns
+  const CH={l:704,r:756,t:638,b:698,w:5}; // sewer chamber at the foot of the east shaft
+  // faint drafting grid on the underground field only
+  let g='';for(let x=20;x<980;x+=20)g+=`M${x} 422V700`;for(let y=440;y<700;y+=20)g+=`M0 ${y}H980`;
+  u('path',{class:'u-grid',d:g});
+  // ghosted construction circles with centre crosses
+  [[730,668,40],[262,669,24],[490,630,16]].forEach(([x,y,r])=>{u('circle',{class:'u-cons',cx:x,cy:y,r});u('path',{class:'u-fine',d:`M${x-4} ${y}h8M${x} ${y-4}v8`})});
+  // shafts: open outline wall + liner, ladder rungs, depth ticks
+  SHAFTS.forEach(x=>{
+    const bo=x===730?CH.t:656,bi=x===730?CH.t:659;
+    u('path',{class:'u-ln',d:`M${x-7} 322V${bo}M${x+7} 322V${bo}`});
+    u('path',{class:'u-ln2',d:`M${x-5} 322V${bi}M${x+5} 322V${bi}`});
+    let d='';for(let y=332;y<bi-4;y+=12)d+=`M${x-3.5} ${y}h7`;
+    for(let y=440;y<=620;y+=20)d+=`M${x-11} ${y}h3`;
+    u('path',{class:'u-fine',d});
+  });
+  // sewer main in long section: outer wall, inner wall, bell joints, dash-dot centreline, invert line
+  const S1=262,sx=(y,a)=>`M0 ${y}H${S1-a}M${S1+a} ${y}H${CH.l}M${CH.r} ${y}H980`;
+  u('path',{class:'u-ln',d:sx(656,7)+`M0 682H${CH.l}M${CH.r} 682H980`});
+  u('path',{class:'u-ln2',d:sx(659,5)+`M0 679H${CH.l}M${CH.r} 679H980`});
+  u('path',{class:'u-cl',d:`M0 669H${CH.l}M${CH.r} 669H980`});
+  u('path',{class:'u-fine','stroke-dasharray':'6 5',d:`M0 676H${CH.l}M${CH.r} 676H980`});
+  const J=[70,190,350,490,620,820,930];
+  u('path',{class:'u-ln2',d:J.map(j=>`M${j-2} 653V685M${j+2} 653V685`).join('')});
+  // sewer chamber: open outline walls, restrained hatch in the wall thickness, benching and channel
+  const {l,r,t,b,w}=CH;
+  const clip=el('clipPath',{id:'uChWall',clipPathUnits:'userSpaceOnUse'});
+  [[l,t,w,656-t],[l,682,w,b-682],[r-w,t,w,656-t],[r-w,682,w,b-682],[l,b-w,r-l,w],[l,t,19,w],[r-19,t,19,w]]
+    .forEach(([x,y,ww,hh])=>clip.appendChild(el('rect',{x,y,width:ww,height:hh})));
+  svg.querySelector('defs').appendChild(clip);
+  let h='';for(let d=l-70;d<r+4;d+=4)h+=`M${d} ${b}L${d+(b-t)} ${t}`;
+  u('path',{class:'u-hatch',d:h,'clip-path':'url(#uChWall)'});
+  u('path',{class:'u-ln',d:`M723 ${t}H${l}V656M${l} 682V${b}H${r}V682M${r} 656V${t}H737`});
+  u('path',{class:'u-ln2',d:`M723 ${t+w}H${l+w}V656M${l+w} 682V${b-w}H${r-w}V682M${r-w} 656V${t+w}H737`+
+    `M${l} 656h${w}M${l} 682h${w}M${r-w} 656h${w}M${r-w} 682h${w}M723 ${t}v${w}M737 ${t}v${w}`});
+  u('path',{class:'u-fine',d:`M${l+w} 674L718 679A12 12 0 0 0 742 679L${r-w} 674`});
+  // water main: open-outline pipe (ink casing knocked out by the field) with tees, elbows, bypass loop, capped stubs
+  const W='M-6 630H986M380 630V645H600V630M110 630V645H58M868 630V645H922';
+  u('path',{class:'u-casing',d:W});u('path',{class:'u-knock',d:W});
+  u('path',{class:'u-cl',d:'M-6 630H986'});
+  u('path',{class:'u-ln2',d:[40,180,320,540,680,820,950].map(k=>`M${k-2} 624V636M${k+2} 624V636`).join('')});
+  [110,380,600,868].forEach(k=>{u('rect',{class:'u-ln2',x:k-6,y:624,width:12,height:12,rx:1.5});u('rect',{class:'u-ln2',x:k-5.5,y:639.5,width:11,height:11,rx:2.5})});
+  u('rect',{class:'u-ln2',x:52,y:640,width:6,height:10,rx:1});u('rect',{class:'u-ln2',x:922,y:640,width:6,height:10,rx:1});
+  [230,490,790].forEach(k=>u('path',{class:'u-ln2',d:`M${k-6} 624L${k+6} 636V624L${k-6} 636ZM${k} 630V619M${k-5} 617.5h10`}));
+  // chain dimension ticks under the sewer joints (no figures)
+  [[70,190,350,490,620],[820,930]].forEach(c=>u('path',{class:'u-fine',d:`M${c[0]} 691H${c[c.length-1]}`+c.map(j=>`M${j} 686V696M${j-2.5} 693.5L${j+2.5} 688.5`).join('')}));
+  // empty annotation leaders: dot, leader, shoulder, blank tag
+  [[150,656,160,645,174],[756,646,764,640,770]].forEach(([x0,y0,x1,y1,x2])=>{
+    u('circle',{class:'u-dot',cx:x0,cy:y0,r:1.2});
+    u('path',{class:'u-fine',d:`M${x0} ${y0}L${x1} ${y1}H${x2}`});
+    u('circle',{class:'u-fine',cx:x2+2.5,cy:y1,r:2.5});
+  });
+  // access covers at street level, with the frame collar that seats the shaft
+  SHAFTS.forEach(x=>{
+    u('rect',{class:'u-collar',x:x-10,y:318,width:20,height:4,rx:1});
+    u('circle',{class:'u-cover',cx:x,cy:311,r:8.5});
+    u('circle',{class:'u-cover-mark',cx:x,cy:311,r:5.2});
+    u('path',{class:'u-cover-mark',d:`M${x-3.5} 309.3h7M${x-3.5} 312.7h7`});
+  });
+  // mask: cut the context layer out from under every node and every band label
+  N.forEach(n=>holes.appendChild(el('rect',{x:n.x-2,y:n.y-2,width:n.w+4,height:n.h+4})));
+  function labelHoles(){
+    holes.querySelectorAll('.lh').forEach(r=>r.remove());
+    document.querySelectorAll('#bandlabels .bandlbl').forEach(t=>{try{const b=t.getBBox();if(b.width)holes.appendChild(el('rect',{class:'lh',x:b.x-4,y:b.y-2,width:b.width+8,height:b.height+4}))}catch(e){}});
+  }
+  labelHoles();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(labelHoles);
+})();
+
+// ---- Theme: follow html[data-theme] (System is resolved by the host shell into light|dark) ----
+function applyTheme(){readTheme();recolor();if(sel){const s=sel;sel=null;select(s)}else if(useSel){const u=useSel;useSel=null;trace(u)}}
+new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(window.matchMedia){const mq=matchMedia('(prefers-color-scheme: light)');if(mq.addEventListener)mq.addEventListener('change',applyTheme);else if(mq.addListener)mq.addListener(applyTheme)}
+})();
+</script>
+</body></html>

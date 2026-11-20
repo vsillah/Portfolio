@@ -55,7 +55,12 @@ async function inspectOwning(page, theme) {
       cityBehindData: children.indexOf(doc.querySelector('#city')) < children.indexOf(doc.querySelector('#pipes')) && children.indexOf(doc.querySelector('#city')) < children.indexOf(doc.querySelector('#bandlabels')) && children.indexOf(doc.querySelector('#city')) < children.indexOf(doc.querySelector('#nodes')),
       nodes: doc.querySelectorAll('#nodes .node').length,
       connectors: doc.querySelectorAll('#pipes .pipe').length,
-      covers: doc.querySelectorAll('#city .u-cover').length,
+      covers: doc.querySelectorAll('#city ellipse.u-cover').length,
+      circularStreetCovers: doc.querySelectorAll('#city circle.u-cover').length,
+      coverPositions: [...doc.querySelectorAll('#city ellipse.u-cover')].map(e => [Number(e.getAttribute('cx')), Number(e.getAttribute('cy')), Number(e.getAttribute('rx')), Number(e.getAttribute('ry'))]),
+      lidRings: doc.querySelectorAll('#city ellipse.u-cover-mark').length,
+      grateMarks: doc.querySelectorAll('#city .u-cover-hatch').length,
+      shaftCollars: doc.querySelectorAll('#city path.u-collar').length,
       shafts: doc.querySelectorAll('#city .u-cons').length,
       roofs: doc.querySelectorAll('#nodes .deco').length,
       water: css('#city .u-casing').stroke,
@@ -78,6 +83,11 @@ async function inspectOwning(page, theme) {
   assert.equal(state.nodes, 18)
   assert.equal(state.connectors, 34)
   assert.equal(state.covers, 2)
+  assert.equal(state.circularStreetCovers, 0)
+  assert.deepEqual(state.coverPositions, [[262, 316, 11, 3.4], [730, 316, 11, 3.4]])
+  assert.equal(state.lidRings, 2)
+  assert.equal(state.grateMarks, 2)
+  assert.equal(state.shaftCollars, 2)
   assert.equal(state.chamber, 1)
   assert.ok(state.masks >= state.nodes)
   assert.equal(state.shafts, 3)
