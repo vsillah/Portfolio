@@ -29,6 +29,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
   const [mobileWidth, setMobileWidth] = useState(false)
   const [mobileCaption, setMobileCaption] = useState('')
+  const externalCaption = mobileWidth || captionSize === 'L'
   const cueCacheRef = useRef<Array<{ startTime: number; endTime: number; text: string }>>([])
   const endScreenStart = endScreen?.startSeconds
   const captionsChangeRef = useRef(onCaptionsChange)
@@ -37,7 +38,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const syncMobileCaption = useCallback(() => {
     const video = videoRef.current
     const track = video?.textTracks[0]
-    if (!video || !track || !mobileWidth || (endScreenStart !== undefined && video.currentTime >= endScreenStart)) {
+    if (!video || !track || !externalCaption || (endScreenStart !== undefined && video.currentTime >= endScreenStart)) {
       setMobileCaption('')
       return
     }
@@ -45,7 +46,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
     if (loadedCues.length) cueCacheRef.current = loadedCues
     const time = video.currentTime
     setMobileCaption((loadedCues.length ? loadedCues : cueCacheRef.current).filter((cue) => cue.startTime <= time && time < cue.endTime).map((cue) => cue.text).join('\n'))
-  }, [endScreenStart, mobileWidth])
+  }, [endScreenStart, externalCaption])
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return
@@ -59,10 +60,10 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   useEffect(() => {
     const track = videoRef.current?.textTracks[0]
     if (!track) return
-    const mode = captionsOn ? mobileWidth ? 'hidden' : 'showing' : 'disabled'
+    const mode = captionsOn ? externalCaption ? 'hidden' : 'showing' : 'disabled'
     if (track.mode !== mode) track.mode = mode
     syncMobileCaption()
-  }, [captionsOn, mobileWidth, syncMobileCaption, videoSrc])
+  }, [captionsOn, externalCaption, syncMobileCaption, videoSrc])
 
   useEffect(() => {
     const trackElement = videoRef.current?.querySelector('track')
@@ -107,14 +108,14 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
     const tracks = videoRef.current?.textTracks
     if (!tracks || typeof tracks.addEventListener !== 'function') return
     const sync = () => {
-      const mobile = typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 620px)').matches
+      const external = (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 620px)').matches) || captionSize === 'L'
       const track = tracks[0]
-      if (mobile && track?.mode === 'showing') track.mode = 'hidden'
-      captionsChangeRef.current?.(Array.from(tracks).some((item) => item.mode === 'showing' || (mobile && item.mode === 'hidden')))
+      if (external && track?.mode === 'showing') track.mode = 'hidden'
+      captionsChangeRef.current?.(Array.from(tracks).some((item) => item.mode === 'showing' || (external && item.mode === 'hidden')))
     }
     tracks.addEventListener('change', sync)
     return () => tracks.removeEventListener('change', sync)
-  }, [lessonId, videoSrc])
+  }, [lessonId, videoSrc, captionSize])
 
   useEffect(() => {
     setPosterRevealed(false)
@@ -165,7 +166,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
     }
   }, [lessonId, videoSrc])
   return <><div className={styles.coverStage} aria-label={label}>
-    {videoSrc ? <video ref={videoRef} data-caption-size={captionSize} className={`${styles.lessonVideo} ${captionStyles.nativeVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = captionsOn ? typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 620px)').matches ? 'hidden' : 'showing' : 'disabled'; captionsChangeRef.current?.(captionsOn); syncMobileCaption() }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption(); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption() }} onSeeked={() => syncMobileCaption()} onPause={(event) => { syncMobileCaption(); onProgress?.(Math.floor(event.currentTarget.currentTime)) }} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); setMobileCaption(''); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null); setMobileCaption('') }}>
+    {videoSrc ? <video ref={videoRef} data-caption-size={captionSize} className={`${styles.lessonVideo} ${captionStyles.nativeVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = captionsOn ? externalCaption ? 'hidden' : 'showing' : 'disabled'; captionsChangeRef.current?.(captionsOn); syncMobileCaption() }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption(); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption() }} onSeeked={() => syncMobileCaption()} onPause={(event) => { syncMobileCaption(); onProgress?.(Math.floor(event.currentTarget.currentTime)) }} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); setMobileCaption(''); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null); setMobileCaption('') }}>
       <source src={videoSrc} type="video/mp4" />
       {captionsSrc && <track kind="captions" src={captionsSrc} srcLang="en" label="English" default onLoad={() => syncMobileCaption()} />}
       Your browser cannot play this video. The read-along transcript is available below.
@@ -188,7 +189,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
         <strong>Review your Operating File</strong>
       </div>}
     </div>}
-  </div>{videoSrc && mobileWidth && captionsOn && mobileCaption && !endScreenVisible && <div className={`${styles.mobileCaptionBand} ${captionStyles.band}`} data-caption-size={captionSize} role="status" aria-label={`${lessonId} caption`}>{mobileCaption}</div>}{videoSrc && teachingScene && <aside className={styles.mobileTeachingDetails} aria-label={`${teachingScene.sceneId} ${teachingScene.title} source wording`}>
+  </div>{videoSrc && externalCaption && captionsOn && mobileCaption && !endScreenVisible && <div className={`${styles.mobileCaptionBand} ${captionStyles.band}`} data-caption-size={captionSize} role="status" aria-label={`${lessonId} caption`}>{mobileCaption}</div>}{videoSrc && teachingScene && <aside className={styles.mobileTeachingDetails} aria-label={`${teachingScene.sceneId} ${teachingScene.title} source wording`}>
     <div className={styles.mobileTeachingHeading}><strong>{teachingScene.title}</strong>{'image' in teachingScene && <a href={teachingScene.image} target="_blank" rel="noopener noreferrer" onClick={() => videoRef.current?.pause()}>Open full plate</a>}</div>
     {teachingScene.details.length > 0 && <div className={styles.mobileTeachingCopy}>{teachingScene.details.map((detail) => <div key={detail.label}><strong>{detail.label}</strong><span>{detail.description}</span></div>)}</div>}
   </aside>}</>
