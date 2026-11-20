@@ -206,6 +206,116 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
+  it('keeps every L08 desktop cue below the video without changing its source text or timing', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    HTMLMediaElement.prototype.pause = vi.fn()
+    const opening = { startTime: 11.16, endTime: 13.04, text: 'What does ‘maybe’ permit the drafter to' }
+    const next = { startTime: 25.414, endTime: 35.056, text: 'Chapter Thirteen\'s Handoff Contract Card has six fields' }
+    const rejected = { startTime: 65.848, endTime: 67.843, text: 'Try a broken payload on purpose.' }
+    const afterRejection = { startTime: 91.608, endTime: 93.848, text: 'Now evaluate the designed workflow.' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [opening, next, rejected, afterRejection] })
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn(() => Object.assign(new EventTarget(), { matches: false })))
+    const props = { lessonId: 'L08', title: 'Team', poster: '/agentified/posters/l08-poster.webp', videoSrc: '/approved-l08.mp4', captionsSrc: '/approved-l08.vtt' }
+    try {
+      const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="S" captionsOn />)
+      const video = container.querySelector('video')!
+      let currentTime = 12.717
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+      fireEvent.loadedMetadata(video)
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(opening.text)
+      for (const size of ['M', 'L'] as const) {
+        rerender(<AgentifiedLessonHero {...props} captionSize={size} captionsOn />)
+        expect(track.mode).toBe('hidden')
+        expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveAttribute('data-caption-size', size)
+      }
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: 'L08 caption' })).toBeNull()
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(opening.text)
+      currentTime = 26.914
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(next.text)
+      currentTime = 67.348
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(rejected.text)
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: 'L08 caption' })).toBeNull()
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(rejected.text)
+      currentTime = 93.108
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(afterRejection.text)
+      currentTime = 12.717
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(opening.text)
+      expect(opening).toMatchObject({ startTime: 11.16, endTime: 13.04, text: 'What does ‘maybe’ permit the drafter to' })
+      expect(next).toMatchObject({ startTime: 25.414, endTime: 35.056 })
+      expect(rejected).toMatchObject({ startTime: 65.848, endTime: 67.843, text: 'Try a broken payload on purpose.' })
+      expect(afterRejection).toMatchObject({ startTime: 91.608, endTime: 93.848, text: 'Now evaluate the designed workflow.' })
+      expect(video).toHaveAttribute('controls')
+      unmount()
+    } finally {
+      if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+      else Reflect.deleteProperty(HTMLMediaElement.prototype, 'textTracks')
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
+  it.each(['L09', 'L10', 'L11', 'L12', 'L13', 'L14', 'L15', 'L16'])('keeps %s desktop cues below the teaching image', (lessonId) => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    const cue = { startTime: 1, endTime: 3, text: `${lessonId} source cue` }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [cue] })
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    HTMLMediaElement.prototype.pause = vi.fn()
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn(() => Object.assign(new EventTarget(), { matches: false })))
+    try {
+      const props = { lessonId, title: 'Team', poster: '/agentified/posters/l08-poster.webp', videoSrc: '/approved.mp4', captionsSrc: '/approved.vtt' }
+      const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      const video = container.querySelector('video')!
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => 1.5 })
+      fireEvent.loadedMetadata(video)
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: `${lessonId} caption` })).toHaveTextContent(cue.text)
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: `${lessonId} caption` })).toBeNull()
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: `${lessonId} caption` })).toHaveTextContent(cue.text)
+      unmount()
+    } finally {
+      if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+      else Reflect.deleteProperty(HTMLMediaElement.prototype, 'textTracks')
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('reveals the next lesson at the exact sentence-complete boundary and hides it after seeking back', () => {
     const { container } = render(<AgentifiedLessonHero lessonId="L02" title="Decision" poster="/agentified/posters/l02-poster.webp" videoSrc="/approved-l02.mp4" durationSeconds={510} endScreen={{ startSeconds: 504, progress: 2, nextLesson: { id: 'L03', title: 'Trace the work and grade the sources', poster: '/agentified/posters/l03-poster.webp' } }} />)
     const video = container.querySelector('video')!

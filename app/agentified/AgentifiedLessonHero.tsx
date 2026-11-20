@@ -29,7 +29,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
   const [mobileWidth, setMobileWidth] = useState(false)
   const [mobileCaption, setMobileCaption] = useState('')
-  const externalCaption = mobileWidth || captionSize === 'L'
+  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId)
   const cueCacheRef = useRef<Array<{ startTime: number; endTime: number; text: string }>>([])
   const endScreenStart = endScreen?.startSeconds
   const captionsChangeRef = useRef(onCaptionsChange)
@@ -108,14 +108,13 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
     const tracks = videoRef.current?.textTracks
     if (!tracks || typeof tracks.addEventListener !== 'function') return
     const sync = () => {
-      const external = (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 620px)').matches) || captionSize === 'L'
       const track = tracks[0]
-      if (external && track?.mode === 'showing') track.mode = 'hidden'
-      captionsChangeRef.current?.(Array.from(tracks).some((item) => item.mode === 'showing' || (external && item.mode === 'hidden')))
+      if (externalCaption && track?.mode === 'showing') track.mode = 'hidden'
+      captionsChangeRef.current?.(Array.from(tracks).some((item) => item.mode === 'showing' || (externalCaption && item.mode === 'hidden')))
     }
     tracks.addEventListener('change', sync)
     return () => tracks.removeEventListener('change', sync)
-  }, [lessonId, videoSrc, captionSize])
+  }, [lessonId, videoSrc, externalCaption])
 
   useEffect(() => {
     setPosterRevealed(false)
@@ -130,7 +129,9 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const label = `${lessonId} ${title} lesson cover`
   const syncEndScreen = (currentTime: number) => setEndScreenVisible(Boolean(endScreen && currentTime >= endScreen.startSeconds))
   const lessonTeachingScenes = mobileTeachingDetails.scenes.filter((scene) => scene.lessonId === lessonId)
-  const syncScene = (currentTime: number) => setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null)
+  const syncScene = (currentTime: number) => {
+    setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null)
+  }
   const teachingScene = lessonTeachingScenes.find((scene) => scene.sceneId === activeTeachingScene)
   return <><div className={styles.coverStage} aria-label={label}>
     {videoSrc ? <video ref={videoRef} data-caption-size={captionSize} className={`${styles.lessonVideo} ${captionStyles.nativeVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = captionsOn ? externalCaption ? 'hidden' : 'showing' : 'disabled'; captionsChangeRef.current?.(captionsOn); syncMobileCaption() }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption(); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption() }} onSeeked={() => syncMobileCaption()} onPause={(event) => { syncMobileCaption(); onProgress?.(Math.floor(event.currentTarget.currentTime)) }} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); setMobileCaption(''); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null); setMobileCaption('') }}>

@@ -10,7 +10,8 @@ export async function waitForCueFrame(page, time) {
 
 export async function waitForCaptionSize(page, { course, width, name }) {
   const [size, font] = captionSizes[name]
-  const external = course === 'accelerated' || width <= 620 || size === 'L'
+  const protectedLesson = course === 'agentified' && await page.locator('video').evaluate((video) => /^L(0[8-9]|1[0-6]) /.test(video.getAttribute('aria-label') ?? ''))
+  const external = course === 'accelerated' || width <= 620 || size === 'L' || protectedLesson
   await page.waitForFunction(({ size, font, external }) => {
     const video = document.querySelector('video')
     const group = document.querySelector('[role="group"][aria-label="Caption size"]')

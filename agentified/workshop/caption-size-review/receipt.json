@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T19:19:11.779Z",
+  "generatedAt": "2026-11-20T21:50:00.872Z",
   "base": "http://127.0.0.1:3121",
   "results": [
     {
@@ -696,7 +696,7 @@
       "cueLength": 138,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -708,7 +708,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 441.40625
         },
         "Medium": {
           "text": "Aa",
@@ -720,7 +720,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 441.40625
         },
         "Large": {
           "text": "Aa",
@@ -732,15 +732,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 441.40625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -753,7 +753,7 @@
       "cueLength": 138,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -765,7 +765,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 463.03125
         },
         "Medium": {
           "text": "Aa",
@@ -777,7 +777,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 463.03125
         },
         "Large": {
           "text": "Aa",
@@ -789,15 +789,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 463.03125
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -822,7 +822,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 495.40625
         },
         "Medium": {
           "text": "Aa",
@@ -834,7 +834,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 495.40625
         },
         "Large": {
           "text": "Aa",
@@ -846,7 +846,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 495.40625
         }
       },
       "video": [
@@ -867,7 +867,7 @@
       "cueLength": 150,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -879,7 +879,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Medium": {
           "text": "Aa",
@@ -891,7 +891,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Large": {
           "text": "Aa",
@@ -903,15 +903,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -924,7 +924,7 @@
       "cueLength": 150,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -936,7 +936,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Medium": {
           "text": "Aa",
@@ -948,7 +948,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Large": {
           "text": "Aa",
@@ -960,15 +960,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -993,7 +993,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 532.40625
         },
         "Medium": {
           "text": "Aa",
@@ -1005,7 +1005,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 532.40625
         },
         "Large": {
           "text": "Aa",
@@ -1017,7 +1017,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 532.40625
         }
       },
       "video": [
@@ -1038,7 +1038,7 @@
       "cueLength": 165,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1050,7 +1050,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Medium": {
           "text": "Aa",
@@ -1062,7 +1062,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Large": {
           "text": "Aa",
@@ -1074,15 +1074,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -1095,7 +1095,7 @@
       "cueLength": 165,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1107,7 +1107,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Medium": {
           "text": "Aa",
@@ -1119,7 +1119,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Large": {
           "text": "Aa",
@@ -1131,15 +1131,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Give the envelope an exact illustrative amount, named course counterparty, purpose, window, one-or-zero retry limit, trace, human approver, and revocation condition.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -1164,7 +1164,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 532.40625
         },
         "Medium": {
           "text": "Aa",
@@ -1176,7 +1176,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 532.40625
         },
         "Large": {
           "text": "Aa",
@@ -1188,7 +1188,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 532.40625
         }
       },
       "video": [
@@ -1209,7 +1209,7 @@
       "cueLength": 247,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1221,7 +1221,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         },
         "Medium": {
           "text": "Aa",
@@ -1233,7 +1233,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         },
         "Large": {
           "text": "Aa",
@@ -1245,15 +1245,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -1266,7 +1266,7 @@
       "cueLength": 247,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1278,7 +1278,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 481.03125
         },
         "Medium": {
           "text": "Aa",
@@ -1290,7 +1290,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 481.03125
         },
         "Large": {
           "text": "Aa",
@@ -1302,15 +1302,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 481.03125
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -1335,7 +1335,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 630.796875
+          "buttonY": 545.796875
         },
         "Medium": {
           "text": "Aa",
@@ -1347,7 +1347,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 630.796875
+          "buttonY": 545.796875
         },
         "Large": {
           "text": "Aa",
@@ -1359,7 +1359,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 630.796875
+          "buttonY": 545.796875
         }
       },
       "video": [
@@ -1380,7 +1380,7 @@
       "cueLength": 200,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1392,7 +1392,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         },
         "Medium": {
           "text": "Aa",
@@ -1404,7 +1404,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         },
         "Large": {
           "text": "Aa",
@@ -1416,15 +1416,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -1437,7 +1437,7 @@
       "cueLength": 200,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1449,7 +1449,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 456.734375
         },
         "Medium": {
           "text": "Aa",
@@ -1461,7 +1461,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 456.734375
         },
         "Large": {
           "text": "Aa",
@@ -1473,15 +1473,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 456.734375
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Then make a Foundry Test for the volunteer-coordinator tool: mark each evidence field observed, missing, or unscored; name a payer question, a tiny proposed test, the human gate, and a stop condition.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -1506,7 +1506,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 630.796875
+          "buttonY": 545.796875
         },
         "Medium": {
           "text": "Aa",
@@ -1518,7 +1518,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 630.796875
+          "buttonY": 545.796875
         },
         "Large": {
           "text": "Aa",
@@ -1530,7 +1530,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 630.796875
+          "buttonY": 545.796875
         }
       },
       "video": [
@@ -1551,7 +1551,7 @@
       "cueLength": 191,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1563,7 +1563,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         },
         "Medium": {
           "text": "Aa",
@@ -1575,7 +1575,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         },
         "Large": {
           "text": "Aa",
@@ -1587,15 +1587,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.515625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -1608,7 +1608,7 @@
       "cueLength": 191,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1620,7 +1620,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 456.734375
         },
         "Medium": {
           "text": "Aa",
@@ -1632,7 +1632,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 456.734375
         },
         "Large": {
           "text": "Aa",
@@ -1644,15 +1644,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 456.734375
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Name the question, hypothesis, comparison, current baseline, primary metric and guardrail, expected direction, risk, touched surface, rollback, owner, approval question, and next metric gate.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -1677,7 +1677,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 513.40625
         },
         "Medium": {
           "text": "Aa",
@@ -1689,7 +1689,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 513.40625
         },
         "Large": {
           "text": "Aa",
@@ -1701,7 +1701,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 598.40625
+          "buttonY": 513.40625
         }
       },
       "video": [
@@ -1722,7 +1722,7 @@
       "cueLength": 139,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1734,7 +1734,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Medium": {
           "text": "Aa",
@@ -1746,7 +1746,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Large": {
           "text": "Aa",
@@ -1758,15 +1758,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -1779,7 +1779,7 @@
       "cueLength": 139,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1791,7 +1791,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Medium": {
           "text": "Aa",
@@ -1803,7 +1803,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Large": {
           "text": "Aa",
@@ -1815,15 +1815,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "The trace should let someone ask why the item stopped, without exposing raw source notes or pretending a paper receipt is a live audit log.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -1848,7 +1848,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         },
         "Medium": {
           "text": "Aa",
@@ -1860,7 +1860,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         },
         "Large": {
           "text": "Aa",
@@ -1872,7 +1872,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         }
       },
       "video": [
@@ -1893,7 +1893,7 @@
       "cueLength": 150,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1905,7 +1905,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Medium": {
           "text": "Aa",
@@ -1917,7 +1917,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Large": {
           "text": "Aa",
@@ -1929,15 +1929,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -1950,7 +1950,7 @@
       "cueLength": 150,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -1962,7 +1962,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Medium": {
           "text": "Aa",
@@ -1974,7 +1974,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Large": {
           "text": "Aa",
@@ -1986,15 +1986,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Morgan may approve a correction to the paper draft for later review, but that is not approval to book a session, spend money, or send an announcement.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -2019,7 +2019,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         },
         "Medium": {
           "text": "Aa",
@@ -2031,7 +2031,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         },
         "Large": {
           "text": "Aa",
@@ -2043,7 +2043,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         }
       },
       "video": [
@@ -2064,7 +2064,7 @@
       "cueLength": 141,
       "selected": "Small captions",
       "stored": "S",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -2076,7 +2076,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Medium": {
           "text": "Aa",
@@ -2088,7 +2088,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         },
         "Large": {
           "text": "Aa",
@@ -2100,15 +2100,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 440.625
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+      "bandFont": "14px",
       "scrollWidth": 1280
     },
     {
@@ -2121,7 +2121,7 @@
       "cueLength": 141,
       "selected": "Medium captions",
       "stored": "M",
-      "trackMode": "showing",
+      "trackMode": "hidden",
       "previews": {
         "Small": {
           "text": "Aa",
@@ -2133,7 +2133,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Medium": {
           "text": "Aa",
@@ -2145,7 +2145,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         },
         "Large": {
           "text": "Aa",
@@ -2157,15 +2157,15 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 440.84375
+          "buttonY": 475.734375
         }
       },
       "video": [
         621,
         349
       ],
-      "band": null,
-      "bandFont": null,
+      "band": "Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.",
+      "bandFont": "18px",
       "scrollWidth": 1280
     },
     {
@@ -2190,7 +2190,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         },
         "Medium": {
           "text": "Aa",
@@ -2202,7 +2202,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         },
         "Large": {
           "text": "Aa",
@@ -2214,7 +2214,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 566.015625
+          "buttonY": 500.015625
         }
       },
       "video": [
@@ -7548,7 +7548,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.515625
+          "buttonY": 400.515625
         },
         "Medium": {
           "text": "Aa",
@@ -7560,7 +7560,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.515625
+          "buttonY": 400.515625
         },
         "Large": {
           "text": "Aa",
@@ -7572,7 +7572,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.515625
+          "buttonY": 400.515625
         }
       },
       "video": [
@@ -7605,7 +7605,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.65625
+          "buttonY": 400.65625
         },
         "Medium": {
           "text": "Aa",
@@ -7617,7 +7617,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.65625
+          "buttonY": 400.65625
         },
         "Large": {
           "text": "Aa",
@@ -7629,7 +7629,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.65625
+          "buttonY": 400.65625
         }
       },
       "video": [
@@ -7662,7 +7662,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.859375
+          "buttonY": 400.859375
         },
         "Medium": {
           "text": "Aa",
@@ -7674,7 +7674,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.859375
+          "buttonY": 400.859375
         },
         "Large": {
           "text": "Aa",
@@ -7686,7 +7686,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.859375
+          "buttonY": 400.859375
         }
       },
       "video": [
@@ -7719,7 +7719,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.40625
+          "buttonY": 591.40625
         },
         "Medium": {
           "text": "Aa",
@@ -7731,7 +7731,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.40625
+          "buttonY": 591.40625
         },
         "Large": {
           "text": "Aa",
@@ -7743,7 +7743,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.40625
+          "buttonY": 591.40625
         }
       },
       "video": [
@@ -7776,7 +7776,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.140625
+          "buttonY": 648.140625
         },
         "Medium": {
           "text": "Aa",
@@ -7788,7 +7788,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.140625
+          "buttonY": 648.140625
         },
         "Large": {
           "text": "Aa",
@@ -7800,7 +7800,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.140625
+          "buttonY": 648.140625
         }
       },
       "video": [
@@ -7833,7 +7833,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.96875
+          "buttonY": 801.96875
         },
         "Medium": {
           "text": "Aa",
@@ -7845,7 +7845,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.96875
+          "buttonY": 801.96875
         },
         "Large": {
           "text": "Aa",
@@ -7857,7 +7857,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 400.96875
+          "buttonY": 801.96875
         }
       },
       "video": [
@@ -7890,7 +7890,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 244.84375
+          "buttonY": 243.84375
         },
         "Medium": {
           "text": "Aa",
@@ -7902,7 +7902,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 244.84375
+          "buttonY": 243.84375
         },
         "Large": {
           "text": "Aa",
@@ -7914,7 +7914,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 244.84375
+          "buttonY": 243.84375
         }
       },
       "video": [
@@ -7947,7 +7947,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 688.171875
+          "buttonY": 366.171875
         },
         "Medium": {
           "text": "Aa",
@@ -7959,7 +7959,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 688.171875
+          "buttonY": 366.171875
         },
         "Large": {
           "text": "Aa",
@@ -7971,7 +7971,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 688.171875
+          "buttonY": 366.171875
         }
       },
       "video": [
@@ -8232,7 +8232,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 227.515625
+          "buttonY": 400.515625
         },
         "Medium": {
           "text": "Aa",
@@ -8244,7 +8244,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 227.515625
+          "buttonY": 400.515625
         },
         "Large": {
           "text": "Aa",
@@ -8256,7 +8256,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 227.515625
+          "buttonY": 400.515625
         }
       },
       "video": [
@@ -8289,7 +8289,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.359375
+          "buttonY": 400.359375
         },
         "Medium": {
           "text": "Aa",
@@ -8301,7 +8301,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.359375
+          "buttonY": 400.359375
         },
         "Large": {
           "text": "Aa",
@@ -8313,7 +8313,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.359375
+          "buttonY": 400.359375
         }
       },
       "video": [
@@ -8346,7 +8346,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.859375
+          "buttonY": 400.859375
         },
         "Medium": {
           "text": "Aa",
@@ -8358,7 +8358,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.859375
+          "buttonY": 400.859375
         },
         "Large": {
           "text": "Aa",
@@ -8370,7 +8370,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 499.859375
+          "buttonY": 400.859375
         }
       },
       "video": [
@@ -8574,7 +8574,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 245.46875
+          "buttonY": 255.46875
         },
         "Medium": {
           "text": "Aa",
@@ -8586,7 +8586,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 245.46875
+          "buttonY": 255.46875
         },
         "Large": {
           "text": "Aa",
@@ -8598,7 +8598,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 245.46875
+          "buttonY": 255.46875
         }
       },
       "video": [
@@ -8631,7 +8631,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 405.390625
+          "buttonY": 422.390625
         },
         "Medium": {
           "text": "Aa",
@@ -8643,7 +8643,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 405.390625
+          "buttonY": 422.390625
         },
         "Large": {
           "text": "Aa",
@@ -8655,7 +8655,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 405.390625
+          "buttonY": 422.390625
         }
       },
       "video": [
@@ -8745,7 +8745,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.703125
+          "buttonY": 243.703125
         },
         "Medium": {
           "text": "Aa",
@@ -8757,7 +8757,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.703125
+          "buttonY": 243.703125
         },
         "Large": {
           "text": "Aa",
@@ -8769,7 +8769,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.703125
+          "buttonY": 243.703125
         }
       },
       "video": [
@@ -8802,7 +8802,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 388.0625
+          "buttonY": 244.0625
         },
         "Medium": {
           "text": "Aa",
@@ -8814,7 +8814,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 388.0625
+          "buttonY": 244.0625
         },
         "Large": {
           "text": "Aa",
@@ -8826,7 +8826,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 388.0625
+          "buttonY": 244.0625
         }
       },
       "video": [
@@ -8859,7 +8859,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 378.328125
+          "buttonY": 417.328125
         },
         "Medium": {
           "text": "Aa",
@@ -8871,7 +8871,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 378.328125
+          "buttonY": 417.328125
         },
         "Large": {
           "text": "Aa",
@@ -8883,7 +8883,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 378.328125
+          "buttonY": 417.328125
         }
       },
       "video": [
@@ -8916,7 +8916,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 250.03125
+          "buttonY": 400.03125
         },
         "Medium": {
           "text": "Aa",
@@ -8928,7 +8928,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 250.03125
+          "buttonY": 400.03125
         },
         "Large": {
           "text": "Aa",
@@ -8940,7 +8940,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 250.03125
+          "buttonY": 400.03125
         }
       },
       "video": [
@@ -8973,7 +8973,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 637.359375
+          "buttonY": 400.359375
         },
         "Medium": {
           "text": "Aa",
@@ -8985,7 +8985,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 637.359375
+          "buttonY": 400.359375
         },
         "Large": {
           "text": "Aa",
@@ -8997,7 +8997,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 637.359375
+          "buttonY": 400.359375
         }
       },
       "video": [
@@ -9030,7 +9030,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 637.703125
+          "buttonY": 400.703125
         },
         "Medium": {
           "text": "Aa",
@@ -9042,7 +9042,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 637.703125
+          "buttonY": 400.703125
         },
         "Large": {
           "text": "Aa",
@@ -9054,7 +9054,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 637.703125
+          "buttonY": 400.703125
         }
       },
       "video": [
@@ -9600,7 +9600,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 571.03125
+          "buttonY": 401.03125
         },
         "Medium": {
           "text": "Aa",
@@ -9612,7 +9612,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 571.03125
+          "buttonY": 401.03125
         },
         "Large": {
           "text": "Aa",
@@ -9624,7 +9624,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 571.03125
+          "buttonY": 401.03125
         }
       },
       "video": [
@@ -9657,7 +9657,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.65625
+          "buttonY": 401.65625
         },
         "Medium": {
           "text": "Aa",
@@ -9669,7 +9669,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.65625
+          "buttonY": 401.65625
         },
         "Large": {
           "text": "Aa",
@@ -9681,7 +9681,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.65625
+          "buttonY": 401.65625
         }
       },
       "video": [
@@ -9714,7 +9714,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.484375
+          "buttonY": 401.484375
         },
         "Medium": {
           "text": "Aa",
@@ -9726,7 +9726,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.484375
+          "buttonY": 401.484375
         },
         "Large": {
           "text": "Aa",
@@ -9738,7 +9738,7 @@
           "lineHeight": "24px",
           "buttonWidth": 43,
           "buttonHeight": 42,
-          "buttonY": 247.484375
+          "buttonY": 401.484375
         }
       },
       "video": [
@@ -9970,438 +9970,6 @@
           986.84375
         ]
       ],
-      "hover": "oklab(0.980638 -0.000103039 -0.000782758)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(18, 30, 49)"
-      }
-    },
-    {
-      "course": "agentified",
-      "width": 1280,
-      "theme": "dark",
-      "colorScheme": "dark",
-      "ink": "#EAECEE",
-      "colors": [
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgba(18, 30, 49, 0.55)",
-        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
-        "rgba(18, 30, 49, 0.55)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ]
-      ],
-      "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(234, 236, 238)"
-      }
-    },
-    {
-      "course": "agentified",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "light",
-      "ink": "#121e31",
-      "colors": [
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.851294 0.858824 0.870745)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ]
-      ],
-      "hover": "oklab(0.999994 0.0000455678 0.0000200868)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(18, 30, 49)"
-      }
-    },
-    {
-      "course": "agentified",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "dark",
-      "ink": "#EAECEE",
-      "colors": [
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)",
-        "rgb(234, 236, 238)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgba(18, 30, 49, 0.55)",
-        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
-        "rgba(18, 30, 49, 0.55)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ],
-        [
-          43,
-          42,
-          440.84375
-        ]
-      ],
-      "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(234, 236, 238)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "light",
-      "colorScheme": "light",
-      "ink": "#172d35",
-      "colors": [
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.854431 0.868235 0.873255)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          1193.109375
-        ],
-        [
-          43,
-          42,
-          1193.109375
-        ],
-        [
-          43,
-          42,
-          1193.109375
-        ]
-      ],
-      "hover": "oklab(0.99007 -0.000256146 -0.000244998)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(23, 45, 53)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "dark",
-      "colorScheme": "dark",
-      "ink": "#edf3f1",
-      "colors": [
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(23, 52, 62)",
-        "color(srgb 0.224471 0.323765 0.355451)",
-        "rgb(23, 52, 62)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ]
-      ],
-      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(237, 243, 241)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "light",
-      "ink": "#172d35",
-      "colors": [
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)",
-        "rgb(23, 45, 53)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.854431 0.868235 0.873255)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ]
-      ],
-      "hover": "oklab(0.999994 0.0000455678 0.0000200868)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(23, 45, 53)"
-      }
-    },
-    {
-      "course": "accelerated",
-      "width": 1280,
-      "theme": "system",
-      "colorScheme": "dark",
-      "ink": "#edf3f1",
-      "colors": [
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)",
-        "rgb(237, 243, 241)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(23, 52, 62)",
-        "color(srgb 0.224471 0.323765 0.355451)",
-        "rgb(23, 52, 62)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ],
-        [
-          43,
-          42,
-          401.109375
-        ]
-      ],
-      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
-      "focus": {
-        "outline": "3px",
-        "color": "rgb(237, 243, 241)"
-      }
-    },
-    {
-      "course": "agentified",
-      "width": 390,
-      "theme": "light",
-      "colorScheme": "light",
-      "ink": "#121e31",
-      "colors": [
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)",
-        "rgb(18, 30, 49)"
-      ],
-      "fonts": [
-        "14px",
-        "18px",
-        "24px"
-      ],
-      "lineHeights": [
-        "24px",
-        "24px",
-        "24px"
-      ],
-      "backgrounds": [
-        "rgb(255, 255, 255)",
-        "color(srgb 0.851294 0.858824 0.870745)",
-        "rgb(255, 255, 255)"
-      ],
-      "borders": [
-        "1px",
-        "2px",
-        "1px"
-      ],
-      "sizes": [
-        [
-          43,
-          42,
-          1067.125
-        ],
-        [
-          43,
-          42,
-          1067.125
-        ],
-        [
-          43,
-          42,
-          1067.125
-        ]
-      ],
       "hover": "oklab(0.989538 -0.0000347074 -0.000413598)",
       "focus": {
         "outline": "3px",
@@ -10410,7 +9978,7 @@
     },
     {
       "course": "agentified",
-      "width": 390,
+      "width": 1280,
       "theme": "dark",
       "colorScheme": "dark",
       "ink": "#EAECEE",
@@ -10443,17 +10011,17 @@
         [
           43,
           42,
-          401.125
+          440.84375
         ],
         [
           43,
           42,
-          401.125
+          440.84375
         ],
         [
           43,
           42,
-          401.125
+          440.84375
         ]
       ],
       "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
@@ -10464,7 +10032,7 @@
     },
     {
       "course": "agentified",
-      "width": 390,
+      "width": 1280,
       "theme": "system",
       "colorScheme": "light",
       "ink": "#121e31",
@@ -10497,17 +10065,17 @@
         [
           43,
           42,
-          401.125
+          440.84375
         ],
         [
           43,
           42,
-          401.125
+          440.84375
         ],
         [
           43,
           42,
-          401.125
+          440.84375
         ]
       ],
       "hover": "oklab(0.999994 0.0000455678 0.0000200868)",
@@ -10518,7 +10086,7 @@
     },
     {
       "course": "agentified",
-      "width": 390,
+      "width": 1280,
       "theme": "system",
       "colorScheme": "dark",
       "ink": "#EAECEE",
@@ -10551,17 +10119,17 @@
         [
           43,
           42,
-          401.125
+          440.84375
         ],
         [
           43,
           42,
-          401.125
+          440.84375
         ],
         [
           43,
           42,
-          401.125
+          440.84375
         ]
       ],
       "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
@@ -10572,7 +10140,7 @@
     },
     {
       "course": "accelerated",
-      "width": 390,
+      "width": 1280,
       "theme": "light",
       "colorScheme": "light",
       "ink": "#172d35",
@@ -10605,17 +10173,17 @@
         [
           43,
           42,
-          1212.0625
+          1193.109375
         ],
         [
           43,
           42,
-          1212.0625
+          1193.109375
         ],
         [
           43,
           42,
-          1212.0625
+          1193.109375
         ]
       ],
       "hover": "oklab(0.981622 -0.000512971 -0.000470643)",
@@ -10626,6 +10194,438 @@
     },
     {
       "course": "accelerated",
+      "width": 1280,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "ink": "#edf3f1",
+      "colors": [
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(23, 52, 62)",
+        "color(srgb 0.224471 0.323765 0.355451)",
+        "rgb(23, 52, 62)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ]
+      ],
+      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(237, 243, 241)"
+      }
+    },
+    {
+      "course": "accelerated",
+      "width": 1280,
+      "theme": "system",
+      "colorScheme": "light",
+      "ink": "#172d35",
+      "colors": [
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.854431 0.868235 0.873255)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ]
+      ],
+      "hover": "oklab(0.998851 0.0000108158 -0.0000104462)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(23, 45, 53)"
+      }
+    },
+    {
+      "course": "accelerated",
+      "width": 1280,
+      "theme": "system",
+      "colorScheme": "dark",
+      "ink": "#edf3f1",
+      "colors": [
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)",
+        "rgb(237, 243, 241)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(23, 52, 62)",
+        "color(srgb 0.224471 0.323765 0.355451)",
+        "rgb(23, 52, 62)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ],
+        [
+          43,
+          42,
+          401.109375
+        ]
+      ],
+      "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(237, 243, 241)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 390,
+      "theme": "light",
+      "colorScheme": "light",
+      "ink": "#121e31",
+      "colors": [
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.851294 0.858824 0.870745)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          1067.125
+        ],
+        [
+          43,
+          42,
+          1067.125
+        ],
+        [
+          43,
+          42,
+          1067.125
+        ]
+      ],
+      "hover": "oklab(0.976411 -0.000135497 -0.000958112)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(18, 30, 49)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 390,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "ink": "#EAECEE",
+      "colors": [
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgba(18, 30, 49, 0.55)",
+        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
+        "rgba(18, 30, 49, 0.55)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.125
+        ],
+        [
+          43,
+          42,
+          401.125
+        ],
+        [
+          43,
+          42,
+          401.125
+        ]
+      ],
+      "hover": "oklab(0.23427 -0.00755565 -0.0399845 / 0.54902)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(234, 236, 238)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 390,
+      "theme": "system",
+      "colorScheme": "light",
+      "ink": "#121e31",
+      "colors": [
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)",
+        "rgb(18, 30, 49)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.851294 0.858824 0.870745)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.125
+        ],
+        [
+          43,
+          42,
+          401.125
+        ],
+        [
+          43,
+          42,
+          401.125
+        ]
+      ],
+      "hover": "oklab(0.999994 0.0000455678 0.0000200868)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(18, 30, 49)"
+      }
+    },
+    {
+      "course": "agentified",
+      "width": 390,
+      "theme": "system",
+      "colorScheme": "dark",
+      "ink": "#EAECEE",
+      "colors": [
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)",
+        "rgb(234, 236, 238)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgba(18, 30, 49, 0.55)",
+        "color(srgb 0.28877 0.325728 0.383066 / 0.621176)",
+        "rgba(18, 30, 49, 0.55)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          401.125
+        ],
+        [
+          43,
+          42,
+          401.125
+        ],
+        [
+          43,
+          42,
+          401.125
+        ]
+      ],
+      "hover": "oklab(0.248533 -0.00736149 -0.0389665 / 0.553331)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(234, 236, 238)"
+      }
+    },
+    {
+      "course": "accelerated",
+      "width": 390,
+      "theme": "light",
+      "colorScheme": "light",
+      "ink": "#172d35",
+      "colors": [
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)",
+        "rgb(23, 45, 53)"
+      ],
+      "fonts": [
+        "14px",
+        "18px",
+        "24px"
+      ],
+      "lineHeights": [
+        "24px",
+        "24px",
+        "24px"
+      ],
+      "backgrounds": [
+        "rgb(255, 255, 255)",
+        "color(srgb 0.854431 0.868235 0.873255)",
+        "rgb(255, 255, 255)"
+      ],
+      "borders": [
+        "1px",
+        "2px",
+        "1px"
+      ],
+      "sizes": [
+        [
+          43,
+          42,
+          1212.0625
+        ],
+        [
+          43,
+          42,
+          1212.0625
+        ],
+        [
+          43,
+          42,
+          1212.0625
+        ]
+      ],
+      "hover": "oklab(0.99681 -0.0000512412 -0.0000649692)",
+      "focus": {
+        "outline": "3px",
+        "color": "rgb(23, 45, 53)"
+      }
+    },
+    {
+      "course": "accelerated",
       "width": 390,
       "theme": "dark",
       "colorScheme": "dark",
@@ -10659,17 +10659,17 @@
         [
           43,
           42,
-          802.0625
+          799.0625
         ],
         [
           43,
           42,
-          802.0625
+          799.0625
         ],
         [
           43,
           42,
-          802.0625
+          799.0625
         ]
       ],
       "hover": "oklab(0.307248 -0.0286311 -0.0266167)",
@@ -10785,6 +10785,1238 @@
         "outline": "3px",
         "color": "rgb(237, 243, 241)"
       }
+    }
+  ],
+  "l08Results": [
+    {
+      "width": 1280,
+      "scene": "L08-01",
+      "time": 12.717,
+      "size": "Small",
+      "cue": {
+        "start": 11.16,
+        "end": 13.04,
+        "text": "What does ‘maybe’ permit the drafter to"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 12.717,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-01",
+      "time": 12.717,
+      "size": "Medium",
+      "cue": {
+        "start": 11.16,
+        "end": 13.04,
+        "text": "What does ‘maybe’ permit the drafter to"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 12.717,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-01",
+      "time": 12.717,
+      "size": "Large",
+      "cue": {
+        "start": 11.16,
+        "end": 13.04,
+        "text": "What does ‘maybe’ permit the drafter to"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 12.717,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-02",
+      "time": 45.631,
+      "size": "Small",
+      "cue": {
+        "start": 39.641,
+        "end": 49.113,
+        "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 45.631,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-02",
+      "time": 45.631,
+      "size": "Medium",
+      "cue": {
+        "start": 39.641,
+        "end": 49.113,
+        "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 45.631,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-02",
+      "time": 45.631,
+      "size": "Large",
+      "cue": {
+        "start": 39.641,
+        "end": 49.113,
+        "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 45.631,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-03",
+      "time": 67.348,
+      "size": "Small",
+      "cue": {
+        "start": 65.848,
+        "end": 67.843,
+        "text": "Try a broken payload on purpose."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 67.348,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-03",
+      "time": 67.348,
+      "size": "Medium",
+      "cue": {
+        "start": 65.848,
+        "end": 67.843,
+        "text": "Try a broken payload on purpose."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 67.348,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-03",
+      "time": 67.348,
+      "size": "Large",
+      "cue": {
+        "start": 65.848,
+        "end": 67.843,
+        "text": "Try a broken payload on purpose."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 67.348,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-04",
+      "time": 108.52,
+      "size": "Small",
+      "cue": {
+        "start": 99.961,
+        "end": 108.942,
+        "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 108.52,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-04",
+      "time": 108.52,
+      "size": "Medium",
+      "cue": {
+        "start": 99.961,
+        "end": 108.942,
+        "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 108.52,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-04",
+      "time": 108.52,
+      "size": "Large",
+      "cue": {
+        "start": 99.961,
+        "end": 108.942,
+        "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 108.52,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-05",
+      "time": 143.328,
+      "size": "Small",
+      "cue": {
+        "start": 142.778,
+        "end": 149.483,
+        "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 143.328,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-05",
+      "time": 143.328,
+      "size": "Medium",
+      "cue": {
+        "start": 142.778,
+        "end": 149.483,
+        "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 143.328,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-05",
+      "time": 143.328,
+      "size": "Large",
+      "cue": {
+        "start": 142.778,
+        "end": 149.483,
+        "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 143.328,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-06",
+      "time": 162.724,
+      "size": "Small",
+      "cue": {
+        "start": 162.286,
+        "end": 166.232,
+        "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 162.724,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-06",
+      "time": 162.724,
+      "size": "Medium",
+      "cue": {
+        "start": 162.286,
+        "end": 166.232,
+        "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 162.724,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-06",
+      "time": 162.724,
+      "size": "Large",
+      "cue": {
+        "start": 162.286,
+        "end": 166.232,
+        "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 162.724,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-07",
+      "time": 168.052,
+      "size": "Small",
+      "cue": {
+        "start": 166.552,
+        "end": 172.602,
+        "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 168.052,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-07",
+      "time": 168.052,
+      "size": "Medium",
+      "cue": {
+        "start": 166.552,
+        "end": 172.602,
+        "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 168.052,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-07",
+      "time": 168.052,
+      "size": "Large",
+      "cue": {
+        "start": 166.552,
+        "end": 172.602,
+        "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 168.052,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-08",
+      "time": 247.736,
+      "size": "Small",
+      "cue": {
+        "start": 247.457,
+        "end": 249.117,
+        "text": "The next review should ask whether the"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 247.736,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-08",
+      "time": 247.736,
+      "size": "Medium",
+      "cue": {
+        "start": 247.457,
+        "end": 249.117,
+        "text": "The next review should ask whether the"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 247.736,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 1280,
+      "scene": "L08-08",
+      "time": 247.736,
+      "size": "Large",
+      "cue": {
+        "start": 247.457,
+        "end": 249.117,
+        "text": "The next review should ask whether the"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        621,
+        349
+      ],
+      "off": {
+        "time": 247.736,
+        "box": [
+          621,
+          349
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-01",
+      "time": 12.717,
+      "size": "Small",
+      "cue": {
+        "start": 11.16,
+        "end": 13.04,
+        "text": "What does ‘maybe’ permit the drafter to"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 12.717,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-01",
+      "time": 12.717,
+      "size": "Medium",
+      "cue": {
+        "start": 11.16,
+        "end": 13.04,
+        "text": "What does ‘maybe’ permit the drafter to"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 12.717,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-01",
+      "time": 12.717,
+      "size": "Large",
+      "cue": {
+        "start": 11.16,
+        "end": 13.04,
+        "text": "What does ‘maybe’ permit the drafter to"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 12.717,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-02",
+      "time": 45.631,
+      "size": "Small",
+      "cue": {
+        "start": 39.641,
+        "end": 49.113,
+        "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 45.631,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-02",
+      "time": 45.631,
+      "size": "Medium",
+      "cue": {
+        "start": 39.641,
+        "end": 49.113,
+        "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 45.631,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-02",
+      "time": 45.631,
+      "size": "Large",
+      "cue": {
+        "start": 39.641,
+        "end": 49.113,
+        "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 45.631,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-03",
+      "time": 67.348,
+      "size": "Small",
+      "cue": {
+        "start": 65.848,
+        "end": 67.843,
+        "text": "Try a broken payload on purpose."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 67.348,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-03",
+      "time": 67.348,
+      "size": "Medium",
+      "cue": {
+        "start": 65.848,
+        "end": 67.843,
+        "text": "Try a broken payload on purpose."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 67.348,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-03",
+      "time": 67.348,
+      "size": "Large",
+      "cue": {
+        "start": 65.848,
+        "end": 67.843,
+        "text": "Try a broken payload on purpose."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 67.348,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-04",
+      "time": 108.52,
+      "size": "Small",
+      "cue": {
+        "start": 99.961,
+        "end": 108.942,
+        "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 108.52,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-04",
+      "time": 108.52,
+      "size": "Medium",
+      "cue": {
+        "start": 99.961,
+        "end": 108.942,
+        "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 108.52,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-04",
+      "time": 108.52,
+      "size": "Large",
+      "cue": {
+        "start": 99.961,
+        "end": 108.942,
+        "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 108.52,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-05",
+      "time": 143.328,
+      "size": "Small",
+      "cue": {
+        "start": 142.778,
+        "end": 149.483,
+        "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 143.328,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-05",
+      "time": 143.328,
+      "size": "Medium",
+      "cue": {
+        "start": 142.778,
+        "end": 149.483,
+        "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 143.328,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-05",
+      "time": 143.328,
+      "size": "Large",
+      "cue": {
+        "start": 142.778,
+        "end": 149.483,
+        "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 143.328,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-06",
+      "time": 162.724,
+      "size": "Small",
+      "cue": {
+        "start": 162.286,
+        "end": 166.232,
+        "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 162.724,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-06",
+      "time": 162.724,
+      "size": "Medium",
+      "cue": {
+        "start": 162.286,
+        "end": 166.232,
+        "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 162.724,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-06",
+      "time": 162.724,
+      "size": "Large",
+      "cue": {
+        "start": 162.286,
+        "end": 166.232,
+        "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 162.724,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-07",
+      "time": 168.052,
+      "size": "Small",
+      "cue": {
+        "start": 166.552,
+        "end": 172.602,
+        "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 168.052,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-07",
+      "time": 168.052,
+      "size": "Medium",
+      "cue": {
+        "start": 166.552,
+        "end": 172.602,
+        "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 168.052,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-07",
+      "time": 168.052,
+      "size": "Large",
+      "cue": {
+        "start": 166.552,
+        "end": 172.602,
+        "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 168.052,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-08",
+      "time": 247.736,
+      "size": "Small",
+      "cue": {
+        "start": 247.457,
+        "end": 249.117,
+        "text": "The next review should ask whether the"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 247.736,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Small captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-08",
+      "time": 247.736,
+      "size": "Medium",
+      "cue": {
+        "start": 247.457,
+        "end": 249.117,
+        "text": "The next review should ask whether the"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 247.736,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Medium captions"
+    },
+    {
+      "width": 390,
+      "scene": "L08-08",
+      "time": 247.736,
+      "size": "Large",
+      "cue": {
+        "start": 247.457,
+        "end": 249.117,
+        "text": "The next review should ask whether the"
+      },
+      "trackMode": "hidden",
+      "bandCount": 1,
+      "video": [
+        292,
+        164
+      ],
+      "off": {
+        "time": 247.736,
+        "box": [
+          292,
+          164
+        ]
+      },
+      "restored": "Large captions"
+    }
+  ],
+  "adjacentResults": [
+    {
+      "id": "L07",
+      "width": 1280,
+      "time": 235.148,
+      "cue": "Save revision seven as a draft.",
+      "trackMode": "showing"
+    },
+    {
+      "id": "L09",
+      "width": 1280,
+      "time": 1.5,
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden"
+    },
+    {
+      "id": "L07",
+      "width": 390,
+      "time": 235.148,
+      "cue": "Save revision seven as a draft.",
+      "trackMode": "hidden"
+    },
+    {
+      "id": "L09",
+      "width": 390,
+      "time": 1.5,
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden"
     }
   ]
 }

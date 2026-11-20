@@ -1,0 +1,6810 @@
+{
+  "generatedAt": "2026-11-20T22:17:22.336Z",
+  "base": "http://127.0.0.1:3121",
+  "results": [
+    {
+      "scene": "L09-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 3.58,
+            "text": "Harbor Learning Circle has three neat classroom briefs on a table."
+          }
+        ],
+        "band": "Harbor Learning Circle has three neat classroom briefs on a table.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 15.91,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 13.98,
+            "end": 17.2,
+            "text": "The third accurately says the facilitator is still under review."
+          }
+        ],
+        "band": "The third accurately says the facilitator is still under review.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 33.32,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 31.82,
+            "end": 40.24,
+            "text": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority."
+          }
+        ],
+        "band": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 50.77,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 49.14,
+            "end": 53.66,
+            "text": "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate."
+          }
+        ],
+        "band": "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 71.22,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 69.72,
+            "end": 72.56,
+            "text": "The workbook adds cost and trust to the scorecard."
+          }
+        ],
+        "band": "The workbook adds cost and trust to the scorecard.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 86.37,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 79.8,
+            "end": 88.38,
+            "text": "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer."
+          }
+        ],
+        "band": "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 104.52,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 103.02,
+            "end": 106.82,
+            "text": "Chapter Sixteen asks us to choose a review posture for each action."
+          }
+        ],
+        "band": "Chapter Sixteen asks us to choose a review posture for each action.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 120.55,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 117.96,
+            "end": 122.2,
+            "text": "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence."
+          }
+        ],
+        "band": "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 139.58,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 138.08,
+            "end": 147.12,
+            "text": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes."
+          }
+        ],
+        "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 151.19,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 307.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 165.8,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 165.8,
+            "end": 169.76,
+            "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+          }
+        ],
+        "band": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 167.41,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 165.8,
+            "end": 169.76,
+            "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+          }
+        ],
+        "band": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 172.02,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 170.52,
+            "end": 174.16,
+            "text": "Add an Agent Metrics Ladder and Review Postures card to your Operating File."
+          }
+        ],
+        "band": "Add an Agent Metrics Ladder and Review Postures card to your Operating File.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 211.79,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 307.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 254.56,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 253.06,
+            "end": 254.82,
+            "text": "Save revision nine as a draft."
+          }
+        ],
+        "band": "Save revision nine as a draft.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 262.95,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 259.38,
+            "end": 263.36,
+            "text": "Next we will put the same discipline around money and the final decision brief."
+          }
+        ],
+        "band": "Next we will put the same discipline around money and the final decision brief.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 277.84375,
+        "bandTop": 285.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 4.92,
+            "text": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month."
+          }
+        ],
+        "band": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 16.85,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 16.82,
+            "end": 17.96,
+            "text": "The amount sounds minor."
+          }
+        ],
+        "band": "The amount sounds minor.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 35.2,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 33.7,
+            "end": 41.88,
+            "text": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval."
+          }
+        ],
+        "band": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 51.35,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 47.58,
+            "end": 53.5,
+            "text": "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window."
+          }
+        ],
+        "band": "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 70.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 69,
+            "end": 71.22,
+            "text": "Harbor's preparation role has no payment authority."
+          }
+        ],
+        "band": "Harbor's preparation role has no payment authority.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 83.95,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 307.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 100.4,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 98.9,
+            "end": 100.9,
+            "text": "Now write the decision Morgan actually owns."
+          }
+        ],
+        "band": "Now write the decision Morgan actually owns.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 116.67,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 115.2,
+            "end": 119.32,
+            "text": "Option B is to hold the proposal and gather a fresh staffing commitment."
+          }
+        ],
+        "band": "Option B is to hold the proposal and gather a fresh staffing commitment.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 135.94,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 134.44,
+            "end": 136.32,
+            "text": "Put the spend question on its own line."
+          }
+        ],
+        "band": "Put the spend question on its own line.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 150,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 149.88,
+            "end": 153.4,
+            "text": "A flyer sent into the community cannot be pulled back with the same ease."
+          }
+        ],
+        "band": "A flyer sent into the community cannot be pulled back with the same ease.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 167.06,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 166.68,
+            "end": 170.42,
+            "text": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+          }
+        ],
+        "band": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 168.3,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 166.68,
+            "end": 170.42,
+            "text": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+          }
+        ],
+        "band": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 172.54,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 171.04,
+            "end": 173.2,
+            "text": "Fill a Spend Envelope, then a Decision Brief."
+          }
+        ],
+        "band": "Fill a Spend Envelope, then a Decision Brief.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 211.83,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 307.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 254.12,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 252.62,
+            "end": 254.34,
+            "text": "Save revision ten as a draft."
+          }
+        ],
+        "band": "Save revision ten as a draft.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 263.45,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 260.38,
+            "end": 266.02,
+            "text": "Next we will make the pending work visible without turning a phone notification into a second control room."
+          }
+        ],
+        "band": "Next we will make the pending work visible without turning a phone notification into a second control room.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 3.76,
+            "text": "Morgan comes to Harbor's Friday planning table with three open questions."
+          }
+        ],
+        "band": "Morgan comes to Harbor's Friday planning table with three open questions.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 13.04,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 9.76,
+            "end": 13.8,
+            "text": "If the answers live in three people's heads, Morgan becomes the operating system."
+          }
+        ],
+        "band": "If the answers live in three people's heads, Morgan becomes the operating system.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 27.58,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 26.08,
+            "end": 28.24,
+            "text": "Chapter Nineteen calls this a cockpit."
+          }
+        ],
+        "band": "Chapter Nineteen calls this a cockpit.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 43.87,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 28.24,
+            "end": 44.7,
+            "text": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note."
+          }
+        ],
+        "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 63.16,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 61.66,
+            "end": 69.72,
+            "text": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed."
+          }
+        ],
+        "band": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 76.59,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 70.22,
+            "end": 80.84,
+            "text": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold."
+          }
+        ],
+        "band": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 93.02,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 91.52,
+            "end": 96.98,
+            "text": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate."
+          }
+        ],
+        "band": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 106.77,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 106.56,
+            "end": 109.1,
+            "text": "The staffing gap is an ask to Morgan for direction."
+          }
+        ],
+        "band": "The staffing gap is an ask to Morgan for direction.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 123.52,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 122.02,
+            "end": 124.26,
+            "text": "The phone is a narrow doorway into the cockpit."
+          }
+        ],
+        "band": "The phone is a narrow doorway into the cockpit.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 135.7,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 135.04,
+            "end": 142.5,
+            "text": "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure."
+          }
+        ],
+        "band": "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 150.88,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 150.48,
+            "end": 155.32,
+            "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+          }
+        ],
+        "band": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 152.75,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 150.48,
+            "end": 155.32,
+            "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+          }
+        ],
+        "band": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 157.62,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 156.12,
+            "end": 161.86,
+            "text": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief."
+          }
+        ],
+        "band": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 195.48,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 307.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 236.34,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 234.84,
+            "end": 236.4,
+            "text": "Save revision eleven as a draft."
+          }
+        ],
+        "band": "Save revision eleven as a draft.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 243.88,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 241.62,
+            "end": 248.46,
+            "text": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+          }
+        ],
+        "band": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 6.08,
+            "text": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session."
+          }
+        ],
+        "band": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 13.65,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 9.2,
+            "end": 13.82,
+            "text": "That would reveal source notes and internal deliberation the board member did not request."
+          }
+        ],
+        "band": "That would reveal source notes and internal deliberation the board member did not request.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 28.8,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 27.3,
+            "end": 35.96,
+            "text": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger."
+          }
+        ],
+        "band": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 46.83,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 42.84,
+            "end": 52.4,
+            "text": "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request."
+          }
+        ],
+        "band": "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 67.86,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 66.36,
+            "end": 75.88,
+            "text": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes."
+          }
+        ],
+        "band": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 81.45,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 80.6,
+            "end": 83.5,
+            "text": "Morgan reviews the proposed proof packet before any sharing."
+          }
+        ],
+        "band": "Morgan reviews the proposed proof packet before any sharing.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 98.04,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 96.54,
+            "end": 102.74,
+            "text": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options."
+          }
+        ],
+        "band": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 115.3,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 105.96,
+            "end": 116.84,
+            "text": "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates."
+          }
+        ],
+        "band": "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 135.56,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 134.06,
+            "end": 141.04,
+            "text": "Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay."
+          }
+        ],
+        "band": "Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 148.75,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 145.44,
+            "end": 152.76,
+            "text": "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson."
+          }
+        ],
+        "band": "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 164.94,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 164.92,
+            "end": 168.12,
+            "text": "What would you leave out of the board packet even if it helped tell a better story?"
+          }
+        ],
+        "band": "What would you leave out of the board packet even if it helped tell a better story?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 166.15,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 164.92,
+            "end": 168.12,
+            "text": "What would you leave out of the board packet even if it helped tell a better story?"
+          }
+        ],
+        "band": "What would you leave out of the board packet even if it helped tell a better story?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 253.84375,
+        "bandTop": 261.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 170.36,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 168.86,
+            "end": 172.24,
+            "text": "Draft a Client-Safe Proof Packet outline for the Harbor planning case."
+          }
+        ],
+        "band": "Draft a Client-Safe Proof Packet outline for the Harbor planning case.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 209.47,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 307.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 251.58,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 250.08,
+            "end": 251.82,
+            "text": "Save revision twelve as a draft."
+          }
+        ],
+        "band": "Save revision twelve as a draft.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 255.84375,
+        "bandTop": 263.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 259.1,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 307.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.26,
+            "end": 1.92,
+            "text": "Morgan opens Harbor's paper planning"
+          }
+        ],
+        "band": "Morgan opens Harbor's paper planning",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 13.334,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 12.676,
+            "end": 16.9,
+            "text": "It is tempting to let the preparation agent change the format and declare an improvement."
+          }
+        ],
+        "band": "It is tempting to let the preparation agent change the format and declare an improvement.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 28.167,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 26.667,
+            "end": 33.792,
+            "text": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard."
+          }
+        ],
+        "band": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 41.627,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 58.087,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 56.587,
+            "end": 68.278,
+            "text": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate."
+          }
+        ],
+        "band": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 73.479,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 71.577,
+            "end": 78.02,
+            "text": "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation."
+          }
+        ],
+        "band": "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 91.871,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 90.371,
+            "end": 94.339,
+            "text": "Morgan owns the review of the proposal because Morgan owns this planning decision."
+          }
+        ],
+        "band": "Morgan owns the review of the proposal because Morgan owns this planning decision.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 105.555,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 103.307,
+            "end": 110.048,
+            "text": "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test."
+          }
+        ],
+        "band": "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 122.24,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 120.74,
+            "end": 129.273,
+            "text": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`"
+          }
+        ],
+        "band": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 134.197,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 149.155,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 150.27,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 149.533,
+            "end": 152.306,
+            "text": "What evidence would make your favorite improvement worth testing?"
+          }
+        ],
+        "band": "What evidence would make your favorite improvement worth testing?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 154.386,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 152.886,
+            "end": 154.764,
+            "text": "Draft one AutoResearch Proposal."
+          }
+        ],
+        "band": "Draft one AutoResearch Proposal.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 193.233,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 181.113,
+            "end": 233.025,
+            "text": "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
+          }
+        ],
+        "band": "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 235.079,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 233.579,
+            "end": 235.414,
+            "text": "Save revision thirteen as a draft."
+          }
+        ],
+        "band": "Save revision thirteen as a draft.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 244.411,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 243.847,
+            "end": 246.157,
+            "text": "inspect, and a clear record that nothing"
+          }
+        ],
+        "band": "inspect, and a clear record that nothing",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.18,
+            "text": "A Harbor board reviewer asks Morgan a"
+          }
+        ],
+        "band": "A Harbor board reviewer asks Morgan a",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 14.651,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 12.209,
+            "end": 15.793,
+            "text": "The first panel shows the queue, including held and rejected work."
+          }
+        ],
+        "band": "The first panel shows the queue, including held and rejected work.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 30.802,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 30.326,
+            "end": 33.654,
+            "text": "One Session Option Brief is prepared, not proposed to the team."
+          }
+        ],
+        "band": "One Session Option Brief is prepared, not proposed to the team.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 41.058,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 39.473,
+            "end": 43.484,
+            "text": "The research proposal is not run because its baseline and reviewer protocol are missing."
+          }
+        ],
+        "band": "The research proposal is not run because its baseline and reviewer protocol are missing.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 54.314,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 52.814,
+            "end": 54.521,
+            "text": "Open the trace for the held brief."
+          }
+        ],
+        "band": "Open the trace for the held brief.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 65.576,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 79.838,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 91.532,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 91.312,
+            "end": 96.901,
+            "text": "The agent cannot promote it itself, and a single held example cannot become general truth by repetition."
+          }
+        ],
+        "band": "The agent cannot promote it itself, and a single held example cannot become general truth by repetition.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 106.226,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 104.726,
+            "end": 107.628,
+            "text": "The workbook asks what export a reviewer can take away."
+          }
+        ],
+        "band": "The workbook asks what export a reviewer can take away.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 120.067,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 119.69,
+            "end": 122.25,
+            "text": "It would omit raw notes and unrelated records."
+          }
+        ],
+        "band": "It would omit raw notes and unrelated records.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 136.907,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 136.054,
+            "end": 140.015,
+            "text": "Which panel would expose the weakest part of your own proposed workflow first?"
+          }
+        ],
+        "band": "Which panel would expose the weakest part of your own proposed workflow first?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 138.06,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 136.054,
+            "end": 140.015,
+            "text": "Which panel would expose the weakest part of your own proposed workflow first?"
+          }
+        ],
+        "band": "Which panel would expose the weakest part of your own proposed workflow first?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 142.213,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 140.713,
+            "end": 143.017,
+            "text": "Storyboard a Three-Panel Demo for your workflow."
+          }
+        ],
+        "band": "Storyboard a Three-Panel Demo for your workflow.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 179.319,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 170.449,
+            "end": 217.412,
+            "text": "Do not use private operational data."
+          }
+        ],
+        "band": "Do not use private operational data.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 219.424,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 217.924,
+            "end": 219.886,
+            "text": "Save revision fourteen as a draft."
+          }
+        ],
+        "band": "Save revision fourteen as a draft.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 229.843,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 227.397,
+            "end": 229.957,
+            "text": "Nothing about a clean storyboard lifts"
+          }
+        ],
+        "band": "Nothing about a clean storyboard lifts",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.37,
+            "text": "It is Friday at Harbor Learning Circle."
+          }
+        ],
+        "band": "It is Friday at Harbor Learning Circle.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 14.391,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 12.48,
+            "end": 15.23,
+            "text": "The first line says prepared, not sent."
+          }
+        ],
+        "band": "The first line says prepared, not sent.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 30.282,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 28.782,
+            "end": 30.403,
+            "text": "The Six-Beat Day begins with a brief."
+          }
+        ],
+        "band": "The Six-Beat Day begins with a brief.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 39.946,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 34.713,
+            "end": 41.881,
+            "text": "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test."
+          }
+        ],
+        "band": "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 52.609,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 62.886,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 61.417,
+            "end": 64.873,
+            "text": "The research question belongs to Morgan as owner of the brief format."
+          }
+        ],
+        "band": "The research question belongs to Morgan as owner of the brief format.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 76.162,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 76.001,
+            "end": 79.713,
+            "text": "Morgan reads the brief beside its source-status summary and trace template."
+          }
+        ],
+        "band": "Morgan reads the brief beside its source-status summary and trace template.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 88.996,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 85.84,
+            "end": 89.509,
+            "text": "Morgan marks the claim unsupported and keeps the staffing hold in place."
+          }
+        ],
+        "band": "Morgan marks the claim unsupported and keeps the staffing hold in place.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 104.83,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 120.954,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 119.349,
+            "end": 121.781,
+            "text": "There is no automatic retry or provider call."
+          }
+        ],
+        "band": "There is no automatic retry or provider call.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 140.078,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 138.578,
+            "end": 144.423,
+            "text": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned?"
+          }
+        ],
+        "band": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 149.125,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 161.171,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 159.671,
+            "end": 161.933,
+            "text": "Write a Six-Beat Day brief for your workflow."
+          }
+        ],
+        "band": "Write a Six-Beat Day brief for your workflow.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 197.058,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 183.257,
+            "end": 233.932,
+            "text": "Do not use private operational data, open a live account, import a trace, or contact a person."
+          }
+        ],
+        "band": "Do not use private operational data, open a live account, import a trace, or contact a person.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 235.944,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 234.444,
+            "end": 236.151,
+            "text": "Save revision fifteen as a draft."
+          }
+        ],
+        "band": "Save revision fifteen as a draft.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 244.915,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 244.574,
+            "end": 246.324,
+            "text": "make those boundaries routine."
+          }
+        ],
+        "band": "make those boundaries routine.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-01",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 1.5,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.18,
+            "text": "At the end of Harbor's Friday, Morgan"
+          }
+        ],
+        "band": "At the end of Harbor's Friday, Morgan",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-01",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 17.106,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 16.516,
+            "end": 19.716,
+            "text": "The file is impressive in one sense: its gaps are visible."
+          }
+        ],
+        "band": "The file is impressive in one sense: its gaps are visible.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-02",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 35.712,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 34.212,
+            "end": 40.74,
+            "text": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review."
+          }
+        ],
+        "band": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-02",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 48.478,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 48.138,
+            "end": 49.717,
+            "text": "When will someone revisit the rule?"
+          }
+        ],
+        "band": "When will someone revisit the rule?",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-03",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 64.245,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-03",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 76.216,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 72.362,
+            "end": 76.714,
+            "text": "The receipt describes a paper event shape; it does not certify that an agent ran."
+          }
+        ],
+        "band": "The receipt describes a paper event shape; it does not certify that an agent ran.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-04",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 91.187,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 89.687,
+            "end": 92.759,
+            "text": "Move to routing, action, approval, and cost."
+          }
+        ],
+        "band": "Move to routing, action, approval, and cost.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-04",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 103.398,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 100.671,
+            "end": 105.578,
+            "text": "The agent cannot book, send, buy, or turn a proposal into a team rule."
+          }
+        ],
+        "band": "The agent cannot book, send, buy, or turn a proposal into a team rule.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-05",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 118.609,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 117.109,
+            "end": 118.73,
+            "text": "Finish with export and rollback."
+          }
+        ],
+        "band": "Finish with export and rollback.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-05",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 131.464,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 129.845,
+            "end": 136.416,
+            "text": "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it."
+          }
+        ],
+        "band": "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-06",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 147.319,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 146.886,
+            "end": 148.464,
+            "text": "Pick the weakest gate in your workflow."
+          }
+        ],
+        "band": "Pick the weakest gate in your workflow.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-06",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 155.76,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 153.733,
+            "end": 157.232,
+            "text": "Name the human who can make that call and the evidence that person would need."
+          }
+        ],
+        "band": "Name the human who can make that call and the evidence that person would need.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-07",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 167.2,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 165.7,
+            "end": 168.303,
+            "text": "Present your Operating File as a one-page audit."
+          }
+        ],
+        "band": "Present your Operating File as a one-page audit.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-07",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 206.963,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 195.162,
+            "end": 247.586,
+            "text": "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+          }
+        ],
+        "band": "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-08",
+      "sample": "boundary",
+      "width": 1280,
+      "time": 249.726,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 248.226,
+            "end": 249.89,
+            "text": "Save revision sixteen for review."
+          }
+        ],
+        "band": "Save revision sixteen for review.",
+        "bandCount": 1,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": 337.84375,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-08",
+      "sample": "midpoint",
+      "width": 1280,
+      "time": 257.768,
+      "baselineScrollWidth": 1280,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          621,
+          349
+        ],
+        "videoBottom": 329.84375,
+        "bandTop": null,
+        "scrollWidth": 1280
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 3.58,
+            "text": "Harbor Learning Circle has three neat classroom briefs on a table."
+          }
+        ],
+        "band": "Harbor Learning Circle has three neat classroom briefs on a table.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L09-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 15.91,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 13.98,
+            "end": 17.2,
+            "text": "The third accurately says the facilitator is still under review."
+          }
+        ],
+        "band": "The third accurately says the facilitator is still under review.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 33.32,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 31.82,
+            "end": 40.24,
+            "text": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority."
+          }
+        ],
+        "band": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 50.77,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 49.14,
+            "end": 53.66,
+            "text": "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate."
+          }
+        ],
+        "band": "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 71.22,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 69.72,
+            "end": 72.56,
+            "text": "The workbook adds cost and trust to the scorecard."
+          }
+        ],
+        "band": "The workbook adds cost and trust to the scorecard.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 86.37,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 79.8,
+            "end": 88.38,
+            "text": "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer."
+          }
+        ],
+        "band": "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 104.52,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 103.02,
+            "end": 106.82,
+            "text": "Chapter Sixteen asks us to choose a review posture for each action."
+          }
+        ],
+        "band": "Chapter Sixteen asks us to choose a review posture for each action.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 120.55,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 117.96,
+            "end": 122.2,
+            "text": "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence."
+          }
+        ],
+        "band": "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 139.58,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 138.08,
+            "end": 147.12,
+            "text": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes."
+          }
+        ],
+        "band": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 151.19,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 165.8,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 165.8,
+            "end": 169.76,
+            "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+          }
+        ],
+        "band": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 167.41,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 165.8,
+            "end": 169.76,
+            "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+          }
+        ],
+        "band": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 172.02,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 170.52,
+            "end": 174.16,
+            "text": "Add an Agent Metrics Ladder and Review Postures card to your Operating File."
+          }
+        ],
+        "band": "Add an Agent Metrics Ladder and Review Postures card to your Operating File.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 211.79,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 254.56,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 253.06,
+            "end": 254.82,
+            "text": "Save revision nine as a draft."
+          }
+        ],
+        "band": "Save revision nine as a draft.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L09-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 262.95,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 259.38,
+            "end": 263.36,
+            "text": "Next we will put the same discipline around money and the final decision brief."
+          }
+        ],
+        "band": "Next we will put the same discipline around money and the final decision brief.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 4.92,
+            "text": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month."
+          }
+        ],
+        "band": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L10-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 16.85,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 16.82,
+            "end": 17.96,
+            "text": "The amount sounds minor."
+          }
+        ],
+        "band": "The amount sounds minor.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 35.2,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 33.7,
+            "end": 41.88,
+            "text": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval."
+          }
+        ],
+        "band": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 51.35,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 47.58,
+            "end": 53.5,
+            "text": "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window."
+          }
+        ],
+        "band": "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 70.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 69,
+            "end": 71.22,
+            "text": "Harbor's preparation role has no payment authority."
+          }
+        ],
+        "band": "Harbor's preparation role has no payment authority.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 83.95,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 100.4,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 98.9,
+            "end": 100.9,
+            "text": "Now write the decision Morgan actually owns."
+          }
+        ],
+        "band": "Now write the decision Morgan actually owns.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 116.67,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 115.2,
+            "end": 119.32,
+            "text": "Option B is to hold the proposal and gather a fresh staffing commitment."
+          }
+        ],
+        "band": "Option B is to hold the proposal and gather a fresh staffing commitment.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 135.94,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 134.44,
+            "end": 136.32,
+            "text": "Put the spend question on its own line."
+          }
+        ],
+        "band": "Put the spend question on its own line.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 150,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 149.88,
+            "end": 153.4,
+            "text": "A flyer sent into the community cannot be pulled back with the same ease."
+          }
+        ],
+        "band": "A flyer sent into the community cannot be pulled back with the same ease.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 167.06,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 166.68,
+            "end": 170.42,
+            "text": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+          }
+        ],
+        "band": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 168.3,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 166.68,
+            "end": 170.42,
+            "text": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+          }
+        ],
+        "band": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 172.54,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 171.04,
+            "end": 173.2,
+            "text": "Fill a Spend Envelope, then a Decision Brief."
+          }
+        ],
+        "band": "Fill a Spend Envelope, then a Decision Brief.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 211.83,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 254.12,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 252.62,
+            "end": 254.34,
+            "text": "Save revision ten as a draft."
+          }
+        ],
+        "band": "Save revision ten as a draft.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L10-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 263.45,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 260.38,
+            "end": 266.02,
+            "text": "Next we will make the pending work visible without turning a phone notification into a second control room."
+          }
+        ],
+        "band": "Next we will make the pending work visible without turning a phone notification into a second control room.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 3.76,
+            "text": "Morgan comes to Harbor's Friday planning table with three open questions."
+          }
+        ],
+        "band": "Morgan comes to Harbor's Friday planning table with three open questions.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L11-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 13.04,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 9.76,
+            "end": 13.8,
+            "text": "If the answers live in three people's heads, Morgan becomes the operating system."
+          }
+        ],
+        "band": "If the answers live in three people's heads, Morgan becomes the operating system.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 27.58,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 26.08,
+            "end": 28.24,
+            "text": "Chapter Nineteen calls this a cockpit."
+          }
+        ],
+        "band": "Chapter Nineteen calls this a cockpit.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 43.87,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 28.24,
+            "end": 44.7,
+            "text": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note."
+          }
+        ],
+        "band": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 63.16,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 61.66,
+            "end": 69.72,
+            "text": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed."
+          }
+        ],
+        "band": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 76.59,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 70.22,
+            "end": 80.84,
+            "text": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold."
+          }
+        ],
+        "band": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 93.02,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 91.52,
+            "end": 96.98,
+            "text": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate."
+          }
+        ],
+        "band": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 106.77,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 106.56,
+            "end": 109.1,
+            "text": "The staffing gap is an ask to Morgan for direction."
+          }
+        ],
+        "band": "The staffing gap is an ask to Morgan for direction.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 123.52,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 122.02,
+            "end": 124.26,
+            "text": "The phone is a narrow doorway into the cockpit."
+          }
+        ],
+        "band": "The phone is a narrow doorway into the cockpit.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 135.7,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 135.04,
+            "end": 142.5,
+            "text": "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure."
+          }
+        ],
+        "band": "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 150.88,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 150.48,
+            "end": 155.32,
+            "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+          }
+        ],
+        "band": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 152.75,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 150.48,
+            "end": 155.32,
+            "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+          }
+        ],
+        "band": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 157.62,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 156.12,
+            "end": 161.86,
+            "text": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief."
+          }
+        ],
+        "band": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 195.48,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 236.34,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 234.84,
+            "end": 236.4,
+            "text": "Save revision eleven as a draft."
+          }
+        ],
+        "band": "Save revision eleven as a draft.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L11-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 243.88,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 241.62,
+            "end": 248.46,
+            "text": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+          }
+        ],
+        "band": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 291.125,
+        "bandTop": 299.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0,
+            "end": 6.08,
+            "text": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session."
+          }
+        ],
+        "band": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L12-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 13.65,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 9.2,
+            "end": 13.82,
+            "text": "That would reveal source notes and internal deliberation the board member did not request."
+          }
+        ],
+        "band": "That would reveal source notes and internal deliberation the board member did not request.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 28.8,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 27.3,
+            "end": 35.96,
+            "text": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger."
+          }
+        ],
+        "band": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 46.83,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 42.84,
+            "end": 52.4,
+            "text": "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request."
+          }
+        ],
+        "band": "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 67.86,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 66.36,
+            "end": 75.88,
+            "text": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes."
+          }
+        ],
+        "band": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 81.45,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 80.6,
+            "end": 83.5,
+            "text": "Morgan reviews the proposed proof packet before any sharing."
+          }
+        ],
+        "band": "Morgan reviews the proposed proof packet before any sharing.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 98.04,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 96.54,
+            "end": 102.74,
+            "text": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options."
+          }
+        ],
+        "band": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 115.3,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 105.96,
+            "end": 116.84,
+            "text": "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates."
+          }
+        ],
+        "band": "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 135.56,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 134.06,
+            "end": 141.04,
+            "text": "Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay."
+          }
+        ],
+        "band": "Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 148.75,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 145.44,
+            "end": 152.76,
+            "text": "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson."
+          }
+        ],
+        "band": "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 164.94,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 164.92,
+            "end": 168.12,
+            "text": "What would you leave out of the board packet even if it helped tell a better story?"
+          }
+        ],
+        "band": "What would you leave out of the board packet even if it helped tell a better story?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 166.15,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 164.92,
+            "end": 168.12,
+            "text": "What would you leave out of the board packet even if it helped tell a better story?"
+          }
+        ],
+        "band": "What would you leave out of the board packet even if it helped tell a better story?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 170.36,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 168.86,
+            "end": 172.24,
+            "text": "Draft a Client-Safe Proof Packet outline for the Harbor planning case."
+          }
+        ],
+        "band": "Draft a Client-Safe Proof Packet outline for the Harbor planning case.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 209.47,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 251.58,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 250.08,
+            "end": 251.82,
+            "text": "Save revision twelve as a draft."
+          }
+        ],
+        "band": "Save revision twelve as a draft.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": 274.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L12-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 259.1,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 266.4375,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.26,
+            "end": 1.92,
+            "text": "Morgan opens Harbor's paper planning"
+          }
+        ],
+        "band": "Morgan opens Harbor's paper planning",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L13-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 13.334,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 12.676,
+            "end": 16.9,
+            "text": "It is tempting to let the preparation agent change the format and declare an improvement."
+          }
+        ],
+        "band": "It is tempting to let the preparation agent change the format and declare an improvement.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 28.167,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 26.667,
+            "end": 33.792,
+            "text": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard."
+          }
+        ],
+        "band": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 41.627,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 58.087,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 56.587,
+            "end": 68.278,
+            "text": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate."
+          }
+        ],
+        "band": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 73.479,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 71.577,
+            "end": 78.02,
+            "text": "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation."
+          }
+        ],
+        "band": "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 91.871,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 90.371,
+            "end": 94.339,
+            "text": "Morgan owns the review of the proposal because Morgan owns this planning decision."
+          }
+        ],
+        "band": "Morgan owns the review of the proposal because Morgan owns this planning decision.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 105.555,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 103.307,
+            "end": 110.048,
+            "text": "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test."
+          }
+        ],
+        "band": "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 122.24,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 120.74,
+            "end": 129.273,
+            "text": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`"
+          }
+        ],
+        "band": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 134.197,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 149.155,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 150.27,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 149.533,
+            "end": 152.306,
+            "text": "What evidence would make your favorite improvement worth testing?"
+          }
+        ],
+        "band": "What evidence would make your favorite improvement worth testing?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 154.386,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 152.886,
+            "end": 154.764,
+            "text": "Draft one AutoResearch Proposal."
+          }
+        ],
+        "band": "Draft one AutoResearch Proposal.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 193.233,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 181.113,
+            "end": 233.025,
+            "text": "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
+          }
+        ],
+        "band": "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 235.079,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 233.579,
+            "end": 235.414,
+            "text": "Save revision thirteen as a draft."
+          }
+        ],
+        "band": "Save revision thirteen as a draft.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L13-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 244.411,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 243.847,
+            "end": 246.157,
+            "text": "inspect, and a clear record that nothing"
+          }
+        ],
+        "band": "inspect, and a clear record that nothing",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.18,
+            "text": "A Harbor board reviewer asks Morgan a"
+          }
+        ],
+        "band": "A Harbor board reviewer asks Morgan a",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L14-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 14.651,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 12.209,
+            "end": 15.793,
+            "text": "The first panel shows the queue, including held and rejected work."
+          }
+        ],
+        "band": "The first panel shows the queue, including held and rejected work.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 30.802,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 30.326,
+            "end": 33.654,
+            "text": "One Session Option Brief is prepared, not proposed to the team."
+          }
+        ],
+        "band": "One Session Option Brief is prepared, not proposed to the team.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 41.058,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 39.473,
+            "end": 43.484,
+            "text": "The research proposal is not run because its baseline and reviewer protocol are missing."
+          }
+        ],
+        "band": "The research proposal is not run because its baseline and reviewer protocol are missing.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 54.314,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 52.814,
+            "end": 54.521,
+            "text": "Open the trace for the held brief."
+          }
+        ],
+        "band": "Open the trace for the held brief.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 65.576,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 79.838,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 91.532,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 91.312,
+            "end": 96.901,
+            "text": "The agent cannot promote it itself, and a single held example cannot become general truth by repetition."
+          }
+        ],
+        "band": "The agent cannot promote it itself, and a single held example cannot become general truth by repetition.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 106.226,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 104.726,
+            "end": 107.628,
+            "text": "The workbook asks what export a reviewer can take away."
+          }
+        ],
+        "band": "The workbook asks what export a reviewer can take away.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 120.067,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 119.69,
+            "end": 122.25,
+            "text": "It would omit raw notes and unrelated records."
+          }
+        ],
+        "band": "It would omit raw notes and unrelated records.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 136.907,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 136.054,
+            "end": 140.015,
+            "text": "Which panel would expose the weakest part of your own proposed workflow first?"
+          }
+        ],
+        "band": "Which panel would expose the weakest part of your own proposed workflow first?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 138.06,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 136.054,
+            "end": 140.015,
+            "text": "Which panel would expose the weakest part of your own proposed workflow first?"
+          }
+        ],
+        "band": "Which panel would expose the weakest part of your own proposed workflow first?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 142.213,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 140.713,
+            "end": 143.017,
+            "text": "Storyboard a Three-Panel Demo for your workflow."
+          }
+        ],
+        "band": "Storyboard a Three-Panel Demo for your workflow.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 179.319,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 170.449,
+            "end": 217.412,
+            "text": "Do not use private operational data."
+          }
+        ],
+        "band": "Do not use private operational data.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 219.424,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 217.924,
+            "end": 219.886,
+            "text": "Save revision fourteen as a draft."
+          }
+        ],
+        "band": "Save revision fourteen as a draft.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L14-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 229.843,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 227.397,
+            "end": 229.957,
+            "text": "Nothing about a clean storyboard lifts"
+          }
+        ],
+        "band": "Nothing about a clean storyboard lifts",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.37,
+            "text": "It is Friday at Harbor Learning Circle."
+          }
+        ],
+        "band": "It is Friday at Harbor Learning Circle.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L15-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 14.391,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 12.48,
+            "end": 15.23,
+            "text": "The first line says prepared, not sent."
+          }
+        ],
+        "band": "The first line says prepared, not sent.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 30.282,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 28.782,
+            "end": 30.403,
+            "text": "The Six-Beat Day begins with a brief."
+          }
+        ],
+        "band": "The Six-Beat Day begins with a brief.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 39.946,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 34.713,
+            "end": 41.881,
+            "text": "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test."
+          }
+        ],
+        "band": "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 52.609,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 62.886,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 61.417,
+            "end": 64.873,
+            "text": "The research question belongs to Morgan as owner of the brief format."
+          }
+        ],
+        "band": "The research question belongs to Morgan as owner of the brief format.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 76.162,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 76.001,
+            "end": 79.713,
+            "text": "Morgan reads the brief beside its source-status summary and trace template."
+          }
+        ],
+        "band": "Morgan reads the brief beside its source-status summary and trace template.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 88.996,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 85.84,
+            "end": 89.509,
+            "text": "Morgan marks the claim unsupported and keeps the staffing hold in place."
+          }
+        ],
+        "band": "Morgan marks the claim unsupported and keeps the staffing hold in place.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 104.83,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 120.954,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 119.349,
+            "end": 121.781,
+            "text": "There is no automatic retry or provider call."
+          }
+        ],
+        "band": "There is no automatic retry or provider call.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 140.078,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 138.578,
+            "end": 144.423,
+            "text": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned?"
+          }
+        ],
+        "band": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 149.125,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": null,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 161.171,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 159.671,
+            "end": 161.933,
+            "text": "Write a Six-Beat Day brief for your workflow."
+          }
+        ],
+        "band": "Write a Six-Beat Day brief for your workflow.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 197.058,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 183.257,
+            "end": 233.932,
+            "text": "Do not use private operational data, open a live account, import a trace, or contact a person."
+          }
+        ],
+        "band": "Do not use private operational data, open a live account, import a trace, or contact a person.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 235.944,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 234.444,
+            "end": 236.151,
+            "text": "Save revision fifteen as a draft."
+          }
+        ],
+        "band": "Save revision fifteen as a draft.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L15-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 244.915,
+      "baselineScrollWidth": 390,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 244.574,
+            "end": 246.324,
+            "text": "make those boundaries routine."
+          }
+        ],
+        "band": "make those boundaries routine.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.125,
+        "bandTop": 400.125,
+        "scrollWidth": 390
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-01",
+      "sample": "boundary",
+      "width": 390,
+      "time": 1.5,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.18,
+            "text": "At the end of Harbor's Friday, Morgan"
+          }
+        ],
+        "band": "At the end of Harbor's Friday, Morgan",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "scene": "L16-01",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 17.106,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 16.516,
+            "end": 19.716,
+            "text": "The file is impressive in one sense: its gaps are visible."
+          }
+        ],
+        "band": "The file is impressive in one sense: its gaps are visible.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-02",
+      "sample": "boundary",
+      "width": 390,
+      "time": 35.712,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 34.212,
+            "end": 40.74,
+            "text": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review."
+          }
+        ],
+        "band": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-02",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 48.478,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 48.138,
+            "end": 49.717,
+            "text": "When will someone revisit the rule?"
+          }
+        ],
+        "band": "When will someone revisit the rule?",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-03",
+      "sample": "boundary",
+      "width": 390,
+      "time": 64.245,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": null,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-03",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 76.216,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 72.362,
+            "end": 76.714,
+            "text": "The receipt describes a paper event shape; it does not certify that an agent ran."
+          }
+        ],
+        "band": "The receipt describes a paper event shape; it does not certify that an agent ran.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-04",
+      "sample": "boundary",
+      "width": 390,
+      "time": 91.187,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 89.687,
+            "end": 92.759,
+            "text": "Move to routing, action, approval, and cost."
+          }
+        ],
+        "band": "Move to routing, action, approval, and cost.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-04",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 103.398,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 100.671,
+            "end": 105.578,
+            "text": "The agent cannot book, send, buy, or turn a proposal into a team rule."
+          }
+        ],
+        "band": "The agent cannot book, send, buy, or turn a proposal into a team rule.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-05",
+      "sample": "boundary",
+      "width": 390,
+      "time": 118.609,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 117.109,
+            "end": 118.73,
+            "text": "Finish with export and rollback."
+          }
+        ],
+        "band": "Finish with export and rollback.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-05",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 131.464,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 129.845,
+            "end": 136.416,
+            "text": "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it."
+          }
+        ],
+        "band": "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-06",
+      "sample": "boundary",
+      "width": 390,
+      "time": 147.319,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 146.886,
+            "end": 148.464,
+            "text": "Pick the weakest gate in your workflow."
+          }
+        ],
+        "band": "Pick the weakest gate in your workflow.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-06",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 155.76,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 153.733,
+            "end": 157.232,
+            "text": "Name the human who can make that call and the evidence that person would need."
+          }
+        ],
+        "band": "Name the human who can make that call and the evidence that person would need.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-07",
+      "sample": "boundary",
+      "width": 390,
+      "time": 167.2,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 165.7,
+            "end": 168.303,
+            "text": "Present your Operating File as a one-page audit."
+          }
+        ],
+        "band": "Present your Operating File as a one-page audit.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-07",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 206.963,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 195.162,
+            "end": 247.586,
+            "text": "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+          }
+        ],
+        "band": "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-08",
+      "sample": "boundary",
+      "width": 390,
+      "time": 249.726,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [
+          {
+            "start": 248.226,
+            "end": 249.89,
+            "text": "Save revision sixteen for review."
+          }
+        ],
+        "band": "Save revision sixteen for review.",
+        "bandCount": 1,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": 400.4375,
+        "scrollWidth": 404
+      },
+      "off": null
+    },
+    {
+      "scene": "L16-08",
+      "sample": "midpoint",
+      "width": 390,
+      "time": 257.768,
+      "baselineScrollWidth": 404,
+      "on": {
+        "mode": "hidden",
+        "cue": [],
+        "band": null,
+        "bandCount": 0,
+        "video": [
+          292,
+          164
+        ],
+        "videoBottom": 392.4375,
+        "bandTop": null,
+        "scrollWidth": 404
+      },
+      "off": null
+    }
+  ]
+}

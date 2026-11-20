@@ -1,0 +1,1474 @@
+{
+  "generatedAt": "2026-11-20T21:24:01.688Z",
+  "base": "http://127.0.0.1:3121",
+  "scenes": [
+    "L07-08",
+    "L08-01",
+    "L08-02",
+    "L08-03",
+    "L08-04",
+    "L08-05",
+    "L08-06",
+    "L08-07",
+    "L08-08",
+    "L09-01"
+  ],
+  "results": [
+    {
+      "scene": "L07-08",
+      "lesson": "L07",
+      "sample": "boundary",
+      "time": 235.148,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 233.648,
+          "end": 235.931,
+          "text": "Save revision seven as a draft."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "showing",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 235.148,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 422
+      }
+    },
+    {
+      "scene": "L07-08",
+      "lesson": "L07",
+      "sample": "midpoint",
+      "time": 242.49,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 242.252,
+          "end": 243.832,
+          "text": "A team becomes useful when a blocked"
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "showing",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 242.49,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 422
+      }
+    },
+    {
+      "scene": "L08-01",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 1.5,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 0,
+          "end": 1.94,
+          "text": "The Harbor source checker finishes its"
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "The Harbor source checker finishes its",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L08-01",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 12.707,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 11.16,
+          "end": 13.04,
+          "text": "What does ‘maybe’ permit the drafter to"
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "What does ‘maybe’ permit the drafter to",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 12.707,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L08-02",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 26.914,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 25.414,
+          "end": 35.056,
+          "text": "Chapter Thirteen's Handoff Contract Card has\nsix fields: producer, consumer, payload,\npreconditions, rejection path, and owner."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Chapter Thirteen's Handoff Contract Card has\nsix fields: producer, consumer, payload,\npreconditions, rejection path, and owner.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 26.914,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 523
+      }
+    },
+    {
+      "scene": "L08-02",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 45.631,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 39.641,
+          "end": 49.113,
+          "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 45.631,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 548
+      }
+    },
+    {
+      "scene": "L08-03",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 67.348,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 65.848,
+          "end": 67.843,
+          "text": "Try a broken payload on purpose."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Try a broken payload on purpose.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 67.348,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L08-03",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 78.728,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 76.237,
+          "end": 78.791,
+          "text": "The reason is staffing claim unsupported."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "The reason is staffing claim unsupported.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 78.728,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L08-04",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 93.108,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 91.608,
+          "end": 93.848,
+          "text": "Now evaluate the designed workflow."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Now evaluate the designed workflow.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 93.108,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L08-04",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 108.52,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 99.961,
+          "end": 108.942,
+          "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 108.52,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 523
+      }
+    },
+    {
+      "scene": "L08-05",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 126.931,
+      "width": 1280,
+      "cue": [],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 126.931,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 422
+      }
+    },
+    {
+      "scene": "L08-05",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 143.328,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 142.778,
+          "end": 149.483,
+          "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 143.328,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 523
+      }
+    },
+    {
+      "scene": "L08-06",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 162.724,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 162.286,
+          "end": 166.232,
+          "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Which failed case would a neat-looking\ndashboard be most likely to hide?",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 162.724,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 499
+      }
+    },
+    {
+      "scene": "L08-06",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 163.888,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 162.286,
+          "end": 166.232,
+          "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Which failed case would a neat-looking\ndashboard be most likely to hide?",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 163.888,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 499
+      }
+    },
+    {
+      "scene": "L08-07",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 168.052,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 166.552,
+          "end": 172.602,
+          "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 168.052,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 499
+      }
+    },
+    {
+      "scene": "L08-07",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 202.172,
+      "width": 1280,
+      "cue": [],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 202.172,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 422
+      }
+    },
+    {
+      "scene": "L08-08",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 239.292,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 237.792,
+          "end": 239.723,
+          "text": "Save revision eight as a draft."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Save revision eight as a draft.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 239.292,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L08-08",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 247.736,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 247.457,
+          "end": 249.117,
+          "text": "The next review should ask whether the"
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "The next review should ask whether the",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 247.736,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L09-01",
+      "lesson": "L09",
+      "sample": "boundary",
+      "time": 1.5,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 0,
+          "end": 3.58,
+          "text": "Harbor Learning Circle has three neat classroom briefs on a table."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "showing",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 422
+      }
+    },
+    {
+      "scene": "L09-01",
+      "lesson": "L09",
+      "sample": "midpoint",
+      "time": 15.91,
+      "width": 1280,
+      "cue": [
+        {
+          "start": 13.98,
+          "end": 17.2,
+          "text": "The third accurately says the facilitator is still under review."
+        }
+      ],
+      "on": {
+        "video": [
+          621,
+          349
+        ],
+        "trackMode": "showing",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 15.91,
+        "video": [
+          621,
+          349
+        ]
+      },
+      "clip": {
+        "x": 172,
+        "y": 127,
+        "width": 637,
+        "height": 422
+      }
+    },
+    {
+      "scene": "L07-08",
+      "lesson": "L07",
+      "sample": "boundary",
+      "time": 235.148,
+      "width": 390,
+      "cue": [
+        {
+          "start": 233.648,
+          "end": 235.931,
+          "text": "Save revision seven as a draft."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Save revision seven as a draft.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 235.148,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 290
+      }
+    },
+    {
+      "scene": "L07-08",
+      "lesson": "L07",
+      "sample": "midpoint",
+      "time": 242.49,
+      "width": 390,
+      "cue": [
+        {
+          "start": 242.252,
+          "end": 243.832,
+          "text": "A team becomes useful when a blocked"
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "A team becomes useful when a blocked",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 242.49,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    },
+    {
+      "scene": "L08-01",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 1.5,
+      "width": 390,
+      "cue": [
+        {
+          "start": 0,
+          "end": 1.94,
+          "text": "The Harbor source checker finishes its"
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "The Harbor source checker finishes its",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    },
+    {
+      "scene": "L08-01",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 12.707,
+      "width": 390,
+      "cue": [
+        {
+          "start": 11.16,
+          "end": 13.04,
+          "text": "What does ‘maybe’ permit the drafter to"
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "What does ‘maybe’ permit the drafter to",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 12.707,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    },
+    {
+      "scene": "L08-02",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 26.914,
+      "width": 390,
+      "cue": [
+        {
+          "start": 25.414,
+          "end": 35.056,
+          "text": "Chapter Thirteen's Handoff Contract Card has\nsix fields: producer, consumer, payload,\npreconditions, rejection path, and owner."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Chapter Thirteen's Handoff Contract Card has\nsix fields: producer, consumer, payload,\npreconditions, rejection path, and owner.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 26.914,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 411
+      }
+    },
+    {
+      "scene": "L08-02",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 45.631,
+      "width": 390,
+      "cue": [
+        {
+          "start": 39.641,
+          "end": 49.113,
+          "text": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 45.631,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 435
+      }
+    },
+    {
+      "scene": "L08-03",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 67.348,
+      "width": 390,
+      "cue": [
+        {
+          "start": 65.848,
+          "end": 67.843,
+          "text": "Try a broken payload on purpose."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Try a broken payload on purpose.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 67.348,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    },
+    {
+      "scene": "L08-03",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 78.728,
+      "width": 390,
+      "cue": [
+        {
+          "start": 76.237,
+          "end": 78.791,
+          "text": "The reason is staffing claim unsupported."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "The reason is staffing claim unsupported.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 78.728,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    },
+    {
+      "scene": "L08-04",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 93.108,
+      "width": 390,
+      "cue": [
+        {
+          "start": 91.608,
+          "end": 93.848,
+          "text": "Now evaluate the designed workflow."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Now evaluate the designed workflow.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 93.108,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    },
+    {
+      "scene": "L08-04",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 108.52,
+      "width": 390,
+      "cue": [
+        {
+          "start": 99.961,
+          "end": 108.942,
+          "text": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 108.52,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 411
+      }
+    },
+    {
+      "scene": "L08-05",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 126.931,
+      "width": 390,
+      "cue": [],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 126.931,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 475
+      }
+    },
+    {
+      "scene": "L08-05",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 143.328,
+      "width": 390,
+      "cue": [
+        {
+          "start": 142.778,
+          "end": 149.483,
+          "text": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 143.328,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 625
+      }
+    },
+    {
+      "scene": "L08-06",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 162.724,
+      "width": 390,
+      "cue": [
+        {
+          "start": 162.286,
+          "end": 166.232,
+          "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Which failed case would a neat-looking\ndashboard be most likely to hide?",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 162.724,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 362
+      }
+    },
+    {
+      "scene": "L08-06",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 163.888,
+      "width": 390,
+      "cue": [
+        {
+          "start": 162.286,
+          "end": 166.232,
+          "text": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Which failed case would a neat-looking\ndashboard be most likely to hide?",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 163.888,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 362
+      }
+    },
+    {
+      "scene": "L08-07",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 168.052,
+      "width": 390,
+      "cue": [
+        {
+          "start": 166.552,
+          "end": 172.602,
+          "text": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 168.052,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 362
+      }
+    },
+    {
+      "scene": "L08-07",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 202.172,
+      "width": 390,
+      "cue": [],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 0,
+        "bandText": null,
+        "bandBelowVideo": null
+      },
+      "off": {
+        "time": 202.172,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 237
+      }
+    },
+    {
+      "scene": "L08-08",
+      "lesson": "L08",
+      "sample": "boundary",
+      "time": 239.292,
+      "width": 390,
+      "cue": [
+        {
+          "start": 237.792,
+          "end": 239.723,
+          "text": "Save revision eight as a draft."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Save revision eight as a draft.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 239.292,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 289
+      }
+    },
+    {
+      "scene": "L08-08",
+      "lesson": "L08",
+      "sample": "midpoint",
+      "time": 247.736,
+      "width": 390,
+      "cue": [
+        {
+          "start": 247.457,
+          "end": 249.117,
+          "text": "The next review should ask whether the"
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "The next review should ask whether the",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 247.736,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    },
+    {
+      "scene": "L09-01",
+      "lesson": "L09",
+      "sample": "boundary",
+      "time": 1.5,
+      "width": 390,
+      "cue": [
+        {
+          "start": 0,
+          "end": 3.58,
+          "text": "Harbor Learning Circle has three neat classroom briefs on a table."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "Harbor Learning Circle has three neat classroom briefs on a table.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 339
+      }
+    },
+    {
+      "scene": "L09-01",
+      "lesson": "L09",
+      "sample": "midpoint",
+      "time": 15.91,
+      "width": 390,
+      "cue": [
+        {
+          "start": 13.98,
+          "end": 17.2,
+          "text": "The third accurately says the facilitator is still under review."
+        }
+      ],
+      "on": {
+        "video": [
+          292,
+          164
+        ],
+        "trackMode": "hidden",
+        "bandCount": 1,
+        "bandText": "The third accurately says the facilitator is still under review.",
+        "bandBelowVideo": true
+      },
+      "off": {
+        "time": 15.91,
+        "video": [
+          292,
+          164
+        ]
+      },
+      "clip": {
+        "x": 41,
+        "y": 127,
+        "width": 308,
+        "height": 314
+      }
+    }
+  ]
+}
