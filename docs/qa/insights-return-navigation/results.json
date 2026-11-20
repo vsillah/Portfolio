@@ -1,12 +1,12 @@
 {
-  "revision": "224347a47",
+  "revision": "ff54c988f",
   "base": "http://localhost:4173",
   "checks": [
     {
       "route": "compounding-graph",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 79.47583818435669,
+      "navBottom": 80.99211120605469,
       "frameTop": 96,
       "frameHeight": 4127,
       "frameContentHeight": 4127,
@@ -16,27 +16,192 @@
       "route": "home-front-ledger",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 96,
+      "navBottom": 83.22104740142822,
       "frameTop": 96,
-      "frameHeight": 900,
-      "frameContentHeight": 900,
+      "frameHeight": 2001,
+      "frameContentHeight": 2001,
       "frameScrollWidth": 1440
     },
     {
       "route": "owning-the-block",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 84.19107627868652,
+      "navBottom": 84.68531322479248,
       "frameTop": 96,
       "frameHeight": 1200,
       "frameContentHeight": 1200,
       "frameScrollWidth": 1440
     },
     {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(14, 17, 24)",
+        "figure": "rgb(18, 22, 31)",
+        "narration": "rgb(18, 22, 31)",
+        "sky": "rgb(18, 22, 31)",
+        "pipe": "rgb(47, 58, 77)",
+        "nodeStrokes": [
+          "rgb(79, 163, 255)",
+          "rgb(227, 179, 65)",
+          "rgb(229, 96, 79)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rotla",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "commons",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "ezs",
+            "label": 1.7189404391380259,
+            "subtitle": 1.2425650943946192
+          },
+          {
+            "id": "repair",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rent",
+            "label": 3.0319322191463662,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(243, 246, 250)",
+        "figure": "rgb(255, 255, 255)",
+        "narration": "rgb(255, 255, 255)",
+        "sky": "rgb(248, 250, 252)",
+        "pipe": "rgb(128, 147, 168)",
+        "nodeStrokes": [
+          "rgb(21, 95, 159)",
+          "rgb(100, 69, 158)",
+          "rgb(31, 93, 151)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rotla",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "commons",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "ezs",
+            "label": 12.387889716426628,
+            "subtitle": 4.964335853280858
+          },
+          {
+            "id": "repair",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rent",
+            "label": 11.790565406763136,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(243, 246, 250)",
+        "figure": "rgb(255, 255, 255)",
+        "narration": "rgb(255, 255, 255)",
+        "sky": "rgb(248, 250, 252)",
+        "pipe": "rgb(128, 147, 168)",
+        "nodeStrokes": [
+          "rgb(21, 95, 159)",
+          "rgb(133, 89, 0)",
+          "rgb(166, 60, 50)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rotla",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "commons",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "ezs",
+            "label": 12.387889716426628,
+            "subtitle": 4.964335853280858
+          },
+          {
+            "id": "repair",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rent",
+            "label": 11.790565406763136,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
       "route": "compounding-graph",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 79.12276887893677,
+      "navBottom": 80.26048135757446,
       "frameTop": 96,
       "frameHeight": 4607,
       "frameContentHeight": 4607,
@@ -46,27 +211,192 @@
       "route": "home-front-ledger",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 96,
+      "navBottom": 84.18087768554688,
       "frameTop": 96,
-      "frameHeight": 900,
-      "frameContentHeight": 900,
+      "frameHeight": 2191,
+      "frameContentHeight": 2191,
       "frameScrollWidth": 768
     },
     {
       "route": "owning-the-block",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 83.22132921218872,
+      "navBottom": 83.70110559463501,
       "frameTop": 96,
       "frameHeight": 1473,
       "frameContentHeight": 1473,
       "frameScrollWidth": 768
     },
     {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(14, 17, 24)",
+        "figure": "rgb(18, 22, 31)",
+        "narration": "rgb(18, 22, 31)",
+        "sky": "rgb(18, 22, 31)",
+        "pipe": "rgb(47, 58, 77)",
+        "nodeStrokes": [
+          "rgb(79, 163, 255)",
+          "rgb(227, 179, 65)",
+          "rgb(229, 96, 79)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rotla",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "commons",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "ezs",
+            "label": 1.7189404391380259,
+            "subtitle": 1.2425650943946192
+          },
+          {
+            "id": "repair",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rent",
+            "label": 3.0319322191463662,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(243, 246, 250)",
+        "figure": "rgb(255, 255, 255)",
+        "narration": "rgb(255, 255, 255)",
+        "sky": "rgb(248, 250, 252)",
+        "pipe": "rgb(128, 147, 168)",
+        "nodeStrokes": [
+          "rgb(21, 95, 159)",
+          "rgb(99, 69, 165)",
+          "rgb(25, 94, 156)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rotla",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "commons",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "ezs",
+            "label": 12.387889716426628,
+            "subtitle": 4.964335853280858
+          },
+          {
+            "id": "repair",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rent",
+            "label": 11.790565406763136,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(243, 246, 250)",
+        "figure": "rgb(255, 255, 255)",
+        "narration": "rgb(255, 255, 255)",
+        "sky": "rgb(248, 250, 252)",
+        "pipe": "rgb(128, 147, 168)",
+        "nodeStrokes": [
+          "rgb(21, 95, 159)",
+          "rgb(133, 89, 0)",
+          "rgb(166, 60, 50)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rotla",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "commons",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "ezs",
+            "label": 12.387889716426628,
+            "subtitle": 4.964335853280858
+          },
+          {
+            "id": "repair",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rent",
+            "label": 11.790565406763136,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
       "route": "compounding-graph",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 78.46217060089111,
+      "navBottom": 79.08074164390564,
       "frameTop": 96,
       "frameHeight": 6445,
       "frameContentHeight": 6445,
@@ -76,7 +406,7 @@
       "route": "home-front-ledger",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 83.25806379318237,
+      "navBottom": 76,
       "frameTop": 96,
       "frameHeight": 2504,
       "frameContentHeight": 2504,
@@ -86,11 +416,231 @@
       "route": "owning-the-block",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 83.6753921508789,
+      "navBottom": 77.1045480966568,
       "frameTop": 96,
       "frameHeight": 1917,
       "frameContentHeight": 1917,
       "frameScrollWidth": 390
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(14, 17, 24)",
+        "figure": "rgb(18, 22, 31)",
+        "narration": "rgb(18, 22, 31)",
+        "sky": "rgb(18, 22, 31)",
+        "pipe": "rgb(47, 58, 77)",
+        "nodeStrokes": [
+          "rgb(79, 163, 255)",
+          "rgb(227, 179, 65)",
+          "rgb(229, 96, 79)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rotla",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "commons",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "ezs",
+            "label": 1.7189404391380259,
+            "subtitle": 1.2425650943946192
+          },
+          {
+            "id": "repair",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rent",
+            "label": 3.0319322191463662,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(243, 246, 250)",
+        "figure": "rgb(255, 255, 255)",
+        "narration": "rgb(255, 255, 255)",
+        "sky": "rgb(248, 250, 252)",
+        "pipe": "rgb(128, 147, 168)",
+        "nodeStrokes": [
+          "rgb(21, 95, 159)",
+          "rgb(103, 71, 147)",
+          "rgb(41, 90, 144)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rotla",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "commons",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "ezs",
+            "label": 12.387889716426628,
+            "subtitle": 4.964335853280858
+          },
+          {
+            "id": "repair",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rent",
+            "label": 11.790565406763136,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(243, 246, 250)",
+        "figure": "rgb(255, 255, 255)",
+        "narration": "rgb(255, 255, 255)",
+        "sky": "rgb(248, 250, 252)",
+        "pipe": "rgb(128, 147, 168)",
+        "nodeStrokes": [
+          "rgb(21, 95, 159)",
+          "rgb(133, 89, 0)",
+          "rgb(166, 60, 50)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rotla",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "commons",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "ezs",
+            "label": 12.387889716426628,
+            "subtitle": 4.964335853280858
+          },
+          {
+            "id": "repair",
+            "label": 12.226722649968874,
+            "subtitle": 4.899749594870485
+          },
+          {
+            "id": "rent",
+            "label": 11.790565406763136,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-dark",
+      "palette": {
+        "frameVisible": "visible",
+        "body": "rgb(14, 17, 24)",
+        "figure": "rgb(18, 22, 31)",
+        "narration": "rgb(18, 22, 31)",
+        "sky": "rgb(18, 22, 31)",
+        "pipe": "rgb(47, 58, 77)",
+        "nodeStrokes": [
+          "rgb(79, 163, 255)",
+          "rgb(227, 179, 65)",
+          "rgb(229, 96, 79)"
+        ],
+        "labelContrasts": [
+          {
+            "id": "kinflo",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rotla",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "commons",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "ezs",
+            "label": 1.7189404391380259,
+            "subtitle": 1.2425650943946192
+          },
+          {
+            "id": "repair",
+            "label": 2.314104526107684,
+            "subtitle": 1.0834353302169415
+          },
+          {
+            "id": "rent",
+            "label": 3.0319322191463662,
+            "subtitle": null
+          }
+        ],
+        "skylinePointerEvents": "none",
+        "utilityPointerEvents": "none",
+        "utilityShapes": 3,
+        "utilityPath": "M18 430H962M18 628H962",
+        "roofCount": 6,
+        "roofsInsideStreet": true
+      }
     }
   ],
   "videos": [
