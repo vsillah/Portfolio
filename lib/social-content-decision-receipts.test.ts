@@ -20,6 +20,30 @@ function artifactManifest() {
   return completeArtifactEvidenceManifest(VERSION)
 }
 
+function youtubeFinalPacket() {
+  const preparedAt = '2026-11-02T02:28:17.251Z'
+  const beforePreparation = '2026-11-02T02:25:00.000Z'
+  const candidate = item({
+    platform: 'youtube',
+    current_gate: 'platform_submission',
+    next_gate: 'platform_submission',
+    content_updated_at: preparedAt,
+    prepared_from_content_updated_at: beforePreparation,
+  })
+  const packet = candidate.rag_context.mobile_decision_review as Record<string, unknown>
+  packet.source_receipts = structuredClone(packet.receipts)
+  candidate.updated_at = preparedAt
+  return { candidate, packet, preparedAt, beforePreparation }
+}
+
+function stampYouTubeReceipts(packet: Record<string, unknown>, instant: string) {
+  packet.receipts = Object.fromEntries(Object.entries(packet.receipts as Record<string, Record<string, unknown>>).map(([key, value]) => [
+    key,
+    { ...value, content_updated_at: instant },
+  ]))
+  packet.source_receipts = structuredClone(packet.receipts)
+}
+
 function item(overrides: Record<string, unknown> = {}) {
   return {
     id: '11111111-1111-4111-8111-111111111111',
@@ -94,6 +118,61 @@ describe('Social Content mobile decision readiness', () => {
       [key, { ...value as object, content_updated_at: preparedAt }]))
     packet.source_receipts = structuredClone(packet.receipts)
     expect(getSocialContentDecisionReadiness(candidate as never).ready).toBe(false)
+  })
+
+  it('names the missing YouTube preparation source and keeps approved receipt clocks current', () => {
+    const { candidate, packet } = youtubeFinalPacket()
+    delete packet.prepared_from_content_updated_at
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.stale).toBe(false)
+    expect(readiness.blockers).toEqual(['The final YouTube packet is missing its preparation source version.'])
+  })
+
+  it('accepts a YouTube evidence clock equal to the preparation source and rejects one millisecond later', () => {
+    const equal = youtubeFinalPacket()
+    stampYouTubeReceipts(equal.packet, equal.beforePreparation)
+    expect(getSocialContentDecisionReadiness(equal.candidate as never)).toMatchObject({ ready: true, blockers: [] })
+
+    const later = youtubeFinalPacket()
+    stampYouTubeReceipts(later.packet, '2026-11-02T02:25:00.001Z')
+    expect(getSocialContentDecisionReadiness(later.candidate as never)).toMatchObject({
+      ready: false,
+      blockers: ['The final YouTube receipt version is newer than the source row.'],
+    })
+  })
+
+  it('rejects a YouTube packet whose source receipts diverge without calling the receipts stale', () => {
+    const { candidate, packet } = youtubeFinalPacket()
+    const sourceReceipts = packet.source_receipts as { source: { receipt_id: string } }
+    sourceReceipts.source.receipt_id = 'source-rewritten'
+
+    expect(getSocialContentDecisionReadiness(candidate as never)).toMatchObject({
+      ready: false,
+      blockers: ['The final YouTube packet does not preserve its approved source receipts.'],
+    })
+  })
+
+  it('keeps another platform submission bound to the packet clock', () => {
+    const preparedAt = '2026-11-02T02:28:17.251Z'
+    const candidate = item({
+      platform: 'linkedin',
+      current_gate: 'platform_submission',
+      next_gate: 'platform_submission',
+      content_updated_at: preparedAt,
+      prepared_from_content_updated_at: '2026-11-02T02:25:00.000Z',
+    })
+    const packet = candidate.rag_context.mobile_decision_review as Record<string, unknown>
+    packet.source_receipts = structuredClone(packet.receipts)
+    candidate.updated_at = preparedAt
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.blockers).toContain('Source receipt is stale for this packet.')
+    expect(readiness.blockers.some(blocker => blocker.startsWith('The final YouTube'))).toBe(false)
   })
 
   it.each([
