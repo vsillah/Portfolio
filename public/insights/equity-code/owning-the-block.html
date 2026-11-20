@@ -69,8 +69,17 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
 .bandlbl{font-family:var(--fm);font-size:10px;letter-spacing:.14em;fill:var(--mute)}
 .boston-skyline{fill:#202b3a;stroke:#43536a;stroke-width:1;opacity:.38;pointer-events:none}
 .boston-skyline .clock{fill:none;stroke:#62758e;stroke-width:1.5}
-.utility-underlay{fill:none;stroke:#6a7c91;stroke-width:1.3;opacity:.38;pointer-events:none}
-.utility-underlay .access{fill:#10141c;stroke-width:1.5}
+.utility-underlay{pointer-events:none}
+.utility-underlay .water-pipe{fill:none;stroke:#5d9da9;stroke-width:8;stroke-linejoin:round;stroke-linecap:round;opacity:.82}
+.utility-underlay .water-core{fill:none;stroke:#b3e5e5;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;opacity:.8}
+.utility-underlay .pipe-joint{fill:#173e4a;stroke:#86cbd0;stroke-width:2;opacity:.95}
+.utility-underlay .sewer-channel{fill:#293742;stroke:#a88368;stroke-width:2;opacity:.96}
+.utility-underlay .sewer-flow{fill:none;stroke:#aa8770;stroke-width:3;stroke-dasharray:18 8;opacity:.9}
+.utility-underlay .shaft{fill:#26333d;stroke:#a88368;stroke-width:2;opacity:.92}
+.utility-underlay .shaft-link{fill:none;stroke:#a88368;stroke-width:12;stroke-linejoin:round;opacity:.92}
+.utility-underlay .shaft-rungs{fill:none;stroke:#c6a58c;stroke-width:2;opacity:.9}
+.utility-underlay .access{fill:#34434d;stroke:#d3ae86;stroke-width:3;opacity:1}
+.utility-underlay .access-slot{fill:none;stroke:#d3ae86;stroke-width:2}
 @media (prefers-reduced-motion:reduce){.node .shape,.pipe{transition:none}}
 </style>
 <style id="owning-the-block-light-theme">
@@ -91,8 +100,16 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
 :root[data-theme="light"] #bands>g line{stroke:#8a9caf}
 :root[data-theme="light"] .boston-skyline{fill:#d8e4ef;stroke:#a9bbcc;opacity:.5}
 :root[data-theme="light"] .boston-skyline .clock{stroke:#8197ac}
-:root[data-theme="light"] .utility-underlay{stroke:#7890a8;opacity:.36}
-:root[data-theme="light"] .utility-underlay .access{fill:#e5edf5}
+:root[data-theme="light"] .utility-underlay .water-pipe{stroke:#348391;opacity:.9}
+:root[data-theme="light"] .utility-underlay .water-core{stroke:#e5f8f8;opacity:1}
+:root[data-theme="light"] .utility-underlay .pipe-joint{fill:#d7eff0;stroke:#277586}
+:root[data-theme="light"] .utility-underlay .sewer-channel{fill:#b5a696;stroke:#73543f}
+:root[data-theme="light"] .utility-underlay .sewer-flow{stroke:#634b3f}
+:root[data-theme="light"] .utility-underlay .shaft{fill:#d3c3b1;stroke:#73543f}
+:root[data-theme="light"] .utility-underlay .shaft-link{stroke:#73543f}
+:root[data-theme="light"] .utility-underlay .shaft-rungs{stroke:#73543f}
+:root[data-theme="light"] .utility-underlay .access{fill:#d4c3ac;stroke:#674b35}
+:root[data-theme="light"] .utility-underlay .access-slot{stroke:#674b35}
 :root[data-theme="light"] .node .door{fill:#40566f}
 :root[data-theme="light"] .node .shape[fill="#4fa3ff"]{fill:#155f9f}
 :root[data-theme="light"] .node .shape[fill="#e3b341"]{fill:#855900}
@@ -155,9 +172,17 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
             <circle class="clock" cx="524" cy="184" r="5"/>
           </g>
           <g class="utility-underlay" aria-hidden="true">
-            <path d="M18 430H962M18 628H962"/>
-            <circle class="access" cx="180" cy="628" r="8"/>
-            <circle class="access" cx="784" cy="628" r="8"/>
+            <path class="shaft-link" d="M262 316V326H490M730 316V326"/>
+            <rect class="shaft" x="482" y="326" width="16" height="296"/>
+            <rect class="shaft" x="722" y="326" width="16" height="296"/>
+            <path class="shaft-rungs" d="M484 344H496M484 352H496M724 344H736M724 352H736M484 422H496M484 430H496M724 422H736M724 430H736M484 508H496M484 516H496M724 508H736M724 516H736M484 614H496M724 614H736"/>
+            <path class="water-pipe" d="M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"/>
+            <path class="water-core" d="M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"/>
+            <circle class="pipe-joint" cx="84" cy="518" r="5"/><circle class="pipe-joint" cx="222" cy="518" r="5"/><circle class="pipe-joint" cx="700" cy="518" r="5"/><circle class="pipe-joint" cx="876" cy="518" r="5"/>
+            <rect class="sewer-channel" x="18" y="622" width="944" height="15" rx="3"/>
+            <path class="sewer-flow" d="M26 630H954"/>
+            <ellipse class="access" cx="262" cy="311" rx="15" ry="5"/><ellipse class="access" cx="730" cy="311" rx="15" ry="5"/>
+            <path class="access-slot" d="M254 311H270M722 311H738"/>
           </g>
           <line class="band" x1="0" y1="422" x2="980" y2="422"/>
           <text class="bandlbl" x="18" y="20">THE SKY · WHAT THE BLOCK PRODUCES</text>

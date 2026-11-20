@@ -15,7 +15,7 @@ const owningSourceWithoutThemeAndSkyline = () => {
   let html = source('public/insights/equity-code/owning-the-block.html').toString('utf8')
   html = replaceOnce(html, /\n<style id="owning-the-block-light-theme">[\s\S]*?<\/style>\n/, '\n')
   html = replaceOnce(html, /\.boston-skyline\{[^\n]*\}\n\.boston-skyline \.clock\{[^\n]*\}\n/, '')
-  html = replaceOnce(html, /\.utility-underlay\{[^\n]*\}\n\.utility-underlay \.access\{[^\n]*\}\n/, '')
+  html = replaceOnce(html, /\.utility-underlay\{[^\n]*\}\n(?:\.utility-underlay \.[^\n]+\n)+/, '')
   html = replaceOnce(html, /          <g class="boston-skyline" aria-hidden="true">[\s\S]*?          <\/g>\n/, '')
   html = replaceOnce(html, /          <g class="utility-underlay" aria-hidden="true">[\s\S]*?          <\/g>\n/, '')
   html = replaceOnce(html, /function buildingOutline\(n\)\{[\s\S]*?\n\}\n(?=N\.forEach)/, '')

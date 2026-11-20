@@ -11,8 +11,8 @@ const routes = ['compounding-graph', 'home-front-ledger', 'owning-the-block']
 mkdirSync(out, { recursive: true })
 
 async function openMenu(page) {
-  await page.getByRole('button', { name: 'Toggle menu' }).click()
   const menu = page.getByRole('dialog', { name: 'Site navigation' })
+  if (!await menu.isVisible()) await page.getByRole('button', { name: 'Toggle menu' }).click()
   await menu.waitFor()
   assert.equal(await menu.getByRole('link', { name: 'Home' }).getAttribute('href'), '/#home')
   assert.equal(await menu.getByRole('link', { name: 'Insights' }).getAttribute('href'), '/insights')
@@ -74,8 +74,22 @@ async function inspectOwningTheme(page, theme) {
       }),
       skylinePointerEvents: css('.boston-skyline').pointerEvents,
       utilityPointerEvents: css('.utility-underlay').pointerEvents,
-      utilityShapes: doc.querySelectorAll('.utility-underlay > *').length,
-      utilityPath: doc.querySelector('.utility-underlay > path').getAttribute('d'),
+      utilityLayerBehindData: [...doc.querySelector('#svg').children].indexOf(doc.querySelector('.utility-underlay').parentElement) < [...doc.querySelector('#svg').children].indexOf(doc.querySelector('#pipes')),
+      utilityChildrenNonInteractive: [...doc.querySelectorAll('.utility-underlay *')].every(el => getComputedStyle(el).pointerEvents === 'none'),
+      water: { stroke: css('.water-pipe').stroke, width: css('.water-pipe').strokeWidth, path: doc.querySelector('.water-pipe').getAttribute('d') },
+      sewer: { fill: css('.sewer-channel').fill, stroke: css('.sewer-channel').stroke, width: css('.sewer-channel').strokeWidth, height: doc.querySelector('.sewer-channel').getAttribute('height') },
+      researchConnector: { stroke: css('#pipes .pipe').stroke, width: css('#pipes .pipe').strokeWidth },
+      joints: doc.querySelectorAll('.pipe-joint').length,
+      covers: doc.querySelectorAll('.access').length,
+      shafts: [...doc.querySelectorAll('.shaft')].map(el => ({ x: el.getAttribute('x'), y: el.getAttribute('y'), height: el.getAttribute('height') })),
+      shaftLink: doc.querySelector('.shaft-link').getAttribute('d'),
+      labelClearance: [...doc.querySelectorAll('#bands .bandlbl')].every(label => {
+        const a = label.getBBox()
+        return [...doc.querySelectorAll('.water-pipe,.sewer-channel,.access,.shaft,.shaft-link')].every(shape => {
+          const b = shape.getBBox()
+          return a.x + a.width < b.x || b.x + b.width < a.x || a.y + a.height < b.y || b.y + b.height < a.y
+        })
+      }),
       roofCount: roofs.length,
       roofsInsideStreet: roofs.every(roof => {
         const box = roof.getBBox()
@@ -86,8 +100,20 @@ async function inspectOwningTheme(page, theme) {
   assert.equal(palette.frameVisible, 'visible')
   assert.equal(palette.skylinePointerEvents, 'none')
   assert.equal(palette.utilityPointerEvents, 'none')
-  assert.equal(palette.utilityShapes, 3)
-  assert.equal(palette.utilityPath, 'M18 430H962M18 628H962')
+  assert.equal(palette.utilityLayerBehindData, true)
+  assert.equal(palette.utilityChildrenNonInteractive, true)
+  assert.equal(palette.labelClearance, true)
+  assert.equal(palette.joints, 4)
+  assert.equal(palette.covers, 2)
+  assert.deepEqual(palette.shafts, [{ x: '482', y: '326', height: '296' }, { x: '722', y: '326', height: '296' }])
+  assert.match(palette.shaftLink, /M262 316V326H490M730 316V326/)
+  assert.match(palette.water.path, /H84V511H222V518/)
+  assert.ok(Number.parseFloat(palette.water.width) >= 8)
+  assert.ok(Number.parseFloat(palette.sewer.height) >= 15)
+  assert.notEqual(palette.water.stroke, palette.researchConnector.stroke)
+  assert.notEqual(palette.sewer.stroke, palette.researchConnector.stroke)
+  assert.notEqual(palette.sewer.fill, palette.water.stroke)
+  assert.ok(Number.parseFloat(palette.water.width) >= Number.parseFloat(palette.researchConnector.width) * 3)
   assert.equal(palette.roofCount, 6)
   assert.equal(palette.roofsInsideStreet, true)
   assert.equal(new Set(palette.nodeStrokes).size, 3)
@@ -161,6 +187,23 @@ async function exerciseDashboard(page, route) {
   }
 }
 
+async function showUtilityArea(page, viewport) {
+  await page.evaluate(() => {
+    const iframe = document.querySelector('iframe')
+    const figure = iframe.contentDocument.querySelector('.fig')
+    const top = window.scrollY + iframe.getBoundingClientRect().top + figure.getBoundingClientRect().top
+    window.scrollTo(0, Math.max(0, top - 100))
+  })
+  await page.waitForTimeout(1800)
+  if (viewport.width === 390) {
+    const figure = page.frameLocator('iframe').locator('.fig')
+    await figure.evaluate(el => { el.scrollLeft = el.scrollWidth - el.clientWidth })
+    await page.waitForTimeout(1800)
+    await figure.evaluate(el => { el.scrollLeft = 0 })
+    await page.waitForTimeout(1800)
+  }
+}
+
 async function walkthrough(browser, viewport, report) {
   const record = viewport.width !== 768
   const context = await browser.newContext({ viewport, colorScheme: 'light', ...(record ? { recordVideo: { dir: out, size: viewport } } : {}) })
@@ -179,6 +222,7 @@ async function walkthrough(browser, viewport, report) {
         assert.equal(await frame.locator('#nar h2').innerText(), 'Roxbury Commons')
         await frame.locator('#uses button').first().click()
         assert.equal(await frame.locator('#uses button').first().getAttribute('aria-pressed'), 'true')
+        if (record) await showUtilityArea(page, viewport)
       }
       if (record) await page.waitForTimeout(route === 'owning-the-block' ? 900 : 600)
       await chooseTheme(page, 'Light', 'light')
@@ -193,11 +237,7 @@ async function walkthrough(browser, viewport, report) {
         await node.focus()
         assert.equal(await node.evaluate(el => el.matches(':focus-visible')), true)
         assert.equal(await node.locator('.shape').first().evaluate(el => getComputedStyle(el).strokeWidth), '3px')
-        if (record && viewport.width === 390) {
-          await frame.locator('.fig').evaluate(el => { el.scrollLeft = el.scrollWidth - el.clientWidth })
-          await page.waitForTimeout(700)
-          await frame.locator('.fig').evaluate(el => { el.scrollLeft = 0 })
-        }
+        if (record) await showUtilityArea(page, viewport)
       }
       if (record) await page.waitForTimeout(route === 'owning-the-block' ? 900 : 0)
       await chooseTheme(page, 'System', 'system')
@@ -233,6 +273,11 @@ async function walkthrough(browser, viewport, report) {
     }
     await page.goto(`${base}/insights/${routes[0]}?rev=${revision}`, { waitUntil: 'domcontentloaded' })
     await page.frameLocator('iframe').locator('h1').waitFor()
+    await page.waitForFunction(() => {
+      const iframe = document.querySelector('iframe')
+      return iframe && getComputedStyle(iframe).visibility === 'visible' && iframe.contentDocument.documentElement.dataset.theme
+    })
+    await page.evaluate(() => window.scrollTo(0, 0))
     const menu = await openMenu(page)
     await menu.getByRole('link', { name: 'Home' }).click()
     await page.waitForURL(`${base}/#home`)
