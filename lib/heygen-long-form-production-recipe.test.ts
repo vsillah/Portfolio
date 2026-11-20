@@ -218,4 +218,112 @@ describe('evaluateHeyGenLongFormRecipe', () => {
     recipe.scene_plan[1].product_asset_ids = ['asset-unbound']
     expect(evaluate(recipe).blockers).toContain('Every scene product asset must resolve to an approved product screenshot with passing source and rights receipts.')
   })
+
+  it('fails closed when the recipe is missing and keeps provider generation closed', () => {
+    expect(evaluateHeyGenLongFormRecipe({
+      recipe: null,
+      expectedContentVersion: contentVersion,
+      now,
+    })).toEqual({
+      readyForReview: false,
+      readyForProviderGeneration: false,
+      blockers: ['A version-bound HeyGen long-form production recipe is required.'],
+      selectedLookId: null,
+      selectedEnvironmentId: null,
+    })
+  })
+
+  it('keeps review blocked when any provider, upload, or publish gate opens', () => {
+    const openings = [
+      { provider_calls_authorized: true },
+      { provider_calls_executed: 1 },
+      { upload_authorized: true },
+      { platform_draft_authorized: true },
+      { scheduling_authorized: true },
+      { publishing_authorized: true },
+      { external_send_authorized: true },
+    ] as const
+
+    for (const opening of openings) {
+      const recipe = makeHeyGenLongFormRecipe()
+      recipe.execution_boundary = {
+        ...recipe.execution_boundary,
+        ...opening,
+      } as HeyGenLongFormProductionRecipe['execution_boundary']
+      const result = evaluate(recipe)
+      expect(result.readyForReview).toBe(false)
+      expect(result.readyForProviderGeneration).toBe(false)
+      expect(result.blockers).toContain('Provider, upload, draft, scheduling, publishing, and external-send gates must remain closed.')
+    }
+  })
+
+  it('blocks customer artifacts that include internal prompts or governance text', () => {
+    const prompts = makeHeyGenLongFormRecipe()
+    prompts.customer_artifacts = {
+      internal_prompt_fields: ['system prompt'],
+      governance_text_included: false,
+    } as unknown as HeyGenLongFormProductionRecipe['customer_artifacts']
+    expect(evaluate(prompts).blockers).toContain('Customer-facing artifacts cannot contain internal prompts or governance text.')
+
+    const governance = makeHeyGenLongFormRecipe()
+    governance.customer_artifacts = {
+      internal_prompt_fields: [],
+      governance_text_included: true,
+    } as unknown as HeyGenLongFormProductionRecipe['customer_artifacts']
+    expect(evaluate(governance).blockers).toContain('Customer-facing artifacts cannot contain internal prompts or governance text.')
+    expect(evaluate(governance).readyForProviderGeneration).toBe(false)
+  })
+
+  it('rejects an engine that does not match the selected production route', () => {
+    const videoAgentRoute = makeHeyGenLongFormRecipe()
+    videoAgentRoute.provider.production_route = 'video_agent'
+    expect(evaluate(videoAgentRoute).blockers).toContain('The Video Agent route requires the verified Video Agent engine.')
+
+    const nativeComposite = makeHeyGenLongFormRecipe()
+    nativeComposite.provider.selected_engine = 'video_agent'
+    expect(evaluate(nativeComposite).blockers).toContain('The native presenter composite route requires an Avatar Video engine.')
+
+    const avatarV = makeHeyGenLongFormRecipe()
+    avatarV.provider.selected_engine = 'avatar_v'
+    avatarV.provider.avatar_v_reference_look_id = '   '
+    expect(evaluate(avatarV).blockers).toContain('Avatar V requires a verified reference-look binding.')
+  })
+
+  it('rejects HeyGen Video 1 clips outside the verified duration window', () => {
+    const tooShort = makeHeyGenLongFormRecipe()
+    tooShort.scene_plan[2].generated_clip = { model: 'heygen_video_1', duration_seconds: 4 }
+    expect(evaluate(tooShort).blockers).toContain('HeyGen Video 1 scene clips must use the verified model and remain between 5 and 15 seconds.')
+
+    const tooLong = makeHeyGenLongFormRecipe()
+    tooLong.scene_plan[2].generated_clip = { model: 'heygen_video_1', duration_seconds: 16 }
+    expect(evaluate(tooLong).blockers).toContain('HeyGen Video 1 scene clips must use the verified model and remain between 5 and 15 seconds.')
+  })
+
+  it('fails a stale capability snapshot and an unfenced derivative', () => {
+    const staleCapability = makeHeyGenLongFormRecipe()
+    staleCapability.provider.capability_snapshot.expires_at = '2026-10-16T12:00:00.000Z'
+    expect(evaluate(staleCapability).blockers).toContain('Current HeyGen account capability, duration, and credits must be verified.')
+
+    const derivative = makeHeyGenLongFormRecipe()
+    derivative.deliverables.derivatives[0].source_master_version = 'content:v6'
+    expect(evaluate(derivative).blockers).toContain('A derivative is not fenced to the current channel master version.')
+  })
+
+  it('skips the previous and unverified rotation options', () => {
+    const options = [
+      { id: 'previous', label: 'Previous', capability_verified: true },
+      { id: 'unverified', label: 'Unverified', capability_verified: false },
+      { id: 'eligible', label: 'Eligible', capability_verified: true },
+    ]
+    expect(selectDeterministicRotationOption({
+      seed: 'campaign-42',
+      options,
+      previousId: 'previous',
+    })?.id).toBe('eligible')
+    expect(selectDeterministicRotationOption({
+      seed: 'campaign-42',
+      options: options.slice(0, 2),
+      previousId: 'previous',
+    })).toBeNull()
+  })
 })
