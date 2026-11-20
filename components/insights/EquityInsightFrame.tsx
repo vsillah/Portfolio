@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTheme } from 'next-themes'
 
 type EquityInsightFrameProps = {
@@ -12,6 +12,7 @@ export default function EquityInsightFrame({ slug, title }: EquityInsightFramePr
   const frameRef = useRef<HTMLIFrameElement>(null)
   const observerRef = useRef<ResizeObserver | null>(null)
   const [height, setHeight] = useState(0)
+  const [ready, setReady] = useState(false)
   const { resolvedTheme } = useTheme()
 
   const syncFrame = useCallback(() => {
@@ -19,10 +20,9 @@ export default function EquityInsightFrame({ slug, title }: EquityInsightFramePr
     const doc = frame?.contentDocument
     if (!frame || !doc?.body) return
 
-    // The authored dashboards already support data-theme where a light design exists.
-    // Owning the Block remains its original dark illustration in either site theme.
     if (resolvedTheme === 'light' || resolvedTheme === 'dark') {
       doc.documentElement.dataset.theme = resolvedTheme
+      setReady(true)
     }
     const contentHeight = Math.max(
       doc.documentElement.scrollHeight,
@@ -44,7 +44,7 @@ export default function EquityInsightFrame({ slug, title }: EquityInsightFramePr
     observerRef.current = observer
   }, [syncFrame])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     syncFrame()
   }, [syncFrame])
 
@@ -57,7 +57,7 @@ export default function EquityInsightFrame({ slug, title }: EquityInsightFramePr
       src={`/insights/equity-code/${slug}.html`}
       onLoad={handleLoad}
       className="block w-full border-0"
-      style={{ height: height ? `${height}px` : '100vh' }}
+      style={{ height: height ? `${height}px` : '100vh', visibility: ready ? 'visible' : 'hidden' }}
     />
   )
 }

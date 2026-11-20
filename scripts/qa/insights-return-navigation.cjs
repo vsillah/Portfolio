@@ -26,6 +26,8 @@ async function openMenu(page) {
 }
 
 async function chooseTheme(page, name, expected) {
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.waitForFunction(() => window.scrollY === 0)
   const menu = await openMenu(page)
   await menu.getByRole('button', { name: `${name} theme` }).click()
   await menu.waitFor({ state: 'hidden' })
@@ -36,6 +38,76 @@ async function chooseTheme(page, name, expected) {
   assert.equal(await iframe.count(), 1)
 }
 
+async function inspectOwningTheme(page, theme) {
+  const palette = await page.locator('iframe').evaluate(frame => {
+    const doc = frame.contentDocument
+    const css = selector => getComputedStyle(doc.querySelector(selector))
+    const roofs = [...doc.querySelectorAll('#nodes .node[data-id] > path.shape')]
+    const luminance = value => {
+      const rgb = value.match(/\d+/g).slice(0, 3).map(Number)
+      const linear = rgb.map(channel => {
+        const v = channel / 255
+        return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4
+      })
+      return linear[0] * .2126 + linear[1] * .7152 + linear[2] * .0722
+    }
+    const contrast = (a, b) => {
+      const x = luminance(a), y = luminance(b)
+      return (Math.max(x, y) + .05) / (Math.min(x, y) + .05)
+    }
+    return {
+      frameVisible: getComputedStyle(frame).visibility,
+      body: css('body').backgroundColor,
+      figure: css('.fig').backgroundColor,
+      narration: css('.nar').backgroundColor,
+      sky: css('#bands > rect').fill,
+      pipe: css('#pipes .pipe').stroke,
+      nodeStrokes: ['kinflo', 'ezs', 'rent'].map(id => css(`#nodes .node[data-id="${id}"] > .shape`).stroke),
+      labelContrasts: ['kinflo', 'rotla', 'commons', 'ezs', 'repair', 'rent'].map(id => {
+        const node = doc.querySelector(`#nodes .node[data-id="${id}"]`)
+        const background = getComputedStyle(node.querySelector('.shape')).fill
+        return {
+          id,
+          label: contrast(getComputedStyle(node.querySelector('.lbl')).fill, background),
+          subtitle: node.querySelector('.sub') ? contrast(getComputedStyle(node.querySelector('.sub')).fill, background) : null,
+        }
+      }),
+      skylinePointerEvents: css('.boston-skyline').pointerEvents,
+      utilityPointerEvents: css('.utility-underlay').pointerEvents,
+      utilityShapes: doc.querySelectorAll('.utility-underlay > *').length,
+      utilityPath: doc.querySelector('.utility-underlay > path').getAttribute('d'),
+      roofCount: roofs.length,
+      roofsInsideStreet: roofs.every(roof => {
+        const box = roof.getBBox()
+        return box.x >= 0 && box.x + box.width <= 980 && box.y >= 0 && box.y + box.height <= 300
+      }),
+    }
+  })
+  assert.equal(palette.frameVisible, 'visible')
+  assert.equal(palette.skylinePointerEvents, 'none')
+  assert.equal(palette.utilityPointerEvents, 'none')
+  assert.equal(palette.utilityShapes, 3)
+  assert.equal(palette.utilityPath, 'M18 430H962M18 628H962')
+  assert.equal(palette.roofCount, 6)
+  assert.equal(palette.roofsInsideStreet, true)
+  assert.equal(new Set(palette.nodeStrokes).size, 3)
+  if (theme === 'light') {
+    assert.equal(palette.body, 'rgb(243, 246, 250)')
+    assert.equal(palette.figure, 'rgb(255, 255, 255)')
+    assert.equal(palette.narration, 'rgb(255, 255, 255)')
+    assert.equal(palette.sky, 'rgb(248, 250, 252)')
+    assert.equal(palette.pipe, 'rgb(128, 147, 168)')
+    for (const node of palette.labelContrasts) {
+      assert.ok(node.label >= 4.5, `${node.id}: label contrast below 4.5`)
+      if (node.subtitle !== null) assert.ok(node.subtitle >= 4.5, `${node.id}: subtitle contrast below 4.5`)
+    }
+  } else {
+    assert.equal(palette.body, 'rgb(14, 17, 24)')
+    assert.equal(palette.sky, 'rgb(18, 22, 31)')
+  }
+  return palette
+}
+
 async function inspect(page, viewport, route) {
   await page.goto(`${base}/insights/${route}?rev=${revision}`, { waitUntil: 'domcontentloaded' })
   const frame = page.frameLocator('iframe')
@@ -43,7 +115,7 @@ async function inspect(page, viewport, route) {
   await page.getByRole('button', { name: 'Toggle menu' }).waitFor()
   await page.waitForFunction(() => {
     const iframe = document.querySelector('iframe')
-    return iframe && iframe.getBoundingClientRect().height >= iframe.contentDocument.documentElement.scrollHeight - 2
+    return iframe && getComputedStyle(iframe).visibility === 'visible' && iframe.contentDocument.documentElement.dataset.theme && iframe.getBoundingClientRect().height >= iframe.contentDocument.documentElement.scrollHeight - 2
   })
   const measurements = await page.evaluate(() => {
     const nav = document.querySelector('nav')
@@ -99,9 +171,44 @@ async function walkthrough(browser, viewport, report) {
       if (record) await page.waitForTimeout(700)
       await chooseTheme(page, 'Dark', 'dark')
       assert.equal(await page.locator('iframe').evaluate(el => el.contentDocument.documentElement.dataset.theme), 'dark')
-      if (record) await page.waitForTimeout(600)
+      if (route === 'owning-the-block') {
+        report.checks.push({ route, theme: 'dark', palette: await inspectOwningTheme(page, 'dark') })
+        const frame = page.frameLocator('iframe')
+        await frame.locator('#cb-hz').click()
+        await frame.locator('#nodes .node[data-id="commons"]').press('Enter')
+        assert.equal(await frame.locator('#nar h2').innerText(), 'Roxbury Commons')
+        await frame.locator('#uses button').first().click()
+        assert.equal(await frame.locator('#uses button').first().getAttribute('aria-pressed'), 'true')
+      }
+      if (record) await page.waitForTimeout(route === 'owning-the-block' ? 900 : 600)
       await chooseTheme(page, 'Light', 'light')
+      if (route === 'owning-the-block') {
+        const frame = page.frameLocator('iframe')
+        await frame.locator('#cb-own').click()
+        await frame.locator('#uses button').first().click()
+        report.checks.push({ route, theme: 'light', palette: await inspectOwningTheme(page, 'light') })
+        const node = frame.locator('#nodes .node[data-id="kinflo"]')
+        await node.press('Enter')
+        assert.equal(await frame.locator('#nar h2').innerText(), 'Kinflo')
+        await node.focus()
+        assert.equal(await node.evaluate(el => el.matches(':focus-visible')), true)
+        assert.equal(await node.locator('.shape').first().evaluate(el => getComputedStyle(el).strokeWidth), '3px')
+        if (record && viewport.width === 390) {
+          await frame.locator('.fig').evaluate(el => { el.scrollLeft = el.scrollWidth - el.clientWidth })
+          await page.waitForTimeout(700)
+          await frame.locator('.fig').evaluate(el => { el.scrollLeft = 0 })
+        }
+      }
+      if (record) await page.waitForTimeout(route === 'owning-the-block' ? 900 : 0)
       await chooseTheme(page, 'System', 'system')
+      if (route === 'owning-the-block') {
+        report.checks.push({ route, theme: 'system-light', palette: await inspectOwningTheme(page, 'light') })
+        const menu = await openMenu(page)
+        assert.equal(await menu.getByRole('button', { name: 'System theme' }).getAttribute('aria-pressed'), 'true')
+        if (record) await page.waitForTimeout(700)
+        await page.keyboard.press('Escape')
+        await menu.waitFor({ state: 'hidden' })
+      }
       await page.reload({ waitUntil: 'domcontentloaded' })
       await page.frameLocator('iframe').locator('h1').waitFor()
       assert.equal(await page.evaluate(() => localStorage.getItem('theme')), 'system')
@@ -149,6 +256,14 @@ async function main() {
     for (const viewport of [{ width: 1440, height: 900 }, { width: 768, height: 900 }, { width: 390, height: 844 }]) {
       await walkthrough(browser, viewport, report)
     }
+    const systemDark = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' })
+    await systemDark.addInitScript(() => localStorage.setItem('theme', 'system'))
+    const systemPage = await systemDark.newPage()
+    await systemPage.goto(`${base}/insights/owning-the-block?rev=${revision}`, { waitUntil: 'domcontentloaded' })
+    await systemPage.waitForFunction(() => document.querySelector('iframe')?.contentDocument?.documentElement.dataset.theme === 'dark')
+    assert.equal(await systemPage.evaluate(() => document.documentElement.classList.contains('dark')), true)
+    report.checks.push({ route: 'owning-the-block', theme: 'system-dark', palette: await inspectOwningTheme(systemPage, 'dark') })
+    await systemDark.close()
     writeFileSync(join(out, 'results.json'), JSON.stringify(report, null, 2) + '\n')
     console.log(JSON.stringify({ revision, checks: report.checks.length, videos: report.videos }, null, 2))
   } finally { await browser.close() }

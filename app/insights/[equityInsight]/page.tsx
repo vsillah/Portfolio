@@ -31,7 +31,7 @@ export default function EquityInsightPage({ params }: { params: { equityInsight:
     <main className="min-h-screen bg-background text-foreground">
       <Navigation />
       <div className="pt-24">
-        <EquityInsightFrame slug={params.equityInsight} title={dashboards[params.equityInsight]} />
+        <EquityInsightFrame key={params.equityInsight} slug={params.equityInsight} title={dashboards[params.equityInsight]} />
       </div>
     </main>
   )
