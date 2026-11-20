@@ -8,6 +8,8 @@ The next broader visual sweep found an unreadable mobile plate at L05-04, 01:30,
 
 Stacked draft PR #1291 at `2139a136469908e817ceb274cc9af9b43b9a2708` reports a source-faithful L05 mobile detail correction. It remains a dependency, not merged or copied into this branch. The authorized resumed sweep started at L06 and found the same class of detailed-label failure at L06-03, 01:20. The “Recommend” instruction and supporting text are unreadable in the 292×164 mobile video, while the full-size frame contains them. See `l06-mobile-readability-stop.md` and its exact-route screenshot/MP4. **L06 fails; L07–L16 remain unqualified.** Stop for a separately scoped correction before resuming L07.
 
+Stacked draft PR #1292 at `0804a7eb8c3fb6ad96a8e48ab06b18c3dbd5e934` reports a mobile reading view for 15 approved teaching-plate scenes. Those scenes were excluded from the next authorized read-only sweep. At L07-01, the opening caption overlaps its instructional headline on desktop with native controls hidden; turning captions off restores the headline. See `l07-caption-overlap-stop.md` and exact-route MP4/screenshots. **L07-01 fails; all other L07 non-plate positions and L08–L16 remain unqualified.** Neither stacked PR was merged or copied into this branch.
+
 ## L01: corrected learner metadata and end-screen UI
 
 The existing illustrated MP4 has 9,457 video frames at 25 fps (378.280 s) and audio through 378.285 s. Its earlier declared 378.059 s was 0.226 s short. The illustrated binding uses the container duration, while the historic source-media receipt remains lineage. The exact-hash L01 end-screen binding begins at the final VTT cue end, 359.645 s, shows progress 1 of 16, and names L02 next. A narrow source-identity exception in `AgentifiedWorkshop.tsx` accepts only this exact duration correction; it does not admit a different video or caption asset.
@@ -42,4 +44,4 @@ No provider contact, generation, spend, L02–L04 change, L10/L16 learner bindin
 
 `node docs/agentified-distribution-readiness/phase-3b/record_browser_walkthrough.cjs e5cce9a7a`
 
-Next gate: a separate L06 mobile detail correction, validated on the exact L06 route and adjacent scenes. Then resume L07–L16 in order. L10 auditory confirmation, L16 card handoff, complete source-faithful QA, and transcript provenance remain open before any Human QA handoff. The existing browser MP4s are captain review evidence, not a Human QA request.
+Next gate: a separate L07 caption/headline collision correction, validated on the exact desktop/mobile route at 00:14 with captions on and off. Then resume the remaining L07 non-plate positions and L08–L16 in order, while the stacked mobile-plate PRs undergo captain review. L10 auditory confirmation, L16 card handoff, complete source-faithful QA, and transcript provenance remain open before any Human QA handoff. The existing browser MP4s are captain review evidence, not a Human QA request.

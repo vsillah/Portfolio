@@ -1,0 +1,9 @@
+# Phase 3B non-plate stop: L07 opening caption overlaps headline
+
+**Status: FAIL / stop condition.** This is the first reproducible non-plate defect in the authorized L07–L16 sweep. The 15 approved teaching-plate scenes are owned by stacked draft PR #1292 and excluded from this observation. L07-01 is not one of those scenes.
+
+At code commit `3e4055d94`, load `http://127.0.0.1:3108/agentified/learningplan?lesson=L07&rev=3e4055d94` at 1280×720, scroll to Guided lesson, and play through 00:14 with English captions on. Move the pointer off the player so native controls disappear. The 00:09.876–00:15.124 VTT cue (“The preparation role did what an old brief told it to do: ‘Summarize the best session option.’”) draws across the scene's instructional headline, “A polished draft can hide a bad claim.” Both become hard to read. Turning captions off at 00:14 restores the headline, confirming a caption/layout collision rather than missing source text. The same timestamp at 390×844 places the caption above the headline in the sampled frame; this finding is specifically desktop.
+
+Evidence under `agentified/workshop/phase-3b-review/`: `l07-caption-collision-desktop.png`, `l07-caption-off-desktop.png`, and the playable `l07-caption-collision-desktop.mp4`; mobile screenshot and MP4 are comparison evidence. Browser state used an isolated guest session, localhost placeholder Supabase values, and outbound n8n disabled. No production or learner data changed. The source VTT and video remain unchanged.
+
+The sweep stopped at L07-01. Other non-plate positions in L07 and all L08–L16 positions remain unqualified. No consolidated full-scope desktop/mobile walkthrough or final transcript provenance is claimed. Correct this collision in a separate scoped lane while preserving narration, cue words/timing, source meaning, presenter footage, native controls, and optional captions, then repeat the exact desktop/mobile route before resuming L07.
