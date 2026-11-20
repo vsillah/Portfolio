@@ -52,6 +52,24 @@ describe('Agentified lesson media gate', () => {
     expect(onProgress).toHaveBeenCalledWith(237)
   })
 
+  it('shows the complete approved L05 plate and exact labels only during its teaching scene', () => {
+    const { container } = render(<AgentifiedLessonHero lessonId="L05" title="Map" poster="/agentified/posters/l05-poster.webp" videoSrc="/approved-l05.mp4" />)
+    const video = container.querySelector('video')!
+    let currentTime = 78.581
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('figure', { name: /L05 operating stack diagram details/ })).toBeNull()
+    currentTime = 90
+    fireEvent.seeking(video)
+    const diagram = screen.getByRole('figure', { name: /L05 operating stack diagram details/ })
+    expect(diagram.querySelector('img')).toHaveAttribute('src', '/agentified/lessons/l05/figure-8-1-portfolio-first-stack-publication-plate.png')
+    expect(diagram).toHaveTextContent('Open Brainsources, events, proposals, memoriesHarnessCodex, tools, browser, apps, worktrees')
+    expect(video).toHaveAttribute('controls')
+    currentTime = 105.56
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('figure', { name: /L05 operating stack diagram details/ })).toBeNull()
+  })
+
   it('reveals the next lesson at the exact sentence-complete boundary and hides it after seeking back', () => {
     const { container } = render(<AgentifiedLessonHero lessonId="L02" title="Decision" poster="/agentified/posters/l02-poster.webp" videoSrc="/approved-l02.mp4" durationSeconds={510} endScreen={{ startSeconds: 504, progress: 2, nextLesson: { id: 'L03', title: 'Trace the work and grade the sources', poster: '/agentified/posters/l03-poster.webp' } }} />)
     const video = container.querySelector('video')!
