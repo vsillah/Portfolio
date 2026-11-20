@@ -1,0 +1,11 @@
+{
+  "source_path": "public/agentified/lessons/l10/approved-a2dfdec5/agentified-l10-native-captions.vtt",
+  "source_sha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+  "candidate_path": "docs/agentified-distribution-readiness/phase-3a/l10-captions-candidate.vtt",
+  "candidate_sha256": "7486154dd4da07c8b525cde13c421eaa74bd3f08eaf0ed282d82f730c15fb3bc",
+  "change": "end of one seven-field envelope cue 03:05.000 -> 03:04.360; next cue starts 03:04.360",
+  "words_unchanged": false,
+  "other_timings_unchanged": true,
+  "audio_sync": "requires contextual listening before binding",
+  "learner_binding_changed": false
+}

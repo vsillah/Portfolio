@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "locked_provider_free_proposal_only",
+  "lesson_id": "L04",
+  "canonical_script_path": "agentified/workshop/scripts/L04-memory-and-routing.md",
+  "canonical_script_file_sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
+  "spoken_rows_sha256": [
+    "4ad4b5f1a6502438eff435221b70b1d428588cb453991e15029157d5c66e6a1f",
+    "964a01eaaf1c6c12fc903d93517f7c5440931e7c615ea8f2ea34a278d8f4cadc",
+    "2dfdf70dfbd26c84dff419a577d11d470c9f50b11a934947e741b599a29745fa",
+    "0776ac78638f71c0b28d65c459f59c87a7d42800d871e1fdc3f025c5929d476f",
+    "623452ec05bf705652e4bafabf9534827cd6989b09f5357d88e78cee9c24ad10",
+    "6202ce5cc41b7313c3e480c0fb1f79e8be507da93b9d2e9444981ad1e24e72e7",
+    "a637c472d5a1a2a0ab1adeefd3a321ef0df650c6365052a94ddb6d9cf036773d",
+    "e89299fe4c4bf88c5299440e61815d752e90ff25de5664654fa91c7c5b985b25"
+  ],
+  "spoken_text_sha256": "261c9d36468d149e9aeb483a89643341d565c28fef782ea2bb62bdfc085b4093",
+  "spoken_text_utf8": "Morgan reviews the Harbor brief and writes a correction: ‘The facilitator note says available for review. It does not say confirmed to teach.’ The draft is fixed. A week later, another request comes in. Should the agent remember that correction? Yes, perhaps. But we need to decide what ‘remember’ means before one comment becomes a rule that every future brief repeats.\n\nStart with the source: Morgan's correction, saved as a feedback note. The event records what happened: Morgan changed a staffing claim in the draft brief. A proposal then asks whether a narrow rule should be kept: ‘Treat availability as unconfirmed until a separate confirmation record exists.’ That proposal names its source, owner, privacy tier, and review date. It is still only a proposal. An approved memory would require a human to accept the wording, scope, and expiry. In this exercise no memory is approved.\n\nTry a second proposal: ‘Morgan dislikes all digital-skills sessions.’ That does not follow from the correction. Reject it. The difference matters. A system that keeps every sentence as a fact will grow confident in things nobody actually said. A good memory process makes a claim traceable and revocable. It also leaves room for ‘we do not know.’ Here, the unsupported proposal is rejected; the narrow one remains pending for Morgan's review. Neither becomes shared memory by default.\n\nNow a new Harbor request arrives: ‘Prepare a different session option for next month.’ Two preparation roles could respond. One compares session evidence; another drafts participant messages. Which one should touch it? A controller can route the request before either acts. First name the intent: compare an option. Then check eligibility: the evidence-comparison role may read the three cleared source references and draft; the messaging role is ineligible because no outreach is authorized. Assign one role, record the rule, and route the brief to Morgan. If the request asks for a public announcement, the controller must refuse that path and hand it to Morgan.\n\nThe controller is not a second decision maker hiding behind a friendly name. It checks written rules and records why a role was selected. It cannot approve memory, authorize outreach, or turn an unconfirmed facilitator into a confirmed one. The routing record is another receipt: request type, applicable rule, selected role, human gate, and fallback. If the rule is missing, the work waits. That pause protects the program from two agents preparing conflicting answers or one agent running beyond its job.\n\nPause on your own workflow. Which correction is worth proposing as a reusable rule, and which tempting inference should be rejected?\n\nWalk a correction through source, event, proposal, and possible memory. Name the approving human, owner, expiry, and revocation path. Keep the status pending. Then write two routing rows: one permitted preparation request and one request that must stop. Give each a task type, evidence requirement, eligible role, human gate, and fallback. Use a fictional or approved example. Do not use private operational data or test this against live agents.\n\nSave both policies as draft sections of your Operating File. Stop if a proposal promotes itself, if a route has no written rule, or if a role can send, spend, or publish without a separate human gate. The next lesson will place these pieces on one operating map.",
+  "spoken_character_count": 3394,
+  "spoken_utf8_bytes": 3418,
+  "spoken_word_count": 549,
+  "spoken_row_count": 8,
+  "existing_presenter_source": {
+    "path": "agentified/workshop/l02-l04-native-source/agentified-l04-heygen-native-source.mp4",
+    "sha256": "5c0a1c9af260ffc6020bce189b0d8061dd273e064b41adabd4402e6fc1be93ff",
+    "duration_seconds": 21.826
+  },
+  "identity_precedent": {
+    "look_name": "Vambah Gray Sweater",
+    "look_id": "7275ba9035f94b31ad589dda6532d002",
+    "voice_id": "14b592b937744404a4fa7c01aafd7dbe",
+    "source_receipt": "agentified/workshop/l02-l04-native-source/provider-receipts.json",
+    "status": "exact_existing_L02_L04_review_source_identity; new purpose-specific use approval required"
+  },
+  "expected_output": {
+    "scope": "one complete lesson, all eight exact canonical narration rows",
+    "format": "single continuous lossless or high-quality audio master with timing/transcript receipt",
+    "duration": "script estimate only; verify native duration and sentence alignment before local composite",
+    "captions": "regenerate from exact words after audio alignment; desktop and 390x844 contextual MP4 review required",
+    "presenter": "preserve existing native presenter footage and audio at normal speed/pitch; avoid double speech"
+  },
+  "input_limits": {
+    "required_minimum_characters": 3394,
+    "provider_limit_verified": false,
+    "gate": "verify documented single-job character limit and output duration before any request; stop if insufficient"
+  },
+  "privacy_rights": {
+    "inputs": "canonical synthetic workshop script only; omit real participant records and secret IDs",
+    "existing_short_source_rights": "review_only",
+    "new_voice_likeness_use": "purpose_specific_confirmation_required",
+    "final_distribution": "not_authorized"
+  },
+  "cost_request": {
+    "current_authorized_spend_usd": 0,
+    "proposed_aggregate_hard_ceiling_usd": 9.99,
+    "vendor_quote_verified": false,
+    "gate": "obtain exact metered price, fees and enforceable aggregate cap before seeking separate execution authority; stop if total cannot be capped below ceiling"
+  },
+  "execution_allowed": false,
+  "provider_contact_allowed": false,
+  "generation_allowed": false,
+  "spend_allowed": false,
+  "automatic_retries": 0,
+  "manual_retries": 0,
+  "learner_binding_allowed": false
+}

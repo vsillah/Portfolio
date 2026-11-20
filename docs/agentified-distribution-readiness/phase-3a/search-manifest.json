@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "base_commit": "c0149ac93e01caf924ddb4d22184a164895a41f5",
+  "phase2_evidence_base_commit": "8f39f259bfba33d901f36959ed3a8a14b78060bb",
+  "status": "negative_for_exact_approved_complete_L02_L04_recordings_in_checked_local_and_mounted_paths",
+  "method": "recursive filename and media inventory, existing provider/source receipt review, script/hash and duration comparison for potential matches",
+  "roots_checked": [
+    "/Users/vambahsillah/Projects/Portfolio",
+    "/Users/vambahsillah/Projects/Portfolio/docs",
+    "/Users/vambahsillah/Projects/Portfolio/public",
+    "/Users/vambahsillah/Projects/Portfolio/design-files",
+    "/Users/vambahsillah/Projects/Portfolio/n8n-exports",
+    "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions",
+    "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Company Materials",
+    "/Users/vambahsillah/.codex/worktrees/0c72/Portfolio/agentified/workshop"
+  ],
+  "mounted_drive_file_count": 2310,
+  "mounted_drive_media_count": 161,
+  "mounted_drive_agentified_or_L02_L04_narration_filename_count": 0,
+  "mounted_drive_media_scope_note": "Drive media inventory consists of other named projects, Accelerated audiobook/chapter audio, promotional assets, and client project footage; no Agentified L02-L04 source identity or canonical-script receipt was located. Unrelated private paths are intentionally omitted.",
+  "limitations": [
+    "Mounted Drive is a local snapshot, not a live provider account or cloud-wide search.",
+    "Audio content of unrelated Drive media was not transcribed.",
+    "A complete recording outside checked paths remains possible."
+  ],
+  "lessons": [
+    {
+      "id": "L02",
+      "script_path": "agentified/workshop/scripts/L02-decision.md",
+      "script_file_sha256": "5e589c9ce3ff24923f6f215c5300ac5171799e572d27660d6f4ffc2168b94a9a",
+      "spoken_word_count": 502,
+      "spoken_character_count": 2930,
+      "existing_native_path": "agentified/workshop/l02-l04-native-source/agentified-l02-heygen-native-source.mp4",
+      "existing_native_sha256": "9e97d0900c288ecde93fd9ce8cd8c3131ceb481853e4bc9b37dfc146a8fa8643",
+      "existing_native_duration_seconds": 20.247,
+      "bound_source_path": "/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-composite.mp4",
+      "bound_composite_path": "/agentified/lessons/l02/illustrated-27a72885/agentified-l02-illustrated-composite.mp4",
+      "bound_caption_path": "/agentified/lessons/l02/corrected-e2b5ecbc/agentified-l02-native-captions.vtt",
+      "phase2_caption_word_count": 56,
+      "phase2_silence": {
+        "thresholdDb": -35,
+        "minimumSeconds": 1.5,
+        "intervalCount": 2,
+        "longestSeconds": 484.638333,
+        "intervalsSeconds": [
+          [
+            16.417,
+            501.055
+          ],
+          [
+            503.996,
+            510.016
+          ]
+        ]
+      },
+      "match_result": "rejected_as_complete_recording: native source covers short presenter windows; current teaching audio silent and captions omit most script"
+    },
+    {
+      "id": "L03",
+      "script_path": "agentified/workshop/scripts/L03-trace-and-sources.md",
+      "script_file_sha256": "3e42459bdad850982094af0de03eda93485d9015bdf884b8cdd0a3abfd3baa7d",
+      "spoken_word_count": 541,
+      "spoken_character_count": 3244,
+      "existing_native_path": "agentified/workshop/l02-l04-native-source/agentified-l03-heygen-native-source.mp4",
+      "existing_native_sha256": "8db2154dd46dbdb6c6c941c6d4f1647eeb4e3004ec4ebcbfc6b33ce3504e393e",
+      "existing_native_duration_seconds": 19.32,
+      "bound_source_path": "/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-composite.mp4",
+      "bound_composite_path": "/agentified/lessons/l03/illustrated-0ad7c3e1/agentified-l03-illustrated-composite.mp4",
+      "bound_caption_path": "/agentified/lessons/l03/corrected-8749ae9a/agentified-l03-native-captions.vtt",
+      "phase2_caption_word_count": 51,
+      "phase2_silence": {
+        "thresholdDb": -35,
+        "minimumSeconds": 1.5,
+        "intervalCount": 2,
+        "longestSeconds": 573.925375,
+        "intervalsSeconds": [
+          [
+            14.099,
+            588.024
+          ],
+          [
+            591.999,
+            600.0
+          ]
+        ]
+      },
+      "match_result": "rejected_as_complete_recording: native source covers short presenter windows; current teaching audio silent and captions omit most script"
+    },
+    {
+      "id": "L04",
+      "script_path": "agentified/workshop/scripts/L04-memory-and-routing.md",
+      "script_file_sha256": "2d368325e069850b0f8610abf3d89ae33da43effa58db14f3becf22f97f47c4e",
+      "spoken_word_count": 549,
+      "spoken_character_count": 3394,
+      "existing_native_path": "agentified/workshop/l02-l04-native-source/agentified-l04-heygen-native-source.mp4",
+      "existing_native_sha256": "5c0a1c9af260ffc6020bce189b0d8061dd273e064b41adabd4402e6fc1be93ff",
+      "existing_native_duration_seconds": 21.826,
+      "bound_source_path": "/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-composite.mp4",
+      "bound_composite_path": "/agentified/lessons/l04/illustrated-f7400d17/agentified-l04-illustrated-composite.mp4",
+      "bound_caption_path": "/agentified/lessons/l04/corrected-8d0245ff/agentified-l04-native-captions.vtt",
+      "phase2_caption_word_count": 53,
+      "phase2_silence": {
+        "thresholdDb": -35,
+        "minimumSeconds": 1.5,
+        "intervalCount": 2,
+        "longestSeconds": 575.960229,
+        "intervalsSeconds": [
+          [
+            17.836,
+            593.796
+          ],
+          [
+            597.0,
+            600.0
+          ]
+        ]
+      },
+      "match_result": "rejected_as_complete_recording: native source covers short presenter windows; current teaching audio silent and captions omit most script"
+    }
+  ]
+}
