@@ -1071,10 +1071,27 @@ describe('Agentified lesson media gate', () => {
 
   it('keeps a course-complete state visible when L16 ends without extending the media', () => {
     const { container } = render(<AgentifiedLessonHero lessonId="L16" title="Audit" poster="/agentified/posters/l16-poster.webp" videoSrc="/approved-l16.mp4" durationSeconds={267.309} endScreen={{ startSeconds: 267.222, progress: 16 }} />)
-    fireEvent.ended(container.querySelector('video')!)
+    const video = container.querySelector('video')!
+    let currentTime = 267.3
+    let ended = false
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    Object.defineProperty(video, 'ended', { configurable: true, get: () => ended })
+    fireEvent.timeUpdate(video)
+    expect(screen.queryByRole('status', { name: 'L16 complete. Agentified course complete.' })).toBeNull()
+    currentTime = 275.31
+    fireEvent.seeking(video)
+    fireEvent.timeUpdate(video)
+    expect(screen.queryByRole('status', { name: 'L16 complete. Agentified course complete.' })).toBeNull()
+    ended = true
+    fireEvent.ended(video)
     expect(screen.getByRole('status', { name: 'L16 complete. Agentified course complete.' })).toBeInTheDocument()
     expect(screen.getByText('COURSE COMPLETE')).toBeInTheDocument()
     expect(screen.getByText('Review your Operating File')).toBeInTheDocument()
+    ended = false
+    currentTime = 260
+    fireEvent.seeking(video)
+    fireEvent.playing(video)
+    expect(screen.queryByRole('status', { name: 'L16 complete. Agentified course complete.' })).toBeNull()
   })
 
   it('keeps mobile playback controls outside the video and restores native desktop controls', async () => {
