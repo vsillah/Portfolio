@@ -91,6 +91,26 @@ describe('Agentified lesson media gate', () => {
     expect(screen.queryByRole('complementary', { name: /L06-03 Authority ladder source wording/ })).toBeNull()
   })
 
+  it('shows only the exact L07 countdown gate line during its protected window', () => {
+    const { container } = render(<AgentifiedLessonHero lessonId="L07" title="PRD and pod" poster="/agentified/posters/l07-poster.webp" videoSrc="/approved-l07.mp4" captionsSrc="/approved-l07.vtt" />)
+    const video = container.querySelector('video')!
+    let currentTime = 188.514
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('complementary', { name: /L07-07 Human review remains the gate/ })).toBeNull()
+    currentTime = 188.515
+    fireEvent.seeking(video)
+    const reading = screen.getByRole('complementary', { name: 'L07-07 Human review remains the gate. source wording' })
+    expect(reading).toHaveTextContent('Human review remains the gate.')
+    expect(reading.querySelector('img')).toBeNull()
+    expect(reading.querySelector('a')).toBeNull()
+    expect(video).toHaveAttribute('controls')
+    expect(video.querySelector('track')).toHaveAttribute('src', '/approved-l07.vtt')
+    currentTime = 233.515
+    fireEvent.seeking(video)
+    expect(screen.queryByRole('complementary', { name: /L07-07 Human review remains the gate/ })).toBeNull()
+  })
+
   it('reveals the next lesson at the exact sentence-complete boundary and hides it after seeking back', () => {
     const { container } = render(<AgentifiedLessonHero lessonId="L02" title="Decision" poster="/agentified/posters/l02-poster.webp" videoSrc="/approved-l02.mp4" durationSeconds={510} endScreen={{ startSeconds: 504, progress: 2, nextLesson: { id: 'L03', title: 'Trace the work and grade the sources', poster: '/agentified/posters/l03-poster.webp' } }} />)
     const video = container.querySelector('video')!

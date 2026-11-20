@@ -14,12 +14,25 @@ if (!Number.isInteger(reviewPort) || reviewPort < 1 || reviewPort > 65535) throw
 fs.mkdirSync(output, { recursive: true })
 const sha = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex')
 const audit = require(path.join(root, 'agentified/workshop/presentation-illustration-audit/audit-boundaries.json'))
+const composites = require(path.join(root, 'agentified/workshop/presentation-illustration-audit/composite-receipts.json')).composites
+const bindings = require(path.join(root, 'lib/agentified-illustrated-bindings.json')).bindings
 for (const scene of map.scenes) {
-  if (!scene.image.startsWith('/agentified/workshop/')) throw new Error(`Unexpected plate route: ${scene.sceneId}`)
   const source = audit.rows.find((row) => row.scene_id === scene.sceneId)
-  if (!source || source.start_seconds.toFixed(3) !== scene.startSeconds.toFixed(3) || source.end_seconds.toFixed(3) !== scene.endSeconds.toFixed(3)) throw new Error(`Cue drift: ${scene.sceneId}`)
-  if (source.approved_visuals.length !== 1 || source.approved_visuals[0].path !== scene.sourcePath || source.approved_visuals[0].sha256 !== scene.sourceSha256) throw new Error(`Source drift: ${scene.sceneId}`)
-  for (const file of [scene.sourcePath, `public${scene.image}`]) if (sha(path.join(root, file)) !== scene.sourceSha256) throw new Error(`Raster drift: ${scene.sceneId} ${file}`)
+  if (!source) throw new Error(`Missing audited scene: ${scene.sceneId}`)
+  if (scene.kind === 'text') {
+    if (source.start_seconds.toFixed(3) !== scene.sceneStartSeconds.toFixed(3) || source.end_seconds.toFixed(3) !== scene.sceneEndSeconds.toFixed(3) || source.approved_visuals.length !== 0) throw new Error(`Text scene drift: ${scene.sceneId}`)
+    const protectedWindow = composites.find((item) => item.lesson_id === scene.lessonId)?.protected_windows.find((window) => window[2] === 'original countdown')
+    if (!protectedWindow || protectedWindow[0].toFixed(3) !== scene.startSeconds.toFixed(3) || protectedWindow[1].toFixed(3) !== scene.endSeconds.toFixed(3)) throw new Error(`Protected cue drift: ${scene.sceneId}`)
+    const binding = bindings[scene.lessonId]
+    if (`public${binding.video}` !== scene.sourcePath || binding.compositeSha256 !== scene.sourceSha256 || `public${binding.sourceVideo}` !== scene.protectedSourcePath || binding.sourceSha256 !== scene.protectedSourceSha256) throw new Error(`Bound video drift: ${scene.sceneId}`)
+    for (const [file, expected] of [[scene.sourcePath, scene.sourceSha256], [scene.protectedSourcePath, scene.protectedSourceSha256], [scene.wordingSourcePath, scene.wordingSourceSha256]]) if (sha(path.join(root, file)) !== expected) throw new Error(`Text source hash drift: ${scene.sceneId} ${file}`)
+    if (!fs.readFileSync(path.join(root, scene.wordingSourcePath), 'utf8').includes(scene.title)) throw new Error(`Text wording drift: ${scene.sceneId}`)
+  } else {
+    if (!scene.image.startsWith('/agentified/workshop/')) throw new Error(`Unexpected plate route: ${scene.sceneId}`)
+    if (source.start_seconds.toFixed(3) !== scene.startSeconds.toFixed(3) || source.end_seconds.toFixed(3) !== scene.endSeconds.toFixed(3)) throw new Error(`Cue drift: ${scene.sceneId}`)
+    if (source.approved_visuals.length !== 1 || source.approved_visuals[0].path !== scene.sourcePath || source.approved_visuals[0].sha256 !== scene.sourceSha256) throw new Error(`Source drift: ${scene.sceneId}`)
+    for (const file of [scene.sourcePath, `public${scene.image}`]) if (sha(path.join(root, file)) !== scene.sourceSha256) throw new Error(`Raster drift: ${scene.sceneId} ${file}`)
+  }
 }
 
 async function run() {
@@ -48,13 +61,13 @@ async function run() {
               const video = document.querySelector('video')
               const detail = document.querySelector('aside[aria-label$="source wording"]')
               const rect = video.getBoundingClientRect()
-              return { scene: detail?.getAttribute('aria-label') ?? null, display: detail ? getComputedStyle(detail).display : null, embeddedImages: detail?.querySelectorAll('img').length ?? 0, sourceLink: detail?.querySelector('a')?.getAttribute('href') ?? null, player: [Math.round(rect.width), Math.round(rect.height)], playerVisible: getComputedStyle(video).visibility === 'visible' && getComputedStyle(video).opacity === '1', controls: video.controls, controlsClear: document.elementFromPoint(rect.left + rect.width / 2, rect.bottom - 8) === video, captions: video.textTracks[0]?.mode ?? null }
+              return { scene: detail?.getAttribute('aria-label') ?? null, display: detail ? getComputedStyle(detail).display : null, embeddedImages: detail?.querySelectorAll('img').length ?? 0, sourceLink: detail?.querySelector('a')?.getAttribute('href') ?? null, player: [Math.round(rect.width), Math.round(rect.height)], playerVisible: getComputedStyle(video).visibility === 'visible' && getComputedStyle(video).opacity === '1', controls: video.controls, controlsClear: document.elementFromPoint(rect.left + rect.width / 2, rect.bottom - 8) === video, captions: video.textTracks[0]?.mode ?? null, activeCueCount: video.textTracks[0]?.activeCues?.length ?? 0 }
             })
           }
           const before = await read(Math.max(0, scene.startSeconds - 0.15))
           const during = await read((scene.startSeconds + scene.endSeconds) / 2)
           const after = await read(scene.endSeconds + 0.15)
-          if (before.scene?.startsWith(scene.sceneId) || after.scene?.startsWith(scene.sceneId) || !during.scene?.startsWith(scene.sceneId) || during.display !== (viewport === 'mobile' ? 'block' : 'none') || !during.controls || !during.controlsClear || !during.playerVisible || during.embeddedImages !== 0 || during.sourceLink !== scene.image) throw new Error(`${viewport} ${scene.sceneId}: ${JSON.stringify({ before, during, after })}`)
+          if (before.scene?.startsWith(scene.sceneId) || after.scene?.startsWith(scene.sceneId) || !during.scene?.startsWith(scene.sceneId) || during.display !== (viewport === 'mobile' ? 'block' : 'none') || !during.controls || !during.controlsClear || !during.playerVisible || during.embeddedImages !== 0 || during.sourceLink !== (scene.image ?? null) || (scene.kind === 'text' && during.activeCueCount !== 0)) throw new Error(`${viewport} ${scene.sceneId}: ${JSON.stringify({ before, during, after })}`)
           let captionsOff = null
           if (viewport === 'mobile') {
             await read((scene.startSeconds + scene.endSeconds) / 2)
@@ -66,15 +79,15 @@ async function run() {
               return { captions: video.textTracks[0].mode, scene: detail?.getAttribute('aria-label') ?? null, embeddedImages: detail?.querySelectorAll('img').length ?? 0, controls: video.controls }
             })
             if (!captionsOff.scene?.startsWith(scene.sceneId) || captionsOff.embeddedImages !== 0 || !captionsOff.controls || captionsOff.captions !== 'disabled') throw new Error(`${viewport} ${scene.sceneId}: captions-off state failed`)
-            if (scene.sceneId === 'L06-03') {
+            if (['L06-03', 'L07-07'].includes(scene.sceneId)) {
               await page.evaluate(() => window.scrollTo(0, window.scrollY + document.querySelector('video').getBoundingClientRect().top - 160))
-              await page.screenshot({ path: path.join(output, 'mobile-L06-03-captions-off.png') })
+              await page.screenshot({ path: path.join(output, `mobile-${scene.sceneId}-captions-off.png`) })
             }
             await player.evaluate((element) => { element.textTracks[0].mode = 'showing' })
             await page.waitForFunction(() => document.body.textContent.includes('Captions are on.'))
           }
           observations.push({ viewport, sceneId: scene.sceneId, url, before, during, captionsOff, after })
-          if (['L06-03', 'L10-03', 'L16-05'].includes(scene.sceneId)) {
+          if (['L06-03', 'L07-07', 'L10-03', 'L16-05'].includes(scene.sceneId)) {
             await read((scene.startSeconds + scene.endSeconds) / 2)
             await page.evaluate(() => window.scrollTo(0, window.scrollY + document.querySelector('video').getBoundingClientRect().top - 160))
             await page.screenshot({ path: path.join(output, `${viewport}-${scene.sceneId}.png`) })
@@ -95,7 +108,7 @@ async function run() {
             const detail = page.locator(`aside[aria-label^="${scene.sceneId} "]`)
             await detail.scrollIntoViewIfNeeded()
             await page.waitForTimeout(450)
-            await detail.locator('div').nth(1).scrollIntoViewIfNeeded()
+            if (scene.details.length) await detail.locator('div').nth(1).scrollIntoViewIfNeeded()
             await page.waitForTimeout(450)
             await read(scene.endSeconds + 0.15)
             await page.waitForTimeout(250)
