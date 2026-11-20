@@ -35,7 +35,9 @@ async function run() {
         await player.waitFor({ timeout: 15000 })
         await page.waitForFunction((id) => document.querySelector('video')?.getAttribute('aria-label')?.startsWith(id + ' '), lessonId, { timeout: 15000 })
         await page.waitForFunction(() => document.querySelector('video')?.readyState >= 1, { timeout: 15000 })
+        await player.scrollIntoViewIfNeeded()
         for (const scene of scenes) {
+          await player.scrollIntoViewIfNeeded()
           const read = async (time) => {
             await player.evaluate((element, seconds) => { element.pause(); element.currentTime = seconds; element.dispatchEvent(new Event('seeking')) }, time)
             await page.waitForTimeout(200)
@@ -61,14 +63,27 @@ async function run() {
               return { captions: video.textTracks[0].mode, scene: detail?.getAttribute('aria-label') ?? null, embeddedImages: detail?.querySelectorAll('img').length ?? 0, controls: video.controls }
             })
             if (!captionsOff.scene?.startsWith(scene.sceneId) || captionsOff.embeddedImages !== 0 || !captionsOff.controls || captionsOff.captions !== 'disabled') throw new Error(`${viewport} ${scene.sceneId}: captions-off state failed`)
-            if (scene.sceneId === 'L06-03') await page.screenshot({ path: path.join(output, 'mobile-L06-03-captions-off.png'), fullPage: true })
+            if (scene.sceneId === 'L06-03') {
+              await page.evaluate(() => window.scrollTo(0, window.scrollY + document.querySelector('video').getBoundingClientRect().top - 160))
+              await page.screenshot({ path: path.join(output, 'mobile-L06-03-captions-off.png') })
+            }
             await player.evaluate((element) => { element.textTracks[0].mode = 'showing' })
             await page.waitForFunction(() => document.body.textContent.includes('Captions are on.'))
           }
           observations.push({ viewport, sceneId: scene.sceneId, url, before, during, captionsOff, after })
           if (['L06-03', 'L10-03', 'L16-05'].includes(scene.sceneId)) {
             await read((scene.startSeconds + scene.endSeconds) / 2)
-            await page.screenshot({ path: path.join(output, `${viewport}-${scene.sceneId}.png`), fullPage: viewport === 'mobile' })
+            await page.evaluate(() => window.scrollTo(0, window.scrollY + document.querySelector('video').getBoundingClientRect().top - 160))
+            await page.screenshot({ path: path.join(output, `${viewport}-${scene.sceneId}.png`) })
+          }
+          if (viewport === 'mobile' && scene.sceneId === 'L06-03') {
+            const [fullPlate] = await Promise.all([context.waitForEvent('page'), page.getByRole('link', { name: 'Open full plate' }).click()])
+            await fullPlate.waitForLoadState('load')
+            if (!fullPlate.url().endsWith(scene.image)) throw new Error('Full plate link opened the wrong source')
+            const dimensions = await fullPlate.locator('img').evaluate((image) => [image.naturalWidth, image.naturalHeight])
+            if (dimensions[0] !== scene.width || dimensions[1] !== scene.height) throw new Error('Full plate link did not load approved raster dimensions')
+            if (!await player.evaluate((element) => element.paused)) throw new Error('Full plate link did not pause native playback')
+            await fullPlate.close()
           }
           await read((scene.startSeconds + scene.endSeconds) / 2)
           if (viewport === 'mobile') {
