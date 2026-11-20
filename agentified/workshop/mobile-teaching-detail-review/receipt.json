@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "codeCommit": "51e014a762ed24bdfa128efad28d8be0ab6f1c47",
-  "mapSha256": "16e1482a774e6dcea74fd3cef80796207647b9d2c21bc4bbe8d7773928c7b0ab",
+  "codeCommit": "fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+  "mapSha256": "a61a3cc1118fd2e79789fee9b72f4fe5e0a8de5be968fd5fdd80afe21c9f4cb4",
   "auditSha256": "81ac12fd53953f1eccf862e6382117d452e1634d3656adf1c1ab8178b9a77a43",
   "sceneCount": 15,
   "observations": [
     {
       "viewport": "desktop",
       "sceneId": "L05-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -27,7 +27,7 @@
         "scene": "L05-04 Portfolio-first operating stack source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/lessons/l05/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           621,
           349
@@ -56,7 +56,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L06-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -75,7 +75,7 @@
         "scene": "L06-03 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -104,7 +104,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L07-05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -123,7 +123,7 @@
         "scene": "L07-05 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -152,7 +152,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L08-05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L08&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -171,7 +171,7 @@
         "scene": "L08-05 The first receipt source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-1-1-first-receipt-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
         "player": [
           621,
           349
@@ -200,7 +200,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L09-02",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -219,7 +219,7 @@
         "scene": "L09-02 SAM with the trust layer source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
         "player": [
           621,
           349
@@ -248,7 +248,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L09-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -267,7 +267,7 @@
         "scene": "L09-04 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -296,7 +296,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L10-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L10&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -315,7 +315,7 @@
         "scene": "L10-03 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -344,7 +344,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L11-02",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L11&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -363,7 +363,7 @@
         "scene": "L11-02 Portfolio-first operating stack source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           621,
           349
@@ -392,7 +392,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L12-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L12&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -411,7 +411,7 @@
         "scene": "L12-03 The first receipt source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-1-1-first-receipt-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
         "player": [
           621,
           349
@@ -440,7 +440,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L13-02",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L13&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -459,7 +459,7 @@
         "scene": "L13-02 A.M.I.N.A. inside SAM source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-3-amina-inside-sam-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
         "player": [
           621,
           349
@@ -488,7 +488,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L14-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -507,7 +507,7 @@
         "scene": "L14-03 Portfolio-first operating stack source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           621,
           349
@@ -522,7 +522,7 @@
         "scene": "L14-04 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -536,12 +536,12 @@
     {
       "viewport": "desktop",
       "sceneId": "L14-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": "L14-03 Portfolio-first operating stack source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           621,
           349
@@ -555,7 +555,7 @@
         "scene": "L14-04 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -584,7 +584,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L15-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L15&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -603,7 +603,7 @@
         "scene": "L15-04 SAM with the trust layer source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
         "player": [
           621,
           349
@@ -632,7 +632,7 @@
     {
       "viewport": "desktop",
       "sceneId": "L16-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -651,7 +651,7 @@
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-3-amina-inside-sam-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
         "player": [
           621,
           349
@@ -666,7 +666,7 @@
         "scene": "L16-05 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -680,12 +680,12 @@
     {
       "viewport": "desktop",
       "sceneId": "L16-05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-3-amina-inside-sam-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
         "player": [
           621,
           349
@@ -699,7 +699,7 @@
         "scene": "L16-05 Authority ladder source wording",
         "display": "none",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           621,
           349
@@ -728,7 +728,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L05-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -747,7 +747,7 @@
         "scene": "L05-04 Portfolio-first operating stack source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/lessons/l05/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           292,
           164
@@ -781,7 +781,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L06-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -800,7 +800,7 @@
         "scene": "L06-03 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -834,7 +834,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L07-05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -853,7 +853,7 @@
         "scene": "L07-05 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -887,7 +887,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L08-05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L08&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -906,7 +906,7 @@
         "scene": "L08-05 The first receipt source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-1-1-first-receipt-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
         "player": [
           292,
           164
@@ -940,7 +940,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L09-02",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -959,7 +959,7 @@
         "scene": "L09-02 SAM with the trust layer source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
         "player": [
           292,
           164
@@ -993,7 +993,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L09-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1012,7 +1012,7 @@
         "scene": "L09-04 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -1046,7 +1046,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L10-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L10&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1065,7 +1065,7 @@
         "scene": "L10-03 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -1099,7 +1099,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L11-02",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L11&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1118,7 +1118,7 @@
         "scene": "L11-02 Portfolio-first operating stack source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           292,
           164
@@ -1152,7 +1152,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L12-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L12&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1171,7 +1171,7 @@
         "scene": "L12-03 The first receipt source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-1-1-first-receipt-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
         "player": [
           292,
           164
@@ -1205,7 +1205,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L13-02",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L13&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1224,7 +1224,7 @@
         "scene": "L13-02 A.M.I.N.A. inside SAM source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-3-amina-inside-sam-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
         "player": [
           292,
           164
@@ -1258,7 +1258,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L14-03",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1277,7 +1277,7 @@
         "scene": "L14-03 Portfolio-first operating stack source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           292,
           164
@@ -1297,7 +1297,7 @@
         "scene": "L14-04 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -1311,12 +1311,12 @@
     {
       "viewport": "mobile",
       "sceneId": "L14-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": "L14-03 Portfolio-first operating stack source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-8-1-portfolio-first-stack-publication-plate.png",
         "player": [
           292,
           164
@@ -1330,7 +1330,7 @@
         "scene": "L14-04 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -1364,7 +1364,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L15-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L15&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1383,7 +1383,7 @@
         "scene": "L15-04 SAM with the trust layer source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
         "player": [
           292,
           164
@@ -1417,7 +1417,7 @@
     {
       "viewport": "mobile",
       "sceneId": "L16-04",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": null,
         "display": null,
@@ -1436,7 +1436,7 @@
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-3-amina-inside-sam-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
         "player": [
           292,
           164
@@ -1456,7 +1456,7 @@
         "scene": "L16-05 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -1470,12 +1470,12 @@
     {
       "viewport": "mobile",
       "sceneId": "L16-05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=51e014a762ed24bdfa128efad28d8be0ab6f1c47",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
       "before": {
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-3-amina-inside-sam-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
         "player": [
           292,
           164
@@ -1489,7 +1489,7 @@
         "scene": "L16-05 Authority ladder source wording",
         "display": "block",
         "embeddedImages": 0,
-        "sourceLink": "/agentified/mobile-teaching-plates/figure-ii-1-authority-ladder-publication-plate.png",
+        "sourceLink": "/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
         "player": [
           292,
           164
@@ -1524,39 +1524,39 @@
   "evidence": [
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-L06-03.png",
-      "sha256": "33f2b8a75f258612349b2740afa9b0dffedfdbef5eaa39aa65233b468c9ddc49"
+      "sha256": "80d657fe073ebd7608aa77927db8dab17000cd46c69947c9a1f9b551df9de2b2"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-L10-03.png",
-      "sha256": "a2e633a07de045a5a69b98a54eae5f6e5ca4165de9e950f167f9fc789b6b717d"
+      "sha256": "4cc2a4ac86bc4d734091987f8f311b1ef43cee3188c1ac6327810c2753798124"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-L16-05.png",
-      "sha256": "ed22bcbb8670accf7987385a7ea405075a339caad0ee7116c82198f271f4aeb8"
+      "sha256": "c597a9045096aebfaa6c733ad7f72a75a63fe2fd5408d8574a27f4c4c3ec5701"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-consolidated.mp4",
-      "sha256": "ec46ac67f1d0293e266c7ddc26e3966c3a63967f977c02bd663a3e86941f1845"
+      "sha256": "44cdc4fcfa776a1236042bc45c6f9e16aa982cef0abd87ed6a15d17711df2eb8"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L06-03-captions-off.png",
-      "sha256": "b78bf7ef796419ebddfb70af8e1da6093c3012a90b36bed6c6019e5cab5b0efa"
+      "sha256": "c2bce1cc0909b5d2e8142107b01778d1970a3ab15c9e6a9b095a65493cb70170"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L06-03.png",
-      "sha256": "685a52a7f1852daefeddfdfad1415eed9ee30a6f73679779568fcedc04c74072"
+      "sha256": "96cb56f7313fbb2fe5b9e0ee73d4c7da0c5d3c3ea3c16e533ed11c93503e71bb"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L10-03.png",
-      "sha256": "77456b6f4527658f03c09c855c6418c23f5e0dbd1dee28c562e67a2750771703"
+      "sha256": "23676d14c9b62685c1c6fe6fe362ae6a433f8ad7480dcdb994762ed536b011fb"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L16-05.png",
-      "sha256": "d210605c1a1ff96280f7b9b6e7df22defcca419b4769935b2ac82c8950e7d6b8"
+      "sha256": "06a2ada3f477b4d678d9d8d2c400a96e27cb5f2bfa8a36c73152d9ee37e0d3d1"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-consolidated.mp4",
-      "sha256": "388abb9dd0b83a3ebee2c3220e82883eab962cb6003f69a4177d6dcbbf71cdc6"
+      "sha256": "ae2507bdb3026b77eacf502b411f98a16e90b47fbd6e4ea6eb8da75860f4e317"
     }
   ]
 }
