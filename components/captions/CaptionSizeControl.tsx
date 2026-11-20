@@ -6,9 +6,10 @@ const sizes: { value: CaptionSize; label: string }[] = [
   { value: 'M', label: 'Medium' },
   { value: 'L', label: 'Large' },
 ]
+const previewStyle = { fontFamily: 'Arial, sans-serif', fontWeight: 500, fontStyle: 'normal', lineHeight: '24px' } as const
 
 export function CaptionSizeControl({ size, onChange }: { size: CaptionSize; onChange: (size: CaptionSize) => void }) {
   return <div className={styles.control} role="group" aria-label="Caption size">
-    {sizes.map((option) => <button key={option.value} type="button" aria-label={`${option.label} captions`} aria-pressed={size === option.value} onClick={() => onChange(option.value)}><span aria-hidden="true" className={styles.preview} style={{ fontSize: `${CAPTION_FONT_PX[option.value]}px` }}>Aa</span></button>)}
+    {sizes.map((option) => <button key={option.value} type="button" aria-label={`${option.label} captions`} aria-pressed={size === option.value} onClick={() => onChange(option.value)}><span aria-hidden="true" className={styles.preview} style={{ ...previewStyle, fontSize: `${CAPTION_FONT_PX[option.value]}px` }}>Aa</span></button>)}
   </div>
 }

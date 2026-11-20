@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T18:34:12.255Z",
+  "generatedAt": "2026-11-20T18:50:58.552Z",
   "states": [
     {
       "course": "agentified",
@@ -13,15 +13,39 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 540.46875
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 540.46875
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 540.46875
         }
       },
       "stored": "S",
@@ -42,21 +66,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 572.90625
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 572.90625
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 572.90625
         }
       },
       "stored": "M",
       "trackMode": "hidden",
       "bandSize": "M",
-      "bandFont": "17px",
+      "bandFont": "18px",
       "bandText": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth."
     },
     {
@@ -71,21 +119,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 653.859375
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 653.859375
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 653.859375
         }
       },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
-      "bandFont": "21px",
+      "bandFont": "24px",
       "bandText": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth."
     },
     {
@@ -106,21 +178,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 653.859375
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 653.859375
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 653.859375
         }
       },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
-      "bandFont": "21px",
+      "bandFont": "24px",
       "bandText": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth."
     },
     {
@@ -135,15 +231,39 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 695.734375
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 695.734375
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 695.734375
         }
       },
       "stored": "S",
@@ -164,21 +284,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 736.25
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 736.25
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 736.25
         }
       },
       "stored": "M",
       "trackMode": "hidden",
       "bandSize": "M",
-      "bandFont": "17px",
+      "bandFont": "18px",
       "bandText": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this"
     },
     {
@@ -193,21 +337,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 833.40625
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 833.40625
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 833.40625
         }
       },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
-      "bandFont": "21px",
+      "bandFont": "24px",
       "bandText": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this"
     },
     {
@@ -228,21 +396,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 833.40625
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 833.40625
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 833.40625
         }
       },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
-      "bandFont": "21px",
+      "bandFont": "24px",
       "bandText": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this"
     },
     {
@@ -257,15 +449,39 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.46875
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.46875
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.46875
         }
       },
       "stored": "S",
@@ -286,21 +502,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.390625
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.390625
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.390625
         }
       },
       "stored": "M",
       "trackMode": "hidden",
       "bandSize": "M",
-      "bandFont": "17px",
+      "bandFont": "18px",
       "bandText": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
     },
     {
@@ -315,21 +555,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.640625
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.640625
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.640625
         }
       },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
-      "bandFont": "21px",
+      "bandFont": "24px",
       "bandText": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
     },
     {
@@ -350,21 +614,45 @@
       "previews": {
         "Small": {
           "text": "Aa",
-          "font": "14px"
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.640625
         },
         "Medium": {
           "text": "Aa",
-          "font": "17px"
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.640625
         },
         "Large": {
           "text": "Aa",
-          "font": "21px"
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(23, 45, 53)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.640625
         }
       },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
-      "bandFont": "21px",
+      "bandFont": "24px",
       "bandText": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
     }
   ]
