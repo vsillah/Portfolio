@@ -63,6 +63,19 @@ async function run() {
             await read((scene.startSeconds + scene.endSeconds) / 2)
             await page.screenshot({ path: path.join(output, `${viewport}-${scene.sceneId}.png`), fullPage: viewport === 'mobile' })
           }
+          await read((scene.startSeconds + scene.endSeconds) / 2)
+          if (viewport === 'mobile') {
+            const figure = page.locator(`figure[aria-label^="${scene.sceneId} "]`)
+            await figure.scrollIntoViewIfNeeded()
+            await page.waitForTimeout(450)
+            await figure.locator('figcaption').scrollIntoViewIfNeeded()
+            await page.waitForTimeout(450)
+            await read(scene.endSeconds + 0.15)
+            await page.waitForTimeout(250)
+          } else {
+            await player.scrollIntoViewIfNeeded()
+            await page.waitForTimeout(350)
+          }
         }
       }
       await context.close()
