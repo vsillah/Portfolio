@@ -15,5 +15,13 @@
   "preparedPhase3aCandidate": "rejected: 03:04.360 end truncates the spoken word 'condition'",
   "correction": "keep envelope cue through 03:05.000; start 'Mark it unapproved' at 03:05.520; leave all words and other cue timings unchanged",
   "correctedVttSha256": "0650d923e75357b672a493b40f633953b97c014efdd96767413f3679c2123ed3",
-  "humanAuditoryConfirmation": "pending captain listening; automated acoustic and source timing agree"
+  "humanAuditoryConfirmation": {
+    "status": "captain_pass_bounded_join",
+    "listenedWindowSeconds": [180, 190],
+    "reportedBy": "Integration Captain direct listening, 2026-11-20",
+    "observed": "revocation condition finishes cleanly; natural gap; complete Mark it unapproved; no clipping, repetition, missing words, or overlap",
+    "scope": "bounded join only; not whole-lesson spoken-word verification",
+    "sourceAudioChanged": false,
+    "captionWordsOrCueTimesChanged": false
+  }
 }

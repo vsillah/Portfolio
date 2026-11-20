@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "baseCommit": "9f31a4db904b3cf1b4e097191a3df32f13e8f8c9",
   "lineageManifest": "docs/agentified-distribution-readiness/phase-2/qualification-manifest.json",
-  "method": "SHA-256 of exact bytes; no ASR, acoustic review, or transcript equivalence inferred",
+  "method": "SHA-256 of exact bytes; script-derived transcript and bound VTT normalized word sequence equality; no character-level or full-audio equivalence inferred",
   "records": [
     {
       "lessonId": "L01",
@@ -29,7 +29,14 @@
       },
       "oldUnattributedTranscriptSha256": "997e83f0d7f6d06a318d2da866195bc53e0d13a603954c10ab7d70985ddd03d2",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L01-c600f29d7fcc.txt",
+        "sha256": "5dcf6d2c47b55aa2a40daccc61b53293b35db50fbc5fb63c457f6a253e96f71f",
+        "sourceScriptSha256": "c600f29d7fcc6c2a50d3bcb2d07f92a9d0f45225520e300d865c188d75cdaa26",
+        "boundCaptionSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+        "normalizedWordCount": 589,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -57,7 +64,14 @@
       },
       "oldUnattributedTranscriptSha256": "f932cb15f888dd4ea5e285f2fdc49fc3fa4b51902a60b2be93c5cf752d033ada",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L05-f6d8916f442a.txt",
+        "sha256": "647e6a00966dbc8e71a71bc4ac71217ce756664e822734d8fa7d5da6d4e09bcd",
+        "sourceScriptSha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
+        "boundCaptionSha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389",
+        "normalizedWordCount": 527,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -85,7 +99,14 @@
       },
       "oldUnattributedTranscriptSha256": "fd2934696358cf5713882956ee394cb2d6530da126149450294971962b11f17a",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L06-42c2b7a3c10d.txt",
+        "sha256": "3ecdd5730e884b12ade63e5729492e42d08e4e0074c6dbc4ded86d2871b33732",
+        "sourceScriptSha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
+        "boundCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+        "normalizedWordCount": 554,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -113,7 +134,14 @@
       },
       "oldUnattributedTranscriptSha256": "417fa294df5b969317bcb9885b5984fd5aa50fff23c34e32586aee60dac93750",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L07-9c59a8a51081.txt",
+        "sha256": "c14353fa9a18cf5e3a20fa2e76f1c5c0bb0c1b23ddf67b4f3f30c925e4ff23de",
+        "sourceScriptSha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
+        "boundCaptionSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+        "normalizedWordCount": 538,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -141,7 +169,14 @@
       },
       "oldUnattributedTranscriptSha256": "26dfe4c9ff7fb8a9deec7bb7e4bbaa9987e19ed8079ec347cf85e7d33ecea03b",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L08-219060baa998.txt",
+        "sha256": "ed631644905645f1b7b91cec607bc74e8c81e6b23ec541212ad8e428d14168fe",
+        "sourceScriptSha256": "219060baa998bd6a866e9ff00a6df99d2ccba64b6c5ecd55e9db7cc385df6846",
+        "boundCaptionSha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011",
+        "normalizedWordCount": 529,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -169,7 +204,14 @@
       },
       "oldUnattributedTranscriptSha256": "c2157c044e77cd3ab6636465ff8b0e22af3ffd3ff9ec88b4dcc331b97b106ad6",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L09-fc1388fa740b.txt",
+        "sha256": "85f7620a874c67f066fd5b3a5e66f3e7fc86d5b3c94587464b636ae9cb48d7df",
+        "sourceScriptSha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
+        "boundCaptionSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+        "normalizedWordCount": 582,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -197,7 +239,14 @@
       },
       "oldUnattributedTranscriptSha256": "c856d7504f0eaee7063f4a246ecf894a4cf59865f37413974c2e066c99a740ec",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L10-689d6c0b2fe4.txt",
+        "sha256": "a160fe9c4f7d8dec80d50dc64ca9f6453697f2a09d0f518949950b06ff98e7e3",
+        "sourceScriptSha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a",
+        "boundCaptionSha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+        "normalizedWordCount": 571,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -225,7 +274,14 @@
       },
       "oldUnattributedTranscriptSha256": "cb7ee5db3dacb7f4f06bd29d516488bd4b8788d31a5ba572027ed4a5faab6c77",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L11-adafcfec9e4a.txt",
+        "sha256": "7e18a51b360cdf317f0eb052e68a5214647860f0d790fb56e216b88175b6a4b5",
+        "sourceScriptSha256": "adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d",
+        "boundCaptionSha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+        "normalizedWordCount": 574,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -253,7 +309,14 @@
       },
       "oldUnattributedTranscriptSha256": "5be27b8fcc2de95e8fba2386235ca0d44203460bed7e099b99083bfb5b85e5e3",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L12-5201a7b99266.txt",
+        "sha256": "660e4a5dc977fc63b1bd337cacf340c151f94538c6ba777cbe40812456bf172b",
+        "sourceScriptSha256": "5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4",
+        "boundCaptionSha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+        "normalizedWordCount": 578,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -281,7 +344,14 @@
       },
       "oldUnattributedTranscriptSha256": "0d258bdbe8fb92ca3a76be43c5a03b4da61e41d0184c5484d8d815cd9cfdb372",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L13-75f6c95a9d16.txt",
+        "sha256": "eee524348ce2509403704677658b5a591c2e132ed313efc6ea518c84239636d6",
+        "sourceScriptSha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+        "boundCaptionSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+        "normalizedWordCount": 523,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -309,7 +379,14 @@
       },
       "oldUnattributedTranscriptSha256": "45b5e43d082c5bb8a59f88227929879837e9770454f7682f3d0827f3582f1759",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L14-2003984f8327.txt",
+        "sha256": "02e2062a64100633cb253738da42cfce72e9855c83b5f6085ebf4cd8b8c59864",
+        "sourceScriptSha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
+        "boundCaptionSha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446",
+        "normalizedWordCount": 506,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -337,7 +414,14 @@
       },
       "oldUnattributedTranscriptSha256": "b6864c9195f7a7a666abe7a6acfc649749fc7f04758785c42414452226cc4908",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L15-b2256c3106e4.txt",
+        "sha256": "eac0ea33edae5d1973b0d36caa7cf2f430c2939442a3f1a33173bf782c3dc19b",
+        "sourceScriptSha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
+        "boundCaptionSha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522",
+        "normalizedWordCount": 555,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     },
     {
@@ -365,7 +449,14 @@
       },
       "oldUnattributedTranscriptSha256": "e5e5c61ddf3c808e1aec315fd58f6d5c11bf3a18262d44a0213ad9e699a73a73",
       "spokenWordingReview": "pending_contextual_listening",
-      "versionedTranscript": null,
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L16-833da08a015f.txt",
+        "sha256": "1d0b554d0f7d578eccb9e0cef4b4045e89d5a0af239c9abd823f1f1aa1875171",
+        "sourceScriptSha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e",
+        "boundCaptionSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
+        "normalizedWordCount": 581,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
       "rightsScope": "visual_preproduction_only; final distribution unconfirmed"
     }
   ]

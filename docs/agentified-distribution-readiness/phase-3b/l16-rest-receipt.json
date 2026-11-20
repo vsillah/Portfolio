@@ -23,6 +23,16 @@
   "visibleRestAfterCueSeconds": 8.098,
   "candidatePath": "agentified/workshop/phase-3b-review/L16/agentified-l16-resting-composite.mp4",
   "candidateSha256": "5e5159a626a3cc3c5ef43ce679fcd451140895b0717db572b01fb1ed01496a3c",
-  "review": "final card inspected at 266.72, 267.30, and 275.00 seconds; moving presenter remains unchanged before 266.68; browser/mobile and human QA pending",
+  "review": "final card inspected at 266.72, 267.30, and 275.00 seconds; moving presenter remains unchanged before 266.68; exact learner-route candidate check failed at both viewports because the existing end-screen overlays the resting card from 267.222 seconds",
+  "learnerRouteCandidateCheck": {
+    "stackedCodeHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+    "method": "read-only Playwright media-response substitution of the unbound candidate on the exact L16 learner route; no source or binding edit",
+    "route": "/agentified/learningplan?lesson=L16&rev=32f44fb9-candidate",
+    "viewports": ["1280x720", "390x844"],
+    "candidateDurationSeconds": 275.32,
+    "existingEndScreenStartSeconds": 267.222,
+    "observation": "candidate card is visible at 266.72; React end-screen is present at 267.30 and 275.00 and obscures the intended eight-second resting card at both widths",
+    "result": "FAIL; candidate remains unbound"
+  },
   "learnerBindingChanged": false
 }
