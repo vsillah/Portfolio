@@ -33,6 +33,7 @@ async function run() {
         await page.goto(url, { waitUntil: 'domcontentloaded' })
         const player = page.locator('video')
         await player.waitFor({ timeout: 15000 })
+        await page.waitForFunction((id) => document.querySelector('video')?.getAttribute('aria-label')?.startsWith(id + ' '), lessonId, { timeout: 15000 })
         await page.waitForFunction(() => document.querySelector('video')?.readyState >= 1, { timeout: 15000 })
         for (const scene of scenes) {
           const read = async (time) => {
@@ -50,6 +51,14 @@ async function run() {
           const after = await read(scene.endSeconds + 0.15)
           if (before.scene?.startsWith(scene.sceneId) || after.scene?.startsWith(scene.sceneId) || !during.scene?.startsWith(scene.sceneId) || during.display !== (viewport === 'mobile' ? 'block' : 'none') || !during.controls || !during.image?.includes(path.basename(scene.image))) throw new Error(`${viewport} ${scene.sceneId}: ${JSON.stringify({ before, during, after })}`)
           observations.push({ viewport, sceneId: scene.sceneId, url, before, during, after })
+          if (viewport === 'mobile' && scene.sceneId === 'L06-03') {
+            await read((scene.startSeconds + scene.endSeconds) / 2)
+            await player.evaluate((element) => { element.textTracks[0].mode = 'disabled' })
+            await page.waitForFunction(() => document.body.textContent.includes('Captions are off.'))
+            await page.screenshot({ path: path.join(output, 'mobile-L06-03-captions-off.png'), fullPage: true })
+            await player.evaluate((element) => { element.textTracks[0].mode = 'showing' })
+            await page.waitForFunction(() => document.body.textContent.includes('Captions are on.'))
+          }
           if (['L06-03', 'L10-03', 'L16-05'].includes(scene.sceneId)) {
             await read((scene.startSeconds + scene.endSeconds) / 2)
             await page.screenshot({ path: path.join(output, `${viewport}-${scene.sceneId}.png`), fullPage: viewport === 'mobile' })
