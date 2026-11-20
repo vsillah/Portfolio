@@ -159,12 +159,20 @@ describe('Agentified lesson media gate', () => {
     cancelFrame.mockRestore()
   })
 
-  it('positions only L07 opening cues on desktop and restores native placement at 620px', () => {
+  it('positions only L07-01 and L07-06 desktop cues and restores native placement at 620px', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     HTMLMediaElement.prototype.pause = vi.fn()
-    const opening = { startTime: 9.876, endTime: 15.124, text: 'Original caption', snapToLines: true, line: 'auto' as number | 'auto' }
-    const later = { startTime: 27.99, endTime: 31.884, text: 'Later caption', snapToLines: true, line: 'auto' as number | 'auto' }
-    const track = Object.assign(new EventTarget(), { cues: [opening, later] })
+    const cue = (startTime: number, endTime: number, text: string) => ({ startTime, endTime, text, snapToLines: true, line: 'auto' as number | 'auto' })
+    const opening = cue(9.876, 15.124, 'Original caption')
+    const afterOpening = cue(27.99, 31.884, 'Next scene caption')
+    const beforeReceiver = cue(150.962, 153.202, 'Before receiver scene')
+    const receiverStart = cue(153.479, 153.948, 'Pause.')
+    const receiverMid = cue(154.162, 157.895, 'Who would receive the brief?')
+    const receiverEnd = cue(158.215, 159.808, 'Name the role and the human.')
+    const afterReceiver = cue(160.078, 162.83, 'Next scene caption')
+    const receiverCues = [receiverStart, receiverMid, receiverEnd]
+    const unaffectedCues = [afterOpening, beforeReceiver, afterReceiver]
+    const track = Object.assign(new EventTarget(), { cues: [opening, ...unaffectedCues, ...receiverCues] })
     const media = Object.assign(new EventTarget(), { matches: true })
     const setViewportWidth = (width: number) => { media.matches = width >= 621; media.dispatchEvent(new Event('change')) }
     const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
@@ -175,17 +183,21 @@ describe('Agentified lesson media gate', () => {
       expect(window.matchMedia).toHaveBeenCalledWith('(min-width: 621px)')
       expect(container.querySelector('video')).toHaveAttribute('controls')
       expect(opening).toMatchObject({ line: 4, snapToLines: false, text: 'Original caption', startTime: 9.876, endTime: 15.124 })
-      expect(later).toMatchObject({ line: 'auto', snapToLines: true })
+      for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 52, snapToLines: false })
+      for (const unaffected of unaffectedCues) expect(unaffected).toMatchObject({ line: 'auto', snapToLines: true })
 
       setViewportWidth(620)
       expect(opening).toMatchObject({ line: 'auto', snapToLines: true })
-      expect(later).toMatchObject({ line: 'auto', snapToLines: true })
+      for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 'auto', snapToLines: true })
+      for (const unaffected of unaffectedCues) expect(unaffected).toMatchObject({ line: 'auto', snapToLines: true })
 
       setViewportWidth(621)
       expect(opening).toMatchObject({ line: 4, snapToLines: false })
+      for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 52, snapToLines: false })
       unmount()
       setViewportWidth(620)
       expect(opening).toMatchObject({ line: 4, snapToLines: false })
+      for (const receiver of receiverCues) expect(receiver).toMatchObject({ line: 52, snapToLines: false })
     } finally {
       if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
       else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')

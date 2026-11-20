@@ -6,10 +6,15 @@ const path = require('node:path')
 
 const root = path.resolve(__dirname, '../../..')
 const bindings = require(path.join(root, 'lib/agentified-illustrated-bindings.json'))
+const audit = require(path.join(root, 'agentified/workshop/presentation-illustration-audit/audit-boundaries.json'))
 const output = path.join(root, 'agentified/workshop/caption-safety-review')
 const revision = process.argv[2]
 if (!/^[a-f0-9]{7,40}$/.test(revision || '')) throw new Error('Pass the code commit SHA')
 const lessons = ['L01', ...Array.from({ length: 12 }, (_, index) => `L${String(index + 5).padStart(2, '0')}`)]
+const clearanceScenes = [
+  { id: 'L07-01', start: 0, end: 27.99, line: 4, captureStart: 12.5 },
+  { id: 'L07-06', start: 153.479, end: 160.078, line: 52, captureStart: 155.4 },
+]
 const sha = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex')
 const cueSource = (lesson) => {
   const source = bindings.bindings[lesson].captions
@@ -30,6 +35,10 @@ async function readPlayer(page, lesson) {
 }
 
 async function run() {
+  for (const scene of clearanceScenes) {
+    const source = audit.rows.find((row) => row.scene_id === scene.id)
+    if (source?.start_seconds !== scene.start || source?.end_seconds !== scene.end) throw new Error(`${scene.id}: source scene boundary drift`)
+  }
   fs.mkdirSync(output, { recursive: true })
   const browser = await chromium.launch({ headless: true })
   const observations = []
@@ -57,8 +66,8 @@ async function run() {
         state.cues.forEach((cue, index) => {
           const source = expected[index]
           if (timestamp(cue.start) !== source.start || timestamp(cue.end) !== source.end || cue.text !== source.text) throw new Error(`${name} ${lesson} cue ${index}: text or timing drift`)
-          const opening = name === 'desktop' && lesson === 'L07' && cue.start < 27.67
-          if (opening ? cue.line !== 4 || cue.snap !== false : cue.line !== 'auto' || cue.snap !== true) throw new Error(`${name} ${lesson} cue ${index}: unexpected placement`)
+          const scene = name === 'desktop' && lesson === 'L07' ? clearanceScenes.find(({ start, end }) => cue.start >= start && cue.start < end) : null
+          if (scene ? cue.line !== scene.line || cue.snap !== false : cue.line !== 'auto' || cue.snap !== true) throw new Error(`${name} ${lesson} cue ${index}: unexpected placement`)
         })
         const midpoint = lesson === 'L07' ? 14 : Math.min(state.cues[0].end - 0.05, state.cues[0].start + 0.3)
         console.log(`${name} ${lesson}: ${state.cues.length} cues; paused-state check at ${midpoint.toFixed(3)}s`)
@@ -74,39 +83,41 @@ async function run() {
         const restored = await read()
         const states = { before, off, restored }
         if (states.before.mode !== 'showing' || !states.before.paused || states.off.mode !== 'disabled' || states.off.active !== 0 || states.restored.mode !== 'showing' || !states.restored.paused || states.restored.active !== states.before.active) throw new Error(`${name} ${lesson}: caption toggle or paused restoration drift`)
-        observations.push({ viewport: name, lesson, url, cueCount: state.cues.length, openingCuesMoved: name === 'desktop' && lesson === 'L07' ? state.cues.filter((cue) => cue.start < 27.67).length : 0, states })
+        observations.push({ viewport: name, lesson, url, cueCount: state.cues.length, movedCues: name === 'desktop' && lesson === 'L07' ? Object.fromEntries(clearanceScenes.map((scene) => [scene.id, state.cues.filter((cue) => cue.start >= scene.start && cue.start < scene.end).length])) : {}, states })
       }
       await context.close()
 
-      const recording = await browser.newContext({ viewport: { width, height }, recordVideo: { dir: output, size: { width, height } } })
-      const review = await recording.newPage()
-      const url = `http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=${revision}`
-      await review.goto(url, { waitUntil: 'domcontentloaded' })
-      const player = await readPlayer(review, 'L07')
-      await player.scrollIntoViewIfNeeded()
-      await player.evaluate((video) => { video.currentTime = 12.5; video.play() })
-      await review.waitForTimeout(1800)
-      await review.screenshot({ path: path.join(output, `${name}-L07-01-captions-on.png`) })
-      await player.evaluate((video) => video.pause())
-      await player.evaluate((video) => { video.textTracks[0].mode = 'disabled' })
-      await review.waitForTimeout(700)
-      await review.screenshot({ path: path.join(output, `${name}-L07-01-captions-off.png`) })
-      await player.evaluate((video) => { video.textTracks[0].mode = 'showing' })
-      await review.waitForTimeout(700)
-      await review.screenshot({ path: path.join(output, `${name}-L07-01-paused-restored.png`) })
-      await recording.close()
-      const webm = await review.video().path()
-      const mp4 = path.join(output, `${name}-L07-01-walkthrough.mp4`)
-      execFileSync('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', webm, '-c:v', 'libx264', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', mp4])
-      fs.unlinkSync(webm)
-      execFileSync('ffmpeg', ['-v', 'error', '-i', mp4, '-f', 'null', '-'])
-      observations.push({ viewport: name, lesson: 'L07', reviewUrl: url, recording: path.relative(root, mp4) })
+      for (const scene of clearanceScenes) {
+        const recording = await browser.newContext({ viewport: { width, height }, recordVideo: { dir: output, size: { width, height } } })
+        const review = await recording.newPage()
+        const url = `http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=${revision}`
+        await review.goto(url, { waitUntil: 'domcontentloaded' })
+        const player = await readPlayer(review, 'L07')
+        await player.scrollIntoViewIfNeeded()
+        await player.evaluate((video, seconds) => { video.currentTime = seconds; video.play() }, scene.captureStart)
+        await review.waitForTimeout(1800)
+        await review.screenshot({ path: path.join(output, `${name}-${scene.id}-captions-on.png`) })
+        await player.evaluate((video) => video.pause())
+        await player.evaluate((video) => { video.textTracks[0].mode = 'disabled' })
+        await review.waitForTimeout(700)
+        await review.screenshot({ path: path.join(output, `${name}-${scene.id}-captions-off.png`) })
+        await player.evaluate((video) => { video.textTracks[0].mode = 'showing' })
+        await review.waitForTimeout(700)
+        await review.screenshot({ path: path.join(output, `${name}-${scene.id}-paused-restored.png`) })
+        await recording.close()
+        const webm = await review.video().path()
+        const mp4 = path.join(output, `${name}-${scene.id}-walkthrough.mp4`)
+        execFileSync('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', webm, '-c:v', 'libx264', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', mp4])
+        fs.unlinkSync(webm)
+        execFileSync('ffmpeg', ['-v', 'error', '-i', mp4, '-f', 'null', '-'])
+        observations.push({ viewport: name, lesson: 'L07', scene: scene.id, reviewUrl: url, recording: path.relative(root, mp4) })
+      }
     }
   } finally { await browser.close() }
   const evidence = fs.readdirSync(output).filter((file) => /\.(png|mp4)$/.test(file)).sort().map((file) => ({ path: path.relative(root, path.join(output, file)), sha256: sha(path.join(output, file)) }))
-  const receipt = { schemaVersion: 1, codeCommit: revision, lessons, observations, evidence }
+  const receipt = { schemaVersion: 2, codeCommit: revision, lessons, clearanceScenes: clearanceScenes.map(({ id, start, end, line }) => ({ id, start, end, line })), observations, evidence }
   fs.writeFileSync(path.join(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
-  console.log(`PASS: ${observations.length - 2} lesson/viewport cue and state sweeps; ${evidence.length} evidence files`)
+  console.log(`PASS: ${observations.filter((item) => item.cueCount).length} lesson/viewport cue and state sweeps; ${evidence.length} evidence files`)
 }
 
 run().catch((error) => { console.error(error); process.exitCode = 1 })
