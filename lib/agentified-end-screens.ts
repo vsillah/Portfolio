@@ -11,6 +11,7 @@ export type AgentifiedEndScreenBinding = {
 export const AGENTIFIED_END_SCREEN_PATTERN_COMMIT = '5570138a0cc4e02c4cea0dca81e1bf977a647a63'
 
 export const agentifiedEndScreenBindings = {
+  L01: { lessonId: 'L01', startSeconds: 359.645, endSeconds: 378.285, progress: 1, nextLessonId: 'L02', videoSha256: '1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775', captionsSha256: '6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e' },
   L02: { lessonId: 'L02', startSeconds: 504, endSeconds: 510, progress: 2, nextLessonId: 'L03', videoSha256: '27a72885e84e7f100bda67298afa6c75a85696b7324650da950c658dff84d469', captionsSha256: 'eb8b81caf9283e0c5b106b6b404a72c178f50d2c0549bca18c92a4af343219d9' },
   L03: { lessonId: 'L03', startSeconds: 592, endSeconds: 600, progress: 3, nextLessonId: 'L04', videoSha256: '0ad7c3e132e2f54148f282a798255cb1f9a23a0f5865ee1cfb6e142efe1d6cbb', captionsSha256: 'f548f0a0d2a369dc082261d48eb5aa001e97c48e6cd993d49cb20a0208347bc4' },
   L04: { lessonId: 'L04', startSeconds: 597, endSeconds: 600, progress: 4, nextLessonId: 'L05', videoSha256: 'f7400d17001b64692c24ac9050a5896d40e5951a4782fc71282138e211dc0306', captionsSha256: 'ed98985beb67d616df745399937fa5bcc32b4b7e0267504393f5b2b6e2a4c647' },
