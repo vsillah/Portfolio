@@ -35,7 +35,7 @@ for (const [course, id, path] of [
     await holdRenderedFrames(page, 42)
   }
   await page.getByRole('button', { name: 'English captions on' }).click()
-  await page.waitForFunction(() => document.querySelector('video')?.textTracks[0]?.mode === 'disabled' && !document.querySelector('[aria-label$=" caption"]') && [...document.querySelectorAll('button')].some((button) => button.textContent?.trim() === 'English captions off' && button.getAttribute('aria-pressed') === 'false'))
+  await page.waitForFunction(() => document.querySelector('video')?.textTracks[0]?.mode === 'disabled' && !document.querySelector('[aria-label$=" caption"]') && !document.querySelector('[role="group"][aria-label="Caption size"]') && localStorage.getItem('amadutown.caption-size.v1') === 'L' && [...document.querySelectorAll('button')].some((button) => button.textContent?.trim() === 'English captions off' && button.getAttribute('aria-pressed') === 'false'))
   states.push({ course, id, step: 'off', stored: await page.evaluate(() => localStorage.getItem('amadutown.caption-size.v1')) })
   await holdRenderedFrames(page, 42)
   await page.getByRole('button', { name: 'English captions off' }).click()

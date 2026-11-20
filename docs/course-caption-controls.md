@@ -4,4 +4,6 @@ Agentified and Accelerated share one caption size control. Show three `Aa` sampl
 
 Keep the control compact at 390 px. The samples carry the visible meaning; a separate `Size` label is unnecessary. Hover must remain visually distinct from selection. Caption off/on, cue timing, native track modes, player geometry, and persistence must continue to work at every size.
 
+Hide the entire size control when English captions are off. Restore it immediately when captions turn on, with the previously selected size still pressed and stored. Turning captions off does not reset the size preference.
+
 The control follows Portfolio's Light, Dark, and System theme setting through the existing `html.dark` and semantic color variables. Keep all three previews the same color within a theme, including the selected preview. Surface, border, selected, hover, and keyboard focus states must remain legible in both course layouts; do not introduce a separate caption theme preference.
