@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useCaptionSizePreference, CAPTION_SIZE_STORAGE_KEY, parseCaptionSize } from '@/lib/caption-size-preference'
 import { CaptionSizeControl } from './CaptionSizeControl'
@@ -16,7 +16,16 @@ describe('shared caption size preference', () => {
     expect(parseCaptionSize('XL')).toBe('M')
     localStorage.setItem(CAPTION_SIZE_STORAGE_KEY, 'XL')
     render(<Harness />)
-    expect(screen.getByRole('button', { name: 'Medium captions' })).toHaveAttribute('aria-pressed', 'true')
+    const group = screen.getByRole('group', { name: 'Caption size' })
+    expect(group).not.toHaveTextContent('Size')
+    for (const [name, px] of [['Small', 14], ['Medium', 17], ['Large', 21]] as const) {
+      const button = within(group).getByRole('button', { name: `${name} captions` })
+      expect(button).toHaveAttribute('type', 'button')
+      expect(button).toHaveTextContent('Aa')
+      expect(button.querySelector('span')).toHaveAttribute('aria-hidden', 'true')
+      expect(button.querySelector('span')).toHaveStyle(`font-size: ${px}px`)
+    }
+    expect(within(group).getByRole('button', { name: 'Medium captions' })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('changes size by button and retains it after remount', () => {

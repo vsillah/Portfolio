@@ -56,6 +56,14 @@ for (const width of [1280, 390]) {
       await waitForCaptionSize(page, { course, width, name: 'Large' })
       const restored = await page.locator('[aria-label$=" caption"]').count()
       if (results.at(-1).band && restored !== 1) throw Error(`${course} ${id} ${width}: active cue did not return while paused`)
+      if (id === lessonIds[0]) {
+        await page.getByRole('button', { name: 'Small captions' }).focus()
+        await page.keyboard.press('Enter')
+        await waitForCaptionSize(page, { course, width, name: 'Small' })
+        await page.getByRole('button', { name: 'Large captions' }).focus()
+        await page.keyboard.press('Space')
+        await waitForCaptionSize(page, { course, width, name: 'Large' })
+      }
     }
     await page.close()
   }
