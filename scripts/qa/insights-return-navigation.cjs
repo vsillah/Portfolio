@@ -5,6 +5,7 @@ const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 
 const revision = process.env.REVIEW_REVISION || execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim()
+const noVideo = process.env.REVIEW_NO_VIDEO === '1'
 const base = process.env.REVIEW_BASE || 'http://localhost:4173'
 const out = join(process.cwd(), 'docs/qa/insights-return-navigation')
 const routes = ['compounding-graph', 'home-front-ledger', 'owning-the-block']
@@ -36,102 +37,6 @@ async function chooseTheme(page, name, expected) {
   const iframe = page.locator('iframe')
   await page.waitForFunction(value => document.querySelector('iframe')?.contentDocument?.documentElement.dataset.theme === value, expected === 'system' ? 'light' : expected)
   assert.equal(await iframe.count(), 1)
-}
-
-async function inspectOwningTheme(page, theme) {
-  const palette = await page.locator('iframe').evaluate(frame => {
-    const doc = frame.contentDocument
-    const css = selector => getComputedStyle(doc.querySelector(selector))
-    const roofs = [...doc.querySelectorAll('#nodes .node[data-id] > path.shape')]
-    const luminance = value => {
-      const rgb = value.match(/\d+/g).slice(0, 3).map(Number)
-      const linear = rgb.map(channel => {
-        const v = channel / 255
-        return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4
-      })
-      return linear[0] * .2126 + linear[1] * .7152 + linear[2] * .0722
-    }
-    const contrast = (a, b) => {
-      const x = luminance(a), y = luminance(b)
-      return (Math.max(x, y) + .05) / (Math.min(x, y) + .05)
-    }
-    return {
-      frameVisible: getComputedStyle(frame).visibility,
-      body: css('body').backgroundColor,
-      figure: css('.fig').backgroundColor,
-      narration: css('.nar').backgroundColor,
-      sky: css('#bands > rect').fill,
-      pipe: css('#pipes .pipe').stroke,
-      nodeStrokes: ['kinflo', 'ezs', 'rent'].map(id => css(`#nodes .node[data-id="${id}"] > .shape`).stroke),
-      labelContrasts: ['kinflo', 'rotla', 'commons', 'ezs', 'repair', 'rent'].map(id => {
-        const node = doc.querySelector(`#nodes .node[data-id="${id}"]`)
-        const background = getComputedStyle(node.querySelector('.shape')).fill
-        return {
-          id,
-          label: contrast(getComputedStyle(node.querySelector('.lbl')).fill, background),
-          subtitle: node.querySelector('.sub') ? contrast(getComputedStyle(node.querySelector('.sub')).fill, background) : null,
-        }
-      }),
-      skylinePointerEvents: css('.boston-skyline').pointerEvents,
-      utilityPointerEvents: css('.utility-underlay').pointerEvents,
-      utilityLayerBehindData: [...doc.querySelector('#svg').children].indexOf(doc.querySelector('.utility-underlay').parentElement) < [...doc.querySelector('#svg').children].indexOf(doc.querySelector('#pipes')),
-      utilityChildrenNonInteractive: [...doc.querySelectorAll('.utility-underlay *')].every(el => getComputedStyle(el).pointerEvents === 'none'),
-      water: { stroke: css('.water-pipe').stroke, width: css('.water-pipe').strokeWidth, path: doc.querySelector('.water-pipe').getAttribute('d') },
-      sewer: { fill: css('.sewer-channel').fill, stroke: css('.sewer-channel').stroke, width: css('.sewer-channel').strokeWidth, height: doc.querySelector('.sewer-channel').getAttribute('height') },
-      researchConnector: { stroke: css('#pipes .pipe').stroke, width: css('#pipes .pipe').strokeWidth },
-      joints: doc.querySelectorAll('.pipe-joint').length,
-      covers: doc.querySelectorAll('.access').length,
-      shafts: [...doc.querySelectorAll('.shaft')].map(el => ({ x: el.getAttribute('x'), y: el.getAttribute('y'), height: el.getAttribute('height') })),
-      shaftLink: doc.querySelector('.shaft-link').getAttribute('d'),
-      labelClearance: [...doc.querySelectorAll('#bands .bandlbl')].every(label => {
-        const a = label.getBBox()
-        return [...doc.querySelectorAll('.water-pipe,.sewer-channel,.access,.shaft,.shaft-link')].every(shape => {
-          const b = shape.getBBox()
-          return a.x + a.width < b.x || b.x + b.width < a.x || a.y + a.height < b.y || b.y + b.height < a.y
-        })
-      }),
-      roofCount: roofs.length,
-      roofsInsideStreet: roofs.every(roof => {
-        const box = roof.getBBox()
-        return box.x >= 0 && box.x + box.width <= 980 && box.y >= 0 && box.y + box.height <= 300
-      }),
-    }
-  })
-  assert.equal(palette.frameVisible, 'visible')
-  assert.equal(palette.skylinePointerEvents, 'none')
-  assert.equal(palette.utilityPointerEvents, 'none')
-  assert.equal(palette.utilityLayerBehindData, true)
-  assert.equal(palette.utilityChildrenNonInteractive, true)
-  assert.equal(palette.labelClearance, true)
-  assert.equal(palette.joints, 4)
-  assert.equal(palette.covers, 2)
-  assert.deepEqual(palette.shafts, [{ x: '482', y: '326', height: '296' }, { x: '722', y: '326', height: '296' }])
-  assert.match(palette.shaftLink, /M262 316V326H490M730 316V326/)
-  assert.match(palette.water.path, /H84V511H222V518/)
-  assert.ok(Number.parseFloat(palette.water.width) >= 8)
-  assert.ok(Number.parseFloat(palette.sewer.height) >= 15)
-  assert.notEqual(palette.water.stroke, palette.researchConnector.stroke)
-  assert.notEqual(palette.sewer.stroke, palette.researchConnector.stroke)
-  assert.notEqual(palette.sewer.fill, palette.water.stroke)
-  assert.ok(Number.parseFloat(palette.water.width) >= Number.parseFloat(palette.researchConnector.width) * 3)
-  assert.equal(palette.roofCount, 6)
-  assert.equal(palette.roofsInsideStreet, true)
-  assert.equal(new Set(palette.nodeStrokes).size, 3)
-  if (theme === 'light') {
-    assert.equal(palette.body, 'rgb(243, 246, 250)')
-    assert.equal(palette.figure, 'rgb(255, 255, 255)')
-    assert.equal(palette.narration, 'rgb(255, 255, 255)')
-    assert.equal(palette.sky, 'rgb(248, 250, 252)')
-    assert.equal(palette.pipe, 'rgb(128, 147, 168)')
-    for (const node of palette.labelContrasts) {
-      assert.ok(node.label >= 4.5, `${node.id}: label contrast below 4.5`)
-      if (node.subtitle !== null) assert.ok(node.subtitle >= 4.5, `${node.id}: subtitle contrast below 4.5`)
-    }
-  } else {
-    assert.equal(palette.body, 'rgb(14, 17, 24)')
-    assert.equal(palette.sky, 'rgb(18, 22, 31)')
-  }
-  return palette
 }
 
 async function inspect(page, viewport, route) {
@@ -187,25 +92,8 @@ async function exerciseDashboard(page, route) {
   }
 }
 
-async function showUtilityArea(page, viewport) {
-  await page.evaluate(() => {
-    const iframe = document.querySelector('iframe')
-    const figure = iframe.contentDocument.querySelector('.fig')
-    const top = window.scrollY + iframe.getBoundingClientRect().top + figure.getBoundingClientRect().top
-    window.scrollTo(0, Math.max(0, top - 100))
-  })
-  await page.waitForTimeout(1800)
-  if (viewport.width === 390) {
-    const figure = page.frameLocator('iframe').locator('.fig')
-    await figure.evaluate(el => { el.scrollLeft = el.scrollWidth - el.clientWidth })
-    await page.waitForTimeout(1800)
-    await figure.evaluate(el => { el.scrollLeft = 0 })
-    await page.waitForTimeout(1800)
-  }
-}
-
 async function walkthrough(browser, viewport, report) {
-  const record = viewport.width !== 768
+  const record = !noVideo && viewport.width !== 768
   const context = await browser.newContext({ viewport, colorScheme: 'light', ...(record ? { recordVideo: { dir: out, size: viewport } } : {}) })
   const page = await context.newPage()
   try {
@@ -214,41 +102,9 @@ async function walkthrough(browser, viewport, report) {
       if (record) await page.waitForTimeout(700)
       await chooseTheme(page, 'Dark', 'dark')
       assert.equal(await page.locator('iframe').evaluate(el => el.contentDocument.documentElement.dataset.theme), 'dark')
-      if (route === 'owning-the-block') {
-        report.checks.push({ route, theme: 'dark', palette: await inspectOwningTheme(page, 'dark') })
-        const frame = page.frameLocator('iframe')
-        await frame.locator('#cb-hz').click()
-        await frame.locator('#nodes .node[data-id="commons"]').press('Enter')
-        assert.equal(await frame.locator('#nar h2').innerText(), 'Roxbury Commons')
-        await frame.locator('#uses button').first().click()
-        assert.equal(await frame.locator('#uses button').first().getAttribute('aria-pressed'), 'true')
-        if (record) await showUtilityArea(page, viewport)
-      }
-      if (record) await page.waitForTimeout(route === 'owning-the-block' ? 900 : 600)
+      if (record) await page.waitForTimeout(600)
       await chooseTheme(page, 'Light', 'light')
-      if (route === 'owning-the-block') {
-        const frame = page.frameLocator('iframe')
-        await frame.locator('#cb-own').click()
-        await frame.locator('#uses button').first().click()
-        report.checks.push({ route, theme: 'light', palette: await inspectOwningTheme(page, 'light') })
-        const node = frame.locator('#nodes .node[data-id="kinflo"]')
-        await node.press('Enter')
-        assert.equal(await frame.locator('#nar h2').innerText(), 'Kinflo')
-        await node.focus()
-        assert.equal(await node.evaluate(el => el.matches(':focus-visible')), true)
-        assert.equal(await node.locator('.shape').first().evaluate(el => getComputedStyle(el).strokeWidth), '3px')
-        if (record) await showUtilityArea(page, viewport)
-      }
-      if (record) await page.waitForTimeout(route === 'owning-the-block' ? 900 : 0)
       await chooseTheme(page, 'System', 'system')
-      if (route === 'owning-the-block') {
-        report.checks.push({ route, theme: 'system-light', palette: await inspectOwningTheme(page, 'light') })
-        const menu = await openMenu(page)
-        assert.equal(await menu.getByRole('button', { name: 'System theme' }).getAttribute('aria-pressed'), 'true')
-        if (record) await page.waitForTimeout(700)
-        await page.keyboard.press('Escape')
-        await menu.waitFor({ state: 'hidden' })
-      }
       await page.reload({ waitUntil: 'domcontentloaded' })
       await page.frameLocator('iframe').locator('h1').waitFor()
       assert.equal(await page.evaluate(() => localStorage.getItem('theme')), 'system')
@@ -301,15 +157,7 @@ async function main() {
     for (const viewport of [{ width: 1440, height: 900 }, { width: 768, height: 900 }, { width: 390, height: 844 }]) {
       await walkthrough(browser, viewport, report)
     }
-    const systemDark = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' })
-    await systemDark.addInitScript(() => localStorage.setItem('theme', 'system'))
-    const systemPage = await systemDark.newPage()
-    await systemPage.goto(`${base}/insights/owning-the-block?rev=${revision}`, { waitUntil: 'domcontentloaded' })
-    await systemPage.waitForFunction(() => document.querySelector('iframe')?.contentDocument?.documentElement.dataset.theme === 'dark')
-    assert.equal(await systemPage.evaluate(() => document.documentElement.classList.contains('dark')), true)
-    report.checks.push({ route: 'owning-the-block', theme: 'system-dark', palette: await inspectOwningTheme(systemPage, 'dark') })
-    await systemDark.close()
-    writeFileSync(join(out, 'results.json'), JSON.stringify(report, null, 2) + '\n')
+    if (!noVideo) writeFileSync(join(out, 'results.json'), JSON.stringify(report, null, 2) + '\n')
     console.log(JSON.stringify({ revision, checks: report.checks.length, videos: report.videos }, null, 2))
   } finally { await browser.close() }
 }

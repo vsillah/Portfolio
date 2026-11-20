@@ -1,16 +1,16 @@
-# Equity Code universal navigation and Owning the Block theme review
+# Equity Code universal navigation review
 
-Code revision: `627c637ce` (`fix: make block utilities legible underground`)
+Historical shell evidence, recorded before the dashboard visual detour. Code revision: `224347a4765e6b060827518cc130f976869aff55`.
 
-Run from this worktree with `REVIEW_REVISION=627c637ce REVIEW_BASE=http://localhost:4173 node scripts/qa/insights-return-navigation.cjs`. The exact review route was `http://localhost:4173/insights/owning-the-block?rev=627c637ce`. The local server used review-only Supabase placeholders and disabled outbound n8n hooks. `results.json` records 19 route, viewport, and theme checks.
+The original review used `REVIEW_REVISION=224347a47 REVIEW_BASE=http://localhost:4173 node scripts/qa/insights-return-navigation.cjs`. The local server used review-only Supabase placeholders and disabled outbound n8n hooks. `results.json` records the nine historical route/viewport checks.
 
 | Walkthrough | Size | SHA-256 |
 | --- | --- | --- |
-| `desktop-1440x900.mp4` | 1440×900 | `8b9e3680c5d06186ef3657cf9eb50efa8b3ee08b7016ad465da9134d4464b4c0` |
-| `mobile-390x844.mp4` | 390×844 | `ee8d311b1df4658dd04ebcef6edcb699537bbb7cd8afbfe648d295b595c0f8a4` |
+| `desktop-1440x900.mp4` | 1440×900 | `862f866fda7e9087d6d76471bf6036fc930400a656e5d59cc5ef0889be6f8c0f` |
+| `mobile-390x844.mp4` | 390×844 | `7f31ac7580fa4be597cff89b838843f8fc627f8132b722b73707beca04fab8da` |
 
-Both walkthroughs show Portfolio's universal menu, Light/Dark/System selection on Owning the Block, and the original dashboard interactions. Each pauses on the lower half in Dark and Light; the mobile walkthrough pans within the existing horizontally scrollable figure to show both access shafts. The encoded H.264 MP4s were inspected at native playback sizes. The 768px run and System with a dark OS preference are recorded in `results.json`.
+Each walkthrough shows Portfolio's universal menu on all three dashboards, Light/Dark/System selection, one original dashboard interaction per route, and navigation to Insights and Home. The 768px run is in `results.json`. Source-integrity tests prove the three dashboard HTML files retain their approved bytes. No private account data appears in the recordings.
 
-The light treatment applies to the full Owning the Block canvas, diagram plates, node cards, labels, connectors, controls, and narration. The skyline uses a separate non-interactive Boston streetfront silhouette, with varied rooflines on the existing building nodes; no project is assigned to a real landmark. A teal pipe with elbows, joints, and branches runs between the underground node rows. A separate wide, segmented masonry-colored sewer channel sits below the lower nodes. Two street manholes connect through vertical access shafts to the sewer level. These are visual metaphors in a non-interactive background group behind every research connector, node, label, and focus target; they do not terminate at data nodes. The route verifier checks layer order, pointer events, distinct computed pipe/sewer/connector signatures, covers, shafts, label clearance, and original interactions. The source-integrity test strips only the bounded theme and visual geometry additions and then matches the approved original file hash. The other two dashboard HTML hashes remain unchanged.
+The shell follows Portfolio's three-way theme preference. The Compounding Graph and Home Front Ledger honor the resolved light or dark setting through their existing `data-theme` CSS. Owning the Block remains its Claude-authored dark illustration in either site theme. Its restored source hash is `d8cd0ac397adcfc1271d2f14d016d19271aa2828905510b03896b6e18067c24b`.
 
-No private account data appears in the recordings. The review server's placeholder Supabase values mean unrelated homepage APIs may fail during navigation, but no customer-data flow is exercised.
+These MP4s and `results.json` document the earlier shell review; they are not a new Human-QA handoff for the current PR head. Run `REVIEW_NO_VIDEO=1 REVIEW_REVISION=<current-commit> node scripts/qa/insights-return-navigation.cjs` for route checks without writing new evidence. New dashboard visuals await Claude-authored source and provenance review.

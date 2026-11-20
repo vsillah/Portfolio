@@ -6,29 +6,12 @@ import { describe, expect, it } from 'vitest'
 const root = process.cwd()
 const source = (path: string) => readFileSync(join(root, path))
 const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex')
-const replaceOnce = (text: string, pattern: RegExp, replacement: string) => {
-  expect([...text.matchAll(new RegExp(pattern.source, 'g'))]).toHaveLength(1)
-  return text.replace(pattern, replacement)
-}
-
-const owningSourceWithoutThemeAndSkyline = () => {
-  let html = source('public/insights/equity-code/owning-the-block.html').toString('utf8')
-  html = replaceOnce(html, /\n<style id="owning-the-block-light-theme">[\s\S]*?<\/style>\n/, '\n')
-  html = replaceOnce(html, /\.boston-skyline\{[^\n]*\}\n\.boston-skyline \.clock\{[^\n]*\}\n/, '')
-  html = replaceOnce(html, /\.utility-underlay\{[^\n]*\}\n(?:\.utility-underlay \.[^\n]+\n)+/, '')
-  html = replaceOnce(html, /          <g class="boston-skyline" aria-hidden="true">[\s\S]*?          <\/g>\n/, '')
-  html = replaceOnce(html, /          <g class="utility-underlay" aria-hidden="true">[\s\S]*?          <\/g>\n/, '')
-  html = replaceOnce(html, /function buildingOutline\(n\)\{[\s\S]*?\n\}\n(?=N\.forEach)/, '')
-  const originalShape = "  const r=el('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:n.kind==='sky'?4:2,class:'shape',fill:colorOf(n),'fill-opacity':n.kind==='bld'||n.kind==='rent'?'.16':'.22',stroke:colorOf(n),'stroke-width':n.kind==='rent'?'1.5':'1','stroke-dasharray':n.kind==='rent'?'5 4':'none'});"
-  html = replaceOnce(html, /  const outline=buildingOutline\(n\);\n  const r=el\(outline\?'path':'rect',[^\n]*/, originalShape)
-  return Buffer.from(html)
-}
 
 describe('Equity Code source integrity', () => {
-  it('keeps the Ledger dashboard byte-identical and Block content unchanged beneath bounded theme and skyline geometry', () => {
+  it('keeps the Ledger and Block dashboards byte-identical', () => {
     expect(sha256(source('public/insights/equity-code/home-front-ledger.html')))
       .toBe('79f992fa0c00ac2cfde194b66d415e618dbdc40569ae9718e9f11a9df59bb79b')
-    expect(sha256(owningSourceWithoutThemeAndSkyline()))
+    expect(sha256(source('public/insights/equity-code/owning-the-block.html')))
       .toBe('d8cd0ac397adcfc1271d2f14d016d19271aa2828905510b03896b6e18067c24b')
   })
 

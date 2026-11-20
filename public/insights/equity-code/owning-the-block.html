@@ -67,76 +67,7 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
 .node.on .shape{stroke:#fff;stroke-width:2}
 .band{fill:none;stroke:var(--line);stroke-width:1}
 .bandlbl{font-family:var(--fm);font-size:10px;letter-spacing:.14em;fill:var(--mute)}
-.boston-skyline{fill:#202b3a;stroke:#43536a;stroke-width:1;opacity:.38;pointer-events:none}
-.boston-skyline .clock{fill:none;stroke:#62758e;stroke-width:1.5}
-.utility-underlay{pointer-events:none}
-.utility-underlay .water-pipe{fill:none;stroke:#5d9da9;stroke-width:8;stroke-linejoin:round;stroke-linecap:round;opacity:.82}
-.utility-underlay .water-core{fill:none;stroke:#b3e5e5;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;opacity:.8}
-.utility-underlay .pipe-joint{fill:#173e4a;stroke:#86cbd0;stroke-width:2;opacity:.95}
-.utility-underlay .sewer-channel{fill:#293742;stroke:#a88368;stroke-width:2;opacity:.96}
-.utility-underlay .sewer-flow{fill:none;stroke:#aa8770;stroke-width:3;stroke-dasharray:18 8;opacity:.9}
-.utility-underlay .shaft{fill:#26333d;stroke:#a88368;stroke-width:2;opacity:.92}
-.utility-underlay .shaft-link{fill:none;stroke:#a88368;stroke-width:12;stroke-linejoin:round;opacity:.92}
-.utility-underlay .shaft-rungs{fill:none;stroke:#c6a58c;stroke-width:2;opacity:.9}
-.utility-underlay .access{fill:#34434d;stroke:#d3ae86;stroke-width:3;opacity:1}
-.utility-underlay .access-slot{fill:none;stroke:#d3ae86;stroke-width:2}
 @media (prefers-reduced-motion:reduce){.node .shape,.pipe{transition:none}}
-</style>
-<style id="owning-the-block-light-theme">
-/* Light palette for the existing city-block drawing. The authored data and drawing script remain unchanged. */
-:root[data-theme="dark"]{--mute:#9aa8ba}
-:root[data-theme="light"]{
-  --bg:#f3f6fa;--panel:#ffffff;--line:#c8d3df;--fg:#17283b;--fg2:#34465b;--mute:#52657a;
-  --own:#155f9f;--open:#855900;--rent:#a63c32;--net:#17283b;--pipe:#8093a8;--pipe-on:#155f9f;
-  --h1:#155f9f;--h2:#6244aa;--h3:#1d7651;--h4:#855900;color-scheme:light;
-}
-:root[data-theme="light"] .seg button[aria-pressed="true"]{background:#17283b;color:#fff;border-color:#17283b}
-:root[data-theme="light"] .chips button[aria-pressed="true"]{background:#155f9f;color:#fff;border-color:#155f9f}
-:root[data-theme="light"] #bands>rect:nth-child(1){fill:#f8fafc}
-:root[data-theme="light"] #bands>rect:nth-child(2){fill:#aab9c8}
-:root[data-theme="light"] #bands>rect:nth-child(3){fill:#e1e9f1}
-:root[data-theme="light"] #bands>rect:nth-child(4){fill:#edf2f7}
-:root[data-theme="light"] #bands>rect:nth-child(5){fill:#e5edf5}
-:root[data-theme="light"] #bands>g line{stroke:#8a9caf}
-:root[data-theme="light"] .boston-skyline{fill:#d8e4ef;stroke:#a9bbcc;opacity:.5}
-:root[data-theme="light"] .boston-skyline .clock{stroke:#8197ac}
-:root[data-theme="light"] .utility-underlay .water-pipe{stroke:#348391;opacity:.9}
-:root[data-theme="light"] .utility-underlay .water-core{stroke:#e5f8f8;opacity:1}
-:root[data-theme="light"] .utility-underlay .pipe-joint{fill:#d7eff0;stroke:#277586}
-:root[data-theme="light"] .utility-underlay .sewer-channel{fill:#b5a696;stroke:#73543f}
-:root[data-theme="light"] .utility-underlay .sewer-flow{stroke:#634b3f}
-:root[data-theme="light"] .utility-underlay .shaft{fill:#d3c3b1;stroke:#73543f}
-:root[data-theme="light"] .utility-underlay .shaft-link{stroke:#73543f}
-:root[data-theme="light"] .utility-underlay .shaft-rungs{stroke:#73543f}
-:root[data-theme="light"] .utility-underlay .access{fill:#d4c3ac;stroke:#674b35}
-:root[data-theme="light"] .utility-underlay .access-slot{stroke:#674b35}
-:root[data-theme="light"] .node .door{fill:#40566f}
-:root[data-theme="light"] .node .shape[fill="#4fa3ff"]{fill:#155f9f}
-:root[data-theme="light"] .node .shape[fill="#e3b341"]{fill:#855900}
-:root[data-theme="light"] .node .shape[fill="#e5604f"]{fill:#a63c32}
-:root[data-theme="light"] .node .shape[fill="#8e7cf3"]{fill:#6244aa}
-:root[data-theme="light"] .node .shape[fill="#49c48a"]{fill:#1d7651}
-:root[data-theme="light"] .node .shape:not(.win):not(.door)[fill="#4fa3ff"]{fill:#dceaf7;fill-opacity:1;stroke:#155f9f}
-:root[data-theme="light"] .node .shape:not(.win):not(.door)[fill="#e3b341"]{fill:#f5e9c9;fill-opacity:1;stroke:#855900}
-:root[data-theme="light"] .node .shape:not(.win):not(.door)[fill="#e5604f"]{fill:#f7dfdc;fill-opacity:1;stroke:#a63c32}
-:root[data-theme="light"] .node .shape:not(.win):not(.door)[fill="#8e7cf3"]{fill:#e8e0f7;fill-opacity:1;stroke:#6244aa}
-:root[data-theme="light"] .node .shape:not(.win):not(.door)[fill="#49c48a"]{fill:#d9efe3;fill-opacity:1;stroke:#1d7651}
-:root[data-theme="light"] .legend i[style*="#4fa3ff"],:root[data-theme="light"] .dot[style*="#4fa3ff"]{background:#155f9f!important}
-:root[data-theme="light"] .legend i[style*="#e3b341"],:root[data-theme="light"] .dot[style*="#e3b341"]{background:#855900!important}
-:root[data-theme="light"] .legend i[style*="#e5604f"],:root[data-theme="light"] .dot[style*="#e5604f"]{background:#a63c32!important}
-:root[data-theme="light"] .legend i[style*="#8e7cf3"],:root[data-theme="light"] .dot[style*="#8e7cf3"]{background:#6244aa!important}
-:root[data-theme="light"] .legend i[style*="#49c48a"],:root[data-theme="light"] .dot[style*="#49c48a"]{background:#1d7651!important}
-:root[data-theme="light"] .legend i[style*="#3a4557"]{background:#52657a!important}
-:root[data-theme="light"] .meta .v[style*="#4fa3ff"]{color:#155f9f!important}
-:root[data-theme="light"] .meta .v[style*="#e3b341"]{color:#855900!important}
-:root[data-theme="light"] .meta .v[style*="#e5604f"]{color:#a63c32!important}
-:root[data-theme="light"] .dim .pipe{opacity:.45}
-:root[data-theme="light"] .dim .node:not(.on) .shape{opacity:.75}
-:root[data-theme="light"] .dim .node:not(.on) .lbl,:root[data-theme="light"] .dim .node:not(.on) .sub{opacity:.6}
-:root[data-theme="light"] .node.on .shape{stroke:#17283b;stroke-width:2}
-:root[data-theme="light"] .node:focus-visible .shape{stroke:#17283b;stroke-width:3}
-.node:focus-visible{outline:none}
-.node:focus-visible .shape{stroke:var(--fg);stroke-width:3}
 </style>
 
 <div class="wrap">
@@ -167,23 +98,6 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
           <rect x="0" y="300" width="980" height="22" fill="#171c27"/>
           <rect x="0" y="322" width="980" height="100" fill="#10141c"/>
           <rect x="0" y="422" width="980" height="218" fill="#0c0f15"/>
-          <g class="boston-skyline" aria-hidden="true">
-            <path d="M0 300V260H27V247H73V255H101V230H119V204H130V184H140V204H151V230H170V252H203V240H229V253H269V222H292V214H318V230H345V248H378V229H400V187H413V174H426V187H439V229H458V241H490V195H504V169H517V156H530V169H543V195H557V246H587V226H612V238H648V211H672V201H690V211H708V246H737V235H763V198H775V183H786V198H798V235H824V252H849V232H867V218H882V232H900V245H926V225H951V245H980V300Z"/>
-            <circle class="clock" cx="524" cy="184" r="5"/>
-          </g>
-          <g class="utility-underlay" aria-hidden="true">
-            <path class="shaft-link" d="M262 316V326H490M730 316V326"/>
-            <rect class="shaft" x="482" y="326" width="16" height="296"/>
-            <rect class="shaft" x="722" y="326" width="16" height="296"/>
-            <path class="shaft-rungs" d="M484 344H496M484 352H496M724 344H736M724 352H736M484 422H496M484 430H496M724 422H736M724 430H736M484 508H496M484 516H496M724 508H736M724 516H736M484 614H496M724 614H736"/>
-            <path class="water-pipe" d="M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"/>
-            <path class="water-core" d="M20 518H84V511H222V518H700V525H876V518H960M120 518V529H180V518M780 525V511H834V525"/>
-            <circle class="pipe-joint" cx="84" cy="518" r="5"/><circle class="pipe-joint" cx="222" cy="518" r="5"/><circle class="pipe-joint" cx="700" cy="518" r="5"/><circle class="pipe-joint" cx="876" cy="518" r="5"/>
-            <rect class="sewer-channel" x="18" y="622" width="944" height="15" rx="3"/>
-            <path class="sewer-flow" d="M26 630H954"/>
-            <ellipse class="access" cx="262" cy="311" rx="15" ry="5"/><ellipse class="access" cx="730" cy="311" rx="15" ry="5"/>
-            <path class="access-slot" d="M254 311H270M722 311H738"/>
-          </g>
           <line class="band" x1="0" y1="422" x2="980" y2="422"/>
           <text class="bandlbl" x="18" y="20">THE SKY · WHAT THE BLOCK PRODUCES</text>
           <text class="bandlbl" x="18" y="315">THE STREET · THE NETWORK</text>
@@ -273,20 +187,9 @@ function path(a,b){
   return `M${ax} ${ay} C${ax} ${my} ${bx} ${my} ${bx} ${by}`;
 }
 edges.forEach(([a,b])=>{const p=el('path',{d:path(a,b),class:'pipe','data-a':a,'data-b':b});gP.appendChild(p)});
-function buildingOutline(n){
-  const {x,y,w,h}=n,base=`V${y+h}H${x}Z`;
-  if(n.id==='kinflo')return `M${x} ${y+12}H${x+12}V${y+5}H${x+w-12}V${y+12}H${x+w}${base}`;
-  if(n.id==='rotla')return `M${x} ${y+14}H${x+18}V${y+8}H${x+w/2-18}L${x+w/2} ${y}L${x+w/2+18} ${y+8}H${x+w-18}V${y+14}H${x+w}${base}`;
-  if(n.id==='commons')return `M${x} ${y+13}H${x+24}V${y+7}H${x+45}V${y}H${x+w-45}V${y+7}H${x+w-24}V${y+13}H${x+w}${base}`;
-  if(n.id==='ezs')return `M${x} ${y+14}H${x+15}L${x+w/2} ${y}L${x+w-15} ${y+14}H${x+w}${base}`;
-  if(n.id==='repair')return `M${x} ${y+14}L${x+23} ${y+5}V${y+14}L${x+49} ${y+5}V${y+14}L${x+75} ${y+5}V${y+14}H${x+w}${base}`;
-  if(n.id==='rent')return `M${x} ${y+10}H${x+8}V${y}H${x+w-8}V${y+10}H${x+w}${base}`;
-  return null;
-}
 N.forEach(n=>{
   const g=el('g',{class:'node','data-id':n.id,tabindex:'0',role:'button','aria-label':n.name});
-  const outline=buildingOutline(n);
-  const r=el(outline?'path':'rect',{...(outline?{d:outline}:{x:n.x,y:n.y,width:n.w,height:n.h,rx:n.kind==='sky'?4:2}),class:'shape',fill:colorOf(n),'fill-opacity':n.kind==='bld'||n.kind==='rent'?'.16':'.22',stroke:colorOf(n),'stroke-width':n.kind==='rent'?'1.5':'1','stroke-dasharray':n.kind==='rent'?'5 4':'none'});
+  const r=el('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:n.kind==='sky'?4:2,class:'shape',fill:colorOf(n),'fill-opacity':n.kind==='bld'||n.kind==='rent'?'.16':'.22',stroke:colorOf(n),'stroke-width':n.kind==='rent'?'1.5':'1','stroke-dasharray':n.kind==='rent'?'5 4':'none'});
   g.appendChild(r);
   if(n.kind==='bld'){
     const cols=Math.max(2,Math.floor(n.w/40)),rows=Math.max(2,Math.floor((n.h-40)/32));
