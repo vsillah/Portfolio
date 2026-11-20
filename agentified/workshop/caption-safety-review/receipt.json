@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "codeCommit": "8aa16da5b",
+  "schemaVersion": 2,
+  "codeCommit": "ee432a350",
   "lessons": [
     "L01",
     "L05",
@@ -16,13 +16,27 @@
     "L15",
     "L16"
   ],
+  "clearanceScenes": [
+    {
+      "id": "L07-01",
+      "start": 0,
+      "end": 27.99,
+      "line": 4
+    },
+    {
+      "id": "L07-06",
+      "start": 153.479,
+      "end": 160.078,
+      "line": 52
+    }
+  ],
   "observations": [
     {
       "viewport": "desktop",
       "lesson": "L01",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L01&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L01&rev=ee432a350",
       "cueCount": 55,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -44,9 +58,9 @@
     {
       "viewport": "desktop",
       "lesson": "L05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=ee432a350",
       "cueCount": 60,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -68,9 +82,9 @@
     {
       "viewport": "desktop",
       "lesson": "L06",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=ee432a350",
       "cueCount": 50,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -92,9 +106,12 @@
     {
       "viewport": "desktop",
       "lesson": "L07",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=ee432a350",
       "cueCount": 56,
-      "openingCuesMoved": 13,
+      "movedCues": {
+        "L07-01": 13,
+        "L07-06": 3
+      },
       "states": {
         "before": {
           "mode": "showing",
@@ -116,9 +133,9 @@
     {
       "viewport": "desktop",
       "lesson": "L08",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=ee432a350",
       "cueCount": 55,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -140,9 +157,9 @@
     {
       "viewport": "desktop",
       "lesson": "L09",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=ee432a350",
       "cueCount": 48,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -164,9 +181,9 @@
     {
       "viewport": "desktop",
       "lesson": "L10",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=ee432a350",
       "cueCount": 51,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -188,9 +205,9 @@
     {
       "viewport": "desktop",
       "lesson": "L11",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=ee432a350",
       "cueCount": 41,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -212,9 +229,9 @@
     {
       "viewport": "desktop",
       "lesson": "L12",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=ee432a350",
       "cueCount": 44,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -236,9 +253,9 @@
     {
       "viewport": "desktop",
       "lesson": "L13",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=ee432a350",
       "cueCount": 49,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -260,9 +277,9 @@
     {
       "viewport": "desktop",
       "lesson": "L14",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=ee432a350",
       "cueCount": 54,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -284,9 +301,9 @@
     {
       "viewport": "desktop",
       "lesson": "L15",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=ee432a350",
       "cueCount": 57,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -308,9 +325,9 @@
     {
       "viewport": "desktop",
       "lesson": "L16",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=ee432a350",
       "cueCount": 63,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -332,15 +349,23 @@
     {
       "viewport": "desktop",
       "lesson": "L07",
-      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=8aa16da5b",
+      "scene": "L07-01",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=ee432a350",
       "recording": "agentified/workshop/caption-safety-review/desktop-L07-01-walkthrough.mp4"
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L07",
+      "scene": "L07-06",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=ee432a350",
+      "recording": "agentified/workshop/caption-safety-review/desktop-L07-06-walkthrough.mp4"
     },
     {
       "viewport": "mobile",
       "lesson": "L01",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L01&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L01&rev=ee432a350",
       "cueCount": 55,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -362,9 +387,9 @@
     {
       "viewport": "mobile",
       "lesson": "L05",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=ee432a350",
       "cueCount": 60,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -386,9 +411,9 @@
     {
       "viewport": "mobile",
       "lesson": "L06",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=ee432a350",
       "cueCount": 50,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -410,9 +435,9 @@
     {
       "viewport": "mobile",
       "lesson": "L07",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=ee432a350",
       "cueCount": 56,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -434,9 +459,9 @@
     {
       "viewport": "mobile",
       "lesson": "L08",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=ee432a350",
       "cueCount": 55,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -458,9 +483,9 @@
     {
       "viewport": "mobile",
       "lesson": "L09",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=ee432a350",
       "cueCount": 48,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -482,9 +507,9 @@
     {
       "viewport": "mobile",
       "lesson": "L10",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=ee432a350",
       "cueCount": 51,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -506,9 +531,9 @@
     {
       "viewport": "mobile",
       "lesson": "L11",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=ee432a350",
       "cueCount": 41,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -530,9 +555,9 @@
     {
       "viewport": "mobile",
       "lesson": "L12",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=ee432a350",
       "cueCount": 44,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -554,9 +579,9 @@
     {
       "viewport": "mobile",
       "lesson": "L13",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=ee432a350",
       "cueCount": 49,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -578,9 +603,9 @@
     {
       "viewport": "mobile",
       "lesson": "L14",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=ee432a350",
       "cueCount": 54,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -602,9 +627,9 @@
     {
       "viewport": "mobile",
       "lesson": "L15",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=ee432a350",
       "cueCount": 57,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -626,9 +651,9 @@
     {
       "viewport": "mobile",
       "lesson": "L16",
-      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=8aa16da5b",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=ee432a350",
       "cueCount": 63,
-      "openingCuesMoved": 0,
+      "movedCues": {},
       "states": {
         "before": {
           "mode": "showing",
@@ -650,30 +675,54 @@
     {
       "viewport": "mobile",
       "lesson": "L07",
-      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=8aa16da5b",
+      "scene": "L07-01",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=ee432a350",
       "recording": "agentified/workshop/caption-safety-review/mobile-L07-01-walkthrough.mp4"
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L07",
+      "scene": "L07-06",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=ee432a350",
+      "recording": "agentified/workshop/caption-safety-review/mobile-L07-06-walkthrough.mp4"
     }
   ],
   "evidence": [
     {
       "path": "agentified/workshop/caption-safety-review/desktop-L07-01-captions-off.png",
-      "sha256": "04c26f4bc5a23dcc14028de6989bfb3cbabee19583afa6bdc2151df1da4ea2b9"
+      "sha256": "d9737492bb3395b047df63a4d450d16e5e8022f59f71ee343f9c8ba3e0c0a24a"
     },
     {
       "path": "agentified/workshop/caption-safety-review/desktop-L07-01-captions-on.png",
-      "sha256": "e8f6ef0161100393ee9c4bc513b751bf59e9b69f783b841702d8135c40be51dd"
+      "sha256": "c83e745a5531530386ac58f44bb45ee5b362df2074ccd50d70d4cd3793264f25"
     },
     {
       "path": "agentified/workshop/caption-safety-review/desktop-L07-01-paused-restored.png",
-      "sha256": "919277dd3b2689a07d91f38b4e037f20d739cc877b574698d865f82c671edbce"
+      "sha256": "5ec87a02064851fd0d95a979f69118709a337109a9f82edd6d57048b919978fc"
     },
     {
       "path": "agentified/workshop/caption-safety-review/desktop-L07-01-walkthrough.mp4",
-      "sha256": "168db5a3f417aacb3ebd4a84841e7f46bbb8407e595455ffb4f3499bb4ae4dcf"
+      "sha256": "2ef97a0d84cf87bfc5a7eb0387cf4b5fdb66eb6472514c90444fb60c784251b6"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-captions-off.png",
+      "sha256": "c55f293db64b7ae65c29c3f28cee9542889f2c0befada2dbca8d68663eb827c9"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-captions-on.png",
+      "sha256": "2addf30ca9258957b2af4f685ddcab334b358c5b926ecdfd9ba3fb07cd2ba5a7"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-paused-restored.png",
+      "sha256": "55631e029d927b74bc40a400e883cfba2bf4f18c21eebc3b0b7e35eaf2a96d50"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-walkthrough.mp4",
+      "sha256": "cb0bb4174bf96435c1209339b3e8b0dc4aed24552273e93515c33316a407c6bd"
     },
     {
       "path": "agentified/workshop/caption-safety-review/mobile-L07-01-captions-off.png",
-      "sha256": "48c72b6e72111a16654193cf9ac7103c8c58e5ca351c79a6f7578b334804b082"
+      "sha256": "6fd4db8a830afe48f270d870d80d2b5d654cb31ee6bd437783387ae3f6aa53ab"
     },
     {
       "path": "agentified/workshop/caption-safety-review/mobile-L07-01-captions-on.png",
@@ -681,11 +730,27 @@
     },
     {
       "path": "agentified/workshop/caption-safety-review/mobile-L07-01-paused-restored.png",
-      "sha256": "bab74dce727b414dff8cfac3ec1603f52236ebc129cc316d8bfca7bcf0a928aa"
+      "sha256": "9ce3d406b789d8cfc65e9fceba4443052d8e5c8b5680716991b09e1a4547e390"
     },
     {
       "path": "agentified/workshop/caption-safety-review/mobile-L07-01-walkthrough.mp4",
-      "sha256": "bca1b712653520ce3b202ef2d643467f5e5454d0b0126bd09cfdda9a860599c9"
+      "sha256": "8ec22e28fcba88097f5cd41833a2ce37aaf0250b8e93647201b9ba26b2462650"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-captions-off.png",
+      "sha256": "0af2213120171ab7b6ee085b53cb6e3945339d09ac435029d58466a77a1d839d"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-captions-on.png",
+      "sha256": "2dd3d5371ce7c4baaf97653e02d0c08ad6a83b28896a871c0655a44daaccd6d4"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-paused-restored.png",
+      "sha256": "6cfc905bfa08fc7fa1111709e28682c112f2385cf576d97161fa3c11db0cf43d"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-walkthrough.mp4",
+      "sha256": "d32794e09732a38fe25a0fc868aa328e15978c24a519745ff26027c01c5b8e27"
     }
   ]
 }
