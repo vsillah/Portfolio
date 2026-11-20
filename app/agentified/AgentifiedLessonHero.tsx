@@ -23,6 +23,33 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   captionsChangeRef.current = onCaptionsChange
 
   useEffect(() => {
+    if (lessonId !== 'L07') return
+    const trackElement = videoRef.current?.querySelector('track')
+    const track = trackElement?.track
+    if (!trackElement || !track) return
+    const desktop = window.matchMedia('(min-width: 621px)')
+    // L07-01 puts its headline in the lower caption region. Keep the native
+    // track and controls, but place only its desktop cues above the artwork.
+    const positionOpeningCues = () => {
+      for (const cue of Array.from(track.cues ?? [])) {
+        if (cue.startTime >= 27.67 || !('snapToLines' in cue)) continue
+        const positionedCue = cue as VTTCue
+        positionedCue.snapToLines = !desktop.matches
+        positionedCue.line = desktop.matches ? 4 : 'auto'
+      }
+    }
+    trackElement.addEventListener('load', positionOpeningCues)
+    track.addEventListener('cuechange', positionOpeningCues)
+    desktop.addEventListener('change', positionOpeningCues)
+    positionOpeningCues()
+    return () => {
+      trackElement.removeEventListener('load', positionOpeningCues)
+      track.removeEventListener('cuechange', positionOpeningCues)
+      desktop.removeEventListener('change', positionOpeningCues)
+    }
+  }, [lessonId, captionsSrc])
+
+  useEffect(() => {
     const tracks = videoRef.current?.textTracks
     if (!tracks || typeof tracks.addEventListener !== 'function') return
     const sync = () => captionsChangeRef.current?.(Array.from(tracks).some((track) => track.mode === 'showing'))
