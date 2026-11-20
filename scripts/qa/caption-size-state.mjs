@@ -1,4 +1,4 @@
-export const captionSizes = { Small: ['S', '14px'], Medium: ['M', '17px'], Large: ['L', '21px'] }
+export const captionSizes = { Small: ['S', '14px'], Medium: ['M', '18px'], Large: ['L', '24px'] }
 
 export async function waitForCueFrame(page, time) {
   await page.waitForFunction((target) => {
@@ -17,16 +17,23 @@ export async function waitForCaptionSize(page, { course, width, name }) {
     const selected = document.querySelector(`[aria-label="${{ S: 'Small', M: 'Medium', L: 'Large' }[size]} captions"]`)
     const pressed = [...document.querySelectorAll('[aria-label$=" captions"][aria-pressed="true"]')]
     const band = document.querySelector('[aria-label$=" caption"]')
-    const previews = { Small: '14px', Medium: '17px', Large: '21px' }
+    const previews = { Small: '14px', Medium: '18px', Large: '24px' }
     if (!group || [...group.querySelectorAll('button')].length !== 3 || Object.entries(previews).some(([name, px]) => {
       const button = group.querySelector(`[aria-label="${name} captions"]`)
       const sample = button?.querySelector('span')
       return sample?.textContent !== 'Aa' || sample.getAttribute('aria-hidden') !== 'true' || getComputedStyle(sample).fontSize !== px || !sample.getBoundingClientRect().width
     })) return false
+    const buttons = [...group.querySelectorAll('button')]
+    const boxes = buttons.map((button) => button.getBoundingClientRect())
+    if (boxes.some((box) => Math.abs(box.width - boxes[0].width) > .5 || Math.abs(box.height - boxes[0].height) > .5 || Math.abs(box.y - boxes[0].y) > 1)) return false
+    const styles = buttons.map((button) => getComputedStyle(button.querySelector('span')))
+    if (['fontFamily', 'fontWeight', 'fontStyle', 'color', 'lineHeight'].some((property) => new Set(styles.map((style) => style[property])).size !== 1)) return false
+    const px = styles.map((style) => Number.parseFloat(style.fontSize))
+    if (px[1] - px[0] < 4 || px[2] - px[1] < 6) return false
     if (!video || video.dataset.captionSize !== size || selected?.getAttribute('aria-pressed') !== 'true' || pressed.length !== 1 || pressed[0] !== selected || localStorage.getItem('amadutown.caption-size.v1') !== size) return false
     if (video.textTracks[0]?.mode !== (external ? 'hidden' : 'showing')) return false
-    if (external) return band?.dataset.captionSize === size && getComputedStyle(band).fontSize === font && band.textContent?.trim().length > 0
-    const nativeFont = { S: '75%', M: '100%' }[size]
+    if (external) return band?.dataset.captionSize === size && getComputedStyle(band).fontSize === font && getComputedStyle(band).fontSize === getComputedStyle(selected.querySelector('span')).fontSize && band.textContent?.trim().length > 0
+    const nativeFont = { S: '87.5%', M: '112.5%' }[size]
     const nativeRule = [...document.styleSheets].some((sheet) => {
       try { return [...sheet.cssRules].some((rule) => rule.selectorText?.includes('::cue') && rule.selectorText?.includes(`data-caption-size="${size}"`) && rule.style?.fontSize === nativeFont) }
       catch { return false }
@@ -44,8 +51,11 @@ export async function waitForCaptionSize(page, { course, width, name }) {
       pressed: [...document.querySelectorAll('[aria-label$=" captions"][aria-pressed="true"]')].map((button) => button.getAttribute('aria-label')),
       hovered: [...document.querySelectorAll('[aria-label$=" captions"]:hover')].map((button) => button.getAttribute('aria-label')),
       previews: Object.fromEntries(['Small', 'Medium', 'Large'].map((name) => {
-        const sample = document.querySelector(`[aria-label="${name} captions"] span`)
-        return [name, { text: sample?.textContent, font: sample ? getComputedStyle(sample).fontSize : null }]
+        const button = document.querySelector(`[aria-label="${name} captions"]`)
+        const sample = button?.querySelector('span')
+        const style = sample ? getComputedStyle(sample) : null
+        const box = button?.getBoundingClientRect()
+        return [name, { text: sample?.textContent, font: style?.fontSize, family: style?.fontFamily, weight: style?.fontWeight, style: style?.fontStyle, color: style?.color, lineHeight: style?.lineHeight, buttonWidth: box?.width, buttonHeight: box?.height, buttonY: box?.y }]
       })),
       stored: localStorage.getItem('amadutown.caption-size.v1'),
       trackMode: video.textTracks[0]?.mode,
@@ -54,7 +64,9 @@ export async function waitForCaptionSize(page, { course, width, name }) {
       bandText: band?.textContent ?? null,
     }
   })
-  if (state.size !== size || state.pressed.join() !== `${name} captions` || state.hovered.length || state.stored !== size || state.trackMode !== (external ? 'hidden' : 'showing') || (external ? state.bandSize !== size || state.bandFont !== font : state.bandSize !== null) || Object.entries({ Small: '14px', Medium: '17px', Large: '21px' }).some(([label, px]) => state.previews[label].text !== 'Aa' || state.previews[label].font !== px)) throw Error(`${course} ${width} ${name}: state changed before capture ${JSON.stringify(state)}`)
+  const samples = Object.values(state.previews)
+  const equalMetrics = ['family', 'weight', 'style', 'color', 'lineHeight', 'buttonWidth', 'buttonHeight', 'buttonY'].every((property) => new Set(samples.map((sample) => sample[property])).size === 1)
+  if (state.size !== size || state.pressed.join() !== `${name} captions` || state.hovered.length || state.stored !== size || state.trackMode !== (external ? 'hidden' : 'showing') || (external ? state.bandSize !== size || state.bandFont !== font || state.bandFont !== state.previews[name].font : state.bandSize !== null) || !equalMetrics || Object.entries({ Small: '14px', Medium: '18px', Large: '24px' }).some(([label, px]) => state.previews[label].text !== 'Aa' || state.previews[label].font !== px)) throw Error(`${course} ${width} ${name}: state changed before capture ${JSON.stringify(state)}`)
   return state
 }
 

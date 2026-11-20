@@ -18,13 +18,21 @@ describe('shared caption size preference', () => {
     render(<Harness />)
     const group = screen.getByRole('group', { name: 'Caption size' })
     expect(group).not.toHaveTextContent('Size')
-    for (const [name, px] of [['Small', 14], ['Medium', 17], ['Large', 21]] as const) {
+    const sampleStyles: CSSStyleDeclaration[] = []
+    for (const [name, px] of [['Small', 14], ['Medium', 18], ['Large', 24]] as const) {
       const button = within(group).getByRole('button', { name: `${name} captions` })
       expect(button).toHaveAttribute('type', 'button')
       expect(button).toHaveTextContent('Aa')
       expect(button.querySelector('span')).toHaveAttribute('aria-hidden', 'true')
       expect(button.querySelector('span')).toHaveStyle(`font-size: ${px}px`)
+      sampleStyles.push(getComputedStyle(button.querySelector('span')!))
     }
+    for (const property of ['fontFamily', 'fontWeight', 'fontStyle', 'color', 'lineHeight'] as const) {
+      expect(new Set(sampleStyles.map((style) => style[property])).size).toBe(1)
+    }
+    const fontSizes = sampleStyles.map((style) => Number.parseFloat(style.fontSize))
+    expect(fontSizes[1] - fontSizes[0]).toBeGreaterThanOrEqual(4)
+    expect(fontSizes[2] - fontSizes[1]).toBeGreaterThanOrEqual(6)
     expect(within(group).getByRole('button', { name: 'Medium captions' })).toHaveAttribute('aria-pressed', 'true')
   })
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 export type CaptionSize = 'S' | 'M' | 'L'
 export const CAPTION_SIZE_STORAGE_KEY = 'amadutown.caption-size.v1'
-export const CAPTION_FONT_PX: Record<CaptionSize, number> = { S: 14, M: 17, L: 21 }
+export const CAPTION_FONT_PX: Record<CaptionSize, number> = { S: 14, M: 18, L: 24 }
 
 export const parseCaptionSize = (value: string | null): CaptionSize => value === 'S' || value === 'M' || value === 'L' ? value : 'M'
 

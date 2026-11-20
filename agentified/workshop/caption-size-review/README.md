@@ -1,26 +1,22 @@
 # Shared caption size review
 
-Code commit: `097b90ce84` on draft PR #1293. The local review used the exact branch build on port 3121 with `MOCK_N8N=true` and `N8N_DISABLE_OUTBOUND=true`; no customer data or outbound provider action was used.
+Draft PR #1293 on `codex/agentified-caption-safety`, stacked on PR #1292. The local review used this branch's build on port 3121 with `MOCK_N8N=true` and `N8N_DISABLE_OUTBOUND=true`. No customer data or outbound provider action was used.
 
-- Agentified review route: `/agentified/learningplan?lesson=L07&rev=097b90ce84`
-- Accelerated review route: `/accelerated/learningplan?rev=097b90ce84`. The L09 example is selected from the lesson list in the walkthrough.
-- `receipt.json` records 174 rendered size checks across 58 lesson/viewport pairs: Agentified L01/L05–L16 and Accelerated L01–L16 at 1280 px and 390 px. Each check seeks the longest loaded cue, applies S/M/L, verifies the three visible `Aa` samples at 14/17/21 px with exact accessible names and one selected state, unchanged video dimensions and no new page overflow, and checks caption off/on plus immediate active-cue restoration while paused. Enter and Space keyboard activation are checked on the first lesson of each course at both widths. Two consecutive fresh-context sweeps passed 174/174.
-- The 15 regenerated PNGs show S/M/L at 390 px for Agentified L07 and Accelerated L01/L09, plus S/M/L desktop states for Agentified L07 and Accelerated L09. Each capture waits for the selected control, `data-caption-size`, stored preference, track mode, computed band font (or the native `::cue` CSS rule), decoded source frame, neutral pointer, and a rendered paint. The three MP4s show the exact operator path: paused cue, S/M/L changes, captions off, captions on. `walkthrough-state.json` records each step. FFmpeg decoded all final MP4s without errors.
-- Agentified retains native WebVTT at desktop Small/Medium and uses its cue band at mobile widths and desktop Large. Accelerated uses the cue band for every lesson. These placements keep the video frame and teaching artwork unobscured at Large. Browser and OS caption preferences may further affect native rendering.
+- Agentified: `/agentified/learningplan?lesson=L07`
+- Accelerated: `/accelerated/learningplan`; select L09 from the lesson list for the L09 evidence.
+- `receipt.json` records 174 rendered size checks across 58 lesson/viewport pairs: Agentified L01/L05–L16 and Accelerated L01–L16 at 1280×844 and 390×844. Each check seeks an actual cue, selects S/M/L, verifies the 14/18/24 px samples with matching family, weight, style, color, and 24 px line height, equal button geometry, exact accessible names, one selected state, stored preference, track mode, caption band or native cue rule, unchanged video geometry, and no new horizontal overflow. Caption off/on, immediate cue restoration while paused, and Enter/Space activation are also checked. Two consecutive fresh-context sweeps passed 174/174.
+- The same receipt records 16 theme checks: Light, Dark, and System under both OS schemes, for each course at both widths. These inspect the resolved `html.dark` state, sample color and metrics, selected surface and border, unselected hover, and focus outline. The eight `*-theme.png` captures show Light and Dark controls.
+- The 15 lesson PNGs show S/M/L at 390 px for Agentified L07 and Accelerated L01/L09, plus S/M/L at 1280 px for Agentified L07 and Accelerated L09. The three MP4s show the mobile operator path: paused cue, S/M/L, captions off, and captions on. `walkthrough-state.json` records each step. All final MP4s passed FFmpeg decode.
+- Agentified retains native WebVTT at desktop S/M and uses its cue band at mobile widths and desktop L. Accelerated uses the cue band for every lesson. Browser or OS preferences may further affect native cue rendering.
 
-Commands run:
+Validation commands:
 
 ```sh
 ./node_modules/.bin/vitest run components/captions/CaptionSizeControl.test.tsx app/agentified/AgentifiedLessonHero.test.tsx app/agentified/AgentifiedWorkshop.test.tsx app/service-prototypes/'[slug]'/AcceleratedLearningPlan.test.tsx
+node scripts/qa/verify-shared-caption-size.mjs
 node scripts/qa/verify-shared-caption-size.mjs
 node scripts/qa/record-shared-caption-size.mjs
 ffmpeg -v error -i <each-final-mp4> -f null -
 ```
 
-The prior PNGs were rejected because capture occurred before the painted control caught up, and a hovered previous button could look selected. The replacement evidence waits for paint and moves the pointer clear. Live product state was correct; no product code changed in this correction.
-
-The verifier now uses an instant, bounded scroll before mobile cropping and waits for the target position. This fixes an intermittent `480–861` crop on Accelerated L01 caused by the page's smooth-scroll behavior; the viewport bounds check remains strict. Two consecutive fresh-context verifier runs passed 174/174 checks, including Accelerated L01 at 390×844. The media files were retained because product geometry did not change.
-
-Focused tests passed: 67/67. The repository-wide TypeScript check still reports existing errors outside the changed implementation files; no new diagnostics were observed in the caption implementation.
-
-The Aa samples replace the visible letter labels on both courses. The shared control keeps the accessible `Caption size` group and `Small captions` / `Medium captions` / `Large captions` button names; see `docs/course-caption-controls.md` for the project rule. The three refreshed MP4s show the new control, and `walkthrough-state.json` records the computed sample fonts and selection at each step. The Aa control caused zero added page width or video geometry changes versus the prior receipt; Accelerated L01 remains 390 px wide at 390×844.
+Focused tests passed 67/67. The repository-wide TypeScript check has existing errors outside the changed caption files; no new caption diagnostics were observed in the prior PR review. See `docs/course-caption-controls.md` for the durable control rule. This lane stops at a draft PR; merge, deployment, and Human QA remain with the Integration Captain.
