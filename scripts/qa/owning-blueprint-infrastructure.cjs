@@ -60,6 +60,8 @@ async function inspectOwning(page, theme) {
       roofs: doc.querySelectorAll('#nodes .deco').length,
       water: css('#city .u-casing').stroke,
       sewer: css('#city .u-ln').stroke,
+      utilityWidth: css('#city .u-ln').strokeWidth,
+      connectorWidth: css('#pipes .pipe').strokeWidth,
       connector: css('#pipes .pipe').stroke,
       chamber: doc.querySelectorAll('#city .u-hatch').length,
       masks: doc.querySelectorAll('#cityHoles rect').length,
@@ -81,7 +83,7 @@ async function inspectOwning(page, theme) {
   assert.equal(state.shafts, 3)
   assert.ok(state.roofs > 0)
   assert.notEqual(state.water, state.connector)
-  assert.notEqual(state.sewer, state.water)
+  assert.ok(parseFloat(state.utilityWidth) < parseFloat(state.connectorWidth), 'utilities must read behind data connectors')
   assert.equal(state.labelsInsideCanvas, true)
   return state
 }
