@@ -1,0 +1,203 @@
+{
+  "generatedAt": "2026-11-20T18:09:17.307Z",
+  "states": [
+    {
+      "course": "agentified",
+      "id": "L07",
+      "step": "Small",
+      "size": "S",
+      "pressed": [
+        "Small captions"
+      ],
+      "hovered": [],
+      "stored": "S",
+      "trackMode": "hidden",
+      "bandSize": "S",
+      "bandFont": "14px",
+      "bandText": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth."
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "step": "Medium",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "17px",
+      "bandText": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth."
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "step": "Large",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "21px",
+      "bandText": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth."
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "step": "off",
+      "stored": "L"
+    },
+    {
+      "course": "agentified",
+      "id": "L07",
+      "step": "restored",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "21px",
+      "bandText": "If both preparation roles produce separate\nanswers without a common handoff, Morgan gets a\nsmall swarm and two versions of the truth."
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "step": "Small",
+      "size": "S",
+      "pressed": [
+        "Small captions"
+      ],
+      "hovered": [],
+      "stored": "S",
+      "trackMode": "hidden",
+      "bandSize": "S",
+      "bandFont": "14px",
+      "bandText": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this"
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "step": "Medium",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "17px",
+      "bandText": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this"
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "step": "Large",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "21px",
+      "bandText": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this"
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "step": "off",
+      "stored": "L"
+    },
+    {
+      "course": "accelerated",
+      "id": "L01",
+      "step": "restored",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "21px",
+      "bandText": "move into a three-column boundary: public, approved internal, restricted. “Approved internal” means approved for this"
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "step": "Small",
+      "size": "S",
+      "pressed": [
+        "Small captions"
+      ],
+      "hovered": [],
+      "stored": "S",
+      "trackMode": "hidden",
+      "bandSize": "S",
+      "bandFont": "14px",
+      "bandText": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "step": "Medium",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "17px",
+      "bandText": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "step": "Large",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "21px",
+      "bandText": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "step": "off",
+      "stored": "L"
+    },
+    {
+      "course": "accelerated",
+      "id": "L09",
+      "step": "restored",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "21px",
+      "bandText": "Resume when the map includes the actual decision you seek, four roles, their provisional grid positions, their questions, and a pre-meeting sequence."
+    }
+  ]
+}
