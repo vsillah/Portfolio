@@ -192,11 +192,34 @@ async function fetchN8nWebhookWithRetry(
 function generateSmartFallback(
   userMessage: string,
   errorReason: string,
-  isDiagnostic: boolean = false
+  isDiagnostic: boolean = false,
+  failureClass?: string
 ): { response: string; escalated: boolean; metadata: Record<string, unknown> } {
   const lowerMessage = userMessage.toLowerCase()
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
+  // The IDs and descriptions come from the active public service catalog snapshot
+  // (docs/showcase-audit/services-catalog-2026-10-23.json and
+  // scripts/outcome-proposal-data.json); categories come from
+  // docs/chatbot-products-and-services-overview.md. Keep this public-safe.
+  const asksAboutChatbots = /chat[\s-]?bot|virtual assistant|lead qualification/i.test(userMessage)
+  const asksAboutServices = /\bservices?\b/i.test(userMessage) ||
+    (/\boffers?\b/i.test(userMessage) && !/\bproducts?\b/i.test(userMessage))
+  if ((asksAboutChatbots || asksAboutServices) && !isDiagnostic) {
+    const serviceIntro = asksAboutChatbots
+      ? `Our chat service is temporarily unavailable, but I can still point you to AmaduTown's listed chatbot services:`
+      : `Our chat service is temporarily unavailable. AmaduTown lists training, speaking, consulting, coaching, and workshops in its [services catalog](${baseUrl}/services). Two chatbot services you can explore are:`
+    return {
+      response: `${serviceIntro}\n\n- **AI Customer Support Chatbot** handles common customer questions, ticket routing, and escalation, helping teams respond when staff are unavailable. [View service](${baseUrl}/services/1313650b-1afb-44f7-8118-21f05b1ae8a0).\n- **AI Inbound Lead Chatbot** asks qualifying questions, captures contact information, and routes inquiries to a sales team. [View service](${baseUrl}/services/a479ce70-4856-4d3f-917b-c37bfff1f0a2).\n\nIf you're deciding which fits your work, use the [contact form](${baseUrl}/contact) or [schedule a free discovery call](https://calendly.com/amadutown/atas-discovery-call). You can also try the chat again later.`,
+      escalated: true,
+      metadata: {
+        fallback: true,
+        fallbackReason: errorReason,
+        ...(failureClass ? { failureClass } : {}),
+        retriable: true,
+      },
+    }
+  }
   // Contextual suggestion (optional) based on intent — plain URLs so they’re clickable in plain-text chat
   let contextualSuggestion = ''
   if (lowerMessage.includes('service') || lowerMessage.includes('help') || lowerMessage.includes('offer')) {
@@ -217,6 +240,7 @@ function generateSmartFallback(
     metadata: {
       fallback: true,
       fallbackReason: errorReason,
+      ...(failureClass ? { failureClass } : {}),
       retriable: true,
     },
   }
@@ -667,7 +691,7 @@ const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL
  */
 export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatResponse> {
   if (isN8nOutboundDisabled()) {
-    logDisabledOutbound('sendToN8n', N8N_WEBHOOK_URL, { sessionId: request.sessionId, message: request.message.slice(0, 100) })
+    logDisabledOutbound('sendToN8n', undefined)
     return generateMockChatResponse(request.message, request.diagnosticMode)
   }
 
@@ -727,20 +751,34 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error(`[n8n] Webhook error (attempt ${attempt}):`, response.status, errorText.substring(0, 200))
+        // Cloudflare 1033 means the request did not reach the workflow. The response
+        // body may contain infrastructure details, so log only a stable classification.
+        if (response.status === 530) {
+          const isCloudflare1033 = /\b1033\b/.test(errorText)
+          const failureClass = isCloudflare1033 ? 'stale_webhook_route' : 'provider_gateway_failure'
+          console.error('[n8n] Chat webhook unavailable', { status: 530, failureClass, attempt })
+          return generateSmartFallback(
+            request.message,
+            isCloudflare1033 ? 'n8n chat route unavailable (Cloudflare 1033)' : 'n8n gateway returned 530',
+            request.diagnosticMode,
+            failureClass
+          )
+        }
+        console.error(`[n8n] Webhook error (attempt ${attempt}):`, response.status)
 
         // 404 means the workflow URL is wrong or workflow is inactive — not transient
         if (response.status === 404) {
           return generateSmartFallback(
             request.message,
             'n8n workflow not found (404) — workflow may be inactive',
-            request.diagnosticMode
+            request.diagnosticMode,
+            'stale_webhook_route'
           )
         }
 
         // 500 from n8n usually means a node error (e.g. expired credentials)
         if (response.status === 500) {
-          lastError = new Error(`n8n workflow error (500): ${errorText.substring(0, 200)}`)
+          lastError = new Error('n8n workflow error (500)')
           // Only retry 500s once — if the workflow has a credential issue it won't self-heal
           if (attempt >= N8N_MAX_RETRIES) {
             return generateSmartFallback(
@@ -836,7 +874,13 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
       }
 
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error))
+      // Fetch errors can include the request URL or user data. Keep receipts stable
+      // without copying either into logs or public fallback metadata.
+      lastError = new Error(
+        error instanceof Error && /timed out|timeout/i.test(error.message)
+          ? 'n8n chat request timed out'
+          : 'n8n chat transport failed'
+      )
       console.error(`[n8n] sendToN8n error (attempt ${attempt}):`, lastError.message)
 
       // Only retry transient errors
