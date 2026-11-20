@@ -37,6 +37,11 @@ export default function RevenuePlumbingDiscoveryCard() {
           <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
         </span>
       </Link>
+      <div className="relative mx-auto mt-5 max-w-7xl text-right">
+        <Link href="/insights" className="text-sm font-medium text-[#34465B] underline underline-offset-4 hover:text-[#725A16] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A88A2D] dark:text-platinum-white/75 dark:hover:text-radiant-gold">
+          Browse all insights
+        </Link>
+      </div>
     </aside>
   )
 }

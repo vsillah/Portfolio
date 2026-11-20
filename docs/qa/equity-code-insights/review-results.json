@@ -1,0 +1,62 @@
+[
+  {
+    "label": "desktop:index",
+    "width": 1440,
+    "scroll": 1440
+  },
+  {
+    "label": "desktop:graph",
+    "width": 1440,
+    "scroll": 1440
+  },
+  {
+    "label": "desktop:ledger",
+    "width": 1440,
+    "scroll": 1440
+  },
+  {
+    "label": "desktop:block",
+    "width": 1440,
+    "scroll": 1440
+  },
+  {
+    "label": "desktop",
+    "video": "docs/qa/equity-code-insights/desktop.mp4"
+  },
+  {
+    "label": "mobile:index",
+    "width": 390,
+    "scroll": 390
+  },
+  {
+    "label": "mobile:graph",
+    "width": 390,
+    "scroll": 390
+  },
+  {
+    "label": "mobile:ledger",
+    "width": 390,
+    "scroll": 390
+  },
+  {
+    "label": "mobile:block",
+    "width": 390,
+    "scroll": 390
+  },
+  {
+    "label": "mobile",
+    "video": "docs/qa/equity-code-insights/mobile.mp4"
+  },
+  {
+    "label": "reduced-motion:compounding-graph",
+    "active": true
+  },
+  {
+    "label": "reduced-motion:home-front-ledger",
+    "active": true
+  },
+  {
+    "label": "reduced-motion:owning-the-block",
+    "active": true
+  }
+]

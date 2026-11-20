@@ -24,6 +24,7 @@ describe('RevenuePlumbingDiscoveryCard', () => {
       'href',
       '/insights/revenue-plumbing-map',
     )
+    expect(screen.getByRole('link', { name: 'Browse all insights' })).toHaveAttribute('href', '/insights')
   })
 
   it('uses a restrained light surface while preserving the dark treatment', () => {
