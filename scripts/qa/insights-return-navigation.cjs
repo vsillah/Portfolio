@@ -10,53 +10,136 @@ const out = join(process.cwd(), 'docs/qa/insights-return-navigation')
 const routes = ['compounding-graph', 'home-front-ledger', 'owning-the-block']
 mkdirSync(out, { recursive: true })
 
-async function inspect(page, width, route) {
-  await page.goto(`${base}/insights/${route}?rev=${revision}`, { waitUntil: 'domcontentloaded' })
-  const nav = page.getByRole('navigation', { name: 'Dashboard navigation' })
-  const home = nav.getByRole('link', { name: 'Back to AmaduTown' })
-  const all = nav.getByRole('link', { name: 'All insights' })
-  await home.waitFor()
-  assert.equal(await home.getAttribute('href'), '/')
-  assert.equal(await all.getAttribute('href'), '/insights')
-  assert.equal(await page.locator('.insight-return-nav').count(), 1)
-  const boxes = await page.evaluate(() => {
-    const nav = document.querySelector('.insight-return-nav')
-    const links = [...nav.querySelectorAll('a')]
-    const heading = document.querySelector('h1')
-    const rect = el => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom } }
-    return { width: innerWidth, scrollWidth: document.documentElement.scrollWidth, nav: rect(nav), links: links.map(rect), heading: rect(heading) }
+async function openMenu(page) {
+  await page.getByRole('button', { name: 'Toggle menu' }).click()
+  const menu = page.getByRole('dialog', { name: 'Site navigation' })
+  await menu.waitFor()
+  assert.equal(await menu.getByRole('link', { name: 'Home' }).getAttribute('href'), '/#home')
+  assert.equal(await menu.getByRole('link', { name: 'Insights' }).getAttribute('href'), '/insights')
+  const bounds = await menu.evaluate(el => {
+    const rect = el.getBoundingClientRect()
+    return { left: rect.left, right: rect.right, bottom: rect.bottom, width: innerWidth, height: innerHeight }
   })
-  assert.equal(boxes.width, width)
-  assert.ok(boxes.scrollWidth <= width + 1, `${route} ${width}: horizontal overflow`)
-  assert.ok(boxes.nav.bottom < boxes.heading.top, `${route} ${width}: navigation overlaps title`)
-  for (const box of boxes.links) {
-    assert.ok(box.left >= 0 && box.right <= width, `${route} ${width}: clipped link`)
-    assert.ok(box.bottom <= boxes.nav.bottom + 1, `${route} ${width}: link outside navigation`)
-  }
-  const first = boxes.links[0], second = boxes.links[1]
-  assert.ok(first.right <= second.left || first.bottom <= second.top, `${route} ${width}: links overlap`)
-  await home.focus()
-  assert.equal(await home.evaluate(el => el.matches(':focus-visible')), true)
-  return { route, width, ...boxes }
+  assert.ok(bounds.left >= 0 && bounds.right <= bounds.width + 1, 'menu has horizontal clipping')
+  assert.ok(bounds.bottom <= bounds.height + 1, 'menu is outside viewport')
+  return menu
 }
 
-async function exercise(page, route) {
+async function chooseTheme(page, name, expected) {
+  const menu = await openMenu(page)
+  await menu.getByRole('button', { name: `${name} theme` }).click()
+  await menu.waitFor({ state: 'hidden' })
+  assert.equal(await page.evaluate(() => localStorage.getItem('theme')), expected)
+  await page.waitForFunction(value => document.documentElement.classList.contains('dark') === (value === 'dark'), expected)
+  const iframe = page.locator('iframe')
+  await page.waitForFunction(value => document.querySelector('iframe')?.contentDocument?.documentElement.dataset.theme === value, expected === 'system' ? 'light' : expected)
+  assert.equal(await iframe.count(), 1)
+}
+
+async function inspect(page, viewport, route) {
+  await page.goto(`${base}/insights/${route}?rev=${revision}`, { waitUntil: 'domcontentloaded' })
+  const frame = page.frameLocator('iframe')
+  await frame.locator('h1').waitFor()
+  await page.getByRole('button', { name: 'Toggle menu' }).waitFor()
+  await page.waitForFunction(() => {
+    const iframe = document.querySelector('iframe')
+    return iframe && iframe.getBoundingClientRect().height >= iframe.contentDocument.documentElement.scrollHeight - 2
+  })
+  const measurements = await page.evaluate(() => {
+    const nav = document.querySelector('nav')
+    const iframe = document.querySelector('iframe')
+    const nr = nav.getBoundingClientRect(), fr = iframe.getBoundingClientRect()
+    return {
+      width: innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      navBottom: nr.bottom,
+      frameTop: fr.top,
+      frameHeight: fr.height,
+      frameContentHeight: iframe.contentDocument.documentElement.scrollHeight,
+      frameScrollWidth: iframe.contentDocument.documentElement.scrollWidth,
+    }
+  })
+  assert.equal(measurements.width, viewport.width)
+  assert.ok(measurements.scrollWidth <= viewport.width + 1, `${route} ${viewport.width}: page overflow`)
+  assert.ok(measurements.frameScrollWidth <= viewport.width + 1, `${route} ${viewport.width}: frame overflow`)
+  assert.ok(measurements.frameTop >= measurements.navBottom, `${route} ${viewport.width}: menu overlaps dashboard`)
+  assert.ok(measurements.frameHeight >= measurements.frameContentHeight - 2, `${route} ${viewport.width}: frame clips dashboard`)
+  assert.equal(await page.locator('a.insight-return-nav__home').count(), 0)
+  assert.equal(await page.locator('a[href="/"]').first().getAttribute('href'), '/')
+  return { route, width: viewport.width, ...measurements }
+}
+
+async function exerciseDashboard(page, route) {
+  const frame = page.frameLocator('iframe')
   if (route === 'compounding-graph') {
-    await page.locator('#colorby button[data-c="impact"]').click()
-    assert.equal(await page.locator('#colorby button[data-c="impact"]').getAttribute('aria-pressed'), 'true')
-    await page.locator('#magrows .magrow').first().click()
-    assert.notEqual((await page.locator('#panel h2').innerText()).trim(), 'Start at the center')
+    await frame.locator('#colorby button[data-c="impact"]').click()
+    assert.equal(await frame.locator('#colorby button[data-c="impact"]').getAttribute('aria-pressed'), 'true')
+    await frame.locator('#magrows .magrow').first().click()
+    assert.notEqual((await frame.locator('#panel h2').innerText()).trim(), 'Start at the center')
   } else if (route === 'home-front-ledger') {
-    await page.locator('#lenses button').filter({ hasText: 'Black Americans' }).click()
-    await page.locator('#slider').focus()
+    await frame.locator('#lenses button').filter({ hasText: 'Black Americans' }).click()
+    await frame.locator('#slider').focus()
     await page.keyboard.press('Home')
     await page.keyboard.press('ArrowRight')
-    assert.equal(await page.locator('#slider').inputValue(), '1')
+    assert.equal(await frame.locator('#slider').inputValue(), '1')
   } else {
-    await page.locator('#cb-hz').click()
-    assert.equal(await page.locator('#cb-hz').getAttribute('aria-pressed'), 'true')
-    await page.locator('#uses button').first().click()
+    await frame.locator('#cb-hz').click()
+    assert.equal(await frame.locator('#cb-hz').getAttribute('aria-pressed'), 'true')
+    await frame.locator('#uses button').first().click()
   }
+}
+
+async function walkthrough(browser, viewport, report) {
+  const record = viewport.width !== 768
+  const context = await browser.newContext({ viewport, colorScheme: 'light', ...(record ? { recordVideo: { dir: out, size: viewport } } : {}) })
+  const page = await context.newPage()
+  try {
+    for (const route of routes) {
+      report.checks.push(await inspect(page, viewport, route))
+      if (record) await page.waitForTimeout(700)
+      await chooseTheme(page, 'Dark', 'dark')
+      assert.equal(await page.locator('iframe').evaluate(el => el.contentDocument.documentElement.dataset.theme), 'dark')
+      if (record) await page.waitForTimeout(600)
+      await chooseTheme(page, 'Light', 'light')
+      await chooseTheme(page, 'System', 'system')
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await page.frameLocator('iframe').locator('h1').waitFor()
+      assert.equal(await page.evaluate(() => localStorage.getItem('theme')), 'system')
+      await page.waitForFunction(() => document.querySelector('iframe')?.contentDocument?.documentElement.dataset.theme === 'light')
+      assert.equal(await page.locator('iframe').evaluate(el => el.contentDocument.documentElement.dataset.theme), 'light')
+      await page.getByRole('button', { name: 'Toggle menu' }).focus()
+      assert.equal(await page.getByRole('button', { name: 'Toggle menu' }).evaluate(el => el.matches(':focus-visible')), true)
+      const menu = await openMenu(page)
+      const homeLink = menu.getByRole('link', { name: 'Home' })
+      await homeLink.focus()
+      assert.equal(await homeLink.evaluate(el => el.matches(':focus-visible')), true)
+      await page.keyboard.press('Escape')
+      await menu.waitFor({ state: 'hidden' })
+      await exerciseDashboard(page, route)
+      if (record) await page.waitForTimeout(700)
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await page.waitForFunction(() => window.scrollY === 0)
+      const links = await openMenu(page)
+      await links.getByRole('link', { name: 'Insights' }).click()
+      await page.getByRole('heading', { name: 'Explore the systems' }).waitFor()
+      if (record) await page.waitForTimeout(400)
+    }
+    await page.goto(`${base}/insights/${routes[0]}?rev=${revision}`, { waitUntil: 'domcontentloaded' })
+    await page.frameLocator('iframe').locator('h1').waitFor()
+    const menu = await openMenu(page)
+    await menu.getByRole('link', { name: 'Home' }).click()
+    await page.waitForURL(`${base}/#home`)
+    if (record) await page.waitForTimeout(500)
+    const sourceVideo = record ? await page.video().path() : null
+    await context.close()
+    if (record) {
+      const video = join(out, viewport.width === 390 ? 'mobile-390x844.mp4' : 'desktop-1440x900.mp4')
+      execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', sourceVideo, '-c:v', 'libx264', '-crf', '24', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', video])
+      unlinkSync(sourceVideo)
+      execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1', video])
+      report.videos.push(video.replace(`${process.cwd()}/`, ''))
+    }
+  } finally { if (page.context().pages().length) await context.close().catch(() => {}) }
 }
 
 async function main() {
@@ -64,31 +147,7 @@ async function main() {
   const report = { revision, base, checks: [], videos: [] }
   try {
     for (const viewport of [{ width: 1440, height: 900 }, { width: 768, height: 900 }, { width: 390, height: 844 }]) {
-      const record = viewport.width !== 768
-      const context = await browser.newContext({ viewport, ...(record ? { recordVideo: { dir: out, size: viewport } } : {}) })
-      const page = await context.newPage()
-      for (const route of routes) {
-        report.checks.push(await inspect(page, viewport.width, route))
-        if (record) await page.waitForTimeout(800)
-        await exercise(page, route)
-        if (record) await page.waitForTimeout(800)
-        await page.getByRole('navigation', { name: 'Dashboard navigation' }).getByRole('link', { name: 'All insights' }).click()
-        await page.getByRole('heading', { name: 'Explore the systems' }).waitFor()
-        if (record) await page.waitForTimeout(500)
-      }
-      await page.goto(`${base}/insights/${routes[0]}?rev=${revision}`, { waitUntil: 'domcontentloaded' })
-      await page.getByRole('navigation', { name: 'Dashboard navigation' }).getByRole('link', { name: 'Back to AmaduTown' }).click()
-      await page.waitForURL(`${base}/`)
-      if (record) await page.waitForTimeout(700)
-      const sourceVideo = record ? await page.video().path() : null
-      await context.close()
-      if (record) {
-        const video = join(out, viewport.width === 390 ? 'mobile-390x844.mp4' : 'desktop-1440x900.mp4')
-        execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', sourceVideo, '-c:v', 'libx264', '-crf', '24', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', video])
-        unlinkSync(sourceVideo)
-        execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1', video])
-        report.videos.push(video.replace(`${process.cwd()}/`, ''))
-      }
+      await walkthrough(browser, viewport, report)
     }
     writeFileSync(join(out, 'results.json'), JSON.stringify(report, null, 2) + '\n')
     console.log(JSON.stringify({ revision, checks: report.checks.length, videos: report.videos }, null, 2))

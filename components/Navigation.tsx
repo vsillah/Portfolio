@@ -351,7 +351,7 @@ export default function Navigation() {
                   Ready to collaborate?
                 </p>
                 <a
-                  href="#contact"
+                  href={isHomePage ? '#contact' : '/#contact'}
                   onClick={() => setIsMenuOpen(false)}
                   className="btn-gold text-sm tracking-wider uppercase transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]"
                 >
