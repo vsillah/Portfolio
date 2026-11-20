@@ -6,6 +6,8 @@ Base: `9f31a4db904b3cf1b4e097191a3df32f13e8f8c9`. Branch: `codex/agentified-phas
 
 The next broader visual sweep found an unreadable mobile plate at L05-04, 01:30, on the 390×844 learner route. The 292×164 video makes the approved plate's detailed Open Brain/Harness labels too small to read. See `mobile-readability-stop.md`, the exact-route screenshot and MP4. This is the requested stop condition. The complete 104 eligible positions (128 historical positions minus excluded L02–L04) are **not** qualified, and consolidated full-scope walkthroughs and versioned spoken transcripts are not claimed. Stop for a separate scoped correction before resuming Phase 3B.
 
+Stacked draft PR #1291 at `2139a136469908e817ceb274cc9af9b43b9a2708` reports a source-faithful L05 mobile detail correction. It remains a dependency, not merged or copied into this branch. The authorized resumed sweep started at L06 and found the same class of detailed-label failure at L06-03, 01:20. The “Recommend” instruction and supporting text are unreadable in the 292×164 mobile video, while the full-size frame contains them. See `l06-mobile-readability-stop.md` and its exact-route screenshot/MP4. **L06 fails; L07–L16 remain unqualified.** Stop for a separately scoped correction before resuming L07.
+
 ## L01: corrected learner metadata and end-screen UI
 
 The existing illustrated MP4 has 9,457 video frames at 25 fps (378.280 s) and audio through 378.285 s. Its earlier declared 378.059 s was 0.226 s short. The illustrated binding uses the container duration, while the historic source-media receipt remains lineage. The exact-hash L01 end-screen binding begins at the final VTT cue end, 359.645 s, shows progress 1 of 16, and names L02 next. A narrow source-identity exception in `AgentifiedWorkshop.tsx` accepts only this exact duration correction; it does not admit a different video or caption asset.
@@ -40,4 +42,4 @@ No provider contact, generation, spend, L02–L04 change, L10/L16 learner bindin
 
 `node docs/agentified-distribution-readiness/phase-3b/record_browser_walkthrough.cjs e5cce9a7a`
 
-Next gate: captain listens to the exact L10 contextual clip and reviews the L16 card handoff; complete thirteen-lesson source-faithful QA and transcript provenance before any Human QA handoff. The six browser MP4s are captain review evidence, not a Human QA request.
+Next gate: a separate L06 mobile detail correction, validated on the exact L06 route and adjacent scenes. Then resume L07–L16 in order. L10 auditory confirmation, L16 card handoff, complete source-faithful QA, and transcript provenance remain open before any Human QA handoff. The existing browser MP4s are captain review evidence, not a Human QA request.
