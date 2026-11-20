@@ -29,4 +29,10 @@ describe('first-party adult handoff', () => {
     repo.consumeAbuseBudget.mockRejectedValueOnce(new Error('down'))
     expect((await POST(request())).status).toBe(503)
   })
+  it('does not write to Convex after Portfolio logout invalidates the bearer', async () => {
+    auth.mockResolvedValueOnce({ error: 'Authentication required', status: 401 })
+    expect((await POST(request())).status).toBe(401)
+    expect(repo.consumeAbuseBudget).not.toHaveBeenCalled()
+    expect(repo.issueHandoff).not.toHaveBeenCalled()
+  })
 })
