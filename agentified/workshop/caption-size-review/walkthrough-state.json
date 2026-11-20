@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T18:09:17.307Z",
+  "generatedAt": "2026-11-20T18:34:12.255Z",
   "states": [
     {
       "course": "agentified",
@@ -10,6 +10,20 @@
         "Small captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "S",
       "trackMode": "hidden",
       "bandSize": "S",
@@ -25,6 +39,20 @@
         "Medium captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "M",
       "trackMode": "hidden",
       "bandSize": "M",
@@ -40,6 +68,20 @@
         "Large captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
@@ -61,6 +103,20 @@
         "Large captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
@@ -76,6 +132,20 @@
         "Small captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "S",
       "trackMode": "hidden",
       "bandSize": "S",
@@ -91,6 +161,20 @@
         "Medium captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "M",
       "trackMode": "hidden",
       "bandSize": "M",
@@ -106,6 +190,20 @@
         "Large captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
@@ -127,6 +225,20 @@
         "Large captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
@@ -142,6 +254,20 @@
         "Small captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "S",
       "trackMode": "hidden",
       "bandSize": "S",
@@ -157,6 +283,20 @@
         "Medium captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "M",
       "trackMode": "hidden",
       "bandSize": "M",
@@ -172,6 +312,20 @@
         "Large captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",
@@ -193,6 +347,20 @@
         "Large captions"
       ],
       "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px"
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "17px"
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "21px"
+        }
+      },
       "stored": "L",
       "trackMode": "hidden",
       "bandSize": "L",

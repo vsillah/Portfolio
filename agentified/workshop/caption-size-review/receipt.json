@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T18:08:57.477Z",
+  "generatedAt": "2026-11-20T18:33:44.141Z",
   "base": "http://127.0.0.1:3121",
   "results": [
     {
@@ -3309,14 +3309,15 @@
       "scrollWidth": 390
     }
   ],
-  "codeCommit": "6cb52368e",
+  "codeCommit": "097b90ce84",
   "routes": {
-    "agentified": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=6cb52368e",
-    "accelerated": "http://127.0.0.1:3121/accelerated/learningplan?rev=6cb52368e"
+    "agentified": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=097b90ce84",
+    "accelerated": "http://127.0.0.1:3121/accelerated/learningplan?rev=097b90ce84"
   },
   "summary": {
     "lessonViewportPairs": 58,
     "sizeChecks": 174,
+    "consecutivePasses": 2,
     "agentifiedLessons": "L01 and L05-L16",
     "acceleratedLessons": "L01-L16",
     "widths": [
@@ -3328,6 +3329,13 @@
       "M",
       "L"
     ],
+    "previewText": "Aa",
+    "previewFonts": {
+      "S": "14px",
+      "M": "17px",
+      "L": "21px"
+    },
+    "keyboardEnterAndSpace": true,
     "pausedOffOnChecks": 58,
     "videoGeometryStable": true,
     "newHorizontalOverflow": false,
