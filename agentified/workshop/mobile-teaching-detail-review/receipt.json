@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "codeCommit": "fb5415a6f0aa240f8703725bb3efbfb1a0423164",
-  "mapSha256": "a61a3cc1118fd2e79789fee9b72f4fe5e0a8de5be968fd5fdd80afe21c9f4cb4",
+  "codeCommit": "26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
+  "mapSha256": "3b4cc38432c173e1dad54f6223ca3050fc347c5e02ef998d19ee1fb260df9ccf",
   "auditSha256": "81ac12fd53953f1eccf862e6382117d452e1634d3656adf1c1ab8178b9a77a43",
-  "sceneCount": 15,
+  "sceneCount": 16,
   "observations": [
     {
       "viewport": "desktop",
       "sceneId": "L05-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -21,7 +21,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L05-04 Portfolio-first operating stack source wording",
@@ -35,7 +36,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "captionsOff": null,
       "after": {
@@ -50,13 +52,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L06-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -69,7 +72,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L06-03 Authority ladder source wording",
@@ -83,7 +87,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -98,13 +103,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L07-05",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -117,7 +123,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L07-05 Authority ladder source wording",
@@ -131,7 +138,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -146,13 +154,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
-      "sceneId": "L08-05",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L08&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "sceneId": "L07-07",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -165,7 +174,59 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
+      },
+      "during": {
+        "scene": "L07-07 Human review remains the gate. source wording",
+        "display": "none",
+        "embeddedImages": 0,
+        "sourceLink": null,
+        "player": [
+          621,
+          349
+        ],
+        "playerVisible": true,
+        "controls": true,
+        "controlsClear": true,
+        "captions": "showing",
+        "activeCueCount": 0
+      },
+      "captionsOff": null,
+      "after": {
+        "scene": null,
+        "display": null,
+        "embeddedImages": 0,
+        "sourceLink": null,
+        "player": [
+          621,
+          349
+        ],
+        "playerVisible": true,
+        "controls": true,
+        "controlsClear": true,
+        "captions": "showing",
+        "activeCueCount": 1
+      }
+    },
+    {
+      "viewport": "desktop",
+      "sceneId": "L08-05",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L08&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
+      "before": {
+        "scene": null,
+        "display": null,
+        "embeddedImages": 0,
+        "sourceLink": null,
+        "player": [
+          621,
+          349
+        ],
+        "playerVisible": true,
+        "controls": true,
+        "controlsClear": true,
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L08-05 The first receipt source wording",
@@ -179,7 +240,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -194,13 +256,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L09-02",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -213,7 +276,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L09-02 SAM with the trust layer source wording",
@@ -227,7 +291,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -242,13 +307,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L09-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -261,7 +327,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L09-04 Authority ladder source wording",
@@ -275,7 +342,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -290,13 +358,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L10-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L10&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L10&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -309,7 +378,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L10-03 Authority ladder source wording",
@@ -323,7 +393,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "captionsOff": null,
       "after": {
@@ -338,13 +409,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L11-02",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L11&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L11&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -357,7 +429,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L11-02 Portfolio-first operating stack source wording",
@@ -371,7 +444,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -386,13 +460,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L12-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L12&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L12&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -405,7 +480,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L12-03 The first receipt source wording",
@@ -419,7 +495,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -434,13 +511,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L13-02",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L13&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L13&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -453,7 +531,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L13-02 A.M.I.N.A. inside SAM source wording",
@@ -467,7 +546,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "captionsOff": null,
       "after": {
@@ -482,13 +562,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L14-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -501,7 +582,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L14-03 Portfolio-first operating stack source wording",
@@ -515,7 +597,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "captionsOff": null,
       "after": {
@@ -530,13 +613,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L14-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": "L14-03 Portfolio-first operating stack source wording",
         "display": "none",
@@ -549,7 +633,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L14-04 Authority ladder source wording",
@@ -563,7 +648,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -578,13 +664,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L15-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L15&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L15&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -597,7 +684,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L15-04 SAM with the trust layer source wording",
@@ -611,7 +699,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -626,13 +715,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L16-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -645,7 +735,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
@@ -659,7 +750,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -674,13 +766,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "desktop",
       "sceneId": "L16-05",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
         "display": "none",
@@ -693,7 +786,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L16-05 Authority ladder source wording",
@@ -707,7 +801,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": null,
       "after": {
@@ -722,13 +817,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L05-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -741,7 +837,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L05-04 Portfolio-first operating stack source wording",
@@ -755,7 +852,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -775,13 +873,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L06-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -794,7 +893,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L06-03 Authority ladder source wording",
@@ -808,7 +908,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -828,13 +929,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L07-05",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -847,7 +949,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L07-05 Authority ladder source wording",
@@ -861,7 +964,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -881,13 +985,70 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
+      }
+    },
+    {
+      "viewport": "mobile",
+      "sceneId": "L07-07",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
+      "before": {
+        "scene": null,
+        "display": null,
+        "embeddedImages": 0,
+        "sourceLink": null,
+        "player": [
+          292,
+          164
+        ],
+        "playerVisible": true,
+        "controls": true,
+        "controlsClear": true,
+        "captions": "showing",
+        "activeCueCount": 1
+      },
+      "during": {
+        "scene": "L07-07 Human review remains the gate. source wording",
+        "display": "block",
+        "embeddedImages": 0,
+        "sourceLink": null,
+        "player": [
+          292,
+          164
+        ],
+        "playerVisible": true,
+        "controls": true,
+        "controlsClear": true,
+        "captions": "showing",
+        "activeCueCount": 0
+      },
+      "captionsOff": {
+        "captions": "disabled",
+        "scene": "L07-07 Human review remains the gate. source wording",
+        "embeddedImages": 0,
+        "controls": true
+      },
+      "after": {
+        "scene": null,
+        "display": null,
+        "embeddedImages": 0,
+        "sourceLink": null,
+        "player": [
+          292,
+          164
+        ],
+        "playerVisible": true,
+        "controls": true,
+        "controlsClear": true,
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L08-05",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L08&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L08&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -900,7 +1061,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L08-05 The first receipt source wording",
@@ -914,7 +1076,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -934,13 +1097,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L09-02",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -953,7 +1117,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L09-02 SAM with the trust layer source wording",
@@ -967,7 +1132,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -987,13 +1153,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L09-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L09&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1006,7 +1173,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L09-04 Authority ladder source wording",
@@ -1020,7 +1188,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1040,13 +1209,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L10-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L10&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L10&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1059,7 +1229,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L10-03 Authority ladder source wording",
@@ -1073,7 +1244,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1093,13 +1265,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L11-02",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L11&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L11&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1112,7 +1285,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L11-02 Portfolio-first operating stack source wording",
@@ -1126,7 +1300,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1146,13 +1321,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L12-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L12&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L12&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1165,7 +1341,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L12-03 The first receipt source wording",
@@ -1179,7 +1356,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1199,13 +1377,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L13-02",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L13&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L13&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1218,7 +1397,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L13-02 A.M.I.N.A. inside SAM source wording",
@@ -1232,7 +1412,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1252,13 +1433,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L14-03",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1271,7 +1453,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L14-03 Portfolio-first operating stack source wording",
@@ -1285,7 +1468,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1305,13 +1489,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L14-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L14&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": "L14-03 Portfolio-first operating stack source wording",
         "display": "block",
@@ -1324,7 +1509,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L14-04 Authority ladder source wording",
@@ -1338,7 +1524,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1358,13 +1545,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L15-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L15&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L15&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1377,7 +1565,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L15-04 SAM with the trust layer source wording",
@@ -1391,7 +1580,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1411,13 +1601,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L16-04",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": null,
         "display": null,
@@ -1430,7 +1621,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
@@ -1444,7 +1636,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1464,13 +1657,14 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     },
     {
       "viewport": "mobile",
       "sceneId": "L16-05",
-      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=fb5415a6f0aa240f8703725bb3efbfb1a0423164",
+      "url": "http://127.0.0.1:3137/agentified/learningplan?lesson=L16&rev=26c3de8c5c679de9c79d87cb1de04aeb3ab2ca85",
       "before": {
         "scene": "L16-04 A.M.I.N.A. inside SAM source wording",
         "display": "block",
@@ -1483,7 +1677,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 0
       },
       "during": {
         "scene": "L16-05 Authority ladder source wording",
@@ -1497,7 +1692,8 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       },
       "captionsOff": {
         "captions": "disabled",
@@ -1517,46 +1713,59 @@
         "playerVisible": true,
         "controls": true,
         "controlsClear": true,
-        "captions": "showing"
+        "captions": "showing",
+        "activeCueCount": 1
       }
     }
   ],
   "evidence": [
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-L06-03.png",
-      "sha256": "80d657fe073ebd7608aa77927db8dab17000cd46c69947c9a1f9b551df9de2b2"
+      "sha256": "f9e12bf9be1659316556570734eee25a2e9d752d6e44c0076ccc46ef2d987250"
+    },
+    {
+      "path": "agentified/workshop/mobile-teaching-detail-review/desktop-L07-07.png",
+      "sha256": "3fd68a670ad35f2172fce456b59c80281a12fcceec82219681855ba4ac83f3c6"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-L10-03.png",
-      "sha256": "4cc2a4ac86bc4d734091987f8f311b1ef43cee3188c1ac6327810c2753798124"
+      "sha256": "0fe36d74c3322769b12f14ccd91907e53e16031f9c0ff9d970bc49f3bd71bcb5"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-L16-05.png",
-      "sha256": "c597a9045096aebfaa6c733ad7f72a75a63fe2fd5408d8574a27f4c4c3ec5701"
+      "sha256": "f65b0ecdd7b2be840e5b0ad96e391b5e84bcbbedec58b14d589bf951461c7245"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/desktop-consolidated.mp4",
-      "sha256": "44cdc4fcfa776a1236042bc45c6f9e16aa982cef0abd87ed6a15d17711df2eb8"
+      "sha256": "e1bdbae784df1b37f3e6df211a6053911ed494fcdd5c7957a0f2b1d88fc32434"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L06-03-captions-off.png",
-      "sha256": "c2bce1cc0909b5d2e8142107b01778d1970a3ab15c9e6a9b095a65493cb70170"
+      "sha256": "ec8334b07775eba01be44933ecbd41183d84579375000445887c4ec1362692d7"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L06-03.png",
-      "sha256": "96cb56f7313fbb2fe5b9e0ee73d4c7da0c5d3c3ea3c16e533ed11c93503e71bb"
+      "sha256": "d8f3e0fba1a4dc9d51eb0e27728f41d0dad72f243af34d4c34f48542364ff3e4"
+    },
+    {
+      "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L07-07-captions-off.png",
+      "sha256": "ce4650ef14c35d5c20ae5ecc9be0e9caba5c71104a4141270afa8a1d050530ce"
+    },
+    {
+      "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L07-07.png",
+      "sha256": "fbb42236c398edb8f56a01c4dc904b35701fa7f40212c64713865ea9c6738f35"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L10-03.png",
-      "sha256": "23676d14c9b62685c1c6fe6fe362ae6a433f8ad7480dcdb994762ed536b011fb"
+      "sha256": "06b33314bfe4f3355ff2f3a5b6ce75978879d198118cc231c9fb6bdae3b3fbc7"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-L16-05.png",
-      "sha256": "06a2ada3f477b4d678d9d8d2c400a96e27cb5f2bfa8a36c73152d9ee37e0d3d1"
+      "sha256": "d210605c1a1ff96280f7b9b6e7df22defcca419b4769935b2ac82c8950e7d6b8"
     },
     {
       "path": "agentified/workshop/mobile-teaching-detail-review/mobile-consolidated.mp4",
-      "sha256": "ae2507bdb3026b77eacf502b411f98a16e90b47fbd6e4ea6eb8da75860f4e317"
+      "sha256": "a92744cc8441a10c5596f9e73f527e3f59e598c0ef5ce7b06840dd27ba067a51"
     }
   ]
 }
