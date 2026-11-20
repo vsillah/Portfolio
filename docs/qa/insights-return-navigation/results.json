@@ -1,12 +1,12 @@
 {
-  "revision": "224347a47",
+  "revision": "4d6153f87",
   "base": "http://localhost:4173",
   "checks": [
     {
       "route": "compounding-graph",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 79.47583818435669,
+      "navBottom": 80.60638189315796,
       "frameTop": 96,
       "frameHeight": 4127,
       "frameContentHeight": 4127,
@@ -16,57 +16,171 @@
       "route": "home-front-ledger",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 96,
+      "navBottom": 82.76150941848755,
       "frameTop": 96,
-      "frameHeight": 900,
-      "frameContentHeight": 900,
+      "frameHeight": 2001,
+      "frameContentHeight": 2001,
       "frameScrollWidth": 1440
     },
     {
       "route": "owning-the-block",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 84.19107627868652,
+      "navBottom": 82.75936222076416,
       "frameTop": 96,
-      "frameHeight": 1200,
-      "frameContentHeight": 1200,
+      "frameHeight": 1254,
+      "frameContentHeight": 1254,
       "frameScrollWidth": 1440
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(37, 69, 76)",
+        "sewer": "rgb(42, 36, 30)",
+        "connector": "rgb(47, 58, 77)",
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(157, 188, 192)",
+        "sewer": "rgb(214, 200, 179)",
+        "connector": "rgb(174, 184, 198)",
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(157, 188, 192)",
+        "sewer": "rgb(214, 200, 179)",
+        "connector": "rgb(174, 184, 198)",
+        "labelsInsideCanvas": true
+      }
     },
     {
       "route": "compounding-graph",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 79.12276887893677,
+      "navBottom": 79.47458982467651,
       "frameTop": 96,
-      "frameHeight": 4607,
-      "frameContentHeight": 4607,
+      "frameHeight": 4614,
+      "frameContentHeight": 4614,
       "frameScrollWidth": 768
     },
     {
       "route": "home-front-ledger",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 96,
+      "navBottom": 82.3258318901062,
       "frameTop": 96,
-      "frameHeight": 900,
-      "frameContentHeight": 900,
+      "frameHeight": 2191,
+      "frameContentHeight": 2191,
       "frameScrollWidth": 768
     },
     {
       "route": "owning-the-block",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 83.22132921218872,
+      "navBottom": 82.76624536514282,
       "frameTop": 96,
-      "frameHeight": 1473,
-      "frameContentHeight": 1473,
+      "frameHeight": 1523,
+      "frameContentHeight": 1523,
       "frameScrollWidth": 768
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(37, 69, 76)",
+        "sewer": "rgb(42, 36, 30)",
+        "connector": "rgb(47, 58, 77)",
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(157, 188, 192)",
+        "sewer": "rgb(214, 200, 179)",
+        "connector": "rgb(174, 184, 198)",
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(157, 188, 192)",
+        "sewer": "rgb(214, 200, 179)",
+        "connector": "rgb(174, 184, 198)",
+        "labelsInsideCanvas": true
+      }
     },
     {
       "route": "compounding-graph",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 78.46217060089111,
+      "navBottom": 77.83943808078766,
       "frameTop": 96,
       "frameHeight": 6445,
       "frameContentHeight": 6445,
@@ -76,7 +190,7 @@
       "route": "home-front-ledger",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 83.25806379318237,
+      "navBottom": 81.81964111328125,
       "frameTop": 96,
       "frameHeight": 2504,
       "frameContentHeight": 2504,
@@ -86,11 +200,87 @@
       "route": "owning-the-block",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 83.6753921508789,
+      "navBottom": 82.76277589797974,
       "frameTop": 96,
-      "frameHeight": 1917,
-      "frameContentHeight": 1917,
+      "frameHeight": 1967,
+      "frameContentHeight": 1967,
       "frameScrollWidth": 390
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(37, 69, 76)",
+        "sewer": "rgb(42, 36, 30)",
+        "connector": "rgb(47, 58, 77)",
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(157, 188, 192)",
+        "sewer": "rgb(214, 200, 179)",
+        "connector": "rgb(174, 184, 198)",
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(157, 188, 192)",
+        "sewer": "rgb(214, 200, 179)",
+        "connector": "rgb(174, 184, 198)",
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "shafts": 2,
+        "roofs": 71,
+        "water": "rgb(37, 69, 76)",
+        "sewer": "rgb(42, 36, 30)",
+        "connector": "rgb(47, 58, 77)",
+        "labelsInsideCanvas": true
+      }
     }
   ],
   "videos": [
