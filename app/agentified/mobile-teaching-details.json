@@ -96,6 +96,23 @@
       "height": 4700
     },
     {
+      "kind": "text",
+      "sceneId": "L07-07",
+      "lessonId": "L07",
+      "startSeconds": 188.515,
+      "endSeconds": 233.515,
+      "sceneStartSeconds": 160.078,
+      "sceneEndSeconds": 233.648,
+      "sourcePath": "public/agentified/lessons/l07/illustrated-42782f17/agentified-l07-illustrated-composite.mp4",
+      "sourceSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+      "protectedSourcePath": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+      "protectedSourceSha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+      "wordingSourcePath": "agentified/workshop/l05-l08-continuous-narration/render.mjs",
+      "wordingSourceSha256": "268c1b22a477a00613c1ea92323aad321a67387a68f719a2c6e5ad2d6af2a01f",
+      "title": "Human review remains the gate.",
+      "details": []
+    },
+    {
       "sceneId": "L08-05",
       "lessonId": "L08",
       "startSeconds": 125.431,
