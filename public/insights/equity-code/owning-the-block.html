@@ -9,10 +9,9 @@
   --p60:#49c48a; --p35:#e3b341; --plow:#e5604f; --pnone:#3a4557;
   --seg-on-bg:#f3f5f9; --seg-on-fg:#0e1118; --on-own:#0e1118; --sel:#ffffff; --focus:#eef1f6; --focus-halo:#0e1118;
   --b-sky:#12161f; --b-horizon:#2a3242; --b-street:#171c27; --b-fnd:#10141c; --b-ug:#0c0f15; --b-dash:#3a4557; --door:#12161f;
-  --u-shaft-in:#07090d; --u-shaft-wall:#2e3644; --u-rung:#273040;
+  --u-shaft-wall:#2e3644;
   --u-cover:#2a313c; --u-cover-edge:#5a6577; --u-cover-mark:#3d4656;
-  --u-water:#25454c; --u-water-hi:#3b6670; --u-fit:#41707a;
-  --u-sewer:#2a241e; --u-sewer-edge:#54483b; --u-sewer-flow:#17130f; --u-sewer-joint:#5a4d3f;
+  --u-ink:#2c394c; --u-ink2:#222b38; --u-ghost:#1a212c; --u-grid:#121822;
   --fd:'Inter Tight',Inter,system-ui,sans-serif; --fb:'Inter',system-ui,sans-serif; --fm:'IBM Plex Mono','SF Mono',Menlo,monospace;
   color-scheme:dark;
 }
@@ -23,10 +22,9 @@
   --p60:#1b7f4f; --p35:#8a6300; --plow:#bf3a2b; --pnone:#8f99a8;
   --seg-on-bg:#121722; --seg-on-fg:#ffffff; --on-own:#ffffff; --sel:#0b0f17; --focus:#121722; --focus-halo:#ffffff;
   --b-sky:#f4f7fb; --b-horizon:#c3ccd8; --b-street:#e2e6ec; --b-fnd:#eeebe4; --b-ug:#e9e4da; --b-dash:#a3acb9; --door:#d5dbe4;
-  --u-shaft-in:#ddd6ca; --u-shaft-wall:#a39887; --u-rung:#bdb3a3;
+  --u-shaft-wall:#a39887;
   --u-cover:#c4c9d1; --u-cover-edge:#6e7887; --u-cover-mark:#939caa;
-  --u-water:#9dbcc0; --u-water-hi:#c9dfe1; --u-fit:#6f969c;
-  --u-sewer:#d6c8b3; --u-sewer-edge:#a08a6c; --u-sewer-flow:#bfac90; --u-sewer-joint:#9b8466;
+  --u-ink:#bdb3a2; --u-ink2:#cdc5b7; --u-ghost:#d8d1c5; --u-grid:#e2dcd1;
   color-scheme:light;
 }
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]):not([data-theme="light"]){
@@ -36,10 +34,9 @@
   --p60:#1b7f4f; --p35:#8a6300; --plow:#bf3a2b; --pnone:#8f99a8;
   --seg-on-bg:#121722; --seg-on-fg:#ffffff; --on-own:#ffffff; --sel:#0b0f17; --focus:#121722; --focus-halo:#ffffff;
   --b-sky:#f4f7fb; --b-horizon:#c3ccd8; --b-street:#e2e6ec; --b-fnd:#eeebe4; --b-ug:#e9e4da; --b-dash:#a3acb9; --door:#d5dbe4;
-  --u-shaft-in:#ddd6ca; --u-shaft-wall:#a39887; --u-rung:#bdb3a3;
+  --u-shaft-wall:#a39887;
   --u-cover:#c4c9d1; --u-cover-edge:#6e7887; --u-cover-mark:#939caa;
-  --u-water:#9dbcc0; --u-water-hi:#c9dfe1; --u-fit:#6f969c;
-  --u-sewer:#d6c8b3; --u-sewer-edge:#a08a6c; --u-sewer-flow:#bfac90; --u-sewer-joint:#9b8466;
+  --u-ink:#bdb3a2; --u-ink2:#cdc5b7; --u-ghost:#d8d1c5; --u-grid:#e2dcd1;
   color-scheme:light;
 }}
 html{background:var(--bg)}
@@ -123,19 +120,21 @@ svg{display:block;min-width:820px;width:100%;height:auto;font-family:var(--fb)}
 .b-ug{fill:var(--b-ug)}
 .lane{stroke:var(--b-dash)}
 #city{pointer-events:none}
-#city .u-shaft-in{fill:var(--u-shaft-in)}
-#city .u-shaft-wall{fill:none;stroke:var(--u-shaft-wall);stroke-width:2}
-#city .u-rung{fill:none;stroke:var(--u-rung);stroke-width:1.2}
-#city .u-collar{fill:var(--u-shaft-wall)}
-#city .u-sewer{fill:var(--u-sewer);stroke:var(--u-sewer-edge);stroke-width:1.5}
-#city .u-sewer-flow{fill:var(--u-sewer-flow)}
-#city .u-sewer-joint{fill:var(--u-sewer-joint)}
-#city .u-water{fill:none;stroke:var(--u-water);stroke-width:7;stroke-linejoin:round}
-#city .u-water-hi{fill:none;stroke:var(--u-water-hi);stroke-width:2;stroke-linejoin:round}
-#city .u-fit{fill:var(--u-fit)}
-#city .u-stem{fill:none;stroke:var(--u-fit);stroke-width:2}
-#city .u-cover{fill:var(--u-cover);stroke:var(--u-cover-edge);stroke-width:1.5}
-#city .u-cover-mark{fill:none;stroke:var(--u-cover-mark);stroke-width:1}
+#city .u-collar{fill:none;stroke:var(--u-ink);stroke-width:1;stroke-linejoin:miter}
+/* underground: faint sectional drawing; weight + tone keep it under every node and connector */
+#city .u-grid{fill:none;stroke:var(--u-grid);stroke-width:.5}
+#city .u-ln{fill:none;stroke:var(--u-ink);stroke-width:1}
+#city .u-ln2{fill:none;stroke:var(--u-ink2);stroke-width:.75}
+#city .u-fine{fill:none;stroke:var(--u-ink2);stroke-width:.6}
+#city .u-hatch{fill:none;stroke:var(--u-ink2);stroke-width:.5}
+#city .u-cl{fill:none;stroke:var(--u-ghost);stroke-width:.6;stroke-dasharray:14 3 2 3}
+#city .u-cons{fill:none;stroke:var(--u-ghost);stroke-width:.6;stroke-dasharray:2 3}
+#city .u-casing{fill:none;stroke:var(--u-ink);stroke-width:6;stroke-linejoin:miter}
+#city .u-knock{fill:none;stroke:var(--b-ug);stroke-width:4;stroke-linejoin:miter}
+#city .u-dot{fill:var(--u-ink2)}
+#city .u-cover{fill:var(--u-cover);stroke:var(--u-cover-edge);stroke-width:1}
+#city .u-cover-mark{fill:none;stroke:var(--u-cover-mark);stroke-width:.75}
+#city .u-cover-hatch{fill:none;stroke:var(--u-cover-mark);stroke-width:.5}
 @media (prefers-reduced-motion:reduce){.node .shape,.pipe{transition:none}}
 </style>
 
@@ -409,29 +408,63 @@ recolor();
   const city=document.getElementById('city'),holes=document.getElementById('cityHoles');
   const u=(t,a)=>{const e=el(t,a);city.appendChild(e);return e};
   const SHAFTS=[262,730]; // street-level covers in open street, shafts drop through gaps between cisterns
+  const CH={l:704,r:756,t:638,b:698,w:5}; // sewer chamber at the foot of the east shaft
+  // faint drafting grid on the underground field only
+  let g='';for(let x=20;x<980;x+=20)g+=`M${x} 422V700`;for(let y=440;y<700;y+=20)g+=`M0 ${y}H980`;
+  u('path',{class:'u-grid',d:g});
+  // ghosted construction circles with centre crosses
+  [[730,668,40],[262,669,24],[490,630,16]].forEach(([x,y,r])=>{u('circle',{class:'u-cons',cx:x,cy:y,r});u('path',{class:'u-fine',d:`M${x-4} ${y}h8M${x} ${y-4}v8`})});
+  // shafts: open outline wall + liner, ladder rungs, depth ticks
   SHAFTS.forEach(x=>{
-    u('rect',{class:'u-shaft-in',x:x-7,y:320,width:14,height:340});
-    let d='';for(let y=330;y<652;y+=10)d+=`M${x-5} ${y}h10`;
-    u('path',{class:'u-rung',d});
-    u('path',{class:'u-shaft-wall',d:`M${x-7} 320V660M${x+7} 320V660`});
+    const bo=x===730?CH.t:656,bi=x===730?CH.t:659;
+    u('path',{class:'u-ln',d:`M${x-7} 322V${bo}M${x+7} 322V${bo}`});
+    u('path',{class:'u-ln2',d:`M${x-5} 322V${bi}M${x+5} 322V${bi}`});
+    let d='';for(let y=332;y<bi-4;y+=12)d+=`M${x-3.5} ${y}h7`;
+    for(let y=440;y<=620;y+=20)d+=`M${x-11} ${y}h3`;
+    u('path',{class:'u-fine',d});
   });
-  // sewer main: wide concrete conduit with bell joints and a darker flow channel
-  u('rect',{class:'u-sewer',x:-14,y:656,width:1008,height:26,rx:13});
-  u('rect',{class:'u-sewer-flow',x:-14,y:671,width:1008,height:7});
-  [70,190,350,490,620,820,930].forEach(j=>u('rect',{class:'u-sewer-joint',x:j-3,y:653,width:6,height:32,rx:1.5}));
-  // water main: orthogonal pipe with tees, elbows, couplings, a valved bypass loop and two capped service stubs
+  // sewer main in long section: outer wall, inner wall, bell joints, dash-dot centreline, invert line
+  const S1=262,sx=(y,a)=>`M0 ${y}H${S1-a}M${S1+a} ${y}H${CH.l}M${CH.r} ${y}H980`;
+  u('path',{class:'u-ln',d:sx(656,7)+`M0 682H${CH.l}M${CH.r} 682H980`});
+  u('path',{class:'u-ln2',d:sx(659,5)+`M0 679H${CH.l}M${CH.r} 679H980`});
+  u('path',{class:'u-cl',d:`M0 669H${CH.l}M${CH.r} 669H980`});
+  u('path',{class:'u-fine','stroke-dasharray':'6 5',d:`M0 676H${CH.l}M${CH.r} 676H980`});
+  const J=[70,190,350,490,620,820,930];
+  u('path',{class:'u-ln2',d:J.map(j=>`M${j-2} 653V685M${j+2} 653V685`).join('')});
+  // sewer chamber: open outline walls, restrained hatch in the wall thickness, benching and channel
+  const {l,r,t,b,w}=CH;
+  const clip=el('clipPath',{id:'uChWall',clipPathUnits:'userSpaceOnUse'});
+  [[l,t,w,656-t],[l,682,w,b-682],[r-w,t,w,656-t],[r-w,682,w,b-682],[l,b-w,r-l,w],[l,t,19,w],[r-19,t,19,w]]
+    .forEach(([x,y,ww,hh])=>clip.appendChild(el('rect',{x,y,width:ww,height:hh})));
+  svg.querySelector('defs').appendChild(clip);
+  let h='';for(let d=l-70;d<r+4;d+=4)h+=`M${d} ${b}L${d+(b-t)} ${t}`;
+  u('path',{class:'u-hatch',d:h,'clip-path':'url(#uChWall)'});
+  u('path',{class:'u-ln',d:`M723 ${t}H${l}V656M${l} 682V${b}H${r}V682M${r} 656V${t}H737`});
+  u('path',{class:'u-ln2',d:`M723 ${t+w}H${l+w}V656M${l+w} 682V${b-w}H${r-w}V682M${r-w} 656V${t+w}H737`+
+    `M${l} 656h${w}M${l} 682h${w}M${r-w} 656h${w}M${r-w} 682h${w}M723 ${t}v${w}M737 ${t}v${w}`});
+  u('path',{class:'u-fine',d:`M${l+w} 674L718 679A12 12 0 0 0 742 679L${r-w} 674`});
+  // water main: open-outline pipe (ink casing knocked out by the field) with tees, elbows, bypass loop, capped stubs
   const W='M-6 630H986M380 630V645H600V630M110 630V645H58M868 630V645H922';
-  u('path',{class:'u-water',d:W});u('path',{class:'u-water-hi',d:W});
-  [40,180,320,540,680,800,950].forEach(k=>u('rect',{class:'u-fit',x:k-1.5,y:623,width:3,height:14,rx:1}));
-  [110,380,600,868].forEach(k=>{u('rect',{class:'u-fit',x:k-6,y:624,width:12,height:12,rx:2});u('rect',{class:'u-fit',x:k-5.5,y:639.5,width:11,height:11,rx:3})});
-  u('rect',{class:'u-fit',x:52,y:640,width:6,height:10,rx:1});u('rect',{class:'u-fit',x:922,y:640,width:6,height:10,rx:1});
-  [262,490,730].forEach(k=>{u('path',{class:'u-fit',d:`M${k-6} 624L${k+6} 636V624L${k-6} 636Z`});u('path',{class:'u-stem',d:`M${k} 630V620`});u('rect',{class:'u-fit',x:k-5,y:617,width:10,height:2.5,rx:1})});
-  // access covers at street level, with the frame collar that seats the shaft
+  u('path',{class:'u-casing',d:W});u('path',{class:'u-knock',d:W});
+  u('path',{class:'u-cl',d:'M-6 630H986'});
+  u('path',{class:'u-ln2',d:[40,180,320,540,680,820,950].map(k=>`M${k-2} 624V636M${k+2} 624V636`).join('')});
+  [110,380,600,868].forEach(k=>{u('rect',{class:'u-ln2',x:k-6,y:624,width:12,height:12,rx:1.5});u('rect',{class:'u-ln2',x:k-5.5,y:639.5,width:11,height:11,rx:2.5})});
+  u('rect',{class:'u-ln2',x:52,y:640,width:6,height:10,rx:1});u('rect',{class:'u-ln2',x:922,y:640,width:6,height:10,rx:1});
+  [230,490,790].forEach(k=>u('path',{class:'u-ln2',d:`M${k-6} 624L${k+6} 636V624L${k-6} 636ZM${k} 630V619M${k-5} 617.5h10`}));
+  // chain dimension ticks under the sewer joints (no figures)
+  [[70,190,350,490,620],[820,930]].forEach(c=>u('path',{class:'u-fine',d:`M${c[0]} 691H${c[c.length-1]}`+c.map(j=>`M${j} 686V696M${j-2.5} 693.5L${j+2.5} 688.5`).join('')}));
+  // empty annotation leaders: dot, leader, shoulder, blank tag
+  [[150,656,160,645,174],[756,646,764,640,770]].forEach(([x0,y0,x1,y1,x2])=>{
+    u('circle',{class:'u-dot',cx:x0,cy:y0,r:1.2});
+    u('path',{class:'u-fine',d:`M${x0} ${y0}L${x1} ${y1}H${x2}`});
+    u('circle',{class:'u-fine',cx:x2+2.5,cy:y1,r:2.5});
+  });
+  // access covers at street level, seen in slight perspective, with the tapered frame collar that seats the shaft
   SHAFTS.forEach(x=>{
-    u('rect',{class:'u-collar',x:x-10,y:318,width:20,height:4,rx:1});
-    u('circle',{class:'u-cover',cx:x,cy:311,r:8.5});
-    u('circle',{class:'u-cover-mark',cx:x,cy:311,r:5.2});
-    u('path',{class:'u-cover-mark',d:`M${x-3.5} 309.3h7M${x-3.5} 312.7h7`});
+    u('path',{class:'u-collar',d:`M${x-11} 316L${x-7} 322M${x+11} 316L${x+7} 322`}); // frame cone: rim edge down to shaft walls (x±7, y322)
+    u('ellipse',{class:'u-cover',cx:x,cy:316,rx:11,ry:3.4});            // cast frame / outer rim
+    u('ellipse',{class:'u-cover-mark',cx:x,cy:316.4,rx:8,ry:2.4});      // recessed lid ring, set slightly low
+    u('path',{class:'u-cover-hatch',d:`M${x-4.5} 314.9v3M${x-1.5} 314.5v3.8M${x+1.5} 314.5v3.8M${x+4.5} 314.9v3`}); // restrained grate bars inside the lid
   });
   // mask: cut the context layer out from under every node and every band label
   N.forEach(n=>holes.appendChild(el('rect',{x:n.x-2,y:n.y-2,width:n.w+4,height:n.h+4})));

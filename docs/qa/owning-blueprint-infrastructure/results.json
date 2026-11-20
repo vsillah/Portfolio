@@ -1,0 +1,450 @@
+{
+  "revision": "93de677fda234b3b8ed31ebd516fa84947897b71",
+  "base": "http://localhost:4173",
+  "checks": [
+    {
+      "route": "owning-the-block",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "navBottom": 82.75919675827026,
+      "frameTop": 96,
+      "frameHeight": 1251,
+      "frameContentHeight": 1251,
+      "frameScrollWidth": 1440
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(44, 57, 76)",
+        "sewer": "rgb(44, 57, 76)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(47, 58, 77)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(189, 179, 162)",
+        "sewer": "rgb(189, 179, 162)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(174, 184, 198)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(189, 179, 162)",
+        "sewer": "rgb(189, 179, 162)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(174, 184, 198)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "width": 768,
+      "scrollWidth": 768,
+      "navBottom": 82.75985765457153,
+      "frameTop": 96,
+      "frameHeight": 1518,
+      "frameContentHeight": 1518,
+      "frameScrollWidth": 768
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(44, 57, 76)",
+        "sewer": "rgb(44, 57, 76)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(47, 58, 77)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(189, 179, 162)",
+        "sewer": "rgb(189, 179, 162)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(174, 184, 198)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(189, 179, 162)",
+        "sewer": "rgb(189, 179, 162)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(174, 184, 198)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "width": 390,
+      "scrollWidth": 390,
+      "navBottom": 80.97299385070801,
+      "frameTop": 96,
+      "frameHeight": 1940,
+      "frameContentHeight": 1940,
+      "frameScrollWidth": 390
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(44, 57, 76)",
+        "sewer": "rgb(44, 57, 76)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(47, 58, 77)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(189, 179, 162)",
+        "sewer": "rgb(189, 179, 162)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(174, 184, 198)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-light",
+      "source": {
+        "theme": "light",
+        "body": "rgb(243, 245, 248)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(189, 179, 162)",
+        "sewer": "rgb(189, 179, 162)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(174, 184, 198)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    },
+    {
+      "route": "owning-the-block",
+      "theme": "system-dark",
+      "source": {
+        "theme": "dark",
+        "body": "rgb(14, 17, 24)",
+        "cityPointerEvents": "none",
+        "cityBehindData": true,
+        "nodes": 18,
+        "connectors": 34,
+        "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
+        "shafts": 3,
+        "roofs": 71,
+        "water": "rgb(44, 57, 76)",
+        "sewer": "rgb(44, 57, 76)",
+        "utilityWidth": "1px",
+        "connectorWidth": "2px",
+        "connector": "rgb(47, 58, 77)",
+        "chamber": 1,
+        "masks": 22,
+        "labelsInsideCanvas": true
+      }
+    }
+  ],
+  "videos": [
+    "docs/qa/owning-blueprint-infrastructure/desktop-1440x900.mp4",
+    "docs/qa/owning-blueprint-infrastructure/mobile-390x844.mp4"
+  ]
+}
