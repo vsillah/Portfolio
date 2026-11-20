@@ -67,8 +67,8 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
         <strong>Review your Operating File</strong>
       </div>}
     </div>}
-  </div>{videoSrc && teachingScene && <figure className={styles.mobileTeachingDetails} aria-label={`${teachingScene.sceneId} ${teachingScene.title} diagram details`}>
-    <Image src={teachingScene.image} alt={teachingScene.alt} width={teachingScene.width} height={teachingScene.height} sizes="(max-width: 620px) 100vw, 1px" />
-    <figcaption>{teachingScene.details.map((detail) => <div key={detail.label}><strong>{detail.label}</strong><span>{detail.description}</span></div>)}</figcaption>
-  </figure>}</>
+  </div>{videoSrc && teachingScene && <aside className={styles.mobileTeachingDetails} aria-label={`${teachingScene.sceneId} ${teachingScene.title} source wording`}>
+    <div className={styles.mobileTeachingHeading}><strong>{teachingScene.title}</strong><a href={teachingScene.image} target="_blank" rel="noopener noreferrer" onClick={() => videoRef.current?.pause()}>Open full plate</a></div>
+    <div className={styles.mobileTeachingCopy}>{teachingScene.details.map((detail) => <div key={detail.label}><strong>{detail.label}</strong><span>{detail.description}</span></div>)}</div>
+  </aside>}</>
 }

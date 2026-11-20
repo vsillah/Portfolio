@@ -41,34 +41,41 @@ async function run() {
             await page.waitForTimeout(200)
             return page.evaluate(() => {
               const video = document.querySelector('video')
-              const figure = document.querySelector('figure[aria-label$="diagram details"]')
+              const detail = document.querySelector('aside[aria-label$="source wording"]')
               const rect = video.getBoundingClientRect()
-              return { scene: figure?.getAttribute('aria-label') ?? null, display: figure ? getComputedStyle(figure).display : null, image: figure?.querySelector('img')?.getAttribute('src') ?? null, player: [Math.round(rect.width), Math.round(rect.height)], controls: video.controls, captions: video.textTracks[0]?.mode ?? null }
+              return { scene: detail?.getAttribute('aria-label') ?? null, display: detail ? getComputedStyle(detail).display : null, embeddedImages: detail?.querySelectorAll('img').length ?? 0, sourceLink: detail?.querySelector('a')?.getAttribute('href') ?? null, player: [Math.round(rect.width), Math.round(rect.height)], playerVisible: getComputedStyle(video).visibility === 'visible' && getComputedStyle(video).opacity === '1', controls: video.controls, controlsClear: document.elementFromPoint(rect.left + rect.width / 2, rect.bottom - 8) === video, captions: video.textTracks[0]?.mode ?? null }
             })
           }
           const before = await read(Math.max(0, scene.startSeconds - 0.15))
           const during = await read((scene.startSeconds + scene.endSeconds) / 2)
           const after = await read(scene.endSeconds + 0.15)
-          if (before.scene?.startsWith(scene.sceneId) || after.scene?.startsWith(scene.sceneId) || !during.scene?.startsWith(scene.sceneId) || during.display !== (viewport === 'mobile' ? 'block' : 'none') || !during.controls || !during.image?.includes(path.basename(scene.image))) throw new Error(`${viewport} ${scene.sceneId}: ${JSON.stringify({ before, during, after })}`)
-          observations.push({ viewport, sceneId: scene.sceneId, url, before, during, after })
-          if (viewport === 'mobile' && scene.sceneId === 'L06-03') {
+          if (before.scene?.startsWith(scene.sceneId) || after.scene?.startsWith(scene.sceneId) || !during.scene?.startsWith(scene.sceneId) || during.display !== (viewport === 'mobile' ? 'block' : 'none') || !during.controls || !during.controlsClear || !during.playerVisible || during.embeddedImages !== 0 || during.sourceLink !== scene.image) throw new Error(`${viewport} ${scene.sceneId}: ${JSON.stringify({ before, during, after })}`)
+          let captionsOff = null
+          if (viewport === 'mobile') {
             await read((scene.startSeconds + scene.endSeconds) / 2)
             await player.evaluate((element) => { element.textTracks[0].mode = 'disabled' })
             await page.waitForFunction(() => document.body.textContent.includes('Captions are off.'))
-            await page.screenshot({ path: path.join(output, 'mobile-L06-03-captions-off.png'), fullPage: true })
+            captionsOff = await page.evaluate(() => {
+              const video = document.querySelector('video')
+              const detail = document.querySelector('aside[aria-label$="source wording"]')
+              return { captions: video.textTracks[0].mode, scene: detail?.getAttribute('aria-label') ?? null, embeddedImages: detail?.querySelectorAll('img').length ?? 0, controls: video.controls }
+            })
+            if (!captionsOff.scene?.startsWith(scene.sceneId) || captionsOff.embeddedImages !== 0 || !captionsOff.controls || captionsOff.captions !== 'disabled') throw new Error(`${viewport} ${scene.sceneId}: captions-off state failed`)
+            if (scene.sceneId === 'L06-03') await page.screenshot({ path: path.join(output, 'mobile-L06-03-captions-off.png'), fullPage: true })
             await player.evaluate((element) => { element.textTracks[0].mode = 'showing' })
             await page.waitForFunction(() => document.body.textContent.includes('Captions are on.'))
           }
+          observations.push({ viewport, sceneId: scene.sceneId, url, before, during, captionsOff, after })
           if (['L06-03', 'L10-03', 'L16-05'].includes(scene.sceneId)) {
             await read((scene.startSeconds + scene.endSeconds) / 2)
             await page.screenshot({ path: path.join(output, `${viewport}-${scene.sceneId}.png`), fullPage: viewport === 'mobile' })
           }
           await read((scene.startSeconds + scene.endSeconds) / 2)
           if (viewport === 'mobile') {
-            const figure = page.locator(`figure[aria-label^="${scene.sceneId} "]`)
-            await figure.scrollIntoViewIfNeeded()
+            const detail = page.locator(`aside[aria-label^="${scene.sceneId} "]`)
+            await detail.scrollIntoViewIfNeeded()
             await page.waitForTimeout(450)
-            await figure.locator('figcaption').scrollIntoViewIfNeeded()
+            await detail.locator('div').nth(1).scrollIntoViewIfNeeded()
             await page.waitForTimeout(450)
             await read(scene.endSeconds + 0.15)
             await page.waitForTimeout(250)
