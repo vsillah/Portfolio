@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "code_commit": "4e7deaa09",
+  "source": {
+    "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+    "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4"
+  },
+  "staged_copy": {
+    "path": "public/agentified/lessons/l05/figure-8-1-portfolio-first-stack-publication-plate.png",
+    "sha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4"
+  },
+  "unchanged_media": {
+    "video": {
+      "path": "public/agentified/lessons/l05/illustrated-aa9b234a/agentified-l05-illustrated-composite.mp4",
+      "sha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061"
+    },
+    "captions": {
+      "path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-captions.vtt",
+      "sha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389"
+    }
+  },
+  "results": [
+    {
+      "viewport": "1280x720",
+      "url": "http://127.0.0.1:3111/agentified/learningplan?lesson=L05&rev=4e7deaa09",
+      "cue": [
+        78.582,
+        105.56
+      ],
+      "state": {
+        "player": {
+          "width": 621,
+          "height": 349.3125
+        },
+        "figureDisplay": "none",
+        "imageLoaded": false,
+        "exactLabels": true,
+        "controls": true,
+        "captions": "showing"
+      }
+    },
+    {
+      "viewport": "390x844",
+      "url": "http://127.0.0.1:3111/agentified/learningplan?lesson=L05&rev=4e7deaa09",
+      "cue": [
+        78.582,
+        105.56
+      ],
+      "state": {
+        "player": {
+          "width": 292,
+          "height": 164.25
+        },
+        "figureDisplay": "block",
+        "imageLoaded": true,
+        "exactLabels": true,
+        "controls": true,
+        "captions": "showing"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/desktop-after.png",
+      "sha256": "e1debc055061375eee5a1dfc597bd11c376dac0859da95c8eeab554cae3e6aca"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/desktop-before.png",
+      "sha256": "9341aad0c326b55f98006f27d767e23c6de5016273e1334a7f2dede60e07a5cc"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/desktop-teaching-captions-off.png",
+      "sha256": "91b77f9ba9f0cc8f54e06075d3cc7d2ecb1cee8fadda353b6cc7f3ca0c76184b"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/desktop-teaching-captions-on.png",
+      "sha256": "dfbbdf4e470f0c270fecec55de66870dd5b73d60d9e74f85c074e977e10a34ce"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/desktop-walkthrough.mp4",
+      "sha256": "128d0d6147b83c326f3f5064c00b8801616824fbcfdf042624b215c4b1cd9345"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/mobile-after.png",
+      "sha256": "2f9aaef93ca839cc4dde2326c2c8a6f85ebfb80c5c0d72b00c8960895cceeaa8"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/mobile-before.png",
+      "sha256": "70558bb074c5d70f3067bda069e3ebb375b786c4c0d7cbf52eb20607f1d343bc"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/mobile-teaching-captions-off.png",
+      "sha256": "4fb8e734715943d23681f340c557368760a67d96d16896b9666ad0ec97f7decb"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/mobile-teaching-captions-on.png",
+      "sha256": "b0ac70f71cd83866895a626a2105af510eb9611d9d8a08ffa18c6106180aab3a"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/mobile-teaching-details.png",
+      "sha256": "937ca8d078c2f7aca2a449aef8046cbe6105f7794a2ae175b5c3b3bd58dbdc2a"
+    },
+    {
+      "path": "agentified/workshop/l05-mobile-plate-review/mobile-walkthrough.mp4",
+      "sha256": "abdaad499cdd39421908cb5bfead101ca502cb6c19a82442cd8f5c44813c5805"
+    }
+  ]
+}

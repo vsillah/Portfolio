@@ -32,19 +32,27 @@ async function run() {
       await page.goto(url, { waitUntil: 'domcontentloaded' })
       const player = page.locator('video')
       await player.waitFor()
-      await page.waitForFunction(() => document.querySelector('video')?.readyState >= 1)
+      await page.waitForFunction(() => document.querySelector('video')?.duration > 230)
       await player.scrollIntoViewIfNeeded()
       const setTime = async (seconds) => {
-        await player.evaluate((element, time) => { element.pause(); element.currentTime = time }, seconds)
-        await page.waitForFunction((time) => Math.abs(document.querySelector('video').currentTime - time) < 0.2, seconds)
-        await page.waitForTimeout(350)
+        for (let attempt = 0; attempt < 2; attempt++) {
+          await player.evaluate((element, time) => { element.pause(); element.currentTime = time }, seconds)
+          await page.waitForTimeout(750)
+          const state = await player.evaluate((element) => ({ time: element.currentTime, ready: element.readyState, seeking: element.seeking }))
+          if (Math.abs(state.time - seconds) < 0.2 && state.ready >= 2 && !state.seeking) return
+        }
+        throw new Error(`${name}: could not decode scene at ${seconds}`)
       }
       await setTime(75)
       if (await page.locator('figure[aria-label="L05 operating stack diagram details"]').count()) throw new Error(`${name}: diagram visible before cue`)
       await page.screenshot({ path: path.join(output, `${name}-before.png`) })
       await setTime(90)
       const diagram = page.locator('figure[aria-label="L05 operating stack diagram details"]')
-      await diagram.waitFor()
+      await diagram.waitFor({ state: 'attached' })
+      if (name === 'mobile') await page.waitForFunction(() => {
+        const image = document.querySelector('figure[aria-label="L05 operating stack diagram details"] img')
+        return Boolean(image?.complete && image?.naturalWidth)
+      })
       const state = await page.evaluate(() => {
         const player = document.querySelector('video')
         const figure = document.querySelector('figure[aria-label="L05 operating stack diagram details"]')
@@ -52,9 +60,15 @@ async function run() {
         const rect = player.getBoundingClientRect()
         return { player: { width: rect.width, height: rect.height }, figureDisplay: figure && getComputedStyle(figure).display, imageLoaded: Boolean(image?.complete && image?.naturalWidth), exactLabels: figure?.textContent?.includes('Open Brainsources, events, proposals, memoriesHarnessCodex, tools, browser, apps, worktrees'), controls: player?.controls, captions: player?.textTracks?.[0]?.mode }
       })
-      if (!state.controls || !state.exactLabels || !state.imageLoaded) throw new Error(`${name}: player or approved detail failed ${JSON.stringify(state)}`)
+      if (!state.controls || !state.exactLabels || (name === 'mobile' && !state.imageLoaded)) throw new Error(`${name}: player or approved detail failed ${JSON.stringify(state)}`)
       if (state.figureDisplay !== (name === 'mobile' ? 'block' : 'none')) throw new Error(`${name}: responsive visibility failed ${JSON.stringify(state)}`)
       await page.screenshot({ path: path.join(output, `${name}-teaching-captions-on.png`) })
+      if (name === 'mobile') {
+        await diagram.evaluate((element) => element.scrollIntoView({ block: 'start' }))
+        await page.waitForTimeout(150)
+        await page.screenshot({ path: path.join(output, 'mobile-teaching-details.png') })
+        await player.scrollIntoViewIfNeeded()
+      }
       await player.evaluate((element) => { element.textTracks[0].mode = 'disabled' })
       await page.waitForFunction(() => document.body.textContent.includes('Captions are off.'))
       await page.screenshot({ path: path.join(output, `${name}-teaching-captions-off.png`) })
