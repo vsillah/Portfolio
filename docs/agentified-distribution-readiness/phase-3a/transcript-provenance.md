@@ -1,0 +1,7 @@
+# Transcript provenance plan for all 16 lessons
+
+The binding records a `transcriptSha256` for every lesson but no path or hashing recipe for a distinct transcript file. Phase 2 therefore could not attribute those sixteen hashes. Do not label the VTT or script as the missing artifact merely because its text looks similar.
+
+Phase 3B should search the historic source/production receipts for each exact digest. If no artifact matches, create a new versioned UTF-8 final transcript from the verified final spoken wording and silence/cue boundaries, record normalization and SHA-256 in a source map, and update any binding only through a separate reviewed PR. L02–L04 cannot receive final transcripts until their complete audio is recovered or separately authorized and aligned. For L01 and L05–L16, exact script/VTT word coverage is a useful starting point, but contextual listening must verify actual speech, pronunciation, missing/clipped words and cue timing. Preserve the original scripts, VTTs and old unexplained digest as lineage; never overwrite them to force a hash match.
+
+The source map must bind lesson ID, script path/hash, original VTT path/hash, final audio/video path/hash, transcript path/hash, extraction or editorial method, reviewer, rights scope, and correction history. A text transcript needs a readable time structure and accessible treatment of meaningful on-screen information; the synthetic Harbor case must remain privacy-safe.
