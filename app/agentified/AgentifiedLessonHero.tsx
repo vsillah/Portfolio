@@ -29,7 +29,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
   const [mobileWidth, setMobileWidth] = useState(false)
   const [mobileCaption, setMobileCaption] = useState('')
-  const externalCaption = mobileWidth || captionSize === 'L'
+  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId)
   const cueCacheRef = useRef<Array<{ startTime: number; endTime: number; text: string }>>([])
   const endScreenStart = endScreen?.startSeconds
   const captionsChangeRef = useRef(onCaptionsChange)
@@ -108,14 +108,13 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
     const tracks = videoRef.current?.textTracks
     if (!tracks || typeof tracks.addEventListener !== 'function') return
     const sync = () => {
-      const external = (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 620px)').matches) || captionSize === 'L'
       const track = tracks[0]
-      if (external && track?.mode === 'showing') track.mode = 'hidden'
-      captionsChangeRef.current?.(Array.from(tracks).some((item) => item.mode === 'showing' || (external && item.mode === 'hidden')))
+      if (externalCaption && track?.mode === 'showing') track.mode = 'hidden'
+      captionsChangeRef.current?.(Array.from(tracks).some((item) => item.mode === 'showing' || (externalCaption && item.mode === 'hidden')))
     }
     tracks.addEventListener('change', sync)
     return () => tracks.removeEventListener('change', sync)
-  }, [lessonId, videoSrc, captionSize])
+  }, [lessonId, videoSrc, externalCaption])
 
   useEffect(() => {
     setPosterRevealed(false)
@@ -130,7 +129,9 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const label = `${lessonId} ${title} lesson cover`
   const syncEndScreen = (currentTime: number) => setEndScreenVisible(Boolean(endScreen && currentTime >= endScreen.startSeconds))
   const lessonTeachingScenes = mobileTeachingDetails.scenes.filter((scene) => scene.lessonId === lessonId)
-  const syncScene = (currentTime: number) => setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null)
+  const syncScene = (currentTime: number) => {
+    setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null)
+  }
   const teachingScene = lessonTeachingScenes.find((scene) => scene.sceneId === activeTeachingScene)
   useEffect(() => {
     if (lessonId !== 'L07' || !videoSrc) return

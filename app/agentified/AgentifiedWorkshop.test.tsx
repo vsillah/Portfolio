@@ -66,7 +66,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(container.querySelector('video')).toBe(video)
   })
 
-  it.each(['L01', 'L10', 'L16'])('keeps %s caption status aligned with the native track while paused and ended', async (id) => {
+  it.each(['L01', 'L10', 'L16'])('keeps %s caption status aligned with the selected caption surface while paused and ended', async (id) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const track = { mode: 'disabled' }
     const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
@@ -75,7 +75,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
     fireEvent.loadedMetadata(video)
-    expect(track.mode).toBe('showing')
+    expect(track.mode).toBe(id === 'L01' ? 'showing' : 'hidden')
     expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
     track.mode = 'disabled'
     act(() => { tracks.dispatchEvent(new Event('change')) })
@@ -86,6 +86,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
     track.mode = 'showing'
     act(() => { tracks.dispatchEvent(new Event('change')) })
+    expect(track.mode).toBe(id === 'L01' ? 'showing' : 'hidden')
     expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Caption size' })).toBeInTheDocument()
     if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
